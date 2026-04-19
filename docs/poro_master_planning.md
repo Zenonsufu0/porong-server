@@ -10,7 +10,7 @@
 - 수도에는 파견 열차를 타지 않고 **수도 안에서 1막을 완주하는 히든 메인 라인**이 존재한다. 히든 라인의 테마는 **황립기사단 수습 스카우트**다. 수도 길드 의뢰를 성실히 쌓은 플레이어를 길드 대기실에 상주하는 기사단 관찰자가 지켜보다가 수습 제의를 해온다. 상세: `08_story_and_quests/act1_capital_main/poro_act1_capital_hidden_mainline.md`.
 - 1막 메인 7(갈라진 징조) 선택지는 동/서/남/북 4택으로 고정. 수도 잔류는 히든 진입 경로로만 허용.
 - 1막 그림자 루트는 **서브 스토리 2 `빈민가의 그림자`(빈민가 정보기관 그림자)** 가 단독으로 책임한다. 내부 수사·파견 보고 누락·명단 대조·회색 기록 추적은 본 서브가 이어받는 컨셉이다. 히든 메인(기사단)과 서브 2(그림자)의 플래그는 독립이며 1막에서 병행 진행 가능하다.
-- 모든 퀘스트의 상태·대사·보상·해금 판정은 **EmpireRPG(Custom Plugin) 단독**이다. 대사·선택지·연출은 **EmpireRPG 커스텀 대화 UI**가 렌더한다. **BetonQuest는 본 시즌에서 사용하지 않는다.** Citizens는 NPC 배치·외형·클릭 진입점만, MythicMobs는 몹/보스 외형·스폰·스킬 연출만 담당한다.
+- 모든 퀘스트의 상태·대사·보상·해금 판정은 **EmpireRPG(Custom Plugin)가 주도권 단독 보유**한다. (플러그인 체계가 `empire-common`·`empire-rpg`·`empire-life` 등으로 분할되더라도 **`empire-rpg`가 판정·제어권을 모두 쥐고** 나머지는 서비스 공급자 역할만 — 2026-04-19 사용자 결정). 대사·선택지·연출은 **EmpireRPG 커스텀 대화 UI**가 렌더한다. **BetonQuest는 본 시즌에서 사용하지 않는다.** Citizens는 NPC 배치·외형·클릭 진입점만, MythicMobs는 몹/보스 외형·스폰·스킬 연출만 담당한다.
 
 ---
 
@@ -177,7 +177,7 @@
    - 기사단 스카우트와 그림자 정보기관 플래그는 독립, 1막 병행 진행 가능
 
 10. **Custom Plugin 단독 판정 원칙 명문화 — BetonQuest 제거**
-    - 모든 퀘스트의 상태·대사·보상·해금 판정은 **EmpireRPG(Custom Plugin) 단독**
+    - 모든 퀘스트의 상태·대사·보상·해금 판정은 **EmpireRPG(Custom Plugin)가 주도권 단독 보유**(플러그인 체계 분할 시에도 `empire-rpg`가 제어권 유지, 2026-04-19 정정)
     - 대사·선택지·연출·읽기 전용 GUI는 **EmpireRPG 커스텀 대화 UI**(`13_external_plugins_and_custom_ui`의 DialogueRegistry / SessionService / TriggerService 3계층)가 렌더
     - **BetonQuest는 본 시즌에서 사용하지 않는다.** 기존 BetonQuest 패키지 설계(`01_capital` 외)는 본 시즌 범위에서 폐기
     - Citizens는 NPC 배치·외형·클릭 진입점만, 상태 저장·보상 지급 금지
@@ -1132,7 +1132,7 @@ WorldGuard 도입 / 폴리곤 / Multi-World / Y축 제한 / 경계 근처 연출
 - 마을 단계: 자작령 / 백작령 / 후작령
 - **1막 수도 히든 메인 라인 (황립기사단 수습 스카우트)**: `act1_capital_main/poro_act1_capital_hidden_mainline.md` — 길드 의뢰 누적 → 기사단 관찰자 스카우트 → 수습 시험 시퀀스
 - **1막 그림자 루트 (빈민가 정보기관 그림자)**: 서브 2 `빈민가의 그림자` 단독 담당 (`poro_act1_theme_capital_storyline.md`). 내부 수사·파견 보고 누락·명단 대조 컨셉 이관
-- **판정 원칙**: 모든 퀘스트 상태·대사·보상·해금은 EmpireRPG(Custom Plugin) 단독. **BetonQuest 미사용.** 대사·선택지·GUI는 커스텀 대화 UI. Citizens는 배치만, MythicMobs는 스폰만.
+- **판정 원칙**: 모든 퀘스트 상태·대사·보상·해금은 EmpireRPG(Custom Plugin)가 주도권 단독 보유(플러그인 체계 분할 시에도 `empire-rpg`가 제어, 2026-04-19 정정). **BetonQuest 미사용.** 대사·선택지·GUI는 커스텀 대화 UI. Citizens는 배치만, MythicMobs는 스폰만.
 
 ## 09. 업적 / 명예
 - 카테고리 26+: 전투·탐험·생활·영지·특별
@@ -1473,6 +1473,38 @@ WorldGuard 도입 / 폴리곤 / Multi-World / Y축 제한 / 경계 근처 연출
   - 1막 **완료 + 2막 재방문 선택** → 2막 정규, 1막 재방문 보상 없음.
   **플래그 재정의**: `quest.act2_main.m16_theme_choice`(플레이어 선택) · `m16_default_dispatch`(1막 본래 파견지) · `m16_is_cross_theme`(choice ≠ default) · `m16_retro_active_triggered` · `quest.theme.<테마>.m9_completed` · `quest.theme.<테마>.act2_retroactive_queue`(JSON 배열 — **v0.2 JSON 필요 가능성**) · `quest.theme.<테마>.act2_substitute_quest_id`. **후속 설계 필요 3건**: (i) 소급 클리어 재활성화 시 보상 중복 차단 규칙(1막 보상 이미 수령 여부 체크), (ii) 대체 퀘스트 구체 씬 카드 **테마×세력 = 8종** 신규 작성(content-designer 후속), (iii) 2막 주 서사 진행 중 1막 소급 퀘스트 발생 시 **메인 인터럽트 여부** 결정. **플래그 저장소 영향**: `act2_retroactive_queue`가 복합 구조 필요 시 Q3 C안의 v0.2 JSON 허용 타이밍 앞당겨질 가능성(기존 계획 = 플래그 저장소 v0.1 머지 + 2주 내 착수).
 
+- **플러그인 분할 아키텍처 검토 v1 도착 (2026-04-19 implementation-reviewer)**: 파일 `13_external_plugins_and_custom_ui/poro_plugin_split_feasibility_review_v1.md` (229행, 16.5KB). 사용자 지시 "RPG/생활/보스 테마별 분할 검토, 전체 부담 시 RPG/생활 2분할 먼저"에 대한 타당성 자문.
+  - **실측 JAR 추정 = 2~4 MB** (`plugin.yml libraries:` 방식 → fat jar 아님). **"용량 과다"는 현재 임계치 아님** — 분할 진짜 명분은 **재활용성 + 오류 격리 + 생활 단독 배포**로 재분류. 실측은 착수 직전 `./gradlew :empire-rpg:build` 1회로 확정.
+  - **권장 옵션 = B (2분할)**: `empire-common` + `empire-rpg` + `empire-life`. **핵심 실측 근거** — `life` 패키지가 `combat`·`boss`에 **컴파일 의존 없음** 확인(분할 전제 조건이 이미 코드에 내재). `operations`만 4개 도메인 응집점이라 full bundle 서버 전용.
+  - **옵션 C(보스 분리) 반려** — 현재 수요 불명확. **옵션 D(세부 분할) 반려** — ROI 대비 과함.
+  - **단계별 로드맵 5~7 man-day 총**:
+    - 1단계(0.5~1 md) = Gradle multi-module 전환(`settings.gradle.kts` + 서브모듈 `empire-rpg` 하나만, **단일 JAR 배포 그대로**, 코드 이동 없음)
+    - 2단계(1.5~2 md) = `empire-common` 서브모듈 분리 (shade 유지)
+    - 3단계(1~1.5 md) = `empire-common` 독립 Paper 플러그인 승격 or 라이브러리 유지 — 사용자 결정 대기
+    - 4단계(1.5~2 md) = `empire-life` 서브모듈 분리
+    - 5단계(0.5 md) = 생활 서버 단독 배포 스모크 테스트
+  - **판정 원칙 충돌 해소**: "EmpireRPG 단독 판정"은 **BetonQuest 등 외부 판정 엔진 배제**를 뜻하며 JAR 수 규정 아님. 마스터 플래닝 line 13·179·1135 문구를 **"EmpireRPG 플러그인 체계 단독"**으로 미세 수정하면 분할과 정합. **원칙 자체 변경 불필요**(CLAUDE.md "기존 구조 유지" 원칙과 정합).
+  - **남은 오픈 4건**: 문구 확장 승인 / 착수 시점(플래그 저장소 PR4~PR8 머지 전 vs 후) / `empire-common`을 플러그인 승격 vs 라이브러리 유지 / 생활 서버 개설 시급성.
+- **플러그인 분할 4 오픈 질문 일괄 결정 (2026-04-19 사용자 결정)**:
+  - **(a) "EmpireRPG 단독" 문구 정의 명확화**: "empire-rpg가 다른 플러그인에서 **모든 주도권을 잡고 간다**" — 플러그인 체계가 분할되어도 `empire-rpg`가 판정·제어권을 단독 보유, `empire-common`·`empire-life` 등은 서비스 공급자 역할. 마스터 플래닝 line 13·179·1135 문구를 **"EmpireRPG가 주도권 단독 보유"**로 미세 수정(완료).
+  - **(b) 착수 시점 = 플래그 저장소 PR4~PR8 머지 후**: 플래그 PR4~PR8가 `common/flag/`에 더 들어오고 나서 서브모듈 경계가 명확해진 뒤 분할 시작. 현재 PR3까지 머지됐으므로 PR4 부터 진행 후 분할 진입.
+  - **(c) `empire-common` = 라이브러리 유지**: 플러그인 승격하면 Paper 라이프사이클에 `empire-common`이 독립 참여자가 돼 주도권 분산. "empire-rpg가 모든 주도권" 원칙과 정합하려면 **shade된 라이브러리** 형태로 유지. 3단계("플러그인 승격")는 **미착수 상태로 영구 보류** 또는 필요 시 재개.
+  - **(d) 생활 서버 개설 시급성 = 낮음**: 현재 급하지 않음. 4·5단계(`empire-life` 서브모듈 분리 + 단독 배포 스모크)는 **후순위**로 밀리며 시즌1 운영 중 또는 시즌2 이후 재개 가능한 형태로 코드만 정리.
+  - **실제 진행 로드맵 (축소판)**:
+    - 플래그 저장소 PR4~PR8 완주 → 그 후 1단계(Gradle multi-module, 0.5~1 md) + 2단계(empire-common 서브모듈 분리, 1.5~2 md) **2개만 우선 진행** (총 2~3 md).
+    - 3단계(공용 플러그인 승격) = **영구 보류** (주도권 원칙 위반).
+    - 4·5단계(life 분리·단독 배포) = **생활 서버 요구 발생 시 재개**. 현재는 기획·코드 정리 수준에서 멈춤.
+  - **반영 범위**: 마스터 플래닝 line 13·180·1135 문구 미세 수정(완료), 본 변경 로그 엔트리, `poro_plugin_split_feasibility_review_v1.md` 상단 수용 확정 주석.
+- **초기 가격 v2 시간당 가치 역산 드래프트 도착 (2026-04-19 economy-reviewer)**: 파일 `10_seed_and_config_tables/poro_initial_price_seed_review_v2_hourly_value.md` (307행, 20.7KB). v1 시장 앵커 4원칙 **전면 폐기**, 시간당 가치 역산으로 **완전 교체**.
+  - **핵심 수식**: `npc_seed_price(x) = GPH / MPH_x × k_category` (GPH = 시간당 골드 산출 기대값, MPH_x = 재화 시간당 공급 기대값, k = 0.7~1.0 카테고리 계수)
+  - **1막 중반 GPH 기준선 = 1,800G/h** 고정 → 단일 튜닝 레버(45일차 재조정 시 이 하나만 바꾸면 전체 가격표 재계산)
+  - **역산 적용 4 카테고리**: (a) 기초 소비품 / (b) 경매 시드 풀 / (e) 랜덤박스 / (f) 강화 보조 물약
+  - **예외 2 카테고리**: (c) 영지 청사진(진행도 게이트 유지) / (d) 치장 확정 구매(시장 앵커 기준선만 제공)
+  - **v1 대비 조정**: 기초 소비품 소폭 상향 / 치장 희귀 이상 **18,000→9,000 대폭 하향**(접근성 크게 개선) / 랜덤박스 소폭 하향 / 강화 보조 물약 소폭 상향
+  - **45일차 이탈 감지 = 반자동(알람 + 수동 승인) 권장**. 완전 자동은 시즌2 재검토.
+  - **리스크 4종**: GPH 추정 오차 / (c) 게이트 충돌 / (f) 원가 변동 주기 / 치장 수집 조기 포화
+  - **남은 오픈**: Closed Beta 3일 GPH 예비 관측 실시 여부 / 치장 영웅·전설 일일/주간 구매 상한 / `seeds/npc_shop_prices.csv` v2 기준 재적재 일정 / `wallet_log` 시간당 집계 뷰 스펙 초안.
+  - **v1 폐기 처리**: `poro_initial_price_seed_review_v1.md`는 역사 기록으로 보존(삭제 X), 실제 시드가 출력은 v2 기준. v1 유지분은 운영 시드 풀 조건부 도입·45일차 지표 5개·리스크 3종 뿐.
 - **2막 파견지 후속 3건 결정 완료 + 대체 퀘스트 v1 수용 + 초기 가격 역산 재자문 지시 (2026-04-19 후반)**:
   - **(a) 보상 중복 차단 확정**: 소급 클리어·대체 퀘스트 진입 시 1막 본편 보상 이미 수령 여부를 `quest.theme.<테마>.m9_reward_claimed` 플래그로 체크. 수령분은 재지급하지 않음.
   - **(b) 대체 퀘스트 v1 권장안 수용 확정**: 파일 `08_story_and_quests/poro_act2_substitute_quests_by_theme_faction_v1.md` (8 씬: 동·서·남·북 × 기사단·그림자). 보상 본편 70~80% 감액, 훈장 I·복선 아이템 풀 지급. 공용 NPC(기사단 파견관 + 그림자 연락책) 재사용. 세부 조정은 v2에서(서부 풍향계 심기 충돌·부분 진행자 세력 불일치 보상·"본인 보관" 플래그 4막 수거).
