@@ -1,5 +1,6 @@
-# 포로 서버 직업 3분류 · 전사 3무기 · 암살자 3무기 · 마법사 4무기 설계 파일 존재 여부 검토 + 누락 보강 제안 v1
+# 포로 서버 직업 3분류 · 전사 3무기 · 암살자 3무기 · 마법사 **3무기** 설계 파일 존재 여부 검토 + 누락 보강 제안 v1
 
+> **상태 (2026-04-20 사용자 결정)**: **마법사 4번째 무기(촉매서 · 원소 영창구 · 봉인 장패) 전부 반려**. **마법사 = 포로 기준 "3무기" 유지**(스태프 · 완드 · 룬). 사용자 "마법사 4개" 지시는 재검토 결과 철회. **남은 과제**: 파티 3명 상한 힐 공백 해결을 마법사 4무기가 아닌 다른 축(소비품·다른 직업 무기 힐 기믹·힐 없는 전투 설계)에서 찾기. 후속 combat-balance 자문 대상.
 > **작성일**: 2026-04-19 content-designer
 > **검토 범위**: `docs/05_classes_and_balance/`, `docs/poro_master_planning.md`, `docs/08_story_and_quests/`, `docs/01_boss_design_core/`, `custom-plugins/empire-rpg/src/main/resources/seeds/`, `custom-plugins/empire-rpg/src/main/java/com/poro/empire/combat/skills/`
 > **상위 규약**: `CLAUDE.md` — 전사 3무기 정체성·각인은 이미 정리됨, 암살자·마법사는 기획 초안 수준 허용
