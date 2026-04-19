@@ -25,3 +25,5 @@
 - `11_discord_bot_and_user_views`: 디코 봇 명령, 응답 포맷, 유저 조회 카드 예시
 - `12_testing_and_validation`: 테스트 체크리스트, 스모크 테스트, 검증 시나리오
 - `13_external_plugins_and_custom_ui`: 외부 플러그인 역할 분리, Citizens 자동 생성, BetonQuest 제거 노선, 커스텀 대화 UI, 테마형 보스 입장 UI
+
+- `poro_master_planning_v2.md`: 시즌1 스토리·보스·드랍·생활/영지·세력 구조를 한눈에 보는 상위 통합 기획서

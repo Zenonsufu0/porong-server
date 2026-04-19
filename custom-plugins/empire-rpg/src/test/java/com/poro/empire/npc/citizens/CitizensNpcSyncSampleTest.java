@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
@@ -130,6 +131,11 @@ class CitizensNpcSyncSampleTest {
         }
 
         @Override
+        public Result<Optional<CitizensNpcHandle>> findNpcByEntity(org.bukkit.entity.Entity entity) {
+            return Result.success(Optional.empty());
+        }
+
+        @Override
         public Result<CitizensNpcHandle> createNpc(CitizensNpcSeed seed) {
             int id = idSequence.incrementAndGet();
             NpcState state = new NpcState(id, seed.npcSeedId(), seed.entityType(), seed.displayName());
@@ -184,6 +190,15 @@ class CitizensNpcSyncSampleTest {
         }
 
         @Override
+        public Result<String> getMetadata(CitizensNpcHandle npc, String key) {
+            NpcState state = byId.get(npc.npcId());
+            if (state == null) {
+                return Result.success("");
+            }
+            return Result.success(state.metadata.getOrDefault(key, ""));
+        }
+
+        @Override
         public Result<Void> deleteNpc(CitizensNpcHandle npc) {
             byId.remove(npc.npcId());
             return Result.success();
@@ -227,4 +242,3 @@ class CitizensNpcSyncSampleTest {
         }
     }
 }
-

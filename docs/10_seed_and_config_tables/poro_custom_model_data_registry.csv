@@ -1,0 +1,15 @@
+customModelData,domain,category,item_id,asset_path,owner,status,version_added,version_deprecated,flag_key,notes,axis,cosmetic_source
+1111000,weapon,warrior_greatsword_t1_s1,poro:weapon/warrior/greatsword_t1_s1,models/item/weapon/greatsword/t1_s1.json,@zenonsufu0,designed,s1-v0.1.0,,,"T1 대검 S1 프로토타입",equipment,
+1111020,weapon,warrior_greatsword_t1_s2,poro:weapon/warrior/greatsword_t1_s2,models/item/weapon/greatsword/t1_s2.json,agent:content-designer,reserved,s1-v0.1.0,,,,equipment,
+1112000,weapon,warrior_katana_t1_s1,poro:weapon/warrior/katana_t1_s1,models/item/weapon/katana/t1_s1.json,agent:content-designer,reserved,s1-v0.1.0,,,,equipment,
+1113000,weapon,warrior_spear_t1_s1,poro:weapon/warrior/spear_t1_s1,models/item/weapon/spear/t1_s1.json,agent:content-designer,reserved,s1-v0.1.0,,,,equipment,
+1121000,weapon,warrior_greatsword_t2_s1,poro:weapon/warrior/greatsword_t2_s1,models/item/weapon/greatsword/t2_s1.json,agent:content-designer,reserved,s1-v0.1.0,,,,equipment,
+2021000,cosmetic,weapon_skin_greatsword_flame,poro:cosmetic/weapon/greatsword_flame,models/item/cosmetic/weapon/greatsword_flame.json,@zenonsufu0,designed,s1-v0.1.0,,,"무기 치장 변형 레이어",cosmetic,fixed_purchase
+2022000,cosmetic,cape_basic_blue,poro:cosmetic/cape/basic_blue,models/item/cosmetic/cape/basic_blue.json,@zenonsufu0,reserved,s1-v0.1.0,,,,cosmetic,random_box
+2023000,cosmetic,mount_skin_wolf_white,poro:cosmetic/mount/wolf_white,models/item/cosmetic/mount/wolf_white.json,@zenonsufu0,reserved,s1-v0.1.0,,,,cosmetic,ranker
+3000001,ui,glyph_common_back,poro:ui/common/back,font/common/back.png,@zenonsufu0,designed,s1-v0.1.0,,,"공용 뒤로가기 글리프",,
+3000002,ui,glyph_common_confirm,poro:ui/common/confirm,font/common/confirm.png,@zenonsufu0,designed,s1-v0.1.0,,,,,
+3001001,ui,screen_wallet_bg_main,poro:ui/wallet/bg_main,font/ui/wallet/bg_main.png,@zenonsufu0,designed,s1-v0.1.0,,,"월렛 메인 배경",,
+4000001,block,blueprint_2x2_base,poro:block/blueprint/2x2_base,models/block/blueprint/2x2_base.json,agent:feature-planner,reserved,s1-v0.1.0,,ff_custom_block_v1,"2×2 청사진 블록 검토 중",,
+5000001,consumable,food_basic_bread,poro:consumable/food/basic_bread,models/item/consumable/food/basic_bread.json,@zenonsufu0,reserved,s1-v0.1.0,,,,consumable,
+9000001,reserved,tmp_prototype_slot,poro:reserved/tmp/prototype_01,,agent:implementation-reviewer,reserved,s1-v0.1.0,,,"임시 프로토타입용 예비 번호",,

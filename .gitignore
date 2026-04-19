@@ -1,25 +1,39 @@
-**/build/
-**/out/
 .gradle/
-
-server/
-
-*.log
+build/
+out/
+run/
 logs/
-
+*.log
 *.db
 *.sqlite
 *.sqlite3
-*.mv.db
 
-.env
-.env.*
-*.secret
-secrets.yml
+world/
+world_nether/
+world_the_end/
 
+plugins/**/logs/
+plugins/**/cache/
+plugins/**/userdata/
+plugins/**/dump/
+plugins/**/debug/
+
+# IDE / editor
 .idea/
-*.iml
 .vscode/
 
-.DS_Store
-Thumbs.db
+# local temp / backups
+backup/
+tmp/
+
+# local runtime server data
+server/
+
+# local skill symlink
+.agents/skills/ccpm
+
+# archived docs (구식 버전 보존용, 히스토리만 유지)
+docs/_archive/
+
+# local backup files (예: AGENTS.md.bak.YYYYMMDD-HHMMSS)
+*.bak.*

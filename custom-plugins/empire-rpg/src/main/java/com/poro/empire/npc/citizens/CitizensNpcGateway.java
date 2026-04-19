@@ -1,8 +1,10 @@
 package com.poro.empire.npc.citizens;
 
 import com.poro.empire.common.result.Result;
+import org.bukkit.entity.Entity;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CitizensNpcGateway {
     String META_SEED_ID = "empire.npc_seed_id";
@@ -19,6 +21,8 @@ public interface CitizensNpcGateway {
 
     Result<List<CitizensNpcHandle>> listManagedNpcs();
 
+    Result<Optional<CitizensNpcHandle>> findNpcByEntity(Entity entity);
+
     Result<CitizensNpcHandle> createNpc(CitizensNpcSeed seed);
 
     Result<CitizensNpcHandle> recreateNpc(CitizensNpcHandle existing, CitizensNpcSeed seed);
@@ -33,6 +37,7 @@ public interface CitizensNpcGateway {
 
     Result<Void> setMetadata(CitizensNpcHandle npc, String key, String value);
 
+    Result<String> getMetadata(CitizensNpcHandle npc, String key);
+
     Result<Void> deleteNpc(CitizensNpcHandle npc);
 }
-
