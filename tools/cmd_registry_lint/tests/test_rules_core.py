@@ -77,5 +77,40 @@ class R3ItemIdCmdOneToOneTests(unittest.TestCase):
         self.assertEqual(errors, [])
 
 
+class R4ReservedRangeTests(unittest.TestCase):
+    def test_positive_out_of_range_detected(self):
+        # weapon domain인데 2xxxxxx 사용 → A=2는 cosmetic 구간
+        rows = _load(FIXTURES / "out_of_range.csv")
+        errors = rules.check_reserved_range(rows)
+        self.assertEqual(len(errors), 1)
+        self.assertEqual(errors[0].code, "OUT_OF_RANGE")
+        self.assertEqual(errors[0].row, 2)
+
+    def test_negative_no_out_of_range_in_clean_csv(self):
+        if not CLEAN_CSV.exists():
+            self.skipTest("스켈레톤 CSV 부재")
+        rows = _load(CLEAN_CSV)
+        errors = rules.check_reserved_range(rows)
+        self.assertEqual(errors, [])
+
+
+class R5EnumSemverTests(unittest.TestCase):
+    def test_positive_bad_enum_and_semver_detected(self):
+        # status=IN_REVIEW (enum 위반) + version_added=v0.1.0 (semver 위반, 's1-' prefix 누락)
+        rows = _load(FIXTURES / "bad_enum_semver.csv")
+        errors = rules.check_enum_and_semver(rows)
+        codes = {e.code for e in errors}
+        self.assertIn("BAD_STATUS", codes)
+        self.assertIn("BAD_SEMVER", codes)
+        self.assertEqual(len(errors), 2)
+
+    def test_negative_no_enum_semver_errors_in_clean_csv(self):
+        if not CLEAN_CSV.exists():
+            self.skipTest("스켈레톤 CSV 부재")
+        rows = _load(CLEAN_CSV)
+        errors = rules.check_enum_and_semver(rows)
+        self.assertEqual(errors, [])
+
+
 if __name__ == "__main__":
     unittest.main()

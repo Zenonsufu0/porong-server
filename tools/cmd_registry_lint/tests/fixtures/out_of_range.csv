@@ -1,0 +1,2 @@
+customModelData,domain,category,item_id,asset_path,owner,status,version_added,version_deprecated,flag_key,notes,axis,cosmetic_source
+2111000,weapon,warrior_greatsword_t1_s1,poro:weapon/warrior/greatsword_t1_s1,models/item/weapon/greatsword/t1_s1.json,@zenonsufu0,designed,s1-v0.1.0,,,"weapon domain은 A=1 (1xxxxxx)이어야 하는데 2xxxxxx 사용",equipment,

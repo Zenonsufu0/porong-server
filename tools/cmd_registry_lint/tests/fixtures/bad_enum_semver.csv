@@ -1,0 +1,2 @@
+customModelData,domain,category,item_id,asset_path,owner,status,version_added,version_deprecated,flag_key,notes,axis,cosmetic_source
+1111000,weapon,warrior_greatsword_t1_s1,poro:weapon/warrior/greatsword_t1_s1,models/item/weapon/greatsword/t1_s1.json,@zenonsufu0,IN_REVIEW,v0.1.0,,,"status enum 위반 + semver 포맷 위반(prefix 누락)",equipment,
