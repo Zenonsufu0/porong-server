@@ -59,6 +59,16 @@ public final class NpcSyncBootstrap {
             return Result.failure(syncResult.errorCode(), syncResult.message(), syncResult.cause());
         }
 
+        if (plugin.getServer().getPluginManager().isPluginEnabled("BetonQuest")) {
+            plugin.getServer().getPluginManager().registerEvents(
+                    new CitizensBetonQuestConversationListener(plugin, logger, gateway),
+                    plugin
+            );
+            logger.info("Registered Citizens -> BetonQuest conversation click bridge listener.");
+        } else {
+            logger.warn("BetonQuest is not enabled. Citizens click conversation bridge listener is skipped.");
+        }
+
         CitizensNpcSyncReport report = syncResult.value();
         logger.info("NpcSyncBootstrap completed. created=" + report.createdCount()
                 + ", updated=" + report.updatedCount()
@@ -67,4 +77,3 @@ public final class NpcSyncBootstrap {
         return Result.success(new NpcSyncRuntime(seedLoader, syncService, gateway, report, true));
     }
 }
-

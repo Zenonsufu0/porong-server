@@ -16,6 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 public final class ReflectionCitizensNpcGateway implements CitizensNpcGateway {
     private final JavaPlugin plugin;
@@ -76,6 +77,23 @@ public final class ReflectionCitizensNpcGateway implements CitizensNpcGateway {
             return Result.success(List.copyOf(managed));
         } catch (Exception exception) {
             return Result.failure(ErrorCode.UNKNOWN, "Failed to list managed Citizens NPCs", exception);
+        }
+    }
+
+    @Override
+    public Result<Optional<CitizensNpcHandle>> findNpcByEntity(Entity entity) {
+        if (!available) {
+            return Result.success(Optional.empty());
+        }
+        try {
+            Object registry = getRegistry();
+            Object npc = invokeOptional(registry, "getNPC", entity);
+            if (npc == null) {
+                return Result.success(Optional.empty());
+            }
+            return Result.success(Optional.of(toHandle(npc)));
+        } catch (Exception exception) {
+            return Result.failure(ErrorCode.UNKNOWN, "Failed to resolve Citizens NPC from clicked entity", exception);
         }
     }
 
@@ -229,6 +247,22 @@ public final class ReflectionCitizensNpcGateway implements CitizensNpcGateway {
     }
 
     @Override
+    public Result<String> getMetadata(CitizensNpcHandle npc, String key) {
+        if (!available) {
+            return Result.success("");
+        }
+        try {
+            Object npcObject = findNpcObject(npc.npcId());
+            if (npcObject == null) {
+                return Result.success("");
+            }
+            return Result.success(readMetadata(npcObject, key));
+        } catch (Exception exception) {
+            return Result.failure(ErrorCode.UNKNOWN, "Failed to read metadata: " + key + " for npc_id=" + npc.npcId(), exception);
+        }
+    }
+
+    @Override
     public Result<Void> deleteNpc(CitizensNpcHandle npc) {
         if (!available) {
             return Result.success();
@@ -343,9 +377,32 @@ public final class ReflectionCitizensNpcGateway implements CitizensNpcGateway {
             Object value = invokeOptional(data, "get", key);
             if (value == null) {
                 Object alt = invokeOptional(data, "get", key, "");
-                return alt == null ? "" : String.valueOf(alt);
+                value = alt;
             }
-            return String.valueOf(value);
+            String resolved = value == null ? "" : String.valueOf(value);
+            if (!resolved.isBlank()) {
+                return resolved;
+            }
+
+            if (key.startsWith("empire.")) {
+                String shortKey = key.substring("empire.".length());
+                Object shortValue = invokeOptional(data, "get", shortKey);
+                if (shortValue == null) {
+                    shortValue = invokeOptional(data, "get", shortKey, "");
+                }
+                if (shortValue != null && !String.valueOf(shortValue).isBlank()) {
+                    return String.valueOf(shortValue);
+                }
+
+                Object empireRoot = invokeOptional(data, "get", "empire");
+                if (empireRoot instanceof Map<?, ?> rootMap) {
+                    Object nested = rootMap.get(shortKey);
+                    if (nested != null) {
+                        return String.valueOf(nested);
+                    }
+                }
+            }
+            return "";
         } catch (Exception exception) {
             logger.warn("Failed to read Citizens metadata key=" + key + " due to " + exception.getMessage());
             return "";
@@ -354,10 +411,15 @@ public final class ReflectionCitizensNpcGateway implements CitizensNpcGateway {
 
     private void setMetadata(Object npc, String key, String value) throws Exception {
         Object data = invoke(npc, "data");
-        if (!invokeBestEffort(data, "setPersistent", key, value)) {
-            if (!invokeBestEffort(data, "set", key, value)) {
-                throw new IllegalStateException("Could not write Citizens metadata key=" + key);
-            }
+        boolean wrote = invokeBestEffort(data, "setPersistent", key, value) || invokeBestEffort(data, "set", key, value);
+        if (!wrote) {
+            throw new IllegalStateException("Could not write Citizens metadata key=" + key);
+        }
+
+        if (key.startsWith("empire.")) {
+            String shortKey = key.substring("empire.".length());
+            invokeBestEffort(data, "setPersistent", shortKey, value);
+            invokeBestEffort(data, "set", shortKey, value);
         }
     }
 

@@ -62,18 +62,29 @@ public final class CitizensNpcSyncService {
             return Result.failure(managedResult.errorCode(), managedResult.message(), managedResult.cause());
         }
 
+        int removed = 0;
         Map<String, CitizensNpcHandle> existingBySeedId = new LinkedHashMap<>();
         for (CitizensNpcHandle managedNpc : managedResult.value()) {
             if (managedNpc.seedId() == null || managedNpc.seedId().isBlank()) {
                 continue;
             }
-            existingBySeedId.put(managedNpc.seedId(), managedNpc);
+            CitizensNpcHandle previous = existingBySeedId.putIfAbsent(managedNpc.seedId(), managedNpc);
+            if (previous != null) {
+                Result<Void> deleteDuplicate = gateway.deleteNpc(managedNpc);
+                if (deleteDuplicate.isFailure()) {
+                    return Result.failure(deleteDuplicate.errorCode(), deleteDuplicate.message(), deleteDuplicate.cause());
+                }
+                removed++;
+                logger.warn("Removed duplicated managed NPC for same npc_seed_id="
+                        + managedNpc.seedId()
+                        + ", kept_npc_id=" + previous.npcId()
+                        + ", removed_npc_id=" + managedNpc.npcId());
+            }
         }
 
         int activeSeeds = 0;
         int created = 0;
         int updated = 0;
-        int removed = 0;
         int skipped = 0;
         int invalid = 0;
 
@@ -199,4 +210,3 @@ public final class CitizensNpcSyncService {
         return value == null || value.isBlank();
     }
 }
-
