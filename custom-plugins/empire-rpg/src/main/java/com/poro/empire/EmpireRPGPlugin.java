@@ -63,6 +63,17 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         this.foundationContext = foundationResult.value();
         this.foundationContext.logger().domain("foundation").info("Foundation bootstrap completed.");
 
+        Result<Void> dbInitResult = this.foundationContext.databaseBootstrapper().initialize();
+        if (dbInitResult.isFailure()) {
+            getLogger().severe("Failed to initialize database: " + dbInitResult.message());
+            if (dbInitResult.cause() != null) {
+                getLogger().severe("Cause: " + dbInitResult.cause().getMessage());
+            }
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+        this.foundationContext.logger().domain("db.migration").info("Database initialize completed.");
+
         Result<MasterRegistryContext> masterRegistryResult = MasterRegistryBootstrap.bootstrap(this, foundationContext);
         if (masterRegistryResult.isFailure()) {
             getLogger().severe("Failed to load master registry: " + masterRegistryResult.message());

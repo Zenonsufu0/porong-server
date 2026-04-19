@@ -28,6 +28,9 @@ dependencies {
     compileOnly("me.clip:placeholderapi:2.11.6")
     compileOnly("net.luckperms:api:5.4")
 
+    // Flag store v0.1 PR0: SQLite JDBC (runtime-loaded via plugin.yml libraries:)
+    compileOnly("org.xerial:sqlite-jdbc:3.46.1.0")
+
     testImplementation(platform("org.junit:junit-bom:5.10.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
