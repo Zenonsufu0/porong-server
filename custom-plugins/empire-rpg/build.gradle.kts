@@ -41,6 +41,9 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    // Flag store v0.1 PR3: SQLite in-memory 통합 테스트용(런타임은 plugin.yml libraries:)
+    testImplementation("org.xerial:sqlite-jdbc:3.46.1.0")
 }
 
 tasks.withType<JavaCompile>().configureEach {
