@@ -1,71 +1,52 @@
-# CLAUDE.md
+# Poro Server global rules
 
-## 프로젝트 정체성
-이 저장소는 포로 서버 관련 기획, 시스템 설계, 데이터 구조 설계, 구현 계획 정리에 사용된다.
-답변과 문서는 기본적으로 한국어로 작성한다.
+- Default response language is Korean.
+- This repository is for the Poro Server 45-day seasonal project server.
+- Always read `docs/00_master_plan.md` before planning or implementing major changes.
+- If a specific docs file exists for the task, read it before editing:
+  - Plugin/system work: `docs/01_plugin_architecture/index.md`
+  - DB/API/statistics: `docs/02_database_api_stats/index.md`
+  - Discord/onboarding: `docs/03_discord_onboarding_bot/index.md`
+  - Combat/skills: `docs/04_combat_weapon_skills/index.md`
+  - Island/farm/power: `docs/05_island_farm_system/index.md`
+  - Fields/bosses/drops: `docs/06_fields_bosses/index.md`
+  - Boss patterns: `docs/07_boss_pattern_modules/index.md`
+  - Resource pack/assets: `docs/08_resourcepack_pipeline/index.md`
+  - Terms/policy: `docs/09_terms_and_policy/index.md`
+  - Roadmap/issues: `docs/10_development_roadmap/index.md`
+  - Remaining decisions: `docs/11_remaining_decisions/index.md`
 
-## 최우선 원칙
-- 이미 정해진 포로 서버 기준을 먼저 존중한다.
-- 기존 기준과 충돌하는 제안은 마음대로 확정하지 말고, 충돌 지점을 먼저 설명한다.
-- 가능하면 작은 단위로 나누어 설계하고 구현한다.
-- 과한 재설계보다 현재 구조를 유지하면서 확장하는 방향을 우선한다.
-- 애매한 사항은 추측으로 단정하지 말고 오픈 질문으로 남긴다.
-- 변경된 설정은 poro_master_planning.md에 반영한다.
+## Safety and scope
 
-## 현재 포로 서버 기준 요약
-- 장비는 T1/T2 2단계 구조다.
-- T1은 성장용, T2는 최종 파밍 장비다.
-- T2는 재료 제작형 구조를 우선한다.
-- T2 세트는 5종이며 각 세트의 플레이스타일 정체성을 유지한다.
-- 강화는 최대 25강, 파괴/하락 없음 구조다.
-- 강화는 고정 수치와 옵션 수치를 모두 올린다.
-- 잠재는 3줄 구조, 등급 구조, 이탈 잠재 규칙을 가진다.
-- 공용각인은 직업각인 1개 + 공용각인 3개 구조다.
-- 상태 체계는 버프 / 디버프(상태이상, 제어, 표식류) 분류를 따른다.
-- 피해 증가 카테고리는 일반 / 태그 / 조건부 3개로 분리한다.
-- 태그는 최대 2개까지 적용한다.
-- 전사 3무기(대검, 태도, 창)의 기본 방향과 각인 정체성은 이미 정리되어 있다.
-- 운영 목표는 장비/각인/스탯/통계 데이터를 DB에 저장하고 웹/디스코드 봇에서도 조회 가능하게 만드는 것이다.
+- Do not modify unrelated project areas.
+- Do not touch `server/`, `security/`, `ops/`, `tests/`, `scripts/`, `custom-plugins/`, `.github/` unless the user explicitly asks for implementation, server configuration, tests, scripts, plugin code, or CI work.
+- When asked for planning or documentation, edit only `docs/` unless explicitly told otherwise.
+- When asked for plugin implementation, prefer `custom-plugins/EmpireRPG` or the existing EmpireRPG plugin path.
+- When asked for live server plugin files, only edit `server/plugins` or `server-config` if explicitly requested.
+- Never commit secrets, tokens, IPs, passwords, Discord bot tokens, API keys, or database credentials.
 
-## 작업 방식
-항상 아래 순서를 우선한다.
+## Final design source of truth
 
-1. 요청의 목표를 짧게 정리한다.
-2. 기존 포로 서버 기준과 충돌 여부를 먼저 확인한다.
-3. 필요하면 적절한 서브에이전트에 역할을 위임한다.
-4. 결과를 사람이 읽기 쉬운 한국어로 다시 정리한다.
-5. 마지막에 다음 단계 또는 남은 확인 포인트를 제시한다.
+- 1st season is a 45-day seasonal project server, not a long-term permanent server.
+- Opening model: Discord-gated official opening, no public test.
+- Core plugin: EmpireRPG owns combat, equipment, island/farm, boss rewards, collections, DB, API, Discord/web integration data.
+- MythicMobs is for vanilla-based mobs/boss shells and simple visual skills.
+- IridiumSkyblock is only the personal island shell.
+- 1st season bosses are vanilla-enhanced; ModelEngine/BetterModel/FMM are deferred to a later expansion.
+- Common engravings are removed from 1st season.
+- Player skill design excludes persistent player AoE zones, target marks, defense reduction, and received-damage-increase debuffs.
+- Island/farm uses island storage and island-wide magic power, not hopper/cable logistics in 1st season.
 
-## 문서 작성 원칙
-- 기획서는 "개요 → 목표 → 핵심 규칙 → 범위 → 비범위 → 구현 포인트 → 오픈 질문" 흐름을 선호한다.
-- 구현 계획은 "목표 → 선행조건 → 작업 분해 → 리스크 → 테스트 포인트 → 1차 버전" 흐름을 선호한다.
-- 수치/밸런스 검토는 "장점 → 위험요소 → 조정 제안" 형식으로 정리한다.
-- 표가 꼭 필요하지 않다면 문단과 불릿 중심으로 작성한다.
+## Assets
 
-## 서브에이전트 사용 원칙
-아래 상황에서는 서브에이전트 활용을 우선 고려한다.
+- Asset work lives under `assets/source`.
+- Export outputs belong under `assets/export/resourcepack`.
+- For Blockbench work, also follow:
+  - `assets/source/CLAUDE.md`
 
-- 기능 기획 정리: feature-planner
-- 전투/밸런스/스킬/세트/각인 검토: combat-balance
-- 퀘스트/던전/보스/드랍/지역 설계: content-designer
-- DB/저장 구조/API/통계 조회 모델 설계: data-schema
-- 실제 구현 단위 분해/리스크/테스트 포인트 정리: implementation-reviewer
-- 강화/큐브/재료/골드/파밍 구조 검토: economy-reviewer
+## Response/output expectations
 
-## codex MCP 사용 원칙
-- 기술 타당성, 구현 리스크, 작업 분해, 데이터 구조 대안 검토가 필요하면 연결된 codex MCP 활용을 고려한다.
-- codex 검토 결과는 그대로 복사하지 말고, 포로 서버 기준에 맞게 다시 정리한다.
-- codex가 제안한 내용이 기존 기준과 충돌하면 충돌 지점을 먼저 설명한다.
-
-## 금지
-- 기존에 확정된 세계관/장비/전투/성장 구조를 이유 없이 뒤집지 않는다.
-- 요청 없는 대규모 리팩터링, 대규모 수치 재설계, 과한 범위 확장을 하지 않는다.
-- 민감 정보, 비밀값, 운영 키를 읽거나 출력하지 않는다.
-- 확정되지 않은 내용을 이미 확정된 설정처럼 말하지 않는다.
-
-## 응답 마무리 형식
-가능하면 마지막에 아래 3가지를 포함한다.
-
-- 이번에 정리한 핵심
-- 남은 확인 포인트
-- 다음 추천 작업
+- Be direct and practical.
+- Before changing files, summarize the intended files to change.
+- After changing files, summarize changed files and what was changed.
+- Prefer small, reviewable changes over broad rewrites.
