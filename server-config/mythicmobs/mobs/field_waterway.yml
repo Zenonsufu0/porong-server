@@ -1,0 +1,72 @@
+# 필드 3: 오염된 수로 (corrupted_waterway)
+# 권장 강화: 8강~13강 / 필드 레벨: 3
+# EmpireRPG drop hook: waterway_normal_drop / waterway_elite_drop / waterway_lord_drop
+
+Waterway_Drowned:
+  Type: DROWNED
+  Display: '&2오염 익사체'
+  Health: 800
+  Damage: 25
+  Options:
+    MovementSpeed: 0.20
+    PreventOtherDrops: true
+    AlwaysShowName: false
+    NaturallySpawned: false
+  Drops:
+  - exp 60
+  AIGoalSelectors:
+  - clear
+  - meleeattack
+  - randomstroll 0.5
+
+Waterway_Guardian:
+  Type: GUARDIAN
+  Display: '&2수로 파수꾼'
+  Health: 750
+  Damage: 22
+  Options:
+    MovementSpeed: 0.18
+    PreventOtherDrops: true
+    AlwaysShowName: false
+    NaturallySpawned: false
+  Drops:
+  - exp 55
+  AIGoalSelectors:
+  - clear
+  - meleeattack
+
+Waterway_LurkerElite:
+  Type: DROWNED
+  Display: '&a오염 군주의 수하'
+  Health: 4000
+  Damage: 50
+  Options:
+    MovementSpeed: 0.25
+    PreventOtherDrops: true
+    AlwaysShowName: true
+    KnockbackResistance: 0.5
+    NaturallySpawned: false
+  Drops:
+  - exp 250
+  Skills:
+  - potion{type=SLOW;duration=80;level=1} @target ~onAttack 0.5
+  - skill{s=Waterway_ToxicBurst} ~onTimer:80
+
+Waterway_Lord:
+  Type: ELDER_GUARDIAN
+  Display: '&a&l수로 군주'
+  Health: 310000
+  Damage: 70
+  Options:
+    AlwaysShowName: true
+    PreventOtherDrops: true
+    KnockbackResistance: 1.0
+    MovementSpeed: 0.16
+    MaxCombatDistance: 40
+    NaturallySpawned: false
+  Drops:
+  - exp 7000
+  Skills:
+  - skill{s=Waterway_ToxicSpray} ~onTimer:320
+  - potion{type=MINING_FATIGUE;duration=200;level=2} @PlayersInRadius{r=15} ~onTimer:240
+  - particles{p=WATER_SPLASH;amount=20;hs=1;vs=0.3} @self ~onTimer:15

@@ -1,0 +1,72 @@
+# 필드 4: 무너진 초소 (ruined_outpost)
+# 권장 강화: 12강~16강 / 필드 레벨: 4
+# EmpireRPG drop hook: outpost_normal_drop / outpost_elite_drop / fallen_knight_drop
+
+Outpost_Pillager:
+  Type: PILLAGER
+  Display: '&8타락 약탈자'
+  Health: 1200
+  Damage: 35
+  Options:
+    MovementSpeed: 0.25
+    PreventOtherDrops: true
+    AlwaysShowName: false
+    NaturallySpawned: false
+  Drops:
+  - exp 90
+  AIGoalSelectors:
+  - clear
+  - meleeattack
+  - randomstroll 0.6
+
+Outpost_Vindicator:
+  Type: VINDICATOR
+  Display: '&8타락 집행자'
+  Health: 1400
+  Damage: 42
+  Options:
+    MovementSpeed: 0.28
+    PreventOtherDrops: true
+    AlwaysShowName: false
+    NaturallySpawned: false
+  Drops:
+  - exp 100
+  AIGoalSelectors:
+  - clear
+  - meleeattack
+
+Outpost_CaptainElite:
+  Type: VINDICATOR
+  Display: '&c타락 기사 부관'
+  Health: 6000
+  Damage: 70
+  Options:
+    MovementSpeed: 0.28
+    PreventOtherDrops: true
+    AlwaysShowName: true
+    KnockbackResistance: 0.6
+    NaturallySpawned: false
+  Drops:
+  - exp 400
+  Skills:
+  - skill{s=Outpost_ShieldBash} ~onTimer:60
+  - potion{type=WEAKNESS;duration=100;level=1} @target ~onAttack 0.35
+
+Fallen_Knight:
+  Type: EVOKER
+  Display: '&4&l타락 기사장'
+  Health: 460000
+  Damage: 90
+  Options:
+    AlwaysShowName: true
+    PreventOtherDrops: true
+    KnockbackResistance: 1.0
+    MovementSpeed: 0.20
+    MaxCombatDistance: 40
+    NaturallySpawned: false
+  Drops:
+  - exp 11000
+  Skills:
+  - skill{s=Outpost_DarkSlash} ~onTimer:80
+  - summon{type=Outpost_Vindicator;amount=2;duration=600} ~onTimer:600
+  - particles{p=VILLAGER_ANGRY;amount=10;hs=0.8;vs=0.4} @self ~onTimer:20

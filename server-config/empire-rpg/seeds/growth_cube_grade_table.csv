@@ -1,0 +1,4 @@
+cube_tier,cube_name_ko,common_pct,rare_pct,epic_pct,unique_pct,legendary_pct,slot_count
+lower,하급 큐브,75,23,2,0,0,1
+mid,중급 큐브,35,45,18,2,0,2
+upper,상급 큐브,0,25,50,25,0,2

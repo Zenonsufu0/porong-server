@@ -1,0 +1,3 @@
+from_tier,required_count,to_tier,success_rate_pct,gold_cost,on_fail_return_count
+lower,5,mid,60,500,0
+mid,5,upper,35,2000,0

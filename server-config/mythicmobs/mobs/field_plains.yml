@@ -1,0 +1,73 @@
+# 필드 1: 수도 외곽 평원 (capital_plains)
+# 권장 강화: 0강~5강 / 필드 레벨: 1
+# EmpireRPG drop hook: plains_normal_drop / plains_elite_drop / plains_predator_drop
+
+Plains_Soldier:
+  Type: ZOMBIE
+  Display: '&7왕국 수비병'
+  Health: 300
+  Damage: 12
+  Options:
+    MovementSpeed: 0.23
+    PreventOtherDrops: true
+    AlwaysShowName: false
+    NaturallySpawned: false
+  Drops:
+  - exp 20
+  AIGoalSelectors:
+  - clear
+  - meleeattack
+  - randomstroll 0.7
+  - randomlookaround
+
+Plains_Wildling:
+  Type: SKELETON
+  Display: '&7들판 야수'
+  Health: 250
+  Damage: 10
+  Options:
+    MovementSpeed: 0.28
+    PreventOtherDrops: true
+    AlwaysShowName: false
+    NaturallySpawned: false
+  Drops:
+  - exp 18
+  AIGoalSelectors:
+  - clear
+  - meleeattack
+  - randomstroll 0.7
+
+Plains_StalkerElite:
+  Type: ZOMBIE
+  Display: '&c들판의 노식자'
+  Health: 1500
+  Damage: 24
+  Options:
+    MovementSpeed: 0.30
+    PreventOtherDrops: true
+    AlwaysShowName: true
+    KnockbackResistance: 0.3
+    NaturallySpawned: false
+  Drops:
+  - exp 80
+  Skills:
+  - skill{s=Plains_StalkerCharge} ~onTimer:80
+
+Plains_Predator:
+  Type: GIANT
+  Display: '&4&l들판 포식자'
+  Health: 100000
+  Damage: 35
+  Options:
+    AlwaysShowName: true
+    PreventOtherDrops: true
+    KnockbackResistance: 1.0
+    MovementSpeed: 0.22
+    MaxCombatDistance: 40
+    NaturallySpawned: false
+  Drops:
+  - exp 2000
+  Skills:
+  - skill{s=Plains_StompGround} ~onTimer:100
+  - skill{s=Plains_RoarBuff} @self ~onTimer:400
+  - particles{p=CRIT;amount=30;hs=1;vs=0.5} @self ~onTimer:20

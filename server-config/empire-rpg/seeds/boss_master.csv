@@ -1,0 +1,12 @@
+boss_id,boss_name,boss_tier,theme_type,is_party_content,is_extreme
+plains_predator,들판 포식자,field_1,capital_plains,true,false
+mine_golem,폐광 골렘,field_2,abandoned_mine,true,false
+waterway_lord,수로 군주,field_3,corrupted_waterway,true,false
+fallen_knight,타락 기사장,field_4,ruined_outpost,true,false
+rift_watcher,균열 파수꾼,field_5,ancient_wall,true,false
+void_sentinel,공허 파수꾼,season_1,south,true,false
+abyss_caller,심연 부름꾼,season_2,arkanon,true,false
+storm_lord,폭풍 군주,season_3,north,true,false
+rift_king,균열왕,final_s1,ruins,true,true
+ragnes,Ragnes,final,south,true,false
+carmen,Carmen,extreme,arkanon,true,true

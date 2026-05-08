@@ -1,0 +1,43 @@
+# 필드 드랍 테이블
+# 실제 아이템(강화석, 큐브, 필드 재료)은 EmpireRPG 훅에서 처리
+# 이 파일은 MythicMobs 레벨 EXP 드랍 정의만 포함
+# T1 장비 파편 드랍 없음 (1차 시즌 설계: 접속 시 일괄지급 + 영지 등급작)
+# 큐브는 완성품 직드랍 구조 (EmpireRPG 드랍 훅 담당)
+
+# 참고: 실제 골드/큐브/재료 드랍은 EmpireRPG의 FieldDropHandler가
+# 아래 EmpireRPG hook ID를 기반으로 처리
+# plains_normal_drop, plains_elite_drop, plains_predator_drop
+# mine_normal_drop, mine_elite_drop, mine_golem_drop
+# waterway_normal_drop, waterway_elite_drop, waterway_lord_drop
+# outpost_normal_drop, outpost_elite_drop, fallen_knight_drop
+# ancient_normal_drop, ancient_elite_drop, rift_watcher_drop
+
+Plains_BossDrops:
+  Conditions:
+  - playerwithin{d=60}
+  Drops:
+  - experience 5000
+
+Mine_BossDrops:
+  Conditions:
+  - playerwithin{d=60}
+  Drops:
+  - experience 12000
+
+Waterway_BossDrops:
+  Conditions:
+  - playerwithin{d=60}
+  Drops:
+  - experience 20000
+
+Outpost_BossDrops:
+  Conditions:
+  - playerwithin{d=60}
+  Drops:
+  - experience 32000
+
+AncientWall_BossDrops:
+  Conditions:
+  - playerwithin{d=60}
+  Drops:
+  - experience 48000

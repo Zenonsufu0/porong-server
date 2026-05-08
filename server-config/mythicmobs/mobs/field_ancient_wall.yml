@@ -1,0 +1,72 @@
+# 필드 5: 고대 성벽 잔해 (ancient_wall)
+# 권장 강화: 15강~18강 / 필드 레벨: 5
+# EmpireRPG drop hook: ancient_normal_drop / ancient_elite_drop / rift_watcher_drop
+
+Wall_Enderman:
+  Type: ENDERMAN
+  Display: '&5균열 방랑자'
+  Health: 1800
+  Damage: 55
+  Options:
+    MovementSpeed: 0.32
+    PreventOtherDrops: true
+    AlwaysShowName: false
+    NaturallySpawned: false
+  Drops:
+  - exp 140
+  AIGoalSelectors:
+  - clear
+  - meleeattack
+  - randomstroll 0.5
+
+Wall_Shade:
+  Type: WITHER_SKELETON
+  Display: '&5성벽 망령'
+  Health: 2000
+  Damage: 60
+  Options:
+    MovementSpeed: 0.25
+    PreventOtherDrops: true
+    AlwaysShowName: false
+    NaturallySpawned: false
+  Drops:
+  - exp 150
+  AIGoalSelectors:
+  - clear
+  - meleeattack
+
+Wall_SentinelElite:
+  Type: WARDEN
+  Display: '&5&l균열 봉인병'
+  Health: 9000
+  Damage: 100
+  Options:
+    MovementSpeed: 0.22
+    PreventOtherDrops: true
+    AlwaysShowName: true
+    KnockbackResistance: 0.8
+    NaturallySpawned: false
+  Drops:
+  - exp 650
+  Skills:
+  - skill{s=Wall_SonicBoom} ~onTimer:100
+  - potion{type=BLINDNESS;duration=60;level=1} @target ~onAttack 0.3
+
+Rift_Watcher:
+  Type: WARDEN
+  Display: '&5&l균열 파수꾼'
+  Health: 660000
+  Damage: 120
+  Options:
+    AlwaysShowName: true
+    PreventOtherDrops: true
+    KnockbackResistance: 1.0
+    MovementSpeed: 0.20
+    MaxCombatDistance: 40
+    NaturallySpawned: false
+  Drops:
+  - exp 16000
+  Skills:
+  - skill{s=Wall_VoidStrike} ~onTimer:80
+  - skill{s=Wall_RiftBeam} ~onTimer:360
+  - particles{p=DRAGON_BREATH;amount=15;hs=1.2;vs=0.5} @self ~onTimer:15

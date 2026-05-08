@@ -1,0 +1,87 @@
+# 필드 몬스터/보스 공용 스킬 정의
+# EmpireRPG가 pattern_id로 복잡한 패턴을 구동하며, 이 파일은 기본 비주얼/간단 스킬만 정의
+
+# === 수도 외곽 평원 ===
+
+Plains_StalkerCharge:
+  Skills:
+  - thrust{v=3;y=0.5} @target
+  - sound{s=entity.zombie.hurt;v=1;p=0.8} @self
+
+Plains_StompGround:
+  Skills:
+  - aoe{r=6} @EntitiesInRadius{r=6,mobs=false} =mdamage{a=0.3}
+  - particles{p=BLOCK_CRACK;material=DIRT;amount=40;hs=3;vs=0.5} @self
+  - sound{s=entity.generic.explode;v=1;p=0.6} @self
+
+Plains_RoarBuff:
+  Skills:
+  - potion{type=INCREASE_DAMAGE;duration=200;level=1} @self
+  - speak{m="들판 포식자가 포효합니다!"} @PlayersInRadius{r=60}
+  - sound{s=entity.wolf.howl;v=2;p=0.5} @self
+
+# === 폐광 지대 ===
+
+Mine_VenomSpit:
+  Skills:
+  - shoot{type=arrow;v=2} @target
+  - potion{type=POISON;duration=80;level=1} @target
+
+Mine_RubbleThrow:
+  Skills:
+  - shoot{type=snowball;v=3;amount=5;spread=15} @target
+  - particles{p=BLOCK_CRACK;material=COBBLESTONE;amount=20;hs=1;vs=1} @self
+
+Mine_CorePulse:
+  Skills:
+  - particles{p=REDSTONE;r=1;g=0;b=0;amount=10;hs=0.8;vs=0.3} @self
+
+# === 오염된 수로 ===
+
+Waterway_ToxicBurst:
+  Skills:
+  - aoe{r=5} @EntitiesInRadius{r=5,mobs=false} =potion{type=POISON;duration=100;level=1}
+  - particles{p=SLIME;amount=30;hs=2;vs=1} @self
+
+Waterway_ToxicSpray:
+  Skills:
+  - aoe{r=8} @EntitiesInRadius{r=8,mobs=false} =potion{type=SLOW;duration=120;level=2}
+  - speak{m="수로 군주가 오염물을 분사합니다!"} @PlayersInRadius{r=50}
+  - particles{p=WATER_SPLASH;amount=60;hs=4;vs=2} @self
+  - sound{s=entity.generic.splash;v=1.5;p=0.6} @self
+
+# === 무너진 초소 ===
+
+Outpost_ShieldBash:
+  Skills:
+  - thrust{v=-2;y=0.3} @target
+  - potion{type=SLOW;duration=60;level=2} @target
+
+Outpost_DarkSlash:
+  Skills:
+  - aoe{r=7} @EntitiesInRadius{r=7,mobs=false} =mdamage{a=0.5}
+  - particles{p=SPELL;amount=25;hs=3;vs=1} @self
+  - sound{s=entity.evoker.cast_spell;v=1;p=0.8} @self
+
+# === 고대 성벽 잔해 ===
+
+Wall_SonicBoom:
+  Skills:
+  - aoe{r=15} @EntitiesInRadius{r=15,mobs=false} =thrust{v=2;y=0.5}
+  - particles{p=SONIC_BOOM;amount=1} @target
+  - sound{s=entity.warden.sonic_boom;v=1.5;p=1} @self
+
+Wall_VoidStrike:
+  Skills:
+  - aoe{r=5} @EntitiesInRadius{r=5,mobs=false} =mdamage{a=0.6}
+  - particles{p=PORTAL;amount=20;hs=2;vs=0.5} @self
+
+Wall_RiftBeam:
+  Skills:
+  - projectile{v=5;ot=10;hte=Wall_RiftBeam_Hit} @target
+  - sound{s=entity.warden.sonic_charge;v=1.5;p=0.8} @self
+
+Wall_RiftBeam_Hit:
+  Skills:
+  - damage{a=1.2} @trigger
+  - particles{p=DRAGON_BREATH;amount=30;hs=1;vs=0.3} @self

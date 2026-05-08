@@ -1,0 +1,73 @@
+# 필드 2: 폐광 지대 (abandoned_mine)
+# 권장 강화: 5강~10강 / 필드 레벨: 2
+# EmpireRPG drop hook: mine_normal_drop / mine_elite_drop / mine_golem_drop
+
+Mine_Crawler:
+  Type: CAVE_SPIDER
+  Display: '&7폐광 독거미'
+  Health: 500
+  Damage: 18
+  Options:
+    MovementSpeed: 0.30
+    PreventOtherDrops: true
+    AlwaysShowName: false
+    NaturallySpawned: false
+  Drops:
+  - exp 35
+  AIGoalSelectors:
+  - clear
+  - meleeattack
+  - randomstroll 0.6
+
+Mine_Husk:
+  Type: HUSK
+  Display: '&7광부 망령'
+  Health: 600
+  Damage: 20
+  Options:
+    MovementSpeed: 0.22
+    PreventOtherDrops: true
+    AlwaysShowName: false
+    NaturallySpawned: false
+  Drops:
+  - exp 40
+  AIGoalSelectors:
+  - clear
+  - meleeattack
+  - randomstroll 0.6
+
+Mine_WatcherElite:
+  Type: CAVE_SPIDER
+  Display: '&c폐광 감시병'
+  Health: 2500
+  Damage: 38
+  Options:
+    MovementSpeed: 0.35
+    PreventOtherDrops: true
+    AlwaysShowName: true
+    KnockbackResistance: 0.4
+    NaturallySpawned: false
+  Drops:
+  - exp 150
+  Skills:
+  - potion{type=POISON;duration=100;level=1} @target ~onAttack 0.4
+  - skill{s=Mine_VenomSpit} ~onTimer:60
+
+Mine_Golem:
+  Type: IRON_GOLEM
+  Display: '&2&l폐광 골렘'
+  Health: 200000
+  Damage: 55
+  Options:
+    AlwaysShowName: true
+    PreventOtherDrops: true
+    KnockbackResistance: 1.0
+    MovementSpeed: 0.18
+    MaxCombatDistance: 35
+    NaturallySpawned: false
+  Drops:
+  - exp 4500
+  Skills:
+  - skill{s=Mine_RubbleThrow} ~onTimer:300
+  - skill{s=Mine_CorePulse} ~onTimer:40
+  - particles{p=SMOKE_LARGE;amount=5;hs=0.5;vs=0.2} @self ~onTimer:10
