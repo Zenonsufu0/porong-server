@@ -1,0 +1,24 @@
+item_id,item_name,tier,slot_type,region_theme,boss_source,set_id,base_stat_type,base_stat_value,is_tradeable,tags
+t2_gs_ragnes,Crimson Greatsword,T2,weapon,south,ragnes,crimson_brand,attack,245,false,core|boss_drop
+t2_armor_ragnes_head,Crimson Helm,T2,armor,south,ragnes,imperial_glory,defense,112,false,boss_drop
+t2_armor_ragnes_chest,Crimson Cuirass,T2,armor,south,ragnes,imperial_glory,defense,128,false,boss_drop
+t2_ring_carmen,Resonance Ring,T2,accessory,arkanon,carmen,imperial_glory,attack,72,false,boss_drop
+t1_weapon_sword,철제 검,T1,weapon,capital,,t1_starter,attack,80,false,starter|sword
+t1_weapon_hammer,철제 망치,T1,weapon,capital,,t1_starter,attack,80,false,starter|hammer
+t1_weapon_spear,철제 창,T1,weapon,capital,,t1_starter,attack,80,false,starter|spear
+t1_weapon_crossbow,철제 석궁,T1,weapon,capital,,t1_starter,attack,80,false,starter|crossbow
+t1_weapon_scythe,철제 낫,T1,weapon,capital,,t1_starter,attack,80,false,starter|scythe
+t1_weapon_staff,철제 스태프,T1,weapon,capital,,t1_starter,attack,80,false,starter|staff
+t1_armor_head,견습 투구,T1,head,capital,,t1_starter,defense,12,false,starter
+t1_armor_chest,견습 흉갑,T1,chest,capital,,t1_starter,defense,20,false,starter
+t1_armor_legs,견습 각반,T1,legs,capital,,t1_starter,defense,15,false,starter
+t1_armor_boots,견습 신발,T1,boots,capital,,t1_starter,defense,5,false,starter
+res_herb_imperial,Imperial Herb,LIFE,material,capital,,,,0,true,starter
+res_essence_imperial,Imperial Essence,LIFE,material,capital,,,,0,true,starter
+mat_refined_herb,Refined Herb,LIFE,material,capital,,,,0,true,starter
+con_basic_healing_potion,Basic Healing Potion,LIFE,consumable,capital,,,,0,true,starter
+res_ore_resonance,Resonance Ore,LIFE,material,arkanon,,,,0,true,starter
+res_shard_resonance,Resonance Shard,LIFE,material,arkanon,,,,0,true,starter
+mat_ore_ingot,Ore Ingot,LIFE,material,capital,,,,0,true,starter
+mat_resonance_powder,Resonance Powder,LIFE,material,arkanon,,,,0,true,starter
+bp_resonance_extractor,Resonance Extractor Blueprint,LIFE,material,capital,,,,0,true,starter

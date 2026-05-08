@@ -37,3 +37,8 @@ docs/_archive/
 
 # local backup files (예: AGENTS.md.bak.YYYYMMDD-HHMMSS)
 *.bak.*
+# Private weapon references / failed Blockbench attempts
+assets/source/items/weapons/**/_private_refs/
+assets/source/items/weapons/**/refs/web_refs/
+assets/source/items/weapons/**/failed_attempts/
+assets/source/items/weapons/**/_legacy/failed_auto_attempts/
