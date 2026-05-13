@@ -1,12 +1,9 @@
 package com.poro.empire.common.config;
 
-import com.poro.empire.common.db.CompositeMigrationEntryPoint;
 import com.poro.empire.common.db.ConnectionProvider;
 import com.poro.empire.common.db.DatabaseBootstrapper;
 import com.poro.empire.common.db.JdbcTransactionHelper;
-import com.poro.empire.common.db.MigrationEntryPoint;
 import com.poro.empire.common.db.NoopMigrationEntryPoint;
-import com.poro.empire.common.db.PlayerFlagTableStubMigration;
 import com.poro.empire.common.db.SqliteConnectionProvider;
 import com.poro.empire.common.db.TransactionHelper;
 import com.poro.empire.common.logging.CommonPluginLogger;
@@ -18,8 +15,6 @@ import com.poro.empire.common.result.Result;
 import com.poro.empire.common.time.SystemTimeProvider;
 import com.poro.empire.common.time.TimeProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.util.List;
 
 public final class CommonFoundationBootstrap {
     private CommonFoundationBootstrap() {
@@ -42,13 +37,9 @@ public final class CommonFoundationBootstrap {
                     logger.domain("db.transaction")
             );
             RegistryBootstrapper registryBootstrapper = new RegistryBootstrapper(logger.domain("registry"));
-            MigrationEntryPoint migrationEntryPoint = new CompositeMigrationEntryPoint(List.of(
-                    new NoopMigrationEntryPoint(),
-                    new PlayerFlagTableStubMigration(logger.domain("db.migration.player-flag"))
-            ));
             DatabaseBootstrapper databaseBootstrapper = new DatabaseBootstrapper(
                     connectionProvider,
-                    migrationEntryPoint,
+                    new NoopMigrationEntryPoint(),
                     logger.domain("db.migration")
             );
 

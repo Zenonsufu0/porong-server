@@ -9,9 +9,6 @@ softdepend:
   - PlaceholderAPI
   - Citizens
   - BetonQuest
-  - FastAsyncWorldEdit
-libraries:
-  - org.xerial:sqlite-jdbc:3.46.1.0
 commands:
   empire:
     description: Main command for EmpireRPG
