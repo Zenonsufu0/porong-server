@@ -5,6 +5,7 @@ import com.poro.empire.common.registry.master.model.ItemMaster;
 import com.poro.empire.common.result.ErrorCode;
 import com.poro.empire.common.result.Result;
 
+import java.util.Map;
 import java.util.Objects;
 
 public final class EnhancementService {
@@ -74,13 +75,53 @@ public final class EnhancementService {
             );
         }
 
-        double roll = fixedRoll == null ? randomProvider.nextDouble() : fixedRoll;
-        boolean success = roll <= (rule.successRate() / 100.0d);
+        // 천장 카운터 조회 (11강 이상, 장착 슬롯 아이템만 적용)
+        String counterKey = null;
+        int ceilingCap = 0;
+        int ceilingCount = 0;
+        if (targetLevel >= 11) {
+            for (Map.Entry<EquipmentSlot, String> e : state.equippedItems().entrySet()) {
+                if (e.getValue().equalsIgnoreCase(itemInstanceId)) {
+                    counterKey = e.getKey().name().toLowerCase() + "_" + targetLevel;
+                    break;
+                }
+            }
+            if (counterKey != null) {
+                ceilingCap = (int) Math.ceil(200.0 / rule.successRate());
+                ceilingCount = state.getCeilingCounter(counterKey);
+            }
+        }
+
+        double roll;
+        boolean success;
+        boolean forcedByCeiling = false;
         int finalLevel = currentLevel;
+
+        if (counterKey != null && ceilingCount >= ceilingCap) {
+            roll = -1.0; // 천장 강제 성공 마킹
+            success = true;
+            forcedByCeiling = true;
+            state.resetCeilingCounter(counterKey);
+        } else {
+            roll = fixedRoll == null ? randomProvider.nextDouble() : fixedRoll;
+            double threshold = rule.successRate() / 100.0d;
+            int catalystBonus = state.drainCatalystBonus();
+            if (catalystBonus > 0) {
+                threshold = Math.min(threshold + catalystBonus / 100.0, 1.0);
+            }
+            success = roll <= threshold;
+            if (counterKey != null) {
+                if (success) state.resetCeilingCounter(counterKey);
+                else state.incrementCeilingCounter(counterKey);
+            }
+        }
+
         if (success) {
             finalLevel = targetLevel;
             item.setEnhanceLevel(finalLevel);
         }
+
+        int ceilingCountAfter = counterKey != null ? state.getCeilingCounter(counterKey) : 0;
 
         EnhancementResult result = new EnhancementResult(
                 state.userId(),
@@ -94,7 +135,10 @@ public final class EnhancementService {
                 rule.successRate(),
                 roll,
                 rule.goldCost(),
-                rule.stoneCost()
+                rule.stoneCost(),
+                ceilingCountAfter,
+                ceilingCap,
+                forcedByCeiling
         );
         enhancementLogHook.onAttempt(result);
         return Result.success(result);
@@ -112,7 +156,10 @@ public final class EnhancementService {
             double successRate,
             double roll,
             long goldCost,
-            long stoneCost
+            long stoneCost,
+            int ceilingCount,
+            int ceilingCap,
+            boolean forcedByCeiling
     ) {
     }
 }

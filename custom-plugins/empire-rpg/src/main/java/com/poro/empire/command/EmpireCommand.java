@@ -1,7 +1,8 @@
 package com.poro.empire.command;
 
-import com.poro.empire.classes.PlayerClass;
 import com.poro.empire.combat.SkillService;
+import com.poro.empire.combat.weapon.WeaponType;
+import com.poro.empire.growth.engine.CatalystConfig;
 import com.poro.empire.reputation.ReputationManager;
 import com.poro.empire.reputation.ReputationTier;
 import com.poro.empire.storage.PlayerData;
@@ -10,12 +11,12 @@ import com.poro.empire.util.HealthHudFormatter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,18 +25,23 @@ import java.util.List;
 import java.util.Locale;
 
 public class EmpireCommand implements CommandExecutor, TabCompleter {
-    private static final List<String> CLASS_NAMES = List.of("warrior", "assassin", "mage");
+    private static final List<String> WEAPON_NAMES =
+            List.of("sword", "hammer", "spear", "crossbow", "scythe", "staff");
     private static final List<String> REPUTATION_ACTIONS = List.of("add", "remove", "set");
-    private static final List<String> SUBCOMMANDS = List.of("class", "skill", "info", "setclass", "hud", "reputation");
+    private static final List<String> SUBCOMMANDS =
+            List.of("class", "skill", "info", "setclass", "hud", "reputation", "reload");
 
     private final PlayerDataManager playerDataManager;
     private final SkillService skillService;
     private final ReputationManager reputationManager;
+    private final Plugin plugin;
 
-    public EmpireCommand(PlayerDataManager playerDataManager, SkillService skillService, ReputationManager reputationManager) {
+    public EmpireCommand(PlayerDataManager playerDataManager, SkillService skillService,
+                         ReputationManager reputationManager, Plugin plugin) {
         this.playerDataManager = playerDataManager;
         this.skillService = skillService;
         this.reputationManager = reputationManager;
+        this.plugin = plugin;
     }
 
     @Override
@@ -53,6 +59,7 @@ public class EmpireCommand implements CommandExecutor, TabCompleter {
             case "setclass" -> handleSetClassCommand(sender, args);
             case "hud" -> handleHudCommand(sender);
             case "reputation" -> handleReputationCommand(sender, args);
+            case "reload"     -> handleReloadCommand(sender);
             default -> {
                 sendUsage(sender);
                 yield true;
@@ -66,7 +73,7 @@ public class EmpireCommand implements CommandExecutor, TabCompleter {
             return filterByPrefix(SUBCOMMANDS, args[0]);
         }
         if (args.length == 2 && "class".equalsIgnoreCase(args[0])) {
-            return filterByPrefix(CLASS_NAMES, args[1]);
+            return filterByPrefix(WEAPON_NAMES, args[1]);
         }
         if (args.length == 2 && "skill".equalsIgnoreCase(args[0])) {
             return filterByPrefix(skillService.getSkillKeys().stream().toList(), args[1]);
@@ -78,7 +85,7 @@ public class EmpireCommand implements CommandExecutor, TabCompleter {
             return filterByPrefix(onlinePlayers, args[1]);
         }
         if (args.length == 3 && "setclass".equalsIgnoreCase(args[0])) {
-            return filterByPrefix(CLASS_NAMES, args[2]);
+            return filterByPrefix(WEAPON_NAMES, args[2]);
         }
         if (args.length == 2 && "reputation".equalsIgnoreCase(args[0])) {
             return filterByPrefix(REPUTATION_ACTIONS, args[1]);
@@ -109,7 +116,7 @@ public class EmpireCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         if (args.length < 2) {
-            player.sendMessage(ChatColor.YELLOW + "Usage: /empire class <warrior|assassin|mage>");
+            player.sendMessage(ChatColor.YELLOW + "Usage: /empire class <sword|hammer|spear|crossbow|scythe|staff>");
             return true;
         }
         return handleClassSelection(player, args[1]);
@@ -125,7 +132,7 @@ public class EmpireCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         if (args.length < 2) {
-            player.sendMessage(ChatColor.YELLOW + "Usage: /empire skill <slash|shadowstep|firebolt>");
+            player.sendMessage(ChatColor.YELLOW + "Usage: /empire skill <skill_key>");
             return true;
         }
         return skillService.useSkill(player, args[1]);
@@ -142,14 +149,13 @@ public class EmpireCommand implements CommandExecutor, TabCompleter {
         }
 
         PlayerData playerData = playerDataManager.getOrCreate(player.getUniqueId());
-        String className = playerData.getPlayerClass().name().toLowerCase(Locale.ROOT);
+        WeaponType weaponType = playerData.getWeaponType();
         double health = player.getHealth();
-        String weaponType = resolveWeaponType(player);
 
         player.sendMessage(ChatColor.GOLD + "=== Empire Debug Info ===");
-        player.sendMessage(ChatColor.YELLOW + "Class: " + ChatColor.WHITE + className);
-        player.sendMessage(ChatColor.YELLOW + "Health: " + ChatColor.WHITE + String.format(Locale.US, "%.1f", health));
-        player.sendMessage(ChatColor.YELLOW + "Weapon Type: " + ChatColor.WHITE + weaponType);
+        player.sendMessage(ChatColor.YELLOW + "무기 클래스: " + ChatColor.WHITE + weaponType.name().toLowerCase(Locale.ROOT));
+        player.sendMessage(ChatColor.YELLOW + "튜토리얼: " + ChatColor.WHITE + (playerData.isTutorialComplete() ? "완료" : "미완료"));
+        player.sendMessage(ChatColor.YELLOW + "체력: " + ChatColor.WHITE + String.format(Locale.US, "%.1f", health));
         return true;
     }
 
@@ -159,7 +165,7 @@ public class EmpireCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         if (args.length < 3) {
-            sender.sendMessage(ChatColor.YELLOW + "Usage: /empire setclass <player> <warrior|assassin|mage>");
+            sender.sendMessage(ChatColor.YELLOW + "Usage: /empire setclass <player> <sword|hammer|spear|crossbow|scythe|staff>");
             return true;
         }
 
@@ -169,15 +175,17 @@ public class EmpireCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        PlayerClass selectedClass = parseClass(args[2]);
-        if (selectedClass == null) {
-            sender.sendMessage(ChatColor.RED + "Invalid class. Choose one of: warrior, assassin, mage.");
+        WeaponType weaponType = parseWeaponType(args[2]);
+        if (weaponType == null) {
+            sender.sendMessage(ChatColor.RED + "Invalid weapon type. Choose: sword, hammer, spear, crossbow, scythe, staff");
             return true;
         }
 
-        playerDataManager.setPlayerClass(target.getUniqueId(), selectedClass);
-        sender.sendMessage(ChatColor.GREEN + "Set " + target.getName() + "'s class to " + selectedClass.name().toLowerCase(Locale.ROOT) + ".");
-        target.sendMessage(ChatColor.YELLOW + "Your class was set to " + selectedClass.name().toLowerCase(Locale.ROOT) + " by an administrator.");
+        playerDataManager.setWeaponType(target.getUniqueId(), weaponType);
+        sender.sendMessage(ChatColor.GREEN + target.getName() + "의 무기 클래스를 "
+                + weaponType.name().toLowerCase(Locale.ROOT) + "(으)로 설정했습니다.");
+        target.sendMessage(ChatColor.YELLOW + "관리자에 의해 무기 클래스가 "
+                + weaponType.name().toLowerCase(Locale.ROOT) + "(으)로 설정되었습니다.");
         return true;
     }
 
@@ -308,64 +316,33 @@ public class EmpireCommand implements CommandExecutor, TabCompleter {
         return true;
     }
 
-    private boolean handleClassSelection(Player player, String classInput) {
-        PlayerClass selectedClass = parseClass(classInput);
-        if (selectedClass == null) {
-            player.sendMessage(ChatColor.RED + "Invalid class. Choose one of: warrior, assassin, mage.");
+    private boolean handleClassSelection(Player player, String input) {
+        WeaponType weaponType = parseWeaponType(input);
+        if (weaponType == null) {
+            player.sendMessage(ChatColor.RED + "잘못된 무기 클래스입니다. 선택 가능: sword, hammer, spear, crossbow, scythe, staff");
             return true;
         }
 
-        PlayerData playerData = playerDataManager.getOrCreate(player.getUniqueId());
-        if (playerData.getPlayerClass().isSelected()) {
-            player.sendMessage(ChatColor.RED + "You already selected a class: "
-                    + playerData.getPlayerClass().name().toLowerCase(Locale.ROOT));
+        if (playerDataManager.hasSelectedWeapon(player.getUniqueId())) {
+            WeaponType current = playerDataManager.getWeaponType(player.getUniqueId());
+            player.sendMessage(ChatColor.RED + "이미 무기 클래스가 선택되어 있습니다: "
+                    + current.name().toLowerCase(Locale.ROOT));
             return true;
         }
 
-        playerDataManager.setPlayerClass(player.getUniqueId(), selectedClass);
-        player.sendMessage(ChatColor.GREEN + "Class selected: " + selectedClass.name().toLowerCase(Locale.ROOT));
+        playerDataManager.setWeaponType(player.getUniqueId(), weaponType);
+        player.sendMessage(ChatColor.GREEN + "무기 클래스 선택: " + weaponType.name().toLowerCase(Locale.ROOT));
         return true;
     }
 
-    private String resolveWeaponType(Player player) {
-        Material material = player.getInventory().getItemInMainHand().getType();
-        if (material == Material.AIR) {
-            return "none";
-        }
-
-        String name = material.name();
-        if ("CROSSBOW".equals(name)) {
-            return "crossbow";
-        }
-        if ("TRIDENT".equals(name)) {
-            return "trident";
-        }
-        if (name.endsWith("_SWORD")) {
-            return "sword";
-        }
-        if (name.endsWith("_AXE")) {
-            return "axe";
-        }
-        if (name.endsWith("BOW")) {
-            return "bow";
-        }
-        if (name.endsWith("_HOE")) {
-            return "hoe";
-        }
-        if (name.endsWith("_PICKAXE")) {
-            return "pickaxe";
-        }
-        if (name.endsWith("_SHOVEL")) {
-            return "shovel";
-        }
-        return name.toLowerCase(Locale.ROOT);
-    }
-
-    private @Nullable PlayerClass parseClass(String input) {
+    private @Nullable WeaponType parseWeaponType(String input) {
         return switch (input.toLowerCase(Locale.ROOT)) {
-            case "warrior" -> PlayerClass.WARRIOR;
-            case "assassin" -> PlayerClass.ASSASSIN;
-            case "mage" -> PlayerClass.MAGE;
+            case "sword" -> WeaponType.SWORD;
+            case "hammer" -> WeaponType.HAMMER;
+            case "spear" -> WeaponType.SPEAR;
+            case "crossbow" -> WeaponType.CROSSBOW;
+            case "scythe" -> WeaponType.SCYTHE;
+            case "staff" -> WeaponType.STAFF;
             default -> null;
         };
     }
@@ -398,13 +375,23 @@ public class EmpireCommand implements CommandExecutor, TabCompleter {
                 .toList();
     }
 
+    private boolean handleReloadCommand(CommandSender sender) {
+        if (!sender.hasPermission("empire.admin.reload")) {
+            sender.sendMessage(ChatColor.RED + "You do not have permission: empire.admin.reload");
+            return true;
+        }
+        plugin.reloadConfig();
+        CatalystConfig.reload(plugin.getConfig());
+        sender.sendMessage(ChatColor.GREEN + "[EmpireRPG] config.yml 리로드 완료. 강화 촉진제 요구량이 갱신됐습니다.");
+        return true;
+    }
+
     private void sendUsage(CommandSender sender) {
-        sender.sendMessage(ChatColor.YELLOW + "Usage: /empire class <warrior|assassin|mage>");
-        sender.sendMessage(ChatColor.YELLOW + "Usage: /empire skill <slash|shadowstep|firebolt>");
+        sender.sendMessage(ChatColor.YELLOW + "Usage: /empire skill <skill_key>");
         sender.sendMessage(ChatColor.YELLOW + "Usage: /empire info");
         sender.sendMessage(ChatColor.YELLOW + "Usage: /empire hud");
-        sender.sendMessage(ChatColor.YELLOW + "Usage: /empire setclass <player> <warrior|assassin|mage>");
-        sender.sendMessage(ChatColor.YELLOW + "Usage: /empire reputation");
-        sender.sendMessage(ChatColor.YELLOW + "Usage: /empire reputation <add|remove|set> <player> <amount>");
+        sender.sendMessage(ChatColor.YELLOW + "Usage: /empire setclass <player> <sword|hammer|spear|crossbow|scythe|staff>");
+        sender.sendMessage(ChatColor.YELLOW + "Usage: /empire reputation [add|remove|set <player> <amount>]");
+        sender.sendMessage(ChatColor.YELLOW + "Usage: /empire reload  §8(관리자 전용)");
     }
 }

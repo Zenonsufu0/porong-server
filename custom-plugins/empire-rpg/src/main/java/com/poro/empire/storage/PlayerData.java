@@ -1,39 +1,37 @@
 package com.poro.empire.storage;
 
-import com.poro.empire.classes.PlayerClass;
+import com.poro.empire.combat.weapon.WeaponType;
 
 import java.util.Objects;
 import java.util.UUID;
 
 public class PlayerData {
     private final UUID uuid;
-    private PlayerClass playerClass;
+    private WeaponType weaponType;
     private int reputation;
+    private boolean tutorialComplete;
 
     public PlayerData(UUID uuid) {
-        this(uuid, PlayerClass.UNSELECTED, 0);
-    }
-
-    public PlayerData(UUID uuid, PlayerClass playerClass) {
-        this(uuid, playerClass, 0);
-    }
-
-    public PlayerData(UUID uuid, PlayerClass playerClass, int reputation) {
         this.uuid = Objects.requireNonNull(uuid, "uuid");
-        this.playerClass = Objects.requireNonNull(playerClass, "playerClass");
-        this.reputation = reputation;
+        this.weaponType = WeaponType.NONE;
+        this.reputation = 0;
+        this.tutorialComplete = false;
     }
 
     public UUID getUuid() {
         return uuid;
     }
 
-    public PlayerClass getPlayerClass() {
-        return playerClass;
+    public WeaponType getWeaponType() {
+        return weaponType;
     }
 
-    public void setPlayerClass(PlayerClass playerClass) {
-        this.playerClass = Objects.requireNonNull(playerClass, "playerClass");
+    public void setWeaponType(WeaponType weaponType) {
+        this.weaponType = Objects.requireNonNull(weaponType, "weaponType");
+    }
+
+    public boolean hasSelectedWeapon() {
+        return weaponType != WeaponType.NONE;
     }
 
     public int getReputation() {
@@ -42,5 +40,13 @@ public class PlayerData {
 
     public void setReputation(int reputation) {
         this.reputation = Math.max(0, reputation);
+    }
+
+    public boolean isTutorialComplete() {
+        return tutorialComplete;
+    }
+
+    public void setTutorialComplete(boolean tutorialComplete) {
+        this.tutorialComplete = tutorialComplete;
     }
 }

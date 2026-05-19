@@ -1,10 +1,11 @@
 package com.poro.empire.combat.weapon;
 
 public enum WeaponType {
-    GREATSWORD,
-    SWORD_AND_SHIELD,
+    SWORD,
+    HAMMER,
     SPEAR,
-    DAGGER,
+    CROSSBOW,
+    SCYTHE,
     STAFF,
     NONE
 }

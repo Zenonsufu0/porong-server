@@ -1,6 +1,6 @@
 package com.poro.empire.storage;
 
-import com.poro.empire.classes.PlayerClass;
+import com.poro.empire.combat.weapon.WeaponType;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
@@ -43,12 +43,28 @@ public class PlayerDataManager {
         onPlayerQuit(player.getUniqueId());
     }
 
-    public boolean hasSelectedClass(UUID uuid) {
-        return getOrCreate(uuid).getPlayerClass().isSelected();
+    public boolean hasSelectedWeapon(UUID uuid) {
+        return getOrCreate(uuid).hasSelectedWeapon();
     }
 
-    public void setPlayerClass(UUID uuid, PlayerClass playerClass) {
-        getOrCreate(uuid).setPlayerClass(playerClass);
+    public boolean hasSelectedWeapon(Player player) {
+        return hasSelectedWeapon(player.getUniqueId());
+    }
+
+    public void setWeaponType(UUID uuid, WeaponType weaponType) {
+        getOrCreate(uuid).setWeaponType(weaponType);
+    }
+
+    public void setWeaponType(Player player, WeaponType weaponType) {
+        setWeaponType(player.getUniqueId(), weaponType);
+    }
+
+    public WeaponType getWeaponType(UUID uuid) {
+        return getOrCreate(uuid).getWeaponType();
+    }
+
+    public WeaponType getWeaponType(Player player) {
+        return getWeaponType(player.getUniqueId());
     }
 
     public void clear() {

@@ -1,3 +1,4 @@
 boss_id,boss_name,boss_tier,theme_type,is_party_content,is_extreme
-ragnes,Ragnes,final,south,true,false
-carmen,Carmen,extreme,arkanon,true,true
+Earth_Tyrant,대지의 폭군,season1,earth,true,false
+Steel_Arbiter,강철의 심판자,season2,steel,true,false
+Abyss_Overlord,심연의 군주,season3,abyss,true,false

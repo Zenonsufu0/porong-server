@@ -14,7 +14,20 @@ public final class PlayerGrowthState {
     private final Map<Integer, String> equippedRunes = new LinkedHashMap<>();
     private final Map<Integer, EquippedCommonEngraving> commonEngravings = new LinkedHashMap<>();
 
+    private final Map<String, Integer> ceilingCounters = new LinkedHashMap<>();
+
+    private int ilWarningCount  = 0;
+    private int mobIlHitCount   = 0;
+    private int catalystBonusPct = 0;
+
     private String classEngravingId = "";
+
+    private int  playerLevel = 1;
+    private int  unspentPts  = 0;
+    private int  critPts     = 0;
+    private int  specPts     = 0;
+    private int  endurPts    = 0;
+    private long currentExp  = 0L;
 
     public PlayerGrowthState(String userId, String classId) {
         this.userId = normalize(userId);
@@ -89,6 +102,51 @@ public final class PlayerGrowthState {
         return Map.copyOf(new LinkedHashMap<>(wallet));
     }
 
+    public int playerLevel()  { return playerLevel; }
+    public int unspentPts()   { return unspentPts; }
+    public int critPts()      { return critPts; }
+    public int specPts()      { return specPts; }
+    public int endurPts()     { return endurPts; }
+
+    public void setPlayerLevel(int level)  { this.playerLevel = Math.max(1, level); }
+    public void setUnspentPts(int pts)     { this.unspentPts  = Math.max(0, pts); }
+    public void setCritPts(int pts)        { this.critPts     = Math.max(0, pts); }
+    public void setSpecPts(int pts)        { this.specPts     = Math.max(0, pts); }
+    public void setEndurPts(int pts)       { this.endurPts    = Math.max(0, pts); }
+
+    public long currentExp()              { return currentExp; }
+    public void setCurrentExp(long exp)   { this.currentExp   = Math.max(0L, exp); }
+    public void addExp(long amount)        { if (amount > 0) this.currentExp += amount; }
+
+    public void addUnspentPts(int amount) {
+        if (amount > 0) unspentPts += amount;
+    }
+
+    /** 미배분 포인트를 1 소모해 해당 트리에 1포인트 배분. 포인트 없으면 false 반환. */
+    public boolean allocatePt(String tree) {
+        if (unspentPts <= 0) return false;
+        switch (tree) {
+            case "crit"  -> critPts++;
+            case "spec"  -> specPts++;
+            case "endur" -> endurPts++;
+            default -> { return false; }
+        }
+        unspentPts--;
+        return true;
+    }
+
+    /** 해당 트리에서 1포인트 환불 → 미배분 포인트로 반환. 포인트 없으면 false 반환. */
+    public boolean deallocatePt(String tree) {
+        switch (tree) {
+            case "crit"  -> { if (critPts  <= 0) return false; critPts--;  }
+            case "spec"  -> { if (specPts  <= 0) return false; specPts--;  }
+            case "endur" -> { if (endurPts <= 0) return false; endurPts--; }
+            default -> { return false; }
+        }
+        unspentPts++;
+        return true;
+    }
+
     public void equipRune(int slotNo, String runeId) {
         equippedRunes.put(slotNo, normalize(runeId));
     }
@@ -119,6 +177,51 @@ public final class PlayerGrowthState {
 
     public Map<Integer, EquippedCommonEngraving> commonEngravings() {
         return Map.copyOf(new LinkedHashMap<>(commonEngravings));
+    }
+
+    public int getCeilingCounter(String key) {
+        return ceilingCounters.getOrDefault(normalize(key), 0);
+    }
+
+    public void incrementCeilingCounter(String key) {
+        ceilingCounters.merge(normalize(key), 1, Integer::sum);
+    }
+
+    public void setCeilingCounter(String key, int value) {
+        if (value > 0) ceilingCounters.put(normalize(key), value);
+        else ceilingCounters.remove(normalize(key));
+    }
+
+    public void resetCeilingCounter(String key) {
+        ceilingCounters.remove(normalize(key));
+    }
+
+    public Map<String, Integer> ceilingCountersSnapshot() {
+        return Map.copyOf(new LinkedHashMap<>(ceilingCounters));
+    }
+
+    // ─── IL 경고 카운터 ────────────────────────────────────────────
+
+    public int  ilWarningCount()          { return ilWarningCount; }
+    public void setIlWarningCount(int v)  { this.ilWarningCount = Math.max(0, v); }
+    public void incrementIlWarning()      { this.ilWarningCount++; }
+
+    public int  mobIlHitCount()           { return mobIlHitCount; }
+    public void setMobIlHitCount(int v)   { this.mobIlHitCount = Math.max(0, v); }
+    public void incrementMobIlHit()       { this.mobIlHitCount++; }
+    public void resetMobIlHit()           { this.mobIlHitCount = 0; }
+
+    // ─── 강화 촉진제 보너스 ────────────────────────────────────────
+
+    public int  catalystBonusPct()              { return catalystBonusPct; }
+    public void setCatalystBonusPct(int v)      { this.catalystBonusPct = Math.max(0, v); }
+    /** 촉진제 사용 시 보너스 % 누적 (중첩 가능). */
+    public void addCatalystBonus(int pct)       { this.catalystBonusPct += pct; }
+    /** 강화 시도 시 보너스 전체 소모 → 소모량 반환. */
+    public int drainCatalystBonus() {
+        int v = catalystBonusPct;
+        catalystBonusPct = 0;
+        return v;
     }
 
     private String normalize(String value) {

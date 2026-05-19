@@ -4,3 +4,114 @@ common:
   sqlite-path: "storage/poro.sqlite"
   seed-path: "seeds"
   timezone: "UTC"
+
+# 상점 아이템 — 키 이름은 자유. 순서 = GUI 표시 순서.
+# 지원 필드: material, amount, display-name, price, lore[]
+shop:
+  items:
+    golden-apple:
+      material: GOLDEN_APPLE
+      amount: 1
+      display-name: "§6황금 사과"
+      price: 2000
+      lore:
+        - "§7빠른 체력 회복 & 흡수 효과"
+    arrow:
+      material: ARROW
+      amount: 64
+      display-name: "§f화살 ×64"
+      price: 400
+      lore:
+        - "§7석궁 사용자 기본 탄약"
+    bread:
+      material: BREAD
+      amount: 16
+      display-name: "§e빵 ×16"
+      price: 100
+      lore:
+        - "§7허기 보충"
+    experience-bottle:
+      material: EXPERIENCE_BOTTLE
+      amount: 8
+      display-name: "§b경험치의 유리병 ×8"
+      price: 800
+      lore:
+        - "§7캐릭터 경험치 획득"
+
+# 필드 텔레포트 좌표 — 맵 확정 후 실제 좌표로 교체.
+# world: 월드 이름 (보통 "world"). 설정 없으면 해당 필드 이동 불가 메시지 표시.
+fields:
+  plain:
+    world: "world"
+    x: 0.0
+    y: 64.0
+    z: 0.0
+    yaw: 0.0
+    pitch: 0.0
+  mine:
+    world: "world"
+    x: 500.0
+    y: 64.0
+    z: 0.0
+    yaw: 0.0
+    pitch: 0.0
+  sewer:
+    world: "world"
+    x: 1000.0
+    y: 64.0
+    z: 0.0
+    yaw: 0.0
+    pitch: 0.0
+  outpost:
+    world: "world"
+    x: 1500.0
+    y: 64.0
+    z: 0.0
+    yaw: 0.0
+    pitch: 0.0
+  ruins:
+    world: "world"
+    x: 2000.0
+    y: 64.0
+    z: 0.0
+    yaw: 0.0
+    pitch: 0.0
+
+# 필드보스 스폰 좌표 — 맵 확정 후 실제 스폰 지점으로 교체.
+# 설정 없으면 해당 보스 리스폰 스킵 (경고 로그 출력).
+field-bosses:
+  plain:
+    world: "world"
+    x: 100.0
+    y: 64.0
+    z: 100.0
+  mine:
+    world: "world"
+    x: 600.0
+    y: 64.0
+    z: 100.0
+  sewer:
+    world: "world"
+    x: 1100.0
+    y: 64.0
+    z: 100.0
+  outpost:
+    world: "world"
+    x: 1600.0
+    y: 64.0
+    z: 100.0
+  ruins:
+    world: "world"
+    x: 2100.0
+    y: 64.0
+    z: 100.0
+
+# 강화 촉진제 요구량 — 경제 분석 후 확정 예정. /empire reload 로 재적용.
+# tier 키 이름은 자유이나 max-level 기준으로 오름차순 정렬됩니다.
+# minor/mid/major 는 각각 하급/중급/상급 촉진제 필요 개수.
+catalyst-requirements:
+  tier1: { max-level:  5, minor:  1, mid:  1, major: 1 }
+  tier2: { max-level: 10, minor:  3, mid:  2, major: 1 }
+  tier3: { max-level: 15, minor:  6, mid:  4, major: 2 }
+  tier4: { max-level: 20, minor: 10, mid:  7, major: 5 }
+  tier5: { max-level: 99, minor: 15, mid: 10, major: 7 }

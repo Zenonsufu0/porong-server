@@ -14,7 +14,7 @@ public final class CombatFormulaResolver {
         double step3GeneralMultiplier = 1.0d + Math.max(0.0d, context.attacker().generalDamageIncrease());
         double step4TagMultiplier = Math.max(0.0d, tagDamage.multiplier());
         double step5ConditionalMultiplier = Math.max(0.0d, conditionalDamage.multiplier());
-        double step6DefenseMultiplier = 100.0d / (100.0d + Math.max(0.0d, context.defender().defense()));
+        double step6DefenseMultiplier = 200.0d / (200.0d + Math.max(0.0d, context.defender().defense()));
 
         double roll = context.criticalRoll().orElse(1.0d);
         boolean critical = roll < clamp(context.attacker().criticalChance(), 0.0d, 1.0d);

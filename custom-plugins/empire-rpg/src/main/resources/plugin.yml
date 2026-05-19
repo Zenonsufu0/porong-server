@@ -9,6 +9,8 @@ softdepend:
   - PlaceholderAPI
   - Citizens
   - BetonQuest
+  - MythicMobs
+  - IridiumSkyblock
 commands:
   empire:
     description: Main command for EmpireRPG

@@ -30,11 +30,12 @@ public final class WeaponTypeResolver {
         }
 
         return switch (material) {
-            case NETHERITE_SWORD, DIAMOND_SWORD -> WeaponType.GREATSWORD;
-            case WOODEN_SWORD, STONE_SWORD, IRON_SWORD, GOLDEN_SWORD -> WeaponType.SWORD_AND_SHIELD;
+            case NETHERITE_SWORD -> WeaponType.SWORD;
+            case MACE, NETHERITE_AXE -> WeaponType.HAMMER;
             case TRIDENT -> WeaponType.SPEAR;
-            case SHEARS -> WeaponType.DAGGER;
-            case STICK, BLAZE_ROD -> WeaponType.STAFF;
+            case CROSSBOW -> WeaponType.CROSSBOW;
+            case NETHERITE_HOE -> WeaponType.SCYTHE;
+            case BLAZE_ROD, STICK -> WeaponType.STAFF;
             default -> WeaponType.NONE;
         };
     }
