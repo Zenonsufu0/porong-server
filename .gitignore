@@ -18,6 +18,11 @@ plugins/**/userdata/
 plugins/**/dump/
 plugins/**/debug/
 
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
 # IDE / editor
 .idea/
 .vscode/
