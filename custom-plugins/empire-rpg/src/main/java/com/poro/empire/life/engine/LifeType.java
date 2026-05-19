@@ -10,6 +10,7 @@ public enum LifeType {
     COOKING("cooking"),
     ALCHEMY("alchemy"),
     REFINING("refining"),
+    CRAFTING("crafting"),
     ESTATE_MANAGEMENT("estate_management");
 
     private final String code;

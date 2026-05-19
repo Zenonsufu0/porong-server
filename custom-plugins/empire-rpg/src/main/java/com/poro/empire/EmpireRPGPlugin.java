@@ -320,20 +320,8 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         registerListeners(fieldStateProvider, fieldBossScheduler);
         ExploreHubRefresher.start(this, fieldStateProvider); // uses the scheduler as provider
 
-        // 10분(12000틱)마다 영지 기계 생산
+        // 20분(24000틱)마다 영지 자동재배기 생산
         new MachineProductionScheduler(this, islandTerritoryStateStore).start();
-
-        // 30초(600틱)마다 마력 과부하 경고
-        Bukkit.getScheduler().runTaskTimer(this, () -> {
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                islandTerritoryStateStore.get(p.getUniqueId()).ifPresent(territory -> {
-                    if (!territory.isOverloaded()) return;
-                    p.sendMessage("§f[§e포로§f] §c⚠ 마력 과부하! 소비 기계 전부 정지. 발전기를 추가하거나 기계를 줄이세요.");
-                    p.sendActionBar(Component.text("§c⚡ 마력 과부하! — 기계 전부 정지 중"));
-                    p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f, 0.5f);
-                });
-            }
-        }, 600L, 600L);
 
         // 5분(6000틱)마다 온라인 플레이어 자동 저장
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, () ->

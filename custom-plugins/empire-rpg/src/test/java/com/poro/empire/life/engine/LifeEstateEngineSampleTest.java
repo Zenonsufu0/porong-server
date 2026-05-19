@@ -64,7 +64,6 @@ class LifeEstateEngineSampleTest {
         PlayerLifeState state = new PlayerLifeState("user_life_01");
         state.addCurrency("gold", 100_000L);
         state.markQuestCompleted("q_estate_unlock_01");
-        state.unlockBlueprint("bp_resonance_extractor");
 
         LifeGatherService.GatherResult gatherExample = gatherService.gatherField(state, "field_herb_capital").orElseThrow();
         progressionService.gainExp(state, gatherExample.lifeType(), gatherExample.gainedExp()).orElseThrow();
@@ -72,15 +71,19 @@ class LifeEstateEngineSampleTest {
             LifeGatherService.GatherResult extra = gatherService.gatherField(state, "field_herb_capital").orElseThrow();
             progressionService.gainExp(state, extra.lifeType(), extra.gainedExp()).orElseThrow();
         }
+        // 제국 약초 6개(정제 레시피 요구량) + 바닐라 작물 보충
+        state.addItem("res_herb_imperial", 4);
+        state.addItem("WHEAT", 128); // 정제 64 + 하급 물약 64
+        state.addItem("POTATO", 64);
+        state.addItem("CARROT", 64);
 
         LifeCraftService.CraftResult craftRefine = craftService.craft(state, "refine_herb_basic", 1).orElseThrow();
         progressionService.gainExp(state, LifeType.REFINING, craftRefine.gainedExp()).orElseThrow();
-        LifeCraftService.CraftResult craftPotion = craftService.craft(state, "potion_heal_normal", 1).orElseThrow();
+        LifeCraftService.CraftResult craftPotion = craftService.craft(state, "potion_heal_basic", 1).orElseThrow();
         progressionService.gainExp(state, LifeType.ALCHEMY, craftPotion.gainedExp()).orElseThrow();
 
         EstateUnlockService.UnlockResult unlockResult = unlockService.unlock(state, "main_estate").orElseThrow();
         EstateFacilityService.InstallResult installHerb = facilityService.install(state, "estate_herb_plot", 1).orElseThrow();
-        EstateFacilityService.InstallResult installResonance = facilityService.install(state, "estate_resonance_extractor", 2).orElseThrow();
 
         EstateFacilityService.UpgradeResult upgradeResult = facilityService.upgrade(state, 1).orElseThrow();
 
@@ -91,13 +94,12 @@ class LifeEstateEngineSampleTest {
         assertTrue(gatherExample.sourceType() == LifeSourceType.FIELD);
         assertTrue(gatherExample.finalBaseAmount() >= 2);
         assertEquals("refine_herb_basic", craftRefine.recipeId());
-        assertEquals("potion_heal_normal", craftPotion.recipeId());
+        assertEquals("potion_heal_basic", craftPotion.recipeId());
         assertEquals("main_estate", unlockResult.estateId());
         assertEquals("estate_herb_plot", installHerb.facilityId());
-        assertEquals("estate_resonance_extractor", installResonance.facilityId());
         assertEquals(2, upgradeResult.afterLevel());
         assertTrue(harvestResult.harvestedItems().size() >= 1);
-        assertEquals(2, snapshot.facilities().size());
+        assertEquals(1, snapshot.facilities().size());
         assertTrue(!craftLogHook.entries().isEmpty());
         assertTrue(!harvestLogHook.entries().isEmpty());
 
