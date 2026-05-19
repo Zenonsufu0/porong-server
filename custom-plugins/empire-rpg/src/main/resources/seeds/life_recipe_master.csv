@@ -1,15 +1,15 @@
 recipe_id,recipe_name,recipe_type,life_type,required_level,result_item_id,result_amount,exp_gain,materials
 refine_herb_basic,Refined Herb,refining,refining,1,mat_refined_herb,1,30,res_herb_imperial:3|WHEAT:64|POTATO:64|CARROT:64
-potion_heal_basic,Minor Healing Potion,alchemy_heal,alchemy,1,con_heal_minor,1,18,mat_refined_herb:1|WHEAT:3
-potion_heal_mid,Healing Potion,alchemy_heal,alchemy,2,con_heal_mid,1,24,mat_refined_herb:2|WHEAT:5
-potion_heal_major,Greater Healing Potion,alchemy_heal,alchemy,3,con_heal_major,1,35,mat_refined_herb:3|WHEAT:8
-potion_battle_elixir,Battle Elixir,alchemy_battle,alchemy,2,con_battle_elixir,1,28,mat_refined_herb:2|CARROT:5
+potion_heal_basic,Minor Healing Potion,alchemy_heal,alchemy,1,con_heal_minor,1,18,mat_refined_herb:1|WHEAT:64
+potion_heal_mid,Healing Potion,alchemy_heal,alchemy,2,con_heal_mid,1,24,mat_refined_herb:2|WHEAT:64
+potion_heal_major,Greater Healing Potion,alchemy_heal,alchemy,3,con_heal_major,1,35,mat_refined_herb:3|WHEAT:64
+potion_battle_elixir,Battle Elixir,alchemy_battle,alchemy,2,con_battle_elixir,1,28,mat_refined_herb:2|CARROT:64
 potion_resist_minor,Resistance Potion Minor,alchemy_resist,alchemy,1,con_resist_minor,1,16,mat_refined_herb:1|mat_potion_base_resist:3
 potion_resist_major,Resistance Potion,alchemy_resist,alchemy,2,con_resist_major,1,22,mat_refined_herb:2|mat_potion_base_resist:8
-feast_warrior,Warrior's Feast,cooking,cooking,1,con_feast_warrior,1,20,mat_field_shard:5|mat_refined_herb:1|CARROT:5
-feast_slayer,Slayer's Feast,cooking,cooking,2,con_feast_slayer,1,25,mat_field_shard:3|mat_refined_herb:1|POTATO:5
-feast_assassin,Assassin's Feast,cooking,cooking,2,con_feast_assassin,1,30,mat_field_shard:3|mat_refined_herb:1|WHEAT:5
-feast_hunter,Hunter's Feast,cooking,cooking,1,con_feast_hunter,1,18,mat_field_shard:5|mat_refined_herb:1|CARROT:8
-potion_gold,Gold Boost Potion,alchemy_life,alchemy,1,con_potion_gold,1,15,mat_refined_herb:1|WHEAT:5
-potion_enhance,Enhancement Boost Potion,alchemy_life,alchemy,1,con_potion_enhance,1,15,mat_refined_herb:1|POTATO:5
-potion_exp,EXP Boost Potion,alchemy_life,alchemy,1,con_potion_exp,1,15,mat_refined_herb:1|CARROT:5
+feast_warrior,Warrior's Feast,cooking,cooking,1,con_feast_warrior,1,20,mat_field_shard:5|mat_refined_herb:1|CARROT:64
+feast_slayer,Slayer's Feast,cooking,cooking,2,con_feast_slayer,1,25,mat_field_shard:3|mat_refined_herb:1|POTATO:64
+feast_assassin,Assassin's Feast,cooking,cooking,2,con_feast_assassin,1,30,mat_field_shard:3|mat_refined_herb:1|WHEAT:64
+feast_hunter,Hunter's Feast,cooking,cooking,1,con_feast_hunter,1,18,mat_field_shard:5|mat_refined_herb:1|CARROT:64
+potion_gold,Gold Boost Potion,alchemy_life,alchemy,1,con_potion_gold,1,15,mat_refined_herb:1|WHEAT:64
+potion_enhance,Enhancement Boost Potion,alchemy_life,alchemy,1,con_potion_enhance,1,15,mat_refined_herb:1|POTATO:64
+potion_exp,EXP Boost Potion,alchemy_life,alchemy,1,con_potion_exp,1,15,mat_refined_herb:1|CARROT:64
