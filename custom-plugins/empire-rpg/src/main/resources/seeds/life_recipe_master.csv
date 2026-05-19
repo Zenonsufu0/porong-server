@@ -12,3 +12,6 @@ feast_warrior,Warrior's Feast,cooking,cooking,1,con_feast_warrior,1,20,mat_field
 feast_slayer,Slayer's Feast,cooking,cooking,2,con_feast_slayer,1,25,mat_field_shard:3|CARROT:10
 feast_assassin,Assassin's Feast,cooking,cooking,2,con_feast_assassin,1,30,mat_field_shard:3|POTATO:10
 feast_hunter,Hunter's Feast,cooking,cooking,1,con_feast_hunter,1,18,mat_field_shard:5|WHEAT:10
+potion_gold,Gold Boost Potion,alchemy_life,alchemy,1,con_potion_gold,1,15,res_herb_imperial:2|WHEAT:5
+potion_enhance,Enhancement Boost Potion,alchemy_life,alchemy,1,con_potion_enhance,1,15,res_herb_imperial:2|POTATO:5
+potion_exp,EXP Boost Potion,alchemy_life,alchemy,1,con_potion_exp,1,15,res_herb_imperial:2|CARROT:5
