@@ -8,7 +8,7 @@ potion_heal_major,Greater Healing Potion,alchemy_heal,alchemy,3,con_heal_major,1
 potion_battle_elixir,Battle Elixir,alchemy_battle,alchemy,2,con_battle_elixir,1,28,mat_potion_base_battle:2|CARROT:5
 potion_resist_minor,Resistance Potion Minor,alchemy_resist,alchemy,1,con_resist_minor,1,16,mat_potion_base_resist:3
 potion_resist_major,Resistance Potion,alchemy_resist,alchemy,2,con_resist_major,1,22,mat_potion_base_resist:8
-feast_warrior,Warrior's Feast,cooking,cooking,1,con_feast_warrior,1,20,mat_leather_wild:5|WHEAT:15
-feast_slayer,Slayer's Feast,cooking,cooking,2,con_feast_slayer,1,25,mat_slime_corrupted:3|CARROT:10
-feast_assassin,Assassin's Feast,cooking,cooking,2,con_feast_assassin,1,30,mat_crest_knight:3|POTATO:10
-feast_hunter,Hunter's Feast,cooking,cooking,1,con_feast_hunter,1,18,mat_iron_mine:5|WHEAT:10
+feast_warrior,Warrior's Feast,cooking,cooking,1,con_feast_warrior,1,20,mat_field_shard:5|WHEAT:15
+feast_slayer,Slayer's Feast,cooking,cooking,2,con_feast_slayer,1,25,mat_field_shard:3|CARROT:10
+feast_assassin,Assassin's Feast,cooking,cooking,2,con_feast_assassin,1,30,mat_field_shard:3|POTATO:10
+feast_hunter,Hunter's Feast,cooking,cooking,1,con_feast_hunter,1,18,mat_field_shard:5|WHEAT:10
