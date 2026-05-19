@@ -1,7 +1,8 @@
 facility_id,level,base_min,base_max,rare_chance_percent,storage_hours_cap,upgrade_gold_cost,basic_cost_item_id,basic_cost_amount,theme_cost_item_id,theme_cost_amount
-estate_herb_plot,1,2,3,0,24,0,res_herb_imperial,0,-,0
-estate_herb_plot,2,3,4,0,30,8000,res_herb_imperial,20,-,0
-estate_herb_plot,3,4,5,4,36,18000,res_herb_imperial,35,mat_refined_herb,6
-estate_resonance_extractor,1,2,3,0,24,0,res_ore_resonance,0,-,0
-estate_resonance_extractor,2,3,4,0,30,10000,res_ore_resonance,16,mat_ore_ingot,4
-estate_resonance_extractor,3,4,5,5,36,22000,res_ore_resonance,28,mat_resonance_powder,8
+estate_herb_plot,1,2,3,0,12,0,res_herb_imperial,0,-,0
+estate_herb_plot,2,3,4,0,16,8000,res_herb_imperial,20,-,0
+estate_herb_plot,3,4,6,5,24,18000,res_herb_imperial,35,mat_refined_herb,6
+estate_resonance_extractor,1,2,3,0,12,0,res_ore_resonance,0,-,0
+estate_resonance_extractor,2,3,4,0,16,10000,res_ore_resonance,16,mat_ore_ingot,4
+estate_resonance_extractor,3,4,6,6,24,22000,res_ore_resonance,28,mat_resonance_powder,8
+estate_workshop,1,3,3,0,0,0,-,0,-,0

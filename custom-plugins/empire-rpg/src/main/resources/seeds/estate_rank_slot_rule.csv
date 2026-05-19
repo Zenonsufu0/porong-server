@@ -1,0 +1,9 @@
+estate_id,rank_code,max_facility_slots
+main_estate,initial,4
+main_estate,knight,6
+main_estate,baronet,7
+main_estate,baron,9
+main_estate,viscount,11
+main_estate,count,13
+main_estate,marquess,15
+main_estate,duke,18

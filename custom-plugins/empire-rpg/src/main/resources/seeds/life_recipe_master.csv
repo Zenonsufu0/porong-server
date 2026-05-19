@@ -1,3 +1,10 @@
 recipe_id,recipe_name,recipe_type,life_type,required_level,result_item_id,result_amount,exp_gain,materials
 refine_herb_basic,Refined Herb,refining,refining,1,mat_refined_herb,1,12,res_herb_imperial:3
-potion_heal_normal,Basic Healing Potion,alchemy_heal,alchemy,1,con_basic_healing_potion,1,16,res_herb_imperial:2|mat_refined_herb:1
+potion_base_heal,Healing Potion Base,alchemy_prep,alchemy,1,mat_potion_base_heal,1,14,res_herb_imperial:2|WHEAT:5
+potion_base_battle,Battle Potion Base,alchemy_prep,alchemy,1,mat_potion_base_battle,1,14,res_herb_imperial:2|CARROT:5
+potion_heal_basic,Basic Healing Potion,alchemy_heal,alchemy,1,con_basic_healing_potion,1,18,mat_potion_base_heal:1|WHEAT:3
+potion_heal_mid,Healing Potion,alchemy_heal,alchemy,2,con_healing_mid,1,24,mat_potion_base_heal:2|POTATO:5
+potion_heal_major,Greater Healing Potion,alchemy_heal,alchemy,3,con_healing_major,1,35,mat_potion_base_heal:3|mat_refined_herb:1
+potion_battle_elixir,Battle Elixir,alchemy_battle,alchemy,2,con_battle_elixir,1,28,mat_potion_base_battle:2|CARROT:5
+potion_resist_minor,Resistance Potion Minor,alchemy_resist,alchemy,1,con_resist_minor,1,16,mat_potion_base_resist:3
+potion_resist_major,Resistance Potion,alchemy_resist,alchemy,2,con_resist_major,1,22,mat_potion_base_resist:8
