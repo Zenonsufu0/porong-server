@@ -25,12 +25,12 @@ if [ -n "$(git status --short)" ]; then
 fi
 
 echo "=== Merging codex-review into master ==="
-git merge codex-review
+git merge --no-edit codex-review
 
 echo
 echo "=== Syncing review worktree with latest master ==="
 cd "$REVIEW"
-git merge master
+git merge --no-edit master
 
 echo
 echo "=== Done ==="

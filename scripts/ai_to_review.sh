@@ -25,7 +25,7 @@ if [ -n "$(git status --short)" ]; then
 fi
 
 echo "=== Merging master into codex-review ==="
-git merge master
+git merge --no-edit master
 
 echo
 echo "=== Review worktree is ready ==="
