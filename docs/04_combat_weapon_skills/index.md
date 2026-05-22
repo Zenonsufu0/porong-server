@@ -1,6 +1,6 @@
 # 04. 전투 / 무기 / 스킬
 
-> **[STATUS: DRAFT]** — 망치→도끼 수정 완료 (DL-003, DL-004), 마력 과부하 메시지 제거 완료 (DL-002). `CANON.md` 참조.
+> **[STATUS: DRAFT]** — 망치→도끼 및 `hammer`→`axe` 수정 완료 (DL-003, DL-004, DL-025), 마력 과부하 메시지 제거 완료 (DL-002). `CANON.md` 참조.
 
 ## 입력 방식
 
@@ -70,7 +70,7 @@
 
 ## 스킬 조회
 
-각인 GUI는 `docs/08_resourcepack_pipeline/`에 현행 기준으로 재작성 필요하다. 슬롯에서 각인 A / B를 선택한다.
+각인 GUI는 `docs/08_resourcepack_pipeline/gui_engraving.md`에 작성 완료됐다. 슬롯에서 각인 A / B를 선택한다.
 
 각 각인 아이콘 hover lore에 LC / RC / SRC / F 스킬 설명이 표시된다.
 
@@ -126,10 +126,10 @@
 | 화면 | 설계 문서 |
 |---|---|
 | 캐릭터 (장비 패널) — 장착·치장·토글·스탯 배분 | `docs/08_resourcepack_pipeline/gui_equipment_panel.md` |
-| 강화 GUI | 현행 기준 재작성 필요 |
-| 잠재능력 큐브 GUI | 현행 기준 재작성 필요 |
-| 각인 GUI | 현행 기준 재작성 필요 |
-| 전승 GUI | 현행 기준 재작성 필요 |
+| 강화 GUI | `docs/08_resourcepack_pipeline/gui_enhancement.md` |
+| 잠재능력 큐브 GUI | `docs/08_resourcepack_pipeline/gui_potential.md` |
+| 각인 GUI | `docs/08_resourcepack_pipeline/gui_engraving.md` |
+| 전승 GUI | `docs/08_resourcepack_pipeline/gui_succession.md` |
 | 외형 / 치장 시스템 | `docs/08_resourcepack_pipeline/gui_equipment_panel.md §5` |
 | 메인 허브 (장비/영지/보스/탐험) | `docs/08_resourcepack_pipeline/gui_hub_structure.md` |
 

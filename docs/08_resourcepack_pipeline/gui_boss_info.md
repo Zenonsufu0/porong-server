@@ -1,6 +1,6 @@
 # 보스 정보 GUI 설계 (54슬롯)
 
-> **[STATUS: REFERENCE]** — 보스 정보 GUI 레이아웃·흐름 기준. 보스 수치는 `06_fields_bosses/` 문서가 우선.
+> **[STATUS: DRAFT]** — 보스 정보 GUI 재작성 초안. 영지·보스·필드 GUI는 세부 사항 재작성 필요 상태다.
 
 > 기반: `gui_hub_structure.md`  
 > 복원: `_archive/gui_functional_specs.md` §7 (2026-05-23) — 드랍 lore 현행 기준 수정

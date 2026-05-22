@@ -60,7 +60,7 @@
 
 ```yaml
 skill_id: string
-weapon_type: sword | hammer | spear | crossbow | scythe | staff
+weapon_type: sword | axe | spear | crossbow | scythe | staff
 name: string
 cooldown: number
 cast_time: number

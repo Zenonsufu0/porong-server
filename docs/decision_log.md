@@ -29,7 +29,7 @@
 **파일:**  
 - `docs/04_combat_weapon_skills/weapon_skills_v1.md` (전체 표시명 치환)  
 - `docs/04_combat_weapon_skills/index.md` (무기 클래스 테이블, GUI 레이아웃, 아이콘 테이블)  
-**변경:** 표시명 "망치" → "도끼" (YAML 코드 식별자 `hammer`는 구현 로직이므로 유지)  
+**변경:** 표시명 "망치" → "도끼" (당시 YAML 코드 식별자 `hammer`는 구현 로직으로 유지했으나, DL-025에서 `axe`로 전환 확정)
 **이유:** `final_master_plan.md`의 "전투와 장비 성장"에서 무기 6종 중 "도끼"로 확정됨. `weapon_skills_v1.md`의 도끼 항목도 `minecraft:netherite_axe`를 추천 베이스 아이템으로 기재함.  
 **근거:** `final_master_plan.md`의 "전투와 장비 성장" (2026-05-20 기준)
 
@@ -383,3 +383,33 @@
 
 **이유:** Phase 1~4 이후에도 활성 문서 일부가 구버전 키워드를 현재 구현 기준처럼 포함하고 있었음.
 **근거:** Phase 5 활성 문서 스캔 결과
+
+---
+
+## 2026-05-23 — 사용자 확정 반영
+
+### DL-025 강화석 DB 재화 및 `axe` 내부 식별자 확정
+
+**파일:**
+- `docs/02_database_api_stats/CANON.md`
+- `docs/02_database_api_stats/economy_numbers_v2.md`
+- `docs/02_database_api_stats/equipment_growth_spec.md`
+- `docs/06_fields_bosses/CANON.md`
+- `docs/06_fields_bosses/drop_tables_v1.md`
+- `docs/final_master_plan.md`
+- `docs/01_plugin_architecture/implementation_reference.md`
+- `docs/04_combat_weapon_skills/CANON.md`
+- `docs/04_combat_weapon_skills/weapon_skills_v1.md`
+- `docs/04_combat_weapon_skills/index.md`
+- `docs/08_resourcepack_pipeline/index.md`
+- `docs/08_resourcepack_pipeline/gui_todo_list.md`
+- `docs/08_resourcepack_pipeline/gui_boss_info.md`
+
+**변경:**
+- 강화석은 실물 아이템 드랍이 아니라 DB 가상 재화로 처치 시 직접 적립/소모하는 기준으로 통일
+- `mat_stone_enhance` 실물 드랍/소모 표현 제거
+- 무기 내부 식별자 `hammer` 유지 방침을 폐기하고 `axe`로 전환
+- GUI 세부 설계 상태를 장비 계열 작성완료, 영지·보스·필드 계열 재작성필요로 정리
+
+**이유:** 사용자 확정에 따라 강화석 데이터 모델과 무기 내부 식별자 기준을 명확히 하고, 진행 중인 GUI 상세 설계 상태를 실제 작업 상태와 일치시킴.
+**근거:** 사용자 확인 (2026-05-23)

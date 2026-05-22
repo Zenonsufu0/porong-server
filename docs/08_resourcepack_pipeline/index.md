@@ -9,7 +9,7 @@
 - [GUI 허브 구조 설계](gui_hub_structure.md) — 메인 허브 4분할, 서브 허브 4종, 보스 방 시스템, 접근 제한 정책
 - [GUI 장비 패널 설계](gui_equipment_panel.md) — 54슬롯 장착·치장·외형 토글·스탯 배분 패널
 
-> `gui_functional_specs.md`, `gui_territory_status.md`, `gui_boss_info.md`는 구버전 마력/강화석 파편/전승권/보스 보상 기준이 섞여 archive로 이동됨. 강화·잠재·각인·전승·공방·영지상태·보스정보 GUI 상세는 현행 CANON 기준으로 재작성 필요.
+> GUI 세부 설계는 진행 중이다. 장비 계열 GUI(강화·잠재·각인·전승·장비 패널)는 작성 완료 기준이며, 영지·보스·필드 계열 GUI는 현행 CANON 기준으로 재작성 필요하다.
 
 ---
 
@@ -175,7 +175,7 @@ cp "/mnt/c/Users/User/Project/포로서버 에셋/낫/scythe_adventurer_poro_01.
 
 ## 무기 형태별 geometry 전략
 
-직선 무기 (검, 창, 해머):
+직선 무기 (검, 창, 도끼):
 - geometry 중심으로 제작한다.
 - blade, shaft, guard, handle 모두 큐브 geometry로 표현한다.
 

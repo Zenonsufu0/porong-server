@@ -26,7 +26,7 @@
 
 | 문서 | Archive 이유 | 대체 문서 |
 |---|---|---|
-| `enhancement_droprate_v1.md` | 강화석 파편 시스템 기반 드랍률 계산. 파편 시스템 폐지(강화석 직접 드랍/소모)로 전체 계산 방식 무효. | `docs/06_fields_bosses/drop_tables_v1.md` (직접 소모 기준 드랍률 재산정 필요) |
+| `enhancement_droprate_v1.md` | 강화석 파편 시스템 기반 드랍률 계산. 파편 시스템 폐지 및 강화석 DB 가상 재화 확정으로 전체 계산 방식 무효. | `docs/06_fields_bosses/drop_tables_v1.md` (DB 직접 적립 기준 지급률 재산정 필요) |
 
 ## PHASE 8 — GUI 구버전 문서 archive (이동일: 2026-05-22)
 
