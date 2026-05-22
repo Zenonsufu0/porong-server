@@ -2,7 +2,7 @@
 
 > **[STATUS: REFERENCE]** — 개발 Phase 참조. 공식 시즌 방향은 `../final_master_plan.md`가 우선.
 
-> 확정 기준: final_master_plan.md §16 (2026-05-21)
+> 확정 기준: `final_master_plan.md`의 "개발 로드맵" (2026-05-21)
 
 ## Phase 1. 기반
 

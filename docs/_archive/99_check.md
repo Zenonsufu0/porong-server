@@ -1,6 +1,6 @@
 # 강화 경제 검토 보고서
 
-> **[STATUS: DEPRECATED]** — 검토 결과가 `economy_numbers_v2.md`에 반영 완료됨. PHASE 2에 `_archive/` 이동 예정.
+> **[STATUS: ARCHIVED]** — 검토 결과가 `economy_numbers_v2.md`에 반영 완료된 강화 경제 검토 보고서.
 
 > 작성일: 2026-05-15
 > 목적: 강화석·골드·강화수치 역전 구조 수치 검증
