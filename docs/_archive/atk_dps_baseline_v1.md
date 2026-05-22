@@ -1,6 +1,6 @@
 # ATK / DPS 기준선 v1
 
-> **[STATUS: DEPRECATED]** — 구 선형 ATK 공식 기반. 문서 내 자체 선언: "v2 공식으로 재산출 필요". PHASE 2에 `_archive/` 이동 예정.
+> **[STATUS: ARCHIVED]** — 구 선형 ATK 공식 기반. 문서 내 자체 선언: "v2 공식으로 재산출 필요".
 
 > 기준일: 2026-05-13
 > 작성: combat-balance 서브에이전트

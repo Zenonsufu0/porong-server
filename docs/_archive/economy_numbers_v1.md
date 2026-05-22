@@ -1,6 +1,6 @@
 # 경제 수치 검토 v1
 
-> **[STATUS: DEPRECATED]** — `economy_numbers_v2.md` (×1.5 골드 조정 반영)로 대체됨. PHASE 2에 `_archive/` 이동 예정.
+> **[STATUS: ARCHIVED]** — `economy_numbers_v2.md` (×1.5 골드 조정 반영)로 대체된 구 경제 수치 문서.
 
 > 기준일: 2026-05-08  
 > 작성: economy-reviewer 서브에이전트  

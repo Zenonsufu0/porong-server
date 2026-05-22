@@ -19,7 +19,7 @@
 
 | 문서 | 역할 |
 |---|---|
-| `../final_master_plan.md` §7, §15 | 성장 경제와 API 요약 |
+| `../final_master_plan.md` — "전투와 장비 성장", "데이터와 API" | 성장 경제와 API 요약 |
 | `economy_numbers_v2.md` | 강화 비용, 골드 경제, 경제 운영 지표 |
 | `potential_options_v1.md` | 잠재 옵션 풀과 등급/라인 구조 |
 | `equipment_growth_spec.md` | 장비 성장 상세 |

@@ -165,7 +165,7 @@ docs/
 - 플레이어 데이터 관리 방식 (5분 캐시 + 퇴장 저장)
 - 제거/보류 플러그인 목록
 
-**참조 소스:** `final_master_plan.md §3`, `final_설계_plan.md §1`
+**참조 소스:** `final_master_plan.md`의 "플러그인 구조", `docs/01_plugin_architecture/implementation_reference.md`
 
 ---
 
@@ -180,7 +180,7 @@ docs/
 - 피해 계산 공식
 - 치명타 기본값 (확률 10%, 배율 1.5배)
 
-**참조 소스:** `final_master_plan.md §5`, `combat_balance_v2.md §1~3`  
+**참조 소스:** `final_master_plan.md`의 "전투와 장비 성장", `combat_balance_v2.md`
 **수정 필요:** weapon_skills_v1.md의 "망치" 표기 → "도끼"로 통일
 
 ---
@@ -190,14 +190,14 @@ docs/
 #### `02_database_api_stats/CANON.md`
 
 **포함 내용:**
-- 강화 비용표 확정판 (골드 + 강화석, 1~25강) — final_master_plan §7.3 기준
+- 강화 비용표 확정판 (골드 + 강화석, 1~25강) — `final_master_plan.md`의 "전투와 장비 성장" 기준
 - 잠재 등업 확률 + 라인별 이탈 확률
 - 큐브 1회 5,000G, 조각 10개 = 큐브 1개
 - 골드 드랍 기준 (v2 ×1.5 적용 확정판)
 - 강화석 드랍 기준 (직접 드랍 확정, 파편 폐지)
 - 영지 작위 업그레이드 비용표
 
-**참조 소스:** `final_master_plan.md §7~8`, `economy_numbers_v2.md`  
+**참조 소스:** `final_master_plan.md`의 "전투와 장비 성장" 및 "개인 영지", `economy_numbers_v2.md`  
 **주의:** economy_numbers_v2의 골드 비용 (1강 180G) vs final_master_plan (1강 2,000G) 불일치 → **final_master_plan 기준** 사용
 
 ---
@@ -213,7 +213,7 @@ docs/
 - 공방 탭 6종 목록 + 삭제된 탭 목록
 - 영지 저장고 입출금 규칙
 
-**참조 소스:** `final_master_plan.md §8`, `05_island_farm_system/index.md`  
+**참조 소스:** `final_master_plan.md`의 "개인 영지", `05_island_farm_system/index.md`  
 **주의:** numbers_and_open_decisions의 "공방 대기열 5~12슬롯" → **무시**. final_master_plan "1대 = 슬롯 3개" 사용
 
 ---
@@ -229,7 +229,7 @@ docs/
 - 드랍 구조 (일반몹/정예몹/필드보스/시즌보스)
 - IL 경고 시스템
 
-**참조 소스:** `final_master_plan.md §5~8 (보스 관련)`, `drop_tables_v1.md`, `06_fields_bosses/index.md`
+**참조 소스:** `final_master_plan.md`의 "필드, 보스, 드랍", `drop_tables_v1.md`, `06_fields_bosses/index.md`
 
 ---
 

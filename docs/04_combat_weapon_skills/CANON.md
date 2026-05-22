@@ -18,7 +18,7 @@
 
 | 문서 | 역할 |
 |---|---|
-| `../final_master_plan.md` §5, §7 | 전투 원칙과 장비 성장 요약 |
+| `../final_master_plan.md` — "전투와 장비 성장" | 전투 원칙과 장비 성장 요약 |
 | `weapon_skills_v1.md` | 스킬 계수, 쿨타임, 자원, 구현 메모 |
 | `combat_balance_v2.md` | 전투 수치 계산 참조 |
 | `level_stat_system_v1.md` | 레벨별 스탯 |

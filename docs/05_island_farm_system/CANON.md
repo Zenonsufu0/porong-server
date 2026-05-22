@@ -18,7 +18,7 @@
 
 | 문서 | 역할 |
 |---|---|
-| `../final_master_plan.md` §8 | 영지 원칙과 시스템 요약 |
+| `../final_master_plan.md` — "개인 영지" | 영지 원칙과 시스템 요약 |
 | `island_system_design.md` | 작위, 시설, 생산 상세 |
 | `workshop_crafting_spec.md` | 공방 레시피 상세 |
 | `index.md` | 영지 시스템 개요 |

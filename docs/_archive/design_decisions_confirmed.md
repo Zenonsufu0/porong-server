@@ -1,6 +1,6 @@
 # 확정 설계 결정사항 (2026-05-08)
 
-> **[STATUS: DEPRECATED]** — `00_master_plan.md` 기반 결정사항. 이후 결정들은 `final_master_plan.md §18`에 통합됨. PHASE 2에 `_archive/` 이동 예정.
+> **[STATUS: ARCHIVED]** — `00_master_plan.md` 기반 구 결정사항. 이후 결정들은 `final_master_plan.md`와 `decision_log.md`에 흡수됨.
 
 > 이전 검토 결과 대비 변경/신규 확정 사항만 기록한다.  
 > 기반 문서: `docs/00_master_plan.md`, `docs/04_combat_weapon_skills/combat_balance_v1.md`, `docs/02_database_api_stats/economy_numbers_v1.md`

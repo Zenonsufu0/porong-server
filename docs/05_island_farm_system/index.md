@@ -2,7 +2,7 @@
 
 > **[STATUS: DRAFT]** — `CANON.md` 참조. 마력 시스템은 완전 제거됨 (2026-05-19 확정).
 
-> 확정 기준: final_master_plan.md §8 (2026-05-21)
+> 확정 기준: `final_master_plan.md`의 "개인 영지" (2026-05-21)
 
 ## 핵심 구조
 

@@ -1,6 +1,6 @@
 # 포로 서버 1차 시즌 최종 마스터 플랜
 
-> **[STATUS: DEPRECATED]** — `final_master_plan.md` (2026-05-20)로 완전 대체됨. 수정 금지. PHASE 2에 `_archive/` 이동 예정.
+> **[STATUS: ARCHIVED]** — `final_master_plan.md` (2026-05-20)로 완전 대체된 구버전 마스터플랜. 수정 금지.
 
 > 기준일: 2026-05-08  
 > 서버 기준: Paper 1.21.10 / Java 21 / Java + Gradle 커스텀 플러그인 / Linux 운영 예정  
