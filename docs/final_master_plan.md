@@ -43,6 +43,7 @@
 | 약관/운영정책 | `docs/09_terms_and_policy/index.md` |
 | 개발 로드맵 | `docs/10_development_roadmap/index.md` |
 | 맵 디자인 | `docs/12_map_design/` |
+| 미확정 아이디어 | `docs/idea_inbox.md` |
 | Archive | `docs/_archive/README.md` |
 
 ---

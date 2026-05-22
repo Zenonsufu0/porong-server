@@ -16,6 +16,7 @@
   - Roadmap/issues: `docs/10_development_roadmap/index.md`
   - Archived rebuild/audit docs: `docs/_archive/README.md`
   - Map design: `docs/12_map_design/`
+  - Unconfirmed ideas / inbox: `docs/idea_inbox.md`
 
 ## Safety and scope
 
@@ -51,3 +52,52 @@
 - Before changing files, summarize the intended files to change.
 - After changing files, summarize changed files and what was changed.
 - Prefer small, reviewable changes over broad rewrites.
+
+---
+
+## 아이디어 문서 반영 프로토콜
+
+사용자가 작업 중 새 아이디어·설정 변경·기획 방향·구현 방향을 말하면 채팅에만 남기지 않는다.  
+반드시 아래 기준으로 분류하고 해당 문서에 반영하거나, 반영하지 않는다면 이유를 보고한다.
+
+| 분류 | 조건 | 반영 위치 |
+|---|---|---|
+| CANON 반영 | 확정된 공식 기준 변경 | 관련 `docs/NN_*/CANON.md` + `decision_log.md` |
+| 결정 기록 | 설계 결정 (이유가 있는 확정) | `docs/decision_log.md` (DL-NNN 형식) |
+| DRAFT 보관 | 아직 미확정·검토 필요 | `docs/idea_inbox.md` |
+| 폐기 기록 | 대체·폐기된 내용 | `docs/decision_log.md` 또는 `docs/_archive/README.md`에 이유 기록 |
+| 미반영 | 위 어디에도 해당 안 됨 | 보고 시 "미반영 이유" 명시 |
+
+`docs/idea_inbox.md` 운용 규칙:
+- 아이디어 확정 시: 관련 CANON.md에 반영 + decision_log에 DL-NNN 기록 + inbox 항목에 `[PROMOTED → DL-NNN]` 표시
+- 폐기 시: 항목에 `[폐기 — 이유]` 표시
+- 비워두지 않는다: 불확실하면 inbox에라도 기록한다
+
+---
+
+## 작업 완료 보고 형식
+
+모든 작업 완료 후 반드시 아래 형식으로 보고한다.  
+항목이 해당 없으면 "해당 없음"으로 명시한다. 생략하지 않는다.
+
+```
+[작업 완료 보고]
+- 변경 요약:
+- 수정/생성한 파일:
+- 반영한 사용자 아이디어:
+- 문서 반영 상태:
+  - CANON 반영:
+  - DRAFT/보류 (idea_inbox):
+  - decision_log 기록:
+  - 미반영 (이유):
+- 검증:
+  - git status:
+  - git diff --stat:
+  - git diff --check:
+- 남은 위험/미확정:
+- 다음 단계:
+  - 맞으면 실행할 명령어:
+  - 아니면 추가 지시할 내용:
+```
+
+commit·merge는 자동으로 하지 않는다. 다음 단계 명령어는 제안만 한다.

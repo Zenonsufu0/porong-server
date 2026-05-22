@@ -82,6 +82,40 @@ case "$cmd" in
     git commit -m "$*"
     ;;
 
+  handoff-main)
+    cd "$MAIN"
+    if [ -z "$*" ]; then
+      echo "ERROR: commit message required."
+      echo "Usage: orc handoff-main \"message\""
+      exit 1
+    fi
+    echo "=== MAIN: commit ==="
+    git status --short
+    git add -A
+    git diff --cached --stat
+    git commit -m "$*"
+    echo
+    echo "=== Handing off to review worktree ==="
+    "$MAIN/scripts/ai_to_review.sh"
+    ;;
+
+  handoff-review)
+    cd "$REVIEW"
+    if [ -z "$*" ]; then
+      echo "ERROR: commit message required."
+      echo "Usage: orc handoff-review \"message\""
+      exit 1
+    fi
+    echo "=== REVIEW: commit ==="
+    git status --short
+    git add -A
+    git diff --cached --stat
+    git commit -m "$*"
+    echo
+    echo "=== Handing off to main worktree ==="
+    "$MAIN/scripts/ai_to_master.sh"
+    ;;
+
   prompt-docs-review)
     cat <<'PROMPT'
 현재 변경사항을 docs/canon/archive 관점에서 리뷰해.
@@ -150,6 +184,8 @@ Usage:
   orc diff-review
   orc commit-main "message"
   orc commit-review "message"
+  orc handoff-main "message"    # commit in main + to-review (one step)
+  orc handoff-review "message"  # commit in review + to-master (one step)
   orc prompt-docs-review
   orc prompt-code-review
   orc prompt-docs-fix
@@ -158,14 +194,16 @@ Typical loop:
   # Claude worktree
   orc main
   claude
-  orc commit-main "work summary"
-  orc to-review
+  orc handoff-main "work summary"   # commit + hand off to review
 
   # Codex worktree
   orc review
   codex
-  orc commit-review "review summary"
-  orc to-master
+  orc handoff-review "review summary"  # commit + hand off to main
+
+  # Step-by-step alternative (same result):
+  orc commit-main "work summary" && orc to-review
+  orc commit-review "review summary" && orc to-master
 HELP
     ;;
 
