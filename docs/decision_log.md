@@ -166,3 +166,84 @@
 **변경:** AI 작업 루프의 공식 명령어를 `orc`로 통일하고, main → review는 `orc handoff-main` / `orc to-review`, review → main은 `orc handoff-review` / `orc to-master` 흐름으로 정리. `handoff-*` 명령은 현재 worktree 변경사항을 `add -A` 후 commit하고 대응하는 동기화 명령을 실행하는 것으로 정의. `to-review` / `to-master`는 양쪽 worktree가 dirty 상태이면 중단하는 안전 동기화 명령으로 명시.
 **이유:** Claude(main/master)와 Codex(review/codex-review)의 역할을 분리하면서도 handoff 명령과 legacy alias 설명이 혼동되지 않도록 공식 workflow를 단일 명령 체계로 정리하기 위함.
 **근거:** `CLAUDE.md`와 `AGENTS.md`의 작업 루프 명령어 섹션, `scripts/orchestra.sh`
+
+---
+
+## 2026-05-22 — 미확정 M-tag 확정 처리
+
+### DL-014 M-6 확정 — 강화 흔적 3종 아이템 정의·수급 경로
+
+**파일:**
+- `docs/final_master_plan.md` (§13 미확정 항목에서 제거)
+- `docs/02_database_api_stats/CANON.md` (흔적 수급 경로 추가)
+- `docs/05_island_farm_system/CANON.md` (공방 가공기 제작 대상 명시)
+
+**변경:**
+- 별의 흔적 / 달의 흔적 / 태양의 흔적 = **강화 성공률 보정 아이템**으로 정의
+- 수급 경로: **영지 공방 가공기에서 제작 가능** (레시피 미확정 — 사용자 확정 필요)
+- economy_numbers_v2.md 강화표의 "강화 흔적 (선택)" 열과 정합성 확보
+
+**이유:** 21강 이상 강화 진행 시 흔적 소모가 필수인데 수급 경로가 미확정이면 강화 진행 자체가 막히는 블로커였음. M-2 서브 에이전트 분석에서도 "성공률 수치보다 흔적 수급이 더 큰 병목"으로 지적됨.  
+**근거:** 사용자 확인 (2026-05-22)
+
+---
+
+### DL-015 M-4 확정 — 전승권 비용
+
+**파일:**
+- `docs/final_master_plan.md` (§13 미확정 항목에서 제거)
+- `docs/02_database_api_stats/CANON.md` (전승권 비용 추가)
+
+**변경:**
+- 기본 전승: **0G (무료)**
+- 등급전승권: **100,000G**
+- 세부스탯전승권: **100,000G**
+
+**이유:** 오픈 후 7~14일차 시세 확인 후 결정 예정이었으나 기본 전승 무료 + 등급/세부스탯 전승권 각 100,000G로 사전 확정.  
+**근거:** 사용자 확인 (2026-05-22)
+
+---
+
+## 2026-05-22 — PHASE 7 큐브 비용 하향 및 문서 정리
+
+### DL-016 큐브 1회 비용 5,000G → 500G
+
+**파일:**
+- `docs/02_database_api_stats/CANON.md`
+- `docs/02_database_api_stats/economy_numbers_v2.md`
+
+**변경:**
+- 큐브 1회 사용 골드 비용: **5,000G → 500G**
+- 선발대 기준 일 150회 사용 (75,000G/일 소모) 기준으로 추정치 재산정
+
+**이유:** 큐브를 일상적인 골드 소모처로 활용. 5,000G는 선발대도 하루 0.4회 수준으로 잠재 성장 체감이 너무 낮았음.  
+**근거:** 사용자 확인 (2026-05-22)
+
+---
+
+### DL-017 enhancement_droprate_v1.md 아카이브
+
+**파일:**
+- `docs/02_database_api_stats/enhancement_droprate_v1.md` → `docs/_archive/enhancement_droprate_v1.md`
+- `docs/_archive/README.md` (PHASE 6 항목 추가)
+
+**변경:** enhancement_droprate_v1.md를 _archive로 이동
+
+**이유:** 강화석 파편 시스템 기반 드랍률 계산 문서. 파편 시스템 폐지(강화석 직접 드랍/소모)로 계산 방식 전체 무효.  
+**근거:** 강화석 파편 시스템 폐지 확정 (DL-005 참조)
+
+---
+
+### DL-018 economy_numbers_v2.md 영지·공방 섹션 제거
+
+**파일:** `docs/02_database_api_stats/economy_numbers_v2.md`
+
+**변경:**
+- §2 영지 시설 슬롯 구성, §3 공방 가공기 레시피, §4 공방 대기열 한도 전체 삭제
+- 해당 내용은 `05_island_farm_system/island_system_design.md`, `05_island_farm_system/workshop_crafting_spec.md`가 권위 있는 최신 버전으로 유지
+- economy_numbers_v2는 강화·큐브·경제 분석 전용 문서로 범위 축소
+- §1 작위 구매 비용 재료 컬럼을 전장의 파편 기반으로 수정 (island_system_design.md 기준)
+- 폐지된 마력 결정, 자동재배기, 전투 식량, 구버전 공명 추출기 잔존 참조 일괄 제거
+
+**이유:** 같은 내용이 두 문서에 있되 economy 문서가 구버전이면 반드시 혼동 발생. AI 에이전트가 구버전을 현재 기준으로 읽는 오류 재발 방지.  
+**근거:** 사용자 지시 (2026-05-22)

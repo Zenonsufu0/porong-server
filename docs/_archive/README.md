@@ -22,6 +22,12 @@
 | `master_plan_content_audit.md` | `final_master_plan.md` 축약을 위한 감사 보고서. 결과가 `final_master_plan.md`와 각 `CANON.md`에 반영됨. | `docs/final_master_plan.md`, 각 `CANON.md` |
 | `11_remaining_decisions/index.md` | 미결정 항목 대부분이 `final_master_plan.md`와 각 도메인 문서에 흡수됨. | `docs/final_master_plan.md`의 "미확정 항목", `docs/decision_log.md` |
 
+## PHASE 6 — economy 문서 정리 (이동일: 2026-05-22)
+
+| 문서 | Archive 이유 | 대체 문서 |
+|---|---|---|
+| `enhancement_droprate_v1.md` | 강화석 파편 시스템 기반 드랍률 계산. 파편 시스템 폐지(강화석 직접 드랍/소모)로 전체 계산 방식 무효. | `docs/06_fields_bosses/drop_tables_v1.md` (직접 소모 기준 드랍률 재산정 필요) |
+
 ## 참고
 
 - 향후 archive 이동 문서는 삭제하지 말고 이 README에 이유와 대체 문서를 추가한다.
