@@ -56,14 +56,17 @@
 ## 작업 루프 명령어
 
 공식 명령어는 `orc` (`scripts/orchestra.sh`)로 통일한다.  
-legacy alias (`aistatus`, `toreview`, `tomaster`)는 존재하지만 문서에서는 권장하지 않는다.
+legacy alias (`aistatus`, `toreview`, `tomaster`)는 호환용으로 남아 있지만 공식 문서에서는 `orc` 사용을 권장한다.
 
 | 명령어 | 역할 |
 |---|---|
 | `orc status` | 양쪽 worktree 상태 확인 |
 | `orc diff-main` | main worktree diff stat (staged + unstaged) |
-| `orc handoff-main "요약"` | main에서 commit + review 워크트리로 핸드오프 |
-| `orc to-review` | commit 없이 review 워크트리로만 전달 |
+| `orc handoff-main "요약"` | main 변경사항을 `add -A` 후 commit하고 `orc to-review` 실행 |
+| `orc to-review` | main/master의 커밋된 변경사항을 review/codex-review로 동기화하고 Codex 리뷰 준비 |
+
+`orc to-review`는 양쪽 worktree가 dirty 상태이면 실행을 막는 안전 명령이다.
+`orc handoff-main`은 모든 변경사항을 `add -A` 하므로 작업이 섞였으면 먼저 `orc diff-main`으로 확인한다.
 
 commit · merge · push는 사용자 승인 후 실행한다. `orc handoff-main`은 제안만 하고 자동 실행하지 않는다.
 
