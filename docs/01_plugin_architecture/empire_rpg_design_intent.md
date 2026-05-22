@@ -29,7 +29,7 @@ EmpireRPG 하나가 서버의 모든 핵심 로직과 데이터를 소유한다.
 |---|---|
 | MythicMobs | 몹/보스 스폰 트리거, 바닐라 기반 외형만 담당. 보상/패턴 로직은 EmpireRPG가 처리 |
 | IridiumSkyblock | 영지 섬 생성/보호/방문 껍데기. 성장/저장고/생산 로직은 EmpireRPG가 처리 |
-| Citizens | 퀘스트 NPC 없음. 현재 제거 방향 |
+| Citizens | 제거 확정. NPC 기반 진행 없음 |
 
 ---
 
@@ -159,7 +159,7 @@ LifeEngineBootstrap   → LifeEngineRuntime
 ```text
 패턴 모듈 (EmpireRPG) ← 지금 구현
 보스 외형 (MythicMobs + 바닐라) ← 1차
-보스 외형 (ModelEngine) ← 2차 교체 가능
+보스 외형 (ModelEngine/BetterModel/FMM) ← 2차 확장 후보
 ```
 
 ---

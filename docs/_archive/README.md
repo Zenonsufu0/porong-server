@@ -28,6 +28,20 @@
 |---|---|---|
 | `enhancement_droprate_v1.md` | 강화석 파편 시스템 기반 드랍률 계산. 파편 시스템 폐지(강화석 직접 드랍/소모)로 전체 계산 방식 무효. | `docs/06_fields_bosses/drop_tables_v1.md` (직접 소모 기준 드랍률 재산정 필요) |
 
+## PHASE 8 — GUI 구버전 문서 archive (이동일: 2026-05-22)
+
+| 문서 | Archive 이유 | 대체 문서 |
+|---|---|---|
+| `gui_functional_specs.md` | 강화·잠재·각인·전승·공방·영지상태·보스정보 GUI가 한 문서에 섞여 있고 큐브 5,000G, 전승권 구가격, 마력/발전기, 강화석 파편 기준이 남아 있음. | 현행 `CANON.md` 기준으로 GUI별 재작성 필요 |
+| `gui_territory_status.md` | 마력 현황, 발전기, 마력 과부하를 전제로 한 영지 상태 GUI. 마력/발전기 폐지 기준과 충돌. | `docs/05_island_farm_system/CANON.md`, `docs/05_island_farm_system/island_system_design.md` 기준으로 재작성 필요 |
+| `gui_boss_info.md` | 강화석 파편 보상, 구 보스 정보, 구 타이머/보상 표기가 남아 현행 필드/보스 기준과 충돌. | `docs/06_fields_bosses/CANON.md`, `docs/06_fields_bosses/drop_tables_v1.md` 기준으로 재작성 필요 |
+
+## PHASE 9 — 구현 레퍼런스 재축약 (이동일: 2026-05-22)
+
+| 문서 | Archive 이유 | 대체 문서 |
+|---|---|---|
+| `implementation_reference_legacy.md` | 1,500줄 이상의 장문 구현 메모에 큐브 5,000G, 전승권 구가격, M-tag 미정, 구 GUI/보상 기준이 섞여 현재 CANON과 충돌. | `docs/01_plugin_architecture/implementation_reference.md`의 얇은 구현 진입점 + 각 도메인 `CANON.md`와 활성 상세 문서 |
+
 ## 참고
 
 - 향후 archive 이동 문서는 삭제하지 말고 이 README에 이유와 대체 문서를 추가한다.

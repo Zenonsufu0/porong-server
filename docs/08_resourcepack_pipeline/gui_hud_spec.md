@@ -119,7 +119,7 @@ Row2:  SRC [cd_glyph] Xs    F [cd_glyph] Xs
 | 무기 | filled 색상 | filled | empty | PNG 크기 |
 |---|---|---|---|---|
 | 검 | 빨강 | U+E140 | U+E141 | 9×9 |
-| 망치 | 주황 | U+E142 | U+E143 | 9×9 |
+| 도끼 | 주황 | U+E142 | U+E143 | 9×9 |
 | 스태프 | 하늘 | U+E144 | U+E145 | 9×9 |
 | 석궁 | 초록 | U+E146 | U+E147 | 9×9 |
 | 낫 | 보라 | U+E148 | U+E149 | 9×9 |
@@ -127,7 +127,7 @@ Row2:  SRC [cd_glyph] Xs    F [cd_glyph] Xs
 
 플러그인 글리프 계산:
 ```java
-// weaponIdx: 검=0, 망치=1, 스태프=2, 석궁=3, 낫=4, 창=5
+// weaponIdx: 검=0, 도끼=1, 스태프=2, 석궁=3, 낫=4, 창=5
 char filled = (char)(0xE140 + weaponIdx * 2);
 char empty  = (char)(0xE141 + weaponIdx * 2);
 ```
@@ -160,7 +160,6 @@ char empty  = (char)(0xE141 + weaponIdx * 2);
 | 강화 성공 | `§a✔ 강화 성공!  §e18강` |
 | 강화 실패 | `§c✘ 강화 실패` |
 | 레벨업 | `§6★ 레벨 업!  §eLv. 43` |
-| 마력 과부하 | `§c⚠ 마력 과부하! 기계 정지` |
 | 필드보스 등장 | `§c⚔ 들판 포식자 출현!` |
 
 ---

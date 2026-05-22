@@ -247,3 +247,120 @@
 
 **이유:** 같은 내용이 두 문서에 있되 economy 문서가 구버전이면 반드시 혼동 발생. AI 에이전트가 구버전을 현재 기준으로 읽는 오류 재발 방지.  
 **근거:** 사용자 지시 (2026-05-22)
+
+---
+
+## 2026-05-22 — PHASE 1 문서 통폐합 기준 확정
+
+### DL-019 문서 정리 기준과 폐기 설계 목록 확정
+
+**파일:**
+- `docs/final_master_plan.md`
+- `docs/02_database_api_stats/CANON.md`
+- `docs/04_combat_weapon_skills/CANON.md`
+- `docs/05_island_farm_system/CANON.md`
+- `docs/06_fields_bosses/CANON.md`
+- `docs/08_resourcepack_pipeline/index.md`
+
+**변경:**
+- 문서 정리 기준을 `final_master_plan.md` / 각 `CANON.md` / 최신 DL 항목 우선으로 고정
+- archive 문서는 과거 맥락 추적용이며 현재 구현·수치·GUI 기준으로 사용하지 않는다고 명시
+- 폐기된 구버전 설계 목록을 명시: 마력/발전기, 강화석 파편, 큐브 5,000G, 전승권 5,000G/50,000G, 망치 표시명, 도감/컬렉션 1차 포함, 시즌보스 주간 입장 제한, 고퀄 외부 보스 모델 1차 적용
+- archive 이동된 `enhancement_droprate_v1.md` 활성 참조를 제거하고, 드랍률 재정리 기준을 `drop_tables_v1.md`로 이동
+- 리소스팩 1차 우선순위에서 도감 GUI를 제외 항목으로 정리
+
+**이유:** 통폐합/archive 전환 전에 어떤 문서가 현재 기준이고 어떤 구버전 설계를 폐기해야 하는지 먼저 고정해야 후속 archive 이동 시 기준 충돌이 재발하지 않음.
+**근거:** 2026-05-22 문서 모순 리뷰 결과 및 사용자 지시
+
+---
+
+## 2026-05-22 — PHASE 2 구버전 GUI 문서 archive
+
+### DL-020 구버전 GUI 상세 문서 3종 archive
+
+**파일:**
+- `docs/08_resourcepack_pipeline/gui_functional_specs.md` → `docs/_archive/gui_functional_specs.md`
+- `docs/08_resourcepack_pipeline/gui_territory_status.md` → `docs/_archive/gui_territory_status.md`
+- `docs/08_resourcepack_pipeline/gui_boss_info.md` → `docs/_archive/gui_boss_info.md`
+- `docs/08_resourcepack_pipeline/index.md`
+- `docs/08_resourcepack_pipeline/gui_todo_list.md`
+- `docs/05_island_farm_system/CANON.md`
+- `docs/05_island_farm_system/index.md`
+- `docs/04_combat_weapon_skills/index.md`
+- `docs/_archive/README.md`
+
+**변경:**
+- 마력/발전기, 강화석 파편, 큐브 5,000G, 전승권 구가격, 구 보스 보상 기준이 섞인 GUI 상세 문서 3종을 archive로 이동
+- 활성 문서의 해당 링크를 제거하고 "현행 기준 재작성 필요" 상태로 표시
+- archive README에 이동 이유와 대체 기준 문서를 기록
+
+**이유:** 구버전 GUI 문서가 현재 CANON보다 상세해서 AI 에이전트가 구버전 수치와 흐름을 구현 기준으로 오인할 위험이 큼.
+**근거:** PHASE 1 폐기 설계 목록, 2026-05-22 문서 모순 리뷰 결과
+
+---
+
+## 2026-05-22 — PHASE 3 활성 상세 문서 통폐합
+
+### DL-021 경제·성장·드랍·GUI 허브 활성 문서 기준 정리
+
+**파일:**
+- `docs/02_database_api_stats/economy_numbers_v2.md`
+- `docs/02_database_api_stats/equipment_growth_spec.md`
+- `docs/02_database_api_stats/potential_options_v1.md`
+- `docs/06_fields_bosses/drop_tables_v1.md`
+- `docs/08_resourcepack_pipeline/gui_hub_structure.md`
+- `docs/08_resourcepack_pipeline/gui_shop.md`
+
+**변경:**
+- `economy_numbers_v2.md`는 강화 비용·큐브 비용·골드 경제 지표 문서로 범위를 좁히고, 잠재 확률 세부 기준은 `potential_options_v1.md`로 위임
+- 구 방어구 50% 강화석 비율, 강화석 파편 경매 표현, 자동심기 300,000G 잔재를 현재 기준으로 정리
+- `equipment_growth_spec.md`의 큐브 비용을 500G로, 전승권 비용을 DL-015 기준으로 정리
+- `drop_tables_v1.md`의 주간 첫 클리어/반복 보상 구조를 구버전 초안으로 표시하고, 큐브 비용과 균열왕 심장 용도에서 구버전 표기를 제거
+- GUI 허브/상점 문서에서 마력 잔량, 강화석 제작, 강화석 파편, 자동심기 50,000G 잔재를 현재 기준으로 정리
+
+**이유:** archive하지 않고 유지할 활성 상세 문서가 CANON보다 오래된 수치·흐름을 포함하면 통폐합 후에도 구현 기준 혼선이 계속 발생함.
+**근거:** PHASE 1 폐기 설계 목록, DL-015, DL-016, DL-018
+
+---
+
+## 2026-05-22 — PHASE 4 구현 레퍼런스 재축약
+
+### DL-022 implementation_reference.md 장문 구버전 archive
+
+**파일:**
+- `docs/01_plugin_architecture/implementation_reference.md` → `docs/_archive/implementation_reference_legacy.md`
+- `docs/01_plugin_architecture/implementation_reference.md` (현재 기준 진입점으로 재작성)
+- `docs/_archive/README.md`
+
+**변경:**
+- 1,500줄 이상의 장문 구현 레퍼런스를 archive로 이동
+- 활성 `implementation_reference.md`는 현재 CANON 기준, 구현 상세 진입점, 확정 구현 기준, 금지된 구버전 기준만 담는 얇은 문서로 재작성
+- archive README에 이동 이유와 대체 기준 문서를 기록
+
+**이유:** 기존 구현 레퍼런스에 큐브 5,000G, 전승권 구가격, M-tag 미정, 구 GUI/보상 기준이 섞여 있어 AI 에이전트가 현재 CANON보다 구버전 구현 메모를 우선할 위험이 큼.
+**근거:** PHASE 1 폐기 설계 목록, PHASE 3 활성 상세 문서 정리 결과
+
+---
+
+## 2026-05-22 — PHASE 5 활성 문서 잔여 구버전 키워드 정리
+
+### DL-023 활성 문서 최종 스캔 반영
+
+**파일:**
+- `docs/03_discord_onboarding_bot/index.md`
+- `docs/07_boss_pattern_modules/season_boss_patterns.md`
+- `docs/01_plugin_architecture/empire_rpg_design_intent.md`
+- `docs/01_plugin_architecture/empire_rpg_module_design.md`
+- `docs/04_combat_weapon_skills/combat_balance_v2.md`
+- `docs/08_resourcepack_pipeline/gui_hud_spec.md`
+- `docs/02_database_api_stats/index.md`
+
+**변경:**
+- Discord 알림 목록에서 폐지된 마력 과부하 제거
+- 보스 패턴/HUD/모듈 설계의 사용자 노출 무기명 `망치`를 `도끼`로 정리
+- 강화석 획득량 설명에서 강화석 파편 표기를 제거
+- DB/API 통계 개요에서 1차 시즌 제외 대상인 컬렉션 관련 테이블/API/통계 목표 제거
+- Citizens/외부 보스 모델 설명을 현재 CANON 기준으로 정리
+
+**이유:** Phase 1~4 이후에도 활성 문서 일부가 구버전 키워드를 현재 구현 기준처럼 포함하고 있었음.
+**근거:** Phase 5 활성 문서 스캔 결과

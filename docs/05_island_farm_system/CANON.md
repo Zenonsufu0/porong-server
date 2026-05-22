@@ -24,9 +24,10 @@
 | `workshop_crafting_spec.md` | 공방 레시피 상세 |
 | `index.md` | 영지 시스템 개요 |
 | `../08_resourcepack_pipeline/gui_storage.md` | 영지 저장고 GUI |
-| `../08_resourcepack_pipeline/gui_territory_status.md` | 영지 상태 GUI |
 | `../08_resourcepack_pipeline/gui_crop_management.md` | 작물 관리 GUI |
 
 ## 충돌 처리
 
-다른 문서에 마력 잔량, 발전기, 마력 소비 기계, 자동채굴기 기반 흐름이 남아 있으면 폐지된 구버전 설계로 본다.
+다른 문서에 마력 잔량, 발전기, 마력 소비 기계, 마력 과부하, 자동채굴기 기반 흐름이 남아 있으면 폐지된 구버전 설계로 본다.
+
+영지 GUI 문서가 위 구버전 흐름을 전제하면 해당 GUI 문서를 현재 기준으로 재작성하거나 archive로 이동한다. CANON 기준을 GUI 문서에 맞춰 되돌리지 않는다.

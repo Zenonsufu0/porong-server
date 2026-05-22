@@ -27,9 +27,9 @@
 | `economy_numbers_v2.md` | 강화 비용, 골드 경제, 경제 운영 지표 |
 | `potential_options_v1.md` | 잠재 옵션 풀과 등급/라인 구조 |
 | `equipment_growth_spec.md` | 장비 성장 상세 |
-| `enhancement_droprate_v1.md` | 강화석 드랍률 검토 참조. 단, 파편 표기는 구버전으로 본다 |
 | `../01_plugin_architecture/implementation_reference.md` | DB 스키마와 API 구현 상세 |
+| `../06_fields_bosses/drop_tables_v1.md` | 강화석·큐브 조각 드랍 상세. CANON과 충돌하는 구 수치는 정리 대상 |
 
 ## 충돌 처리
 
-구버전 문서의 강화석 파편, 보조재 B/C, 큐브 촉매, 마력 경제 항목은 폐지된 기준이다. 실제 구현 기준은 이 문서와 `economy_numbers_v2.md`의 2026-05-22 반영 내용을 우선한다.
+구버전 문서의 강화석 파편, 보조재 B/C, 큐브 5,000G, 큐브 촉매, 전승권 5,000G/50,000G, 마력 경제 항목은 폐지된 기준이다. 실제 구현 기준은 이 문서와 `economy_numbers_v2.md`의 2026-05-22 반영 내용을 우선한다.

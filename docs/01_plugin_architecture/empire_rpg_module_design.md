@@ -122,7 +122,7 @@ SkillService.useSkill(player, inputType)
 | 검 | 검세 (3) | FlashSlash | TripleStrike | GuardCounter | FinalStrike |
 | 창 | 압박 (5) | Thrust | Crescent | Charge | Thunderstrike |
 | 석궁 | 조준 (1) | RapidFire | EvadeFire | PierceBolt | Sniper |
-| 망치 | 충격 (3) | Smash | CrushCharge | Unyielding | ColossalDrop |
+| 도끼 | 충격 (3) | Smash | CrushCharge | Unyielding | ColossalDrop |
 | 낫 | 그림자 흐름 (3) | DeathSlash | ShadowSpin | GrimStrike | Execution |
 | 스태프 | 마력 충전 (5) | ArcaneOrb | ElementalBurst | ArcaneRush | Starburst |
 

@@ -5,10 +5,11 @@
 ## 관련 문서
 
 - [GUI 제작 전체 체크리스트](gui_todo_list.md) — 배경 PNG·아이콘 제작 목록, 화면별 설계 상태, 슬롯 배치 빠른 참조
-- [GUI 기능 상세 설계](gui_functional_specs.md) — 강화·큐브·각인·전승·공방 GUI 흐름 및 슬롯 배치
 - [GUI 비트맵 배경 스펙](gui_bitmap_spec.md) — Custom Font Bitmap 방식, 인벤토리 배경 PNG 연동 구조
 - [GUI 허브 구조 설계](gui_hub_structure.md) — 메인 허브 4분할, 서브 허브 4종, 보스 방 시스템, 접근 제한 정책
 - [GUI 장비 패널 설계](gui_equipment_panel.md) — 54슬롯 장착·치장·외형 토글·스탯 배분 패널
+
+> `gui_functional_specs.md`, `gui_territory_status.md`, `gui_boss_info.md`는 구버전 마력/강화석 파편/전승권/보스 보상 기준이 섞여 archive로 이동됨. 강화·잠재·각인·전승·공방·영지상태·보스정보 GUI 상세는 현행 CANON 기준으로 재작성 필요.
 
 ---
 
@@ -23,12 +24,12 @@
 3. 영지/가공기 GUI
 4. 마인팜 기계 외형
 5. 무기 6종 치장
-6. 도감 GUI
 
 ## 제외
 
 - 날개 치장
 - 고퀄 보스 모델
+- 도감 GUI
 - 외부 몬스터 모델
 
 ## 역할 분담
