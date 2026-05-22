@@ -63,6 +63,22 @@
 
 ---
 
+## 작업 루프 명령어
+
+공식 명령어는 `orc` (`scripts/orchestra.sh`)로 통일한다.  
+legacy alias (`aistatus`, `toreview`, `tomaster`)는 존재하지만 문서에서는 권장하지 않는다.
+
+| 명령어 | 역할 |
+|---|---|
+| `orc status` | 양쪽 worktree 상태 확인 |
+| `orc diff-review` | review worktree diff stat (staged + unstaged) |
+| `orc handoff-review "요약"` | review에서 commit + main 워크트리로 핸드오프 |
+| `orc to-master` | commit 없이 main 워크트리로만 전달 |
+
+commit · merge · push는 사용자 승인 후 실행한다. `orc handoff-review`는 제안만 하고 자동 실행하지 않는다.
+
+---
+
 ## Codex 역할 정의
 
 Codex는 기본적으로 **리뷰 / QA / docs consistency** 담당이다. 구현자가 아니다.
@@ -133,11 +149,11 @@ Codex는 기본적으로 **리뷰 / QA / docs consistency** 담당이다. 구현
   - decision_log 기록:
   - 미반영 (이유):
 - 검증:
-  - git status:
-  - git diff --stat:
+  - orc status:
+  - orc diff-review:
   - git diff --check:
 - 남은 위험/미확정:
 - 다음 단계:
-  - 맞으면 실행할 명령어:
+  - 맞으면 실행할 명령어: orc handoff-review "요약"
   - 아니면 추가 지시할 내용:
 ```
