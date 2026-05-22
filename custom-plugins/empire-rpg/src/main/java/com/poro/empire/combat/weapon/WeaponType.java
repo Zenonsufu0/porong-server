@@ -2,7 +2,7 @@ package com.poro.empire.combat.weapon;
 
 public enum WeaponType {
     SWORD,
-    HAMMER,
+    AXE,
     SPEAR,
     CROSSBOW,
     SCYTHE,

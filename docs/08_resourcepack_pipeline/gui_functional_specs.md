@@ -26,7 +26,7 @@
 ```
 
 > 강화석은 DB에서 관리하는 가상 자원. 실물 아이템 드랍 아님.  
-> 강화 성공률·가호 시스템: `numbers_and_open_decisions.md M-5 참조`.
+> 강화 성공률·가호 시스템: `final_master_plan.md §7.3` 참조. (구 문서 `numbers_and_open_decisions.md` → `_archive/` 이동됨)
 
 ### 1-2. 슬롯 배치 (0-indexed)
 
@@ -181,7 +181,7 @@
 | 대상 | 전승받을 장비 (인벤토리에서 드래그) |
 | 전승권 | 기본 전승권·등급 전승권·옵션 전승권 3종 중 하나 슬롯에 배치 |
 | 전승권 비용 | 각 5,000G (상점 구매) |
-| M-4 확정 참조 | `numbers_and_open_decisions.md §M-4` |
+| M-4 확정 참조 | `final_master_plan.md §18` (전승권 각 5,000G 확정) |
 
 | 전승권 종류 | 이전 내용 |
 |---|---|

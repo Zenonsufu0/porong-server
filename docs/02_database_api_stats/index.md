@@ -1,5 +1,7 @@
 # 02. DB / API / 통계 계획
 
+> **[STATUS: DRAFT]** — `CANON.md` 참조.
+
 ## 원칙
 
 EmpireRPG DB가 원본이다. 웹과 디스코드 봇은 API를 통해 조회한다.

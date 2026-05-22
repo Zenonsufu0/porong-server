@@ -2,19 +2,19 @@
 
 - Default response language is Korean.
 - This repository is for the Poro Server 45-day seasonal project server.
-- Always read `docs/00_master_plan.md` before planning or implementing major changes.
-- If a specific docs file exists for the task, read it before editing:
-  - Plugin/system work: `docs/01_plugin_architecture/index.md`
+- **Always read `docs/final_master_plan.md` first.** This is the single source of truth. It overrides all other docs on conflicts.
+- For deeper reference on specific areas:
+  - Plugin/system work: `docs/01_plugin_architecture/`
   - DB/API/statistics: `docs/02_database_api_stats/index.md`
   - Discord/onboarding: `docs/03_discord_onboarding_bot/index.md`
   - Combat/skills: `docs/04_combat_weapon_skills/index.md`
-  - Island/farm/power: `docs/05_island_farm_system/index.md`
+  - Island/farm: `docs/05_island_farm_system/index.md`
   - Fields/bosses/drops: `docs/06_fields_bosses/index.md`
   - Boss patterns: `docs/07_boss_pattern_modules/index.md`
   - Resource pack/assets: `docs/08_resourcepack_pipeline/index.md`
   - Terms/policy: `docs/09_terms_and_policy/index.md`
   - Roadmap/issues: `docs/10_development_roadmap/index.md`
-  - Remaining decisions: `docs/11_remaining_decisions/index.md`
+  - Enhancement economy review: `docs/99_check.md`
 
 ## Safety and scope
 
@@ -35,7 +35,7 @@
 - 1st season bosses are vanilla-enhanced; ModelEngine/BetterModel/FMM are deferred to a later expansion.
 - Common engravings are removed from 1st season.
 - Player skill design excludes persistent player AoE zones, target marks, defense reduction, and received-damage-increase debuffs.
-- Island/farm uses island storage and island-wide magic power, not hopper/cable logistics in 1st season.
+- Island/farm uses island storage only. Magic power system is removed. Island facilities: 약초 재배지 + 광물 채굴기 + 공방 가공기 (confirmed 2026-05-19). No hopper/cable logistics.
 
 ## Assets
 

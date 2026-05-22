@@ -10,6 +10,7 @@ import com.poro.empire.common.registry.master.MasterRegistryBootstrap;
 import com.poro.empire.common.registry.master.MasterRegistryContext;
 import com.poro.empire.common.result.Result;
 import com.poro.empire.command.EmpireCommand;
+import com.poro.empire.command.PlayerCommandRouter;
 import com.poro.empire.combat.CombatStateService;
 import com.poro.empire.field.FieldBossRespawnScheduler;
 import com.poro.empire.field.FieldTeleportService;
@@ -26,7 +27,7 @@ import com.poro.empire.combat.ResourceTracker;
 import com.poro.empire.combat.SkillContext;
 import com.poro.empire.combat.SkillService;
 import com.poro.empire.combat.skills.crossbow.CrossbowEvadeFireSkill;
-import com.poro.empire.combat.skills.hammer.HammerColossalDropSkill;
+import com.poro.empire.combat.skills.axe.AxeColossalDropSkill;
 import com.poro.empire.combat.skills.scythe.ScytheDeathSlashSkill;
 import com.poro.empire.combat.skills.staff.StaffArcaneOrbSkill;
 import com.poro.empire.combat.skills.staff.StaffArcaneRushSkill;
@@ -35,9 +36,9 @@ import com.poro.empire.combat.skills.staff.StaffStarburstSkill;
 import com.poro.empire.combat.skills.scythe.ScytheExecutionSkill;
 import com.poro.empire.combat.skills.scythe.ScytheGrimStrikeSkill;
 import com.poro.empire.combat.skills.scythe.ScytheShadowSpinSkill;
-import com.poro.empire.combat.skills.hammer.HammerCrushChargeSkill;
-import com.poro.empire.combat.skills.hammer.HammerSmashSkill;
-import com.poro.empire.combat.skills.hammer.HammerUnyieldingSkill;
+import com.poro.empire.combat.skills.axe.AxeCrushChargeSkill;
+import com.poro.empire.combat.skills.axe.AxeSmashSkill;
+import com.poro.empire.combat.skills.axe.AxeUnyieldingSkill;
 import com.poro.empire.combat.skills.crossbow.CrossbowPierceBoltSkill;
 import com.poro.empire.combat.skills.crossbow.CrossbowRapidFireSkill;
 import com.poro.empire.combat.skills.crossbow.CrossbowSniperSkill;
@@ -299,10 +300,10 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         skillService.registerSkill(new CrossbowEvadeFireSkill(this));
         skillService.registerSkill(new CrossbowPierceBoltSkill(this));
         skillService.registerSkill(new CrossbowSniperSkill(this));
-        skillService.registerSkill(new HammerSmashSkill());
-        skillService.registerSkill(new HammerCrushChargeSkill());
-        skillService.registerSkill(new HammerUnyieldingSkill(this));
-        skillService.registerSkill(new HammerColossalDropSkill());
+        skillService.registerSkill(new AxeSmashSkill());
+        skillService.registerSkill(new AxeCrushChargeSkill());
+        skillService.registerSkill(new AxeUnyieldingSkill(this));
+        skillService.registerSkill(new AxeColossalDropSkill());
         skillService.registerSkill(new ScytheDeathSlashSkill());
         skillService.registerSkill(new ScytheShadowSpinSkill(this));
         skillService.registerSkill(new ScytheGrimStrikeSkill());
@@ -465,8 +466,23 @@ public final class EmpireRPGPlugin extends JavaPlugin {
             getLogger().severe("Failed to register /empire command. Check plugin.yml.");
             return;
         }
-
         getCommand("empire").setExecutor(empireCommand);
         getCommand("empire").setTabCompleter(empireCommand);
+
+        // 한글 단축 커맨드
+        PlayerCommandRouter router = new PlayerCommandRouter(islandStorageStore, islandTerritoryStateStore);
+        String[] koreanCommands = {
+            "메뉴", "장비", "강화", "잠재", "각인", "캐릭터", "전승",
+            "영지", "영지이동", "영지상태", "창고", "공방", "작물", "상점", "경매장", "영지설정",
+            "보스", "파티", "파티목록", "보스정보", "클리어", "필드"
+        };
+        for (String cmd : koreanCommands) {
+            var registered = getCommand(cmd);
+            if (registered != null) {
+                registered.setExecutor(router);
+            } else {
+                getLogger().warning("커맨드 /" + cmd + " plugin.yml 미등록 — 건너뜀.");
+            }
+        }
     }
 }

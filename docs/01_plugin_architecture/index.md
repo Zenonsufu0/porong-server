@@ -1,5 +1,7 @@
 # 01. 플러그인 운용 구조
 
+> **[STATUS: DRAFT]** — Citizens 제거 완료 (DL-001). `CANON.md` 참조.
+
 ## 핵심 원칙
 
 EmpireRPG가 서버의 핵심 데이터와 로직을 소유한다. 다른 플러그인은 껍데기, 보조, 표시, 월드 관리만 담당한다.
@@ -11,7 +13,6 @@ EmpireRPG가 서버의 핵심 데이터와 로직을 소유한다. 다른 플러
 | EmpireRPG | 전투, 장비, 영지, 보스, 보상, DB, API |
 | MythicMobs | 몹/보스 스폰, 바닐라 강화형 외형, 기본 연출 |
 | IridiumSkyblock | 개인 영지 생성/멤버/보호/방문 |
-| Citizens | NPC 껍데기 |
 | Vault | 경제/권한 연동 보조 |
 | LuckPerms | 권한 관리 |
 | EssentialsX | 운영 편의, 기능 제한 |

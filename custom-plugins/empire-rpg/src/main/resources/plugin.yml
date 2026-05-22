@@ -11,39 +11,143 @@ softdepend:
   - BetonQuest
   - MythicMobs
   - IridiumSkyblock
+
 commands:
   empire:
-    description: Main command for EmpireRPG
-    usage: /empire <class|skill|info|setclass|hud|reputation>
+    description: EmpireRPG 관리자 커맨드
+    usage: /empire <subcommand>
     permission: empire.use
+
+  # 메인
+  메뉴:
+    description: 메인 GUI 열기
+    usage: /메뉴
+    permission: empire.use
+
+  # 장비 계열
+  장비:
+    description: 장비 GUI 열기
+    usage: /장비
+    permission: empire.use
+  강화:
+    description: 강화 GUI 바로 열기
+    usage: /강화
+    permission: empire.use
+  잠재:
+    description: 잠재(큐브) GUI 열기
+    usage: /잠재
+    permission: empire.use
+  각인:
+    description: 각인 GUI 열기
+    usage: /각인
+    permission: empire.use
+  캐릭터:
+    description: 캐릭터 GUI 열기
+    usage: /캐릭터
+    permission: empire.use
+  전승:
+    description: 전승 GUI 열기
+    usage: /전승
+    permission: empire.use
+
+  # 영지 계열
+  영지:
+    description: 영지 GUI 열기
+    usage: /영지
+    permission: empire.use
+  영지이동:
+    description: 영지이동 서브GUI 열기
+    usage: /영지이동
+    permission: empire.use
+  영지상태:
+    description: 영지상태 GUI 열기
+    usage: /영지상태
+    permission: empire.use
+  창고:
+    description: 창고 GUI 열기
+    usage: /창고
+    permission: empire.use
+  공방:
+    description: 공방 GUI 열기
+    usage: /공방
+    permission: empire.use
+  작물:
+    description: 작물관리 GUI 열기
+    usage: /작물
+    permission: empire.use
+  상점:
+    description: 상점 GUI 열기
+    usage: /상점
+    permission: empire.use
+  경매장:
+    description: 경매장 GUI 열기
+    usage: /경매장
+    permission: empire.use
+  영지설정:
+    description: 영지설정 GUI 열기
+    usage: /영지설정
+    permission: empire.use
+
+  # 보스 계열
+  보스:
+    description: 보스 GUI 열기
+    usage: /보스
+    permission: empire.use
+  파티:
+    description: 파티생성 GUI 열기
+    usage: /파티
+    permission: empire.use
+  파티목록:
+    description: 파티목록 GUI 열기
+    usage: /파티목록
+    permission: empire.use
+  보스정보:
+    description: 보스정보 GUI 열기
+    usage: /보스정보
+    permission: empire.use
+  클리어:
+    description: 클리어기록 GUI 열기
+    usage: /클리어
+    permission: empire.use
+
+  # 필드
+  필드:
+    description: 필드 GUI 열기
+    usage: /필드
+    permission: empire.use
+
 permissions:
   empire.admin:
-    description: Admin permission for EmpireRPG
+    description: EmpireRPG 관리자 권한
     default: op
     children:
       empire.admin.setclass: true
       empire.admin.reputation: true
+      empire.admin.reload: true
   empire.admin.setclass:
-    description: Permission to force-set another player's class
+    description: 타 플레이어 클래스 강제 설정
     default: op
   empire.admin.reputation:
-    description: Permission to modify another player's reputation
+    description: 타 플레이어 명성치 조작
+    default: op
+  empire.admin.reload:
+    description: 설정 리로드
     default: op
   empire.use:
-    description: Base permission for EmpireRPG command
+    description: EmpireRPG 기본 사용 권한
     default: true
   empire.class:
-    description: Permission to select class in EmpireRPG
+    description: 무기 클래스 선택
     default: true
   empire.skill:
-    description: Permission to use class skills in EmpireRPG
+    description: 스킬 사용
     default: true
   empire.info:
-    description: Permission to view Empire debug info
+    description: 디버그 정보 조회
     default: true
   empire.hud:
-    description: Permission to show Empire HUD test message
+    description: HUD 테스트 메시지
     default: true
   empire.reputation:
-    description: Permission to view own reputation
+    description: 자신의 명성치 조회
     default: true

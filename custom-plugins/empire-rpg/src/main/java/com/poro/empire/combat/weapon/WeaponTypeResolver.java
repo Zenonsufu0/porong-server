@@ -31,7 +31,7 @@ public final class WeaponTypeResolver {
 
         return switch (material) {
             case NETHERITE_SWORD -> WeaponType.SWORD;
-            case MACE, NETHERITE_AXE -> WeaponType.HAMMER;
+            case MACE, NETHERITE_AXE -> WeaponType.AXE;
             case TRIDENT -> WeaponType.SPEAR;
             case CROSSBOW -> WeaponType.CROSSBOW;
             case NETHERITE_HOE -> WeaponType.SCYTHE;
