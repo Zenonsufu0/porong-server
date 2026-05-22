@@ -69,7 +69,7 @@
 | [설계완료] | 강화 GUI | 45 | `gui_enhancement.md` | 슬롯 배치·흐름 확정. 수치는 economy_numbers_v2.md 참조 |
 | [설계완료] | 잠재능력 큐브 GUI | 54 | `gui_potential.md` | 500G 반영. 큐브 동작 방식은 potential_options_v1.md 참조 |
 | [설계완료] | 각인 GUI | 27 | `gui_engraving.md` | 무기 전용 각인 2종 선택 구조 확정 |
-| [설계완료] | 전승 GUI | 54 | `gui_succession.md` | 기본 0G, 등급/세부스탯전승권 100,000G 반영 (DL-015) |
+| [설계완료] | 전승 GUI | 45 | `gui_succession.md` | 기본 0G, 등급/세부스탯전승권 100,000G 반영 (DL-015) |
 
 ### 3-3. 영지 계열
 
