@@ -32,7 +32,7 @@
 
 | 문서 | Archive 이유 | 대체 문서 |
 |---|---|---|
-| `gui_functional_specs.md` | 강화·잠재·각인·전승·공방·영지상태·보스정보 GUI가 한 문서에 섞여 있고 큐브 5,000G, 전승권 구가격, 마력/발전기, 강화석 파편 기준이 남아 있음. | 현행 `CANON.md` 기준으로 GUI별 재작성 필요 |
+| `gui_functional_specs.md` | §1~§4(강화·잠재·각인·전승)·§7(보스 정보) 레이아웃은 각 활성 문서로 복원됨. §5 공방(큐브 공방제작 60분 구버전)·§6 영지상태(마력/발전기 기반)는 폐기 기준 유지. | `gui_enhancement.md`, `gui_potential.md`, `gui_engraving.md`, `gui_succession.md`, `gui_boss_info.md` |
 | `gui_territory_status.md` | 마력 현황, 발전기, 마력 과부하를 전제로 한 영지 상태 GUI. 마력/발전기 폐지 기준과 충돌. | `docs/05_island_farm_system/CANON.md`, `docs/05_island_farm_system/island_system_design.md` 기준으로 재작성 필요 |
 | `gui_boss_info.md` | 강화석 파편 보상, 구 보스 정보, 구 타이머/보상 표기가 남아 현행 필드/보스 기준과 충돌. | `docs/06_fields_bosses/CANON.md`, `docs/06_fields_bosses/drop_tables_v1.md` 기준으로 재작성 필요 |
 

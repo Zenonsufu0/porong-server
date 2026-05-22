@@ -10,36 +10,18 @@
 
 ## 1. 배경 PNG 제작 목록
 
-> 모두 `assets/export/resourcepack/assets/poro/textures/gui/` 에 저장  
-> `gui.json`에 이미 12개 전부 등록 완료 — PNG만 만들면 바로 적용됨
+> 배경 PNG는 4개뿐. 나머지 GUI는 모두 chest + 유리판/아이콘 구성.  
+> 소스: `assets/source/gui/` → export: `assets/export/resourcepack/assets/poro/textures/gui/`
 
-### 54슬롯(6행) 배경 — 256×256 PNG, `ascent:116 / height:141`
-
-| 상태 | 파일명 | 유니코드 | 용도 |
-|:---:|---|---|---|
-| [ ] | `menu_main.png` | `` | 메인 허브 (4분할 배경) |
-| [ ] | `menu_enhance.png` | `` | 강화 메뉴 |
-| [ ] | `menu_potential.png` | `` | 잠재능력 큐브 메뉴 |
-| [ ] | `menu_engrave.png` | `` | 각인/스킬 선택 메뉴 |
-| [ ] | `menu_territory.png` | `` | 영지 기능 GUI (공방·상점 등) |
-| [ ] | `menu_boss.png` | `` | 보스 방 설정·목록 GUI |
-| [ ] | `menu_inherit.png` | `` | 전승 메뉴 |
-| [ ] | `menu_equipment.png` | `` | 장비 패널 (장착+스탯배분) |
-
-### 27슬롯(3행) 서브 허브 배경 — 256×256 PNG, `ascent:52 / height:59` (인게임 확인 필요)
+### 54슬롯 배경 — 256×256 PNG, `ascent:116 / height:141`
 
 | 상태 | 파일명 | 유니코드 | 용도 |
 |:---:|---|---|---|
-| [ ] | `menu_hub_equipment.png` | `` | 장비 서브 허브 (강화·잠재·각인·캐릭터·전승) |
-| [ ] | `menu_hub_territory.png` | `` | 영지 서브 허브 (이동·창고·공방·작물 등) |
-| [ ] | `menu_hub_boss.png` | `` | 보스 서브 허브 (방만들기·방목록·보스정보·기록) |
-| [ ] | `menu_hub_explore.png` | `` | 탐험 서브 허브 (5개 필드 선택) |
+| [완료] | `menu_main.png` | `` | 메인 허브 (장비/필드/영지/보스 선택) |
+| [완료] | `menu_territory.png` | `` | 영지 하위 GUI |
+| [완료] | `menu_boss.png` | `` | 보스 하위 GUI |
+| [완료] | `menu_equipment.png` | `` | 장비 하위 GUI |
 
-**PNG 제작 공통 규칙:**
-- 소스는 `assets/source/gui/` 저장 후 export 경로에 복사
-- 슬롯 영역(18×18)은 투명으로 비워두기
-- 54슬롯 기준 첫 슬롯 좌표: x=8, y=18 / 슬롯 간격 18px
-- 서브 허브 배경은 3행 기준이므로 전체 높이가 54슬롯 대비 절반 이하
 
 ---
 
@@ -82,10 +64,12 @@
 | 상태 | 화면 | 슬롯 | 설계문서 | 비고 |
 |:---:|---|:---:|---|---|
 | [설계완료] | 장비 패널 (캐릭터) | 54 | `gui_equipment_panel.md` | 장착+치장+토글+스탯배분 |
-| [재작성필요] | 강화 GUI | 54 | 현행 기준 문서 필요 | archive된 `gui_functional_specs.md`의 구버전 수치 제거 필요 |
-| [재작성필요] | 잠재능력 큐브 GUI | 54 | 현행 기준 문서 필요 | 큐브 500G 및 최신 잠재 기준 반영 필요 |
-| [재작성필요] | 각인/스킬 선택 GUI | 27 | 현행 기준 문서 필요 | 무기 6종/직업각인 기준으로 재작성 |
-| [재작성필요] | 전승 GUI | 54 | 현행 기준 문서 필요 | 기본 0G, 등급/세부스탯전승권 100,000G 반영 필요 |
+| [설계완료] | 장비 세부 GUI (외형·재질) | 27 | `gui_equipment_detail.md` | 개별 재질선택·숨김/보이기, 일괄재질선택 포함 |
+| [설계완료] | 스탯 배분 GUI | 54 | `gui_stat_allocation.md` | 3트리(치명/특화/인내) -10/-1/+1/+10 버튼, 전체초기화 |
+| [설계완료] | 강화 GUI | 45 | `gui_enhancement.md` | 슬롯 배치·흐름 확정. 수치는 economy_numbers_v2.md 참조 |
+| [설계완료] | 잠재능력 큐브 GUI | 54 | `gui_potential.md` | 500G 반영. 큐브 동작 방식은 potential_options_v1.md 참조 |
+| [설계완료] | 각인 GUI | 27 | `gui_engraving.md` | 무기 전용 각인 2종 선택 구조 확정 |
+| [설계완료] | 전승 GUI | 54 | `gui_succession.md` | 기본 0G, 등급/세부스탯전승권 100,000G 반영 (DL-015) |
 
 ### 3-3. 영지 계열
 
@@ -107,7 +91,7 @@
 | [설계완료] | 보스 방 설정 GUI | 54 | `gui_hub_structure.md §5` | 보스선택·최소강화·최대인원·개설 |
 | [설계완료] | 보스 방 목록 GUI | 54 | `gui_hub_structure.md §5` | lore: 제목·보스·인원·최소강화 |
 | [설계완료] | 보스 방 내부 GUI | — | `gui_hub_structure.md §5` | 파티원 상태·강퇴·준비 확인 |
-| [재작성필요] | 보스 정보 GUI | 27 | 현행 기준 문서 필요 | 강화석 파편 제거, 시즌보스 3종+균열왕 기준 반영 필요 |
+| [설계완료] | 보스 정보 GUI | 54 | `gui_boss_info.md` | 강화석 파편→강화석, 촉매 재료 제거 반영 (2026-05-23 복원) |
 | [설계완료] | 클리어 기록 GUI | 27 | `gui_clear_records.md` | 클리어 횟수·최단기록·트로피 |
 
 ---

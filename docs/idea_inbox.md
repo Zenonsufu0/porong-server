@@ -33,6 +33,6 @@
 - 내용: 별의 흔적 / 달의 흔적 / 태양의 흔적의 영지 공방 가공기 제작 레시피 (재료·수량·제작 시간) 사용자 정의 필요. 수급 경로(공방 제작)와 역할(강화 성공률 보정)은 확정됨.
 - 분류: [x] CANON 반영 후보 (레시피 확정 시 `05_island_farm_system/workshop_crafting_spec.md`에 기록)
 - 관련 문서: `docs/05_island_farm_system/CANON.md`, `docs/decision_log.md` DL-014, `docs/02_database_api_stats/economy_numbers_v2.md` 탭 1
-- 상태: DRAFT — 사용자 레시피 확정 대기
+- 상태: **[PROMOTED → DL-024]** (2026-05-22 레시피·효과 수치 확정)
 
 <!-- 새 항목은 이 주석 위에 추가한다 -->
