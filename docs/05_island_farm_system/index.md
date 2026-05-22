@@ -46,9 +46,9 @@ EmpireRPG        → 저장고 / 시설 스케줄 / 공방 / 작위 승급
 
 | 화면 | 설계 문서 |
 |---|---|
-| 영지 서브 허브 | `docs/08/gui_hub_structure.md §4` |
-| 공방 GUI | `docs/08/gui_functional_specs.md §5` |
-| 영지상태 GUI | `docs/08/gui_territory_status.md` |
-| 영지 저장고 GUI | `docs/08/gui_storage.md` |
-| 영지설정 GUI | `docs/08/gui_territory_settings.md` |
-| 작물관리 GUI | `docs/08/gui_crop_management.md` |
+| 영지 서브 허브 | `docs/08_resourcepack_pipeline/gui_hub_structure.md §4` |
+| 공방 GUI | `docs/08_resourcepack_pipeline/gui_functional_specs.md §5` |
+| 영지상태 GUI | `docs/08_resourcepack_pipeline/gui_territory_status.md` |
+| 영지 저장고 GUI | `docs/08_resourcepack_pipeline/gui_storage.md` |
+| 영지설정 GUI | `docs/08_resourcepack_pipeline/gui_territory_settings.md` |
+| 작물관리 GUI | `docs/08_resourcepack_pipeline/gui_crop_management.md` |

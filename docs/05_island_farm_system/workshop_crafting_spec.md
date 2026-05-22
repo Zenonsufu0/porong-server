@@ -1,5 +1,7 @@
 # 공방 가공기 제작 레시피 설계서
 
+> **[STATUS: REFERENCE]** — 공방 레시피 상세 참조. 공식 영지 기준은 `CANON.md`가 우선.
+
 > 작성 기준: final_master_plan.md §8.5 (2026-05-21 확정 반영)  
 > 대상: EmpireRPG — 공방 레시피 (`life_recipe_master.csv` 기준)
 

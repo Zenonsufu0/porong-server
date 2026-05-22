@@ -95,3 +95,61 @@
 **추가 수정:** §6.4 장비 이름 변경권 가격 300,000G → **10,000G** (DL-007 충돌 해소, M-11 확정 반영)  
 **이유:** final_master_plan을 프로젝트 철학·핵심 방향성·시스템 연결 중심 문서로 전환. 세부 내용은 전용 시스템 문서(CANON.md, 시스템 스펙 문서)에서 관리.  
 **근거:** `docs/master_plan_content_audit.md` 분류 기준
+
+---
+
+## 2026-05-22 — PHASE 5 docs 리빌드 검수 반영
+
+### DL-008 archive 구조 확정
+
+**파일:**
+- `docs/_archive/README.md`
+- `docs/_archive/docs_restructure_plan.md`
+- `docs/_archive/master_plan_content_audit.md`
+- `docs/_archive/11_remaining_decisions/index.md`
+
+**변경:** 활성 docs 루트에 남아 있던 리빌드 계획/감사/구 결정 문서를 `docs/_archive/`로 이동하고, README에 archive 이유와 대체 문서를 기록.  
+**이유:** 실행 완료된 계획 문서와 흡수된 결정 문서가 활성 기준 문서처럼 보이는 문제 제거.  
+**근거:** docs 리빌드 검수 기준 — archive 폴더는 `docs/_archive/`로 통일.
+
+---
+
+### DL-009 구현 레퍼런스 경로 확정
+
+**파일:** `docs/01_plugin_architecture/implementation_reference.md`  
+**변경:** 기존 루트 `docs/final_설계_plan.md`를 플러그인 아키텍처 하위 구현 레퍼런스로 이동.  
+**이유:** `final_master_plan.md`과 각 CANON에서 이미 구현 상세를 `01_plugin_architecture/implementation_reference.md`로 위임하고 있었으므로 실제 파일 경로를 참조와 일치시킴.  
+**근거:** `docs/01_plugin_architecture/CANON.md`
+
+---
+
+### DL-010 CANON.md 역할 정리
+
+**파일:**
+- `docs/01_plugin_architecture/CANON.md`
+- `docs/02_database_api_stats/CANON.md`
+- `docs/04_combat_weapon_skills/CANON.md`
+- `docs/05_island_farm_system/CANON.md`
+- `docs/06_fields_bosses/CANON.md`
+
+**변경:** TODO/잔존 충돌 문구를 제거하고, 공식 기준·참조 우선순위·충돌 처리 방식만 남김. 잘못된 섹션 번호와 이동 예정 문구도 정리.  
+**이유:** CANON 문서가 작업 체크리스트가 아니라 현재 공식 기준 역할을 해야 함.  
+**근거:** `final_master_plan.md` §2 공식 문서 구조.
+
+---
+
+### DL-011 Status 태그와 참조 경로 통일
+
+**파일:** `docs/**/*.md`, `CLAUDE.md`  
+**변경:** 주요 문서 상단 Status를 `[STATUS: CANON|REFERENCE|DRAFT|ARCHIVED]` 형식으로 통일. 구 GUI 경로를 `docs/08_resourcepack_pipeline/`로 수정. 존재하지 않는 경제 검토 문서 참조 제거.  
+**이유:** 문서 역할과 현재 docs 구조를 명확히 하고 깨진 참조를 제거.  
+**근거:** docs 리빌드 검수 기준 — Status 태그 누락, CLAUDE/AGENTS 참조 경로 정합성.
+
+---
+
+### DL-012 final_master_plan 재축약
+
+**파일:** `docs/final_master_plan.md`  
+**변경:** 구현 절차, 상세 수치표, 슬롯 배치, API 상세, 관리자 커맨드 상세를 하위 문서로 위임하고 원칙/방향성/도메인 진입점 중심으로 재구성.  
+**이유:** `final_master_plan.md`가 너무 많은 세부사항을 보유하면 각 CANON.md와 하위 문서가 공식 기준으로 기능하기 어렵다.  
+**근거:** `docs/_archive/master_plan_content_audit.md`

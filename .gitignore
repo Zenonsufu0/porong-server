@@ -37,8 +37,9 @@ server/
 # local skill symlink
 .agents/skills/ccpm
 
-# archived docs (구식 버전 보존용, 히스토리만 유지)
-docs/_archive/
+# archived docs are part of the documentation history and should be tracked.
+!docs/_archive/
+!docs/_archive/**
 
 # local backup files (예: AGENTS.md.bak.YYYYMMDD-HHMMSS)
 *.bak.*

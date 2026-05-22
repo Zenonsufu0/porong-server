@@ -1,5 +1,7 @@
 # EmpireRPG 모듈 설계 문서
 
+> **[STATUS: REFERENCE]** — EmpireRPG 모듈 상세 참조. 공식 플러그인 경계는 `CANON.md`가 우선.
+
 > 작성 기준: 2026-05-20  
 > 대상: EmpireRPG 플러그인 (custom-plugins/empire-rpg)  
 > 목적: "무엇이 어떻게 구현됐는가"를 기록하는 기술 설계 문서

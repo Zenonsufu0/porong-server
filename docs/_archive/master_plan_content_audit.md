@@ -1,6 +1,6 @@
 # final_master_plan.md 내용 감사 보고서
 
-> **[STATUS: DRAFT]** — 내용 분류 감사 문서. CANON.md 생성 완료 후 `_archive/`로 이동 예정.
+> **[STATUS: ARCHIVED]** — 내용 분류 감사 문서. 결과가 `../final_master_plan.md`와 각 `CANON.md`에 반영되어 `docs/_archive/`로 이동됨.
 
 > 작성일: 2026-05-22  
 > 목적: MASTER_PLAN을 "프로젝트 철학 + 핵심 방향성 + 시스템 연결 개요" 수준으로 축소하기 위한 콘텐츠 분류  

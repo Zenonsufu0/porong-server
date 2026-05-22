@@ -1,5 +1,7 @@
 # 장비 패널 GUI 설계
 
+> **[STATUS: REFERENCE]** — 장비 패널 GUI 상세 참조. 공식 장비 기준은 `../04_combat_weapon_skills/CANON.md`가 우선.
+
 > 작성일: 2026-05-16
 > 인벤토리: 54슬롯 (6×9), 비트맵 배경 `menu_equipment.png`
 > 1차 시즌: 무기·투구·흉갑·바지·신발만. 반지·목걸이·보조장비 없음.

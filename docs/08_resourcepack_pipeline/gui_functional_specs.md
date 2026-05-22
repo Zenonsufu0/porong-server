@@ -1,5 +1,7 @@
 # 기능 GUI 상세 설계
 
+> **[STATUS: REFERENCE]** — 강화·잠재·각인·전승·공방 GUI 상세 참조. 공식 도메인 기준은 각 `CANON.md`가 우선.
+
 > 작성일: 2026-05-17  
 > 대상: 강화·잠재능력 큐브·각인·전승·공방 GUI  
 > 기반: `gui_hub_structure.md`, `gui_equipment_panel.md`
@@ -26,7 +28,7 @@
 ```
 
 > 강화석은 DB에서 관리하는 가상 자원. 실물 아이템 드랍 아님.  
-> 강화 성공률·가호 시스템: `final_master_plan.md §7.3` 참조. (구 문서 `numbers_and_open_decisions.md` → `_archive/` 이동됨)
+> 강화 성공률·가호 시스템: `final_master_plan.md §7.3` 참조. (구 문서 `numbers_and_open_decisions.md`는 archive 대상)
 
 ### 1-2. 슬롯 배치 (0-indexed)
 
@@ -181,7 +183,7 @@
 | 대상 | 전승받을 장비 (인벤토리에서 드래그) |
 | 전승권 | 기본 전승권·등급 전승권·옵션 전승권 3종 중 하나 슬롯에 배치 |
 | 전승권 비용 | 각 5,000G (상점 구매) |
-| M-4 확정 참조 | `final_master_plan.md §18` (전승권 각 5,000G 확정) |
+| M-4 참조 | `final_master_plan.md §13` (전승권 비용은 오픈 후 7~14일차 흔적 시세 확인 후 결정) |
 
 | 전승권 종류 | 이전 내용 |
 |---|---|

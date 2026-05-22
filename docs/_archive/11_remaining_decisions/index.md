@@ -1,6 +1,6 @@
 # 포로 서버 최종 남은 결정 사항
 
-> **[STATUS: DEPRECATED]** — 이 폴더의 결정사항은 `final_master_plan.md §18`에서 확정됨. PHASE 2에 `_archive/` 이동 예정.
+> **[STATUS: ARCHIVED]** — 이 폴더의 결정사항은 `../../final_master_plan.md`와 각 도메인 문서에 흡수되어 `docs/_archive/`로 이동됨.
 
 > 기준일: 2026-05-15
 
@@ -15,7 +15,7 @@
 | M-4 | **전승권 비용** (기본 전승 골드, 보조스텟권, 등급권) | TBD | 오픈 후 7~14일차 흔적 시세 확인 후 |
 | M-5 | **가호 시스템 — 천장 방식** | **확정** (2026-05-15) | — |
 | M-6 | **무기/방어구 강화석 소모 분리** | **확정** (2026-05-15) — 무기 기준, 방어구 50% (올림) | — |
-세부 내용: `_archive/numbers_and_open_decisions.md` §2 참조 (archive 이동됨) / 확정 수치: `final_master_plan.md §7.3`.
+세부 내용은 archive된 구 결정 문서 참조. 확정 수치: `../../final_master_plan.md`와 `../../02_database_api_stats/CANON.md`.
 
 ---
 

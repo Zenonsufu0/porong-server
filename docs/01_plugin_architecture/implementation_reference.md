@@ -1,8 +1,8 @@
-# 포로 서버 1차 시즌 — 구현 설계서
+# 포로 서버 1차 시즌 — EmpireRPG 구현 레퍼런스
 
-> **[STATUS: DRAFT]** — EmpireRPG 구현 레퍼런스. PHASE 2에 `01_plugin_architecture/implementation_reference.md`로 이동 예정.
+> **[STATUS: REFERENCE]** — EmpireRPG 구현 상세 참조. 공식 방향성은 `../final_master_plan.md`, 플러그인 경계는 `CANON.md`가 우선.
 
-> 소스: `final_master_plan.md` (2026-05-21 기준)  
+> 소스: `../final_master_plan.md` (2026-05-21 기준)  
 > 용도: EmpireRPG 플러그인 구현 레퍼런스. 클래스 배정 / DB 스키마 / 이벤트 훅 / 알고리즘 정의.  
 > **충돌 시 `final_master_plan.md`가 우선.**
 

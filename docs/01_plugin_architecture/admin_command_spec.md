@@ -1,6 +1,8 @@
 # 관리자 커맨드 설계서 (`/empire`)
 
-> 작성 기준: final_master_plan.md §20 (2026-05-21 확정 반영)  
+> **[STATUS: REFERENCE]** — `/empire` 관리자 명령어 상세 참조. 공식 방향성은 `CANON.md`와 `../final_master_plan.md`가 우선.
+
+> 작성 기준: `../final_master_plan.md` §15 (2026-05-22 재정리 반영)  
 > 권한 노드: `empire.admin`  
 > 대상: EmpireRPG — Command Layer (`EmpireCommand.java`)
 

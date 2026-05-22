@@ -1,5 +1,7 @@
 # EmpireRPG 설계 의도서
 
+> **[STATUS: REFERENCE]** — EmpireRPG 설계 의도 참조. 공식 플러그인 경계는 `CANON.md`가 우선.
+
 > 작성 기준: 2026-05-20  
 > 대상: EmpireRPG 플러그인 (custom-plugins/empire-rpg)  
 > 목적: "왜 이렇게 설계했는가"를 기록하는 의도 문서

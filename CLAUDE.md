@@ -2,19 +2,19 @@
 
 - Default response language is Korean.
 - This repository is for the Poro Server 45-day seasonal project server.
-- **Always read `docs/final_master_plan.md` first.** This is the single source of truth. It overrides all other docs on conflicts.
+- **Always read `docs/final_master_plan.md` first.** This is the project-level source of truth. Domain-level details live in each `CANON.md`; on conflict, `final_master_plan.md` wins.
 - For deeper reference on specific areas:
-  - Plugin/system work: `docs/01_plugin_architecture/`
-  - DB/API/statistics: `docs/02_database_api_stats/index.md`
+  - Plugin/system work: `docs/01_plugin_architecture/CANON.md`
+  - DB/API/statistics: `docs/02_database_api_stats/CANON.md`
   - Discord/onboarding: `docs/03_discord_onboarding_bot/index.md`
-  - Combat/skills: `docs/04_combat_weapon_skills/index.md`
-  - Island/farm: `docs/05_island_farm_system/index.md`
-  - Fields/bosses/drops: `docs/06_fields_bosses/index.md`
+  - Combat/skills: `docs/04_combat_weapon_skills/CANON.md`
+  - Island/farm: `docs/05_island_farm_system/CANON.md`
+  - Fields/bosses/drops: `docs/06_fields_bosses/CANON.md`
   - Boss patterns: `docs/07_boss_pattern_modules/index.md`
   - Resource pack/assets: `docs/08_resourcepack_pipeline/index.md`
   - Terms/policy: `docs/09_terms_and_policy/index.md`
   - Roadmap/issues: `docs/10_development_roadmap/index.md`
-  - Enhancement economy review: `docs/99_check.md`
+  - Archived rebuild/audit docs: `docs/_archive/README.md`
 
 ## Safety and scope
 

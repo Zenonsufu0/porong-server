@@ -1,5 +1,7 @@
 # 시즌보스 패턴 배정 초안
 
+> **[STATUS: REFERENCE]** — 시즌보스 패턴 조합 참조. 공식 보스 기준은 `../06_fields_bosses/CANON.md`가 우선.
+
 > 작성일: 2026-05-13  
 > 시즌보스는 공용 패턴(P-01~P-10) + 보스별 고유 패턴(SP-XX)을 조합한다.  
 > HP/DEF/TTK 수치는 `season_boss_stats_v1.md` 참조.  

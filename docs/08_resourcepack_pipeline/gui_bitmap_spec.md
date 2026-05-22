@@ -1,5 +1,7 @@
 # GUI 비트맵 배경 스펙 (Custom Font Bitmap)
 
+> **[STATUS: REFERENCE]** — Custom Font Bitmap GUI 배경 상세 참조. 공식 리소스팩 기준은 `index.md`가 우선.
+
 > 작성일: 2026-05-16
 > 방식: Custom Font Bitmap — 인벤토리 타이틀에 커스텀 폰트 문자를 삽입해 PNG 이미지를 GUI 배경으로 렌더링.
 > 의존성: 리소스팩 + EmpireRPG 플러그인 (Adventure Component API)

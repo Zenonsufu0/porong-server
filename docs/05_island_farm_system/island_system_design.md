@@ -1,5 +1,7 @@
 # 개인 영지 시스템 설계서
 
+> **[STATUS: REFERENCE]** — 영지 상세 설계 참조. 공식 영지 기준은 `CANON.md`가 우선.
+
 > 작성 기준: final_master_plan.md §8 (2026-05-21 확정 반영)  
 > 대상: EmpireRPG — 영지 모듈 (LifeEngineBootstrap / LifeEngineRuntime)
 

@@ -62,7 +62,7 @@
 
 ## 스코어보드
 
-스코어보드 상세 설계: `docs/08/gui_hud_spec.md §7` 참조.
+스코어보드 상세 설계: `docs/08_resourcepack_pipeline/gui_hud_spec.md §7` 참조.
 
 무기 클래스명·현재 각인이 스코어보드에 표시된다. (확정 2026-05-18)
 
@@ -70,7 +70,7 @@
 
 ## 스킬 조회
 
-각인 GUI(`docs/08/gui_functional_specs.md §3`) 슬롯에서 각인 A / B를 선택한다.
+각인 GUI(`docs/08_resourcepack_pipeline/gui_functional_specs.md §3`) 슬롯에서 각인 A / B를 선택한다.
 
 각 각인 아이콘 hover lore에 LC / RC / SRC / F 스킬 설명이 표시된다.
 
@@ -119,19 +119,19 @@
 
 ---
 
-## GUI 레이아웃 (docs/08 이관)
+## GUI 레이아웃 (docs/08_resourcepack_pipeline 이관)
 
-> 장비 관련 GUI 전체 설계는 `docs/08/` 로 이관됨.
+> 장비 관련 GUI 전체 설계는 `docs/08_resourcepack_pipeline/` 로 이관됨.
 
 | 화면 | 설계 문서 |
 |---|---|
-| 캐릭터 (장비 패널) — 장착·치장·토글·스탯 배분 | `docs/08/gui_equipment_panel.md` |
-| 강화 GUI | `docs/08/gui_functional_specs.md §1` |
-| 잠재능력 큐브 GUI | `docs/08/gui_functional_specs.md §2` |
-| 각인 GUI | `docs/08/gui_functional_specs.md §3` |
-| 전승 GUI | `docs/08/gui_functional_specs.md §4` |
-| 외형 / 치장 시스템 | `docs/08/gui_equipment_panel.md §5` |
-| 메인 허브 (장비/영지/보스/탐험) | `docs/08/gui_hub_structure.md` |
+| 캐릭터 (장비 패널) — 장착·치장·토글·스탯 배분 | `docs/08_resourcepack_pipeline/gui_equipment_panel.md` |
+| 강화 GUI | `docs/08_resourcepack_pipeline/gui_functional_specs.md §1` |
+| 잠재능력 큐브 GUI | `docs/08_resourcepack_pipeline/gui_functional_specs.md §2` |
+| 각인 GUI | `docs/08_resourcepack_pipeline/gui_functional_specs.md §3` |
+| 전승 GUI | `docs/08_resourcepack_pipeline/gui_functional_specs.md §4` |
+| 외형 / 치장 시스템 | `docs/08_resourcepack_pipeline/gui_equipment_panel.md §5` |
+| 메인 허브 (장비/영지/보스/탐험) | `docs/08_resourcepack_pipeline/gui_hub_structure.md` |
 
 ---
 
@@ -202,7 +202,7 @@ tutorial_complete = true 저장
 
 모든 시스템 메시지 접두어: `§8[§e포로§8] `
 
-> Action Bar 임시 알림 (강화 성공·레벨업 등): `docs/08/gui_hud_spec.md §6` 참조.
+> Action Bar 임시 알림 (강화 성공·레벨업 등): `docs/08_resourcepack_pipeline/gui_hud_spec.md §6` 참조.
 
 ### 개인 채팅 (해당 플레이어만)
 
@@ -246,5 +246,5 @@ tutorial_complete = true 저장
 | `combat_balance_v2.md` | T1 기본 스탯, 피해 공식, 스킬 쿨타임, 보스 입장 구조 |
 | `item_grade_substat_v1.md` | 아이템 등급 (커먼~레전더리), 보조스텟, 전승 시스템 |
 | `season_boss_stats_v1.md` | 시즌보스 4종 HP/DEF/DPS 수치 |
-| `_archive/atk_dps_baseline_v1.md` | ATK 기준치 및 DPS 산출 기준 (archive 이동됨 — 구 선형 공식 기반) |
+| `docs/_archive/atk_dps_baseline_v1.md` | ATK 기준치 및 DPS 산출 기준 (archive 이동됨 — 구 선형 공식 기반) |
 | `level_stat_system_v1.md` | 레벨 시스템 및 치명/특화/인내 스탯 트리 |

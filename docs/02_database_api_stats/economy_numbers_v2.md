@@ -117,7 +117,7 @@ v1에서 확정된 수치를 그대로 유지한다.
 
 1~11강: 보조재 없음. 보조재 A 폐지 — 필수재 캡 구조 제거.
 
-> **M-6 (확정 2026-05-20):** 무기 = 표 기준값. 방어구 = `ceil(무기 ÷ 1.5)`. → `final_master_plan.md §7.3` 참조. (구 문서 `numbers_and_open_decisions.md` → `_archive/` 이동됨)
+> **M-6 (확정 2026-05-20):** 무기 = 표 기준값. 방어구 = `ceil(무기 ÷ 1.5)`. → `final_master_plan.md §7.3` 참조. (구 문서 `numbers_and_open_decisions.md`는 archive 대상)
 
 ### 큐브 수급 (확정)
 

@@ -1,51 +1,31 @@
 # 02. DB / 경제 / 통계 — CANON
 
-> **[STATUS: CANON]** — 이 폴더 도메인의 단일 정답 소스.  
-> 다른 문서와 충돌 시 이 문서(및 final_master_plan.md §7)가 우선.
+> **[STATUS: CANON]** — DB, API, 경제 수치, 강화/잠재 수치의 공식 기준.
 
----
+## 공식 기준
 
-## 역할
+| 항목 | 기준 |
+|---|---|
+| 저장 구조 | SQLite `empire.db` + 플레이어 JSON |
+| API | EmpireRPG HTTP API, 포트 8765 |
+| 강화 비용 | `economy_numbers_v2.md`의 T1 1~25강 표 |
+| 강화석 | 강화석 파편 시스템 폐지. `mat_stone_enhance` 직접 드랍/소모 |
+| 방어구 강화석 | `ceil(무기 강화석 ÷ 1.5)` |
+| 잠재능력 | 커먼/레어/에픽/유니크/레전더리 모두 1차 구현 |
+| 큐브 | 1회 5,000G. 전 라인 재롤 + 등업 시도. 큐브 촉매 없음 |
+| 장비 이름 변경권 | 10,000G |
 
-골드 경제 수치, 강화 비용표, 드랍량, DB 스키마, API 엔드포인트 구조의 확정 소스.
+## 참조 우선순위
 
----
+| 문서 | 역할 |
+|---|---|
+| `../final_master_plan.md` §7, §15 | 성장 경제와 API 요약 |
+| `economy_numbers_v2.md` | 강화 비용, 골드 경제, 경제 운영 지표 |
+| `potential_options_v1.md` | 잠재 옵션 풀과 등급/라인 구조 |
+| `equipment_growth_spec.md` | 장비 성장 상세 |
+| `enhancement_droprate_v1.md` | 강화석 드랍률 검토 참조. 단, 파편 표기는 구버전으로 본다 |
+| `../01_plugin_architecture/implementation_reference.md` | DB 스키마와 API 구현 상세 |
 
-## Canonical Source
+## 충돌 처리
 
-| 섹션 | 위치 | 내용 |
-|------|------|------|
-| 골드 경제 전반 | `final_master_plan.md §7` | 몹 드랍, 강화 비용, 상점 가격 |
-| 강화 비용표 (1~25강) | `final_master_plan.md §7.3` | M-3 확정 (2026-05-18) 기준 |
-| 잠재 옵션 | `final_master_plan.md §6` | 큐브 시스템, 잠재 등급 |
-| DB 스키마 | `final_설계_plan.md` | SQL DDL, 테이블 정의 |
-
----
-
-## 참조 문서
-
-| 문서 | 상태 | 역할 |
-|------|------|------|
-| `economy_numbers_v2.md` | DRAFT | 경제 수치 계산 참조 ⚠️ 강화비용 충돌 존재 |
-| `_archive/economy_numbers_v1.md` | ARCHIVED | v2로 대체됨, 2026-05-22 archive 이동 완료 |
-| `enhancement_droprate_v1.md` | DRAFT | 강화석 드랍률 계산 |
-| `equipment_growth_spec.md` | DRAFT | 장비 성장 스펙 |
-| `potential_options_v1.md` | DRAFT | 잠재 옵션 목록 |
-
----
-
-## ⚠️ 알려진 충돌
-
-| 항목 | 이전 값 | 현재 값 | 상태 |
-|------|---------|---------|------|
-| 1강 강화 비용 | ~~180G~~ | **2,000G (M-3 확정)** | ✅ 수정 완료 (2026-05-22 DL-005) |
-
----
-
-## TODO
-
-- [ ] `economy_numbers_v2.md` 강화 비용 수치를 final_master_plan §7.3 기준으로 수정 (PHASE 3)
-- [x] `economy_numbers_v1.md` → `_archive/` 이동 **완료 (2026-05-22)**
-- [ ] DB 스키마 테이블을 이 CANON에 직접 기재 또는 `implementation_reference.md` 참조
-- [ ] API 엔드포인트 목록 정리 (index.md 내용 검증 후 통합)
-- [ ] 강화석 드랍률 (`enhancement_droprate_v1.md`) 수치 검증 후 CANON 반영
+구버전 문서의 강화석 파편, 보조재 B/C, 큐브 촉매, 마력 경제 항목은 폐지된 기준이다. 실제 구현 기준은 이 문서와 `economy_numbers_v2.md`의 2026-05-22 반영 내용을 우선한다.

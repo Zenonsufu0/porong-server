@@ -1,5 +1,7 @@
 # HUD 설계 명세
 
+> **[STATUS: REFERENCE]** — HUD 상세 참조. 공식 전투 기준은 `../04_combat_weapon_skills/CANON.md`가 우선.
+
 > 최초 작성: 2026-05-17 / 구현 반영 업데이트: 2026-05-17
 > 표시 수단: Action Bar (5레이어) / Scoreboard Sidebar / Boss Bar
 > 바닐라 하트·허기·XP바: icons.png 완전 투명 처리 → 커스텀 바로 대체

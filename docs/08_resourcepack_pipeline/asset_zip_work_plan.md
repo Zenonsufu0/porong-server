@@ -1,5 +1,7 @@
 # asset.zip 에셋 작업 계획 (내일 이어 작업용)
 
+> **[STATUS: DRAFT]** — asset.zip 작업 계획. 공식 리소스팩 기준은 `index.md`와 관련 GUI 문서가 우선.
+
 > 작성일: 2026-05-19  
 > 기준: asset.zip 검수 결과 (임시 압축 해제 경로: `~/dev/poro-server/tmp/asset_inspect/extracted/`)  
 > 원본 asset.zip은 절대 수정하지 않는다.
