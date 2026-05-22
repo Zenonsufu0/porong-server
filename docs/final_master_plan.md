@@ -42,6 +42,7 @@
 | GUI/리소스팩 | `docs/08_resourcepack_pipeline/index.md` |
 | 약관/운영정책 | `docs/09_terms_and_policy/index.md` |
 | 개발 로드맵 | `docs/10_development_roadmap/index.md` |
+| 맵 디자인 | `docs/12_map_design/` |
 | Archive | `docs/_archive/README.md` |
 
 ---

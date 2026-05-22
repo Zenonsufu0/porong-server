@@ -15,6 +15,7 @@
   - Terms/policy: `docs/09_terms_and_policy/index.md`
   - Roadmap/issues: `docs/10_development_roadmap/index.md`
   - Archived rebuild/audit docs: `docs/_archive/README.md`
+  - Map design: `docs/12_map_design/`
 
 ## Safety and scope
 
@@ -29,7 +30,7 @@
 
 - 1st season is a 45-day seasonal project server, not a long-term permanent server.
 - Opening model: Discord-gated official opening, no public test.
-- Core plugin: EmpireRPG owns combat, equipment, island/farm, boss rewards, collections, DB, API, Discord/web integration data.
+- Core plugin: EmpireRPG owns combat, equipment, island/farm, boss rewards, DB, API, Discord/web integration data. (도감/컬렉션은 1차 시즌 제외)
 - MythicMobs is for vanilla-based mobs/boss shells and simple visual skills.
 - IridiumSkyblock is only the personal island shell.
 - 1st season bosses are vanilla-enhanced; ModelEngine/BetterModel/FMM are deferred to a later expansion.
