@@ -303,6 +303,7 @@ CREATE TABLE daily_economy_snapshot (
 | `server_perf_log` | TPS·핑·동접 수 시간별 스냅샷 | EmpireRPG 1분 주기 스케줄러 |
 | `field_activity_log` | 필드별 처치 수·자원 생산 원시 로그 | EmpireRPG 몹 처치 이벤트 발생 시 |
 | `daily_economy_snapshot` | 일별 집계 스냅샷 | EmpireRPG 자정 스케줄러 |
+| `bug_report` | 디스코드 버그 제보 원시 로그 | 디스코드 봇 `/버그제보` 접수 시 |
 
 ---
 
@@ -365,7 +366,56 @@ CREATE INDEX idx_field_activity_player     ON field_activity_log(player_uuid);
 
 ---
 
-## 10. 오픈 질문
+## 10. 버그 제보 로그 — `bug_report`
+
+디스코드 봇 `/버그제보` 명령어 접수 시 INSERT된다. `id` AUTOINCREMENT가 공개 접수번호(`BUG-{id}`)로 사용된다.
+
+```sql
+CREATE TABLE bug_report (
+    id                INTEGER PRIMARY KEY AUTOINCREMENT,
+    created_at        INTEGER NOT NULL,
+    discord_user_id   TEXT    NOT NULL,
+    discord_username  TEXT    NOT NULL,
+    player_uuid       TEXT,
+    title             TEXT    NOT NULL,
+    reproduce_steps   TEXT    NOT NULL,
+    expected_result   TEXT,
+    actual_result     TEXT,
+    severity          TEXT    NOT NULL,
+    status            TEXT    NOT NULL DEFAULT 'open',
+    resolved_at       INTEGER,
+    resolver_id       TEXT
+);
+
+CREATE INDEX idx_bug_report_created_at ON bug_report(created_at);
+CREATE INDEX idx_bug_report_status     ON bug_report(status);
+```
+
+### `severity` 값
+
+| severity | 설명 |
+|---|---|
+| `crash` | 서버·클라이언트 크래시 |
+| `functional` | 기능 오류 |
+| `display` | 표시·UI 버그 |
+| `other` | 기타 |
+
+### `status` 값
+
+| status | 설명 |
+|---|---|
+| `open` | 접수됨 (초기) |
+| `in_review` | 확인 중 |
+| `resolved` | 수정 완료 |
+| `dismissed` | 중복·기각 |
+
+`player_uuid`: 인증 유저면 연동된 UUID 기록. 미인증 제보자는 NULL.
+
+`resolver_id`: 상태를 변경한 운영진 디스코드 ID.
+
+---
+
+## 11. 오픈 질문
 
 - `gold_event_log`의 일별 행 수 추정: 활성 유저 50명 × kills/min 45 × 60분 × 시간당 평균 골드 드랍 이벤트 수. 45일 누적 시 수백만 행 가능. SQLite 한계 내에 있는지 사전 검토 필요.
 - 원시 로그 보존 기간 정책이 없다. 시즌 종료 후 아카이브 또는 삭제 기준을 확정해야 한다.
