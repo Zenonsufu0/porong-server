@@ -42,6 +42,7 @@
 | GUI/리소스팩 | `docs/08_resourcepack_pipeline/index.md` |
 | 약관/운영정책 | `docs/09_terms_and_policy/index.md` |
 | 개발 로드맵 | `docs/10_development_roadmap/index.md` |
+| 운영자 웹 대시보드 | `docs/11_web_dashboard/index.md` |
 | 맵 디자인 | `docs/12_map_design/` |
 | 미확정 아이디어 | `docs/idea_inbox.md` |
 | Archive | `docs/_archive/README.md` |
@@ -188,7 +189,9 @@ EmpireRPG가 데이터 원본을 소유한다. Discord 봇과 웹은 HTTP API를
 
 API 범위는 인증 연동, 역할 큐, 필드보스 현황, 운영 대시보드, 플레이어 조회, Discord 카드용 스냅샷이다.
 
-상세: `docs/02_database_api_stats/CANON.md`, `docs/01_plugin_architecture/implementation_reference.md`
+운영자 웹 대시보드는 경제·전투 데이터를 시각적으로 모니터링하는 읽기 전용 관제 도구다. 접근은 토큰 인증 운영자 전용이며, 갱신은 일별 집계(자정 스냅샷) 기준이다. 실시간 조회는 현재 접속자 수와 최근 보스 클리어만 허용한다.
+
+상세: `docs/02_database_api_stats/CANON.md`, `docs/01_plugin_architecture/implementation_reference.md`, `docs/11_web_dashboard/index.md`
 
 ---
 
