@@ -27,7 +27,7 @@
 
 ## 2. 파일 구조
 
-배경 PNG는 4개만 존재. 나머지 GUI는 chest + 유리판/아이콘으로 구성.
+배경 PNG는 4개만 존재하며 이 4개만 공식 사용한다. 나머지 GUI는 chest + 유리판/바닐라 아이템/lore로 구성한다.
 
 ```
 assets/source/gui/                     ← Figma 원본 소스
@@ -74,28 +74,28 @@ assets/export/resourcepack/assets/poro/
       "file": "poro:gui/menu_main.png",
       "ascent": 116,
       "height": 141,
-      "chars": [""]
+      "chars": [""]
     },
     {
       "type": "bitmap",
       "file": "poro:gui/menu_equipment.png",
       "ascent": 116,
       "height": 141,
-      "chars": [""]
+      "chars": [""]
     },
     {
       "type": "bitmap",
       "file": "poro:gui/menu_territory.png",
       "ascent": 116,
       "height": 141,
-      "chars": [""]
+      "chars": [""]
     },
     {
       "type": "bitmap",
       "file": "poro:gui/menu_boss.png",
       "ascent": 116,
       "height": 141,
-      "chars": [""]
+      "chars": [""]
     }
   ]
 }
@@ -131,12 +131,12 @@ assets/export/resourcepack/assets/poro/
 
 | 문자 | 용도 | 파일 |
 |---|---|---|
-| `` | -176px 오프셋 (전체 폭 역행) | — |
-| ``~`` | 세밀 오프셋 (-1~-128px) | — |
-| `` | 메인 허브 배경 | `menu_main.png` |
-| `` | 장비 하위 GUI 배경 | `menu_equipment.png` |
-| `` | 영지 하위 GUI 배경 | `menu_territory.png` |
-| `` | 보스 하위 GUI 배경 | `menu_boss.png` |
+| `` | -176px 오프셋 (전체 폭 역행) | — |
+| ``~`` | 세밀 오프셋 (-1~-128px) | — |
+| `` | 메인 허브 배경 | `menu_main.png` |
+| `` | 장비 하위 GUI 배경 | `menu_equipment.png` |
+| `` | 영지 하위 GUI 배경 | `menu_territory.png` |
+| `` | 보스 하위 GUI 배경 | `menu_boss.png` |
 
 ---
 
@@ -153,13 +153,13 @@ private Component buildTitle(char backgroundChar) {
 }
 
 // 메인 허브
-Inventory inv = Bukkit.createInventory(null, 54, buildTitle(''));
+Inventory inv = Bukkit.createInventory(null, 54, buildTitle(''));
 // 장비 하위 GUI
-Inventory inv = Bukkit.createInventory(null, 54, buildTitle(''));
+Inventory inv = Bukkit.createInventory(null, 54, buildTitle(''));
 // 영지 하위 GUI
-Inventory inv = Bukkit.createInventory(null, 54, buildTitle(''));
+Inventory inv = Bukkit.createInventory(null, 54, buildTitle(''));
 // 보스 하위 GUI
-Inventory inv = Bukkit.createInventory(null, 54, buildTitle(''));
+Inventory inv = Bukkit.createInventory(null, 54, buildTitle(''));
 // 나머지 GUI (강화·잠재 등) — 배경 char 없이 title만
 Inventory inv = Bukkit.createInventory(null, 54, Component.text("강화"));
 ```

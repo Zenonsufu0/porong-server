@@ -16,20 +16,16 @@
 
 ---
 
-## 1. 배경 PNG — 54슬롯 (8개)
+## 1. 배경 PNG — 54슬롯 (4개)
 
 **캔버스: 256 × 256 px**
 
 | 파일명 | export 경로 | 용도 |
 |---|---|---|
 | `menu_main.png` | `textures/gui/` | 메인 허브 (4분할 배경) |
-| `menu_enhance.png` | `textures/gui/` | 강화 메뉴 |
-| `menu_potential.png` | `textures/gui/` | 잠재능력 큐브 메뉴 |
-| `menu_engrave.png` | `textures/gui/` | 각인/스킬 선택 메뉴 |
-| `menu_territory.png` | `textures/gui/` | 영지 GUI |
-| `menu_boss.png` | `textures/gui/` | 보스 방 설정·목록 |
-| `menu_inherit.png` | `textures/gui/` | 전승 메뉴 |
-| `menu_equipment.png` | `textures/gui/` | 장비 패널 |
+| `menu_equipment.png` | `textures/gui/` | 장비 하위 GUI |
+| `menu_territory.png` | `textures/gui/` | 영지 하위 GUI |
+| `menu_boss.png` | `textures/gui/` | 보스 하위 GUI |
 
 ### 슬롯 그리드 규칙 (54슬롯 기준)
 
@@ -53,47 +49,24 @@
 
 ---
 
-## 2. 배경 PNG — 27슬롯 서브 허브 (4개)
+## 2. 27슬롯 서브 허브 배경
 
-**캔버스: 256 × 256 px**  
-> ascent/height는 인게임 확인 후 확정. 현재 추정치: `ascent:52 / height:59`
-
-| 파일명 | export 경로 | 용도 |
-|---|---|---|
-| `menu_hub_equipment.png` | `textures/gui/` | 장비 서브 허브 |
-| `menu_hub_territory.png` | `textures/gui/` | 영지 서브 허브 |
-| `menu_hub_boss.png` | `textures/gui/` | 보스 서브 허브 |
-| `menu_hub_explore.png` | `textures/gui/` | 탐험 서브 허브 |
-
-### 슬롯 그리드 규칙 (27슬롯 기준)
-
-```
-실제 GUI 렌더 영역: 176×77 px (3행)
-첫 슬롯 시작점: x=8, y=18
-행: 3행 (y = 18, 36, 54)
-열: 9열 (x = 8, 26, 44, 62, 80, 98, 116, 134, 152)
-```
-
-> 54슬롯 배경과 동일 캔버스(256×256)를 쓰되, 실제 GUI 높이가 절반이므로
-> 배경 그래픽을 위쪽 절반에만 그리면 됨. 아래는 투명.
+27슬롯 전용 배경 PNG는 공식 사용하지 않는다. 탐험 서브 허브와 기타 27슬롯 GUI는 chest + 유리판/바닐라 아이템/lore로 구성한다.
 
 ---
 
-## 3. 아이콘 PNG — 외형 토글 + 핫바 (4개)
+## 3. 아이콘 PNG — 외형 토글 + 핫바
 
 **캔버스: 16 × 16 px** (일반 아이템 텍스처 크기)  
 **export 경로**: `assets/export/resourcepack/assets/poro/textures/item/gui/`  
-**CMD 등록 필요** — 각 아이콘은 별도 CustomModelData 번호로 등록.
+외형 토글과 핫바 표시는 별도 PNG/CMD를 만들지 않고 바닐라 아이템으로 대체한다.
 
-| 파일명 | 내용 |
+| 항목 | 바닐라 대체 |
 |---|---|
-| `toggle_cosmetic.png` | 치장 외형 표시 상태 아이콘 (예: 옷 실루엣, 색상 강조) |
-| `toggle_base.png` | 원본 장비 외형 표시 상태 아이콘 (예: 갑옷 실루엣, 중립 톤) |
-| `toggle_hidden.png` | 안보이기 상태 아이콘 (예: 눈에 X, 반투명 실루엣) |
-| `hotbar_slot.png` | 핫바 슬롯 선택 표시 아이콘 (선택된 슬롯 하이라이트 테두리 등) |
-
-> 픽셀아트 스타일 권장 (Minecraft 텍스처와 통일감).  
-> toggle 3종은 같은 베이스 아이콘에 색상/표시만 바꿔 세트로 제작 권장.
+| 치장 외형 표시 | `ARMOR_STAND` |
+| 원본 장비 외형 표시 | `IRON_CHESTPLATE` |
+| 안보이기 | `BARRIER` |
+| 핫바 슬롯 선택 | `ITEM_FRAME` |
 
 ---
 
