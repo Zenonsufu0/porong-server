@@ -50,7 +50,7 @@ chests:      $TMP/chests_rar2/Chests Pack/assets/chests_pack/
 | 2 | `aquamarine.png` | `textures/item/material/gem/` | 청록색 보석, 16×16 | `mat_crystal_magic` 아이콘 후보 |
 | 3 | `topaz.png` | `textures/item/material/gem/` | 황색 보석, 16×16 | 중급 보석 재료 |
 | 4 | `raw_silver.png` | `textures/item/material/ore/` | 은 원석, 16×16 | 광산 채굴 드랍 |
-| 5 | `silver_ingot.png` | `textures/item/material/ingot/` | 은 주괴, 16×16 | 공방 제작 재료 |
+| 5 | `silver_ingot.png` | — | ~~은 주괴~~ **폐기** | 은 원석→마도합금 직환으로 대체됨 |
 | 6 | `ruby_ore.png` | `textures/block/ore/` | 루비 광석 블럭, 16×16 | 광산 필드 채굴 블럭 |
 | 7 | `silver_ore.png` | `textures/block/ore/` | 은 광석 블럭, 16×16 | 광산 주 채굴 블럭 |
 | 8 | `topaz_ore.png` | `textures/block/ore/` | 황옥 광석 블럭, 16×16 | 중층 광산 블럭 |
@@ -294,7 +294,7 @@ cp "$P1I/ruby.png"          "$DEST/textures/item/material/gem/ruby.png"
 cp "$P1I/aquamarine.png"    "$DEST/textures/item/material/gem/aquamarine.png"
 cp "$P1I/topaz.png"         "$DEST/textures/item/material/gem/topaz.png"
 cp "$P1I/raw_silver.png"    "$DEST/textures/item/material/ore/raw_silver.png"
-cp "$P1I/silver_ingot.png"  "$DEST/textures/item/material/ingot/silver_ingot.png"
+# silver_ingot.png — 폐기 (은 원석→마도합금 직환으로 대체)
 cp "$P1B/ruby_ore.png"      "$DEST/textures/block/ore/ruby_ore.png"
 cp "$P1B/silver_ore.png"    "$DEST/textures/block/ore/silver_ore.png"
 cp "$P1B/topaz_ore.png"     "$DEST/textures/block/ore/topaz_ore.png"
