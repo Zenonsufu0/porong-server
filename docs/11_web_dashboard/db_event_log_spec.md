@@ -132,7 +132,7 @@ CREATE INDEX idx_cube_log_player_uuid  ON cube_event_log(player_uuid);
 | `fragment_to_cube` | 조각 10개 → 큐브 1개 자동 변환 |
 | `cube_use` | 큐브 사용. `result_grade`와 `gold_spent` 채움 |
 
-`result_grade`: `rare` / `epic` / `unique` / `legendary` / `null` (큐브 사용이 아닌 경우)
+`result_grade`: `rare` / `epic` / `unique` / `legendary` / SQL `NULL` (큐브 사용이 아닌 경우)
 
 ---
 
@@ -147,6 +147,7 @@ CREATE TABLE item_issue_log (
     player_uuid     TEXT    NOT NULL,
     event_type      TEXT    NOT NULL,
     item_slot       TEXT,
+    trace_type      TEXT,
     potential_grade TEXT,
     gold_spent      INTEGER NOT NULL DEFAULT 0
 );
@@ -164,9 +165,11 @@ CREATE INDEX idx_item_issue_log_event_type   ON item_issue_log(event_type);
 | `transfer_basic` | 기본 전승 (0G) |
 | `transfer_grade` | 등급전승권 사용 (100,000G) |
 | `transfer_substat` | 세부스탯전승권 사용 (100,000G) |
-| `trace_used` | 강화 흔적 사용 (별/달/태양은 `item_slot`에 기록) |
+| `trace_used` | 강화 흔적 사용 (`trace_type`에 별/달/태양 기록) |
 
 `item_slot`: `weapon` / `helmet` / `chest` / `leggings` / `boots`
+
+`trace_type`: `star` / `moon` / `sun` / SQL `NULL` (강화 흔적 사용이 아닌 경우)
 
 ---
 
@@ -252,7 +255,9 @@ CREATE TABLE daily_economy_snapshot (
     gold_consumed_title         INTEGER NOT NULL DEFAULT 0,
     gold_consumed_convenience   INTEGER NOT NULL DEFAULT 0,
     gold_consumed_auction_fee   INTEGER NOT NULL DEFAULT 0,
-    gold_consumed_other         INTEGER NOT NULL DEFAULT 0,
+    gold_consumed_transfer_ticket  INTEGER NOT NULL DEFAULT 0,
+    gold_consumed_item_rename      INTEGER NOT NULL DEFAULT 0,
+    gold_consumed_other            INTEGER NOT NULL DEFAULT 0,
 
     -- 큐브
     cube_fragment_converted     INTEGER NOT NULL DEFAULT 0,
@@ -303,7 +308,7 @@ CREATE TABLE daily_economy_snapshot (
 | `server_perf_log` | TPS·핑·동접 수 시간별 스냅샷 | EmpireRPG 1분 주기 스케줄러 |
 | `field_activity_log` | 필드별 처치 수·자원 생산 원시 로그 | EmpireRPG 몹 처치 이벤트 발생 시 |
 | `daily_economy_snapshot` | 일별 집계 스냅샷 | EmpireRPG 자정 스케줄러 |
-| `bug_report` | 디스코드 버그 제보 원시 로그 | 디스코드 봇 `/버그제보` 접수 시 |
+| `bug_report` | 디스코드 버그 제보 원시 로그 | EmpireRPG API 접수 시 |
 
 ---
 
@@ -368,7 +373,7 @@ CREATE INDEX idx_field_activity_player     ON field_activity_log(player_uuid);
 
 ## 10. 버그 제보 로그 — `bug_report`
 
-디스코드 봇 `/버그제보` 명령어 접수 시 INSERT된다. `id` AUTOINCREMENT가 공개 접수번호(`BUG-{id}`)로 사용된다.
+디스코드 봇 `/버그제보` 명령어를 EmpireRPG API가 접수할 때 INSERT된다. `id` AUTOINCREMENT가 공개 접수번호(`BUG-{id}`)로 사용된다.
 
 ```sql
 CREATE TABLE bug_report (

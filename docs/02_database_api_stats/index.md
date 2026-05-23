@@ -38,7 +38,9 @@ GET /api/player/{uuid}/island
 GET /api/boss/timers
 GET /api/ranking
 GET /api/admin/stats
-POST /api/discord/link/verify
+POST /auth/pending
+GET /auth/role-queue
+POST /auth/role-granted
 ```
 
 ## 통계 목표
