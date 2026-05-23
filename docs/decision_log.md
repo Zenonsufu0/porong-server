@@ -4,6 +4,33 @@
 
 ---
 
+### DL-031 스킬 이펙트 시스템 아키텍처 확정
+
+**결정:** 방안 4 혼합 구조 — MythicMobs(파티클·사운드) + Display Entity(투사체·검기) + Bukkit Particle(fallback) 조합.
+
+**원칙:**
+1. 스킬 판정·피해·쿨타임·상태는 EmpireRPG 단독 책임
+2. MythicMobs는 이펙트 위임 전용, 판정 위임 없음
+3. Display Entity는 0.5초 이상 보이는 투사체·검기·마법탄에만 사용
+4. MythicMobs 없어도 전투 로직 정상 작동 (graceful degradation)
+5. ModelEngine/BetterModel은 2차 확장 보류
+
+**effect_key prefix 규칙:**
+- `mm:xxx` — MythicMobs castSkill
+- `dp:xxx` — Display Entity
+- `pt:xxx` — Bukkit Particle 직접
+- 빈 값 — 이펙트 없음
+
+**구현 격리 원칙:** MythicMobs API 직접 호출은 `MythicMobsEffectHandler` 안에만 격리. EmpireRPG core는 인터페이스(`EffectDispatcher`)만 참조.
+
+**파일:**
+- `docs/04_combat_weapon_skills/weapon_skills_v1.md` — 이펙트 시스템 섹션 + 24개 스킬 effect_key 기준값 추가
+
+**이유:** MythicMobs는 이미 스택에 있어 추가 의존 없음. prefix 기반 dispatch는 핸들러를 교체해도 스킬 데이터를 건드리지 않아 2차 확장 시 ModelEngine 교체 비용 최소화.
+**근거:** 사용자 확인 (2026-05-24)
+
+---
+
 ### DL-030 디스코드 봇 설계 결정 3종
 
 **결정:**

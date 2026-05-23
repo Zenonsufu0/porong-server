@@ -72,9 +72,104 @@ width: number
 radius: number
 hit_count: number
 movement: none | dash_forward | dash_back | short_step | side_step
-effect_key: string
+effect_key: string     # mm:xxx | dp:xxx | pt:xxx | 빈 값(이펙트 없음)
 description: string
 ```
+
+---
+
+## 스킬 이펙트 시스템
+
+> **확정 (DL-031)** — 방안 4 혼합 구조. 판정·피해는 EmpireRPG 단독 책임.
+
+### 핵심 원칙
+
+1. 스킬 판정, 피해, 쿨타임, 상태 적용은 EmpireRPG가 전부 담당한다.
+2. MythicMobs는 파티클/사운드 이펙트 위임용으로만 사용한다. 판정 위임 없음.
+3. Display Entity는 0.5초 이상 시각적으로 유지되는 투사체·검기·마법탄에만 사용한다.
+4. Bukkit Particle 직접 구현은 fallback 핸들러로 둔다.
+5. MythicMobs나 Display Entity 이펙트 실패가 스킬 판정 실패로 이어지면 안 된다.
+6. ModelEngine/BetterModel은 2차 확장으로 보류한다.
+
+### 이펙트 설계 원칙
+
+- `shape_type`과 이펙트 모양이 일치해야 한다.
+
+| shape_type | 이펙트 형태 |
+|---|---|
+| `line` | 직선 궤적 또는 빔 |
+| `arc` | 베기 호 (부채꼴 파티클 호) |
+| `cone` | 부채꼴 방사형 이펙트 |
+| `burst` | 원형 충격파 (중심→외곽) |
+| `projectile` | 투사체 본체 또는 궤적 파티클 |
+| `self` | 시전자 중심 간단한 이펙트 |
+
+- 플레이어 스킬 이펙트는 보스 패턴 이펙트보다 덜 화려하게 유지한다.
+- 월드보스 다인전에서 시야를 가리지 않아야 한다 — 파티클 밀도와 지속 시간을 보수적으로 설정.
+
+### effect_key prefix 규칙
+
+| prefix | 처리 방식 | 사용 조건 |
+|---|---|---|
+| `mm:xxx` | MythicMobs castSkill 호출 | 파티클·사운드 일반 이펙트 |
+| `dp:xxx` | Display Entity 기반 시각 이펙트 | 0.5초 이상 투사체·검기·마법탄 |
+| `pt:xxx` | Bukkit Particle 직접 구현 | fallback 또는 MythicMobs 미설치 |
+| (빈 값) | 이펙트 없음 | — |
+
+> MythicMobs 플러그인이 없거나 스킬명이 틀려도 `WARN` 로그만 남기고 전투 로직은 계속 진행한다.  
+> MythicMobs API 직접 호출은 `MythicMobsEffectHandler` 안에만 격리한다. EmpireRPG 코어는 `EffectDispatcher` 인터페이스만 참조한다.
+
+### 무기별 색상 테마
+
+| 무기 | 색상 |
+|---|---|
+| 검 | 흰색 / 은색 / 연한 파랑 |
+| 도끼 | 주황 / 황토 / 회색 |
+| 창 | 청백색 / 번개 / 직선 빛 |
+| 석궁 | 노랑 / 회색 / 붉은 탄환 궤적 |
+| 낫 | 보라 / 검붉은색 / 그림자 |
+| 스태프 | 파랑 / 보라 / 별빛 / 마력 |
+
+### 무기별 effect_key 기준값
+
+| 무기 | 스킬명 | 입력 | shape_type | effect_key |
+|---|---|---|---|---|
+| 검 | 섬광베기 | LMB | `arc` | `mm:sword_flash_slash` |
+| 검 | 연속참 | RMB | `arc` | `mm:sword_combo_slash` |
+| 검 | 수호반격 | Shift+RMB | `self` | `mm:sword_guard_counter` |
+| 검 | 결전일섬 | F | `line` | `mm:sword_final_line` |
+| 도끼 | 철퇴강타 | LMB | `arc` | `mm:axe_heavy_strike` |
+| 도끼 | 파쇄돌진 | RMB | `line` | `mm:axe_crush_charge` |
+| 도끼 | 불굴자세 | Shift+RMB | `self` | `mm:axe_endure_stance` |
+| 도끼 | 거신추락 | F | `burst` | `mm:axe_impact_burst` |
+| 창 | 관통찌르기 | LMB | `line` | `mm:spear_pierce_line` |
+| 창 | 반월창 | RMB | `arc` | `mm:spear_halfmoon_arc` |
+| 창 | 돌파창 | Shift+RMB | `line` | `mm:spear_dash_trail` |
+| 창 | 천뢰일창 | F | `line` | `dp:thunder_spear_line` |
+| 석궁 | 속사 | LMB | `projectile` | `mm:crossbow_rapid_fire` |
+| 석궁 | 회피사격 | RMB | `projectile` | `mm:crossbow_evade_shot` |
+| 석궁 | 관통볼트 | Shift+RMB | `projectile` | `dp:piercing_bolt` |
+| 석궁 | 저격태세 | F | `projectile` | `dp:sniper_bolt` |
+| 낫 | 사신베기 | LMB | `arc` | `mm:scythe_reaper_slash` |
+| 낫 | 월영회전 | RMB | `burst` | `mm:scythe_spin_slash` |
+| 낫 | 그믐참 | Shift+RMB | `cone` | `mm:scythe_dark_strike` |
+| 낫 | 처형낫 | F | `line` | `mm:scythe_execute_slash` |
+| 스태프 | 마력탄 | LMB | `projectile` | `dp:magic_bolt` |
+| 스태프 | 속성폭발 | RMB | `burst` | `mm:staff_element_burst` |
+| 스태프 | 마력쇄도 | Shift+RMB | `burst` | `mm:staff_magic_surge` |
+| 스태프 | 별빛쇄도 | F | `projectile` | `dp:starlight_beam` |
+
+> 도끼 effect_key는 `axe_` 접두어를 사용한다 (구버전 `hammer_` 식별자는 DL-003에 의해 `axe_`로 통일).
+
+### 1차 이펙트 구현 우선순위
+
+1. **EffectDispatcher 인터페이스 + prefix 파서**
+2. **MythicMobsEffectHandler** (MythicMobs API 격리)
+3. **ParticleFallbackEffectHandler** (fallback)
+4. **검 4스킬** 이펙트 MythicMobs yml
+5. **창 4스킬** 이펙트 MythicMobs yml + `dp:thunder_spear_line`
+6. **석궁/스태프** 투사체 이펙트 (`dp:` 우선)
+7. **도끼/낫** 이펙트 MythicMobs yml
 
 ---
 
