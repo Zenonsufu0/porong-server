@@ -453,3 +453,23 @@
 
 **이유:** 사용자 확정에 따라 강화석 데이터 모델과 무기 내부 식별자 기준을 명확히 하고, 진행 중인 GUI 상세 설계 상태를 실제 작업 상태와 일치시킴.
 **근거:** 사용자 확인 (2026-05-23)
+
+---
+
+### DL-027 GUI 완료 상태 및 공식 배경 4종 확정
+
+**파일:**
+- `docs/08_resourcepack_pipeline/index.md`
+- `docs/08_resourcepack_pipeline/gui_todo_list.md`
+- `docs/08_resourcepack_pipeline/gui_bitmap_spec.md`
+- `docs/08_resourcepack_pipeline/gui_png_make_guide.md`
+- `docs/08_resourcepack_pipeline/gui_hub_structure.md`
+
+**변경:**
+- 최신 커밋 기준 모든 GUI 설정이 완료된 상태로 정리
+- 공식 GUI 배경을 `menu_main.png`, `menu_equipment.png`, `menu_territory.png`, `menu_boss.png` 4개로 확정
+- `menu_hub_*` 27슬롯/서브허브 전용 배경은 공식 사용 대상에서 제외
+- GUI 글리프 문자를 실제 `gui.json` 기준(``, ``, ``, ``)으로 통일
+
+**이유:** GUI 설정 완료 상태와 공식 배경 4개 사용 방침을 문서 전체에 일관되게 반영하기 위함.
+**근거:** 사용자 확인 (2026-05-23)
