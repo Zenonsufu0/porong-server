@@ -40,7 +40,7 @@ row5 [뒤로🔴][LC  ]  [유리]  [RC  ]  [유리]  [SRC ]  [유리]  [F   ]  [
 | 48 | RC 스킬 슬롯 | 읽기 전용 |
 | 50 | SRC 스킬 슬롯 | 읽기 전용 |
 | 52 | F 스킬 슬롯 | 읽기 전용 |
-| 45 | 뒤로 | `RED_STAINED_GLASS_PANE` |
+| 45 | 뒤로 | `ARROW` |
 | 나머지 | 장식 | `BLACK_STAINED_GLASS_PANE` |
 
 ---
