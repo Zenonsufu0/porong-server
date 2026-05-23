@@ -4,6 +4,22 @@
 
 ---
 
+### DL-026 날개 치장 1차 시즌 포함 확정
+
+**결정:** 날개 치장(wing_volt_poro_01)을 1차 시즌 리소스팩 범위에 포함한다.
+
+**변경:**
+- `final_master_plan.md` 리소스팩 우선순위에서 "날개 치장 제외" → "날개 치장 1종 포함"으로 수정
+- CMD 500xxx 범위를 코스메틱 전용으로 신설 (500001~500099: 날개)
+- `paper.json` CMD 500001 = `poro:item/cosmetics/wings/wing_volt_poro_01` 등록
+- `assets/source/items/cosmetics/cosmetics_registry.yml` 신규 생성
+- 코스메틱 아이템 lore에 "장착 부위: XXX" 명시 + 플러그인 슬롯 차단 규칙 확정
+
+**이유:** 모델·텍스처가 이미 완성돼 있어 추가 비용 없이 등록 가능. 1차 오픈 콘텐츠 다양성 확보.
+**근거:** 사용자 확인 (2026-05-23)
+
+---
+
 ## 2026-05-22 — PHASE 2 canon 충돌 수정
 
 ### DL-001 Citizens 플러그인 제거
