@@ -4,10 +4,11 @@
 
 ---
 
-## 최근 확정 (DL-031 ~ DL-054)
+## 최근 확정 (DL-031 ~ DL-055)
 
 | DL | 내용 | 파일 |
 |---|---|---|
+| DL-055 | 필드보스 P-10 전면 교체 (→P-12·P-11·P-13) + 전 보스 P-00 추가 | field_boss_patterns.md |
 | DL-054 | 시즌최종보스 패턴 확정 — SP-84 합체 저지 신설·동기화 전환·주시자 Phase HP% 확정·1~2인 보정 없음 | season_boss_patterns.md |
 | DL-053 | 보스4~6 패턴 확정 — SP-43 번개 집중포화 신설·보스5 P-12 추가·SP-62 1인 고난이도 확정 | season_boss_patterns.md |
 | DL-052 | 보스 클리어 통계 수집 스펙 — boss_session_log·player 테이블, 4개 API 엔드포인트, 버프/너프 기준 | boss_clear_stats_spec.md (신규) |
