@@ -46,6 +46,7 @@ EmpireRPG는 전투, 장비, 영지, 보스, 보상, DB, API, Discord/web 연동
 |---|---|
 | 관리자 명령어 | `admin_command_spec.md` |
 | DB/API/경제/강화/큐브 | `../02_database_api_stats/CANON.md`, `../02_database_api_stats/economy_numbers_v2.md`, `../02_database_api_stats/equipment_growth_spec.md`, `../02_database_api_stats/potential_options_v1.md` |
+| 아이템 ID·CMD·재질 | `../02_database_api_stats/item_master_v1.md` |
 | 전투/무기/스킬 | `../04_combat_weapon_skills/CANON.md`, `../04_combat_weapon_skills/weapon_skills_v1.md`, `../04_combat_weapon_skills/combat_balance_v2.md` |
 | 영지/공방 | `../05_island_farm_system/CANON.md`, `../05_island_farm_system/island_system_design.md`, `../05_island_farm_system/workshop_crafting_spec.md` |
 | 필드/보스/드랍 | `../06_fields_bosses/CANON.md`, `../06_fields_bosses/drop_tables_v1.md`, `../07_boss_pattern_modules/index.md` |

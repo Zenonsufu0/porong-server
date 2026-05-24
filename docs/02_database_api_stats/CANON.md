@@ -31,6 +31,7 @@
 | `boss_clear_stats_spec.md` | 보스 클리어 통계 수집 스펙 (DB 스키마·API·운영 기준) |
 | `../01_plugin_architecture/implementation_reference.md` | DB 스키마와 API 구현 상세 |
 | `../06_fields_bosses/drop_tables_v1.md` | 강화석·큐브 조각 드랍 상세. CANON과 충돌하는 구 수치는 정리 대상 |
+| `item_master_v1.md` | 전체 item_id 목록, MC 재질, CMD 범위 할당 기준 |
 
 ## 충돌 처리
 
