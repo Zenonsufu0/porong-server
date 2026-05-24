@@ -230,7 +230,13 @@ CREATE INDEX idx_boss_combat_log_weapon_class ON boss_combat_log(weapon_class);
 
 ## 7. 일별 경제 스냅샷 — `daily_economy_snapshot`
 
-자정에 집계하여 INSERT한다. 원시 로그의 집계 결과를 저장한다.
+**메모리 누적 + 10분 주기 플러시** 방식으로 운영한다 (DL-060).
+
+- 이벤트 발생 시 메모리 카운터만 증가 (DB 접근 없음)
+- Bukkit 비동기 스케줄러가 10분(12,000 ticks)마다 DB upsert
+- 자정에 최종 flush 후 카운터 초기화
+
+원시 로그의 집계 결과가 아닌 메모리 누적값을 직접 upsert한다. 웹 대시보드에서 당일 통계를 약 10분 지연으로 실시간 조회 가능.
 
 ```sql
 CREATE TABLE daily_economy_snapshot (
@@ -307,7 +313,7 @@ CREATE TABLE daily_economy_snapshot (
 | `boss_combat_log` | 보스 전투 개인 DPS | EmpireRPG 보스 종료 시 |
 | `server_perf_log` | TPS·핑·동접 수 시간별 스냅샷 | EmpireRPG 1분 주기 스케줄러 |
 | `field_activity_log` | 필드별 처치 수·자원 생산 원시 로그 | EmpireRPG 몹 처치 이벤트 발생 시 |
-| `daily_economy_snapshot` | 일별 집계 스냅샷 | EmpireRPG 자정 스케줄러 |
+| `daily_economy_snapshot` | 일별 집계 스냅샷 | EmpireRPG 메모리 누적 + 10분 플러시 (DL-060) |
 | `bug_report` | 디스코드 버그 제보 원시 로그 | EmpireRPG API 접수 시 |
 
 ---
@@ -424,4 +430,4 @@ CREATE INDEX idx_bug_report_status     ON bug_report(status);
 
 - `gold_event_log`의 일별 행 수 추정: 활성 유저 50명 × kills/min 45 × 60분 × 시간당 평균 골드 드랍 이벤트 수. 45일 누적 시 수백만 행 가능. SQLite 한계 내에 있는지 사전 검토 필요.
 - 원시 로그 보존 기간 정책이 없다. 시즌 종료 후 아카이브 또는 삭제 기준을 확정해야 한다.
-- `daily_economy_snapshot`은 자정 스케줄러가 원시 로그를 집계하는 방식인지, EmpireRPG가 실시간으로 누적 업데이트하는 방식인지 구현 방향 미확정.
+- `daily_economy_snapshot` 집계 방식: **메모리 누적 + 10분 플러시** 확정 (DL-060).
