@@ -103,8 +103,8 @@ chests:      $TMP/chests_rar2/Chests Pack/assets/chests_pack/
 | 원본 파일 | 변경 후 파일명 | 대상 경로 | 한글명 | 용도 |
 |---|---|---|---|---|
 | `lithium_ore.png` (블럭) | `mado_iron_ore.png` | `textures/block/ore/` | 마도철 광석 | 고급 광산 채굴 블럭 |
-| `raw_lithium.png` | `raw_mado_iron.png` | `textures/item/material/ore/` | 마도철 원석 | 광물 추출기 생산 / `mat_ore_fragment` 아이콘 후보 |
-| `lithium_ingot.png` | `mado_iron_ingot.png` | `textures/item/material/ingot/` | 마도철 주괴 | 공방 제작 핵심 재료 |
+| `raw_lithium.png` | `raw_mado_iron.png` | `textures/item/material/ore/` | 마도철 원석 | 광물 추출기 생산 / 공방 제련 투입재 |
+| `lithium_ingot.png` | `mado_alloy.png` | `textures/item/material/alloy/` | 마도합금 | 공방 제련 결과물 / `mat_mado_alloy` 아이콘 |
 
 ### B-4. 음식 — 생선류 (pack1.zip)
 
@@ -280,6 +280,7 @@ mkdir -p "$DEST/textures/item/material/herb"
 mkdir -p "$DEST/textures/item/material/ore"
 mkdir -p "$DEST/textures/item/material/gem"
 mkdir -p "$DEST/textures/item/material/ingot"
+mkdir -p "$DEST/textures/item/material/alloy"
 mkdir -p "$DEST/textures/item/material/wood"
 mkdir -p "$DEST/textures/item/material/stone"
 mkdir -p "$DEST/textures/item/dungeon/chest"
@@ -321,7 +322,7 @@ cp "$GRASS/four_leaf_clover.png" "$DEST/textures/item/material/herb/lucky_clover
 
 cp "$P1B/lithium_ore.png"   "$DEST/textures/block/ore/mado_iron_ore.png"
 cp "$P1I/raw_lithium.png"   "$DEST/textures/item/material/ore/raw_mado_iron.png"
-cp "$P1I/lithium_ingot.png" "$DEST/textures/item/material/ingot/mado_iron_ingot.png"
+cp "$P1I/lithium_ingot.png" "$DEST/textures/item/material/alloy/mado_alloy.png"
 
 cp "$P1I/raw_mullet.png"   "$DEST/textures/item/consumable/food/fish/raw_river_fish.png"
 cp "$P1I/mullet.png"       "$DEST/textures/item/consumable/food/fish/grilled_river_fish.png"

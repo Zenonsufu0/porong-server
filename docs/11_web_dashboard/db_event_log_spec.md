@@ -426,8 +426,10 @@ CREATE INDEX idx_bug_report_status     ON bug_report(status);
 
 ---
 
-## 12. 오픈 질문
+## 12. 로그 보존 정책
 
-- `gold_event_log`의 일별 행 수 추정: 활성 유저 50명 × kills/min 45 × 60분 × 시간당 평균 골드 드랍 이벤트 수. 45일 누적 시 수백만 행 가능. SQLite 한계 내에 있는지 사전 검토 필요.
-- 원시 로그 보존 기간 정책이 없다. 시즌 종료 후 아카이브 또는 삭제 기준을 확정해야 한다.
+- `gold_event_log`를 포함한 원시 이벤트 로그는 운영 중 INSERT 전용으로 기록한다.
+- 라이브 `empire.db`에는 **현재 시즌 + 시즌 종료 후 14일** 원시 로그만 유지한다.
+- 시즌 종료 14일 후 운영 점검 시간에 해당 시즌 원시 로그를 시즌별 아카이브 DB/CSV로 export하고, 라이브 DB에서는 보존 기간이 지난 원시 로그를 정리한다.
+- `daily_economy_snapshot`은 시즌 종료 후에도 2차 시즌 밸런싱 근거로 계속 보존한다.
 - `daily_economy_snapshot` 집계 방식: **메모리 누적 + 10분 플러시** 확정 (DL-060).
