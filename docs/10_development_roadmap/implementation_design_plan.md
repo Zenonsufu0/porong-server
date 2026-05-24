@@ -62,16 +62,16 @@
 
 ### 3.1 재화·아이템 저장 기준
 
-`PlayerGrowthState.wallet`에는 DB 가상재화만 저장한다. item master에서 물리 아이템으로 정의된 항목은 인벤토리/PDC 아이템으로 처리한다.
+`PlayerGrowthState.wallet` Map<String, Long>에 저장.
 
-| 의미 | 공식 key | 저장/처리 | 비고 |
-|---|---|---|
+| 의미 | 공식 key | 저장 위치 | 비고 |
+|---|---|---|---|
 | 골드 | `gold` | `PlayerGrowthState.wallet` | 주 화폐 |
 | 강화석 | `mat_stone_enhance` | `PlayerGrowthState.wallet` | DB 가상재화, 실물 없음 |
-| 큐브 조각 | `mat_cube_fragment` | 인벤토리/PDC 물리 아이템 | 10개 → 큐브 1개 자동 교환 |
-| 큐브 | `mat_cube` | 인벤토리/PDC 물리 아이템 | 사용 시 500G 추가 차감 |
+| 큐브 조각 | `mat_cube_fragment` | `PlayerGrowthState.wallet` | 10개 → 큐브 1개 자동 교환 |
+| 큐브 | `mat_cube` | `PlayerGrowthState.wallet` | 사용 시 500G 추가 차감 |
 
-> **DP-001 확정**: 큐브/큐브 조각은 item master 기준 물리 아이템으로 유지한다. 자동 교환은 인벤토리 이벤트에서 `mat_cube_fragment` 10개를 `mat_cube` 1개로 변환한다.
+> **DP-001 확정**: 큐브/큐브 조각은 wallet 가상재화로 통일한다. 10개 자동 교환 및 사용 처리를 wallet 수치 조작만으로 처리해 인벤토리 이벤트 의존을 제거한다.
 
 **PotentialService 수정 필요 항목:**
 
@@ -81,7 +81,7 @@
 | `MATERIAL_UPGRADE_CUBE = "upgrade_cube"` | (삭제, mat_cube로 통합) |
 
 CANON 기준: 큐브 1회 → 전 라인 재롤 + 등업 시도 동시 진행, 500G 차감.
-큐브 보유량은 wallet이 아니라 플레이어 인벤토리의 `mat_cube` PDC 아이템 수량으로 확인한다.
+큐브/큐브 조각은 스코어보드 HUD에 잔량 표시한다 (wallet 수치 조회).
 
 ### 3.2 PDC Key
 
@@ -404,7 +404,7 @@ listener는 title 문자열을 직접 문자열 비교하지 않고 `GuiTitles.W
 | 7 | empire_field_1 태그 몹 처치 | 필드1 드랍표 적용, gold/mat_stone_enhance 지급 |
 | 8 | 태그 없는 몹 처치 | 드랍 없음, 오류 없음 |
 | 9 | 재접속 | weaponType, 장비, wallet, territory 복원 |
-| 10 | mat_cube_fragment 10개 획득 | 인벤토리의 mat_cube_fragment 10개가 mat_cube 1개로 자동 교환 |
+| 10 | mat_cube_fragment 10개 획득 | wallet의 mat_cube_fragment 10 소모 → mat_cube 1 적립, 스코어보드 갱신 |
 
 ### 7.3 필수 운영 로그
 
@@ -415,7 +415,7 @@ listener는 title 문자열을 직접 문자열 비교하지 않고 `GuiTitles.W
 | 저장 실패 | SEVERE `[Persistence] 플레이어 데이터 저장 실패: {uuid}` |
 | JSON migration 수행 | `[Migration] {uuid} v{old} → v{new}` |
 | 태그 누락 몹 skip | (로그 없음, 조용히 skip) |
-| 큐브 조각 자동 교환 | `[Cube] {uuid} 10 fragments → 1 cube (inventory)` |
+| 큐브 조각 자동 교환 | `[Cube] {uuid} 10 fragments → 1 cube (wallet)` |
 
 ---
 
@@ -423,7 +423,7 @@ listener는 title 문자열을 직접 문자열 비교하지 않고 `GuiTitles.W
 
 | ID | 항목 | 확정 내용 |
 |---|---|---|
-| DP-001 | 큐브/큐브 조각 저장 | item master 기준 물리 아이템 유지, 인벤토리 자동 변환 |
+| DP-001 | 큐브/큐브 조각 저장 | wallet 가상재화로 통일 (mat_cube, mat_cube_fragment) |
 | DP-002 | 스킬 4종 입력 배치 | LMB=slot1, RMB=slot2, Shift+RMB=slot3, F=slot4 (4종 모두 1차 구현) |
 | DP-003 | MythicMob 필드 식별 | scoreboard tag (empire_field_N, empire_rank_*, empire_type_*) |
 | DP-004 | GUI title | GuiTitles 상수 클래스, Component 비교 |

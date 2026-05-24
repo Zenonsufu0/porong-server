@@ -121,8 +121,8 @@
 
 | item_id | 한글명 | 물리 여부 | MC 재질 | CMD | 비고 |
 |---|---|---|---|---|---|
-| `mat_cube_fragment` | 큐브 조각 | 물리 | `minecraft:paper` | 300201 | 10개 → 큐브 1개 자동 교환 |
-| `mat_cube` | 큐브 | 물리 | `minecraft:paper` | 300202 | 사용 비용 500G |
+| `mat_cube_fragment` | 큐브 조각 | **DB 가상재화** | — | — | wallet 저장. 10개 → 큐브 1개 자동 교환. 스코어보드 표시 |
+| `mat_cube` | 큐브 | **DB 가상재화** | — | — | wallet 저장. 사용 비용 500G. 스코어보드 표시 |
 
 ---
 
