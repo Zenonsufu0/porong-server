@@ -21,7 +21,7 @@
 - 방어력 무시 유니크(~17%)가 보스4+ 클리어의 실질 필요 조건.
 - 정확한 TTK 검증은 M-1 프리 시즌 실측 후. 방향성 확정, 수치는 조정 가능.
 
-**파일:** `docs/04_combat_weapon_skills/season_boss_stats_v1.md`  
+**파일:** `docs/04_combat_weapon_skills/season_boss_stats_v1.md`
 **근거:** 사용자 확인 (2026-05-24)
 
 ---
