@@ -2,9 +2,9 @@
 
 > **[STATUS: REFERENCE]** — 파티 생성·설정·목록·방 내부 GUI 상세 참조. 공식 리소스팩 기준은 `index.md`가 우선.
 
-> 작성일: 2026-05-23  
-> 접근 조건: 비전투 (보스 서브 허브에서 진입)  
-> 대상 보스: 시즌보스 1·2·3 + 균열왕 (총 4종)
+> 작성일: 2026-05-23
+> 접근 조건: 비전투 (보스 서브 허브에서 진입)
+> 대상 보스: 시즌보스 1~6 + 시즌최종보스 3종 (총 9종)
 
 ---
 
@@ -45,8 +45,8 @@
 ## 2. 보스 방 설정 GUI (54슬롯)
 
 ```
-행\열   1       2       3        4       5         6       7       8       9
-row0  [시즌1]  [시즌2]  [시즌3]  [균열왕]  ░      [보스명]   ░       ░       ░
+행\열   1       2       3        4       5       6       7       8       9
+row0  [시즌1]  [시즌2]  [시즌3]  [시즌4]  [시즌5]  [시즌6]  [최종1]  [최종2]  [최종3]
 row1     ░       ░       ░        ░       ░     [기본정보]   ░       ░       ░
 row2     ░       ░       ░        ░       ░     [권장강화]   ░       ░       ░
 row3     ░    [-1강] [최소강화] [+1강]    ░        ░        ░       ░       ░
@@ -59,10 +59,12 @@ row5  [뒤로]    ░   [방이름]    ░        ░        ░        ░     
 | 0 | 시즌보스 1 (`PRISMARINE_SHARD`) | 클릭 → 선택 |
 | 1 | 시즌보스 2 (`PRISMARINE_CRYSTALS`) | 클릭 → 선택 |
 | 2 | 시즌보스 3 (`SEA_LANTERN`) | 클릭 → 선택 |
-| 3 | 균열왕 (`NETHER_STAR`) | 클릭 → 선택 |
-| 4 | `BLACK_STAINED_GLASS_PANE` | — |
-| 5 | 보스명 (`PAPER`) | 읽기 전용 |
-| 6~8 | `BLACK_STAINED_GLASS_PANE` | — |
+| 3 | 시즌보스 4 (`BLAZE_ROD`) | 클릭 → 선택 |
+| 4 | 시즌보스 5 (`ECHO_SHARD`) | 클릭 → 선택 |
+| 5 | 시즌보스 6 (`ENDER_PEARL`) | 클릭 → 선택 |
+| 6 | 균열왕 (`NETHER_STAR`) | 클릭 → 선택 |
+| 7 | 타락한 이중체 (`BONE`) | 클릭 → 선택 |
+| 8 | 진혼의 주시자 (`WITHER_SKELETON_SKULL`) | 클릭 → 선택 |
 | 9~13 | `BLACK_STAINED_GLASS_PANE` | — |
 | 14 | 기본정보 (`BOOK`) | 읽기 전용 |
 | 15~17 | `BLACK_STAINED_GLASS_PANE` | — |
@@ -85,7 +87,7 @@ row5  [뒤로]    ░   [방이름]    ░        ░        ░        ░     
 | 48~52 | `BLACK_STAINED_GLASS_PANE` | — |
 | 53 | 개설 | 보스 미선택: `BLACK` / 선택완료: `LIME_DYE` |
 
-> 슬롯 0~3의 선택된 보스: `LIME_STAINED_GLASS_PANE` 하이라이트.  
+> 슬롯 0~8의 선택된 보스: `LIME_STAINED_GLASS_PANE` 하이라이트.
 > 최대인원 슬롯 37~39: 선택된 항목 `LIME_STAINED_GLASS_PANE`, 나머지 `WHITE_STAINED_GLASS_PANE`.
 
 ### 보스 선택 버튼 lore (예: 시즌보스 2)
@@ -99,13 +101,13 @@ row5  [뒤로]    ░   [방이름]    ░        ░        ░        ░     
 §7클릭 → 선택
 ```
 
-### 보스명 슬롯 (슬롯 5) lore — 보스 선택 전
+### 보스 선택 안내 lore — 선택 전
 
 ```
 §7보스를 선택하세요.
 ```
 
-### 보스명 슬롯 (슬롯 5) lore — 보스 선택 후
+### 보스 선택 안내 lore — 선택 후
 
 ```
 §e시즌보스 2
@@ -223,7 +225,12 @@ row5   [뒤로]  ░  ░  [◀]  [페이지]  [▶]  ░  ░  [새로고침]
 | 시즌보스 1 | `PRISMARINE_SHARD` |
 | 시즌보스 2 | `PRISMARINE_CRYSTALS` |
 | 시즌보스 3 | `SEA_LANTERN` |
+| 시즌보스 4 | `BLAZE_ROD` |
+| 시즌보스 5 | `ECHO_SHARD` |
+| 시즌보스 6 | `ENDER_PEARL` |
 | 균열왕 | `NETHER_STAR` |
+| 타락한 이중체 | `BONE` |
+| 진혼의 주시자 | `WITHER_SKELETON_SKULL` |
 
 ### 방 슬롯 lore — 입장 가능
 

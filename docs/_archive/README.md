@@ -20,7 +20,7 @@
 |---|---|---|
 | `docs_restructure_plan.md` | 2026-05-22 문서 리빌드 작업 계획. 실행 완료된 계획 문서라 활성 설계 기준에서 제외. | `docs/decision_log.md`, 각 `CANON.md` |
 | `master_plan_content_audit.md` | `final_master_plan.md` 축약을 위한 감사 보고서. 결과가 `final_master_plan.md`와 각 `CANON.md`에 반영됨. | `docs/final_master_plan.md`, 각 `CANON.md` |
-| `11_remaining_decisions/index.md` | 미결정 항목 대부분이 `final_master_plan.md`와 각 도메인 문서에 흡수됨. | `docs/final_master_plan.md`의 "미확정 항목", `docs/decision_log.md` |
+| `11_remaining_decisions/index.md` (파일 없음) | 과거 archive 이동 기록. 현재 보관 파일은 없으며 미결정 항목은 활성 문서에 흡수됨. | `docs/final_master_plan.md`의 "미확정 항목", `docs/decision_log.md` |
 
 ## PHASE 6 — economy 문서 정리 (이동일: 2026-05-22)
 

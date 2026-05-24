@@ -10,7 +10,7 @@
 
 | 파일 | 내용 |
 |---|---|
-| `common_patterns.md` | 공용 패턴 모듈 P-01~P-10 스펙 및 파라미터 |
+| `common_patterns.md` | 공용 패턴 모듈 P-00~P-09, P-11~P-13 스펙 및 파라미터 (P-10 폐기) |
 | `field_boss_patterns.md` | 필드보스 5종 패턴 배정 (공용 패턴만 사용) |
 | `season_boss_patterns.md` | 시즌보스 6종+최종보스 3종 공용+고유 패턴 배정 (SP-1X~SP-9X) |
 
