@@ -3,7 +3,7 @@
 > **[STATUS: REFERENCE]** — 개발 Phase 참조. 공식 시즌 방향은 `../final_master_plan.md`가 우선.
 
 > 최종 갱신: 2026-05-24
-> 확정 기준: `final_master_plan.md` 및 DL-001~DL-055
+> 확정 기준: `final_master_plan.md` 및 DL-001~DL-057
 
 ---
 
@@ -444,7 +444,6 @@ Phase 3, 4, 5는 순서에 관계없이 병렬 착수 가능. Phase 6은 3·4·5
 | DPS 실측 검증 (프리시즌 후) | 낮음 | `season_boss_stats_v1.md` |
 | 타이머 실패 유저 불만 대응 | 낮음 — 운영 후 | `season_boss_stats_v1.md` |
 | 인원 스케일 드랍 기준량 | 중간 — 스탯 재산정 시 | `season_boss_stats_v1.md` |
-| 큐브 공방 제작 재료 상세 | 높음 | `potential_options_v1.md §9-3` |
 | 스킬타입 판별 구현 (입력 이벤트 추적) | 높음 | `potential_options_v1.md §9-3` |
 | 이동 속도% 바닐라 캡 검토 | 낮음 | `potential_options_v1.md §9-3` |
 
