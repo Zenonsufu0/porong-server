@@ -47,8 +47,8 @@
   "recent_boss_clears": [
     {
       "timestamp": 1748000000,
-      "boss_id": "season_boss_1",
-      "boss_name": "균열의 수문장",
+      "boss_id": "fallen_knight",
+      "boss_name": "타락 기사장",
       "clear_time_seconds": 423,
       "party_size": 4,
       "party_weapons": ["sword", "axe", "crossbow", "staff"]
@@ -318,8 +318,8 @@
     {
       "clear_id": "...",
       "timestamp": 1748000000,
-      "boss_id": "season_boss_1",
-      "boss_name": "균열의 수문장",
+      "boss_id": "fallen_knight",
+      "boss_name": "타락 기사장",
       "result": "clear",
       "clear_time_seconds": 423,
       "party_size": 4,
@@ -359,8 +359,8 @@
 {
   "bosses": [
     {
-      "boss_id": "season_boss_1",
-      "boss_name": "균열의 수문장",
+      "boss_id": "fallen_knight",
+      "boss_name": "타락 기사장",
       "total_attempts": 45,
       "clears": 38,
       "timeouts": 5,

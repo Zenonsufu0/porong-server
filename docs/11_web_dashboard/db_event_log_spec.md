@@ -312,7 +312,7 @@ CREATE TABLE daily_economy_snapshot (
 
 ---
 
-## 8. 서버 퍼포먼스 로그 — `server_perf_log`
+## 9. 서버 퍼포먼스 로그 — `server_perf_log`
 
 TPS·평균 핑·동접 수를 1분 단위로 기록한다. 피크 시간대 분석과 TPS 저하 감지에 사용한다.
 
@@ -338,7 +338,7 @@ CREATE INDEX idx_server_perf_log_created_at ON server_perf_log(created_at);
 
 ---
 
-## 9. 필드 활동 로그 — `field_activity_log`
+## 10. 필드 활동 로그 — `field_activity_log`
 
 몹 처치 시마다 필드 ID와 생산 자원을 기록한다.
 
@@ -371,7 +371,7 @@ CREATE INDEX idx_field_activity_player     ON field_activity_log(player_uuid);
 
 ---
 
-## 10. 버그 제보 로그 — `bug_report`
+## 11. 버그 제보 로그 — `bug_report`
 
 디스코드 봇 `/버그제보` 명령어를 EmpireRPG API가 접수할 때 INSERT된다. `id` AUTOINCREMENT가 공개 접수번호(`BUG-{id}`)로 사용된다.
 
@@ -420,7 +420,7 @@ CREATE INDEX idx_bug_report_status     ON bug_report(status);
 
 ---
 
-## 11. 오픈 질문
+## 12. 오픈 질문
 
 - `gold_event_log`의 일별 행 수 추정: 활성 유저 50명 × kills/min 45 × 60분 × 시간당 평균 골드 드랍 이벤트 수. 45일 누적 시 수백만 행 가능. SQLite 한계 내에 있는지 사전 검토 필요.
 - 원시 로그 보존 기간 정책이 없다. 시즌 종료 후 아카이브 또는 삭제 기준을 확정해야 한다.
