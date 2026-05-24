@@ -7,6 +7,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
+import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -52,7 +53,7 @@ public class SkillService {
             return true;
         }
 
-        context.getCooldownManager().applyCooldown(player.getUniqueId(), skill.key(), skill.cooldown());
+        context.getCooldownManager().applyCooldown(player.getUniqueId(), skill.key(), Duration.ofMillis(skill.cooldown()));
         return true;
     }
 

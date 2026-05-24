@@ -445,8 +445,8 @@ public final class EmpireRPGPlugin extends JavaPlugin {
     private ExploreHubGui.FieldStateProvider buildFieldStateProvider() {
         return new ExploreHubGui.FieldStateProvider() {
             @Override
-            public BossStatus status(String fieldId) {
-                return BossStatus.RESPAWNING;
+            public ExploreHubGui.BossStatus status(String fieldId) {
+                return ExploreHubGui.BossStatus.RESPAWNING;
             }
             @Override
             public int respawnMinutes(String fieldId) {
