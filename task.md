@@ -4,10 +4,11 @@
 
 ---
 
-## 최근 확정 (DL-031 ~ DL-050)
+## 최근 확정 (DL-031 ~ DL-051)
 
 | DL | 내용 | 파일 |
 |---|---|---|
+| DL-051 | 시즌보스 1~6 HP 우상향 재설계 — 방무 없으면 보스4+ 타임아웃, 보스6 레전더리 방무 요구 | season_boss_stats_v1.md |
 | DL-050 | 균열왕 분노 타이머 25분 → 8분 수정 (10분 타이머 기준) | season_boss_patterns.md |
 | DL-049 | SP-83 결속 차단 신설 — 타락한 이중체 Phase 전환 #1, Z·S 사이 위치 차단 메카닉 | season_boss_patterns.md |
 | DL-048 | P-10 장판 패턴 완전 폐기 + 전 보스 폭발/추적/낙하로 교체 (서버 TPS 이유) | common_patterns.md, season_boss_patterns.md |
