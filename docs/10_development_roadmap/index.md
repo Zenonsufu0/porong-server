@@ -2,8 +2,8 @@
 
 > **[STATUS: REFERENCE]** — 개발 Phase 참조. 공식 시즌 방향은 `../final_master_plan.md`가 우선.
 
-> 최종 갱신: 2026-05-24
-> 확정 기준: `final_master_plan.md` 및 DL-001~DL-057
+> 최종 갱신: 2026-05-25
+> 확정 기준: `final_master_plan.md` 및 DL-001~DL-062
 
 ---
 

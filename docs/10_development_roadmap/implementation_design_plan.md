@@ -60,18 +60,18 @@
 
 ## 3. 식별자 확정표
 
-### 3.1 Currency Key (wallet)
+### 3.1 재화·아이템 저장 기준
 
-`PlayerGrowthState.wallet` Map<String, Long>에 저장.
+`PlayerGrowthState.wallet`에는 DB 가상재화만 저장한다. item master에서 물리 아이템으로 정의된 항목은 인벤토리/PDC 아이템으로 처리한다.
 
-| 의미 | wallet key | 비고 |
+| 의미 | 공식 key | 저장/처리 | 비고 |
 |---|---|---|
-| 골드 | `gold` | 주 화폐 |
-| 강화석 | `mat_stone_enhance` | DB 가상재화, 실물 없음 |
-| 큐브 조각 | `mat_cube_fragment` | 10개 → 큐브 1개 자동 교환 |
-| 큐브 | `mat_cube` | 사용 시 500G 추가 차감 |
+| 골드 | `gold` | `PlayerGrowthState.wallet` | 주 화폐 |
+| 강화석 | `mat_stone_enhance` | `PlayerGrowthState.wallet` | DB 가상재화, 실물 없음 |
+| 큐브 조각 | `mat_cube_fragment` | 인벤토리/PDC 물리 아이템 | 10개 → 큐브 1개 자동 교환 |
+| 큐브 | `mat_cube` | 인벤토리/PDC 물리 아이템 | 사용 시 500G 추가 차감 |
 
-> **DP-001 확정**: 큐브/큐브 조각은 wallet 가상재화로 통일. 물리 아이템 드랍 없음.
+> **DP-001 확정**: 큐브/큐브 조각은 item master 기준 물리 아이템으로 유지한다. 자동 교환은 인벤토리 이벤트에서 `mat_cube_fragment` 10개를 `mat_cube` 1개로 변환한다.
 
 **PotentialService 수정 필요 항목:**
 
@@ -81,6 +81,7 @@
 | `MATERIAL_UPGRADE_CUBE = "upgrade_cube"` | (삭제, mat_cube로 통합) |
 
 CANON 기준: 큐브 1회 → 전 라인 재롤 + 등업 시도 동시 진행, 500G 차감.
+큐브 보유량은 wallet이 아니라 플레이어 인벤토리의 `mat_cube` PDC 아이템 수량으로 확인한다.
 
 ### 3.2 PDC Key
 
@@ -110,7 +111,7 @@ CANON 기준: 큐브 1회 → 전 라인 재롤 + 등업 시도 동시 진행, 5
 |---|---|
 | 인벤토리 크기 | 27슬롯 (3행×9열) |
 | GUI title 상수 | `GuiTitles.WEAPON_SELECTION = Component.text("클래스 선택")` |
-| 재선택 정책 | 1차 시즌 재선택 불가. 관리자 `/empire admin setclass <player> <type>`만 변경 가능 |
+| 재선택 정책 | 1차 시즌 재선택 불가. 관리자 `/empire setclass <player> <type>`만 변경 가능 |
 | 저장 시점 | 선택 즉시 동기 save (firstJoin이므로 지연 없음) |
 
 **슬롯 매핑 (WeaponSelectionGuiListener):**
@@ -147,7 +148,7 @@ row2: [18] [19] [20] [21] [22] [23] [24] [25] [26]  ← 설명
 - RMB에서 블록 상호작용 충돌 방지: `event.setUseInteractedBlock(Event.Result.DENY)` 호출
 - 석궁 장전(CROSSBOW) RMB 충돌: WeaponType이 CROSSBOW면 slot2 스킬로 우선 처리하고 장전 이벤트 취소
 - 쿨다운 actionbar 형식: `§e{스킬명} §c{N.N}s` (CooldownManager.formatSeconds 사용)
-- 전투 불가 구역(수도 내부 등): CombatStateService.isInSafeZone() 확인 후 스킬 차단
+- 전투 불가 구역(수도 내부 등): 별도 `SafeZoneService` 또는 WorldGuard adapter를 정의한 뒤 스킬 차단. `CombatStateService`에는 safe-zone 책임을 추가하지 않는다.
 
 **SkillInputListener 현재 버그 (수정 필요):**
 
@@ -252,9 +253,7 @@ public static boolean isFieldBoss(Entity entity) {
   "classEngravingId": "",
   "wallet": {
     "gold": 0,
-    "mat_stone_enhance": 0,
-    "mat_cube": 0,
-    "mat_cube_fragment": 0
+    "mat_stone_enhance": 0
   },
   "equippedSlots": {
     "WEAPON": "starter_weapon",
@@ -271,7 +270,6 @@ public static boolean isFieldBoss(Entity entity) {
     "reaperCount": 0,
     "storageCount": 0
   },
-  "storage": {},
   "playerLevel": 1,
   "unspentPts": 0,
   "critPts": 0,
@@ -305,6 +303,8 @@ migration은 `PlayerPersistenceService.load()` 내부에서 버전별 분기로 
 | 플레이어 퇴장 | PlayerQuitEvent에서 즉시 save + cache 제거 |
 | 서버 종료 | onDisable 온라인 전원 동기 save |
 
+영지 저장고(`island_storage`)는 `docs/05_island_farm_system/island_system_design.md` 기준 DB 가상 저장고로 분리한다. Player JSON의 `storage` 필드는 제거하거나 migration 전용 legacy 필드로만 취급한다.
+
 ### 4.5 GUI title 상수 (DP-004 확정: GuiTitles 클래스)
 
 `com.poro.empire.gui.GuiTitles` 클래스에 static final Component 상수 정의.
@@ -334,10 +334,14 @@ listener는 title 문자열을 직접 문자열 비교하지 않고 `GuiTitles.W
 | 몹 종류 | 보상 지급 방식 |
 |---|---|
 | 일반 필드 몹 | EntityDeathEvent + MobTagHelper, 마지막 히터 단독 지급 |
-| 필드보스 (`empire_type_field_boss`) | BossEngineRuntime.contributionService로 위임 (3% 기준 분배) |
-| 시즌보스 | BossEngineRuntime.contributionService (동일) |
+| 필드보스 (`empire_type_field_boss`) | BossRewardService가 기여도 3% 이상 대상에게 지급 |
+| 시즌보스 | BossRewardService가 클리어/재도전/인원 스케일 규칙에 따라 지급 |
 
-필드보스 기여도는 `BossEngineRuntime`이 이미 보스 교전 중 피해량을 누적하고 있어야 하며, 처치 시점에 기여 플레이어 목록을 FieldDropListener가 조회해 보상을 지급한다.
+책임 경계:
+
+- `BossEngineRuntime`: 보스 세션, 피해량 누적, 클리어/실패 이벤트 발행.
+- `BossRewardService`: `BossEngineRuntime`의 결과 이벤트를 받아 보상 대상과 보상 수량을 계산·지급.
+- `FieldDropListener`: 일반/정예 필드몹만 처리. 필드보스/시즌보스 보상 지급에 관여하지 않는다.
 
 ---
 
@@ -363,7 +367,7 @@ listener는 title 문자열을 직접 문자열 비교하지 않고 `GuiTitles.W
 
 | 순서 | 작업 | 영향 파일 |
 |---|---|---|
-| 1 | PotentialService cube key 정렬: memory_cube/upgrade_cube → mat_cube | `PotentialService.java` |
+| 1 | PotentialService cube key 정렬: memory_cube/upgrade_cube → 인벤토리 `mat_cube` 소비 | `PotentialService.java` |
 | 2 | SkillInputListener 4종 매핑 수정 (LMB/RMB/Shift+RMB/F) | `SkillInputListener.java` |
 | 3 | MobTagHelper 신규 작성 + FieldDropListener scoreboard tag 방식으로 교체 | `MobTagHelper.java`, `FieldDropListener.java` |
 | 4 | GuiTitles 상수 클래스 작성 | `GuiTitles.java` |
@@ -372,7 +376,8 @@ listener는 title 문자열을 직접 문자열 비교하지 않고 `GuiTitles.W
 | 7 | PlayerQuitEvent save (PlayerJoinListener 또는 신규 listener) | `PlayerJoinListener.java` |
 | 8 | ClassInitService 신규 작성 (초기 5슬롯 장비 지급) | `ClassInitService.java` |
 | 9 | GuiTitles 기반 메인 허브 / 장비 허브 최소 구현 | `MainHubListener.java`, `GrowthGuiListener.java` |
-| 10 | 기여도 서비스 연동 (필드보스 보상) | `FieldDropListener.java`, `BossEngineRuntime` |
+| 10 | BossRewardService 신규 작성 + BossEngineRuntime 결과 이벤트 연동 | `BossRewardService.java`, `BossEngineRuntime` |
+| 11 | SafeZoneService 또는 WorldGuard adapter 정의 후 SkillInputListener에 연결 | `SafeZoneService.java`, `SkillInputListener.java` |
 
 ---
 
@@ -399,7 +404,7 @@ listener는 title 문자열을 직접 문자열 비교하지 않고 `GuiTitles.W
 | 7 | empire_field_1 태그 몹 처치 | 필드1 드랍표 적용, gold/mat_stone_enhance 지급 |
 | 8 | 태그 없는 몹 처치 | 드랍 없음, 오류 없음 |
 | 9 | 재접속 | weaponType, 장비, wallet, territory 복원 |
-| 10 | mat_cube_fragment 10개 획득 | mat_cube 1개 자동 교환 (wallet 기준) |
+| 10 | mat_cube_fragment 10개 획득 | 인벤토리의 mat_cube_fragment 10개가 mat_cube 1개로 자동 교환 |
 
 ### 7.3 필수 운영 로그
 
@@ -410,7 +415,7 @@ listener는 title 문자열을 직접 문자열 비교하지 않고 `GuiTitles.W
 | 저장 실패 | SEVERE `[Persistence] 플레이어 데이터 저장 실패: {uuid}` |
 | JSON migration 수행 | `[Migration] {uuid} v{old} → v{new}` |
 | 태그 누락 몹 skip | (로그 없음, 조용히 skip) |
-| 큐브 조각 자동 교환 | `[Cube] {uuid} 10 fragments → 1 cube (wallet)` |
+| 큐브 조각 자동 교환 | `[Cube] {uuid} 10 fragments → 1 cube (inventory)` |
 
 ---
 
@@ -418,12 +423,12 @@ listener는 title 문자열을 직접 문자열 비교하지 않고 `GuiTitles.W
 
 | ID | 항목 | 확정 내용 |
 |---|---|---|
-| DP-001 | 큐브/큐브 조각 저장 | wallet 가상재화로 통일 (mat_cube, mat_cube_fragment) |
+| DP-001 | 큐브/큐브 조각 저장 | item master 기준 물리 아이템 유지, 인벤토리 자동 변환 |
 | DP-002 | 스킬 4종 입력 배치 | LMB=slot1, RMB=slot2, Shift+RMB=slot3, F=slot4 (4종 모두 1차 구현) |
 | DP-003 | MythicMob 필드 식별 | scoreboard tag (empire_field_N, empire_rank_*, empire_type_*) |
 | DP-004 | GUI title | GuiTitles 상수 클래스, Component 비교 |
 | DP-005 | 저장 migration | schemaVersion v1→v2→v3 단계별 변환 |
-| DP-006 | 필드보스 보상 지급 | 기여도 서비스 (일반 몹은 마지막 히터 단독) |
+| DP-006 | 필드보스 보상 지급 | BossRewardService가 전담, 일반 몹은 FieldDropListener 마지막 히터 단독 |
 
 ---
 
