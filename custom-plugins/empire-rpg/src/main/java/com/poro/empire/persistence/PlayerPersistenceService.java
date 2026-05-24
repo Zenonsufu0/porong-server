@@ -122,7 +122,7 @@ public final class PlayerPersistenceService {
         if (data.equippedSlots() != null) {
             data.equippedSlots().forEach((slotName, instanceId) -> {
                 try {
-                    state.equipItem(EquipmentSlot.valueOf(slotName.toUpperCase()), instanceId);
+                    state.equipItem(EquipmentSlot.from(slotName), instanceId);
                 } catch (IllegalArgumentException ignored) {}
             });
         }

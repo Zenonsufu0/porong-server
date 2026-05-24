@@ -17,7 +17,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public final class FieldDropListener implements Listener {
     private static final String GOLD = "gold";
-    private static final String ENHANCEMENT_STONE = "enhancement_stone";
+    private static final String ENHANCEMENT_STONE = "mat_stone_enhance";
     private static final String BATTLE_SHARD = "mat_battle_shard";
     private static final String CUBE_FRAGMENT = "mat_cube_fragment";
     private static final String CUBE = "mat_cube";
@@ -51,6 +51,9 @@ public final class FieldDropListener implements Listener {
 
     private void grantFieldDrops(Player player, Entity entity) {
         FieldDropProfile profile = profileFor(entity);
+        if (profile == null) {
+            return;
+        }
         String classId = playerDataManager.getWeaponType(player.getUniqueId()).name().toLowerCase(Locale.ROOT);
         PlayerGrowthState growth = growthStateStore.getOrCreate(player.getUniqueId(), classId);
 
@@ -78,6 +81,9 @@ public final class FieldDropListener implements Listener {
 
     private FieldDropProfile profileFor(Entity entity) {
         int field = fieldIndex(entity);
+        if (field == 0) {
+            return null;
+        }
         boolean elite = isElite(entity);
         if (elite) {
             return switch (field) {
@@ -103,7 +109,8 @@ public final class FieldDropListener implements Listener {
         if (marker.contains("field4") || marker.contains("f4") || marker.contains("outpost")) return 4;
         if (marker.contains("field3") || marker.contains("f3") || marker.contains("waterway")) return 3;
         if (marker.contains("field2") || marker.contains("f2") || marker.contains("mine")) return 2;
-        return 1;
+        if (marker.contains("field1") || marker.contains("f1") || marker.contains("prairie") || marker.contains("capital")) return 1;
+        return 0;
     }
 
     private boolean isElite(Entity entity) {

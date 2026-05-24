@@ -11,7 +11,7 @@ import java.util.Objects;
 public final class EnhancementService {
     public static final int MAX_ENHANCE_LEVEL = 25;
     public static final String CURRENCY_GOLD = "gold";
-    public static final String MATERIAL_ENHANCE_STONE = "enhancement_stone";
+    public static final String MATERIAL_ENHANCE_STONE = "mat_stone_enhance";
 
     private final ItemMasterRegistry itemMasterRegistry;
     private final EnhancementRuleRegistry enhancementRuleRegistry;
