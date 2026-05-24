@@ -27,6 +27,7 @@
 | `economy_numbers_v2.md` | 강화 비용, 골드 경제, 경제 운영 지표 |
 | `potential_options_v1.md` | 잠재 옵션 풀과 등급/라인 구조 |
 | `equipment_growth_spec.md` | 장비 성장 상세 |
+| `boss_clear_stats_spec.md` | 보스 클리어 통계 수집 스펙 (DB 스키마·API·운영 기준) |
 | `../01_plugin_architecture/implementation_reference.md` | DB 스키마와 API 구현 상세 |
 | `../06_fields_bosses/drop_tables_v1.md` | 강화석·큐브 조각 드랍 상세. CANON과 충돌하는 구 수치는 정리 대상 |
 

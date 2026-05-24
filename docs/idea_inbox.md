@@ -36,7 +36,7 @@
   - 시즌 경과에 따른 주간 클리어율 추이
 - 분류: [x] CANON 반영 후보 (DB/API 설계 반영 필요)
 - 관련 문서: `docs/02_database_api_stats/CANON.md`, `docs/10_development_roadmap/index.md`
-- 상태: DRAFT
+- 상태: **[PROMOTED → DL-052]** (2026-05-24 DB 스키마·API 스펙 확정)
 
 ### INBOX-001 강화 흔적 3종 공방 레시피
 - 날짜: 2026-05-22
