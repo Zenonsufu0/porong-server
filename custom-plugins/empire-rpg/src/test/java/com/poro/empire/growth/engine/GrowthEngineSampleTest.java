@@ -40,8 +40,7 @@ class GrowthEngineSampleTest {
                 enhancementLogHook,
                 randomProvider
         );
-        PotentialSelectionHook memorialHook = (operationType, state, item, before, after) ->
-                "reroll".equals(operationType) ? before : after;
+        PotentialSelectionHook memorialHook = (operationType, state, item, before, after) -> after;
         PotentialService potentialService = new PotentialService(
                 itemMasterRegistry,
                 potentialOptionRegistry,
@@ -62,8 +61,7 @@ class GrowthEngineSampleTest {
         PlayerGrowthState state = new PlayerGrowthState("user_growth_01", "warrior");
         state.addCurrency("gold", 500_000L);
         state.addCurrency("enhancement_stone", 500L);
-        state.addCurrency("memory_cube", 5L);
-        state.addCurrency("upgrade_cube", 5L);
+        state.addCurrency("mat_cube", 5L);
 
         PlayerEquipmentItem weapon = new PlayerEquipmentItem("inst_weapon_01", "t2_gs_ragnes");
         PlayerEquipmentItem armorHead = new PlayerEquipmentItem("inst_armor_head_01", "t2_armor_ragnes_head");
@@ -91,11 +89,8 @@ class GrowthEngineSampleTest {
         PotentialService.PotentialOperationResult initPotential = potentialService
                 .generateInitial(state, weapon.itemInstanceId(), PotentialGrade.RARE)
                 .orElseThrow();
-        PotentialService.PotentialOperationResult reroll = potentialService
-                .reroll(state, weapon.itemInstanceId())
-                .orElseThrow();
-        PotentialService.PotentialOperationResult upgrade = potentialService
-                .upgrade(state, weapon.itemInstanceId(), 0.10d)
+        PotentialService.PotentialOperationResult cubeResult = potentialService
+                .useCube(state, weapon.itemInstanceId(), 0.10d)
                 .orElseThrow();
 
         SetBonusService.SetBonusState setState = setBonusService.calculate(state);
@@ -112,9 +107,8 @@ class GrowthEngineSampleTest {
         assertTrue(!enhanceFail.success());
         assertEquals(19, enhanceFail.finalLevel());
         assertEquals("RARE", initPotential.selectedAfter().grade().name());
-        assertTrue(reroll.selectedAfter().equals(reroll.before()));
-        assertTrue(upgrade.success());
-        assertEquals("EPIC", upgrade.selectedAfter().grade().name());
+        assertTrue(cubeResult.success());
+        assertEquals("EPIC", cubeResult.selectedAfter().grade().name());
         assertEquals(3, setState.pieceCountBySet().getOrDefault("imperial_glory", 0));
         assertEquals("warrior_gs_crack_01", state.classEngravingId());
         assertEquals(3, state.commonEngravings().size());
@@ -131,15 +125,12 @@ class GrowthEngineSampleTest {
                 + " final=" + enhanceFail.finalLevel()
                 + " no_break=true no_downgrade=true");
 
-        System.out.println("potential_example_1=reroll memorial_select_before grade="
-                + reroll.selectedAfter().grade().name()
-                + " line1=" + reroll.selectedAfter().lines().get(0).optionCode());
-        System.out.println("potential_example_2=upgrade success="
-                + upgrade.success()
-                + " before_grade=" + upgrade.beforeGrade()
-                + " after_grade=" + upgrade.selectedGrade()
-                + " chance=" + upgrade.chance()
-                + " roll=" + upgrade.roll());
+        System.out.println("potential_example_1=cube_use success=" + cubeResult.success()
+                + " before_grade=" + cubeResult.beforeGrade()
+                + " after_grade=" + cubeResult.selectedGrade()
+                + " line1=" + cubeResult.selectedAfter().lines().get(0).optionCode()
+                + " chance=" + cubeResult.chance()
+                + " roll=" + cubeResult.roll());
 
         System.out.println("set_bonus_example=imperial_glory pieces="
                 + setState.pieceCountBySet().getOrDefault("imperial_glory", 0)

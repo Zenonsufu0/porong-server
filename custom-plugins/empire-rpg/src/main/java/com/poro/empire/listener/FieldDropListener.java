@@ -66,11 +66,12 @@ public final class FieldDropListener implements Listener {
             growth.addCurrency(ENHANCEMENT_STONE, randomInclusive(profile.enhancementStoneMin, profile.enhancementStoneMax));
         }
         if (roll(profile.cubeFragmentChancePct)) {
-            var territory = islandTerritoryStateStore.getOrCreate(player.getUniqueId(), player.getName());
-            territory.addCustomItem(CUBE_FRAGMENT, 1);
-            while (territory.getCustomItem(CUBE_FRAGMENT) >= 10) {
-                territory.withdrawCustomItem(CUBE_FRAGMENT, 10);
-                territory.addCustomItem(CUBE, 1);
+            growth.addCurrency(CUBE_FRAGMENT, 1);
+            if (growth.currency(CUBE_FRAGMENT) >= 10) {
+                growth.consumeCurrency(CUBE_FRAGMENT, 10);
+                growth.addCurrency(CUBE, 1);
+                player.getServer().getLogger().info(
+                        "[Cube] " + player.getUniqueId() + " 10 fragments -> 1 cube (wallet)");
             }
         }
         if (profile.elite && roll(profile.traceChancePct)) {
@@ -80,11 +81,10 @@ public final class FieldDropListener implements Listener {
     }
 
     private FieldDropProfile profileFor(Entity entity) {
-        int field = fieldIndex(entity);
-        if (field == 0) {
-            return null;
-        }
-        boolean elite = isElite(entity);
+        if (MobTagHelper.isFieldBoss(entity)) return null;
+        int field = MobTagHelper.fieldIndex(entity);
+        if (field == 0) return null;
+        boolean elite = MobTagHelper.isElite(entity);
         if (elite) {
             return switch (field) {
                 case 2 -> new FieldDropProfile(true, 30, 50, 80, 2, 3, 15, 1, 1, 7, 5);
@@ -101,31 +101,6 @@ public final class FieldDropListener implements Listener {
             case 5 -> new FieldDropProfile(false, 12, 21, 55, 1, 2, 12, 1, 1, 3, 0);
             default -> new FieldDropProfile(false, 6, 12, 70, 1, 2, 6, 1, 1, 1, 0);
         };
-    }
-
-    private int fieldIndex(Entity entity) {
-        String marker = marker(entity);
-        if (marker.contains("field5") || marker.contains("f5") || marker.contains("ruins")) return 5;
-        if (marker.contains("field4") || marker.contains("f4") || marker.contains("outpost")) return 4;
-        if (marker.contains("field3") || marker.contains("f3") || marker.contains("waterway")) return 3;
-        if (marker.contains("field2") || marker.contains("f2") || marker.contains("mine")) return 2;
-        if (marker.contains("field1") || marker.contains("f1") || marker.contains("prairie") || marker.contains("capital")) return 1;
-        return 0;
-    }
-
-    private boolean isElite(Entity entity) {
-        String marker = marker(entity);
-        return marker.contains("elite") || marker.contains("정예") || marker.contains("노식자")
-                || marker.contains("감시병") || marker.contains("수하") || marker.contains("부관") || marker.contains("봉인병");
-    }
-
-    private String marker(Entity entity) {
-        StringBuilder value = new StringBuilder(entity.getType().name().toLowerCase(Locale.ROOT));
-        entity.getScoreboardTags().forEach(tag -> value.append(' ').append(tag.toLowerCase(Locale.ROOT)));
-        if (entity.customName() != null) {
-            value.append(' ').append(net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(entity.customName()).toLowerCase(Locale.ROOT));
-        }
-        return value.toString();
     }
 
     private String randomTraceId() {

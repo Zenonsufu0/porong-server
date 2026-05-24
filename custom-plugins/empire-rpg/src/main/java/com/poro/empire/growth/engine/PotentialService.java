@@ -13,8 +13,9 @@ import java.util.Map;
 import java.util.Objects;
 
 public final class PotentialService {
-    public static final String MATERIAL_MEMORY_CUBE = "memory_cube";
-    public static final String MATERIAL_UPGRADE_CUBE = "upgrade_cube";
+    public static final String MATERIAL_CUBE = "mat_cube";
+    private static final String MATERIAL_GOLD = "gold";
+    private static final long CUBE_USE_GOLD_COST = 500L;
 
     private static final Map<PotentialGrade, Double> UPGRADE_CHANCE_BY_GRADE = Map.of(
             PotentialGrade.COMMON, 0.30d,
@@ -68,7 +69,11 @@ public final class PotentialService {
         ));
     }
 
-    public Result<PotentialOperationResult> reroll(PlayerGrowthState state, String itemInstanceId) {
+    public Result<PotentialOperationResult> useCube(PlayerGrowthState state, String itemInstanceId) {
+        return useCube(state, itemInstanceId, null);
+    }
+
+    public Result<PotentialOperationResult> useCube(PlayerGrowthState state, String itemInstanceId, Double fixedRoll) {
         PlayerEquipmentItem item = state.inventoryItem(itemInstanceId).orElse(null);
         if (item == null) {
             return Result.failure(ErrorCode.INVALID_ARGUMENT, "Item instance not found: " + itemInstanceId);
@@ -78,73 +83,35 @@ public final class PotentialService {
         }
         ItemMaster master = itemMasterRegistry.find(item.itemId()).orElse(null);
         if (master == null) {
-            return Result.failure(ErrorCode.INVALID_ARGUMENT, "Unknown item master for potential reroll: " + item.itemId());
+            return Result.failure(ErrorCode.INVALID_ARGUMENT, "Unknown item master: " + item.itemId());
         }
-        if (!state.consumeCurrency(MATERIAL_MEMORY_CUBE, 1)) {
-            return Result.failure(
-                    ErrorCode.INVALID_ARGUMENT,
-                    "Not enough memory cube. required=1, current=" + state.currency(MATERIAL_MEMORY_CUBE)
-            );
+        if (state.currency(MATERIAL_CUBE) < 1) {
+            return Result.failure(ErrorCode.INVALID_ARGUMENT,
+                    "Not enough mat_cube. required=1, current=" + state.currency(MATERIAL_CUBE));
+        }
+        if (state.currency(MATERIAL_GOLD) < CUBE_USE_GOLD_COST) {
+            return Result.failure(ErrorCode.INVALID_ARGUMENT,
+                    "Not enough gold. required=" + CUBE_USE_GOLD_COST + ", current=" + state.currency(MATERIAL_GOLD));
         }
 
-        PotentialProfile before = item.potentialProfile();
-        PotentialProfile after = generateProfile(state, master, before.grade());
-        PotentialProfile selected = select("reroll", state, item, before, after);
-        item.setPotentialProfile(selected);
-
-        return Result.success(new PotentialOperationResult(
-                "reroll",
-                true,
-                before,
-                after,
-                selected,
-                before.grade().name(),
-                selected.grade().name(),
-                0.0d,
-                1.0d
-        ));
-    }
-
-    public Result<PotentialOperationResult> upgrade(PlayerGrowthState state, String itemInstanceId) {
-        return upgrade(state, itemInstanceId, null);
-    }
-
-    public Result<PotentialOperationResult> upgrade(PlayerGrowthState state, String itemInstanceId, Double fixedRoll) {
-        PlayerEquipmentItem item = state.inventoryItem(itemInstanceId).orElse(null);
-        if (item == null) {
-            return Result.failure(ErrorCode.INVALID_ARGUMENT, "Item instance not found: " + itemInstanceId);
-        }
-        if (item.potentialProfile() == null) {
-            return Result.failure(ErrorCode.INVALID_ARGUMENT, "Potential profile not initialized for item: " + item.itemInstanceId());
-        }
-        ItemMaster master = itemMasterRegistry.find(item.itemId()).orElse(null);
-        if (master == null) {
-            return Result.failure(ErrorCode.INVALID_ARGUMENT, "Unknown item master for potential upgrade: " + item.itemId());
-        }
+        state.consumeCurrency(MATERIAL_CUBE, 1);
+        state.consumeCurrency(MATERIAL_GOLD, CUBE_USE_GOLD_COST);
 
         PotentialProfile before = item.potentialProfile();
         PotentialGrade nextGrade = before.grade().nextOrNull();
-        if (nextGrade == null) {
-            return Result.failure(ErrorCode.INVALID_ARGUMENT, "Potential is already LEGENDARY.");
-        }
-        if (!state.consumeCurrency(MATERIAL_UPGRADE_CUBE, 1)) {
-            return Result.failure(
-                    ErrorCode.INVALID_ARGUMENT,
-                    "Not enough upgrade cube. required=1, current=" + state.currency(MATERIAL_UPGRADE_CUBE)
-            );
-        }
 
-        double chance = UPGRADE_CHANCE_BY_GRADE.getOrDefault(before.grade(), 0.0d);
+        double chance = nextGrade != null ? UPGRADE_CHANCE_BY_GRADE.getOrDefault(before.grade(), 0.0d) : 0.0d;
         double roll = fixedRoll == null ? randomProvider.nextDouble() : fixedRoll;
-        boolean success = roll <= chance;
+        boolean upgradeSuccess = nextGrade != null && roll <= chance;
+        PotentialGrade resultGrade = upgradeSuccess ? nextGrade : before.grade();
 
-        PotentialProfile candidate = success ? generateProfile(state, master, nextGrade) : before;
-        PotentialProfile selected = success ? select("upgrade", state, item, before, candidate) : before;
+        PotentialProfile candidate = generateProfile(state, master, resultGrade);
+        PotentialProfile selected = select("cube_use", state, item, before, candidate);
         item.setPotentialProfile(selected);
 
         return Result.success(new PotentialOperationResult(
-                "upgrade",
-                success,
+                "cube_use",
+                upgradeSuccess,
                 before,
                 candidate,
                 selected,
