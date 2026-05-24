@@ -2,16 +2,16 @@
 
 > **[STATUS: REFERENCE]** — 현재 스텁 구현을 본격 구현으로 확장하기 전 확정해야 할 설계·검증 계획.
 >
-> 작성: 2026-05-25
+> 최초 작성: 2026-05-25 / 확정 반영: 2026-05-25
 
 ---
 
 ## 0. 목적
 
 현재 EmpireRPG 구현은 컴파일 가능한 스텁과 일부 최소 동작 보정까지 진행된 상태다.
-이 문서는 추가 구현을 바로 진행하지 않고, 설계 기준을 먼저 고정하기 위한 계획서다.
+이 문서는 추가 구현을 진행하기 전 설계 기준을 고정한다.
 
-목표는 다음 네 가지다.
+목표:
 
 - 코드가 CANON·item master·드랍표와 다른 식별자를 사용하지 않게 한다.
 - GUI/입력/드랍처럼 런타임에서만 드러나는 흐름을 구현 전에 표로 확정한다.
@@ -20,196 +20,359 @@
 
 ---
 
-## 1. 설계계획서 작성 범위
+## 1. 설계계획서 범위
+
+범위 내:
 
 | 구분 | 작성 대상 | 기준 문서 |
 |---|---|---|
 | 아이템·재화 키 | item_id, currency key, PDC key, CMD | `docs/02_database_api_stats/item_master_v1.md` |
-| 클래스 선택 | GUI slot, 지급 장비, 첫 접속 상태 전이 | `docs/02_database_api_stats/item_master_v1.md`, `docs/08_resourcepack_pipeline/gui_hub_structure.md` |
-| 스킬 입력 | 우클릭/F키/쿨다운/무기 판정/PDC | `docs/04_combat_weapon_skills/weapon_skills_v1.md` |
-| 필드 드랍 | MythicMob 식별자, 필드/정예 판정, 보상 지급처 | `docs/06_fields_bosses/drop_tables_v1.md` |
-| 저장·복원 | JSON schema, slot 호환, autosave, quit save | `docs/01_plugin_architecture/empire_rpg_module_design.md` |
-| GUI 라우팅 | 메인 허브, 성장, 영지, 보스, 경매장 | `docs/08_resourcepack_pipeline/gui_hub_structure.md` |
-| 검증 | compile/test/manual QA/server smoke | 이 문서 §7 |
+| 클래스 선택 | GUI slot, 지급 장비, 첫 접속 상태 전이 | `docs/02_database_api_stats/item_master_v1.md` |
+| 스킬 입력 | LMB/RMB/Shift+RMB/F 매핑, 이벤트 처리 | `docs/04_combat_weapon_skills/weapon_skills_v1.md` |
+| 필드 드랍 | MythicMob 태그 규칙, 보상 지급 경계 | `docs/06_fields_bosses/drop_tables_v1.md` |
+| 저장·복원 | JSON schema v3, migration 정책 | `PlayerSaveData.java` |
+| GUI 라우팅 | title 상수, slot 매핑, listener 연결 | `docs/08_resourcepack_pipeline/gui_hub_structure.md` |
+| 검증 | compile/수동 QA 체크리스트 | 이 문서 §7 |
 
-범위 밖 항목:
+범위 밖:
 
 - 리소스팩 실제 제작
 - 보스 패턴 세부 수치 재산정
 - 웹 대시보드 구현
 - Discord 봇 구현
-- 2차 확장 기능: 도감, 외부 고퀄 보스 모델, 세트 장비, 악세서리
+- 2차 확장: 도감, 세트 장비, 악세서리, 외부 보스 모델
 
 ---
 
 ## 2. 현재 임시 구현 고정 상태
 
-| 영역 | 현재 상태 | 설계 확정 전 주의 |
+| 영역 | 현재 상태 | 비고 |
 |---|---|---|
-| 저장소 | 플레이어 JSON load/save 최소 구현 | schema migration 규칙 필요 |
-| EquipmentSlot | `WEAPON/HELMET/CHESTPLATE/LEGGINGS/BOOTS` 기준으로 정리 | 기존 `ARMOR_*` 저장값 호환 유지 |
-| 무기 판정 | PDC `empire_rpg:weapon_type` 우선, material fallback | 리소스팩 CMD와 PDC 동시 부여 규칙 필요 |
-| 클래스 선택 | 명령어와 GUI listener에서 최소 지급 처리 | GUI title/slot 공식화 필요 |
-| 스킬 입력 | 우클릭/F키를 기본/특수 스킬에 임시 연결 | 최종 입력 매핑표 필요 |
-| 필드 드랍 | 태그/이름 기반 필드 추정, 실패 시 미지급 | MythicMob internal name 또는 scoreboard tag 확정 필요 |
-| 강화석 | `mat_stone_enhance`로 currency key 통일 | 기존 저장 파일의 `enhancement_stone` migration 필요 여부 검토 |
+| 저장소 | `PlayerSaveData` schemaVersion=3, Gson JSON | §5 참조 |
+| EquipmentSlot | `WEAPON/HELMET/CHESTPLATE/LEGGINGS/BOOTS` | `ARMOR_*` 역호환: `EquipmentSlot.from()` |
+| 무기 판정 | PDC `empire_rpg:weapon_type` 우선, material fallback | §3.2 참조 |
+| 클래스 선택 | WeaponSelectionGuiListener, slot 10~15 | §4.1 참조 |
+| 스킬 입력 | SkillInputListener RMB/F만 임시 연결 → 4종으로 수정 필요 | §4.2 참조 |
+| 필드 드랍 | 이름 기반 fieldIndex (임시) → scoreboard tag로 교체 | §4.3 참조 |
+| 큐브 | PotentialService memory_cube/upgrade_cube → mat_cube 교체 필요 | §3.1 참조 |
 
 ---
 
-## 3. 확정해야 할 식별자 표
+## 3. 식별자 확정표
 
-### 3.1 Currency Key
+### 3.1 Currency Key (wallet)
 
-| 의미 | 공식 key | 저장 위치 | 비고 |
-|---|---|---|---|
-| 골드 | `gold` | `PlayerGrowthState.wallet` | DB/API에서도 동일 key 사용 |
-| 강화석 | `mat_stone_enhance` | `PlayerGrowthState.wallet` | 실물 아이템 아님 |
-| 큐브 조각 | `mat_cube_fragment` | `IslandTerritoryState.customItems` 또는 별도 wallet 확정 필요 | 10개 자동 교환 |
-| 큐브 | `mat_cube` | `IslandTerritoryState.customItems` 또는 별도 wallet 확정 필요 | 사용 시 500G |
+`PlayerGrowthState.wallet` Map<String, Long>에 저장.
 
-결정 필요:
+| 의미 | wallet key | 비고 |
+|---|---|---|
+| 골드 | `gold` | 주 화폐 |
+| 강화석 | `mat_stone_enhance` | DB 가상재화, 실물 없음 |
+| 큐브 조각 | `mat_cube_fragment` | 10개 → 큐브 1개 자동 교환 |
+| 큐브 | `mat_cube` | 사용 시 500G 추가 차감 |
 
-- 큐브 조각/큐브를 `customItems`에 둘지 `wallet`에 둘지 하나로 고정한다.
-- `PotentialService.MATERIAL_MEMORY_CUBE`, `MATERIAL_UPGRADE_CUBE`는 현 item master와 충돌하므로 유지/삭제/alias 중 하나로 결정한다.
+> **DP-001 확정**: 큐브/큐브 조각은 wallet 가상재화로 통일. 물리 아이템 드랍 없음.
+
+**PotentialService 수정 필요 항목:**
+
+| 현재 (구버전) | 교체 후 (공식) |
+|---|---|
+| `MATERIAL_MEMORY_CUBE = "memory_cube"` | `MATERIAL_CUBE = "mat_cube"` |
+| `MATERIAL_UPGRADE_CUBE = "upgrade_cube"` | (삭제, mat_cube로 통합) |
+
+CANON 기준: 큐브 1회 → 전 라인 재롤 + 등업 시도 동시 진행, 500G 차감.
 
 ### 3.2 PDC Key
 
-| key | 용도 | 값 |
+| PDC Key (NamespacedKey) | 값 형식 | 용도 |
 |---|---|---|
-| `empire_rpg:weapon_type` | 무기 클래스 판정 | `SWORD/AXE/SPEAR/CROSSBOW/SCYTHE/STAFF` |
-| `empire_rpg:item_id` | item master 식별 | `equip_spear`, `mat_cube` 등 |
-| `empire_rpg:instance_id` | 장비 인스턴스 식별 | UUID 또는 `starter_*` |
+| `empire_rpg:weapon_type` | `SWORD/AXE/SPEAR/CROSSBOW/SCYTHE/STAFF` | 무기 클래스 판정 |
+| `empire_rpg:item_id` | `equip_spear`, `mat_cube` 등 item_master key | 아이템 종류 식별 |
+| `empire_rpg:instance_id` | UUID 또는 `starter_{slot}` 형식 | 장비 인스턴스 고유 식별 |
 
-결정 필요:
+적용 규칙:
 
-- 장비 완제품은 반드시 `item_id`와 `instance_id`를 함께 가진다.
-- 소재·소비품은 `item_id`만 가진다.
-- PDC 누락 아이템을 허용할지, 관리자 복구 명령으로만 변환할지 결정한다.
+| 아이템 종류 | item_id PDC | instance_id PDC |
+|---|---|---|
+| 장비 완제품 (`equip_*`) | ✓ 필수 | ✓ 필수 |
+| 소재/소비품 (`mat_*`, `con_*`) | ✓ 필수 | 없음 |
+| PDC 없는 아이템 | 드랍/스킬 미처리, 오류 없음 | — |
 
 ---
 
-## 4. 도메인별 설계 작성 작업
+## 4. 도메인별 설계 확정
 
 ### 4.1 클래스 선택·초기 지급
 
-작성할 표:
+**GUI 구성:**
 
-| 항목 | 확정할 내용 |
+| 항목 | 확정 내용 |
 |---|---|
-| GUI title | 클래스 선택 인벤토리 title |
-| slot map | 검/도끼/창/석궁/낫/스태프 슬롯 |
-| 지급 장비 | 무기 1개 + 방어구 4개 |
-| 재선택 정책 | 1차 시즌 재선택 불가 / 관리자만 변경 |
-| 저장 시점 | 선택 즉시 save 예약 또는 즉시 save |
+| 인벤토리 크기 | 27슬롯 (3행×9열) |
+| GUI title 상수 | `GuiTitles.WEAPON_SELECTION = Component.text("클래스 선택")` |
+| 재선택 정책 | 1차 시즌 재선택 불가. 관리자 `/empire admin setclass <player> <type>`만 변경 가능 |
+| 저장 시점 | 선택 즉시 동기 save (firstJoin이므로 지연 없음) |
 
-완료 기준:
+**슬롯 매핑 (WeaponSelectionGuiListener):**
 
-- `/empire class <type>`와 GUI 선택이 같은 서비스 메서드를 호출한다.
-- 선택 후 `PlayerGrowthState`에 5슬롯 장비가 존재하고 장착 상태다.
-- 창은 `minecraft:netherite_sword`여도 PDC로 `SPEAR` 판정된다.
+```
+row0: [0] [1] [2] [3] [4] [5] [6] [7] [8]   ← 배경/타이틀
+row1: [9] [검=10] [도끼=11] [창=12] [석궁=13] [낫=14] [스태프=15] [16] [17]
+row2: [18] [19] [20] [21] [22] [23] [24] [25] [26]  ← 설명
+```
 
-### 4.2 스킬 입력
+**초기 지급 장비 (ClassInitService 구현 기준):**
 
-작성할 표:
-
-| 입력 | 의미 | 1차 구현 |
+| 슬롯 | item_id | instance_id |
 |---|---|---|
-| 우클릭 | 기본 스킬 | 무기별 1번 스킬 |
-| F키 | 특수 스킬 | 무기별 4번 스킬 |
-| Shift+우클릭 | 보류 | 설계 확정 전 미구현 |
-| 숫자키/핫바 | 보류 | GUI/핫바 설계 후 결정 |
+| WEAPON | `equip_{class}` (선택한 무기) | `starter_weapon` |
+| HELMET | `equip_helmet` | `starter_helmet` |
+| CHESTPLATE | `equip_chestplate` | `starter_chestplate` |
+| LEGGINGS | `equip_leggings` | `starter_leggings` |
+| BOOTS | `equip_boots` | `starter_boots` |
 
-결정 필요:
+장착 상태로 PlayerGrowthState에 추가 후 즉시 save.
 
-- 4개 스킬 전체를 어떤 입력에 배치할지 확정한다.
-- 전투 중 GUI 열기, 블록 상호작용, 석궁 장전과 충돌하는 이벤트 우선순위를 정한다.
-- 쿨다운 actionbar 메시지 형식을 고정한다.
+### 4.2 스킬 입력 매핑 (DP-002 확정: 4종 모두 구현)
 
-### 4.3 필드 드랍·MythicMobs 태그
+| 슬롯 | 입력 | 이벤트 | 조건 | 스킬 역할 |
+|---|---|---|---|---|
+| 1 (기본기) | LMB 공격 | `EntityDamageByEntityEvent` (damager=player) | — | 자원 생성, 기본 딜 |
+| 2 (이동기) | RMB | `PlayerInteractEvent` RIGHT_CLICK | `!player.isSneaking()` | 이동기/보조기 |
+| 3 (특수기) | Shift+RMB | `PlayerInteractEvent` RIGHT_CLICK | `player.isSneaking()` | 특수기/제어기 |
+| 4 (핵심기) | F키 | `PlayerSwapHandItemsEvent` | — | 자원 소모, 핵심 딜 |
 
-필수 태그 규칙:
+**이벤트 처리 원칙:**
 
-| 태그 | 값 예시 | 용도 |
-|---|---|---|
-| `empire_field` | `1~5` | 필드 드랍표 선택 |
-| `empire_mob_rank` | `normal/elite/boss` | 일반/정예/보스 드랍 분기 |
-| `empire_mob_id` | `field1_wolf` | 운영 로그와 디버그 |
+- RMB에서 블록 상호작용 충돌 방지: `event.setUseInteractedBlock(Event.Result.DENY)` 호출
+- 석궁 장전(CROSSBOW) RMB 충돌: WeaponType이 CROSSBOW면 slot2 스킬로 우선 처리하고 장전 이벤트 취소
+- 쿨다운 actionbar 형식: `§e{스킬명} §c{N.N}s` (CooldownManager.formatSeconds 사용)
+- 전투 불가 구역(수도 내부 등): CombatStateService.isInSafeZone() 확인 후 스킬 차단
 
-구현 원칙:
+**SkillInputListener 현재 버그 (수정 필요):**
 
-- 위 태그가 없으면 드랍을 지급하지 않는다.
-- customName 기반 판정은 디버그 fallback으로만 사용하고 운영 기준으로 쓰지 않는다.
-- 필드보스와 시즌보스 보상은 일반 `EntityDeathEvent`가 아니라 보스 기여도 서비스에서 지급한다.
-
-### 4.4 저장·복원
-
-작성할 표:
-
-| 항목 | 정책 |
+| 현재 (틀림) | 수정 후 |
 |---|---|
-| 저장 파일 | `plugins/EmpireRPG/playerdata/{uuid}.json` |
-| 자동 저장 | 5분 주기, 메인 스레드 UUID snapshot 후 async file I/O |
-| 퇴장 저장 | quit event에서 즉시 save 후 cache 제거 |
-| 종료 저장 | onDisable에서 온라인 전원 save |
-| migration | `schemaVersion`별 변환 메서드 |
+| RMB → slot1 (기본기) | RMB (not sneaking) → slot2 (이동기) |
+| F키 → specialSkillKey (일부만) | F키 → slot4 (핵심기) |
+| LMB 미처리 | LMB → EntityDamageByEntityEvent, slot1 (기본기) |
+| Shift+RMB 미처리 | Shift+RMB → slot3 (특수기) |
 
-결정 필요:
+**slot key 헬퍼 (SkillInputListener에 추가):**
 
-- `enhancement_stone` → `mat_stone_enhance` 기존 저장값 migration 여부.
-- `ARMOR_*` → 5슬롯 명칭 변환은 `EquipmentSlot.from()`으로만 처리한다.
-- JSON 저장 실패 시 운영 로그/재시도 정책.
+```java
+private String slot1Key(WeaponType t) {
+    return switch (t) {
+        case SWORD     -> "sword:flash_slash";
+        case AXE       -> "axe:smash";
+        case SPEAR     -> "spear:thrust";
+        case CROSSBOW  -> "crossbow:rapid_fire";
+        case SCYTHE    -> "scythe:death_slash";
+        case STAFF     -> "staff:arcane_orb";
+        default        -> null;
+    };
+}
+private String slot2Key(WeaponType t) { /* RMB */ }
+private String slot3Key(WeaponType t) { /* Shift+RMB */ }
+private String slot4Key(WeaponType t) { /* F키 */ }
+```
 
-### 4.5 GUI 라우팅
+slot2~4 전체 key 표:
 
-작성할 표:
+| 무기 | slot1 (LMB) | slot2 (RMB) | slot3 (Shift+RMB) | slot4 (F) |
+|---|---|---|---|---|
+| 검 | `sword:flash_slash` | `sword:triple_strike` | `sword:guard_counter` | `sword:final_strike` |
+| 도끼 | `axe:smash` | `axe:crush_charge` | `axe:unyielding` | `axe:colossal_drop` |
+| 창 | `spear:thrust` | `spear:crescent` | `spear:charge` | `spear:thunderstrike` |
+| 석궁 | `crossbow:rapid_fire` | `crossbow:evade_fire` | `crossbow:pierce_bolt` | `crossbow:sniper` |
+| 낫 | `scythe:death_slash` | `scythe:shadow_spin` | `scythe:grim_strike` | `scythe:execution` |
+| 스태프 | `staff:arcane_orb` | `staff:elemental_burst` | `staff:arcane_rush` | `staff:starburst` |
 
-| GUI | title | open 경로 | listener |
+### 4.3 필드 드랍·MythicMobs 태그 (DP-003 확정: scoreboard tag)
+
+**MythicMobs scoreboard tag 규칙:**
+
+MythicMob YAML의 `Options.Scoreboard` 항목에 아래 태그를 부여한다.
+
+| 태그 이름 | 값 예시 | 용도 |
+|---|---|---|
+| `empire_field` | `empire_field_1` ~ `empire_field_5` | 드랍표 필드 번호 선택 |
+| `empire_rank` | `empire_rank_normal`, `empire_rank_elite` | 일반/정예 분기 |
+| `empire_type` | `empire_type_field_boss` | 필드보스 판정 (기여도 보상) |
+
+적용 예시 (MythicMobs YAML):
+
+```yaml
+Mobs:
+  PrairiWolf:
+    DisplayName: "<gray>초원 늑대"
+    Type: WOLF
+    Options:
+      Scoreboard:
+        - empire_field_1
+        - empire_rank_normal
+```
+
+**FieldDropListener 처리 원칙:**
+
+- 위 scoreboard tag가 없으면 드랍을 지급하지 않고 조용히 skip (WARN 로그 없음)
+- customName 기반 판정은 완전 제거
+- 필드보스(`empire_type_field_boss` 태그) 처치 → §4.6 기여도 서비스로 위임
+
+**태그 파싱 유틸 (`MobTagHelper`):**
+
+```java
+public static int fieldIndex(Entity entity) {
+    for (String tag : entity.getScoreboardTags()) {
+        if (tag.startsWith("empire_field_")) {
+            try { return Integer.parseInt(tag.substring(13)); } catch (...) {}
+        }
+    }
+    return 0; // 태그 없음
+}
+public static boolean isElite(Entity entity) {
+    return entity.getScoreboardTags().contains("empire_rank_elite");
+}
+public static boolean isFieldBoss(Entity entity) {
+    return entity.getScoreboardTags().contains("empire_type_field_boss");
+}
+```
+
+### 4.4 저장·복원 (DP-005 확정: schemaVersion 기반 migration)
+
+**JSON 파일 위치:** `plugins/EmpireRPG/playerdata/{uuid}.json`
+
+**PlayerSaveData 현재 schema v3:**
+
+```json
+{
+  "schemaVersion": 3,
+  "weaponType": "SWORD",
+  "classId": "sword",
+  "classEngravingId": "",
+  "wallet": {
+    "gold": 0,
+    "mat_stone_enhance": 0,
+    "mat_cube": 0,
+    "mat_cube_fragment": 0
+  },
+  "equippedSlots": {
+    "WEAPON": "starter_weapon",
+    "HELMET": "starter_helmet",
+    "CHESTPLATE": "starter_chestplate",
+    "LEGGINGS": "starter_leggings",
+    "BOOTS": "starter_boots"
+  },
+  "inventory": [],
+  "territory": {
+    "ownerName": "...",
+    "rankName": "FRONTIER",
+    "convenienceUnlocks": 0,
+    "reaperCount": 0,
+    "storageCount": 0
+  },
+  "storage": {},
+  "playerLevel": 1,
+  "unspentPts": 0,
+  "critPts": 0,
+  "specPts": 0,
+  "endurPts": 0,
+  "currentExp": 0,
+  "ceilingCounters": {},
+  "ilWarningCount": 0,
+  "mobIlHitCount": 0,
+  "catalystBonusPct": 0
+}
+```
+
+**migration 정책:**
+
+| schemaVersion | 처리 |
+|---|---|
+| 없음 (null/0) | v1 간주 → wallet의 `enhancement_stone` 키를 `mat_stone_enhance`로 rename |
+| 1 | wallet 키 정규화 후 v2로 승격 |
+| 2 | equippedSlots 키 정규화 (`ARMOR_*` → EquipmentSlot.from() 처리) 후 v3으로 승격 |
+| 3 | 그대로 사용 |
+
+migration은 `PlayerPersistenceService.load()` 내부에서 버전별 분기로 처리.
+저장 실패 시: `SEVERE` 레벨 로그 기록 + 재시도 없음 (데이터 손실보다 로그가 낫다).
+
+**자동 저장/종료 저장:**
+
+| 시점 | 방식 |
+|---|---|
+| 5분 주기 | 메인 스레드에서 UUID snapshot → async I/O |
+| 플레이어 퇴장 | PlayerQuitEvent에서 즉시 save + cache 제거 |
+| 서버 종료 | onDisable 온라인 전원 동기 save |
+
+### 4.5 GUI title 상수 (DP-004 확정: GuiTitles 클래스)
+
+`com.poro.empire.gui.GuiTitles` 클래스에 static final Component 상수 정의.
+
+| 상수명 | 표시 문자열 | 인벤토리 크기 | listener |
 |---|---|---|---|
-| 메인 허브 | 확정 필요 | `/메뉴`, 핫바 메뉴 | `MainHubListener` |
-| 클래스 선택 | 확정 필요 | 첫 접속/튜토리얼 | `WeaponSelectionGuiListener` |
-| 성장 | 확정 필요 | `/장비`, `/강화` | `GrowthGuiListener` |
-| 영지 | 확정 필요 | `/영지` | `TerritoryStatusGuiListener` |
-| 보스 | 확정 필요 | `/보스` | `BossRoomListener` |
+| `WEAPON_SELECTION` | `클래스 선택` | 27 | `WeaponSelectionGuiListener` |
+| `MAIN_HUB` | `제국의 거점` | 54 | `MainHubListener` |
+| `EQUIPMENT_HUB` | `장비 관리` | 54 | `GrowthGuiListener` |
+| `TERRITORY_HUB` | `영지 관리` | 54 | `TerritoryStatusGuiListener` |
+| `BOSS_HUB` | `보스 도전` | 54 | `BossRoomListener` |
+| `EXPLORE_HUB` | `탐험 지도` | 27 | `MainHubListener` 내 탐험 탭 |
+| `STORAGE` | `영지 저장고` | 54 | `StorageGuiListener` (이미 존재) |
+| `TERRITORY_STATUS` | `영지 상태` | 54 | `TerritoryStatusGuiListener` (이미 존재) |
+| `WORKSHOP` | `공방` | 54 | `WorkshopGuiListener` (이미 존재) |
+| `GROWTH_ENHANCE` | `강화` | 54 | `GrowthGuiListener` |
+| `GROWTH_POTENTIAL` | `잠재능력` | 54 | `GrowthGuiListener` |
+| `GROWTH_HEIRLOOM` | `전승` | 54 | `HeirloomGuiListener` |
+| `AUCTION` | `경매장` | 54 | `AuctionGuiListener` |
 
-원칙:
+listener는 title 문자열을 직접 문자열 비교하지 않고 `GuiTitles.WEAPON_SELECTION.equals(view.title())` 형식으로만 사용한다.
 
-- listener가 title 문자열을 임의 추론하지 않도록 GUI별 상수 title을 둔다.
-- slot 번호는 문서 표와 코드 상수를 1:1로 맞춘다.
-- GUI 클릭은 항상 `event.setCancelled(true)`를 기본값으로 둔다.
+### 4.6 필드보스 보상 지급 (DP-006 확정: 기여도 서비스)
+
+**기여도 기준:** 최대 피해량 기준, 3% 이상 참여한 플레이어 전원에게 보상.
+
+| 몹 종류 | 보상 지급 방식 |
+|---|---|
+| 일반 필드 몹 | EntityDeathEvent + MobTagHelper, 마지막 히터 단독 지급 |
+| 필드보스 (`empire_type_field_boss`) | BossEngineRuntime.contributionService로 위임 (3% 기준 분배) |
+| 시즌보스 | BossEngineRuntime.contributionService (동일) |
+
+필드보스 기여도는 `BossEngineRuntime`이 이미 보스 교전 중 피해량을 누적하고 있어야 하며, 처치 시점에 기여 플레이어 목록을 FieldDropListener가 조회해 보상을 지급한다.
 
 ---
 
 ## 5. 구현 중단선
 
-설계계획서가 확정되기 전에는 아래 구현을 추가하지 않는다.
+설계계획서가 확정된 지금부터 구현 우선순위 외 항목은 차단한다.
 
-- 신규 스킬 효과 상세 구현
-- 신규 GUI 화면 확장
-- 보스 보상 지급 상세 구현
+허용:
+- 컴파일 실패/식별자 오탈자 수정
+- §6 작성 순서에 따른 코드 구현
+- CANON 반영 필요 항목만 decision_log 기록
+
+차단:
+- 신규 스킬 효과 상세 구현 (§4.2 수정 전)
+- 신규 GUI 화면 확장 (GuiTitles 상수 추가 전)
 - 경매장/상점 경제 처리
-- 웹/API 엔드포인트 구현
+- 웹/API 엔드포인트
 - MythicMobs 실제 스폰 설정 변경
-
-허용되는 작업:
-
-- 컴파일 실패 수정
-- 명백한 식별자 오탈자 수정
-- 문서와 코드의 명칭 표 대조
-- 설계계획서 작성 및 리뷰
 
 ---
 
-## 6. 작성 순서
+## 6. 구현 순서
 
-1. item_id/currency/PDC 식별자 표 확정
-2. 클래스 선택·초기 지급 상태 전이표 작성
-3. 스킬 입력 매핑표 작성
-4. MythicMobs 태그 규칙과 드랍 지급 경계 작성
-5. 저장·복원 schema/migration 작성
-6. GUI title/slot/listener 표 작성
-7. 검증 체크리스트 작성
-8. CANON 반영 필요 여부 판정
-9. decision_log 기록 필요 여부 판정
+| 순서 | 작업 | 영향 파일 |
+|---|---|---|
+| 1 | PotentialService cube key 정렬: memory_cube/upgrade_cube → mat_cube | `PotentialService.java` |
+| 2 | SkillInputListener 4종 매핑 수정 (LMB/RMB/Shift+RMB/F) | `SkillInputListener.java` |
+| 3 | MobTagHelper 신규 작성 + FieldDropListener scoreboard tag 방식으로 교체 | `MobTagHelper.java`, `FieldDropListener.java` |
+| 4 | GuiTitles 상수 클래스 작성 | `GuiTitles.java` |
+| 5 | PlayerPersistenceService migration (v1→v2→v3) 추가 | `PlayerPersistenceService.java` |
+| 6 | WeaponSelectionGuiListener GuiTitles 상수 교체 | `WeaponSelectionGuiListener.java` |
+| 7 | PlayerQuitEvent save (PlayerJoinListener 또는 신규 listener) | `PlayerJoinListener.java` |
+| 8 | ClassInitService 신규 작성 (초기 5슬롯 장비 지급) | `ClassInitService.java` |
+| 9 | GuiTitles 기반 메인 허브 / 장비 허브 최소 구현 | `MainHubListener.java`, `GrowthGuiListener.java` |
+| 10 | 기여도 서비스 연동 (필드보스 보상) | `FieldDropListener.java`, `BossEngineRuntime` |
 
 ---
 
@@ -222,62 +385,51 @@
 | 컴파일 | `./gradlew compileJava` |
 | 공백 오류 | `git diff --check` |
 | 문서 상태 | `orc status` |
-| review diff | `orc diff-review` |
 
-### 7.2 수동 QA
+### 7.2 수동 QA 시나리오
 
-| 시나리오 | 기대 결과 |
+| 순서 | 시나리오 | 기대 결과 |
+|---|---|---|
+| 1 | 신규 유저 접속 | 클래스 선택 GUI(27슬롯) 자동 오픈 |
+| 2 | 클래스 선택(창) | 창 무기 1개+방어구 4개 지급, PDC weapon_type=SPEAR, JSON 저장 |
+| 3 | 우클릭(공기/블록) | 창 slot2 스킬 발동 (관통찌르기 아님, 반월창) |
+| 4 | F키 | 창 slot4 스킬 발동 (천뢰일창) |
+| 5 | Shift+우클릭 | 창 slot3 스킬 발동 (돌파창) |
+| 6 | LMB 몹 공격 | 창 slot1 스킬 발동 (관통찌르기) + 자원 1스택 |
+| 7 | empire_field_1 태그 몹 처치 | 필드1 드랍표 적용, gold/mat_stone_enhance 지급 |
+| 8 | 태그 없는 몹 처치 | 드랍 없음, 오류 없음 |
+| 9 | 재접속 | weaponType, 장비, wallet, territory 복원 |
+| 10 | mat_cube_fragment 10개 획득 | mat_cube 1개 자동 교환 (wallet 기준) |
+
+### 7.3 필수 운영 로그
+
+| 이벤트 | 로그 형식 |
 |---|---|
-| 신규 유저 접속 → 클래스 선택 | 무기 1개 + 방어구 4개 지급, JSON 저장 |
-| 창 선택 후 우클릭/F키 | 창 스킬로 판정 |
-| 태그 없는 엔티티 처치 | 골드/재료 미지급 |
-| `empire_field=3`, `empire_mob_rank=elite` 처치 | 필드3 정예 드랍표 적용 |
-| 재접속 | weaponType, 장비, wallet, storage 복원 |
-| 10 큐브 조각 획득 | 큐브 1개 자동 교환 |
-
-### 7.3 운영 로그
-
-필수 로그:
-
-- 클래스 선택 완료
-- 필드 드랍 지급
-- 저장 실패
-- JSON migration 수행
-- 태그 누락 몹 드랍 skip
+| 클래스 선택 완료 | `[Class] {uuid} selected {weaponType}` |
+| 필드 드랍 지급 | `[Drop] {uuid} field={N} rank={normal/elite} gold={G} stone={S}` |
+| 저장 실패 | SEVERE `[Persistence] 플레이어 데이터 저장 실패: {uuid}` |
+| JSON migration 수행 | `[Migration] {uuid} v{old} → v{new}` |
+| 태그 누락 몹 skip | (로그 없음, 조용히 skip) |
+| 큐브 조각 자동 교환 | `[Cube] {uuid} 10 fragments → 1 cube (wallet)` |
 
 ---
 
-## 8. 산출물
+## 8. DP 결정 요약
 
-| 산출물 | 위치 |
-|---|---|
-| 최종 구현 설계계획서 | 이 문서 |
-| 식별자 표 보강 | `docs/02_database_api_stats/item_master_v1.md` 필요 시 |
-| GUI title/slot 확정 | `docs/08_resourcepack_pipeline/gui_hub_structure.md` 또는 신규 GUI 문서 |
-| MythicMobs 태그 규칙 | `docs/06_fields_bosses/` 하위 신규 문서 |
-| 저장 schema/migration | `docs/01_plugin_architecture/` 하위 신규 문서 |
-| 결정 로그 | `docs/decision_log.md` 필요 시 |
-
----
-
-## 9. 다음 결정 필요 항목
-
-| ID | 항목 | 선택지 | 권장 |
-|---|---|---|---|
-| DP-001 | 큐브/큐브 조각 저장 위치 | `wallet` / `customItems` | `wallet`로 통일 |
-| DP-002 | 스킬 4종 입력 배치 | 우클릭/F/Shift/핫바 | 우클릭+F만 1차, 나머지 보류 |
-| DP-003 | MythicMob 필드 식별 | 이름 추론 / scoreboard tag / PDC | scoreboard tag |
-| DP-004 | 클래스 선택 GUI title | 임의 문자열 / 상수화 | 코드 상수 + 문서 표 |
-| DP-005 | 저장 migration | 미지원 / schema별 변환 | schema별 변환 |
-| DP-006 | 필드보스 보상 지급 | death event / boss contribution service | boss contribution service |
+| ID | 항목 | 확정 내용 |
+|---|---|---|
+| DP-001 | 큐브/큐브 조각 저장 | wallet 가상재화로 통일 (mat_cube, mat_cube_fragment) |
+| DP-002 | 스킬 4종 입력 배치 | LMB=slot1, RMB=slot2, Shift+RMB=slot3, F=slot4 (4종 모두 1차 구현) |
+| DP-003 | MythicMob 필드 식별 | scoreboard tag (empire_field_N, empire_rank_*, empire_type_*) |
+| DP-004 | GUI title | GuiTitles 상수 클래스, Component 비교 |
+| DP-005 | 저장 migration | schemaVersion v1→v2→v3 단계별 변환 |
+| DP-006 | 필드보스 보상 지급 | 기여도 서비스 (일반 몹은 마지막 히터 단독) |
 
 ---
 
-## 10. 완료 기준
+## 9. 완료 기준
 
-이 설계계획서는 아래 조건을 만족하면 작성 완료로 본다.
-
-- §9 결정 필요 항목이 모두 확정 또는 보류 사유와 함께 정리된다.
-- CANON 변경이 필요한 항목과 상세 구현 문서에 둘 항목이 분리된다.
-- 구현자가 코드 수정 없이도 GUI title, slot, key, tag, 저장 schema를 확인할 수 있다.
-- 수동 QA 시나리오가 실제 서버 테스트 순서로 실행 가능하다.
+- 이 문서의 모든 DP 항목이 확정됨 ✓
+- §6 구현 순서의 1~8이 완료되고 `./gradlew compileJava` 통과
+- §7.2 수동 QA 시나리오 1~10이 실제 서버에서 통과
+- CANON과 충돌하는 구버전 식별자(`enhancement_stone`, `memory_cube`, `upgrade_cube`)가 코드에서 제거됨
