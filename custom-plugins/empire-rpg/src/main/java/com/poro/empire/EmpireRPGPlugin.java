@@ -325,12 +325,13 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         new MachineProductionScheduler(this, islandTerritoryStateStore).start();
 
         // 5분(6000틱)마다 온라인 플레이어 자동 저장
-        Bukkit.getScheduler().runTaskTimerAsynchronously(this, () ->
-                playerPersistenceService.saveAll(
-                        Bukkit.getOnlinePlayers().stream()
-                                .map(p -> p.getUniqueId())
-                                .toList()
-                ), 6000L, 6000L);
+        Bukkit.getScheduler().runTaskTimer(this, () -> {
+            var onlinePlayerIds = Bukkit.getOnlinePlayers().stream()
+                    .map(Player::getUniqueId)
+                    .toList();
+            Bukkit.getScheduler().runTaskAsynchronously(this,
+                    () -> playerPersistenceService.saveAll(onlinePlayerIds));
+        }, 6000L, 6000L);
     }
 
     @Override
@@ -460,7 +461,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
     }
 
     private void registerCommands() {
-        EmpireCommand empireCommand = new EmpireCommand(playerDataManager, skillService, reputationManager, this);
+        EmpireCommand empireCommand = new EmpireCommand(playerDataManager, skillService, reputationManager, this, growthStateStore);
 
         if (getCommand("empire") == null) {
             getLogger().severe("Failed to register /empire command. Check plugin.yml.");

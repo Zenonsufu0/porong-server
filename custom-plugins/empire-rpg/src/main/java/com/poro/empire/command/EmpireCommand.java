@@ -2,6 +2,12 @@ package com.poro.empire.command;
 
 import com.poro.empire.combat.SkillService;
 import com.poro.empire.combat.weapon.WeaponType;
+import com.poro.empire.combat.weapon.WeaponTypeResolver;
+import com.poro.empire.growth.GrowthStateStore;
+import com.poro.empire.growth.engine.EquipmentSlot;
+import com.poro.empire.growth.engine.ItemGrade;
+import com.poro.empire.growth.engine.PlayerEquipmentItem;
+import com.poro.empire.growth.engine.PlayerGrowthState;
 import com.poro.empire.growth.engine.CatalystConfig;
 import com.poro.empire.reputation.ReputationManager;
 import com.poro.empire.reputation.ReputationTier;
@@ -11,11 +17,15 @@ import com.poro.empire.util.HealthHudFormatter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,6 +33,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 public class EmpireCommand implements CommandExecutor, TabCompleter {
 
@@ -55,13 +66,16 @@ public class EmpireCommand implements CommandExecutor, TabCompleter {
     private final SkillService skillService;
     private final ReputationManager reputationManager;
     private final Plugin plugin;
+    private final GrowthStateStore growthStateStore;
 
     public EmpireCommand(PlayerDataManager playerDataManager, SkillService skillService,
-                         ReputationManager reputationManager, Plugin plugin) {
+                         ReputationManager reputationManager, Plugin plugin,
+                         GrowthStateStore growthStateStore) {
         this.playerDataManager = playerDataManager;
         this.skillService = skillService;
         this.reputationManager = reputationManager;
         this.plugin = plugin;
+        this.growthStateStore = growthStateStore;
     }
 
     // ─── 메인 디스패처 ──────────────────────────────────────────────
@@ -256,6 +270,7 @@ public class EmpireCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         playerDataManager.setWeaponType(target.getUniqueId(), weaponType);
+        grantStarterEquipment(target, weaponType);
         sender.sendMessage(ChatColor.GREEN + target.getName() + "의 무기 클래스를 "
                 + weaponType.name().toLowerCase(Locale.ROOT) + "(으)로 설정했습니다.");
         target.sendMessage(ChatColor.YELLOW + "관리자에 의해 무기 클래스가 "
@@ -725,8 +740,71 @@ public class EmpireCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         playerDataManager.setWeaponType(player.getUniqueId(), weaponType);
+        grantStarterEquipment(player, weaponType);
         player.sendMessage(ChatColor.GREEN + "무기 클래스 선택: " + weaponType.name().toLowerCase(Locale.ROOT));
         return true;
+    }
+
+    private void grantStarterEquipment(Player player, WeaponType weaponType) {
+        player.getInventory().setItem(0, taggedWeapon(weaponType));
+        ensureStarterGrowthState(player.getUniqueId(), weaponType);
+    }
+
+    private void ensureStarterGrowthState(UUID uuid, WeaponType weaponType) {
+        String classId = weaponType.name().toLowerCase(Locale.ROOT);
+        PlayerGrowthState state = growthStateStore.getOrCreate(uuid, classId);
+        addAndEquipIfMissing(state, EquipmentSlot.WEAPON, "starter_" + classId, "equip_" + classId);
+        addAndEquipIfMissing(state, EquipmentSlot.HELMET, "starter_helmet", "equip_helmet");
+        addAndEquipIfMissing(state, EquipmentSlot.CHESTPLATE, "starter_chestplate", "equip_chestplate");
+        addAndEquipIfMissing(state, EquipmentSlot.LEGGINGS, "starter_leggings", "equip_leggings");
+        addAndEquipIfMissing(state, EquipmentSlot.BOOTS, "starter_boots", "equip_boots");
+    }
+
+    private void addAndEquipIfMissing(PlayerGrowthState state, EquipmentSlot slot, String instanceId, String itemId) {
+        if (state.inventoryItem(instanceId).isEmpty()) {
+            state.addInventoryItem(PlayerEquipmentItem.restore(
+                    instanceId, itemId, 0, ItemGrade.COMMON, null, List.of()));
+        }
+        if (state.equippedItemInstanceId(slot).isEmpty()) {
+            state.equipItem(slot, instanceId);
+        }
+    }
+
+    private ItemStack taggedWeapon(WeaponType weaponType) {
+        ItemStack item = new ItemStack(materialFor(weaponType));
+        ItemMeta meta = item.getItemMeta();
+        meta.displayName(Component.text("§f" + displayNameFor(weaponType)));
+        if (WeaponTypeResolver.WEAPON_TYPE_KEY != null) {
+            meta.getPersistentDataContainer().set(
+                    WeaponTypeResolver.WEAPON_TYPE_KEY,
+                    PersistentDataType.STRING,
+                    weaponType.name());
+        }
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    private Material materialFor(WeaponType weaponType) {
+        return switch (weaponType) {
+            case SWORD, SPEAR -> Material.NETHERITE_SWORD;
+            case AXE -> Material.NETHERITE_AXE;
+            case CROSSBOW -> Material.CROSSBOW;
+            case SCYTHE -> Material.NETHERITE_HOE;
+            case STAFF -> Material.BLAZE_ROD;
+            case NONE -> Material.STICK;
+        };
+    }
+
+    private String displayNameFor(WeaponType weaponType) {
+        return switch (weaponType) {
+            case SWORD -> "검";
+            case AXE -> "도끼";
+            case SPEAR -> "창";
+            case CROSSBOW -> "석궁";
+            case SCYTHE -> "낫";
+            case STAFF -> "스태프";
+            case NONE -> "무기";
+        };
     }
 
     // ─── 유틸리티 ──────────────────────────────────────────────

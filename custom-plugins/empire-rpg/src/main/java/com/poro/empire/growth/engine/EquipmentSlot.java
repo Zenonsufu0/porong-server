@@ -4,10 +4,10 @@ import java.util.Locale;
 
 public enum EquipmentSlot {
     WEAPON("weapon"),
-    ARMOR_HEAD("armor"),
-    ARMOR_CHEST("armor"),
-    ARMOR_HANDS("armor"),
-    ARMOR_LEGS("armor"),
+    HELMET("armor"),
+    CHESTPLATE("armor"),
+    LEGGINGS("armor"),
+    BOOTS("armor"),
     ACCESSORY_1("accessory"),
     ACCESSORY_2("accessory"),
     ACCESSORY_3("accessory");
@@ -23,6 +23,13 @@ public enum EquipmentSlot {
     }
 
     public static EquipmentSlot from(String raw) {
-        return valueOf(raw.trim().toUpperCase(Locale.ROOT));
+        String normalized = raw.trim().toUpperCase(Locale.ROOT);
+        return switch (normalized) {
+            case "ARMOR_HEAD" -> HELMET;
+            case "ARMOR_CHEST" -> CHESTPLATE;
+            case "ARMOR_HANDS" -> LEGGINGS;
+            case "ARMOR_LEGS" -> BOOTS;
+            default -> valueOf(normalized);
+        };
     }
 }
