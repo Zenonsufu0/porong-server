@@ -329,13 +329,18 @@ listener는 title 문자열을 직접 문자열 비교하지 않고 `GuiTitles.W
 
 ### 4.6 필드보스 보상 지급 (DP-006 확정: 기여도 서비스)
 
-**기여도 기준:** 최대 피해량 기준, 3% 이상 참여한 플레이어 전원에게 보상.
+**기여도 기준 (DL-064):**
+
+| 보스 종류 | 참여 판정 기준 |
+|---|---|
+| 필드보스 | 총 피해량 3% 이상 (ContributionTracker — double 누적) |
+| 시즌보스 | 파티 보스룸 입장 확인 (방 입장 = 참여 게이트; 1차 시즌 damage_share 집계 없음) |
 
 | 몹 종류 | 보상 지급 방식 |
 |---|---|
 | 일반 필드 몹 | EntityDeathEvent + MobTagHelper, 마지막 히터 단독 지급 |
 | 필드보스 (`empire_type_field_boss`) | BossRewardService가 기여도 3% 이상 대상에게 지급 |
-| 시즌보스 | BossRewardService가 클리어/재도전/인원 스케일 규칙에 따라 지급 |
+| 시즌보스 | BossRewardService가 보스룸 입장 참여자 전원에게 지급 (클리어/재도전/인원 스케일 규칙) |
 
 책임 경계:
 
