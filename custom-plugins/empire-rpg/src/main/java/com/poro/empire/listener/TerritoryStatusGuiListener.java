@@ -96,9 +96,9 @@ public final class TerritoryStatusGuiListener implements Listener {
             return;
         }
 
-        // 재료 검증 — 창고 잔량 기준 (island_system_design.md §9: 창고 우선, 인벤토리 차감은 CustomItemService 연동 후)
+        // 재료 검증 — IslandTerritoryState.customItems (필드/보스 드랍 저장 경로와 동일)
         for (UpgradeMaterial mat : current.upgradeMaterials) {
-            long have = storage.get(mat.itemId());
+            long have = territory.getCustomItem(mat.itemId());
             if (have < mat.amount()) {
                 player.sendMessage("§c재료 부족: §e" + mat.itemId()
                         + " §c" + FMT.format(mat.amount()) + "개 필요, 보유 §e" + FMT.format(have) + "개");
@@ -109,9 +109,9 @@ public final class TerritoryStatusGuiListener implements Listener {
         // 차감 — 골드
         growth.consumeCurrency("gold", current.goldUpgradeCost);
 
-        // 차감 — 재료 (창고)
+        // 차감 — 재료 (customItems)
         for (UpgradeMaterial mat : current.upgradeMaterials) {
-            storage.withdraw(mat.itemId(), mat.amount());
+            territory.withdrawCustomItem(mat.itemId(), mat.amount());
         }
 
         territory.setRank(next);
