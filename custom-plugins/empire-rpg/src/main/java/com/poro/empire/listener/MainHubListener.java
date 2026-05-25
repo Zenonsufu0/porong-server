@@ -128,25 +128,20 @@ public final class MainHubListener implements Listener {
     }
 
     private void handleTerritoryHub(Player player, int slot) {
-        switch (slot) {
-            case TerritoryHubGui.SLOT_STATUS -> {
-                IslandTerritoryState territory = islandTerritoryStateStore.getOrCreate(
-                        player.getUniqueId(), player.getName());
-                var storage = islandStorageStore.getOrCreate(player.getUniqueId());
-                TerritoryStatusGui.open(player, territory, storage);
-            }
-            case TerritoryHubGui.SLOT_STORAGE -> {
-                var storage = islandStorageStore.getOrCreate(player.getUniqueId());
-                StorageGui.open(player, storage, 0);
-            }
-            case TerritoryHubGui.SLOT_WORKSHOP -> {
-                IslandTerritoryState territory = islandTerritoryStateStore.getOrCreate(
-                        player.getUniqueId(), player.getName());
-                WorkshopGui.open(player, WorkshopGui.WorkshopTab.ESTATE, territory);
-            }
-            case TerritoryHubGui.SLOT_BACK  -> MainHubGui.open(player);
-            case TerritoryHubGui.SLOT_CLOSE -> player.closeInventory();
+        if (TerritoryHubGui.ZONE_STATUS.contains(slot)) {
+            IslandTerritoryState territory = islandTerritoryStateStore.getOrCreate(
+                    player.getUniqueId(), player.getName());
+            var storage = islandStorageStore.getOrCreate(player.getUniqueId());
+            TerritoryStatusGui.open(player, territory, storage);
+        } else if (TerritoryHubGui.ZONE_STORAGE.contains(slot)) {
+            var storage = islandStorageStore.getOrCreate(player.getUniqueId());
+            StorageGui.open(player, storage, 0);
+        } else if (TerritoryHubGui.ZONE_WORKSHOP.contains(slot)) {
+            IslandTerritoryState territory = islandTerritoryStateStore.getOrCreate(
+                    player.getUniqueId(), player.getName());
+            WorkshopGui.open(player, WorkshopGui.WorkshopTab.ESTATE, territory);
         }
+        // 나머지 구역(이동/시설/상점/경매/설정) 및 장식 슬롯은 클릭 무반응
     }
 
     // ─── 아이템 빌더 ─────────────────────────────────────────────

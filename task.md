@@ -77,8 +77,8 @@
 | `item_master.csv` 재료 4종 추가/정정 (mat_battle_shard, mat_trace_star/moon/sun) + DL-066 전장의파편+골드 확정 | ✅ |
 | `WorkshopGuiListener` 뒤로 버튼 → TerritoryHubGui.open 연결 | ✅ |
 | `MachineProductionScheduler` 레벨별 증산 (Lv2=BARON+, Lv3=COUNT+) | ✅ |
-| `WorkshopGui` 레시피 목록 / 대기열 행 채우기 | 🔲 미구현 |
-| `TerritoryHubGui` 실제 GUI 구현 (현재 메시지 전송 스텁) | 🔲 미구현 |
+| `WorkshopGui` 8탭 34레시피 + 대기열 enqueue + 완료 정산 (스키마 v4 영속화) | ✅ |
+| `TerritoryHubGui` 54슬롯 8패널 (gui_hub_structure.md §4) — 상태·창고·공방 활성, 5개 패널 준비 중 | ✅ |
 
 ---
 
