@@ -83,11 +83,19 @@ public final class OperationsQueryBootstrap {
         );
         DiscordCommandQueryAdapter discordCommandQueryAdapter = new DiscordCommandQueryAdapter(publicSnapshotQueryService);
 
+        String apiSecretKey = foundationContext.config().apiSecretKey();
+        String apiBind = foundationContext.config().apiBind();
+        DomainLogger httpLogger = foundationContext.logger().domain("http");
+        if (apiSecretKey.isBlank()) {
+            httpLogger.warn("common.api-secret-key not configured — HTTP API will reject all requests with 503.");
+        }
+
         EmpireHttpServer httpServer;
         try {
             httpServer = EmpireHttpServer.create(
-                    new BossApiHandler(bossSessionRepository),
-                    foundationContext.logger().domain("http")
+                    new BossApiHandler(bossSessionRepository, apiSecretKey),
+                    apiBind,
+                    httpLogger
             );
             httpServer.start();
         } catch (Exception e) {

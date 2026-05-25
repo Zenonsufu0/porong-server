@@ -7,12 +7,16 @@ import java.util.Objects;
 public record CommonConfig(
         Path sqlitePath,
         Path seedPath,
-        ZoneId defaultZoneId
+        ZoneId defaultZoneId,
+        String apiBind,
+        String apiSecretKey
 ) {
     public CommonConfig {
         Objects.requireNonNull(sqlitePath, "sqlitePath");
         Objects.requireNonNull(seedPath, "seedPath");
         Objects.requireNonNull(defaultZoneId, "defaultZoneId");
+        apiBind = (apiBind == null || apiBind.isBlank()) ? "127.0.0.1" : apiBind;
+        apiSecretKey = (apiSecretKey == null) ? "" : apiSecretKey;
     }
 
     public String sqliteJdbcUrl() {

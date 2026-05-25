@@ -136,10 +136,11 @@ public final class BossSessionRepository {
         return queryRowsParam(sql, bossId);
     }
 
-    /** GET /boss/{boss_id}/party-spec — 클리어 파티 강화 분포. */
+    /** GET /boss/{boss_id}/party-spec — 클리어 파티 스펙 분포 (강화·방무 포함). */
     public List<Map<String, Object>> queryPartySpec(String bossId) {
         String sql = """
-            SELECT party_avg_enhance, party_avg_il, party_size, clear_time_seconds
+            SELECT party_avg_enhance, party_avg_il, party_size, clear_time_seconds,
+                   max_defense_ignore_pct, has_defense_ignore
             FROM boss_session_log
             WHERE boss_id = ? AND result = 'clear'
             ORDER BY id DESC

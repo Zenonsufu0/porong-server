@@ -17,12 +17,14 @@ public final class CommonConfigLoader {
         String sqlitePathRaw = config.getString("common.sqlite-path", "storage/poro.sqlite");
         String seedPathRaw = config.getString("common.seed-path", "seeds");
         String timezoneRaw = config.getString("common.timezone", "UTC");
+        String apiBind = config.getString("common.api-bind-host", "127.0.0.1");
+        String apiSecretKey = config.getString("common.api-secret-key", "");
 
         Path sqlitePath = resolvePath(dataFolder, sqlitePathRaw);
         Path seedPath = resolvePath(dataFolder, seedPathRaw);
         ZoneId zoneId = safeZoneId(timezoneRaw);
 
-        return new CommonConfig(sqlitePath, seedPath, zoneId);
+        return new CommonConfig(sqlitePath, seedPath, zoneId, apiBind, apiSecretKey);
     }
 
     private static Path resolvePath(Path base, String value) {
