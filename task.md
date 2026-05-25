@@ -71,10 +71,10 @@
 | 항목 | 상태 |
 |---|---|
 | `TerritoryStatusGuiListener` 전체 구현 (작위 승급, 편의 토글, 네비게이션) | ✅ |
-| 작위 승급 재료 검증·차감 (창고 기준) + IridiumSkyblock stub + 시설 자동레벨업 알림 | ✅ |
+| 작위 승급 재료 검증·차감 (customItems 기준) + IridiumSkyblock stub + 시설 자동레벨업 알림 | ✅ |
 | `IslandRank` 골드 비용 스펙 정정 (20k~150k) + 업그레이드 재료 정의 | ✅ |
 | `MachineProductionScheduler` 랜덤 산출량 스펙 반영 (Lv1=2~3, Lv2=3~4+10%, Lv3=4~6+30%) | ✅ |
-| `item_master.csv` 업그레이드 재료 3종 추가 (mat_battlefield_shard, mat_moon_trace, mat_sun_trace) | ✅ |
+| `item_master.csv` 재료 4종 추가/정정 (mat_battle_shard, mat_trace_star/moon/sun) + DL-066 전장의파편+골드 확정 | ✅ |
 | `WorkshopGuiListener` 뒤로 버튼 → TerritoryHubGui.open 연결 | ✅ |
 | `MachineProductionScheduler` 레벨별 증산 (Lv2=BARON+, Lv3=COUNT+) | ✅ |
 | `WorkshopGui` 레시피 목록 / 대기열 행 채우기 | 🔲 미구현 |
