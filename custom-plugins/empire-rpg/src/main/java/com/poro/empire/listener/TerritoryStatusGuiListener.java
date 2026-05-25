@@ -3,6 +3,7 @@ package com.poro.empire.listener;
 import com.poro.empire.growth.GrowthStateStore;
 import com.poro.empire.growth.engine.PlayerGrowthState;
 import com.poro.empire.growth.island.IslandRank;
+import com.poro.empire.growth.island.IslandRank.UpgradeMaterial;
 import com.poro.empire.growth.island.IslandStorage;
 import com.poro.empire.growth.island.IslandStorageStore;
 import com.poro.empire.growth.island.IslandTerritoryState;
@@ -80,22 +81,52 @@ public final class TerritoryStatusGuiListener implements Listener {
             return;
         }
 
-        long cost = current.goldUpgradeCost;
         Optional<PlayerGrowthState> growthOpt = growthStateStore.get(player.getUniqueId());
         if (growthOpt.isEmpty()) {
             player.sendMessage("§c성장 데이터를 찾을 수 없습니다. 잠시 후 다시 시도해 주세요.");
             return;
         }
         PlayerGrowthState growth = growthOpt.get();
-        if (!growth.consumeCurrency("gold", cost)) {
+
+        // 골드 검증
+        if (growth.currency("gold") < current.goldUpgradeCost) {
             long have = growth.currency("gold");
-            player.sendMessage("§c골드 부족: 필요 §e" + FMT.format(cost) + "G§c, 보유 §e" + FMT.format(have) + "G");
+            player.sendMessage("§c골드 부족: 필요 §e" + FMT.format(current.goldUpgradeCost)
+                    + "G§c, 보유 §e" + FMT.format(have) + "G");
             return;
         }
 
+        // 재료 검증 — 창고 잔량 기준 (island_system_design.md §9: 창고 우선, 인벤토리 차감은 CustomItemService 연동 후)
+        for (UpgradeMaterial mat : current.upgradeMaterials) {
+            long have = storage.get(mat.itemId());
+            if (have < mat.amount()) {
+                player.sendMessage("§c재료 부족: §e" + mat.itemId()
+                        + " §c" + FMT.format(mat.amount()) + "개 필요, 보유 §e" + FMT.format(have) + "개");
+                return;
+            }
+        }
+
+        // 차감 — 골드
+        growth.consumeCurrency("gold", current.goldUpgradeCost);
+
+        // 차감 — 재료 (창고)
+        for (UpgradeMaterial mat : current.upgradeMaterials) {
+            storage.withdraw(mat.itemId(), mat.amount());
+        }
+
         territory.setRank(next);
+
+        // 시설 자동 레벨업 알림 (레벨 파생은 rank.tier 기반, 별도 필드 없음)
+        boolean lv2Unlocked = current.tier < 3 && next.tier >= 3; // BARON 달성
+        boolean lv3Unlocked = current.tier < 5 && next.tier >= 5; // COUNT 달성
+        if (lv2Unlocked) player.sendMessage("§b[영지] 약초 재배지·광물 채굴기가 Lv2로 자동 승급되었습니다!");
+        if (lv3Unlocked) player.sendMessage("§b[영지] 약초 재배지·광물 채굴기가 Lv3로 자동 승급되었습니다!");
+
+        // TODO: IridiumSkyblock API로 섬 XZ 한도 확장 (API JAR 미포함 — §7+ 연동 예정)
+        // SkyblockAPI.getIslandManager().getIslandByOwner(player).ifPresent(island -> island.setBorderSize(next의 XZ 크기));
+
         TerritoryStatusGui.open(player, territory, storage);
-        player.sendMessage("§a작위 승급: §e" + current.displayName + " §7→ §e" + next.displayName);
+        player.sendMessage("§a[영지] 작위 승급: §e" + current.displayName + " §7→ §e" + next.displayName + "§a!");
     }
 
     private void handleConvToggle(Player player, IslandTerritoryState territory,

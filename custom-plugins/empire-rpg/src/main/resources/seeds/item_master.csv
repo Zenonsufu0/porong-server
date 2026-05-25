@@ -23,3 +23,6 @@ res_shard_resonance,Resonance Shard,LIFE,material,arkanon,,,,0,true,starter
 mat_ore_ingot,Ore Ingot,LIFE,material,capital,,,,0,true,starter
 mat_resonance_powder,Resonance Powder,LIFE,material,arkanon,,,,0,true,starter
 bp_resonance_extractor,Resonance Extractor Blueprint,LIFE,material,capital,,,,0,true,starter
+mat_battlefield_shard,Battlefield Shard,LIFE,material,field,,,,0,false,rank_material|field_drop
+mat_moon_trace,Moon Trace,LIFE,material,field,,,,0,false,rank_material|rare_drop
+mat_sun_trace,Sun Trace,LIFE,material,field,,,,0,false,rank_material|rare_drop

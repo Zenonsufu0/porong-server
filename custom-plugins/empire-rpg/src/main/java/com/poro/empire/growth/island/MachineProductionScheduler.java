@@ -4,6 +4,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 /**
  * 영지 자동재배기 주기 생산 스케줄러.
  * 20분(24000틱)마다 온라인 플레이어의 재배기 대수에 따라 제국 약초를 customItems에 추가한다.
@@ -36,16 +38,35 @@ public final class MachineProductionScheduler {
         int reapers = state.reaperCount();
         if (reapers <= 0) return;
 
-        // 기계 레벨 = 작위 티어 기반 (BARON+ → Lv2, COUNT+ → Lv3)
+        // 기계 레벨 = 작위 티어 기반 (island_system_design.md §2.2)
+        // BARON(tier 3)+ → Lv2, COUNT(tier 5)+ → Lv3
         int tier = state.rank().tier;
         int machineLevel = tier < 3 ? 1 : tier < 5 ? 2 : 3;
 
-        int herbPerReaper = machineLevel;          // Lv1=1, Lv2=2, Lv3=3
-        state.addCustomItem(MAT_HERB_IMPERIAL, reapers * herbPerReaper);
+        ThreadLocalRandom rng = ThreadLocalRandom.current();
+        long totalHerbs = 0;
+        long totalEssence = 0;
 
-        // 에센스: Lv1=3대당 1개, Lv2=2대당 1개, Lv3=1대당 1개
-        int essenceDivisor = switch (machineLevel) { case 3 -> 1; case 2 -> 2; default -> 3; };
-        int essence = reapers / essenceDivisor;
-        if (essence > 0) state.addCustomItem(MAT_ESSENCE_IMPERIAL, essence);
+        for (int i = 0; i < reapers; i++) {
+            switch (machineLevel) {
+                case 3 -> {
+                    // Lv3: 4~6 약초 + 30% 확률 정수 1개
+                    totalHerbs += rng.nextInt(4, 7);
+                    if (rng.nextInt(100) < 30) totalEssence++;
+                }
+                case 2 -> {
+                    // Lv2: 3~4 약초 + 10% 확률 정수 1개
+                    totalHerbs += rng.nextInt(3, 5);
+                    if (rng.nextInt(100) < 10) totalEssence++;
+                }
+                default -> {
+                    // Lv1: 2~3 약초, 정수 없음
+                    totalHerbs += rng.nextInt(2, 4);
+                }
+            }
+        }
+
+        state.addCustomItem(MAT_HERB_IMPERIAL, totalHerbs);
+        if (totalEssence > 0) state.addCustomItem(MAT_ESSENCE_IMPERIAL, totalEssence);
     }
 }

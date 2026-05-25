@@ -37,6 +37,18 @@ public final class IslandStorage {
         return material == null ? 0L : get(material.name());
     }
 
+    public long withdraw(String itemId, long qty) {
+        if (itemId == null || itemId.isBlank() || qty <= 0) return 0L;
+        String key = itemId.toUpperCase();
+        long current = itemCounts.getOrDefault(key, 0L);
+        long taken = Math.min(current, qty);
+        if (taken <= 0) return 0L;
+        long remaining = current - taken;
+        if (remaining <= 0) itemCounts.remove(key);
+        else itemCounts.put(key, remaining);
+        return taken;
+    }
+
     public long withdraw(Material material, long qty) {
         if (material == null || qty <= 0) {
             return 0L;
