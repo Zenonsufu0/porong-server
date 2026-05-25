@@ -1,5 +1,7 @@
 package com.poro.empire.listener;
 
+import com.poro.empire.growth.island.IslandStorage;
+import com.poro.empire.growth.island.IslandStorageStore;
 import com.poro.empire.growth.island.IslandTerritoryState;
 import com.poro.empire.growth.island.IslandTerritoryStateStore;
 import com.poro.empire.growth.island.WorkshopJob;
@@ -24,11 +26,13 @@ import java.util.Objects;
 public class WorkshopGuiListener implements Listener {
 
     private final IslandTerritoryStateStore stateStore;
+    private final IslandStorageStore storageStore;
     @SuppressWarnings("unused")
     private final Plugin plugin;
 
-    public WorkshopGuiListener(IslandTerritoryStateStore stateStore, Plugin plugin) {
+    public WorkshopGuiListener(IslandTerritoryStateStore stateStore, IslandStorageStore storageStore, Plugin plugin) {
         this.stateStore = stateStore;
+        this.storageStore = storageStore;
         this.plugin = plugin;
     }
 
@@ -38,6 +42,7 @@ public class WorkshopGuiListener implements Listener {
         if (!WorkshopGui.isTitle(event.getView().title())) return;
 
         event.setCancelled(true);
+        settleCompleted(player);
         int slot = event.getRawSlot();
         WorkshopTab currentTab = WorkshopGui.tabFromTitle(event.getView().title());
         if (currentTab == null) currentTab = WorkshopTab.ESTATE;
@@ -141,5 +146,29 @@ public class WorkshopGuiListener implements Listener {
             int left = item.getAmount() - (int) take;
             player.getInventory().setItem(i, left > 0 ? new ItemStack(material, left) : null);
         }
+    }
+
+    private void settleCompleted(Player player) {
+        IslandTerritoryState territory = stateStore.get(player.getUniqueId()).orElse(null);
+        if (territory == null) return;
+        IslandStorage storage = storageStore.get(player.getUniqueId()).orElse(null);
+
+        List<WorkshopJob> done = territory.collectCompletedJobs(System.currentTimeMillis());
+        if (done.isEmpty()) return;
+
+        for (WorkshopJob job : done) {
+            WorkshopRecipeRegistry.getById(job.recipeId()).ifPresent(recipe -> {
+                String resultId = recipe.resultItemId();
+                long amount = recipe.resultAmount();
+                if (Material.matchMaterial(resultId.toUpperCase()) != null && storage != null) {
+                    storage.add(Material.valueOf(resultId.toUpperCase()), amount);
+                } else {
+                    territory.addCustomItem(resultId, amount);
+                }
+            });
+        }
+
+        player.sendMessage("§a[공방] 완료된 제작 §e" + done.size()
+                + "§a건의 결과물이 저장고에 입금되었습니다.");
     }
 }

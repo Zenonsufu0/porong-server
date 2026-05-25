@@ -432,7 +432,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(
                 new TerritoryStatusGuiListener(islandTerritoryStateStore, islandStorageStore, growthStateStore, playerDataManager), this);
         getServer().getPluginManager().registerEvents(
-                new WorkshopGuiListener(islandTerritoryStateStore, this), this);
+                new WorkshopGuiListener(islandTerritoryStateStore, islandStorageStore, this), this);
         getServer().getPluginManager().registerEvents(
                 new HeirloomGuiListener(islandTerritoryStateStore, growthStateStore, playerDataManager), this);
         getServer().getPluginManager().registerEvents(
