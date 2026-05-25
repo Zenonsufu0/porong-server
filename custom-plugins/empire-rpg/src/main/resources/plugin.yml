@@ -11,6 +11,7 @@ softdepend:
   - BetonQuest
   - MythicMobs
   - IridiumSkyblock
+  - WorldGuard
 
 commands:
   empire:

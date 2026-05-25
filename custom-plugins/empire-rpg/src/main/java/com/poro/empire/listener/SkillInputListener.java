@@ -55,10 +55,7 @@ public final class SkillInputListener implements Listener {
     /** F키 → slot4 핵심기 */
     @EventHandler
     public void onSwap(PlayerSwapHandItemsEvent event) {
-        if (safeZoneService.isSafeZone(event.getPlayer().getLocation())) {
-            event.setCancelled(true);
-            return;
-        }
+        if (safeZoneService.isSafeZone(event.getPlayer().getLocation())) return;
         String key = slot4Key(WeaponTypeResolver.resolve(event.getPlayer()));
         if (key == null) return;
         event.setCancelled(true);

@@ -34,6 +34,10 @@ dependencies {
     // IridiumSkyblock 4.x — 로컬 JAR (런타임은 서버 플러그인에서 제공)
     compileOnly(files("../../server/plugins/IridiumSkyblock-4.1.4.jar"))
 
+    // WorldGuard + WorldEdit 7.x — 로컬 JAR (softdepend, 런타임은 서버 플러그인에서 제공)
+    compileOnly(files("../../server/plugins/worldguard-bukkit-7.0.15.jar"))
+    compileOnly(files("../../server/plugins/worldedit-bukkit-7.4.2.jar"))
+
     // Gson — Paper가 런타임에 제공하므로 compileOnly
     compileOnly("com.google.code.gson:gson:2.10.1")
 
