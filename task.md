@@ -25,7 +25,7 @@
 | 6 | WeaponSelectionGuiListener GuiTitles 교체 | ✅ |
 | 7 | PlayerQuitEvent save | ✅ |
 | 8 | ClassInitService 신규 (장비 지급 + 영지 도구) | ✅ |
-| 8b | poro_island.schem + schematics.yml | ✅ |
+| 8b | poro_island.schem + schematics.yml (server/plugins/IridiumSkyblock/ — review worktree 미포함 경로, main에 존재) | ✅ |
 | 9 | 메인 허브 / 장비 허브 최소 구현 | ✅ |
 | 10 | BossRewardService + BossEngineRuntime 연동, ContributionTracker | ✅ |
 | 11 | SafeZoneService (WorldGuardSafeZoneService / Noop) | ✅ |
@@ -44,7 +44,7 @@
 
 | 항목 | 상태 |
 |---|---|
-| FieldMobTagListener 등록 + compileJava | ✅ |
+| scoreboard tag 전략: FieldMobTagListener 삭제 → YAML `addScoreboardTag ~onSpawn` 방식으로 교체, compileJava 정상 | ✅ |
 | `boss_patterns.yml` (P-00~P-13) 신규 생성 | ✅ |
 | 5개 필드보스 YAML Phase 구조 + BossBar 업데이트 | ✅ |
 | `season_bosses.yml` 9보스 셸 신규 생성 | ✅ |
