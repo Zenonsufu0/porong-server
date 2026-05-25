@@ -47,11 +47,10 @@ public final class SkillInputListener implements Listener {
         String key = player.isSneaking() ? slot3Key(type) : slot2Key(type);
         if (key == null) return;
 
-        boolean used = skillService.useSkill(player, key);
-        if (used) {
-            event.setUseInteractedBlock(Event.Result.DENY);
-            event.setCancelled(true);
-        }
+        skillService.useSkill(player, key);
+        // 쿨다운 여부와 무관하게 RMB 블록 상호작용은 항상 차단
+        event.setUseInteractedBlock(Event.Result.DENY);
+        event.setCancelled(true);
     }
 
     /** F키 → slot4 핵심기 */
