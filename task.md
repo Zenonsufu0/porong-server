@@ -1,6 +1,6 @@
 # 포로 서버 작업 현황
 
-> 마지막 갱신: 2026-05-25 (보스 세션 DB 쓰기 경로 연결)
+> 마지막 갱신: 2026-05-25 (스킬 전체 구현 Phase 3 완료)
 
 ---
 
@@ -72,7 +72,7 @@
 |---|---|---|
 | ~~높음~~ | ~~보스 세션 DB 쓰기 연결~~ | ✅ 완료 |
 | 중간 | 디스코드 인증봇 (Phase 2) | `docs/03_discord_onboarding_bot/index.md` |
-| 중간 | 스킬 전체 구현 (Phase 3) | `docs/04_combat_weapon_skills/CANON.md` |
+| ~~중간~~ | ~~스킬 전체 구현 (Phase 3)~~ | ✅ 완료 — 24종 히트박스/대미지 실구현 |
 | 중간 | 영지/농장 시스템 (Phase 5) | `docs/05_island_farm_system/CANON.md` |
 | 낮음 | 리소스팩 파이프라인 (Phase 8) | `docs/08_resourcepack_pipeline/index.md` |
 
