@@ -8,8 +8,10 @@ import com.poro.empire.growth.engine.PlayerGrowthState;
 import com.poro.empire.growth.island.IslandTerritoryStateStore;
 import com.poro.empire.leveling.LevelingService;
 import com.poro.empire.storage.PlayerDataManager;
+import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -53,11 +55,18 @@ public final class FieldDropListener implements Listener {
     @EventHandler
     public void onDamage(EntityDamageByEntityEvent event) {
         if (!MobTagHelper.isFieldBoss(event.getEntity())) return;
-        if (!(event.getDamager() instanceof Player player)) return;
+        Player player = resolvePlayer(event.getDamager());
+        if (player == null) return;
         contributionTracker.recordDamage(
                 event.getEntity().getUniqueId(),
                 player.getUniqueId(),
                 Math.max(1L, (long) event.getFinalDamage()));
+    }
+
+    @EventHandler
+    public void onEntityRemove(EntityRemoveFromWorldEvent event) {
+        if (!MobTagHelper.isFieldBoss(event.getEntity())) return;
+        contributionTracker.evict(event.getEntity().getUniqueId());
     }
 
     @EventHandler
@@ -68,8 +77,9 @@ public final class FieldDropListener implements Listener {
                 UUID entityId = event.getEntity().getUniqueId();
                 java.util.Map<UUID, Double> shares = contributionTracker.finalizeShares(entityId);
                 if (shares.isEmpty()) {
-                    Player killer = event.getEntity().getKiller();
-                    if (killer != null) bossRewardService.grantFieldBossReward(killer.getUniqueId(), field);
+                    event.getEntity().getServer().getLogger().warning(
+                            "[ContributionTracker] field boss " + entityId + " (field=" + field
+                                    + ") died with no tracked damage — no reward granted");
                 } else {
                     shares.forEach((uuid, share) -> {
                         if (share >= 3.0) bossRewardService.grantFieldBossReward(uuid, field);
@@ -113,6 +123,12 @@ public final class FieldDropListener implements Listener {
             islandTerritoryStateStore.getOrCreate(player.getUniqueId(), player.getName())
                     .addCustomItem(randomTraceId(), 1);
         }
+    }
+
+    private Player resolvePlayer(Entity damager) {
+        if (damager instanceof Player p) return p;
+        if (damager instanceof Projectile proj && proj.getShooter() instanceof Player p) return p;
+        return null;
     }
 
     private FieldDropProfile profileFor(Entity entity) {
