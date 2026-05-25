@@ -108,8 +108,7 @@ public final class BossStatisticsQueryService {
     }
 
     private boolean isInRange(BossResultSummary summary, QueryTimeRange range) {
-        // BossResultSummary currently does not include ended_at timestamp.
-        // Until run timeline persistence is connected, summaries are aggregated as full-range.
+        // in-memory query: always include all summaries (range filtering not yet implemented)
         return true;
     }
 

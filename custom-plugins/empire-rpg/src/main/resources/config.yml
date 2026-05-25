@@ -10,6 +10,9 @@ common:
   # HTTP API Bearer 토큰. 비어 있으면 API가 503을 반환합니다.
   # 반드시 충분히 긴 무작위 문자열로 설정하세요. 예: openssl rand -hex 32
   api-secret-key: ""
+  # 시즌 시작 시각 (Unix 초 단위). 0이면 항상 1주차로 계산.
+  # 예: date -d "2026-06-01 00:00:00 UTC" +%s → 1748736000
+  season-start-epoch: 0
 
 # 상점 아이템 — 키 이름은 자유. 순서 = GUI 표시 순서.
 # 지원 필드: material, amount, display-name, price, lore[]

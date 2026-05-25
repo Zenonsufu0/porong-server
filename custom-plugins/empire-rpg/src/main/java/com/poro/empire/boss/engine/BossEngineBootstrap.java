@@ -1,5 +1,7 @@
 package com.poro.empire.boss.engine;
 
+import com.poro.empire.boss.db.BossSessionRepository;
+import com.poro.empire.boss.db.DbBossRunRecordHook;
 import com.poro.empire.common.config.FoundationContext;
 import com.poro.empire.common.logging.DomainLogger;
 import com.poro.empire.common.registry.RegistryBootstrapper;
@@ -68,8 +70,20 @@ public final class BossEngineBootstrap {
         BossStaggerResolver staggerResolver = new BossStaggerResolver(patternRegistry);
         BossBerserkService berserkService = new BossBerserkService(patternRegistry);
         BossDeathCountService deathCountService = new BossDeathCountService();
+        BossSessionRepository bossSessionRepository = new BossSessionRepository(
+                foundationContext.connectionProvider(),
+                foundationContext.logger().domain("boss-session-repo")
+        );
         BossResultSummaryBuilder summaryBuilder = new BossResultSummaryBuilder(foundationContext.timeProvider());
         InMemoryBossRunRecordHook runRecordHook = new InMemoryBossRunRecordHook();
+        DbBossRunRecordHook dbRunRecordHook = new DbBossRunRecordHook(
+                bossSessionRepository,
+                foundationContext.config().seasonStartEpoch(),
+                foundationContext.logger().domain("boss-session-db")
+        );
+        CompositeBossRunRecordHook compositeRunRecordHook = new CompositeBossRunRecordHook(
+                List.of(runRecordHook, dbRunRecordHook)
+        );
 
         BossRunService runService = new BossRunService(
                 entryValidator,
@@ -79,7 +93,7 @@ public final class BossEngineBootstrap {
                 berserkService,
                 deathCountService,
                 summaryBuilder,
-                runRecordHook,
+                compositeRunRecordHook,
                 rewardResolverHook,
                 foundationContext.timeProvider(),
                 logger
@@ -91,7 +105,8 @@ public final class BossEngineBootstrap {
                 runService,
                 entryRuleRegistry,
                 patternRegistry,
-                runRecordHook
+                runRecordHook,
+                bossSessionRepository
         ));
     }
 

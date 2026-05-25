@@ -19,12 +19,13 @@ public final class CommonConfigLoader {
         String timezoneRaw = config.getString("common.timezone", "UTC");
         String apiBind = config.getString("common.api-bind-host", "127.0.0.1");
         String apiSecretKey = config.getString("common.api-secret-key", "");
+        long seasonStartEpoch = config.getLong("common.season-start-epoch", 0L);
 
         Path sqlitePath = resolvePath(dataFolder, sqlitePathRaw);
         Path seedPath = resolvePath(dataFolder, seedPathRaw);
         ZoneId zoneId = safeZoneId(timezoneRaw);
 
-        return new CommonConfig(sqlitePath, seedPath, zoneId, apiBind, apiSecretKey);
+        return new CommonConfig(sqlitePath, seedPath, zoneId, apiBind, apiSecretKey, seasonStartEpoch);
     }
 
     private static Path resolvePath(Path base, String value) {

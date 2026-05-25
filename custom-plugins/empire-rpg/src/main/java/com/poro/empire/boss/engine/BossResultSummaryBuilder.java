@@ -40,7 +40,9 @@ public final class BossResultSummaryBuilder {
                 clearTimeSeconds,
                 run.remainingDeathCount(),
                 run.failureReasonCode(),
-                List.copyOf(participantSummary)
+                List.copyOf(participantSummary),
+                run.enteredAt().getEpochSecond(),
+                run.partySize()
         );
     }
 }

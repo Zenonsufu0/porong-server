@@ -12,7 +12,9 @@ public record BossResultSummary(
         long clearTimeSeconds,
         int remainingDeathCount,
         String failureReasonCode,
-        List<Map<String, Object>> participantSummaryPlaceholder
+        List<Map<String, Object>> participantSummaryPlaceholder,
+        long startedAt,
+        int partySize
 ) {
     public Map<String, Object> toDashboardPayload() {
         Map<String, Object> payload = new LinkedHashMap<>();
@@ -23,6 +25,8 @@ public record BossResultSummary(
         payload.put("clear_time_seconds", clearTimeSeconds);
         payload.put("remaining_death_count", remainingDeathCount);
         payload.put("failure_reason_code", failureReasonCode);
+        payload.put("started_at", startedAt);
+        payload.put("party_size", partySize);
         payload.put("participant_summary", participantSummaryPlaceholder);
         return Map.copyOf(payload);
     }

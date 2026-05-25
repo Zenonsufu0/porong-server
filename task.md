@@ -1,6 +1,6 @@
 # 포로 서버 작업 현황
 
-> 마지막 갱신: 2026-05-25 (Phase 6 잔여 완료)
+> 마지막 갱신: 2026-05-25 (보스 세션 DB 쓰기 경로 연결)
 
 ---
 
@@ -71,7 +71,7 @@
 
 | 우선도 | 항목 | 관련 문서 |
 |---|---|---|
-| 높음 | 보스 세션 DB 쓰기 연결 (BossEngineRuntime → BossSessionRepository) | `docs/02_database_api_stats/boss_clear_stats_spec.md` |
+| ~~높음~~ | ~~보스 세션 DB 쓰기 연결~~ | ✅ 완료 |
 | 중간 | 디스코드 인증봇 (Phase 2) | `docs/03_discord_onboarding_bot/index.md` |
 | 중간 | 스킬 전체 구현 (Phase 3) | `docs/04_combat_weapon_skills/CANON.md` |
 | 중간 | 영지/농장 시스템 (Phase 5) | `docs/05_island_farm_system/CANON.md` |
@@ -85,7 +85,7 @@
 |---|---|
 | compileTestJava | GrowthEngineSampleTest legacy `EquipmentSlot` 참조 (§6 범위 외) |
 | MythicMobs/IridiumSkyblock | `../../server/plugins/` 로컬 JAR 경로 — review worktree 미지원 (pre-existing). Java 코드에서 `io.lumine.*` 임포트 없으므로 `compileOnly` JAR 불필요 → review worktree `compileJava` 정상 |
-| BossSessionRepository 쓰기 경로 | BossEngineRuntime → BossSessionRepository 연결 미구현 (§7+ 예정). API 응답은 빈 배열 |
+| BossSessionRepository 쓰기 경로 | ✅ 연결 완료 — DbBossRunRecordHook + CompositeBossRunRecordHook. 참여자 실수치(damage_share, il 등)는 §7+ 예정 (placeholder 0.0 유지) |
 | 시즌보스 damage_share | `BossResultSummaryBuilder` placeholder 0.0 유지 — §7+ 구현 (DL-064) |
 | AllowAllUnlockQuestChecker | 보스6 클리어 조건 stub — 퀘스트 시스템 구현 후 연결 |
 | boss_pattern_seed.csv | 7개 보스 placeholder 패턴만 있음 — 실제 패턴 설계 필요 |

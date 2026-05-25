@@ -48,10 +48,7 @@ public final class OperationsQueryBootstrap {
 
         DomainLogger logger = foundationContext.logger().domain("operations-query");
         InMemoryOperationsDataStore dataStore = new InMemoryOperationsDataStore();
-        BossSessionRepository bossSessionRepository = new BossSessionRepository(
-                foundationContext.connectionProvider(),
-                foundationContext.logger().domain("boss-session-repo")
-        );
+        BossSessionRepository bossSessionRepository = bossEngineRuntime.bossSessionRepository();
 
         BossStatisticsQueryService bossStatisticsQueryService = new BossStatisticsQueryService(
                 masterRegistryContext.bossMasters(),

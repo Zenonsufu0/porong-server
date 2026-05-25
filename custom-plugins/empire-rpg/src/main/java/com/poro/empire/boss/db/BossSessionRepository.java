@@ -31,7 +31,11 @@ public final class BossSessionRepository {
     }
 
     /** 보스 세션 결과를 DB에 기록한다. 참여자 스펙은 placeholder 0.0으로 저장된다 (§7+ 연결 후 실수치 교체 예정). */
-    public Result<Void> record(BossResultSummary summary, int partySize, int seasonWeek, long startedAt, long endedAt) {
+    public Result<Void> record(BossResultSummary summary, int seasonWeek) {
+        long startedAt = summary.startedAt();
+        long endedAt = startedAt + summary.clearTimeSeconds();
+        int partySize = summary.partySize();
+
         Result<Connection> connResult = connectionProvider.getConnection();
         if (connResult.isFailure()) {
             return Result.failure(connResult.errorCode(), connResult.message(), connResult.cause());

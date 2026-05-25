@@ -9,7 +9,8 @@ public record CommonConfig(
         Path seedPath,
         ZoneId defaultZoneId,
         String apiBind,
-        String apiSecretKey
+        String apiSecretKey,
+        long seasonStartEpoch
 ) {
     public CommonConfig {
         Objects.requireNonNull(sqlitePath, "sqlitePath");
@@ -17,6 +18,7 @@ public record CommonConfig(
         Objects.requireNonNull(defaultZoneId, "defaultZoneId");
         apiBind = (apiBind == null || apiBind.isBlank()) ? "127.0.0.1" : apiBind;
         apiSecretKey = (apiSecretKey == null) ? "" : apiSecretKey;
+        if (seasonStartEpoch < 0) seasonStartEpoch = 0;
     }
 
     public String sqliteJdbcUrl() {
