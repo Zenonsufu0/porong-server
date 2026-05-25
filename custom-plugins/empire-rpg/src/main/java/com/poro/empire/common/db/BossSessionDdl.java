@@ -10,7 +10,7 @@ public final class BossSessionDdl {
             season_week             INTEGER NOT NULL,
             started_at              INTEGER NOT NULL,
             ended_at                INTEGER,
-            result                  TEXT    NOT NULL DEFAULT 'abandoned',
+            result                  TEXT    NOT NULL DEFAULT 'abandoned', -- 진행 중 초기값. 종료 시 UPDATE. 뷰는 ended_at IS NOT NULL로 필터. (DL-065)
             clear_time_seconds      INTEGER,
             party_size              INTEGER NOT NULL,
             party_avg_enhance       REAL,

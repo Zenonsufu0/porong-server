@@ -4,6 +4,21 @@
 
 ---
 
+### DL-065 보스 세션 진행 중 상태 — result='abandoned' 초기값 + ended_at IS NOT NULL 뷰 필터
+
+**결정:**
+- `boss_session_log` INSERT 시 `result='abandoned'`을 초기값으로 사용 (CANON 원안의 `result=NULL` 대신).
+- `boss_stats_summary` VIEW에 `WHERE ended_at IS NOT NULL` 조건을 추가해 진행 중 세션을 통계에서 제외.
+- 서버 크래시로 종료된 세션(`result='abandoned'`, `ended_at=NULL`)은 통계 제외 — 허용 가능한 트레이드오프.
+
+**이유:** SQLite `ALTER TABLE`로 컬럼 제약을 변경하려면 테이블 전체 rebuild가 필요하다. `NULL` vs `'abandoned'` 초기값은 VIEW 필터를 통해 기능적으로 동일하므로 schema 변경 비용 대비 실익 없음.
+
+**영향 범위:** `BossSessionDdl.CREATE_SESSION_LOG` (DEFAULT 'abandoned'), `BossSessionRepository.recordStart()`, `BossSessionDdl.CREATE_STATS_SUMMARY_VIEW` (WHERE ended_at IS NOT NULL).
+
+**관련:** `docs/02_database_api_stats/boss_clear_stats_spec.md` §5 업데이트 완료.
+
+---
+
 ### DL-064 시즌보스 참여 기준 — 보스룸 입장 확인, damage_share 집계 1차 시즌 제외
 
 **결정:**

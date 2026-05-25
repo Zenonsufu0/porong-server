@@ -160,12 +160,17 @@ ORDER BY season_week;
 
 | 이벤트 | 기록 내용 |
 |---|---|
-| 보스 레이드 시작 | `boss_session_log` INSERT (result=NULL, ended_at=NULL) |
-| 플레이어 입장 | `boss_session_player` INSERT |
-| 보스 처치 | result='clear', clear_time_seconds 기록, 집계 컬럼 계산 |
-| 제한 시간 초과 | result='timeout' |
-| 패턴 실패 (무적 해제 실패) | result='pattern_fail' |
-| 전원 사망/이탈 | result='abandoned' |
+| 보스 레이드 시작 | `boss_session_log` INSERT (`result='abandoned'` 초기값, `ended_at=NULL`) |
+| 파티원 입장 | `boss_session_player` INSERT (파티 전원, 시작 시 일괄 기록) |
+| 보스 처치 | result='clear', ended_at·clear_time_seconds UPDATE |
+| 제한 시간 초과 | result='timeout', ended_at UPDATE |
+| 패턴 실패 (무적 해제 실패) | result='pattern_fail', ended_at UPDATE |
+| 전원 사망/이탈 | result='abandoned', ended_at UPDATE |
+| 서버 크래시/플러그인 재로드 | result='abandoned', ended_at=NULL 유지 (통계 제외) |
+
+> **구현 결정 (DL-065):** SQLite `NOT NULL` 제약 때문에 진행 중 세션의 초기값으로 `NULL` 대신 `'abandoned'`을 사용한다.
+> `boss_stats_summary` 뷰는 `WHERE ended_at IS NOT NULL` 조건으로 진행 중 세션을 통계에서 제외한다.
+> 크래시 세션(`result='abandoned'`, `ended_at=NULL`)도 통계 제외 — 허용 가능한 트레이드오프.
 
 ---
 
