@@ -1,15 +1,35 @@
 recipe_id,recipe_name,recipe_type,life_type,required_level,result_item_id,result_amount,exp_gain,materials
-refine_herb_basic,Refined Herb,refining,refining,1,mat_refined_herb,1,30,res_herb_imperial:3|WHEAT:64|POTATO:64|CARROT:64
-potion_heal_basic,Minor Healing Potion,alchemy_heal,alchemy,1,con_heal_minor,1,18,mat_refined_herb:1|WHEAT:64
-potion_heal_mid,Healing Potion,alchemy_heal,alchemy,2,con_heal_mid,1,24,mat_refined_herb:2|WHEAT:64
-potion_heal_major,Greater Healing Potion,alchemy_heal,alchemy,3,con_heal_major,1,35,mat_refined_herb:3|WHEAT:64
-potion_battle_elixir,Battle Elixir,alchemy_battle,alchemy,2,con_battle_elixir,1,28,mat_refined_herb:2|CARROT:64
-potion_resist_minor,Resistance Potion Minor,alchemy_resist,alchemy,1,con_resist_minor,1,16,mat_refined_herb:1|mat_potion_base_resist:3
-potion_resist_major,Resistance Potion,alchemy_resist,alchemy,2,con_resist_major,1,22,mat_refined_herb:2|mat_potion_base_resist:8
-feast_warrior,Warrior's Feast,cooking,cooking,1,con_feast_warrior,1,20,mat_field_shard:64|mat_refined_herb:1|CARROT:64
-feast_slayer,Slayer's Feast,cooking,cooking,2,con_feast_slayer,1,25,mat_field_shard:64|mat_refined_herb:1|POTATO:64
-feast_assassin,Assassin's Feast,cooking,cooking,2,con_feast_assassin,1,30,mat_field_shard:64|mat_refined_herb:1|WHEAT:64
-feast_hunter,Hunter's Feast,cooking,cooking,1,con_feast_hunter,1,18,mat_field_shard:64|mat_refined_herb:1|CARROT:64
-potion_gold,Gold Boost Potion,alchemy_life,alchemy,1,con_potion_gold,1,15,mat_refined_herb:1|WHEAT:64
-potion_enhance,Enhancement Boost Potion,alchemy_life,alchemy,1,con_potion_enhance,1,15,mat_refined_herb:1|POTATO:64
-potion_exp,EXP Boost Potion,alchemy_life,alchemy,1,con_potion_exp,1,15,mat_refined_herb:1|CARROT:64
+estate_essence_farmer,농부의 정수,estate,workshop,1,mat_essence_farmer,1,40,WHEAT:192|POTATO:192|CARROT:192
+estate_essence_miner,광부의 정수,estate,workshop,1,mat_essence_miner,1,50,COAL_BLOCK:64|COPPER_BLOCK:64|IRON_BLOCK:32|GOLD_BLOCK:32|DIAMOND_BLOCK:16|REDSTONE_BLOCK:64|LAPIS_BLOCK:64|EMERALD_BLOCK:8
+estate_essence_nature,자연의 정수,estate,workshop,1,mat_essence_nature,1,30,mat_essence_farmer:1|mat_essence_miner:1
+estate_trace_unidentified,미감정 흔적,estate,workshop,1,equip_trace_unidentified,1,60,mat_essence_nature:1|mat_battle_shard:512
+estate_ancient_faded,빛 바랜 고대흔적,estate,workshop,1,ancient_trace_faded,1,80,mat_mado_alloy:20|DIAMOND_BLOCK:64|EMERALD_BLOCK:64
+estate_ancient_glowing,빛나는 고대흔적,estate,workshop,1,ancient_trace_glowing,1,100,mat_mado_alloy:40|DIAMOND_BLOCK:128|EMERALD_BLOCK:128
+estate_ancient_radiant,눈부신 고대흔적,estate,workshop,1,ancient_trace_radiant,1,120,mat_mado_alloy:60|DIAMOND_BLOCK:256|EMERALD_BLOCK:256
+estate_ancient_brilliant,찬란한 고대흔적,estate,workshop,1,ancient_trace_brilliant,1,150,mat_mado_alloy:80|DIAMOND_BLOCK:512|EMERALD_BLOCK:512
+trace_star,별의 흔적,trace,workshop,1,mat_trace_star,1,50,mat_mado_alloy:10|DIAMOND_BLOCK:2|EMERALD_BLOCK:2
+trace_moon,달의 흔적,trace,workshop,1,mat_trace_moon,1,70,mat_mado_alloy:20|DIAMOND_BLOCK:4|EMERALD_BLOCK:4
+trace_sun,태양의 흔적,trace,workshop,1,mat_trace_sun,1,90,mat_mado_alloy:40|DIAMOND_BLOCK:8|EMERALD_BLOCK:8
+smelt_ore_alloy,마도합금 (원석),smelt,workshop,1,mat_mado_alloy,1,10,res_ore_resonance:3
+smelt_silver_alloy,마도합금 (은 원석),smelt,workshop,1,mat_mado_alloy,3,15,res_silver_ore:1
+refine_herb,정제 약초 (약초),refine,workshop,1,mat_refined_herb,1,8,res_herb_imperial:3
+refine_herb_essence,정제 약초 (정수),refine,workshop,1,mat_refined_herb,3,12,res_essence_imperial:1
+potion_heal_minor,치료 포션 (소),alchemy_heal,workshop,1,con_heal_minor,1,18,mat_refined_herb:1|WHEAT:64
+potion_heal_mid,치료 포션 (중),alchemy_heal,workshop,1,con_heal_mid,1,24,mat_refined_herb:2|WHEAT:64
+potion_heal_major,치료 포션 (대),alchemy_heal,workshop,1,con_heal_major,1,35,mat_refined_herb:3|WHEAT:64
+potion_gold,골드 부스트 포션,alchemy_boost,workshop,1,con_potion_gold,1,15,mat_essence_farmer:1|mat_refined_herb:1|IRON_BLOCK:16|GOLD_BLOCK:16
+potion_enhance,강화 부스트 포션,alchemy_boost,workshop,1,con_potion_enhance,1,15,mat_essence_farmer:1|mat_refined_herb:1|IRON_BLOCK:16|GOLD_BLOCK:16
+potion_exp,경험치 부스트 포션,alchemy_boost,workshop,1,con_potion_exp,1,15,mat_essence_farmer:1|mat_refined_herb:1|IRON_BLOCK:16|GOLD_BLOCK:16
+feast_warrior,전사의 만찬,cooking,workshop,1,con_feast_warrior,1,20,mat_battle_shard:64|mat_refined_herb:1|CARROT:64
+feast_slayer,학살자의 만찬,cooking,workshop,1,con_feast_slayer,1,25,mat_battle_shard:64|mat_refined_herb:1|POTATO:64
+feast_assassin,암살자의 만찬,cooking,workshop,1,con_feast_assassin,1,30,mat_battle_shard:64|mat_refined_herb:1|WHEAT:64
+feast_hunter,사냥꾼의 만찬,cooking,workshop,1,con_feast_hunter,1,18,mat_battle_shard:64|mat_refined_herb:1|CARROT:64
+ore_coal_diamond,다이아몬드 (석탄),ore_convert,workshop,1,DIAMOND,1,5,COAL:64
+ore_iron_diamond,다이아몬드 (철),ore_convert,workshop,1,DIAMOND,1,5,IRON_INGOT:32
+ore_gold_diamond,다이아몬드 (금),ore_convert,workshop,1,DIAMOND,1,5,GOLD_INGOT:16
+ore_red_diamond,다이아몬드 (레드스톤),ore_convert,workshop,1,DIAMOND,1,5,REDSTONE:32
+ore_lapis_diamond,다이아몬드 (청금석),ore_convert,workshop,1,DIAMOND,1,5,LAPIS_LAZULI:32
+ore_iron_emerald,에메랄드 (철),ore_convert,workshop,1,EMERALD,1,5,IRON_INGOT:48
+ore_gold_emerald,에메랄드 (금),ore_convert,workshop,1,EMERALD,1,5,GOLD_INGOT:24
+ore_red_emerald,에메랄드 (레드스톤),ore_convert,workshop,1,EMERALD,1,5,REDSTONE:48
+ore_lapis_emerald,에메랄드 (청금석),ore_convert,workshop,1,EMERALD,1,5,LAPIS_LAZULI:48

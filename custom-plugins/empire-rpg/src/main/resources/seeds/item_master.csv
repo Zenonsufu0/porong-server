@@ -27,3 +27,23 @@ mat_battle_shard,전장의 파편,LIFE,material,field,,,,0,false,rank_material|f
 mat_trace_star,별의 흔적,LIFE,material,field,,,,0,false,enhance_boost|workshop_craft
 mat_trace_moon,달의 흔적,LIFE,material,field,,,,0,false,enhance_boost|workshop_craft
 mat_trace_sun,태양의 흔적,LIFE,material,field,,,,0,false,enhance_boost|workshop_craft
+mat_mado_alloy,마도합금,LIFE,material,capital,,,,0,false,workshop_craft|smelt_result
+res_silver_ore,은 원석,LIFE,material,field,,,,0,false,ore_extractor|rare_drop
+mat_essence_farmer,농부의 정수,LIFE,material,capital,,,,0,false,workshop_craft|estate
+mat_essence_miner,광부의 정수,LIFE,material,capital,,,,0,false,workshop_craft|estate
+mat_essence_nature,자연의 정수,LIFE,material,capital,,,,0,false,workshop_craft|estate
+equip_trace_unidentified,미감정 흔적,LIFE,material,field,,,,0,false,workshop_craft|loot_box
+ancient_trace_faded,빛 바랜 고대흔적,LIFE,material,capital,,,,0,false,workshop_craft|equip_enhance
+ancient_trace_glowing,빛나는 고대흔적,LIFE,material,capital,,,,0,false,workshop_craft|equip_enhance
+ancient_trace_radiant,눈부신 고대흔적,LIFE,material,capital,,,,0,false,workshop_craft|equip_enhance
+ancient_trace_brilliant,찬란한 고대흔적,LIFE,material,capital,,,,0,false,workshop_craft|equip_enhance
+con_heal_minor,치료 포션 (소),LIFE,consumable,capital,,,,0,true,potion|heal
+con_heal_mid,치료 포션 (중),LIFE,consumable,capital,,,,0,true,potion|heal
+con_heal_major,치료 포션 (대),LIFE,consumable,capital,,,,0,true,potion|heal
+con_potion_gold,골드 부스트 포션,LIFE,consumable,capital,,,,0,true,potion|boost
+con_potion_enhance,강화 부스트 포션,LIFE,consumable,capital,,,,0,true,potion|boost
+con_potion_exp,경험치 부스트 포션,LIFE,consumable,capital,,,,0,true,potion|boost
+con_feast_warrior,전사의 만찬,LIFE,consumable,capital,,,,0,true,feast|buff
+con_feast_slayer,학살자의 만찬,LIFE,consumable,capital,,,,0,true,feast|buff
+con_feast_assassin,암살자의 만찬,LIFE,consumable,capital,,,,0,true,feast|buff
+con_feast_hunter,사냥꾼의 만찬,LIFE,consumable,capital,,,,0,true,feast|buff

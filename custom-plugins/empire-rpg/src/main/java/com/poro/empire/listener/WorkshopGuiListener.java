@@ -1,23 +1,30 @@
 package com.poro.empire.listener;
 
+import com.poro.empire.growth.island.IslandTerritoryState;
 import com.poro.empire.growth.island.IslandTerritoryStateStore;
+import com.poro.empire.growth.island.WorkshopJob;
 import com.poro.empire.gui.TerritoryHubGui;
 import com.poro.empire.gui.WorkshopGui;
 import com.poro.empire.gui.WorkshopGui.WorkshopTab;
+import com.poro.empire.gui.WorkshopRecipe;
+import com.poro.empire.gui.WorkshopRecipeRegistry;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
-/**
- * 공방 GUI 클릭 처리.
- * 탭 슬롯(0~5) 클릭 시 해당 탭으로 GUI 재오픈.
- */
+import java.util.List;
+import java.util.Objects;
+
+/** 공방 GUI 클릭 처리. */
 public class WorkshopGuiListener implements Listener {
 
     private final IslandTerritoryStateStore stateStore;
+    @SuppressWarnings("unused")
     private final Plugin plugin;
 
     public WorkshopGuiListener(IslandTerritoryStateStore stateStore, Plugin plugin) {
@@ -35,12 +42,23 @@ public class WorkshopGuiListener implements Listener {
         WorkshopTab currentTab = WorkshopGui.tabFromTitle(event.getView().title());
         if (currentTab == null) currentTab = WorkshopTab.ESTATE;
 
-        // 탭 클릭 (슬롯 0~5)
+        // 탭 클릭 (슬롯 0 ~ TABS.length-1)
         WorkshopTab[] tabs = WorkshopTab.values();
         if (slot >= 0 && slot < tabs.length) {
             WorkshopTab clicked = tabs[slot];
             if (clicked != currentTab) {
-                WorkshopGui.open(player, clicked);
+                IslandTerritoryState territory = stateStore.get(player.getUniqueId()).orElse(null);
+                WorkshopGui.open(player, clicked, territory);
+            }
+            return;
+        }
+
+        // 레시피 클릭 (슬롯 9~17)
+        if (slot >= 9 && slot <= 17) {
+            int recipeIndex = slot - 9;
+            List<WorkshopRecipe> recipes = WorkshopRecipeRegistry.getRecipes(currentTab);
+            if (recipeIndex < recipes.size()) {
+                handleRecipeEnqueue(player, currentTab, recipes.get(recipeIndex));
             }
             return;
         }
@@ -53,6 +71,75 @@ public class WorkshopGuiListener implements Listener {
         // 닫기
         if (slot == WorkshopGui.SLOT_CLOSE) {
             player.closeInventory();
+        }
+    }
+
+    private void handleRecipeEnqueue(Player player, WorkshopTab tab, WorkshopRecipe recipe) {
+        IslandTerritoryState territory = stateStore.getOrCreate(
+                player.getUniqueId(), player.getName());
+
+        if (territory.workshopFull()) {
+            player.sendMessage("§c[공방] 대기열이 꽉 찼습니다. 공방 가공기를 더 설치하거나 완료를 기다리세요.");
+            return;
+        }
+
+        // 재료 검증
+        for (WorkshopRecipe.RecipeMaterial mat : recipe.materials()) {
+            long needed = mat.amount();
+            long have = mat.isVanilla()
+                    ? countInInventory(player, mat.asMaterial())
+                    : territory.getCustomItem(mat.itemId());
+            if (have < needed) {
+                player.sendMessage("§c[공방] 재료 부족: §e"
+                        + WorkshopRecipeRegistry.displayName(mat.itemId())
+                        + " §c" + needed + "개 필요, 보유 §e" + have + "개");
+                return;
+            }
+        }
+
+        // 재료 차감
+        for (WorkshopRecipe.RecipeMaterial mat : recipe.materials()) {
+            if (mat.isVanilla()) {
+                removeFromInventory(player, mat.asMaterial(), mat.amount());
+            } else {
+                territory.withdrawCustomItem(mat.itemId(), mat.amount());
+            }
+        }
+
+        // 대기열 등록
+        long now = System.currentTimeMillis();
+        long completeAt = now + recipe.durationMinutes() * 60_000L;
+        territory.addWorkshopJob(new WorkshopJob(recipe.recipeId(), now, completeAt));
+
+        player.sendMessage("§a[공방] §e" + recipe.displayName()
+                + " §a제작 등록 완료! (" + recipe.durationMinutes() + "분)");
+        WorkshopGui.open(player, tab, territory);
+    }
+
+    // ─── 인벤토리 유틸 ─────────────────────────────────────────────
+
+    private static long countInInventory(Player player, Material material) {
+        if (material == null) return 0L;
+        long count = 0;
+        for (ItemStack item : player.getInventory().getContents()) {
+            if (item != null && item.getType() == material) {
+                count += item.getAmount();
+            }
+        }
+        return count;
+    }
+
+    private static void removeFromInventory(Player player, Material material, long amount) {
+        if (material == null) return;
+        long remaining = amount;
+        ItemStack[] contents = player.getInventory().getContents();
+        for (int i = 0; i < contents.length && remaining > 0; i++) {
+            ItemStack item = contents[i];
+            if (item == null || item.getType() != material) continue;
+            long take = Math.min(item.getAmount(), remaining);
+            remaining -= take;
+            int left = item.getAmount() - (int) take;
+            player.getInventory().setItem(i, left > 0 ? new ItemStack(material, left) : null);
         }
     }
 }
