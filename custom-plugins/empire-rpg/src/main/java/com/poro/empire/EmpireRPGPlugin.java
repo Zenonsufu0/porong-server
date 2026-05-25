@@ -62,6 +62,7 @@ import com.poro.empire.life.engine.LifeEngineBootstrap;
 import com.poro.empire.life.engine.LifeEngineRuntime;
 import com.poro.empire.listener.CombatStateListener;
 import com.poro.empire.listener.CrossbowArrowListener;
+import com.poro.empire.listener.FieldMobTagListener;
 import com.poro.empire.listener.HealthHudListener;
 import com.poro.empire.listener.HungerLockListener;
 import com.poro.empire.listener.SkillInputListener;
@@ -439,7 +440,8 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                     new FieldDropListener(growthStateStore, islandTerritoryStateStore, playerDataManager,
                             levelingService, fieldBossScheduler, bossRewardService, new ContributionTracker()), this);
             getServer().getPluginManager().registerEvents(new BossDefenseListener(), this);
-            getLogger().info("MythicMobs detected — FieldDropListener + BossDefenseListener registered.");
+            getServer().getPluginManager().registerEvents(new FieldMobTagListener(), this);
+            getLogger().info("MythicMobs detected — FieldDropListener + BossDefenseListener + FieldMobTagListener registered.");
         } else {
             getLogger().warning("MythicMobs not found — field mob drops + boss DEF scaling disabled.");
         }

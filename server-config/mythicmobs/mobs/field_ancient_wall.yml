@@ -66,7 +66,34 @@ Rift_Watcher:
     NaturallySpawned: false
   Drops:
   - exp 16000
+  BossBar:
+    Enabled: true
+    Title: '&5&l균열 파수꾼'
+    Range: 60
+    Color: PURPLE
+    Style: SEGMENTED_10
   Skills:
-  - skill{s=Wall_VoidStrike} ~onTimer:80
-  - skill{s=Wall_RiftBeam} ~onTimer:360
+  # 전 페이즈 공통: P-00 기본 공격 (1.8s)
+  - skill{s=P_00_BasicAttack} ~onTimer:36
+  # Phase 1 (100%~70%): P-01 강타 (4s), P-03 원형 폭발 (11s)
+  - skill{s=P_01_FrontStrike} ~onTimer:80 ?hpabove{p=70}
+  - skill{s=P_03_CircleBlast} ~onTimer:220 ?hpabove{p=70}
+  # Phase 2 (70%~40%): P-01, P-03 유지 + P-05 투사체 (7s), P-07 소환 추가
+  - skill{s=P_01_FrontStrike} ~onTimer:80 ?hpbelow{p=70} ?hpabove{p=40}
+  - skill{s=P_03_CircleBlast} ~onTimer:180 ?hpbelow{p=70} ?hpabove{p=40}
+  - skill{s=P_05_Projectile} ~onTimer:140 ?hpbelow{p=70}
+  - skill{s=P_07_SummonCall} ~onTimer:360 ?hpbelow{p=70}
+  - summon{type=Wall_Shade;amount=2;duration=600} ~onTimer:360 ?hpbelow{p=70}
+  # Phase 3 (40%~0%): 쿨 단축 + P-13 낙하 충격 (18s) + P-09 무적
+  - skill{s=P_01_FrontStrike} ~onTimer:60 ?hpbelow{p=40}
+  - skill{s=P_03_CircleBlast} ~onTimer:140 ?hpbelow{p=40}
+  - skill{s=P_05_Projectile} ~onTimer:100 ?hpbelow{p=40}
+  - skill{s=P_07_SummonCall} ~onTimer:300 ?hpbelow{p=40}
+  - summon{type=Wall_Shade;amount=3;duration=600} ~onTimer:300 ?hpbelow{p=40}
+  - skill{s=P_13_DropImpact} ~onTimer:360 ?hpbelow{p=40}
+  # P-08 페이즈 전환 (70%, 40% HP) + P-09 무력화 (40% — 30s 자동 해제)
+  - skill{s=P_08_PhaseTransition} ~onHealthPercent:70
+  - skill{s=P_08_PhaseTransition} ~onHealthPercent:40
+  - skill{s=P_09_Invincible} ~onHealthPercent:40
+  # 연출
   - particles{p=DRAGON_BREATH;amount=15;hs=1.2;vs=0.5} @self ~onTimer:15

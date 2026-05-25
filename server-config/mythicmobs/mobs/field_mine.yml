@@ -67,7 +67,44 @@ Mine_Golem:
     NaturallySpawned: false
   Drops:
   - exp 4500
+  BossBar:
+    Enabled: true
+    Title: '&2&l폐광 골렘'
+    Range: 60
+    Color: GREEN
+    Style: SOLID
   Skills:
-  - skill{s=Mine_RubbleThrow} ~onTimer:300
-  - skill{s=Mine_CorePulse} ~onTimer:40
+  # Phase 1·2 공통: P-00 기본 공격 (2.5s), P-01 전방 강타 (6s), P-03 원형 폭발 (10s)
+  - skill{s=P_00_BasicAttack} ~onTimer:50
+  - skill{s=P_01_FrontStrike} ~onTimer:120
+  - skill{s=P_03_CircleBlast} ~onTimer:200
+  # P-07 소환 연출 + 파편 골렘 2마리 소환 (duration=200틱=10s 후 자폭)
+  - skill{s=P_07_SummonCall} ~onTimer:400
+  - summon{type=Mine_Golem_Fragment;amount=2;duration=200} ~onTimer:400
+  # Phase 2 (60%~0%): P-12 연속 타격 추가 (9s)
+  - skill{s=P_12_ComboStrike} ~onTimer:180 ?hpbelow{p=60}
+  # P-08 페이즈 전환 (60% HP)
+  - skill{s=P_08_PhaseTransition} ~onHealthPercent:60
   - particles{p=SMOKE_LARGE;amount=5;hs=0.5;vs=0.2} @self ~onTimer:10
+
+# P-07 소환체 — 파편 골렘 (10s 후 P-03 폭발 후 소멸)
+Mine_Golem_Fragment:
+  Type: IRON_GOLEM
+  Display: '&2파편 골렘'
+  Health: 3000
+  Damage: 22
+  Options:
+    MovementSpeed: 0.20
+    PreventOtherDrops: true
+    AlwaysShowName: true
+    KnockbackResistance: 0.3
+    NaturallySpawned: false
+  Drops:
+  - exp 0
+  AIGoalSelectors:
+  - clear
+  - meleeattack
+  - randomstroll 0.5
+  Skills:
+  # 10s(200틱) 생존 후 폭발 — summon duration=200 과 동기화
+  - skill{s=P_03_CircleBlast} ~onTimer:200

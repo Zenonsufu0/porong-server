@@ -66,7 +66,25 @@ Waterway_Lord:
     NaturallySpawned: false
   Drops:
   - exp 7000
+  BossBar:
+    Enabled: true
+    Title: '&a&l수로 군주'
+    Range: 60
+    Color: GREEN
+    Style: SOLID
   Skills:
-  - skill{s=Waterway_ToxicSpray} ~onTimer:320
-  - potion{type=MINING_FATIGUE;duration=200;level=2} @PlayersInRadius{r=15} ~onTimer:240
+  # Phase 1·2 공통: P-00 기본 공격 (2.0s), P-02 돌진 (7s), P-04 휩쓸기 (5s)
+  - skill{s=P_00_BasicAttack} ~onTimer:40
+  - skill{s=P_02_LinearDash} ~onTimer:140
+  - skill{s=P_04_FanSweep} ~onTimer:100
+  # P-05 투사체 — Phase 1(6s), Phase 2(4s)로 쿨 단축
+  - skill{s=P_05_Projectile} ~onTimer:120 ?hpabove{p=40}
+  - skill{s=P_05_Projectile} ~onTimer:80 ?hpbelow{p=40}
+  # Phase 2 (40%~0%): P-11 추적 독 구체 + P-06 산개탄 추가
+  - skill{s=P_11_TrackingOrb} ~onTimer:160 ?hpbelow{p=40}
+  - skill{s=P_06_ScatterShot} ~onTimer:300 ?hpbelow{p=40}
+  # 독 이펙트 (on attack 30% 확률)
+  - potion{type=POISON;duration=100;level=1} @target ~onAttack 0.3
+  # P-08 페이즈 전환 (40% HP)
+  - skill{s=P_08_PhaseTransition} ~onHealthPercent:40
   - particles{p=WATER_SPLASH;amount=20;hs=1;vs=0.3} @self ~onTimer:15

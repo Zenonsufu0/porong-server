@@ -1,0 +1,509 @@
+# 시즌보스 + 시즌최종보스 MythicMobs 셸
+# HP/DEF 기준: docs/04_combat_weapon_skills/season_boss_stats_v1.md §3.4
+# 패턴 설계 기준: docs/07_boss_pattern_modules/season_boss_patterns.md
+# SP-XX 고유 패턴 메카닉은 EmpireRPG 구현 완료 후 연결 예정 (Phase 7+)
+# 보스별 DEF는 EmpireRPG BossMaster 레지스트리에서 관리 (이 YAML에 없음)
+
+# ============================================================
+# 시즌보스 1 — 타락 기사장  (입장 기준: 5일차, 6~10강)
+# HP: 150,000 / DEF: 100 / 타이머: 15분
+# 공용 패턴: P-00, P-01, P-02, P-03, P-04, P-08, P-09
+# 고유 패턴: SP-11 에너지 석판 (전환#1), SP-12 유도 에너지 구체 (전환#2)
+# ============================================================
+SBoss1_FallenKnight:
+  Type: EVOKER
+  Display: '&4&l타락 기사장'
+  Health: 150000
+  Damage: 85
+  Options:
+    AlwaysShowName: true
+    PreventOtherDrops: true
+    KnockbackResistance: 1.0
+    MovementSpeed: 0.22
+    MaxCombatDistance: 40
+    NaturallySpawned: false
+  Drops:
+  - exp 0
+  BossBar:
+    Enabled: true
+    Title: '&4&l타락 기사장'
+    Range: 80
+    Color: RED
+    Style: SEGMENTED_10
+  AIGoalSelectors:
+  - clear
+  - meleeattack
+  - randomlookaround
+  Skills:
+  # 전 페이즈 공통: P-00 기본 공격 (2.0s)
+  - skill{s=P_00_BasicAttack} ~onTimer:40
+  # Phase 1 (100%~60%): P-01, P-02
+  - skill{s=P_01_FrontStrike} ~onTimer:100 ?hpabove{p=60}
+  - skill{s=P_02_LinearDash} ~onTimer:160 ?hpabove{p=60}
+  # Phase 2 (60%~30%): P-01, P-02, P-04 추가
+  - skill{s=P_01_FrontStrike} ~onTimer:100 ?hpbelow{p=60} ?hpabove{p=30}
+  - skill{s=P_02_LinearDash} ~onTimer:160 ?hpbelow{p=60} ?hpabove{p=30}
+  - skill{s=P_04_FanSweep} ~onTimer:120 ?hpbelow{p=60}
+  # Phase 3 (30%~0%): P-03 원형 폭발 추가 (Phase 2 쿨 단축)
+  - skill{s=P_01_FrontStrike} ~onTimer:80 ?hpbelow{p=30}
+  - skill{s=P_02_LinearDash} ~onTimer:130 ?hpbelow{p=30}
+  - skill{s=P_03_CircleBlast} ~onTimer:220 ?hpbelow{p=30}
+  # P-08 페이즈 전환 (60%, 30% HP)
+  - skill{s=P_08_PhaseTransition} ~onHealthPercent:60
+  - skill{s=P_08_PhaseTransition} ~onHealthPercent:30
+  # P-09 무적 진입 — SP-11/SP-12 메카닉으로 해제 (EmpireRPG 미구현 구간: 120s 자동 해제)
+  # TODO: EmpireRPG BossEngineRuntime에서 SP-11/12 처리 후 P_09_DealWindow 강제 실행
+  - skill{s=P_09_Invincible} ~onHealthPercent:60
+  - skill{s=P_09_Invincible} ~onHealthPercent:30
+  - particles{p=SPELL_WITCH;amount=10;hs=0.8;vs=0.3} @self ~onTimer:20
+
+# ============================================================
+# 시즌보스 2 — 오염된 군주  (입장 기준: 10일차, 10~13강)
+# HP: 155,000 / DEF: 150 / 타이머: 15분
+# 공용 패턴: P-00, P-02, P-03, P-08, P-09
+# 고유 패턴: SP-21 전도체 기둥 (전환#1), SP-22 쉴드+반사 (전환#2), SP-23 관통 충격파 (전 페이즈)
+# ============================================================
+SBoss2_CorruptedLord:
+  Type: ELDER_GUARDIAN
+  Display: '&2&l오염된 군주'
+  Health: 155000
+  Damage: 105
+  Options:
+    AlwaysShowName: true
+    PreventOtherDrops: true
+    KnockbackResistance: 1.0
+    MovementSpeed: 0.16
+    MaxCombatDistance: 40
+    NaturallySpawned: false
+  Drops:
+  - exp 0
+  BossBar:
+    Enabled: true
+    Title: '&2&l오염된 군주'
+    Range: 80
+    Color: GREEN
+    Style: SEGMENTED_10
+  AIGoalSelectors:
+  - clear
+  - meleeattack
+  Skills:
+  # 전 페이즈 공통: P-00 기본 공격 (1.8s), SP-23 관통 충격파 (10s)
+  - skill{s=P_00_BasicAttack} ~onTimer:36
+  - skill{s=P_02_LinearDash} ~onTimer:200
+  # Phase 2·3 (55%~0%): P-03 전자기 폭발 (15s)
+  - skill{s=P_03_CircleBlast} ~onTimer:300 ?hpbelow{p=55}
+  # P-08 페이즈 전환 (55%, 20% HP)
+  - skill{s=P_08_PhaseTransition} ~onHealthPercent:55
+  - skill{s=P_08_PhaseTransition} ~onHealthPercent:20
+  # P-09 무적 진입 — SP-21/22 메카닉으로 해제 (TODO: EmpireRPG 연결)
+  - skill{s=P_09_Invincible} ~onHealthPercent:55
+  - skill{s=P_09_Invincible} ~onHealthPercent:20
+  - particles{p=WATER_SPLASH;amount=15;hs=1;vs=0.5} @self ~onTimer:20
+  - potion{type=MINING_FATIGUE;duration=200;level=2} @PlayersInRadius{r=20} ~onTimer:300
+
+# ============================================================
+# 시즌보스 3 — 석조 거상  (입장 기준: 15일차, 13~16강)
+# HP: 158,000 / DEF: 180 / 타이머: 15분
+# 공용 패턴: P-00, P-01, P-02, P-03, P-04, P-08, P-09
+# 고유 패턴: SP-31 지진 발걸음 (전환#1), SP-32 거석 팔 투척 (전환#2)
+# ============================================================
+SBoss3_StoneColossus:
+  Type: IRON_GOLEM
+  Display: '&7&l석조 거상'
+  Health: 158000
+  Damage: 120
+  Options:
+    AlwaysShowName: true
+    PreventOtherDrops: true
+    KnockbackResistance: 1.0
+    MovementSpeed: 0.14
+    MaxCombatDistance: 35
+    NaturallySpawned: false
+  Drops:
+  - exp 0
+  BossBar:
+    Enabled: true
+    Title: '&7&l석조 거상'
+    Range: 80
+    Color: WHITE
+    Style: SEGMENTED_10
+  AIGoalSelectors:
+  - clear
+  - meleeattack
+  Skills:
+  # 전 페이즈 공통: P-00 기본 공격 (2.2s), P-01 강타 (5s), P-04 휩쓸기 (7s)
+  - skill{s=P_00_BasicAttack} ~onTimer:44
+  - skill{s=P_01_FrontStrike} ~onTimer:100
+  - skill{s=P_04_FanSweep} ~onTimer:140
+  # Phase 1 (100%~60%): P-02 돌진 (13s)
+  - skill{s=P_02_LinearDash} ~onTimer:260 ?hpabove{p=60}
+  # Phase 2·3 (60%~0%): P-02 속도 +30%, P-03 착지 충격 추가 (14s)
+  - skill{s=P_02_LinearDash} ~onTimer:200 ?hpbelow{p=60}
+  - skill{s=P_03_CircleBlast} ~onTimer:280 ?hpbelow{p=60}
+  # P-08 페이즈 전환 (60%, 25% HP)
+  - skill{s=P_08_PhaseTransition} ~onHealthPercent:60
+  - skill{s=P_08_PhaseTransition} ~onHealthPercent:25
+  # P-09 무적 진입 — SP-31/32 메카닉으로 해제 (TODO: EmpireRPG 연결)
+  - skill{s=P_09_Invincible} ~onHealthPercent:60
+  - skill{s=P_09_Invincible} ~onHealthPercent:25
+  - particles{p=BLOCK_CRACK;material=STONE;amount=20;hs=1;vs=0.5} @self ~onTimer:25
+
+# ============================================================
+# 시즌보스 4 — 폭풍 술사  (입장 기준: 22일차, 16~18강)
+# HP: 160,000 / DEF: 210 / 타이머: 15분
+# 공용 패턴: P-00, P-05, P-06, P-07, P-08, P-09
+# 고유 패턴: SP-41 마법 소환체 봉인 (전환#1), SP-42 번개 장판 (전환#2), SP-43 번개 집중포화 (Phase3)
+# ============================================================
+SBoss4_StormSorcerer:
+  Type: EVOKER
+  Display: '&e&l폭풍 술사'
+  Health: 160000
+  Damage: 130
+  Options:
+    AlwaysShowName: true
+    PreventOtherDrops: true
+    KnockbackResistance: 0.8
+    MovementSpeed: 0.24
+    MaxCombatDistance: 40
+    NaturallySpawned: false
+  Drops:
+  - exp 0
+  BossBar:
+    Enabled: true
+    Title: '&e&l폭풍 술사'
+    Range: 80
+    Color: YELLOW
+    Style: SEGMENTED_10
+  AIGoalSelectors:
+  - clear
+  - meleeattack
+  Skills:
+  # 전 페이즈 공통: P-00 기본 공격 (1.6s), P-05 투사체 (3s)
+  - skill{s=P_00_BasicAttack} ~onTimer:32
+  - skill{s=P_05_Projectile} ~onTimer:60
+  # Phase 1·2 (100%~25%): P-07 소환 + VEX 2마리 소환 (20s)
+  - skill{s=P_07_SummonCall} ~onTimer:400 ?hpabove{p=25}
+  - summon{type=Vex;amount=2;duration=400} ~onTimer:400 ?hpabove{p=25}
+  # Phase 2·3 (60%~0%): P-06 번개 산개탄 (12s)
+  - skill{s=P_06_ScatterShot} ~onTimer:240 ?hpbelow{p=60}
+  # SP-43 번개 집중포화 Phase 3 (TODO: EmpireRPG 어그로 타겟 선정 연결)
+  # P-08 페이즈 전환 (60%, 25% HP)
+  - skill{s=P_08_PhaseTransition} ~onHealthPercent:60
+  - skill{s=P_08_PhaseTransition} ~onHealthPercent:25
+  # P-09 무적 진입 — SP-41/42 메카닉으로 해제 (TODO: EmpireRPG 연결)
+  - skill{s=P_09_Invincible} ~onHealthPercent:60
+  - skill{s=P_09_Invincible} ~onHealthPercent:25
+  - particles{p=FLASH;amount=1;hs=0;vs=0} @self ~onTimer:60
+
+# ============================================================
+# 시즌보스 5 — 심연 수호자  (입장 기준: 28일차, 18~20강)
+# HP: 165,000 / DEF: 240 / 타이머: 15분
+# 공용 패턴: P-00, P-03, P-04, P-08, P-09, P-12, P-13
+# 고유 패턴: SP-51 어둠 결정 파괴 (전환#1), SP-52 심연 진동 (Phase3)
+# ============================================================
+SBoss5_AbyssGuardian:
+  Type: WARDEN
+  Display: '&8&l심연 수호자'
+  Health: 165000
+  Damage: 155
+  Options:
+    AlwaysShowName: true
+    PreventOtherDrops: true
+    KnockbackResistance: 1.0
+    MovementSpeed: 0.20
+    MaxCombatDistance: 35
+    NaturallySpawned: false
+  Drops:
+  - exp 0
+  BossBar:
+    Enabled: true
+    Title: '&8&l심연 수호자'
+    Range: 80
+    Color: PURPLE
+    Style: SEGMENTED_10
+  AIGoalSelectors:
+  - clear
+  - meleeattack
+  Skills:
+  # 전 페이즈 공통: P-00 기본 공격 (1.8s)
+  - skill{s=P_00_BasicAttack} ~onTimer:36
+  # Phase 1 (100%~60%): P-03 원형 폭발 (16s)
+  - skill{s=P_03_CircleBlast} ~onTimer:320 ?hpabove{p=60}
+  # Phase 2·3 (60%~0%): P-03, P-04, P-12 추가 압박
+  - skill{s=P_03_CircleBlast} ~onTimer:240 ?hpbelow{p=60}
+  - skill{s=P_04_FanSweep} ~onTimer:140 ?hpbelow{p=60}
+  - skill{s=P_12_ComboStrike} ~onTimer:180 ?hpbelow{p=60}
+  # Phase 3 (25%~0%): P-13 낙하 충격 추가 (20s), SP-52 심연 진동 (TODO)
+  - skill{s=P_13_DropImpact} ~onTimer:400 ?hpbelow{p=25}
+  - potion{type=BLINDNESS;duration=80;level=1} @PlayersInRadius{r=25} ~onTimer:240 ?hpbelow{p=25}
+  # P-08 페이즈 전환 (60%, 25% HP)
+  - skill{s=P_08_PhaseTransition} ~onHealthPercent:60
+  - skill{s=P_08_PhaseTransition} ~onHealthPercent:25
+  # P-09 무적 진입 — SP-51 어둠 결정 파괴로 해제 (TODO: EmpireRPG 연결)
+  - skill{s=P_09_Invincible} ~onHealthPercent:60
+  - skill{s=P_09_Invincible} ~onHealthPercent:25
+  - particles{p=SMOKE_LARGE;amount=8;hs=1;vs=0.5} @self ~onTimer:20
+
+# ============================================================
+# 시즌보스 6 — 공허 사자  (입장 기준: 35일차, 20~22강)
+# HP: 170,000 / DEF: 265 / 타이머: 15분
+# 공용 패턴: P-00, P-02, P-05, P-08, P-09, P-11
+# 고유 패턴: SP-61 균열 포탈 파괴 (전환#1), SP-62 허상 처치 (전환#2)
+# ============================================================
+SBoss6_VoidHerald:
+  Type: ENDERMAN
+  Display: '&5&l공허 사자'
+  Health: 170000
+  Damage: 185
+  Options:
+    AlwaysShowName: true
+    PreventOtherDrops: true
+    KnockbackResistance: 1.0
+    MovementSpeed: 0.26
+    MaxCombatDistance: 40
+    NaturallySpawned: false
+  Drops:
+  - exp 0
+  BossBar:
+    Enabled: true
+    Title: '&5&l공허 사자'
+    Range: 80
+    Color: PURPLE
+    Style: SEGMENTED_10
+  AIGoalSelectors:
+  - clear
+  - meleeattack
+  Skills:
+  # 전 페이즈 공통: P-00 기본 공격 (1.5s), P-02 순간이동식 돌진 (전 페이즈)
+  - skill{s=P_00_BasicAttack} ~onTimer:30
+  - skill{s=P_02_LinearDash} ~onTimer:140
+  # Phase 2·3 (55%~0%): P-05 균열 구체 (6s), P-11 추적 구체 (12s)
+  - skill{s=P_05_Projectile} ~onTimer:120 ?hpbelow{p=55}
+  - skill{s=P_11_TrackingOrb} ~onTimer:240 ?hpbelow{p=55}
+  # P-08 페이즈 전환 (55%, 20% HP)
+  - skill{s=P_08_PhaseTransition} ~onHealthPercent:55
+  - skill{s=P_08_PhaseTransition} ~onHealthPercent:20
+  # P-09 무적 진입 — SP-61/62 메카닉으로 해제 (TODO: EmpireRPG 연결)
+  - skill{s=P_09_Invincible} ~onHealthPercent:55
+  - skill{s=P_09_Invincible} ~onHealthPercent:20
+  - particles{p=PORTAL;amount=10;hs=1;vs=0.5} @self ~onTimer:20
+
+# ============================================================
+# 시즌최종보스 1 — 균열왕  (입장 기준: 40일차, 22강+)
+# HP: 890,000 / DEF: 280 / 타이머: 10분 (무적 구간 없음, 패턴 메카닉 대체)
+# 공용 패턴: P-00, P-01, P-03, P-06, P-08, P-09
+# 고유 패턴: SP-71~76
+# ============================================================
+Final_RiftKing:
+  Type: WARDEN
+  Display: '&4&l&k!!&r &4&l균열왕&r &4&l&k!!'
+  Health: 890000
+  Damage: 220
+  Options:
+    AlwaysShowName: true
+    PreventOtherDrops: true
+    KnockbackResistance: 1.0
+    MovementSpeed: 0.22
+    MaxCombatDistance: 40
+    NaturallySpawned: false
+  Drops:
+  - exp 0
+  BossBar:
+    Enabled: true
+    Title: '&4&l균열왕'
+    Range: 100
+    Color: RED
+    Style: SEGMENTED_20
+  AIGoalSelectors:
+  - clear
+  - meleeattack
+  Skills:
+  # 전 페이즈 공통: P-00 기본 공격 (1.5s)
+  - skill{s=P_00_BasicAttack} ~onTimer:30
+  # Phase 1 (100%~75%): P-01 강타 (4s)
+  - skill{s=P_01_FrontStrike} ~onTimer:80 ?hpabove{p=75}
+  # Phase 2 (75%~50%): P-01, P-03 원형 폭발 (10s)
+  - skill{s=P_01_FrontStrike} ~onTimer:80 ?hpbelow{p=75} ?hpabove{p=50}
+  - skill{s=P_03_CircleBlast} ~onTimer:200 ?hpbelow{p=75} ?hpabove{p=50}
+  # Phase 3 (50%~25%): P-01, P-03, P-06 산개탄 (20s)
+  - skill{s=P_01_FrontStrike} ~onTimer:70 ?hpbelow{p=50} ?hpabove{p=25}
+  - skill{s=P_03_CircleBlast} ~onTimer:180 ?hpbelow{p=50} ?hpabove{p=25}
+  - skill{s=P_06_ScatterShot} ~onTimer:400 ?hpbelow{p=50}
+  # Phase 4 (25%~0%): 전 패턴 + SP-75 혼돈 폭발, SP-76 배리어 루프 (TODO)
+  - skill{s=P_01_FrontStrike} ~onTimer:60 ?hpbelow{p=25}
+  - skill{s=P_03_CircleBlast} ~onTimer:160 ?hpbelow{p=25}
+  - skill{s=P_06_ScatterShot} ~onTimer:320 ?hpbelow{p=25}
+  # P-08 페이즈 전환 (75%, 50%, 25%, 10% HP)
+  - skill{s=P_08_PhaseTransition} ~onHealthPercent:75
+  - skill{s=P_08_PhaseTransition} ~onHealthPercent:50
+  - skill{s=P_08_PhaseTransition} ~onHealthPercent:25
+  - skill{s=P_08_PhaseTransition} ~onHealthPercent:10
+  # P-09 무적 진입 4회 — SP-71~74 메카닉으로 해제 (TODO: EmpireRPG 연결)
+  - skill{s=P_09_Invincible} ~onHealthPercent:75
+  - skill{s=P_09_Invincible} ~onHealthPercent:50
+  - skill{s=P_09_Invincible} ~onHealthPercent:25
+  - skill{s=P_09_Invincible} ~onHealthPercent:10
+  - particles{p=DRAGON_BREATH;amount=20;hs=2;vs=1} @self ~onTimer:20
+
+# ============================================================
+# 시즌최종보스 2 — 타락한 이중체 (두 개체 동시 전투)
+# HP: 445,000×2 / DEF: 270 / 타이머: 10분
+# 고유 패턴: SP-81 광폭화, SP-82 쌍 합동 공격, SP-83 결속 차단, SP-84 합체 저지
+# 주의: SP-81 광폭화(HP% 차이 25%) 조건은 EmpireRPG에서 주기적으로 체크해야 함
+# ============================================================
+
+# 이중체-Z (좀비, 근접 담당)
+Final_CorruptedDyad_Z:
+  Type: ZOMBIE
+  Display: '&c&l타락한 이중체 [Z]'
+  Health: 445000
+  Damage: 175
+  Options:
+    AlwaysShowName: true
+    PreventOtherDrops: true
+    KnockbackResistance: 1.0
+    MovementSpeed: 0.22
+    MaxCombatDistance: 30
+    NaturallySpawned: false
+  Drops:
+  - exp 0
+  BossBar:
+    Enabled: true
+    Title: '&c&l이중체 [Z]'
+    Range: 80
+    Color: RED
+    Style: SEGMENTED_10
+  AIGoalSelectors:
+  - clear
+  - meleeattack
+  Skills:
+  # 전 페이즈 공통: P-00 기본 공격 (2.0s)
+  - skill{s=P_00_BasicAttack} ~onTimer:40
+  # Z 전용 근접 패턴: P-01 강타 (5s), P-02 돌진 (8s)
+  - skill{s=P_01_FrontStrike} ~onTimer:100 ?hpabove{p=30}
+  - skill{s=P_02_LinearDash} ~onTimer:160 ?hpabove{p=30}
+  # Phase 3 (30%~0%): SP-82 합동 공격 (TODO: EmpireRPG S-개체와 동기화)
+  - skill{s=P_01_FrontStrike} ~onTimer:80 ?hpbelow{p=30}
+  - skill{s=P_02_LinearDash} ~onTimer:120 ?hpbelow{p=30}
+  # SP-81 광폭화 상태 진입/해제는 EmpireRPG가 HP% 차이 감시 후 potion 적용
+  # P-08 페이즈 전환 (60%, 30% HP — 두 개체 동시 도달 시 발동)
+  - skill{s=P_08_PhaseTransition} ~onHealthPercent:60
+  - skill{s=P_08_PhaseTransition} ~onHealthPercent:30
+  # P-09 무적 진입 — SP-83/84 메카닉으로 해제 (TODO: EmpireRPG 연결)
+  - skill{s=P_09_Invincible} ~onHealthPercent:60
+  - skill{s=P_09_Invincible} ~onHealthPercent:30
+  - particles{p=FLAME;amount=5;hs=0.5;vs=0.3} @self ~onTimer:20
+
+# 이중체-S (스켈레톤, 원거리 담당)
+Final_CorruptedDyad_S:
+  Type: SKELETON
+  Display: '&9&l타락한 이중체 [S]'
+  Health: 445000
+  Damage: 150
+  Options:
+    AlwaysShowName: true
+    PreventOtherDrops: true
+    KnockbackResistance: 1.0
+    MovementSpeed: 0.24
+    MaxCombatDistance: 40
+    NaturallySpawned: false
+  Drops:
+  - exp 0
+  BossBar:
+    Enabled: true
+    Title: '&9&l이중체 [S]'
+    Range: 80
+    Color: BLUE
+    Style: SEGMENTED_10
+  AIGoalSelectors:
+  - clear
+  - meleeattack
+  Skills:
+  # 전 페이즈 공통: P-00 기본 공격 (2.0s)
+  - skill{s=P_00_BasicAttack} ~onTimer:40
+  # S 전용 원거리 패턴: P-05 투사체 (6s)
+  - skill{s=P_05_Projectile} ~onTimer:120 ?hpabove{p=30}
+  # Phase 2·3 (60%~0%): P-03 원형 폭발 마법진 추가 (15s)
+  - skill{s=P_03_CircleBlast} ~onTimer:300 ?hpbelow{p=60}
+  # Phase 3 (30%~0%): 강화
+  - skill{s=P_05_Projectile} ~onTimer:80 ?hpbelow{p=30}
+  # P-08 페이즈 전환 (60%, 30% HP — 두 개체 동시 도달 시 발동)
+  - skill{s=P_08_PhaseTransition} ~onHealthPercent:60
+  - skill{s=P_08_PhaseTransition} ~onHealthPercent:30
+  # P-09 무적 진입 — SP-83/84 메카닉으로 해제 (TODO: EmpireRPG 연결)
+  - skill{s=P_09_Invincible} ~onHealthPercent:60
+  - skill{s=P_09_Invincible} ~onHealthPercent:30
+  - particles{p=END_ROD;amount=5;hs=0.5;vs=0.3} @self ~onTimer:20
+
+# ============================================================
+# 시즌최종보스 3 — 진혼의 주시자  (입장 기준: 40일차, 22강+)
+# HP: 890,000 / 타이머: 10분
+# 베이스: 위더 본체 + 별빛 마법사(SpiritWatcher_Mage) 주기 소환
+# 고유 패턴: SP-91 별빛 마법사 소환, SP-92 별빛 대마법 (5명 스택 시)
+# 위더 받피감: 마법사 존재 수에 따라 증가 (EmpireRPG 연동 필요)
+# ============================================================
+Final_SpiritWatcher:
+  Type: WITHER
+  Display: '&d&l진혼의 주시자'
+  Health: 890000
+  Damage: 200
+  Options:
+    AlwaysShowName: true
+    PreventOtherDrops: true
+    KnockbackResistance: 1.0
+    MovementSpeed: 0.20
+    MaxCombatDistance: 60
+    NaturallySpawned: false
+  Drops:
+  - exp 0
+  BossBar:
+    Enabled: true
+    Title: '&d&l진혼의 주시자'
+    Range: 100
+    Color: PINK
+    Style: SEGMENTED_20
+  AIGoalSelectors:
+  - clear
+  - meleeattack
+  Skills:
+  # 전 페이즈 공통: P-00 기본 공격 (1.8s), P-06 산개탄 (14s)
+  - skill{s=P_00_BasicAttack} ~onTimer:36
+  - skill{s=P_06_ScatterShot} ~onTimer:280
+  # Phase 1 (100%~70%): 별빛 마법사 30s 주기 소환 (SP-91)
+  - skill{s=P_07_SummonCall} ~onTimer:600 ?hpabove{p=70}
+  - summon{type=SpiritWatcher_Mage;amount=1;duration=6000} ~onTimer:600 ?hpabove{p=70}
+  # Phase 2 (70%~35%): 소환 주기 단축 20s, P-03 추가 (12s)
+  - skill{s=P_07_SummonCall} ~onTimer:400 ?hpbelow{p=70} ?hpabove{p=35}
+  - summon{type=SpiritWatcher_Mage;amount=1;duration=6000} ~onTimer:400 ?hpbelow{p=70} ?hpabove{p=35}
+  - skill{s=P_03_CircleBlast} ~onTimer:240 ?hpbelow{p=70}
+  # Phase 3 (35%~0%): 소환 주기 12s (클리어 가부 결정 구간)
+  - skill{s=P_07_SummonCall} ~onTimer:240 ?hpbelow{p=35}
+  - summon{type=SpiritWatcher_Mage;amount=1;duration=6000} ~onTimer:240 ?hpbelow{p=35}
+  # P-08 페이즈 전환 (70%, 35% HP)
+  - skill{s=P_08_PhaseTransition} ~onHealthPercent:70
+  - skill{s=P_08_PhaseTransition} ~onHealthPercent:35
+  - particles{p=END_ROD;amount=10;hs=2;vs=1} @self ~onTimer:20
+
+# SP-91 별빛 마법사 — 에보커 기반 소환체
+# 마법사 5마리 동시 존재 → SP-92 별빛 대마법 발동 (EmpireRPG 체크)
+# 위더 받피감: 마법사 1명=15%, 2명=30%, 3명=50%, 4명=70%, 5명=SP-92 (EmpireRPG 관리)
+SpiritWatcher_Mage:
+  Type: EVOKER
+  Display: '&d별빛 마법사'
+  Health: 15000
+  Damage: 60
+  Options:
+    MovementSpeed: 0.22
+    PreventOtherDrops: true
+    AlwaysShowName: true
+    KnockbackResistance: 0.1
+    NaturallySpawned: false
+  Drops:
+  - exp 0
+  AIGoalSelectors:
+  - clear
+  - meleeattack
+  - randomstroll 0.6
+  Skills:
+  - skill{s=P_05_Projectile} ~onTimer:80
+  - particles{p=END_ROD;amount=3;hs=0.5;vs=0.3} @self ~onTimer:15

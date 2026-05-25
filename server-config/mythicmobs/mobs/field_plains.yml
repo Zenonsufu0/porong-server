@@ -67,7 +67,24 @@ Plains_Predator:
     NaturallySpawned: false
   Drops:
   - exp 2000
+  BossBar:
+    Enabled: true
+    Title: '&4&l들판 포식자'
+    Range: 60
+    Color: RED
+    Style: SOLID
   Skills:
-  - skill{s=Plains_StompGround} ~onTimer:100
-  - skill{s=Plains_RoarBuff} @self ~onTimer:400
-  - particles{p=CRIT;amount=30;hs=1;vs=0.5} @self ~onTimer:20
+  # Phase 1·2 공통: P-00 기본 공격 (2.0s)
+  - skill{s=P_00_BasicAttack} ~onTimer:40
+  # Phase 1 (100%~50%): P-01 전방 강타 (5s), P-02 직선 돌진 (8s), P-04 부채꼴 휩쓸기 (6s)
+  - skill{s=P_01_FrontStrike} ~onTimer:100 ?hpabove{p=50}
+  - skill{s=P_02_LinearDash} ~onTimer:160
+  - skill{s=P_04_FanSweep} ~onTimer:120 ?hpabove{p=50}
+  # Phase 2 (50%~0%): 쿨타임 단축 + P-03 분노 폭발 추가
+  - skill{s=P_01_FrontStrike} ~onTimer:80 ?hpbelow{p=50}
+  - skill{s=P_04_FanSweep} ~onTimer:100 ?hpbelow{p=50}
+  - skill{s=P_03_CircleBlast} ~onTimer:200 ?hpbelow{p=50}
+  # P-08 페이즈 전환 (50% HP)
+  - skill{s=P_08_PhaseTransition} ~onHealthPercent:50
+  # Phase 2 분노 연출
+  - particles{p=CRIT;amount=30;hs=1;vs=0.5} @self ~onTimer:20 ?hpbelow{p=50}
