@@ -20,6 +20,7 @@ public record PlayerSaveData(
         TerritorySaveData   territory,
         Map<String, Long>   storage,
         Map<String, Long>   customItems,
+        List<WorkshopJobSaveData> workshopJobs,
         int  playerLevel,
         int  unspentPts,
         int  critPts,
@@ -31,7 +32,7 @@ public record PlayerSaveData(
         int mobIlHitCount,
         int catalystBonusPct
 ) {
-    public static final int CURRENT_VERSION = 3;
+    public static final int CURRENT_VERSION = 4;
 
     public record ItemSaveData(
             String instanceId,
@@ -65,5 +66,11 @@ public record PlayerSaveData(
             int    convenienceUnlocks,
             int    reaperCount,
             int    storageCount
+    ) {}
+
+    public record WorkshopJobSaveData(
+            String recipeId,
+            long   startedAt,
+            long   completeAt
     ) {}
 }

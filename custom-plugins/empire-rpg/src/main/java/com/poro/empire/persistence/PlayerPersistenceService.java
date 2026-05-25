@@ -77,6 +77,7 @@ public final class PlayerPersistenceService {
                     current.weaponType(), current.classId(), current.classEngravingId(),
                     wallet, current.equippedSlots(), current.inventory(), current.equippedRunes(),
                     current.commonEngravings(), current.territory(), current.storage(), current.customItems(),
+                    current.workshopJobs(),
                     current.playerLevel(), current.unspentPts(), current.critPts(), current.specPts(),
                     current.endurPts(), current.currentExp(), current.ceilingCounters(),
                     current.ilWarningCount(), current.mobIlHitCount(), current.catalystBonusPct());
@@ -89,10 +90,23 @@ public final class PlayerPersistenceService {
                     current.weaponType(), current.classId(), current.classEngravingId(),
                     current.wallet(), slots, current.inventory(), current.equippedRunes(),
                     current.commonEngravings(), current.territory(), current.storage(), current.customItems(),
+                    current.workshopJobs(),
                     current.playerLevel(), current.unspentPts(), current.critPts(), current.specPts(),
                     current.endurPts(), current.currentExp(), current.ceilingCounters(),
                     current.ilWarningCount(), current.mobIlHitCount(), current.catalystBonusPct());
             logger.info("[Migration] " + uuid + " v2 → v3");
+        }
+
+        if (current.schemaVersion() < 4) {
+            current = new PlayerSaveData(4,
+                    current.weaponType(), current.classId(), current.classEngravingId(),
+                    current.wallet(), current.equippedSlots(), current.inventory(), current.equippedRunes(),
+                    current.commonEngravings(), current.territory(), current.storage(), current.customItems(),
+                    current.workshopJobs() != null ? current.workshopJobs() : List.of(),
+                    current.playerLevel(), current.unspentPts(), current.critPts(), current.specPts(),
+                    current.endurPts(), current.currentExp(), current.ceilingCounters(),
+                    current.ilWarningCount(), current.mobIlHitCount(), current.catalystBonusPct());
+            logger.info("[Migration] " + uuid + " v3 → v4");
         }
 
         return current;
@@ -230,6 +244,13 @@ public final class PlayerPersistenceService {
         if (data.customItems() != null) {
             data.customItems().forEach((id, qty) -> state.addCustomItem(id, qty));
         }
+
+        // 공방 대기열
+        if (data.workshopJobs() != null) {
+            data.workshopJobs().forEach(dto ->
+                    state.addWorkshopJob(new com.poro.empire.growth.island.WorkshopJob(
+                            dto.recipeId(), dto.startedAt(), dto.completeAt())));
+        }
     }
 
     private void applyStorage(UUID uuid, PlayerSaveData data) {
@@ -266,6 +287,7 @@ public final class PlayerPersistenceService {
                 toTerritoryDto(territory),
                 toStorageDto(storage),
                 toCustomItemsDto(territory),
+                toWorkshopJobsDto(territory),
                 growth != null ? growth.playerLevel()  : 1,
                 growth != null ? growth.unspentPts()   : 0,
                 growth != null ? growth.critPts()      : 0,
@@ -354,6 +376,13 @@ public final class PlayerPersistenceService {
     private Map<String, Long> toCustomItemsDto(IslandTerritoryState t) {
         if (t == null) return Map.of();
         return new LinkedHashMap<>(t.customItemsSnapshot());
+    }
+
+    private List<PlayerSaveData.WorkshopJobSaveData> toWorkshopJobsDto(IslandTerritoryState t) {
+        if (t == null) return List.of();
+        return t.workshopJobsSnapshot().stream()
+                .map(j -> new PlayerSaveData.WorkshopJobSaveData(j.recipeId(), j.startedAt(), j.completeAt()))
+                .toList();
     }
 
     // ─── 역직렬화 헬퍼 ─────────────────────────────────────────────

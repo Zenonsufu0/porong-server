@@ -72,6 +72,17 @@ public final class IslandTerritoryState {
         return workshopJobs.remove(index);
     }
 
+    /** now 기준 완료된 작업을 큐에서 제거하고 반환한다. */
+    public java.util.List<WorkshopJob> collectCompletedJobs(long now) {
+        java.util.List<WorkshopJob> done = workshopJobs.stream()
+                .filter(j -> j.completeAt() <= now)
+                .toList();
+        workshopJobs.removeIf(j -> j.completeAt() <= now);
+        return done;
+    }
+
+    public java.util.List<WorkshopJob> workshopJobsSnapshot() { return java.util.List.copyOf(workshopJobs); }
+
     // ─── 커스텀 아이템 ────────────────────────────────────────────
     public long getCustomItem(String id) { return customItems.getOrDefault(id, 0L); }
     public void addCustomItem(String id, long amount) {
