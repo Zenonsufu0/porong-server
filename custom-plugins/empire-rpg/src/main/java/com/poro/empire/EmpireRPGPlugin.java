@@ -17,6 +17,8 @@ import com.poro.empire.combat.CombatStateService;
 import com.poro.empire.field.ContributionTracker;
 import com.poro.empire.field.FieldBossRespawnScheduler;
 import com.poro.empire.field.FieldTeleportService;
+import com.poro.empire.field.NoopSafeZoneService;
+import com.poro.empire.field.SafeZoneService;
 import com.poro.empire.leveling.LevelingService;
 import com.poro.empire.boss.room.BossRoomManager;
 import com.poro.empire.listener.AfkMonitorListener;
@@ -448,7 +450,8 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new SwordParryListener(), this);
         getServer().getPluginManager().registerEvents(new CrossbowArrowListener(resourceTracker), this);
         getServer().getPluginManager().registerEvents(new StaffProjectileListener(resourceTracker), this);
-        getServer().getPluginManager().registerEvents(new SkillInputListener(skillService), this);
+        SafeZoneService safeZoneService = new NoopSafeZoneService();
+        getServer().getPluginManager().registerEvents(new SkillInputListener(skillService, safeZoneService), this);
         getServer().getPluginManager().registerEvents(
                 new AuctionGuiListener(this, growthStateStore, auctionStore), this);
     }

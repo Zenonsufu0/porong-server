@@ -3,6 +3,7 @@ package com.poro.empire.listener;
 import com.poro.empire.combat.SkillService;
 import com.poro.empire.combat.weapon.WeaponType;
 import com.poro.empire.combat.weapon.WeaponTypeResolver;
+import com.poro.empire.field.SafeZoneService;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -14,15 +15,18 @@ import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 
 public final class SkillInputListener implements Listener {
     private final SkillService skillService;
+    private final SafeZoneService safeZoneService;
 
-    public SkillInputListener(SkillService skillService) {
+    public SkillInputListener(SkillService skillService, SafeZoneService safeZoneService) {
         this.skillService = skillService;
+        this.safeZoneService = safeZoneService;
     }
 
     /** LMB 공격 → slot1 기본기 */
     @EventHandler
     public void onAttack(EntityDamageByEntityEvent event) {
         if (!(event.getDamager() instanceof Player player)) return;
+        if (safeZoneService.isSafeZone(player.getLocation())) return;
         WeaponType type = WeaponTypeResolver.resolve(player);
         String key = slot1Key(type);
         if (key != null) skillService.useSkill(player, key);
@@ -36,6 +40,7 @@ public final class SkillInputListener implements Listener {
         if (event.useItemInHand() == Event.Result.DENY) return;
 
         Player player = event.getPlayer();
+        if (safeZoneService.isSafeZone(player.getLocation())) return;
         WeaponType type = WeaponTypeResolver.resolve(player);
         String key = player.isSneaking() ? slot3Key(type) : slot2Key(type);
         if (key == null) return;
@@ -50,6 +55,10 @@ public final class SkillInputListener implements Listener {
     /** F키 → slot4 핵심기 */
     @EventHandler
     public void onSwap(PlayerSwapHandItemsEvent event) {
+        if (safeZoneService.isSafeZone(event.getPlayer().getLocation())) {
+            event.setCancelled(true);
+            return;
+        }
         String key = slot4Key(WeaponTypeResolver.resolve(event.getPlayer()));
         if (key == null) return;
         event.setCancelled(true);
