@@ -41,6 +41,10 @@ public final class BossSessionDdl {
     public static final String CREATE_INDEX_SESSION =
         "CREATE INDEX IF NOT EXISTS idx_bsp_session ON boss_session_player (session_id)";
 
+    public static final String DROP_STATS_SUMMARY_VIEW =
+        "DROP VIEW IF EXISTS boss_stats_summary";
+
+    /** ended_at IS NOT NULL 조건으로 진행 중 세션을 집계에서 제외한다. */
     public static final String CREATE_STATS_SUMMARY_VIEW = """
         CREATE VIEW IF NOT EXISTS boss_stats_summary AS
         SELECT
@@ -58,6 +62,7 @@ public final class BossSessionDdl {
             ROUND(AVG(party_avg_enhance), 1) AS avg_party_enhance,
             ROUND(AVG(party_avg_il), 1)      AS avg_party_il
         FROM boss_session_log
+        WHERE ended_at IS NOT NULL
         GROUP BY boss_id
         """;
 }

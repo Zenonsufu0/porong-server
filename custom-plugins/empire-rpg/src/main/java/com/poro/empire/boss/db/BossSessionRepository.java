@@ -117,9 +117,11 @@ public final class BossSessionRepository {
 
     private static String toResultCode(BossResultSummary summary) {
         if (summary.clearSuccess()) return "clear";
-        String code = summary.failureReasonCode();
-        if ("timeout".equals(code) || "pattern_fail".equals(code)) return code;
-        return "abandoned";
+        return switch (summary.failureReasonCode()) {
+            case "timeout", "fail_berserk_timeout" -> "timeout";
+            case "pattern_fail", "fail_stagger_fail" -> "pattern_fail";
+            default -> "abandoned";
+        };
     }
 
     /** GET /boss/stats — boss_stats_summary 뷰 전체 조회. */
