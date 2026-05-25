@@ -14,7 +14,10 @@ import com.poro.empire.growth.island.IslandTerritoryStateStore;
 import com.poro.empire.gui.ExploreHubGui;
 import com.poro.empire.gui.GuiTitles;
 import com.poro.empire.gui.MainHubGui;
+import com.poro.empire.gui.StorageGui;
+import com.poro.empire.gui.TerritoryHubGui;
 import com.poro.empire.gui.TerritoryStatusGui;
+import com.poro.empire.gui.WorkshopGui;
 import com.poro.empire.market.AuctionStore;
 import com.poro.empire.scoreboard.ScoreboardService;
 import com.poro.empire.storage.PlayerDataManager;
@@ -76,13 +79,21 @@ public final class MainHubListener implements Listener {
     @EventHandler
     public void onClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
-        if (!GuiTitles.MAIN_HUB.equals(event.getView().title())) return;
-        event.setCancelled(true);
-        switch (event.getRawSlot()) {
-            case 20 -> openEquipmentHub(player);
-            case 22 -> openTerritoryHub(player);
-            case 24, 26 -> player.sendMessage("§8준비 중");
-            case 49 -> player.closeInventory();
+
+        if (GuiTitles.MAIN_HUB.equals(event.getView().title())) {
+            event.setCancelled(true);
+            switch (event.getRawSlot()) {
+                case 20 -> openEquipmentHub(player);
+                case 22 -> openTerritoryHub(player);
+                case 24, 26 -> player.sendMessage("§8준비 중");
+                case 49 -> player.closeInventory();
+            }
+            return;
+        }
+
+        if (GuiTitles.TERRITORY_HUB.equals(event.getView().title())) {
+            event.setCancelled(true);
+            handleTerritoryHub(player, event.getRawSlot());
         }
     }
 
@@ -113,10 +124,29 @@ public final class MainHubListener implements Listener {
     }
 
     private void openTerritoryHub(Player player) {
-        IslandTerritoryState state = islandTerritoryStateStore.getOrCreate(
-                player.getUniqueId(), player.getName());
-        var storage = islandStorageStore.getOrCreate(player.getUniqueId());
-        TerritoryStatusGui.open(player, state, storage);
+        TerritoryHubGui.open(player);
+    }
+
+    private void handleTerritoryHub(Player player, int slot) {
+        switch (slot) {
+            case TerritoryHubGui.SLOT_STATUS -> {
+                IslandTerritoryState territory = islandTerritoryStateStore.getOrCreate(
+                        player.getUniqueId(), player.getName());
+                var storage = islandStorageStore.getOrCreate(player.getUniqueId());
+                TerritoryStatusGui.open(player, territory, storage);
+            }
+            case TerritoryHubGui.SLOT_STORAGE -> {
+                var storage = islandStorageStore.getOrCreate(player.getUniqueId());
+                StorageGui.open(player, storage, 0);
+            }
+            case TerritoryHubGui.SLOT_WORKSHOP -> {
+                IslandTerritoryState territory = islandTerritoryStateStore.getOrCreate(
+                        player.getUniqueId(), player.getName());
+                WorkshopGui.open(player, WorkshopGui.WorkshopTab.ESTATE, territory);
+            }
+            case TerritoryHubGui.SLOT_BACK  -> MainHubGui.open(player);
+            case TerritoryHubGui.SLOT_CLOSE -> player.closeInventory();
+        }
     }
 
     // ─── 아이템 빌더 ─────────────────────────────────────────────
