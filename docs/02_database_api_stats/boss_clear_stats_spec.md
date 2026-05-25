@@ -25,7 +25,7 @@ CREATE TABLE boss_session_log (
     season_week           INTEGER NOT NULL,   -- 시즌 경과 주차 (1~6+)
     started_at            INTEGER NOT NULL,   -- UNIX timestamp
     ended_at              INTEGER,            -- UNIX timestamp (NULL = 진행 중)
-    result                TEXT    NOT NULL,   -- 'clear' | 'timeout' | 'pattern_fail' | 'abandoned'
+    result                TEXT    NOT NULL DEFAULT 'abandoned', -- 진행 중 초기값. 종료 시 UPDATE. (DL-065)
     clear_time_seconds    INTEGER,            -- result='clear'일 때만
     party_size            INTEGER NOT NULL,
     party_avg_enhance     REAL,               -- 파티 평균 강화 수치
@@ -80,6 +80,7 @@ SELECT
     ROUND(AVG(party_avg_enhance), 1) AS avg_party_enhance,
     ROUND(AVG(party_avg_il), 1)      AS avg_party_il
 FROM boss_session_log
+WHERE ended_at IS NOT NULL  -- 진행 중·크래시 세션 제외 (DL-065)
 GROUP BY boss_id;
 ```
 
