@@ -24,6 +24,6 @@ mat_ore_ingot,Ore Ingot,LIFE,material,capital,,,,0,true,starter
 mat_resonance_powder,Resonance Powder,LIFE,material,arkanon,,,,0,true,starter
 bp_resonance_extractor,Resonance Extractor Blueprint,LIFE,material,capital,,,,0,true,starter
 mat_battle_shard,전장의 파편,LIFE,material,field,,,,0,false,rank_material|field_drop
-mat_trace_star,별의 흔적,LIFE,material,field,,,,0,false,rank_material|enhance_boost
-mat_trace_moon,달의 흔적,LIFE,material,field,,,,0,false,rank_material|enhance_boost
-mat_trace_sun,태양의 흔적,LIFE,material,field,,,,0,false,rank_material|enhance_boost
+mat_trace_star,별의 흔적,LIFE,material,field,,,,0,false,enhance_boost|workshop_craft
+mat_trace_moon,달의 흔적,LIFE,material,field,,,,0,false,enhance_boost|workshop_craft
+mat_trace_sun,태양의 흔적,LIFE,material,field,,,,0,false,enhance_boost|workshop_craft

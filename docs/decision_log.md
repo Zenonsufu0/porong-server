@@ -4,6 +4,19 @@
 
 ---
 
+### DL-066 영지 작위 승급 재료 — 전장의 파편 + 골드만으로 확정
+
+작위 승급 소비 재료를 **전장의 파편(`mat_battle_shard`) + 골드**만으로 확정한다.
+
+- `island_system_design.md` 초안에 자작령 달의 흔적 3개, 백작령 태양의 흔적 2개가 포함되어 있었으나,
+  달/태양 흔적은 공방 제작 아이템으로 획득 경로가 별도 시스템을 요구함.
+- 1차 시즌 범위 내에서 WorkshopGui 레시피가 구현되기 전까지 승급 경로를 막지 않기 위해 제외.
+- `island_system_design.md` 승급 테이블에서 흔적 재료 칸 제거 완료.
+- `IslandRank.java` 모든 단계 upgradeMaterials에서 mat_trace_moon/sun 제거.
+- mat_trace_star/moon/sun은 **강화 보정 아이템**(공방 제작)으로 존재, 승급과 무관.
+
+---
+
 ### DL-065 보스 세션 진행 중 상태 — result='abandoned' 초기값 + ended_at IS NOT NULL 뷰 필터
 
 **결정:**
