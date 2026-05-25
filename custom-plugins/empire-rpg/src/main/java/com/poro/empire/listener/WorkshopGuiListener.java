@@ -1,6 +1,7 @@
 package com.poro.empire.listener;
 
 import com.poro.empire.growth.island.IslandTerritoryStateStore;
+import com.poro.empire.gui.TerritoryHubGui;
 import com.poro.empire.gui.WorkshopGui;
 import com.poro.empire.gui.WorkshopGui.WorkshopTab;
 import org.bukkit.entity.Player;
@@ -46,8 +47,7 @@ public class WorkshopGuiListener implements Listener {
 
         // 뒤로
         if (slot == WorkshopGui.SLOT_BACK) {
-            // TerritoryHubGui.open(player) — 연동 예정
-            player.closeInventory();
+            TerritoryHubGui.open(player);
             return;
         }
         // 닫기

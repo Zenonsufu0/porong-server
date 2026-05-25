@@ -35,11 +35,17 @@ public final class MachineProductionScheduler {
     private void produceHerbs(IslandTerritoryState state) {
         int reapers = state.reaperCount();
         if (reapers <= 0) return;
-        // 재배기 1대당 제국 약초 1개 (Lv1 기준; 레벨별 증산은 추후 연동)
-        state.addCustomItem(MAT_HERB_IMPERIAL, reapers);
-        // 재배기 3대 이상 보유 시 에센스 추가 (Lv3 재배기 판단 임시 기준)
-        if (reapers >= 3) {
-            state.addCustomItem(MAT_ESSENCE_IMPERIAL, reapers / 3);
-        }
+
+        // 기계 레벨 = 작위 티어 기반 (BARON+ → Lv2, COUNT+ → Lv3)
+        int tier = state.rank().tier;
+        int machineLevel = tier < 3 ? 1 : tier < 5 ? 2 : 3;
+
+        int herbPerReaper = machineLevel;          // Lv1=1, Lv2=2, Lv3=3
+        state.addCustomItem(MAT_HERB_IMPERIAL, reapers * herbPerReaper);
+
+        // 에센스: Lv1=3대당 1개, Lv2=2대당 1개, Lv3=1대당 1개
+        int essenceDivisor = switch (machineLevel) { case 3 -> 1; case 2 -> 2; default -> 3; };
+        int essence = reapers / essenceDivisor;
+        if (essence > 0) state.addCustomItem(MAT_ESSENCE_IMPERIAL, essence);
     }
 }

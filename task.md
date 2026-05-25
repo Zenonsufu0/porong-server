@@ -1,6 +1,6 @@
 # 포로 서버 작업 현황
 
-> 마지막 갱신: 2026-05-25 (스킬 전체 구현 Phase 3 완료)
+> 마지막 갱신: 2026-05-25 (Phase 5 영지/농장 핵심 리스너 구현 완료)
 
 ---
 
@@ -63,6 +63,18 @@
 | `/api/v1/boss/stats` `/boss/{id}/stats` `/boss/{id}/weekly` `/boss/{id}/party-spec` | ✅ |
 | `onDisable` HTTP 서버 stop 연결 | ✅ |
 | `DbBossRunRecordHook` + `CompositeBossRunRecordHook` (세션 시작/종료 DB 기록) | ✅ |
+
+---
+
+## Phase 5 영지/농장 시스템 — 부분 완료
+
+| 항목 | 상태 |
+|---|---|
+| `TerritoryStatusGuiListener` 전체 구현 (작위 승급, 편의 토글, 네비게이션) | ✅ |
+| `WorkshopGuiListener` 뒤로 버튼 → TerritoryHubGui.open 연결 | ✅ |
+| `MachineProductionScheduler` 레벨별 증산 (Lv2=BARON+, Lv3=COUNT+) | ✅ |
+| `WorkshopGui` 레시피 목록 / 대기열 행 채우기 | 🔲 미구현 |
+| `TerritoryHubGui` 실제 GUI 구현 (현재 메시지 전송 스텁) | 🔲 미구현 |
 
 ---
 
