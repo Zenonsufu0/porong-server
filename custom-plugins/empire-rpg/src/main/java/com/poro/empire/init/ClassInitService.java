@@ -72,11 +72,11 @@ public final class ClassInitService {
     public void grantStarterEquipment(Player player, WeaponType weaponType) {
         String classId = weaponType.name().toLowerCase(Locale.ROOT);
         PlayerGrowthState state = growthStateStore.getOrCreate(player.getUniqueId(), classId);
-        addAndEquipIfMissing(state, EquipmentSlot.WEAPON,     "starter_" + classId, "equip_" + classId);
-        addAndEquipIfMissing(state, EquipmentSlot.HELMET,     "starter_helmet",     "equip_helmet");
-        addAndEquipIfMissing(state, EquipmentSlot.CHESTPLATE, "starter_chestplate", "equip_chestplate");
-        addAndEquipIfMissing(state, EquipmentSlot.LEGGINGS,   "starter_leggings",   "equip_leggings");
-        addAndEquipIfMissing(state, EquipmentSlot.BOOTS,      "starter_boots",      "equip_boots");
+        addAndEquipIfMissing(state, EquipmentSlot.WEAPON,     "starter_" + classId,  "t1_" + classId + "_starter");
+        addAndEquipIfMissing(state, EquipmentSlot.HELMET,     "starter_helmet",      "t1_helmet_starter");
+        addAndEquipIfMissing(state, EquipmentSlot.CHESTPLATE, "starter_chestplate",  "t1_chestplate_starter");
+        addAndEquipIfMissing(state, EquipmentSlot.LEGGINGS,   "starter_leggings",    "t1_leggings_starter");
+        addAndEquipIfMissing(state, EquipmentSlot.BOOTS,      "starter_boots",       "t1_boots_starter");
         player.getInventory().setItem(0, taggedWeapon(weaponType));
         grantIslandTools(player);
         playerPersistenceService.save(player.getUniqueId());
