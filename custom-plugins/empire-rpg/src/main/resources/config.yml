@@ -4,6 +4,12 @@ common:
   sqlite-path: "storage/poro.sqlite"
   seed-path: "seeds"
   timezone: "UTC"
+  # HTTP API 바인드 주소. 기본값 127.0.0.1 (루프백 전용).
+  # Discord 봇·웹 대시보드가 다른 서버에서 실행되면 "0.0.0.0"으로 변경 후 방화벽 설정 필수.
+  api-bind-host: "127.0.0.1"
+  # HTTP API Bearer 토큰. 비어 있으면 API가 503을 반환합니다.
+  # 반드시 충분히 긴 무작위 문자열로 설정하세요. 예: openssl rand -hex 32
+  api-secret-key: ""
 
 # 상점 아이템 — 키 이름은 자유. 순서 = GUI 표시 순서.
 # 지원 필드: material, amount, display-name, price, lore[]

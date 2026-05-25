@@ -467,21 +467,24 @@ Component.text("").font(Key.key("poro","gui"))
 
 ## 9. HTTP API
 
-**포트:** 8765 (config.yml `http.port`)  
-**인증:** `X-Api-Key` 헤더 (config.yml `http.api-key`)
+**포트:** 8765 (하드코딩)  
+**바인드:** config.yml `common.api-bind-host` (기본 `127.0.0.1`)  
+**인증:** `Authorization: Bearer {token}` 헤더 (config.yml `common.api-secret-key`)  
+미설정 시 모든 요청 503 차단. 충분한 길이의 무작위 토큰 필수.
 
-| 메서드 | 경로 | 설명 |
-|---|---|---|
-| POST | `/auth/pending` | Discord 봇 → 인증 코드 생성 요청 |
-| GET | `/auth/role-queue` | 역할 부여 큐 조회 |
-| POST | `/auth/role-granted` | 역할 부여 완료 확인 |
-| GET | `/field-status` | 현재 필드보스 스폰 상태 |
-| GET | `/operations/admin/dashboard` | 관리자 대시보드 데이터 |
-| GET | `/operations/admin/dashboard/bosses` | 보스 통계 |
-| GET | `/operations/admin/dashboard/economy` | 경제 통계 |
-| GET | `/operations/admin/dashboard/life` | 영지 통계 |
-| GET | `/admin/players/{userId}` | 개별 플레이어 상세 |
-| GET | `/operations/snapshot` | Discord 카드용 공개 스냅샷 |
+| 메서드 | 경로 | 설명 | 구현 상태 |
+|---|---|---|---|
+| GET | `/api/v1/boss/stats` | 전 보스 요약 통계 | ✅ |
+| GET | `/api/v1/boss/{boss_id}/stats` | 단일 보스 상세 통계 | ✅ |
+| GET | `/api/v1/boss/{boss_id}/weekly` | 주차별 클리어율 추이 | ✅ |
+| GET | `/api/v1/boss/{boss_id}/party-spec` | 클리어 파티 스펙 분포 | ✅ |
+| POST | `/auth/pending` | Discord 봇 → 인증 코드 생성 요청 | Phase 7 |
+| GET | `/auth/role-queue` | 역할 부여 큐 조회 | Phase 7 |
+| POST | `/auth/role-granted` | 역할 부여 완료 확인 | Phase 7 |
+| GET | `/field-status` | 현재 필드보스 스폰 상태 | Phase 7 |
+| GET | `/operations/admin/dashboard` | 관리자 대시보드 데이터 | Phase 7 |
+| GET | `/admin/players/{userId}` | 개별 플레이어 상세 | Phase 7 |
+| GET | `/operations/snapshot` | Discord 카드용 공개 스냅샷 | Phase 7 |
 
 ---
 
