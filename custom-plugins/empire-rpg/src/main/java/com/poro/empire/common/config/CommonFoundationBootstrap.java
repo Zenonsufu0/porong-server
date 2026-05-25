@@ -1,11 +1,16 @@
 package com.poro.empire.common.config;
 
+import com.poro.empire.common.db.BossSessionMigration;
+import com.poro.empire.common.db.CompositeMigrationEntryPoint;
 import com.poro.empire.common.db.ConnectionProvider;
 import com.poro.empire.common.db.DatabaseBootstrapper;
 import com.poro.empire.common.db.JdbcTransactionHelper;
-import com.poro.empire.common.db.NoopMigrationEntryPoint;
+import com.poro.empire.common.db.MigrationEntryPoint;
+import com.poro.empire.common.db.PlayerFlagTableStubMigration;
 import com.poro.empire.common.db.SqliteConnectionProvider;
 import com.poro.empire.common.db.TransactionHelper;
+
+import java.util.List;
 import com.poro.empire.common.logging.CommonPluginLogger;
 import com.poro.empire.common.logging.CommonPluginLoggerFactory;
 import com.poro.empire.common.logging.DomainLogger;
@@ -37,11 +42,19 @@ public final class CommonFoundationBootstrap {
                     logger.domain("db.transaction")
             );
             RegistryBootstrapper registryBootstrapper = new RegistryBootstrapper(logger.domain("registry"));
+            MigrationEntryPoint migrationEntryPoint = new CompositeMigrationEntryPoint(List.of(
+                    new PlayerFlagTableStubMigration(logger.domain("db.migration.player-flag")),
+                    new BossSessionMigration(logger.domain("db.migration.boss-session"))
+            ));
             DatabaseBootstrapper databaseBootstrapper = new DatabaseBootstrapper(
                     connectionProvider,
-                    new NoopMigrationEntryPoint(),
+                    migrationEntryPoint,
                     logger.domain("db.migration")
             );
+            Result<Void> dbInit = databaseBootstrapper.initialize();
+            if (dbInit.isFailure()) {
+                return Result.failure(dbInit.errorCode(), dbInit.message(), dbInit.cause());
+            }
 
             bootstrapLog.info("Common foundation initialized.");
             return Result.success(new FoundationContext(

@@ -1,5 +1,7 @@
 package com.poro.empire.operations.query;
 
+import com.poro.empire.boss.db.BossSessionRepository;
+import com.poro.empire.operations.http.EmpireHttpServer;
 import com.poro.empire.operations.query.api.AdminApiEndpointLayer;
 import com.poro.empire.operations.query.discord.DiscordCommandQueryAdapter;
 import com.poro.empire.operations.query.service.AdminDashboardService;
@@ -21,6 +23,8 @@ public record OperationsQueryRuntime(
         HallOfFameQueryService hallOfFameQueryService,
         PublicSnapshotQueryService publicSnapshotQueryService,
         AdminApiEndpointLayer adminApiEndpointLayer,
-        DiscordCommandQueryAdapter discordCommandQueryAdapter
+        DiscordCommandQueryAdapter discordCommandQueryAdapter,
+        BossSessionRepository bossSessionRepository,
+        EmpireHttpServer httpServer
 ) {
 }

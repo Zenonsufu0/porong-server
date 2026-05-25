@@ -356,6 +356,9 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                         .map(p -> p.getUniqueId())
                         .toList()
         );
+        if (operationsQueryRuntime != null && operationsQueryRuntime.httpServer() != null) {
+            operationsQueryRuntime.httpServer().stop();
+        }
         getLogger().info("EmpireRPG disabled.");
     }
 

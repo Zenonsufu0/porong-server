@@ -51,11 +51,27 @@
 
 ---
 
+## Phase 7 선행 — 완료
+
+| 항목 | 상태 |
+|---|---|
+| `boss_session_log` + `boss_session_player` DDL + migration | ✅ |
+| `boss_stats_summary` VIEW | ✅ |
+| `CommonFoundationBootstrap` migration chain 활성화 (Noop 교체 + `initialize()` 호출) | ✅ |
+| `BossSessionRepository` (read/write) | ✅ |
+| `EmpireHttpServer` (포트 8765, JDK 내장 HttpServer) | ✅ |
+| `/api/v1/boss/stats` `/boss/{id}/stats` `/boss/{id}/weekly` `/boss/{id}/party-spec` | ✅ |
+| `onDisable` HTTP 서버 stop 연결 | ✅ |
+
+> 쓰기 경로(BossEngineRuntime → BossSessionRepository) 연결은 §7+ 예정 (기술 부채 기록).
+
+---
+
 ## 다음 작업 후보 (병렬 Phase)
 
 | 우선도 | 항목 | 관련 문서 |
 |---|---|---|
-| 높음 | DB 스키마 + API 엔드포인트 (Phase 7 선행) | `docs/02_database_api_stats/CANON.md` |
+| 높음 | 보스 세션 DB 쓰기 연결 (BossEngineRuntime → BossSessionRepository) | `docs/02_database_api_stats/boss_clear_stats_spec.md` |
 | 중간 | 디스코드 인증봇 (Phase 2) | `docs/03_discord_onboarding_bot/index.md` |
 | 중간 | 스킬 전체 구현 (Phase 3) | `docs/04_combat_weapon_skills/CANON.md` |
 | 중간 | 영지/농장 시스템 (Phase 5) | `docs/05_island_farm_system/CANON.md` |
@@ -69,6 +85,7 @@
 |---|---|
 | compileTestJava | GrowthEngineSampleTest legacy `EquipmentSlot` 참조 (§6 범위 외) |
 | MythicMobs/IridiumSkyblock | `../../server/plugins/` 로컬 JAR 경로 — review worktree 미지원 (pre-existing). Java 코드에서 `io.lumine.*` 임포트 없으므로 `compileOnly` JAR 불필요 → review worktree `compileJava` 정상 |
+| BossSessionRepository 쓰기 경로 | BossEngineRuntime → BossSessionRepository 연결 미구현 (§7+ 예정). API 응답은 빈 배열 |
 | 시즌보스 damage_share | `BossResultSummaryBuilder` placeholder 0.0 유지 — §7+ 구현 (DL-064) |
 | AllowAllUnlockQuestChecker | 보스6 클리어 조건 stub — 퀘스트 시스템 구현 후 연결 |
 | boss_pattern_seed.csv | 7개 보스 placeholder 패턴만 있음 — 실제 패턴 설계 필요 |

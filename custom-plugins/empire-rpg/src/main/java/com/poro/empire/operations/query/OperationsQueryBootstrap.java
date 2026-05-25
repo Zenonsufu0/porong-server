@@ -1,5 +1,6 @@
 package com.poro.empire.operations.query;
 
+import com.poro.empire.boss.db.BossSessionRepository;
 import com.poro.empire.boss.engine.BossEngineRuntime;
 import com.poro.empire.common.config.FoundationContext;
 import com.poro.empire.common.logging.DomainLogger;
@@ -7,6 +8,8 @@ import com.poro.empire.common.registry.master.MasterRegistryContext;
 import com.poro.empire.common.result.Result;
 import com.poro.empire.growth.engine.GrowthEngineRuntime;
 import com.poro.empire.life.engine.LifeEngineRuntime;
+import com.poro.empire.operations.http.BossApiHandler;
+import com.poro.empire.operations.http.EmpireHttpServer;
 import com.poro.empire.operations.query.api.AdminApiEndpointLayer;
 import com.poro.empire.operations.query.discord.DiscordCommandQueryAdapter;
 import com.poro.empire.operations.query.service.AdminDashboardService;
@@ -45,6 +48,10 @@ public final class OperationsQueryBootstrap {
 
         DomainLogger logger = foundationContext.logger().domain("operations-query");
         InMemoryOperationsDataStore dataStore = new InMemoryOperationsDataStore();
+        BossSessionRepository bossSessionRepository = new BossSessionRepository(
+                foundationContext.connectionProvider(),
+                foundationContext.logger().domain("boss-session-repo")
+        );
 
         BossStatisticsQueryService bossStatisticsQueryService = new BossStatisticsQueryService(
                 masterRegistryContext.bossMasters(),
@@ -76,6 +83,18 @@ public final class OperationsQueryBootstrap {
         );
         DiscordCommandQueryAdapter discordCommandQueryAdapter = new DiscordCommandQueryAdapter(publicSnapshotQueryService);
 
+        EmpireHttpServer httpServer;
+        try {
+            httpServer = EmpireHttpServer.create(
+                    new BossApiHandler(bossSessionRepository),
+                    foundationContext.logger().domain("http")
+            );
+            httpServer.start();
+        } catch (Exception e) {
+            logger.warn("Failed to start HTTP server: " + e.getMessage() + " — API disabled.");
+            httpServer = null;
+        }
+
         logger.info("Operations/query bootstrap completed. endpoints="
                 + adminApiEndpointLayer.listEndpoints().getOrDefault("GET", java.util.List.of()).toString());
 
@@ -89,7 +108,9 @@ public final class OperationsQueryBootstrap {
                 hallOfFameQueryService,
                 publicSnapshotQueryService,
                 adminApiEndpointLayer,
-                discordCommandQueryAdapter
+                discordCommandQueryAdapter,
+                bossSessionRepository,
+                httpServer
         ));
     }
 }
