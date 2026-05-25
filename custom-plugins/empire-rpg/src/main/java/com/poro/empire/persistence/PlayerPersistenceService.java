@@ -53,12 +53,72 @@ public final class PlayerPersistenceService {
     // ─── 로드 ──────────────────────────────────────────────────────
 
     public void load(UUID uuid, String playerName) {
-        repo.load(uuid).ifPresent(data -> {
+        repo.load(uuid).ifPresent(rawData -> {
+            PlayerSaveData data = migrate(uuid, rawData);
+            if (data.schemaVersion() != rawData.schemaVersion()) {
+                repo.save(uuid, data);
+            }
             applyWeaponType(uuid, data);
             applyGrowthState(uuid, data);
             applyTerritory(uuid, playerName, data);
             applyStorage(uuid, data);
         });
+    }
+
+    private PlayerSaveData migrate(UUID uuid, PlayerSaveData raw) {
+        int version = raw.schemaVersion();
+        if (version >= PlayerSaveData.CURRENT_VERSION) return raw;
+
+        PlayerSaveData current = raw;
+
+        if (version < 2) {
+            Map<String, Long> wallet = migrateWalletV1(current.wallet());
+            current = new PlayerSaveData(2,
+                    current.weaponType(), current.classId(), current.classEngravingId(),
+                    wallet, current.equippedSlots(), current.inventory(), current.equippedRunes(),
+                    current.commonEngravings(), current.territory(), current.storage(), current.customItems(),
+                    current.playerLevel(), current.unspentPts(), current.critPts(), current.specPts(),
+                    current.endurPts(), current.currentExp(), current.ceilingCounters(),
+                    current.ilWarningCount(), current.mobIlHitCount(), current.catalystBonusPct());
+            logger.info("[Migration] " + uuid + " v" + version + " → v2");
+        }
+
+        if (current.schemaVersion() < 3) {
+            Map<String, String> slots = migrateEquippedSlotsV2(current.equippedSlots());
+            current = new PlayerSaveData(3,
+                    current.weaponType(), current.classId(), current.classEngravingId(),
+                    current.wallet(), slots, current.inventory(), current.equippedRunes(),
+                    current.commonEngravings(), current.territory(), current.storage(), current.customItems(),
+                    current.playerLevel(), current.unspentPts(), current.critPts(), current.specPts(),
+                    current.endurPts(), current.currentExp(), current.ceilingCounters(),
+                    current.ilWarningCount(), current.mobIlHitCount(), current.catalystBonusPct());
+            logger.info("[Migration] " + uuid + " v2 → v3");
+        }
+
+        return current;
+    }
+
+    private Map<String, Long> migrateWalletV1(Map<String, Long> wallet) {
+        if (wallet == null) return Map.of();
+        Map<String, Long> result = new LinkedHashMap<>(wallet);
+        Long stones = result.remove("enhancement_stone");
+        if (stones != null) {
+            result.merge("mat_stone_enhance", stones, Long::sum);
+        }
+        return result;
+    }
+
+    private Map<String, String> migrateEquippedSlotsV2(Map<String, String> slots) {
+        if (slots == null) return Map.of();
+        Map<String, String> result = new LinkedHashMap<>();
+        slots.forEach((key, value) -> {
+            try {
+                result.put(EquipmentSlot.from(key).name(), value);
+            } catch (IllegalArgumentException ignored) {
+                result.put(key, value);
+            }
+        });
+        return result;
     }
 
     private void applyWeaponType(UUID uuid, PlayerSaveData data) {

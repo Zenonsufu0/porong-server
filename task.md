@@ -1,97 +1,89 @@
 # 포로 서버 작업 현황
 
-> 마지막 갱신: 2026-05-24
+> 마지막 갱신: 2026-05-25
 
 ---
 
-## 최근 확정 (DL-031 ~ DL-055)
+## 현재 브랜치 상태
 
-| DL | 내용 | 파일 |
-|---|---|---|
-| DL-055 | 필드보스 P-10 전면 교체 (→P-12·P-11·P-13) + 전 보스 P-00 추가 | field_boss_patterns.md |
-| — | drop_tables_v1.md 칭호 확정 (DL-045) + 1~2인 스케일 보정 없음 (DL-054) 반영 | drop_tables_v1.md |
-| — | 개발 로드맵 전면 구체화 — Phase 8종 세부 작업/선행조건/완료기준/월드 구조 | 10_development_roadmap/index.md |
-| DL-054 | 시즌최종보스 패턴 확정 — SP-84 합체 저지 신설·동기화 전환·주시자 Phase HP% 확정·1~2인 보정 없음 | season_boss_patterns.md |
-| DL-053 | 보스4~6 패턴 확정 — SP-43 번개 집중포화 신설·보스5 P-12 추가·SP-62 1인 고난이도 확정 | season_boss_patterns.md |
-| DL-052 | 보스 클리어 통계 수집 스펙 — boss_session_log·player 테이블, 4개 API 엔드포인트, 버프/너프 기준 | boss_clear_stats_spec.md (신규) |
-| DL-051 | 시즌보스 1~6 HP 우상향 재설계 — 방무 없으면 보스4+ 타임아웃, 보스6 레전더리 방무 요구 | season_boss_stats_v1.md |
-| DL-050 | 균열왕 분노 타이머 25분 → 8분 수정 (10분 타이머 기준) | season_boss_patterns.md |
-| DL-049 | SP-83 결속 차단 신설 — 타락한 이중체 Phase 전환 #1, Z·S 사이 위치 차단 메카닉 | season_boss_patterns.md |
-| DL-048 | P-10 장판 패턴 완전 폐기 + 전 보스 폭발/추적/낙하로 교체 (서버 TPS 이유) | common_patterns.md, season_boss_patterns.md |
-| DL-047 | 공용 패턴 풀 개편 — P-00 기본 공격 신설, P-11 추적 구체·P-12 연속 타격·P-13 낙하 충격 추가 | common_patterns.md, season_boss_patterns.md |
-| DL-046 | 석조 거상 패턴 전면 재설계 — 석조/지진 테마 (SP-31 지진 발걸음, SP-32 거석 팔 투척) | season_boss_patterns.md |
-| DL-045 | 시즌최종보스 칭호명 확정 (수호자·이중주·낙성자·심연을 넘은 자) + 닉네임·커스텀 칭호 변경권 보스4+ 드랍 추가 | drop_tables_v1.md |
-| DL-044 | 균열왕 봉인 파편 폐지 — 보스6 클리어 시 시즌최종보스 3종 자유 입장 | drop_tables_v1.md, decision_log.md |
-| DL-043 | 시즌최종보스 3종 티어 확정 — 균열왕·타락한 이중체·진혼의 주시자 | CANON.md, drop_tables_v1.md, season_boss_stats_v1.md, season_boss_patterns.md |
-| DL-042 | 시즌보스 6종 + 균열왕 이름 확정 + 필드보스4 명칭 변경 | drop_tables_v1.md, season_boss_stats_v1.md, season_boss_patterns.md 등 |
-| DL-031 | 스킬 이펙트 시스템 — 방안4 혼합 구조, effect_key 24종, 무기 색상 테마 | weapon_skills_v1.md |
-| DL-032 | 히트박스 수치 / 이동기 거리 전 스킬 확정 | weapon_skills_v1.md |
-| DL-033 | 강화석 드랍률 ×1.5 상향 + 11~16강 성공률 하향 (세트A) | economy_numbers_v2.md, drop_tables_v1.md |
-| DL-034 | 마도합금 용도 확정 — 강화 흔적 3종 + 고대흔적 4종 재료 | workshop_crafting_spec.md |
-| DL-035 | 공방 처리 시간 전체 확정 (5분~90분) | workshop_crafting_spec.md |
-| DL-036 | 공방 오프라인 완료 — 타임스탬프 기반, 사이클 캡 없음 | island_system_design.md |
-| DL-037 | 시즌보스 주간 첫 클리어 풀 보상 + 재도전 감소 보상 (월요일 00:00 리셋) | drop_tables_v1.md |
-| DL-038 | 균열왕 최소 입장 인원 없음 — 경고 메시지만 출력 | CANON.md |
-| DL-039 | 시즌보스 핵심 재료 폐기 → 고대흔적 확률 드랍으로 교체 | drop_tables_v1.md |
-| DL-040 | 균열왕 분노 스택 — 스택당 +10%, 최대 3스택(+30%) | season_boss_stats_v1.md |
-| DL-041 | 시즌보스 3종 → 6종 확장, 권장 강화 6~22강, 상한 22강 | CANON.md, final_master_plan.md |
+- 브랜치: `master` = `codex-review` (동기화 완료)
+- 최근 커밋: `270c618` — §6-1~3 구현 완료
+- 미커밋 변경사항: §6-4~7 구현 4개 파일 (커밋 대기)
 
 ---
 
-## 완료 — 시즌최종보스 3종 티어 확정 (2026-05-24)
+## 현재 작업 — EmpireRPG 플러그인 §6 구현 순서
 
-| 보스 | 이름 | 베이스 몹 | 핵심 메카닉 | SP 코드 |
-|---|---|---|---|---|
-| 시즌최종보스1 | 균열왕 | 위더스켈레톤+말 | 분노 스택 | SP-7X |
-| 시즌최종보스2 | 타락한 이중체 | 좀비+스켈레톤 쌍 | HP 균형 광폭화 | SP-8X |
-| 시즌최종보스3 | 진혼의 주시자 | 위더 | 별빛 마법사 스택 | SP-9X |
+기준 문서: `docs/10_development_roadmap/implementation_design_plan.md`
 
----
-
-## 완료 — 시즌보스 6종 + 균열왕 확정 (2026-05-24)
-
-### 확정된 보스 목록 (DL-041, DL-042)
-
-| # | 이름 | 베이스 몹 | 클리어율 | 권장 강화 | 고대흔적 | 내부 ID |
-|---|---|---|---|---|---|---|
-| 보스1 | 타락 기사장 | 좀비+풀아머 | 75% | 6~10강 | 빛 바랜 | fallen_knight |
-| 보스2 | 오염된 군주 | Drowned+아머 | 65% | 10~13강 | 빛 바랜 | corrupted_lord |
-| 보스3 | 석조 거상 | 아이언 골렘 | 55% | 13~16강 | 빛나는 | stone_colossus |
-| 보스4 | 폭풍 술사 | 에보커 | 45% | 16~18강 | 빛나는 | storm_sorcerer |
-| 보스5 | 심연 수호자 | 워든 | 35% | 18~20강 | 눈부신 | abyss_guardian |
-| 보스6 | 공허 사자 | 엔더맨 | 25% | 20~22강 | 찬란한 | void_herald |
-| 최종 | 균열왕 | 위더스켈레톤+말 | 10% | 22강+ | 찬란한 | rift_king |
-
-**필드보스4 이름 변경**: 타락 기사장 → **타락한 수호기사** (충돌 해결)
+| 순서 | 작업 | 파일 | 상태 |
+|---|---|---|---|
+| 1 | PotentialService cube key 정렬 → `useCube()` 단일 통합 | `PotentialService.java` | ✅ 완료 |
+| 2 | SkillInputListener 4종 매핑 수정 (LMB/RMB/Shift+RMB/F) | `SkillInputListener.java` | ✅ 완료 |
+| 3 | MobTagHelper 신규 + FieldDropListener scoreboard tag 교체 | `MobTagHelper.java`, `FieldDropListener.java` | ✅ 완료 |
+| 4 | GuiTitles 상수 클래스 작성 | `GuiTitles.java` | ✅ 완료 |
+| 5 | PlayerPersistenceService migration (v1→v2→v3) | `PlayerPersistenceService.java` | ✅ 완료 |
+| 6 | WeaponSelectionGuiListener GuiTitles 상수 교체 | `WeaponSelectionGuiListener.java` | ✅ 완료 |
+| 7 | PlayerQuitEvent save 추가 | `PlayerJoinListener.java` | ✅ 완료 |
+| 8 | ClassInitService 신규 (초기 5슬롯 장비 지급) | `ClassInitService.java` | ⬜ 미완료 |
+| 9 | 메인 허브 / 장비 허브 최소 구현 | `MainHubListener.java`, `GrowthGuiListener.java` | ⬜ 미완료 |
+| 10 | BossRewardService + BossEngineRuntime 이벤트 연동 | `BossRewardService.java` | ⬜ 미완료 |
+| 11 | SafeZoneService / WorldGuard adapter → SkillInputListener 연결 | `SafeZoneService.java` | ⬜ 미완료 |
 
 ---
 
-## 남은 미확정 항목
+## §6-1~3 완료 내용 (미커밋)
 
-| 항목 | 위치 | 우선순위 |
-|---|---|---|
-| ~~균열왕 입장 조건 충돌~~ | 해결됨 (DL-044 — 봉인 파편 폐지) | — |
-| ~~시즌최종보스 3종 고유 칭호명~~ | 해결됨 (DL-045) | — |
-| ~~시즌 최종 칭호명~~ | 해결됨 (DL-045 — 심연을 넘은 자) | — |
+### PotentialService.java
+- `MATERIAL_MEMORY_CUBE` / `MATERIAL_UPGRADE_CUBE` 제거
+- `reroll()` / `upgrade()` 제거
+- `useCube(state, itemId)` / `useCube(state, itemId, fixedRoll)` 추가
+- CANON: 큐브 1회 = 전 라인 재롤 + 등업 시도 + 500G 차감
+
+### SkillInputListener.java
+- `onAttack(EntityDamageByEntityEvent)` 추가 → LMB → slot1 기본기
+- `onInteract` 수정: sneaking 분기 → slot2(RMB) / slot3(Shift+RMB)
+- `setUseInteractedBlock(DENY)` 추가
+- `slot1Key()` / `slot2Key()` / `slot3Key()` / `slot4Key()` 4종 헬퍼 완성
+
+### MobTagHelper.java (신규)
+- `fieldIndex(entity)` — `empire_field_N` 태그 파싱
+- `isElite(entity)` — `empire_rank_elite` 태그
+- `isFieldBoss(entity)` — `empire_type_field_boss` 태그
+
+### FieldDropListener.java
+- name/customName 기반 `fieldIndex()` / `isElite()` / `marker()` 제거
+- `MobTagHelper` 위임으로 교체
+- `isFieldBoss()` → `profileFor()` early return (BossRewardService 위임)
+- `mat_cube_fragment` / `mat_cube`: `islandTerritoryStateStore` → `growth.addCurrency()` (wallet)
+
+### GrowthEngineSampleTest.java (테스트)
+- `memory_cube` / `upgrade_cube` → `mat_cube`
+- `reroll()` + `upgrade()` → `useCube()` 단일 호출
 
 ---
 
-## 남은 미확정 (운영 후 처리 가능)
-
-| 항목 | 위치 | 우선순위 |
-|---|---|---|
-| DPS 실측 검증 (M-1) | season_boss_stats_v1.md | 낮음 — 프리시즌 후 |
-| 타이머 실패 유저 불만 대응 (M-6) | season_boss_stats_v1.md | 낮음 — 운영 후 |
-| 인원 스케일 드랍 기준량 (R-5) | season_boss_stats_v1.md | 중간 — 스탯 재산정 시 같이 |
-
----
-
-## 참고 — 최근 커밋 히스토리
+## 빌드 상태
 
 ```
-365d940  시즌보스 6종 확장 + DL-037~041
-43f0105  고대흔적 드랍 문서 충돌 수정
-810085f  시즌보스 고대흔적 드랍 + 분노스택 (DL-039, DL-040)
-03185cf  시즌보스 보상 주간리셋 + 균열왕 입장제한 (DL-037, DL-038)
-f3be38e  공방 처리시간 + 오프라인 완료 설계 (DL-035, DL-036)
+./gradlew compileJava → BUILD SUCCESSFUL
+```
+
+---
+
+## 남은 주요 위험/미확정
+
+| 항목 | 내용 |
+|---|---|
+| compileTestJava | GrowthEngineSampleTest의 `EquipmentSlot.ARMOR_HEAD` / `ACCESSORY_1` legacy 참조 존재 (§6 범위 외) |
+| §6-4 GuiTitles | listener들이 아직 raw 문자열로 title 비교 중 |
+| §6-5 migration | schemaVersion v1→v2 migration 코드 미구현 |
+| §6-8 ClassInitService | 첫 접속 장비 지급 로직 미구현 |
+
+---
+
+## 다음 커밋 제안
+
+```
+orc handoff-main "§6-1~3 구현 — PotentialService useCube 통합, SkillInput 4종 매핑, MobTagHelper scoreboard tag"
 ```

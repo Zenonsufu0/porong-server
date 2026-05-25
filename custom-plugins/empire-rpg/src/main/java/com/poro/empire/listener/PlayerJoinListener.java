@@ -10,6 +10,7 @@ import com.poro.empire.tutorial.TutorialService;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 
 public final class PlayerJoinListener implements Listener {
@@ -40,5 +41,10 @@ public final class PlayerJoinListener implements Listener {
         playerPersistenceService.load(event.getPlayer().getUniqueId(), event.getPlayer().getName());
         hotbarService.updateHotbar(event.getPlayer());
         scoreboardService.refresh(event.getPlayer());
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        playerPersistenceService.save(event.getPlayer().getUniqueId());
     }
 }

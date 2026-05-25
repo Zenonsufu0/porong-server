@@ -9,6 +9,7 @@ import com.poro.empire.growth.engine.EquipmentSlot;
 import com.poro.empire.growth.engine.ItemGrade;
 import com.poro.empire.growth.engine.PlayerEquipmentItem;
 import com.poro.empire.growth.engine.PlayerGrowthState;
+import com.poro.empire.gui.GuiTitles;
 import com.poro.empire.scoreboard.ScoreboardService;
 import com.poro.empire.storage.PlayerDataManager;
 import com.poro.empire.tutorial.TutorialService;
@@ -47,9 +48,7 @@ public final class WeaponSelectionGuiListener implements Listener {
         if (!(event.getWhoClicked() instanceof org.bukkit.entity.Player player)) {
             return;
         }
-        String title = net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText()
-                .serialize(event.getView().title());
-        if (!title.contains("무기") && !title.toLowerCase(java.util.Locale.ROOT).contains("weapon")) {
+        if (!GuiTitles.WEAPON_SELECTION.equals(event.getView().title())) {
             return;
         }
         WeaponType selected = switch (event.getRawSlot()) {
