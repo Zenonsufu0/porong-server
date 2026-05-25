@@ -18,6 +18,8 @@ Mine_Crawler:
   - clear
   - meleeattack
   - randomstroll 0.6
+  Skills:
+  - addScoreboardTag{t=empire_field_2} @self ~onSpawn
 
 Mine_Husk:
   Type: HUSK
@@ -35,6 +37,8 @@ Mine_Husk:
   - clear
   - meleeattack
   - randomstroll 0.6
+  Skills:
+  - addScoreboardTag{t=empire_field_2} @self ~onSpawn
 
 Mine_WatcherElite:
   Type: CAVE_SPIDER
@@ -50,6 +54,8 @@ Mine_WatcherElite:
   Drops:
   - exp 150
   Skills:
+  - addScoreboardTag{t=empire_field_2} @self ~onSpawn
+  - addScoreboardTag{t=empire_rank_elite} @self ~onSpawn
   - potion{type=POISON;duration=100;level=1} @target ~onAttack 0.4
   - skill{s=Mine_VenomSpit} ~onTimer:60
 
@@ -74,6 +80,8 @@ Mine_Golem:
     Color: GREEN
     Style: SOLID
   Skills:
+  - addScoreboardTag{t=empire_field_2} @self ~onSpawn
+  - addScoreboardTag{t=empire_type_field_boss} @self ~onSpawn
   # Phase 1·2 공통: P-00 기본 공격 (2.5s), P-01 전방 강타 (6s), P-03 원형 폭발 (10s)
   - skill{s=P_00_BasicAttack} ~onTimer:50
   - skill{s=P_01_FrontStrike} ~onTimer:120

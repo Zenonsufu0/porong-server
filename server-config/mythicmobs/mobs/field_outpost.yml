@@ -18,6 +18,8 @@ Outpost_Pillager:
   - clear
   - meleeattack
   - randomstroll 0.6
+  Skills:
+  - addScoreboardTag{t=empire_field_4} @self ~onSpawn
 
 Outpost_Vindicator:
   Type: VINDICATOR
@@ -34,6 +36,8 @@ Outpost_Vindicator:
   AIGoalSelectors:
   - clear
   - meleeattack
+  Skills:
+  - addScoreboardTag{t=empire_field_4} @self ~onSpawn
 
 Outpost_CaptainElite:
   Type: VINDICATOR
@@ -49,6 +53,8 @@ Outpost_CaptainElite:
   Drops:
   - exp 400
   Skills:
+  - addScoreboardTag{t=empire_field_4} @self ~onSpawn
+  - addScoreboardTag{t=empire_rank_elite} @self ~onSpawn
   - skill{s=Outpost_ShieldBash} ~onTimer:60
   - potion{type=WEAKNESS;duration=100;level=1} @target ~onAttack 0.35
 
@@ -73,6 +79,8 @@ Fallen_Knight:
     Color: PURPLE
     Style: SOLID
   Skills:
+  - addScoreboardTag{t=empire_field_4} @self ~onSpawn
+  - addScoreboardTag{t=empire_type_field_boss} @self ~onSpawn
   # Phase 1·2 공통: P-00 기본 공격 (1.6s), P-02 돌진 (6s), P-06 산개탄 (14s)
   - skill{s=P_00_BasicAttack} ~onTimer:32
   - skill{s=P_02_LinearDash} ~onTimer:120
