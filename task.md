@@ -1,13 +1,15 @@
 # 포로 서버 작업 현황
 
-> 마지막 갱신: 2026-05-25 (Phase 5 영지/농장 핵심 리스너 구현 완료)
+> 마지막 갱신: 2026-05-26 (Phase 5 WorkshopGui 레시피+영속화 + TerritoryHubGui 54슬롯 구현 완료)
 
 ---
 
 ## 현재 브랜치 상태
 
 - 브랜치: `master` = `codex-review` (동기화 완료)
-- 최근 작업: §6 플러그인 코어 구현 목록 1~11 전체 완료
+- 최근 커밋: `§6-4 fix — TerritoryHubGui 54슬롯 8패널 스펙 정합 재구현`
+- 빌드: `./gradlew compileJava → BUILD SUCCESSFUL`
+- Phase 5 영지/농장 핵심 GUI 구현 **모두 완료**
 
 ---
 
@@ -82,15 +84,21 @@
 
 ---
 
-## 다음 작업 후보 (병렬 Phase)
+## 다음 작업 후보
 
-| 우선도 | 항목 | 관련 문서 |
+| 우선도 | 항목 | 비고 |
 |---|---|---|
-| ~~높음~~ | ~~보스 세션 DB 쓰기 연결~~ | ✅ 완료 |
+| 높음 | 필드/보스 드랍 완성 — FieldDropListener 몬스터 처치 시 mat_battle_shard 지급 로직 | `docs/06_fields_bosses/CANON.md` |
 | 중간 | 디스코드 인증봇 (Phase 2) | `docs/03_discord_onboarding_bot/index.md` |
-| ~~중간~~ | ~~스킬 전체 구현 (Phase 3)~~ | ✅ 완료 — 24종 히트박스/대미지 실구현 |
-| 중간 | 영지/농장 시스템 (Phase 5) | `docs/05_island_farm_system/CANON.md` |
+| 중간 | 강화 시스템 GUI (GrowthGuiListener 플레이스홀더 → 실구현) | `docs/04_combat_weapon_skills/CANON.md` |
 | 낮음 | 리소스팩 파이프라인 (Phase 8) | `docs/08_resourcepack_pipeline/index.md` |
+
+## Phase 5 잔여 기술 부채
+
+| 항목 | 내용 |
+|---|---|
+| IridiumSkyblock XZ 확장 | `TerritoryStatusGuiListener` 작위 승급 시 섬 크기 확장 — API JAR 미포함, §7+ 연동 예정 (TODO 스텁 유지) |
+| TerritoryHubGui 미구현 패널 | 이동·시설·상점·경매·설정 5패널 — 1차 시즌 범위 외, `§8준비 중` 표시 유지 |
 
 ---
 
