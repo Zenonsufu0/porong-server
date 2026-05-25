@@ -19,4 +19,8 @@ public final class IslandStorageStore {
     public void put(UUID uuid, IslandStorage storage) {
         storages.put(uuid, storage);
     }
+
+    public void remove(UUID uuid) {
+        storages.remove(uuid);
+    }
 }

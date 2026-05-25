@@ -28,6 +28,8 @@ public final class WeaponSelectionGuiListener implements Listener {
         if (!(event.getWhoClicked() instanceof Player player)) return;
         if (!GuiTitles.WEAPON_SELECTION.equals(event.getView().title())) return;
 
+        event.setCancelled(true);
+
         WeaponType selected = switch (event.getRawSlot()) {
             case 10 -> WeaponType.SWORD;
             case 11 -> WeaponType.AXE;
@@ -38,8 +40,6 @@ public final class WeaponSelectionGuiListener implements Listener {
             default -> null;
         };
         if (selected == null) return;
-
-        event.setCancelled(true);
         if (playerDataManager.hasSelectedWeapon(player)) {
             player.sendMessage("§c이미 무기 클래스를 선택했습니다.");
             return;

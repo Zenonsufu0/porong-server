@@ -1,6 +1,8 @@
 package com.poro.empire.listener;
 
 import com.poro.empire.growth.GrowthStateStore;
+import com.poro.empire.growth.island.IslandStorageStore;
+import com.poro.empire.growth.island.IslandTerritoryStateStore;
 import com.poro.empire.hotbar.HotbarService;
 import com.poro.empire.init.ClassInitService;
 import com.poro.empire.market.AuctionStore;
@@ -14,11 +16,16 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 
+import java.util.UUID;
+
 public final class PlayerJoinListener implements Listener {
     private final PlayerDataManager playerDataManager;
     private final HotbarService hotbarService;
     private final ScoreboardService scoreboardService;
     private final PlayerPersistenceService playerPersistenceService;
+    private final GrowthStateStore growthStateStore;
+    private final IslandTerritoryStateStore islandTerritoryStateStore;
+    private final IslandStorageStore islandStorageStore;
     private final ClassInitService classInitService;
 
     public PlayerJoinListener(
@@ -29,6 +36,8 @@ public final class PlayerJoinListener implements Listener {
             ScoreboardService scoreboardService,
             PlayerPersistenceService playerPersistenceService,
             GrowthStateStore growthStateStore,
+            IslandTerritoryStateStore islandTerritoryStateStore,
+            IslandStorageStore islandStorageStore,
             AuctionStore auctionStore,
             ClassInitService classInitService
     ) {
@@ -36,6 +45,9 @@ public final class PlayerJoinListener implements Listener {
         this.hotbarService = hotbarService;
         this.scoreboardService = scoreboardService;
         this.playerPersistenceService = playerPersistenceService;
+        this.growthStateStore = growthStateStore;
+        this.islandTerritoryStateStore = islandTerritoryStateStore;
+        this.islandStorageStore = islandStorageStore;
         this.classInitService = classInitService;
     }
 
@@ -50,6 +62,11 @@ public final class PlayerJoinListener implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
-        playerPersistenceService.save(event.getPlayer().getUniqueId());
+        UUID uuid = event.getPlayer().getUniqueId();
+        playerPersistenceService.save(uuid);
+        playerDataManager.onPlayerQuit(uuid);
+        growthStateStore.remove(uuid);
+        islandTerritoryStateStore.remove(uuid);
+        islandStorageStore.remove(uuid);
     }
 }

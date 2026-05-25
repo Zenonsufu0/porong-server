@@ -398,7 +398,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                                    FieldBossRespawnScheduler fieldBossScheduler) {
 
         getServer().getPluginManager().registerEvents(
-                new PlayerJoinListener(this, playerDataManager, hotbarService, tutorialService, scoreboardService, playerPersistenceService, growthStateStore, auctionStore, classInitService), this);
+                new PlayerJoinListener(this, playerDataManager, hotbarService, tutorialService, scoreboardService, playerPersistenceService, growthStateStore, islandTerritoryStateStore, islandStorageStore, auctionStore, classInitService), this);
         getServer().getPluginManager().registerEvents(
                 new WeaponSelectionGuiListener(playerDataManager, scoreboardService, classInitService), this);
         getServer().getPluginManager().registerEvents(

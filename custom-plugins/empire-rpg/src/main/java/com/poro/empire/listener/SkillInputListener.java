@@ -34,13 +34,16 @@ public final class SkillInputListener implements Listener {
         Action action = event.getAction();
         if (action != Action.RIGHT_CLICK_AIR && action != Action.RIGHT_CLICK_BLOCK) return;
         if (event.useItemInHand() == Event.Result.DENY) return;
-        event.setUseInteractedBlock(Event.Result.DENY);
 
         Player player = event.getPlayer();
         WeaponType type = WeaponTypeResolver.resolve(player);
         String key = player.isSneaking() ? slot3Key(type) : slot2Key(type);
-        if (key != null) {
-            event.setCancelled(skillService.useSkill(player, key));
+        if (key == null) return;
+
+        boolean used = skillService.useSkill(player, key);
+        if (used) {
+            event.setUseInteractedBlock(Event.Result.DENY);
+            event.setCancelled(true);
         }
     }
 

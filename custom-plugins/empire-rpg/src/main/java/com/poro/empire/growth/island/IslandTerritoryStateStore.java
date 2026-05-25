@@ -23,4 +23,8 @@ public final class IslandTerritoryStateStore {
     public void put(UUID uuid, IslandTerritoryState state) {
         territories.put(uuid, state);
     }
+
+    public void remove(UUID uuid) {
+        territories.remove(uuid);
+    }
 }
