@@ -1,15 +1,15 @@
 boss_id,phase_no,pattern_id,pattern_group,priority,unlock_hp_threshold,cooldown_seconds,max_consecutive_use,is_forced,condition_type,condition_value,success_branch_pattern_id,failure_branch_pattern_id,notes
-ragnes,1,magma_claw,BASIC,LOW,100,6,1,false,NONE,,,-,basic attack
-ragnes,1,eruption_line,CORE,HIGH,100,18,1,false,TIME_ELAPSED,10,,-,line eruption
-ragnes,2,overheat_zone_expand,PHASE,HIGH,75,22,1,true,PHASE_ENTER,2,,-,phase 2 forced opener
-ragnes,3,core_exposure_stagger,STAGGER,FORCED,50,999,1,true,PHASE_ENTER,3,eruption_cross,overheat_zone_expand,stagger gate
-ragnes,3,eruption_cross,CORE,HIGH,50,12,1,false,NONE,,,-,stagger success follow-up
-ragnes,4,overheat_collapse,PHASE,HIGH,30,24,1,true,PHASE_ENTER,4,,-,phase 4 forced opener
-ragnes,0,molten_heart_last_exposure,BERSERK,FORCED,0,999,1,true,HP_ZERO,true,boss_clear,battle_fail,berserk finale
-carmen,1,sector_shift_plus,CORE,HIGH,100,18,1,false,TIME_ELAPSED,12,,-,phase 1 core loop
-carmen,2,safe_cell_relocate_plus,PHASE,HIGH,82,20,1,true,PHASE_ENTER,2,,-,phase 2 forced opener
-carmen,3,sync_core_stagger_plus,STAGGER,FORCED,62,999,1,true,PHASE_ENTER,3,resonance_collapse,beam_grid_lock,stagger gate
-carmen,3,beam_grid_lock,PHASE,HIGH,62,14,1,false,NONE,,,-,stagger failure follow-up
-carmen,3,resonance_collapse,ULTIMATE,HIGH,62,20,1,false,NONE,,,-,stagger success follow-up
-carmen,4,sector_annihilation,PHASE,HIGH,40,24,1,false,TIME_ELAPSED,20,,-,phase 4 pressure
-carmen,0,final_resonance_break,BERSERK,FORCED,0,999,1,true,HP_ZERO,true,boss_clear,battle_fail,berserk finale
+fallen_knight,1,magma_claw,BASIC,LOW,100,6,1,false,NONE,,,-,basic attack
+fallen_knight,1,eruption_line,CORE,HIGH,100,18,1,false,TIME_ELAPSED,10,,-,line eruption
+fallen_knight,2,overheat_zone_expand,PHASE,HIGH,75,22,1,true,PHASE_ENTER,2,,-,phase 2 forced opener
+fallen_knight,3,core_exposure_stagger,STAGGER,FORCED,50,999,1,true,PHASE_ENTER,3,eruption_cross,overheat_zone_expand,stagger gate
+fallen_knight,3,eruption_cross,CORE,HIGH,50,12,1,false,NONE,,,-,stagger success follow-up
+fallen_knight,4,overheat_collapse,PHASE,HIGH,30,24,1,true,PHASE_ENTER,4,,-,phase 4 forced opener
+fallen_knight,0,molten_heart_last_exposure,BERSERK,FORCED,0,999,1,true,HP_ZERO,true,boss_clear,battle_fail,berserk finale
+corrupted_lord,1,sector_shift_plus,CORE,HIGH,100,18,1,false,TIME_ELAPSED,12,,-,phase 1 core loop
+corrupted_lord,2,safe_cell_relocate_plus,PHASE,HIGH,82,20,1,true,PHASE_ENTER,2,,-,phase 2 forced opener
+corrupted_lord,3,sync_core_stagger_plus,STAGGER,FORCED,62,999,1,true,PHASE_ENTER,3,resonance_collapse,beam_grid_lock,stagger gate
+corrupted_lord,3,beam_grid_lock,PHASE,HIGH,62,14,1,false,NONE,,,-,stagger failure follow-up
+corrupted_lord,3,resonance_collapse,ULTIMATE,HIGH,62,20,1,false,NONE,,,-,stagger success follow-up
+corrupted_lord,4,sector_annihilation,PHASE,HIGH,40,24,1,false,TIME_ELAPSED,20,,-,phase 4 pressure
+corrupted_lord,0,final_resonance_break,BERSERK,FORCED,0,999,1,true,HP_ZERO,true,boss_clear,battle_fail,berserk finale

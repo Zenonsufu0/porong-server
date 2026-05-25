@@ -1,3 +1,10 @@
 boss_id,requires_unlock_quest,requires_party_size_min,requires_party_size_max,requires_key_item,daily_limit,weekly_limit,notes
-ragnes,quest_unlock_ragnes,1,3,,null,null,final showdown open entry
-carmen,quest_unlock_carmen,1,3,,null,null,extreme challenge open entry
+fallen_knight,,1,3,,null,null,season boss 1
+corrupted_lord,,1,3,,null,null,season boss 2
+stone_colossus,,1,3,,null,null,season boss 3
+storm_sorcerer,,1,3,,null,null,season boss 4
+abyss_guardian,,1,3,,null,null,season boss 5
+void_herald,,1,3,,null,null,season boss 6
+rift_king,,1,3,,null,null,final boss — requires void_herald clear (DL-044)
+corrupted_dyad,,1,3,,null,null,final boss — requires void_herald clear (DL-044)
+spirit_watcher,,1,3,,null,null,final boss — requires void_herald clear (DL-044)

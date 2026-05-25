@@ -44,15 +44,18 @@ public final class BossRewardService implements BossRewardResolverHook {
             return;
         }
 
+        boolean trackingAvailable = summary.participantSummaryPlaceholder().stream()
+                .anyMatch(p -> ((Number) p.getOrDefault("damage_share", 0.0)).doubleValue() > 0.0);
+
         int rewarded = 0;
         for (Map<String, Object> participant : summary.participantSummaryPlaceholder()) {
             String userId = (String) participant.get("user_id");
             if (userId == null || userId.isBlank()) continue;
 
-            double damageShare = ((Number) participant.getOrDefault("damage_share", 0.0)).doubleValue();
-            // damage_share == 0.0 means tracking is not yet wired; grant to all in that case
-            boolean qualified = damageShare == 0.0 || damageShare >= CONTRIBUTION_THRESHOLD;
-            if (!qualified) continue;
+            if (trackingAvailable) {
+                double damageShare = ((Number) participant.getOrDefault("damage_share", 0.0)).doubleValue();
+                if (damageShare < CONTRIBUTION_THRESHOLD) continue;
+            }
 
             UUID uuid;
             try {
@@ -92,11 +95,17 @@ public final class BossRewardService implements BossRewardResolverHook {
     }
 
     private RewardTable tableFor(String bossId) {
-        // B-tier defaults: damage tracking not yet implemented
+        // B-tier first-clear defaults; S/A/C tiers require damage tracking (TODO)
         return switch (bossId.toLowerCase(Locale.ROOT)) {
-            case "earth_tyrant"   -> new RewardTable(5, 10, 25, 80, 70, 25);
-            case "steel_arbiter"  -> new RewardTable(6, 11, 28, 90, 72, 23);
-            case "abyss_overlord" -> new RewardTable(8, 14, 35, 100, 75, 22);
+            case "fallen_knight"  -> new RewardTable(5,  10, 25,  80,  25, 70);
+            case "corrupted_lord" -> new RewardTable(6,  11, 28,  90,  25, 70);
+            case "stone_colossus" -> new RewardTable(8,  14, 35,  100, 25, 70);
+            case "storm_sorcerer" -> new RewardTable(10, 17, 45,  100, 25, 70);
+            case "abyss_guardian" -> new RewardTable(12, 20, 55,  100, 25, 70);
+            case "void_herald"    -> new RewardTable(15, 25, 70,  100, 25, 70);
+            case "rift_king"      -> new RewardTable(25, 35, 100, 100, 55, 45);
+            case "corrupted_dyad" -> new RewardTable(25, 35, 100, 100, 55, 45);
+            case "spirit_watcher" -> new RewardTable(25, 35, 100, 100, 55, 45);
             default -> null;
         };
     }

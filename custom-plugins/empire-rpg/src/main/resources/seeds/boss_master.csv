@@ -1,4 +1,10 @@
 boss_id,boss_name,boss_tier,theme_type,is_party_content,is_extreme
-Earth_Tyrant,대지의 폭군,season1,earth,true,false
-Steel_Arbiter,강철의 심판자,season2,steel,true,false
-Abyss_Overlord,심연의 군주,season3,abyss,true,false
+fallen_knight,타락 기사장,season1,darkness,true,false
+corrupted_lord,오염된 군주,season2,poison,true,false
+stone_colossus,석조 거상,season3,stone,true,false
+storm_sorcerer,폭풍 술사,season4,storm,true,false
+abyss_guardian,심연 수호자,season5,abyss,true,false
+void_herald,공허 사자,season6,void,true,false
+rift_king,균열왕,final,rift,true,true
+corrupted_dyad,타락한 이중체,final,corruption,true,true
+spirit_watcher,진혼의 주시자,final,spirit,true,true
