@@ -22,14 +22,16 @@ public final class SkillInputListener implements Listener {
         this.safeZoneService = safeZoneService;
     }
 
-    /** LMB 공격 → slot1 기본기 */
+    /** LMB 공격 → slot1 기본기. 스킬 발동 시 바닐라 공격 취소. 쿨다운 중이면 바닐라 공격 통과. */
     @EventHandler
     public void onAttack(EntityDamageByEntityEvent event) {
         if (!(event.getDamager() instanceof Player player)) return;
         if (safeZoneService.isSafeZone(player.getLocation())) return;
         WeaponType type = WeaponTypeResolver.resolve(player);
         String key = slot1Key(type);
-        if (key != null) skillService.useSkill(player, key);
+        if (key != null && skillService.useSkill(player, key)) {
+            event.setCancelled(true);
+        }
     }
 
     /** RMB → slot2 이동기 / Shift+RMB → slot3 특수기 */

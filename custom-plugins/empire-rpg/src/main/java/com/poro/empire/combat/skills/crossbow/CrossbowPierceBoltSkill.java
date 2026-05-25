@@ -15,8 +15,8 @@ public final class CrossbowPierceBoltSkill extends PluginWeaponSkill {
     @Override
     public boolean execute(Player player, SkillContext ctx) {
         double damage = scaledDamage(ctx, player, 2.20);
-        SkillHitboxHelper.projectileRaycast(player, 30.0, 0.5)
-                .ifPresent(t -> dealDamage(player, t, damage));
+        SkillHitboxHelper.projectilePierceRaycast(player, 30.0, 0.5)
+                .forEach(t -> dealDamage(player, t, damage));
         gainStack(ctx, player, 3);
         return true;
     }

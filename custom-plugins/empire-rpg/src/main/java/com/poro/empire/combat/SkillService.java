@@ -45,16 +45,16 @@ public class SkillService {
         if (remaining > 0) {
             player.sendActionBar(Component.text(
                     "§e" + skill.displayName() + " §c" + CooldownManager.formatSeconds(remaining) + "s"));
-            return true;
+            return false; // 쿨다운 중 — 바닐라 공격 허용
         }
 
         boolean used = skill.execute(player, context);
         if (!used) {
-            return true;
+            return false;
         }
 
         context.getCooldownManager().applyCooldown(player.getUniqueId(), skill.key(), Duration.ofMillis(skill.cooldown()));
-        return true;
+        return true; // 스킬 실제 발동 — 바닐라 공격 취소
     }
 
     public Collection<String> getSkillKeys() {
