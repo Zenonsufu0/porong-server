@@ -1,5 +1,6 @@
 package com.poro.empire.listener;
 
+import com.poro.empire.boss.engine.BossRewardService;
 import com.poro.empire.field.FieldBossRespawnScheduler;
 import com.poro.empire.growth.GrowthStateStore;
 import com.poro.empire.growth.engine.PlayerGrowthState;
@@ -26,26 +27,34 @@ public final class FieldDropListener implements Listener {
     private final IslandTerritoryStateStore islandTerritoryStateStore;
     private final PlayerDataManager playerDataManager;
     private final LevelingService levelingService;
+    private final BossRewardService bossRewardService;
 
     public FieldDropListener(
             GrowthStateStore growthStateStore,
             IslandTerritoryStateStore islandTerritoryStateStore,
             PlayerDataManager playerDataManager,
             LevelingService levelingService,
-            FieldBossRespawnScheduler fieldBossScheduler
+            FieldBossRespawnScheduler fieldBossScheduler,
+            BossRewardService bossRewardService
     ) {
         this.growthStateStore = growthStateStore;
         this.islandTerritoryStateStore = islandTerritoryStateStore;
         this.playerDataManager = playerDataManager;
         this.levelingService = levelingService;
+        this.bossRewardService = bossRewardService;
     }
 
     @EventHandler
     public void onDeath(EntityDeathEvent event) {
         Player killer = event.getEntity().getKiller();
-        if (killer == null || MobTagHelper.isFieldBoss(event.getEntity())) return;
+        if (killer == null) return;
         levelingService.addExp(killer.getUniqueId(), 10L);
-        grantFieldDrops(killer, event.getEntity());
+        if (MobTagHelper.isFieldBoss(event.getEntity())) {
+            int field = MobTagHelper.fieldIndex(event.getEntity());
+            if (field > 0) bossRewardService.grantFieldBossReward(killer.getUniqueId(), field);
+        } else {
+            grantFieldDrops(killer, event.getEntity());
+        }
     }
 
     private void grantFieldDrops(Player player, Entity entity) {

@@ -34,6 +34,25 @@ public final class BossRewardService implements BossRewardResolverHook {
         this.logger = logger;
     }
 
+    public void grantFieldBossReward(UUID killerUuid, int fieldIndex) {
+        FieldBossRewardTable table = switch (fieldIndex) {
+            case 2 -> new FieldBossRewardTable(4, 6, 5, 8, 45, 15, 55);
+            case 3 -> new FieldBossRewardTable(6, 9, 5, 8, 55, 20, 55);
+            case 4 -> new FieldBossRewardTable(7, 10, 8, 12, 65, 25, 55);
+            case 5 -> new FieldBossRewardTable(9, 13, 10, 15, 75, 25, 55);
+            default -> new FieldBossRewardTable(2, 4, 3, 5, 35, 15, 55);
+        };
+        String classId = playerDataManager.getWeaponType(killerUuid).name().toLowerCase(Locale.ROOT);
+        PlayerGrowthState growth = growthStateStore.getOrCreate(killerUuid, classId);
+        growth.addCurrency(ENHANCEMENT_STONE, randomInclusive(table.stoneMin(), table.stoneMax()));
+        growth.addCurrency(CUBE_FRAGMENT, randomInclusive(table.cubeMin(), table.cubeMax()));
+        if (roll(table.traceChancePct())) {
+            islandTerritoryStateStore.getOrCreate(killerUuid)
+                    .addCustomItem(pickTrace(table.glowingTracePct(), table.fadedTracePct()), 1);
+        }
+        logger.info("[BossReward] field_boss field=" + fieldIndex + " uuid=" + killerUuid);
+    }
+
     @Override
     public void onRunEnded(BossResultSummary summary) {
         if (!summary.clearSuccess()) return;
@@ -118,6 +137,14 @@ public final class BossRewardService implements BossRewardResolverHook {
         if (min >= max) return min;
         return ThreadLocalRandom.current().nextLong(min, max + 1L);
     }
+
+    private record FieldBossRewardTable(
+            int stoneMin, int stoneMax,
+            int cubeMin, int cubeMax,
+            double traceChancePct,
+            double glowingTracePct,
+            double fadedTracePct
+    ) {}
 
     private record RewardTable(
             int stoneMin,

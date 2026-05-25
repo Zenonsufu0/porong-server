@@ -13,3 +13,17 @@ corrupted_lord,3,beam_grid_lock,PHASE,HIGH,62,14,1,false,NONE,,,-,stagger failur
 corrupted_lord,3,resonance_collapse,ULTIMATE,HIGH,62,20,1,false,NONE,,,-,stagger success follow-up
 corrupted_lord,4,sector_annihilation,PHASE,HIGH,40,24,1,false,TIME_ELAPSED,20,,-,phase 4 pressure
 corrupted_lord,0,final_resonance_break,BERSERK,FORCED,0,999,1,true,HP_ZERO,true,boss_clear,battle_fail,berserk finale
+stone_colossus,1,stone_slam,BASIC,LOW,100,8,1,false,NONE,,,-,placeholder basic
+stone_colossus,0,stone_collapse,BERSERK,FORCED,0,999,1,true,HP_ZERO,true,boss_clear,battle_fail,berserk finale
+storm_sorcerer,1,storm_bolt,BASIC,LOW,100,8,1,false,NONE,,,-,placeholder basic
+storm_sorcerer,0,storm_surge,BERSERK,FORCED,0,999,1,true,HP_ZERO,true,boss_clear,battle_fail,berserk finale
+abyss_guardian,1,abyss_slash,BASIC,LOW,100,8,1,false,NONE,,,-,placeholder basic
+abyss_guardian,0,abyss_wrath,BERSERK,FORCED,0,999,1,true,HP_ZERO,true,boss_clear,battle_fail,berserk finale
+void_herald,1,void_strike,BASIC,LOW,100,8,1,false,NONE,,,-,placeholder basic
+void_herald,0,void_collapse,BERSERK,FORCED,0,999,1,true,HP_ZERO,true,boss_clear,battle_fail,berserk finale
+rift_king,1,rift_slash,BASIC,LOW,100,8,1,false,NONE,,,-,placeholder basic
+rift_king,0,rift_fracture,BERSERK,FORCED,0,999,1,true,HP_ZERO,true,boss_clear,battle_fail,berserk finale
+corrupted_dyad,1,corrupt_strike,BASIC,LOW,100,8,1,false,NONE,,,-,placeholder basic
+corrupted_dyad,0,corrupt_finale,BERSERK,FORCED,0,999,1,true,HP_ZERO,true,boss_clear,battle_fail,berserk finale
+spirit_watcher,1,spirit_gaze,BASIC,LOW,100,8,1,false,NONE,,,-,placeholder basic
+spirit_watcher,0,spirit_surge,BERSERK,FORCED,0,999,1,true,HP_ZERO,true,boss_clear,battle_fail,berserk finale

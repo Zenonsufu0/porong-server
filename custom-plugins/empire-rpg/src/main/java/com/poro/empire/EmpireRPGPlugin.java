@@ -129,6 +129,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
     private LevelingService levelingService;
     private AuctionStore     auctionStore;
     private BossRoomManager  bossRoomManager;
+    private BossRewardService bossRewardService;
 
     @Override
     public void onEnable() {
@@ -188,10 +189,10 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         this.growthStateStore = new GrowthStateStore();
         this.islandStorageStore = new IslandStorageStore();
         this.islandTerritoryStateStore = new IslandTerritoryStateStore();
-        BossRewardService bossRewardService = new BossRewardService(
+        this.bossRewardService = new BossRewardService(
                 growthStateStore, islandTerritoryStateStore, playerDataManager, getLogger());
 
-        Result<BossEngineRuntime> bossEngineResult = BossEngineBootstrap.bootstrap(this, foundationContext, masterRegistryContext, bossRewardService);
+        Result<BossEngineRuntime> bossEngineResult = BossEngineBootstrap.bootstrap(this, foundationContext, masterRegistryContext, this.bossRewardService);
         if (bossEngineResult.isFailure()) {
             getLogger().severe("Failed to initialize boss engine: " + bossEngineResult.message());
             if (bossEngineResult.cause() != null) {
@@ -432,7 +433,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         if (getServer().getPluginManager().isPluginEnabled("MythicMobs")) {
             getServer().getPluginManager().registerEvents(
                     new FieldDropListener(growthStateStore, islandTerritoryStateStore, playerDataManager,
-                            levelingService, fieldBossScheduler), this);
+                            levelingService, fieldBossScheduler, bossRewardService), this);
             getServer().getPluginManager().registerEvents(new BossDefenseListener(), this);
             getLogger().info("MythicMobs detected — FieldDropListener + BossDefenseListener registered.");
         } else {
