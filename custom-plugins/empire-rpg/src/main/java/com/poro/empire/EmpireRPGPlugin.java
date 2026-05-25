@@ -14,6 +14,7 @@ import com.poro.empire.command.EmpireCommand;
 import com.poro.empire.command.PlayerCommandRouter;
 import com.poro.empire.init.ClassInitService;
 import com.poro.empire.combat.CombatStateService;
+import com.poro.empire.field.ContributionTracker;
 import com.poro.empire.field.FieldBossRespawnScheduler;
 import com.poro.empire.field.FieldTeleportService;
 import com.poro.empire.leveling.LevelingService;
@@ -433,7 +434,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         if (getServer().getPluginManager().isPluginEnabled("MythicMobs")) {
             getServer().getPluginManager().registerEvents(
                     new FieldDropListener(growthStateStore, islandTerritoryStateStore, playerDataManager,
-                            levelingService, fieldBossScheduler, bossRewardService), this);
+                            levelingService, fieldBossScheduler, bossRewardService, new ContributionTracker()), this);
             getServer().getPluginManager().registerEvents(new BossDefenseListener(), this);
             getLogger().info("MythicMobs detected — FieldDropListener + BossDefenseListener registered.");
         } else {

@@ -1,6 +1,7 @@
 package com.poro.empire.listener;
 
 import com.poro.empire.boss.engine.BossRewardService;
+import com.poro.empire.field.ContributionTracker;
 import com.poro.empire.field.FieldBossRespawnScheduler;
 import com.poro.empire.growth.GrowthStateStore;
 import com.poro.empire.growth.engine.PlayerGrowthState;
@@ -11,9 +12,11 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 
 import java.util.Locale;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public final class FieldDropListener implements Listener {
@@ -28,6 +31,7 @@ public final class FieldDropListener implements Listener {
     private final PlayerDataManager playerDataManager;
     private final LevelingService levelingService;
     private final BossRewardService bossRewardService;
+    private final ContributionTracker contributionTracker;
 
     public FieldDropListener(
             GrowthStateStore growthStateStore,
@@ -35,26 +39,49 @@ public final class FieldDropListener implements Listener {
             PlayerDataManager playerDataManager,
             LevelingService levelingService,
             FieldBossRespawnScheduler fieldBossScheduler,
-            BossRewardService bossRewardService
+            BossRewardService bossRewardService,
+            ContributionTracker contributionTracker
     ) {
         this.growthStateStore = growthStateStore;
         this.islandTerritoryStateStore = islandTerritoryStateStore;
         this.playerDataManager = playerDataManager;
         this.levelingService = levelingService;
         this.bossRewardService = bossRewardService;
+        this.contributionTracker = contributionTracker;
+    }
+
+    @EventHandler
+    public void onDamage(EntityDamageByEntityEvent event) {
+        if (!MobTagHelper.isFieldBoss(event.getEntity())) return;
+        if (!(event.getDamager() instanceof Player player)) return;
+        contributionTracker.recordDamage(
+                event.getEntity().getUniqueId(),
+                player.getUniqueId(),
+                Math.max(1L, (long) event.getFinalDamage()));
     }
 
     @EventHandler
     public void onDeath(EntityDeathEvent event) {
+        if (MobTagHelper.isFieldBoss(event.getEntity())) {
+            int field = MobTagHelper.fieldIndex(event.getEntity());
+            if (field > 0) {
+                UUID entityId = event.getEntity().getUniqueId();
+                java.util.Map<UUID, Double> shares = contributionTracker.finalizeShares(entityId);
+                if (shares.isEmpty()) {
+                    Player killer = event.getEntity().getKiller();
+                    if (killer != null) bossRewardService.grantFieldBossReward(killer.getUniqueId(), field);
+                } else {
+                    shares.forEach((uuid, share) -> {
+                        if (share >= 3.0) bossRewardService.grantFieldBossReward(uuid, field);
+                    });
+                }
+            }
+            return;
+        }
         Player killer = event.getEntity().getKiller();
         if (killer == null) return;
         levelingService.addExp(killer.getUniqueId(), 10L);
-        if (MobTagHelper.isFieldBoss(event.getEntity())) {
-            int field = MobTagHelper.fieldIndex(event.getEntity());
-            if (field > 0) bossRewardService.grantFieldBossReward(killer.getUniqueId(), field);
-        } else {
-            grantFieldDrops(killer, event.getEntity());
-        }
+        grantFieldDrops(killer, event.getEntity());
     }
 
     private void grantFieldDrops(Player player, Entity entity) {
