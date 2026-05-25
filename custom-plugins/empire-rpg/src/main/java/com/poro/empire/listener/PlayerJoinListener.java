@@ -2,6 +2,7 @@ package com.poro.empire.listener;
 
 import com.poro.empire.growth.GrowthStateStore;
 import com.poro.empire.hotbar.HotbarService;
+import com.poro.empire.init.ClassInitService;
 import com.poro.empire.market.AuctionStore;
 import com.poro.empire.persistence.PlayerPersistenceService;
 import com.poro.empire.scoreboard.ScoreboardService;
@@ -18,6 +19,7 @@ public final class PlayerJoinListener implements Listener {
     private final HotbarService hotbarService;
     private final ScoreboardService scoreboardService;
     private final PlayerPersistenceService playerPersistenceService;
+    private final ClassInitService classInitService;
 
     public PlayerJoinListener(
             Plugin plugin,
@@ -27,12 +29,14 @@ public final class PlayerJoinListener implements Listener {
             ScoreboardService scoreboardService,
             PlayerPersistenceService playerPersistenceService,
             GrowthStateStore growthStateStore,
-            AuctionStore auctionStore
+            AuctionStore auctionStore,
+            ClassInitService classInitService
     ) {
         this.playerDataManager = playerDataManager;
         this.hotbarService = hotbarService;
         this.scoreboardService = scoreboardService;
         this.playerPersistenceService = playerPersistenceService;
+        this.classInitService = classInitService;
     }
 
     @EventHandler
@@ -41,6 +45,7 @@ public final class PlayerJoinListener implements Listener {
         playerPersistenceService.load(event.getPlayer().getUniqueId(), event.getPlayer().getName());
         hotbarService.updateHotbar(event.getPlayer());
         scoreboardService.refresh(event.getPlayer());
+        classInitService.openSelectionGuiIfNeeded(event.getPlayer());
     }
 
     @EventHandler

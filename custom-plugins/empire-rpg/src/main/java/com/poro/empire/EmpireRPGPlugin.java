@@ -11,6 +11,7 @@ import com.poro.empire.common.registry.master.MasterRegistryContext;
 import com.poro.empire.common.result.Result;
 import com.poro.empire.command.EmpireCommand;
 import com.poro.empire.command.PlayerCommandRouter;
+import com.poro.empire.init.ClassInitService;
 import com.poro.empire.combat.CombatStateService;
 import com.poro.empire.field.FieldBossRespawnScheduler;
 import com.poro.empire.field.FieldTeleportService;
@@ -123,6 +124,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
     private PlayerPersistenceService playerPersistenceService;
     private CooldownManager cooldownManager;
     private CombatStateService combatStateService;
+    private ClassInitService classInitService;
     private LevelingService levelingService;
     private AuctionStore     auctionStore;
     private BossRoomManager  bossRoomManager;
@@ -271,6 +273,9 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                 foundationContext.logger().domain("tutorial")
         );
 
+        this.classInitService = new ClassInitService(
+                this, playerDataManager, growthStateStore, playerPersistenceService);
+
         this.cooldownManager = new CooldownManager();
         this.combatStateService = new CombatStateService();
         this.levelingService = new LevelingService();
@@ -393,9 +398,9 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                                    FieldBossRespawnScheduler fieldBossScheduler) {
 
         getServer().getPluginManager().registerEvents(
-                new PlayerJoinListener(this, playerDataManager, hotbarService, tutorialService, scoreboardService, playerPersistenceService, growthStateStore, auctionStore), this);
+                new PlayerJoinListener(this, playerDataManager, hotbarService, tutorialService, scoreboardService, playerPersistenceService, growthStateStore, auctionStore, classInitService), this);
         getServer().getPluginManager().registerEvents(
-                new WeaponSelectionGuiListener(playerDataManager, tutorialService, scoreboardService, growthStateStore, cooldownManager, combatStateService), this);
+                new WeaponSelectionGuiListener(playerDataManager, scoreboardService, classInitService), this);
         getServer().getPluginManager().registerEvents(
                 new CombatStateListener(combatStateService), this);
         getServer().getPluginManager().registerEvents(

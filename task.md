@@ -25,8 +25,9 @@
 | 5 | PlayerPersistenceService migration (v1→v2→v3) | `PlayerPersistenceService.java` | ✅ 완료 |
 | 6 | WeaponSelectionGuiListener GuiTitles 상수 교체 | `WeaponSelectionGuiListener.java` | ✅ 완료 |
 | 7 | PlayerQuitEvent save 추가 | `PlayerJoinListener.java` | ✅ 완료 |
-| 8 | ClassInitService 신규 (초기 5슬롯 장비 지급) | `ClassInitService.java` | ⬜ 미완료 |
-| 9 | 메인 허브 / 장비 허브 최소 구현 | `MainHubListener.java`, `GrowthGuiListener.java` | ⬜ 미완료 |
+| 8 | ClassInitService 신규 (초기 5슬롯 장비 지급 + 영지 도구 4종) | `ClassInitService.java` | ✅ 완료 |
+| 8b | poro_island.schem 생성 (30×30 플랫폼) + schematics.yml poro 엔트리 추가 | `poro_island.schem`, `schematics.yml` | ✅ 완료 |
+| 9 | 메인 허브 / 장비 허브 최소 구현 | `MainHubListener.java`, `GrowthGuiListener.java` | ✅ 완료 |
 | 10 | BossRewardService + BossEngineRuntime 이벤트 연동 | `BossRewardService.java` | ⬜ 미완료 |
 | 11 | SafeZoneService / WorldGuard adapter → SkillInputListener 연결 | `SafeZoneService.java` | ⬜ 미완료 |
 

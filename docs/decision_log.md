@@ -4,6 +4,40 @@
 
 ---
 
+### DL-063 튜토리얼 완료 → 영지 자동 생성 + 섬 도구 지급 흐름 확정
+
+**결정:** 튜토리얼 완료(무기 선택) 시점에 IridiumSkyblock 섬을 자동 생성하고, 영지로 텔레포트하면서 섬 도구 세트를 함께 지급한다.
+
+**튜토리얼 흐름:**
+```
+튜토리얼 방 입장
+  → 서버 규칙 읽기
+  → 무기 선택 GUI (27슬롯, "클래스 선택")
+    → RPG 장비 5슬롯 지급 (WEAPON + 방어구 4종, ClassInitService)
+    → IridiumSkyblock 섬 자동 생성 (/is create 또는 API 호출)
+    → 섬 도구 세트 지급 (아래 명세)
+    → 영지(IridiumSkyblock 세계)로 텔레포트
+```
+
+**섬 도구 세트 (ClassInitService.grantIslandTools):**
+
+| 아이템 | 인챈트 | 비고 |
+|---|---|---|
+| 네더라이트 곡괭이 | Efficiency V + Fortune III | `setUnbreakable(true)` |
+| 네더라이트 삽 | Efficiency V + Fortune III | `setUnbreakable(true)` |
+| 네더라이트 괭이 | Efficiency V + Fortune III | `setUnbreakable(true)` |
+| 네더라이트 도끼 | Efficiency V + Fortune III | `setUnbreakable(true)` |
+
+**정책:**
+- 모루 사용 불가 (WorldGuard 또는 이벤트로 차단 예정)
+- 인챈트 시스템(상점 인챈트북) 불필요 — 도구에 풀 인챈트 박아서 지급
+- Silk Touch 곡괭이 미지급 — Fortune III 1종으로 통일
+- 내구도 소모 없음 (`setUnbreakable(true)`, Mending/Unbreaking 미사용)
+
+**근거:** 45일 시즌 서버 특성상 유저가 바닐라 도구 파밍 루프에 시간을 쏟지 않고 RPG 콘텐츠(전투·성장·영지 생산)에 바로 집중할 수 있도록 한다.
+
+---
+
 ### DL-062 공방 광물 변환 탭 — 원석 → 주괴 정정 + 금 주괴 소모처 확정
 
 **결정:** `tab_ore_convert`의 모든 교환 재료가 **원석(Ore)이 아닌 주괴(Ingot)**임을 확정. 문서 오기 수정.
