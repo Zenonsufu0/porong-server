@@ -6,21 +6,21 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class ContributionTracker {
-    private final Map<UUID, ConcurrentHashMap<UUID, Long>> data = new ConcurrentHashMap<>();
+    private final Map<UUID, ConcurrentHashMap<UUID, Double>> data = new ConcurrentHashMap<>();
 
-    public void recordDamage(UUID entityId, UUID playerId, long damage) {
+    public void recordDamage(UUID entityId, UUID playerId, double damage) {
         if (damage <= 0) return;
         data.computeIfAbsent(entityId, k -> new ConcurrentHashMap<>())
-            .merge(playerId, damage, Long::sum);
+            .merge(playerId, damage, Double::sum);
     }
 
     public Map<UUID, Double> finalizeShares(UUID entityId) {
-        ConcurrentHashMap<UUID, Long> damages = data.remove(entityId);
+        ConcurrentHashMap<UUID, Double> damages = data.remove(entityId);
         if (damages == null || damages.isEmpty()) return Map.of();
-        long total = damages.values().stream().mapToLong(Long::longValue).sum();
+        double total = damages.values().stream().mapToDouble(Double::doubleValue).sum();
         if (total == 0) return Map.of();
         Map<UUID, Double> shares = new LinkedHashMap<>();
-        damages.forEach((uuid, dmg) -> shares.put(uuid, (double) dmg / total * 100.0));
+        damages.forEach((uuid, dmg) -> shares.put(uuid, dmg / total * 100.0));
         return Map.copyOf(shares);
     }
 

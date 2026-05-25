@@ -4,16 +4,17 @@
 
 ---
 
-### DL-064 시즌보스 damage_share 집계 — 1차 시즌 deferred 확정
+### DL-064 시즌보스 참여 기준 — 보스룸 입장 확인, damage_share 집계 1차 시즌 제외
 
-**결정:** `BossResultSummaryBuilder`의 `damage_share` 필드는 1차 시즌에서 `0.0` placeholder로 유지. 시즌보스 실제 기여도 집계 연결은 deferred.
+**결정:**
+- 시즌보스 참여 기준: **파티 보스룸 입장 확인** (방 입장 = 참여 게이트).
+- 필드보스 기준인 "총 피해량 3%"는 오픈필드 무임승차 방지용; 1~3인 제한 보스룸에는 적용 안 함.
+- `BossResultSummaryBuilder`의 `damage_share`는 1차 시즌 `0.0` placeholder 유지. 실제 집계 연결은 §7+ 보스 패턴 구현 단계로 이관.
+- **CANON §6 및 drop_tables_v1.md §시즌보스 보상 구조 반영 완료** (2026-05-25).
 
-**이유:**
-- 시즌보스는 파티 보스 방(BossRoom) 입장 자체가 기여도 게이트 역할: 방 입장 = 참여 확인.
-- 오픈필드 필드보스의 3% 기여도 게이트(CANON §6)는 무임승차 방지 목적이며, 파티 인원 제한(1~3인) 보스룸에는 적용되지 않음.
-- `BossDefenseListener`가 stub 상태이고, MythicMobs 기반 시즌보스 데미지 이벤트 연결은 §7+ 보스 패턴 구현 단계에서 함께 처리.
+**이유:** `BossDefenseListener` stub 상태, MythicMobs 기반 시즌보스 데미지 이벤트 연결 미완. 보스룸 입장 자체가 참여 확인으로 충분.
 
-**근거:** 사용자 확인 (2026-05-25)
+**근거:** 사용자 확인 (2026-05-25). CANON.md + drop_tables_v1.md 동기화 완료.
 
 ---
 

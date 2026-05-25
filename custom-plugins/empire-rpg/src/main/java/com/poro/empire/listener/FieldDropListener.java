@@ -62,7 +62,7 @@ public final class FieldDropListener implements Listener {
         contributionTracker.recordDamage(
                 event.getEntity().getUniqueId(),
                 player.getUniqueId(),
-                Math.max(1L, (long) finalDamage));
+                finalDamage);
     }
 
     @EventHandler
