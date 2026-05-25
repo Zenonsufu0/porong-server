@@ -62,8 +62,7 @@
 | `EmpireHttpServer` (포트 8765, JDK 내장 HttpServer) | ✅ |
 | `/api/v1/boss/stats` `/boss/{id}/stats` `/boss/{id}/weekly` `/boss/{id}/party-spec` | ✅ |
 | `onDisable` HTTP 서버 stop 연결 | ✅ |
-
-> 쓰기 경로(BossEngineRuntime → BossSessionRepository) 연결은 §7+ 예정 (기술 부채 기록).
+| `DbBossRunRecordHook` + `CompositeBossRunRecordHook` (세션 시작/종료 DB 기록) | ✅ |
 
 ---
 
