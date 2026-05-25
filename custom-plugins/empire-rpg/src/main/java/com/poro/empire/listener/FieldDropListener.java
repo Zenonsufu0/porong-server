@@ -52,15 +52,17 @@ public final class FieldDropListener implements Listener {
         this.contributionTracker = contributionTracker;
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onDamage(EntityDamageByEntityEvent event) {
         if (!MobTagHelper.isFieldBoss(event.getEntity())) return;
+        double finalDamage = event.getFinalDamage();
+        if (finalDamage <= 0) return;
         Player player = resolvePlayer(event.getDamager());
         if (player == null) return;
         contributionTracker.recordDamage(
                 event.getEntity().getUniqueId(),
                 player.getUniqueId(),
-                Math.max(1L, (long) event.getFinalDamage()));
+                Math.max(1L, (long) finalDamage));
     }
 
     @EventHandler
