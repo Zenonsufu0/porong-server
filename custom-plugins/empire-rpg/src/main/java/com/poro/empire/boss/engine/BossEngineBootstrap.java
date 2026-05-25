@@ -20,7 +20,8 @@ public final class BossEngineBootstrap {
     public static Result<BossEngineRuntime> bootstrap(
             JavaPlugin plugin,
             FoundationContext foundationContext,
-            MasterRegistryContext masterRegistryContext
+            MasterRegistryContext masterRegistryContext,
+            BossRewardResolverHook rewardResolverHook
     ) {
         DomainLogger logger = foundationContext.logger().domain("boss-engine");
 
@@ -69,7 +70,6 @@ public final class BossEngineBootstrap {
         BossDeathCountService deathCountService = new BossDeathCountService();
         BossResultSummaryBuilder summaryBuilder = new BossResultSummaryBuilder(foundationContext.timeProvider());
         InMemoryBossRunRecordHook runRecordHook = new InMemoryBossRunRecordHook();
-        BossRewardResolverHook rewardResolverHook = new NoopBossRewardResolverHook();
 
         BossRunService runService = new BossRunService(
                 entryValidator,

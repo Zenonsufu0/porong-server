@@ -45,7 +45,36 @@ public final class FieldDropListener implements Listener {
         Player killer = event.getEntity().getKiller();
         if (killer != null) {
             levelingService.addExp(killer.getUniqueId(), 10L);
-            grantFieldDrops(killer, event.getEntity());
+            if (MobTagHelper.isFieldBoss(event.getEntity())) {
+                grantFieldBossDrops(killer, event.getEntity());
+            } else {
+                grantFieldDrops(killer, event.getEntity());
+            }
+        }
+    }
+
+    private void grantFieldBossDrops(Player player, Entity entity) {
+        int field = MobTagHelper.fieldIndex(entity);
+        if (field == 0) return;
+
+        String classId = playerDataManager.getWeaponType(player.getUniqueId()).name().toLowerCase(java.util.Locale.ROOT);
+        PlayerGrowthState growth = growthStateStore.getOrCreate(player.getUniqueId(), classId);
+
+        long stone;
+        long cube;
+        double tracePct;
+        switch (field) {
+            case 2 -> { stone = randomInclusive(4, 6);  cube = randomInclusive(5, 8);  tracePct = 45; }
+            case 3 -> { stone = randomInclusive(6, 9);  cube = randomInclusive(5, 8);  tracePct = 55; }
+            case 4 -> { stone = randomInclusive(7, 10); cube = randomInclusive(8, 12); tracePct = 65; }
+            case 5 -> { stone = randomInclusive(9, 13); cube = randomInclusive(10, 15); tracePct = 75; }
+            default -> { stone = randomInclusive(2, 4); cube = randomInclusive(3, 5);  tracePct = 35; }
+        }
+        growth.addCurrency(ENHANCEMENT_STONE, stone);
+        growth.addCurrency(CUBE_FRAGMENT, cube);
+        if (roll(tracePct)) {
+            islandTerritoryStateStore.getOrCreate(player.getUniqueId(), player.getName())
+                    .addCustomItem(randomTraceId(), 1);
         }
     }
 

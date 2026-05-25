@@ -2,6 +2,7 @@ package com.poro.empire;
 
 import com.poro.empire.boss.engine.BossEngineBootstrap;
 import com.poro.empire.boss.engine.BossEngineRuntime;
+import com.poro.empire.boss.engine.BossRewardService;
 import com.poro.empire.combat.engine.CombatEngineBootstrap;
 import com.poro.empire.combat.engine.CombatEngineRuntime;
 import com.poro.empire.common.config.CommonFoundationBootstrap;
@@ -183,7 +184,14 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         this.combatEngineRuntime = combatEngineResult.value();
         this.foundationContext.logger().domain("combat-engine").info("Combat engine bootstrap completed.");
 
-        Result<BossEngineRuntime> bossEngineResult = BossEngineBootstrap.bootstrap(this, foundationContext, masterRegistryContext);
+        this.playerDataManager = new PlayerDataManager();
+        this.growthStateStore = new GrowthStateStore();
+        this.islandStorageStore = new IslandStorageStore();
+        this.islandTerritoryStateStore = new IslandTerritoryStateStore();
+        BossRewardService bossRewardService = new BossRewardService(
+                growthStateStore, islandTerritoryStateStore, playerDataManager, getLogger());
+
+        Result<BossEngineRuntime> bossEngineResult = BossEngineBootstrap.bootstrap(this, foundationContext, masterRegistryContext, bossRewardService);
         if (bossEngineResult.isFailure()) {
             getLogger().severe("Failed to initialize boss engine: " + bossEngineResult.message());
             if (bossEngineResult.cause() != null) {
@@ -251,13 +259,9 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         this.operationsQueryRuntime = operationsQueryResult.value();
         this.foundationContext.logger().domain("operations-query").info("Operations/query bootstrap completed.");
 
-        this.playerDataManager = new PlayerDataManager();
         this.reputationManager = new ReputationManager(playerDataManager);
         this.hotbarService = new HotbarService(this);
         this.scoreboardService = new ScoreboardService();
-        this.growthStateStore = new GrowthStateStore();
-        this.islandStorageStore = new IslandStorageStore();
-        this.islandTerritoryStateStore = new IslandTerritoryStateStore();
 
         PlayerDataRepository playerDataRepository = new PlayerDataRepository(this);
         this.playerPersistenceService = new PlayerPersistenceService(
