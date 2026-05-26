@@ -8,6 +8,8 @@ import com.poro.empire.gui.StorageGui;
 import com.poro.empire.gui.TerritoryStatusGui;
 import com.poro.empire.gui.WorkshopGui;
 import com.poro.empire.listener.AuctionGuiListener;
+import com.poro.empire.listener.BossHubListener;
+import com.poro.empire.listener.FieldHubListener;
 import com.poro.empire.listener.GrowthGuiListener;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -29,15 +31,21 @@ public class PlayerCommandRouter implements CommandExecutor {
     private final IslandTerritoryStateStore territoryStore;
     private final AuctionGuiListener        auctionGuiListener;
     private final GrowthGuiListener         growthGuiListener;
+    private final FieldHubListener          fieldHubListener;
+    private final BossHubListener           bossHubListener;
 
     public PlayerCommandRouter(IslandStorageStore storageStore,
                                IslandTerritoryStateStore territoryStore,
                                AuctionGuiListener auctionGuiListener,
-                               GrowthGuiListener growthGuiListener) {
+                               GrowthGuiListener growthGuiListener,
+                               FieldHubListener fieldHubListener,
+                               BossHubListener bossHubListener) {
         this.storageStore       = storageStore;
         this.territoryStore     = territoryStore;
         this.auctionGuiListener = auctionGuiListener;
         this.growthGuiListener  = growthGuiListener;
+        this.fieldHubListener   = fieldHubListener;
+        this.bossHubListener    = bossHubListener;
     }
 
     @Override
@@ -73,13 +81,13 @@ public class PlayerCommandRouter implements CommandExecutor {
             case "경매장"   -> auctionGuiListener.openMain(player);
             case "영지설정"  -> stub(player, "영지 설정");
             // ── 보스 계열 ──────────────────────────────────────────
-            case "보스"     -> stub(player, "보스 메뉴");
-            case "파티"     -> stub(player, "파티 생성");
-            case "파티목록"  -> stub(player, "파티 목록");
+            case "보스"     -> bossHubListener.openBossHub(player);
+            case "파티"     -> bossHubListener.openPartyHub(player);
+            case "파티목록"  -> bossHubListener.openPartyList(player);
             case "보스정보"  -> stub(player, "보스 정보");
             case "클리어"   -> stub(player, "클리어 기록");
             // ── 필드 ──────────────────────────────────────────────
-            case "필드"     -> stub(player, "필드 이동");
+            case "필드"     -> fieldHubListener.openFieldHub(player);
             default          -> stub(player, label);
         }
         return true;

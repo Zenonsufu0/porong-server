@@ -38,11 +38,13 @@ import java.util.Optional;
 
 public final class MainHubListener implements Listener {
 
-    private final GrowthStateStore growthStateStore;
+    private final GrowthStateStore          growthStateStore;
     private final IslandTerritoryStateStore islandTerritoryStateStore;
-    private final IslandStorageStore islandStorageStore;
-    private final PlayerDataManager playerDataManager;
-    private final AuctionGuiListener auctionGuiListener;
+    private final IslandStorageStore        islandStorageStore;
+    private final PlayerDataManager         playerDataManager;
+    private final AuctionGuiListener        auctionGuiListener;
+    private final FieldHubListener          fieldHubListener;
+    private final BossHubListener           bossHubListener;
 
     public MainHubListener(
             Plugin plugin,
@@ -56,13 +58,17 @@ public final class MainHubListener implements Listener {
             FieldTeleportService fieldTeleportService,
             CombatStateService combatStateService,
             AuctionGuiListener auctionGuiListener,
-            BossRoomListener bossRoomListener
+            BossRoomListener bossRoomListener,
+            FieldHubListener fieldHubListener,
+            BossHubListener bossHubListener
     ) {
-        this.growthStateStore = growthStateStore;
+        this.growthStateStore          = growthStateStore;
         this.islandTerritoryStateStore = islandTerritoryStateStore;
-        this.islandStorageStore = islandStorageStore;
-        this.playerDataManager = playerDataManager;
-        this.auctionGuiListener = auctionGuiListener;
+        this.islandStorageStore        = islandStorageStore;
+        this.playerDataManager         = playerDataManager;
+        this.auctionGuiListener        = auctionGuiListener;
+        this.fieldHubListener          = fieldHubListener;
+        this.bossHubListener           = bossHubListener;
     }
 
     @EventHandler
@@ -86,7 +92,9 @@ public final class MainHubListener implements Listener {
             switch (event.getRawSlot()) {
                 case 20 -> openEquipmentHub(player);
                 case 22 -> openTerritoryHub(player);
-                case 24, 26 -> player.sendMessage("§8준비 중");
+                case 24 -> bossHubListener.openBossHub(player);
+                case 26 -> auctionGuiListener.openMain(player);
+                case 31 -> fieldHubListener.openFieldHub(player);
                 case 49 -> player.closeInventory();
             }
             return;

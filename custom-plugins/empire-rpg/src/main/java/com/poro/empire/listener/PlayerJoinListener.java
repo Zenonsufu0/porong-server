@@ -10,6 +10,7 @@ import com.poro.empire.growth.island.WorkshopJob;
 import com.poro.empire.gui.WorkshopRecipeRegistry;
 import com.poro.empire.hotbar.HotbarService;
 import com.poro.empire.init.ClassInitService;
+import com.poro.empire.boss.party.PartyManager;
 import com.poro.empire.market.AuctionStore;
 import com.poro.empire.persistence.PlayerPersistenceService;
 import com.poro.empire.scoreboard.ScoreboardService;
@@ -38,9 +39,10 @@ public final class PlayerJoinListener implements Listener {
     private final GrowthStateStore growthStateStore;
     private final IslandTerritoryStateStore islandTerritoryStateStore;
     private final IslandStorageStore islandStorageStore;
-    private final AuctionStore auctionStore;
+    private final AuctionStore     auctionStore;
     private final ClassInitService classInitService;
-    private final Plugin plugin;
+    private final PartyManager     partyManager;
+    private final Plugin           plugin;
 
     public PlayerJoinListener(
             Plugin plugin,
@@ -53,7 +55,8 @@ public final class PlayerJoinListener implements Listener {
             IslandTerritoryStateStore islandTerritoryStateStore,
             IslandStorageStore islandStorageStore,
             AuctionStore auctionStore,
-            ClassInitService classInitService
+            ClassInitService classInitService,
+            PartyManager partyManager
     ) {
         this.plugin = plugin;
         this.playerDataManager = playerDataManager;
@@ -65,6 +68,7 @@ public final class PlayerJoinListener implements Listener {
         this.islandStorageStore = islandStorageStore;
         this.auctionStore = auctionStore;
         this.classInitService = classInitService;
+        this.partyManager = partyManager;
     }
 
     @EventHandler
@@ -162,5 +166,6 @@ public final class PlayerJoinListener implements Listener {
         growthStateStore.remove(uuid);
         islandTerritoryStateStore.remove(uuid);
         islandStorageStore.remove(uuid);
+        partyManager.leaveParty(uuid);
     }
 }

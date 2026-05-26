@@ -74,8 +74,11 @@ import com.poro.empire.growth.island.IslandTerritoryStateStore;
 import com.poro.empire.gui.ExploreHubGui;
 import com.poro.empire.gui.ExploreHubRefresher;
 import com.poro.empire.hotbar.HotbarService;
+import com.poro.empire.boss.party.PartyManager;
+import com.poro.empire.listener.BossHubListener;
 import com.poro.empire.listener.FarmGuiListener;
 import com.poro.empire.listener.FieldDropListener;
+import com.poro.empire.listener.FieldHubListener;
 import com.poro.empire.listener.GrowthGuiListener;
 import com.poro.empire.listener.HeirloomGuiListener;
 import com.poro.empire.listener.HotbarInteractListener;
@@ -134,6 +137,9 @@ public final class EmpireRPGPlugin extends JavaPlugin {
     private AuctionStore        auctionStore;
     private AuctionGuiListener  auctionGuiListener;
     private GrowthGuiListener   growthGuiListener;
+    private com.poro.empire.boss.party.PartyManager partyManager;
+    private FieldHubListener    fieldHubListener;
+    private BossHubListener     bossHubListener;
     private BossRoomManager     bossRoomManager;
     private BossRewardService   bossRewardService;
 
@@ -295,7 +301,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                 foundationContext.connectionProvider(),
                 foundationContext.transactionHelper(),
                 getLogger());
-        // auctionGuiListener / growthGuiListener는 registerCommands() 전에 초기화해야 NPE 방지
+        // registerCommands() 전에 초기화해야 NPE 방지
         this.auctionGuiListener = new AuctionGuiListener(
                 this, growthStateStore, islandTerritoryStateStore,
                 auctionStore, masterRegistryContext.itemMasters(), combatStateService);
@@ -303,6 +309,14 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                 growthStateStore, islandTerritoryStateStore, growthEngineRuntime,
                 playerDataManager, scoreboardService,
                 masterRegistryContext.itemMasters(), combatStateService, this);
+        this.partyManager = new PartyManager();
+        FieldBossRespawnScheduler fieldBossScheduler = getServer().getPluginManager().isPluginEnabled("MythicMobs")
+                ? new FieldBossRespawnScheduler(this) : null;
+        ExploreHubGui.FieldStateProvider fieldStateProvider = fieldBossScheduler != null
+                ? fieldBossScheduler : buildFieldStateProvider();
+        FieldTeleportService fieldTeleportService = new FieldTeleportService(this);
+        this.fieldHubListener = new FieldHubListener(fieldStateProvider, fieldTeleportService);
+        this.bossHubListener  = new BossHubListener(partyManager);
         ShopGui.reloadItems(this);
         this.resourceTracker = new ResourceTracker();
         SkillContext skillContext = new SkillContext(
@@ -338,10 +352,6 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         skillService.registerSkill(new StaffStarburstSkill(this));
 
         registerCommands();
-        FieldBossRespawnScheduler fieldBossScheduler = getServer().getPluginManager().isPluginEnabled("MythicMobs")
-                ? new FieldBossRespawnScheduler(this) : null;
-        ExploreHubGui.FieldStateProvider fieldStateProvider = fieldBossScheduler != null
-                ? fieldBossScheduler : buildFieldStateProvider();
         registerListeners(fieldStateProvider, fieldBossScheduler);
         ExploreHubRefresher.start(this, fieldStateProvider); // uses the scheduler as provider
 
@@ -426,7 +436,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                                    FieldBossRespawnScheduler fieldBossScheduler) {
 
         getServer().getPluginManager().registerEvents(
-                new PlayerJoinListener(this, playerDataManager, hotbarService, tutorialService, scoreboardService, playerPersistenceService, growthStateStore, islandTerritoryStateStore, islandStorageStore, auctionStore, classInitService), this);
+                new PlayerJoinListener(this, playerDataManager, hotbarService, tutorialService, scoreboardService, playerPersistenceService, growthStateStore, islandTerritoryStateStore, islandStorageStore, auctionStore, classInitService, partyManager), this);
         getServer().getPluginManager().registerEvents(
                 new WeaponSelectionGuiListener(playerDataManager, scoreboardService, classInitService), this);
         getServer().getPluginManager().registerEvents(
@@ -438,7 +448,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                 new BossRoomListener(this, bossRoomManager, masterRegistryContext.bossMasters());
         getServer().getPluginManager().registerEvents(
                 new MainHubListener(this, fieldStateProvider, growthStateStore, growthEngineRuntime, scoreboardService, playerDataManager, islandStorageStore, islandTerritoryStateStore, fieldTeleportService, combatStateService, auctionGuiListener,
-                        bossRoomListenerInstance), this);
+                        bossRoomListenerInstance, fieldHubListener, bossHubListener), this);
         getServer().getPluginManager().registerEvents(bossRoomListenerInstance, this);
         getServer().getPluginManager().registerEvents(growthGuiListener, this);
         getServer().getPluginManager().registerEvents(
@@ -473,6 +483,8 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                 : new NoopSafeZoneService();
         getServer().getPluginManager().registerEvents(new SkillInputListener(skillService, safeZoneService), this);
         getServer().getPluginManager().registerEvents(auctionGuiListener, this);
+        getServer().getPluginManager().registerEvents(fieldHubListener, this);
+        getServer().getPluginManager().registerEvents(bossHubListener, this);
     }
 
     /** BossEngineRuntime 연동 전 stub — 모든 필드보스를 리스폰 대기 상태로 반환. */
@@ -504,7 +516,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         getCommand("empire").setTabCompleter(empireCommand);
 
         // 한글 단축 커맨드
-        PlayerCommandRouter router = new PlayerCommandRouter(islandStorageStore, islandTerritoryStateStore, auctionGuiListener, growthGuiListener);
+        PlayerCommandRouter router = new PlayerCommandRouter(islandStorageStore, islandTerritoryStateStore, auctionGuiListener, growthGuiListener, fieldHubListener, bossHubListener);
         String[] koreanCommands = {
             "메뉴", "장비", "강화", "잠재", "각인", "캐릭터", "전승",
             "영지", "영지이동", "영지상태", "창고", "공방", "작물", "상점", "경매장", "영지설정",
