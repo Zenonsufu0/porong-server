@@ -96,6 +96,7 @@ public final class BossRewardService implements BossRewardResolverHook {
             rewarded++;
         }
 
+        bossRoomManager.releaseByRunId(summary.runId());
         logger.info("[BossReward] run_id=" + summary.runId()
                 + " boss_id=" + summary.bossId()
                 + " rewarded=" + rewarded + "/" + summary.participantSummaryPlaceholder().size());

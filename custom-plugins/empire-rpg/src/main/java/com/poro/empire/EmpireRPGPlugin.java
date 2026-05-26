@@ -443,7 +443,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                                    FieldBossRespawnScheduler fieldBossScheduler) {
 
         getServer().getPluginManager().registerEvents(
-                new PlayerJoinListener(this, playerDataManager, hotbarService, tutorialService, scoreboardService, playerPersistenceService, growthStateStore, islandTerritoryStateStore, islandStorageStore, auctionStore, classInitService, partyManager), this);
+                new PlayerJoinListener(this, playerDataManager, hotbarService, tutorialService, scoreboardService, playerPersistenceService, growthStateStore, islandTerritoryStateStore, islandStorageStore, auctionStore, classInitService, partyManager, bossRoomManager), this);
         getServer().getPluginManager().registerEvents(
                 new WeaponSelectionGuiListener(playerDataManager, scoreboardService, classInitService), this);
         getServer().getPluginManager().registerEvents(
@@ -452,7 +452,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                 new HotbarInteractListener(hotbarService, fieldStateProvider, combatStateService), this);
         FieldTeleportService fieldTeleportService = new FieldTeleportService(this);
         BossRoomListener bossRoomListenerInstance =
-                new BossRoomListener(this, bossRoomManager, masterRegistryContext.bossMasters(), partyManager);
+                new BossRoomListener(this, bossRoomManager, masterRegistryContext.bossMasters(), partyManager, bossEngineRuntime);
         getServer().getPluginManager().registerEvents(
                 new MainHubListener(this, fieldStateProvider, growthStateStore, growthEngineRuntime, scoreboardService, playerDataManager, islandStorageStore, islandTerritoryStateStore, fieldTeleportService, combatStateService, auctionGuiListener,
                         bossRoomListenerInstance, fieldHubListener, bossHubListener), this);

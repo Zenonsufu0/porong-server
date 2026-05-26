@@ -11,6 +11,7 @@ import com.poro.empire.gui.WorkshopRecipeRegistry;
 import com.poro.empire.hotbar.HotbarService;
 import com.poro.empire.init.ClassInitService;
 import com.poro.empire.boss.party.PartyManager;
+import com.poro.empire.boss.room.BossRoomManager;
 import com.poro.empire.market.AuctionStore;
 import com.poro.empire.persistence.PlayerPersistenceService;
 import com.poro.empire.scoreboard.ScoreboardService;
@@ -42,6 +43,7 @@ public final class PlayerJoinListener implements Listener {
     private final AuctionStore     auctionStore;
     private final ClassInitService classInitService;
     private final PartyManager     partyManager;
+    private final BossRoomManager  bossRoomManager;
     private final Plugin           plugin;
 
     public PlayerJoinListener(
@@ -56,7 +58,8 @@ public final class PlayerJoinListener implements Listener {
             IslandStorageStore islandStorageStore,
             AuctionStore auctionStore,
             ClassInitService classInitService,
-            PartyManager partyManager
+            PartyManager partyManager,
+            BossRoomManager bossRoomManager
     ) {
         this.plugin = plugin;
         this.playerDataManager = playerDataManager;
@@ -69,6 +72,7 @@ public final class PlayerJoinListener implements Listener {
         this.auctionStore = auctionStore;
         this.classInitService = classInitService;
         this.partyManager = partyManager;
+        this.bossRoomManager = bossRoomManager;
     }
 
     @EventHandler
@@ -167,5 +171,6 @@ public final class PlayerJoinListener implements Listener {
         islandTerritoryStateStore.remove(uuid);
         islandStorageStore.remove(uuid);
         partyManager.leaveParty(uuid);
+        bossRoomManager.exitRoom(uuid);
     }
 }

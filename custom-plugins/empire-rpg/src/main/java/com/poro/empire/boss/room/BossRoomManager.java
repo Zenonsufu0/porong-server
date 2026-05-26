@@ -8,12 +8,15 @@ import org.bukkit.plugin.Plugin;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public final class BossRoomManager {
 
     private final List<BossRoomSlot>     slots;
     private final Map<UUID, Integer>     playerToSlot  = new ConcurrentHashMap<>();
     private final Map<Integer, String>   slotToBoss    = new ConcurrentHashMap<>();
+    private final Map<String, Integer>   runToSlot     = new ConcurrentHashMap<>();
+    private final Map<Integer, String>   slotToRunId   = new ConcurrentHashMap<>();
     private final Map<UUID, String>      pendingBoss   = new ConcurrentHashMap<>();
     private final Map<UUID, Set<String>> clearedBosses = new ConcurrentHashMap<>();
 
@@ -68,10 +71,38 @@ public final class BossRoomManager {
     }
 
     public void              enterRoom(UUID uuid, int slotId) { playerToSlot.put(uuid, slotId); }
-    public void              exitRoom(UUID uuid)              { playerToSlot.remove(uuid); }
     public boolean           isInBossRoom(UUID uuid)          { return playerToSlot.containsKey(uuid); }
     public Optional<Integer> slotOf(UUID uuid)               { return Optional.ofNullable(playerToSlot.get(uuid)); }
     public Optional<String>  bossInSlot(int slotId)          { return Optional.ofNullable(slotToBoss.get(slotId)); }
+
+    /** 플레이어가 방에서 나갈 때 호출. 마지막 인원이 나가면 슬롯 자동 해제. */
+    public void exitRoom(UUID uuid) {
+        Integer slotId = playerToSlot.remove(uuid);
+        if (slotId != null && !playerToSlot.containsValue(slotId)) {
+            String runId = slotToRunId.remove(slotId);
+            if (runId != null) runToSlot.remove(runId);
+            releaseSlot(slotId);
+        }
+    }
+
+    /** startRun() 성공 후 runId ↔ slotId 매핑 등록. */
+    public void registerRun(String runId, int slotId) {
+        runToSlot.put(runId, slotId);
+        slotToRunId.put(slotId, runId);
+    }
+
+    /** 클리어/실패 종료 시 runId 기준으로 슬롯 + 참가자 모두 해제. */
+    public void releaseByRunId(String runId) {
+        Integer slotId = runToSlot.remove(runId);
+        if (slotId == null) return;
+        slotToRunId.remove(slotId);
+        Set<UUID> toRemove = playerToSlot.entrySet().stream()
+                .filter(e -> e.getValue().equals(slotId))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
+        toRemove.forEach(playerToSlot::remove);
+        releaseSlot(slotId);
+    }
 
     public void releaseSlot(int slotId) {
         slots.stream().filter(s -> s.id() == slotId).findFirst().ifPresent(BossRoomSlot::release);
