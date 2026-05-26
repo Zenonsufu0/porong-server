@@ -124,7 +124,7 @@ public final class FieldDropListener implements Listener {
         }
         if (profile.elite && roll(profile.traceChancePct)) {
             islandTerritoryStateStore.getOrCreate(player.getUniqueId(), player.getName())
-                    .addCustomItem(randomTraceId(), 1);
+                    .addCustomItem(randomTraceId(profile.field()), 1);
         }
     }
 
@@ -141,31 +141,42 @@ public final class FieldDropListener implements Listener {
         boolean elite = MobTagHelper.isElite(entity);
         if (elite) {
             return switch (field) {
-                case 2 -> new FieldDropProfile(true, 30, 50, 80, 2, 3, 15, 1, 1, 7, 5, 50);
-                case 3 -> new FieldDropProfile(true, 35, 57, 75, 2, 3, 15, 1, 2, 10, 8, 75);
-                case 4 -> new FieldDropProfile(true, 38, 65, 75, 2, 3, 20, 1, 2, 12, 10, 110);
-                case 5 -> new FieldDropProfile(true, 45, 75, 75, 2, 3, 20, 1, 2, 15, 12, 150);
-                default -> new FieldDropProfile(true, 23, 42, 80, 2, 3, 10, 1, 1, 5, 5, 25);
+                case 2 -> new FieldDropProfile(true, 30, 50, 80, 2, 3, 15, 1, 1, 7,  5,  50,  2);
+                case 3 -> new FieldDropProfile(true, 35, 57, 75, 2, 3, 15, 1, 2, 10, 8,  75,  3);
+                case 4 -> new FieldDropProfile(true, 38, 65, 75, 2, 3, 20, 1, 2, 12, 10, 110, 4);
+                case 5 -> new FieldDropProfile(true, 45, 75, 75, 2, 3, 20, 1, 2, 15, 12, 150, 5);
+                default -> new FieldDropProfile(true, 23, 42, 80, 2, 3, 10, 1, 1, 5,  5,  25,  1);
             };
         }
         return switch (field) {
-            case 2 -> new FieldDropProfile(false, 8, 14, 65, 1, 2, 8, 1, 1, 1.5, 0, 20);
-            case 3 -> new FieldDropProfile(false, 9, 15, 60, 1, 2, 9, 1, 1, 2, 0, 30);
-            case 4 -> new FieldDropProfile(false, 11, 17, 60, 1, 2, 10, 1, 1, 2.5, 0, 45);
-            case 5 -> new FieldDropProfile(false, 12, 21, 55, 1, 2, 12, 1, 1, 3, 0, 60);
-            default -> new FieldDropProfile(false, 6, 12, 70, 1, 2, 6, 1, 1, 1, 0, 10);
+            case 2 -> new FieldDropProfile(false, 8,  14, 65, 1, 2, 8,  1, 1, 1.5, 0, 20, 2);
+            case 3 -> new FieldDropProfile(false, 9,  15, 60, 1, 2, 9,  1, 1, 2,   0, 30, 3);
+            case 4 -> new FieldDropProfile(false, 11, 17, 60, 1, 2, 10, 1, 1, 2.5, 0, 45, 4);
+            case 5 -> new FieldDropProfile(false, 12, 21, 55, 1, 2, 12, 1, 1, 3,   0, 60, 5);
+            default -> new FieldDropProfile(false, 6,  12, 70, 1, 2, 6,  1, 1, 1,   0, 10, 1);
         };
     }
 
-    private String randomTraceId() {
+    private String randomTraceId(int field) {
         double roll = ThreadLocalRandom.current().nextDouble(100.0);
-        if (roll < 5.0) {
-            return "equip_trace_glowing";   // 에픽 (5%)
+        if (field == 5) {
+            if (roll < 2.0)  return "equip_trace_brilliant"; // 레전더리 2%
+            if (roll < 7.0)  return "equip_trace_radiant";   // 유니크 5%
+            if (roll < 25.0) return "equip_trace_glowing";   // 에픽 18%
+            if (roll < 60.0) return "equip_trace_faded";     // 레어 35%
+            return "equip_trace_broken";                      // 커먼 40%
         }
-        if (roll < 40.0) {
-            return "equip_trace_faded";     // 레어 (35%)
+        if (field == 4) {
+            if (roll < 0.5)  return "equip_trace_brilliant"; // 레전더리 0.5%
+            if (roll < 3.0)  return "equip_trace_radiant";   // 유니크 2.5%
+            if (roll < 13.0) return "equip_trace_glowing";   // 에픽 10%
+            if (roll < 48.0) return "equip_trace_faded";     // 레어 35%
+            return "equip_trace_broken";                      // 커먼 52%
         }
-        return "equip_trace_broken";        // 커먼 (60%)
+        // 필드 1~3 기본
+        if (roll < 5.0)  return "equip_trace_glowing";   // 에픽 5%
+        if (roll < 40.0) return "equip_trace_faded";     // 레어 35%
+        return "equip_trace_broken";                      // 커먼 60%
     }
 
     private boolean roll(double chancePct) {
@@ -188,6 +199,7 @@ public final class FieldDropListener implements Listener {
             int enhancementStoneMax,
             double cubeFragmentChancePct,
             double traceChancePct,
-            int expAmount
+            int expAmount,
+            int field
     ) {}
 }
