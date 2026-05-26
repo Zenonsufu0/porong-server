@@ -19,6 +19,11 @@ commands:
     usage: /empire <subcommand>
     permission: empire.use
 
+  empire-genrooms:
+    description: 보스룸 30개 월드 자동 생성 (관리자 전용, 서버 오픈 전 1회 실행)
+    usage: /empire-genrooms [world] [x] [y] [z]
+    permission: empire.admin
+
   # 메인
   메뉴:
     description: 메인 GUI 열기

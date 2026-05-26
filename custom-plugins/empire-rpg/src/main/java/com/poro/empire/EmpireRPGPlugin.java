@@ -10,6 +10,8 @@ import com.poro.empire.common.config.FoundationContext;
 import com.poro.empire.common.registry.master.MasterRegistryBootstrap;
 import com.poro.empire.common.registry.master.MasterRegistryContext;
 import com.poro.empire.common.result.Result;
+import com.poro.empire.boss.room.BossRoomGenerationService;
+import com.poro.empire.command.BossRoomGenCommand;
 import com.poro.empire.command.EmpireCommand;
 import com.poro.empire.command.PlayerCommandRouter;
 import com.poro.empire.init.ClassInitService;
@@ -201,7 +203,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         this.growthStateStore = new GrowthStateStore();
         this.islandStorageStore = new IslandStorageStore();
         this.islandTerritoryStateStore = new IslandTerritoryStateStore();
-        this.bossRoomManager = new BossRoomManager();
+        this.bossRoomManager = BossRoomManager.fromConfig(this);
         this.bossRewardService = new BossRewardService(
                 growthStateStore, islandTerritoryStateStore, playerDataManager, bossRoomManager, getLogger());
 
@@ -353,6 +355,11 @@ public final class EmpireRPGPlugin extends JavaPlugin {
 
         registerCommands();
         registerListeners(fieldStateProvider, fieldBossScheduler);
+
+        // 보스룸 생성 커맨드 (관리자 전용, 서버 오픈 전 1회)
+        BossRoomGenerationService genService = new BossRoomGenerationService(this);
+        var genCmd = getCommand("empire-genrooms");
+        if (genCmd != null) genCmd.setExecutor(new BossRoomGenCommand(genService));
         ExploreHubRefresher.start(this, fieldStateProvider); // uses the scheduler as provider
 
         // 20분(24000틱)마다 영지 자동재배기 생산

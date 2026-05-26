@@ -115,6 +115,41 @@ field-bosses:
     y: 64.0
     z: 100.0
 
+# 보스룸 슬롯 — /empire genrooms 로 방 생성 후 자동 사용.
+# 월드 X=10000~10349, Z=10000~10289 영역에 6×5 배치 (방 50블록, 간격 10블록).
+# 맵 확정 후 world 이름 및 좌표 수정 가능.
+boss-room-slots:
+  slot-0:  { id:  0, world: "world", player-spawn: { x: 10024.5, y: 65.0, z: 10045.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10024.5, y: 65.0, z: 10010.0 } }
+  slot-1:  { id:  1, world: "world", player-spawn: { x: 10084.5, y: 65.0, z: 10045.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10084.5, y: 65.0, z: 10010.0 } }
+  slot-2:  { id:  2, world: "world", player-spawn: { x: 10144.5, y: 65.0, z: 10045.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10144.5, y: 65.0, z: 10010.0 } }
+  slot-3:  { id:  3, world: "world", player-spawn: { x: 10204.5, y: 65.0, z: 10045.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10204.5, y: 65.0, z: 10010.0 } }
+  slot-4:  { id:  4, world: "world", player-spawn: { x: 10264.5, y: 65.0, z: 10045.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10264.5, y: 65.0, z: 10010.0 } }
+  slot-5:  { id:  5, world: "world", player-spawn: { x: 10324.5, y: 65.0, z: 10045.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10324.5, y: 65.0, z: 10010.0 } }
+  slot-6:  { id:  6, world: "world", player-spawn: { x: 10024.5, y: 65.0, z: 10105.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10024.5, y: 65.0, z: 10070.0 } }
+  slot-7:  { id:  7, world: "world", player-spawn: { x: 10084.5, y: 65.0, z: 10105.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10084.5, y: 65.0, z: 10070.0 } }
+  slot-8:  { id:  8, world: "world", player-spawn: { x: 10144.5, y: 65.0, z: 10105.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10144.5, y: 65.0, z: 10070.0 } }
+  slot-9:  { id:  9, world: "world", player-spawn: { x: 10204.5, y: 65.0, z: 10105.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10204.5, y: 65.0, z: 10070.0 } }
+  slot-10: { id: 10, world: "world", player-spawn: { x: 10264.5, y: 65.0, z: 10105.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10264.5, y: 65.0, z: 10070.0 } }
+  slot-11: { id: 11, world: "world", player-spawn: { x: 10324.5, y: 65.0, z: 10105.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10324.5, y: 65.0, z: 10070.0 } }
+  slot-12: { id: 12, world: "world", player-spawn: { x: 10024.5, y: 65.0, z: 10165.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10024.5, y: 65.0, z: 10130.0 } }
+  slot-13: { id: 13, world: "world", player-spawn: { x: 10084.5, y: 65.0, z: 10165.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10084.5, y: 65.0, z: 10130.0 } }
+  slot-14: { id: 14, world: "world", player-spawn: { x: 10144.5, y: 65.0, z: 10165.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10144.5, y: 65.0, z: 10130.0 } }
+  slot-15: { id: 15, world: "world", player-spawn: { x: 10204.5, y: 65.0, z: 10165.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10204.5, y: 65.0, z: 10130.0 } }
+  slot-16: { id: 16, world: "world", player-spawn: { x: 10264.5, y: 65.0, z: 10165.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10264.5, y: 65.0, z: 10130.0 } }
+  slot-17: { id: 17, world: "world", player-spawn: { x: 10324.5, y: 65.0, z: 10165.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10324.5, y: 65.0, z: 10130.0 } }
+  slot-18: { id: 18, world: "world", player-spawn: { x: 10024.5, y: 65.0, z: 10225.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10024.5, y: 65.0, z: 10190.0 } }
+  slot-19: { id: 19, world: "world", player-spawn: { x: 10084.5, y: 65.0, z: 10225.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10084.5, y: 65.0, z: 10190.0 } }
+  slot-20: { id: 20, world: "world", player-spawn: { x: 10144.5, y: 65.0, z: 10225.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10144.5, y: 65.0, z: 10190.0 } }
+  slot-21: { id: 21, world: "world", player-spawn: { x: 10204.5, y: 65.0, z: 10225.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10204.5, y: 65.0, z: 10190.0 } }
+  slot-22: { id: 22, world: "world", player-spawn: { x: 10264.5, y: 65.0, z: 10225.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10264.5, y: 65.0, z: 10190.0 } }
+  slot-23: { id: 23, world: "world", player-spawn: { x: 10324.5, y: 65.0, z: 10225.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10324.5, y: 65.0, z: 10190.0 } }
+  slot-24: { id: 24, world: "world", player-spawn: { x: 10024.5, y: 65.0, z: 10285.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10024.5, y: 65.0, z: 10250.0 } }
+  slot-25: { id: 25, world: "world", player-spawn: { x: 10084.5, y: 65.0, z: 10285.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10084.5, y: 65.0, z: 10250.0 } }
+  slot-26: { id: 26, world: "world", player-spawn: { x: 10144.5, y: 65.0, z: 10285.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10144.5, y: 65.0, z: 10250.0 } }
+  slot-27: { id: 27, world: "world", player-spawn: { x: 10204.5, y: 65.0, z: 10285.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10204.5, y: 65.0, z: 10250.0 } }
+  slot-28: { id: 28, world: "world", player-spawn: { x: 10264.5, y: 65.0, z: 10285.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10264.5, y: 65.0, z: 10250.0 } }
+  slot-29: { id: 29, world: "world", player-spawn: { x: 10324.5, y: 65.0, z: 10285.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10324.5, y: 65.0, z: 10250.0 } }
+
 # 강화 촉진제 요구량 — 경제 분석 후 확정 예정. /empire reload 로 재적용.
 # tier 키 이름은 자유이나 max-level 기준으로 오름차순 정렬됩니다.
 # minor/mid/major 는 각각 하급/중급/상급 촉진제 필요 개수.
