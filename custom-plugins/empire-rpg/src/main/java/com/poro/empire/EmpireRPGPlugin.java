@@ -201,8 +201,9 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         this.growthStateStore = new GrowthStateStore();
         this.islandStorageStore = new IslandStorageStore();
         this.islandTerritoryStateStore = new IslandTerritoryStateStore();
+        this.bossRoomManager = new BossRoomManager();
         this.bossRewardService = new BossRewardService(
-                growthStateStore, islandTerritoryStateStore, playerDataManager, getLogger());
+                growthStateStore, islandTerritoryStateStore, playerDataManager, bossRoomManager, getLogger());
 
         Result<BossEngineRuntime> bossEngineResult = BossEngineBootstrap.bootstrap(this, foundationContext, masterRegistryContext, this.bossRewardService);
         if (bossEngineResult.isFailure()) {
@@ -296,7 +297,6 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         this.cooldownManager = new CooldownManager();
         this.combatStateService = new CombatStateService();
         this.playerLevelingService = new PlayerLevelingService();
-        this.bossRoomManager = new BossRoomManager();
         this.auctionStore = new AuctionStore(
                 foundationContext.connectionProvider(),
                 foundationContext.transactionHelper(),
@@ -445,7 +445,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                 new HotbarInteractListener(hotbarService, fieldStateProvider, combatStateService), this);
         FieldTeleportService fieldTeleportService = new FieldTeleportService(this);
         BossRoomListener bossRoomListenerInstance =
-                new BossRoomListener(this, bossRoomManager, masterRegistryContext.bossMasters());
+                new BossRoomListener(this, bossRoomManager, masterRegistryContext.bossMasters(), partyManager);
         getServer().getPluginManager().registerEvents(
                 new MainHubListener(this, fieldStateProvider, growthStateStore, growthEngineRuntime, scoreboardService, playerDataManager, islandStorageStore, islandTerritoryStateStore, fieldTeleportService, combatStateService, auctionGuiListener,
                         bossRoomListenerInstance, fieldHubListener, bossHubListener), this);

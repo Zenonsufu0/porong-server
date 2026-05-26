@@ -1,5 +1,6 @@
 package com.poro.empire.boss.engine;
 
+import com.poro.empire.boss.room.BossRoomManager;
 import com.poro.empire.growth.GrowthStateStore;
 import com.poro.empire.growth.engine.PlayerGrowthState;
 import com.poro.empire.growth.island.IslandTerritoryStateStore;
@@ -21,19 +22,22 @@ public final class BossRewardService implements BossRewardResolverHook {
     private static final String TRACE_BROKEN    = "equip_trace_broken";
     private static final double CONTRIBUTION_THRESHOLD = 3.0;
 
-    private final GrowthStateStore growthStateStore;
+    private final GrowthStateStore          growthStateStore;
     private final IslandTerritoryStateStore islandTerritoryStateStore;
-    private final PlayerDataManager playerDataManager;
-    private final Logger logger;
+    private final PlayerDataManager         playerDataManager;
+    private final BossRoomManager           bossRoomManager;
+    private final Logger                    logger;
 
     public BossRewardService(GrowthStateStore growthStateStore,
                              IslandTerritoryStateStore islandTerritoryStateStore,
                              PlayerDataManager playerDataManager,
+                             BossRoomManager bossRoomManager,
                              Logger logger) {
-        this.growthStateStore = growthStateStore;
+        this.growthStateStore          = growthStateStore;
         this.islandTerritoryStateStore = islandTerritoryStateStore;
-        this.playerDataManager = playerDataManager;
-        this.logger = logger;
+        this.playerDataManager         = playerDataManager;
+        this.bossRoomManager           = bossRoomManager;
+        this.logger                    = logger;
     }
 
     public void grantFieldBossReward(UUID killerUuid, int fieldIndex) {
@@ -88,6 +92,7 @@ public final class BossRewardService implements BossRewardResolverHook {
             }
 
             grantRewards(uuid, table);
+            bossRoomManager.markCleared(uuid, summary.bossId());
             rewarded++;
         }
 

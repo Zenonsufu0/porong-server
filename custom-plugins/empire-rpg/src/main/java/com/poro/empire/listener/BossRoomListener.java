@@ -1,8 +1,10 @@
 package com.poro.empire.listener;
 
+import com.poro.empire.boss.party.PartyManager;
 import com.poro.empire.boss.room.BossRoomManager;
 import com.poro.empire.common.registry.master.BossMasterRegistry;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.block.sign.Side;
@@ -18,14 +20,17 @@ import java.util.UUID;
 public final class BossRoomListener implements Listener {
 
     private final BossRoomManager bossRoomManager;
+    private final PartyManager    partyManager;
 
-    public BossRoomListener(Plugin plugin, BossRoomManager bossRoomManager, BossMasterRegistry bossMasters) {
+    public BossRoomListener(Plugin plugin, BossRoomManager bossRoomManager,
+                            BossMasterRegistry bossMasters, PartyManager partyManager) {
         this.bossRoomManager = bossRoomManager;
+        this.partyManager    = partyManager;
     }
 
     /**
-     * 보스룸 앞에 "[보스]" 텍스트가 적힌 표지판을 우클릭하면 입장 처리.
-     * 관리자가 서버 맵에 표지판을 설치하는 방식으로 좌표 의존성 없이 동작.
+     * 보스룸 앞 "[보스]" 표지판 우클릭 → 파티 리더 기준 전원 입장.
+     * 파티가 없으면 단독 입장. 비리더 멤버가 클릭하면 리더에게 확인하라고 안내.
      */
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
@@ -44,7 +49,16 @@ public final class BossRoomListener implements Listener {
 
         String bossId = bossRoomManager.getPendingBoss(uuid).orElse(null);
         if (bossId == null) {
-            player.sendMessage("§c[보스] 먼저 §l/보스§c 메뉴에서 도전할 보스를 선택하세요.");
+            // 파티 멤버인데 본인 pending이 없으면 리더 안내
+            partyManager.findParty(uuid).ifPresentOrElse(party -> {
+                if (!party.leaderId().equals(uuid)) {
+                    player.sendMessage("§e[보스] §7파티 리더 §f"
+                            + Bukkit.getOfflinePlayer(party.leaderId()).getName()
+                            + "§7이(가) /보스 메뉴에서 보스를 선택하고 이 표지판을 클릭해야 입장됩니다.");
+                } else {
+                    player.sendMessage("§c[보스] §l/보스§c 메뉴에서 먼저 보스를 선택하세요.");
+                }
+            }, () -> player.sendMessage("§c[보스] §l/보스§c 메뉴에서 먼저 보스를 선택하세요."));
             return;
         }
 
@@ -55,6 +69,25 @@ public final class BossRoomListener implements Listener {
 
         bossRoomManager.enterRoom(uuid, bossId);
         bossRoomManager.clearPendingBoss(uuid);
-        player.sendMessage("§6[보스] §f" + bossId + " §7룸 입장합니다. 준비하세요!");
+
+        // 파티 리더인 경우 온라인 파티원 전원 동반 입장
+        var party = partyManager.findParty(uuid);
+        if (party.isPresent() && party.get().leaderId().equals(uuid)) {
+            int coEntered = 0;
+            for (UUID memberId : party.get().members()) {
+                if (memberId.equals(uuid)) continue;
+                if (bossRoomManager.isInBossRoom(memberId)) continue;
+                Player member = Bukkit.getPlayer(memberId);
+                if (member == null) continue;
+                bossRoomManager.enterRoom(memberId, bossId);
+                bossRoomManager.clearPendingBoss(memberId);
+                member.sendMessage("§6[보스] §7파티 리더 §f" + player.getName()
+                        + "§7의 입장으로 §f" + bossId + " §7보스룸에 입장합니다!");
+                coEntered++;
+            }
+            player.sendMessage("§6[보스] §f" + bossId + " §7룸 입장. 파티원 §e" + coEntered + "명 §7함께 입장.");
+        } else {
+            player.sendMessage("§6[보스] §f" + bossId + " §7룸 입장합니다. 준비하세요!");
+        }
     }
 }

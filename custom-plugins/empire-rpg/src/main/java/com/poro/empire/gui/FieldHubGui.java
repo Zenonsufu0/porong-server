@@ -14,11 +14,11 @@ public final class FieldHubGui {
     public record FieldDef(String id, String displayName, Material icon) {}
 
     public static final List<FieldDef> FIELDS = List.of(
-            new FieldDef("field_1", "수도 외곽 평원", Material.GRASS_BLOCK),
-            new FieldDef("field_2", "폐광 지대",      Material.COAL_ORE),
-            new FieldDef("field_3", "오염된 수로",    Material.WATER_BUCKET),
-            new FieldDef("field_4", "무너진 초소",    Material.CHISELED_STONE_BRICKS),
-            new FieldDef("field_5", "고대 성벽 잔해", Material.MOSSY_COBBLESTONE)
+            new FieldDef("plain",   "수도 외곽 평원", Material.GRASS_BLOCK),
+            new FieldDef("mine",    "폐광 지대",      Material.COAL_ORE),
+            new FieldDef("sewer",   "오염된 수로",    Material.WATER_BUCKET),
+            new FieldDef("outpost", "무너진 초소",    Material.CHISELED_STONE_BRICKS),
+            new FieldDef("ruins",   "고대 성벽 잔해", Material.MOSSY_COBBLESTONE)
     );
 
     // 슬롯 배치: 3 + 2 레이아웃
