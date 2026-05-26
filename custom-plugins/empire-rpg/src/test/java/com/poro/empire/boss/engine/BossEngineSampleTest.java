@@ -25,7 +25,7 @@ class BossEngineSampleTest {
         BossRunService runService = createService(timeProvider, recordHook);
 
         Result<BossRun> ragnesStart = runService.startRun(new BossEntryRequest(
-                "ragnes",
+                "fallen_knight",
                 "leader_a",
                 List.of("leader_a", "member_b", "member_c")
         ));
@@ -53,7 +53,7 @@ class BossEngineSampleTest {
         assertTrue(ragnesSummary.clearSuccess());
 
         Result<BossRun> carmenStart = runService.startRun(new BossEntryRequest(
-                "carmen",
+                "corrupted_lord",
                 "leader_x",
                 List.of("leader_x", "member_y")
         ));
@@ -109,7 +109,7 @@ class BossEngineSampleTest {
         BossRunService runService = createService(timeProvider, recordHook);
 
         BossRun run = runService.startRun(new BossEntryRequest(
-                "ragnes",
+                "fallen_knight",
                 "solo_user",
                 List.of("solo_user")
         )).orElseThrow();
@@ -129,8 +129,8 @@ class BossEngineSampleTest {
         DomainLogger logger = commonLogger.domain("boss-engine-test");
 
         BossMasterRegistry bossMasterRegistry = new BossMasterRegistry();
-        bossMasterRegistry.register(new BossMaster("ragnes", "Ragnes", "final", "south", true, false));
-        bossMasterRegistry.register(new BossMaster("carmen", "Carmen", "extreme", "arkanon", true, true));
+        bossMasterRegistry.register(new BossMaster("fallen_knight", "타락 기사장", "season", "field1", true, false));
+        bossMasterRegistry.register(new BossMaster("corrupted_lord", "오염된 군주", "season", "field2", true, true));
 
         BossEntryRuleRegistry entryRuleRegistry = new BossEntryRuleRegistry();
         loadEntryRules().forEach(entryRuleRegistry::register);

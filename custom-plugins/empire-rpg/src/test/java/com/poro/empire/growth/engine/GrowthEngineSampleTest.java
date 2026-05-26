@@ -60,7 +60,7 @@ class GrowthEngineSampleTest {
 
         PlayerGrowthState state = new PlayerGrowthState("user_growth_01", "warrior");
         state.addCurrency("gold", 500_000L);
-        state.addCurrency("enhancement_stone", 500L);
+        state.addCurrency("mat_stone_enhance", 500L);
         state.addCurrency("mat_cube", 5L);
 
         PlayerEquipmentItem weapon = new PlayerEquipmentItem("inst_weapon_01", "t2_gs_ragnes");
@@ -75,8 +75,8 @@ class GrowthEngineSampleTest {
         state.addInventoryItem(ring);
 
         equipmentService.equip(state, EquipmentSlot.WEAPON, weapon.itemInstanceId()).orElseThrow();
-        equipmentService.equip(state, EquipmentSlot.ARMOR_HEAD, armorHead.itemInstanceId()).orElseThrow();
-        equipmentService.equip(state, EquipmentSlot.ARMOR_CHEST, armorChest.itemInstanceId()).orElseThrow();
+        equipmentService.equip(state, EquipmentSlot.HELMET, armorHead.itemInstanceId()).orElseThrow();
+        equipmentService.equip(state, EquipmentSlot.CHESTPLATE, armorChest.itemInstanceId()).orElseThrow();
         equipmentService.equip(state, EquipmentSlot.ACCESSORY_1, ring.itemInstanceId()).orElseThrow();
 
         EnhancementService.EnhancementResult enhanceSuccess = enhancementService

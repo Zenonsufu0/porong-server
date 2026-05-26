@@ -61,28 +61,32 @@ class OperationsQuerySampleTest {
                 "ragnes",
                 true,
                 4,
-                611,
+                611L,
                 2,
                 "",
                 List.of(
                         Map.of("user_id", "user_001", "deaths", 0),
                         Map.of("user_id", "user_002", "deaths", 1)
-                )
+                ),
+                Instant.parse("2026-04-12T10:00:00Z").getEpochSecond(),
+                3
         ));
         bossHook.onRunEnded(new BossResultSummary(
                 "run_002",
                 "carmen",
                 false,
                 3,
-                994,
+                994L,
                 0,
                 "battle_fail",
                 List.of(
                         Map.of("user_id", "user_001", "deaths", 2),
                         Map.of("user_id", "user_003", "deaths", 3)
-                )
+                ),
+                Instant.parse("2026-04-12T11:00:00Z").getEpochSecond(),
+                2
         ));
-        BossEngineRuntime bossRuntime = new BossEngineRuntime(null, null, null, bossHook);
+        BossEngineRuntime bossRuntime = new BossEngineRuntime(null, null, null, bossHook, null);
 
         InMemoryLifeCraftLogHook craftLogHook = new InMemoryLifeCraftLogHook();
         craftLogHook.onCrafted(new LifeCraftLogEntry(

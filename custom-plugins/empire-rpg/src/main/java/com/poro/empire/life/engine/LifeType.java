@@ -11,7 +11,8 @@ public enum LifeType {
     ALCHEMY("alchemy"),
     REFINING("refining"),
     CRAFTING("crafting"),
-    ESTATE_MANAGEMENT("estate_management");
+    ESTATE_MANAGEMENT("estate_management"),
+    WORKSHOP("workshop");
 
     private final String code;
 
