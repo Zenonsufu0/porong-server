@@ -90,6 +90,7 @@ public final class GrowthEngineBootstrap {
                 new PreferAfterPotentialSelectionHook(),
                 new ThreadLocalRandomProvider()
         );
+        SuccessionService successionService = new SuccessionService();
         SetBonusService setBonusService = new SetBonusService(masterRegistryContext.itemMasters(), setBonusRegistry);
         RuneService runeService = new RuneService(runeRegistry, masterRegistryContext.itemMasters());
         EngravingService engravingService = new EngravingService(engravingRegistry);
@@ -111,6 +112,7 @@ public final class GrowthEngineBootstrap {
                 equipmentService,
                 enhancementService,
                 potentialService,
+                successionService,
                 setBonusService,
                 runeService,
                 engravingService,

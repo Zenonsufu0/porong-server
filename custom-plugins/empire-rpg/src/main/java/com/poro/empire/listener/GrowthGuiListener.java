@@ -17,6 +17,7 @@ import com.poro.empire.growth.engine.PotentialGrade;
 import com.poro.empire.growth.engine.PotentialLine;
 import com.poro.empire.growth.engine.PotentialProfile;
 import com.poro.empire.growth.engine.PotentialService;
+import com.poro.empire.growth.engine.SuccessionService;
 import com.poro.empire.gui.GuiTitles;
 import com.poro.empire.gui.MainHubGui;
 import com.poro.empire.scoreboard.ScoreboardService;
@@ -39,6 +40,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public final class GrowthGuiListener implements Listener {
 
@@ -126,11 +128,40 @@ public final class GrowthGuiListener implements Listener {
     );
 
     // ═══════════════════════════════════════════════════════════════
+    // 전승 GUI 슬롯 상수 (gui_succession.md 스펙 기준, 45슬롯)
+    // ═══════════════════════════════════════════════════════════════
+    private static final int HEIR_SLOT_SEL_WEAPON      = 8;
+    private static final int HEIR_SLOT_SEL_HELMET      = 17;
+    private static final int HEIR_SLOT_SEL_CHESTPLATE  = 26;
+    private static final int HEIR_SLOT_SEL_LEGGINGS    = 35;
+    private static final int HEIR_SLOT_SEL_BOOTS       = 44;
+    private static final int HEIR_SLOT_SOURCE          = 11;  // [흔적] — 클릭으로 순환 선택
+    private static final int HEIR_SLOT_ARROW           = 13;  // [→] 장식
+    private static final int HEIR_SLOT_TARGET          = 15;  // [대상] — 오른쪽 장비 클릭 시 자동
+    private static final int HEIR_SLOT_TYPE            = 22;  // [전승권] — 클릭으로 유형 순환
+    private static final int HEIR_SLOT_PREVIEW_SRC     = 29;  // 흔적 현재 옵션 미리보기
+    private static final int HEIR_SLOT_PREVIEW_TGT     = 33;  // 전승 후 대상 미리보기
+    private static final int HEIR_SLOT_EXECUTE         = 40;  // [전승!]
+    private static final int HEIR_SLOT_BACK            = 36;
+
+    private static final Map<Integer, EquipmentSlot> HEIR_SELECTOR_TO_EQUIP = Map.of(
+        HEIR_SLOT_SEL_WEAPON,     EquipmentSlot.WEAPON,
+        HEIR_SLOT_SEL_HELMET,     EquipmentSlot.HELMET,
+        HEIR_SLOT_SEL_CHESTPLATE, EquipmentSlot.CHESTPLATE,
+        HEIR_SLOT_SEL_LEGGINGS,   EquipmentSlot.LEGGINGS,
+        HEIR_SLOT_SEL_BOOTS,      EquipmentSlot.BOOTS
+    );
+
+    // ═══════════════════════════════════════════════════════════════
     // 플레이어별 상태 (선택 + 대기 결과)
     // ═══════════════════════════════════════════════════════════════
     private final Map<UUID, String>                     selectedEnhanceId       = new ConcurrentHashMap<>();
     private final Map<UUID, String>                     selectedPotentialId     = new ConcurrentHashMap<>();
     private final Map<UUID, PotentialService.PotentialOperationResult> pendingPotentialResult = new ConcurrentHashMap<>();
+    // 전승 상태
+    private final Map<UUID, String>                             selectedHeirloomTarget = new ConcurrentHashMap<>();
+    private final Map<UUID, String>                             selectedHeirloomSource = new ConcurrentHashMap<>();
+    private final Map<UUID, SuccessionService.SuccessionType>  selectedHeirloomType   = new ConcurrentHashMap<>();
 
     // ═══════════════════════════════════════════════════════════════
     // 의존성
@@ -195,6 +226,9 @@ public final class GrowthGuiListener implements Listener {
         } else if (GuiTitles.GROWTH_POTENTIAL.equals(event.getView().title())) {
             event.setCancelled(true);
             handlePotentialClick(player, event.getRawSlot());
+        } else if (GuiTitles.GROWTH_HEIRLOOM.equals(event.getView().title())) {
+            event.setCancelled(true);
+            handleHeirloomClick(player, event.getRawSlot());
         }
     }
 
@@ -206,7 +240,7 @@ public final class GrowthGuiListener implements Listener {
         switch (slot) {
             case 29 -> openGrowthEnhance(player);
             case 31 -> openGrowthPotential(player);
-            case 33 -> player.sendMessage("§8전승 — 준비 중");
+            case 33 -> openGrowthHeirloom(player);
             case 45 -> MainHubGui.open(player);
             case 49 -> player.closeInventory();
         }
@@ -615,6 +649,250 @@ public final class GrowthGuiListener implements Listener {
     }
 
     // ═══════════════════════════════════════════════════════════════
+    // 전승 GUI
+    // ═══════════════════════════════════════════════════════════════
+
+    private void openGrowthHeirloom(Player player) {
+        UUID uid = player.getUniqueId();
+        selectedHeirloomTarget.remove(uid);
+        selectedHeirloomSource.remove(uid);
+        selectedHeirloomType.put(uid, SuccessionService.SuccessionType.BASIC);
+
+        PlayerGrowthState state = getState(player);
+        Inventory gui = Bukkit.createInventory(null, 45, GuiTitles.GROWTH_HEIRLOOM);
+        ItemStack pane = pane();
+        for (int i = 0; i < 45; i++) gui.setItem(i, pane);
+
+        fillHeirloomEquipSelector(gui, state, null);
+        gui.setItem(HEIR_SLOT_SOURCE, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§8흔적 (미선택)",
+                List.of("§7──────────────",
+                        "§7전승할 소모 장비 선택",
+                        "§7클릭 → 보유 장비 순환",
+                        "§7──────────────",
+                        "§8장착 중인 아이템은 불가")));
+        gui.setItem(HEIR_SLOT_ARROW,  MainHubGui.icon(Material.ARROW, "§7→", List.of()));
+        gui.setItem(HEIR_SLOT_TARGET, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§8대상 (미선택)",
+                List.of("§7오른쪽 슬롯에서 장착 장비 선택")));
+        gui.setItem(HEIR_SLOT_TYPE, buildTypeIcon(SuccessionService.SuccessionType.BASIC));
+        gui.setItem(HEIR_SLOT_EXECUTE, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§8전승!",
+                List.of("§7흔적과 대상을 먼저 선택하세요")));
+        gui.setItem(HEIR_SLOT_BACK, MainHubGui.icon(Material.ARROW, "§7뒤로", List.of("§7장비 관리")));
+        player.openInventory(gui);
+    }
+
+    private void handleHeirloomClick(Player player, int slot) {
+        UUID uid = player.getUniqueId();
+
+        if (slot == HEIR_SLOT_BACK) { openEquipmentHub(player); return; }
+
+        // 오른쪽 열: 대상 선택
+        EquipmentSlot equipSlot = HEIR_SELECTOR_TO_EQUIP.get(slot);
+        if (equipSlot != null) {
+            PlayerGrowthState state = getState(player);
+            String instanceId = state.equippedItems().get(equipSlot);
+            if (instanceId == null) { player.sendMessage("§7해당 슬롯에 장착된 아이템이 없습니다."); return; }
+            selectedHeirloomTarget.put(uid, instanceId);
+            Inventory inv = player.getOpenInventory().getTopInventory();
+            fillHeirloomEquipSelector(inv, state, instanceId);
+            refreshHeirloomPanels(inv, state, uid);
+            return;
+        }
+
+        // 흔적 순환 선택
+        if (slot == HEIR_SLOT_SOURCE) {
+            PlayerGrowthState state = getState(player);
+            List<PlayerEquipmentItem> pool = heirloomSourcePool(state);
+            if (pool.isEmpty()) { player.sendMessage("§7보유 중인 미장착 장비가 없습니다."); return; }
+            String current = selectedHeirloomSource.get(uid);
+            int idx = -1;
+            for (int i = 0; i < pool.size(); i++) {
+                if (pool.get(i).itemInstanceId().equals(current)) { idx = i; break; }
+            }
+            int next = (idx + 1) % pool.size();
+            selectedHeirloomSource.put(uid, pool.get(next).itemInstanceId());
+            refreshHeirloomPanels(player.getOpenInventory().getTopInventory(), state, uid);
+            return;
+        }
+
+        // 전승 유형 순환
+        if (slot == HEIR_SLOT_TYPE) {
+            SuccessionService.SuccessionType type = selectedHeirloomType.getOrDefault(uid, SuccessionService.SuccessionType.BASIC).next();
+            selectedHeirloomType.put(uid, type);
+            player.getOpenInventory().getTopInventory().setItem(HEIR_SLOT_TYPE, buildTypeIcon(type));
+            refreshHeirloomExecuteButton(player.getOpenInventory().getTopInventory(), getState(player), uid);
+            return;
+        }
+
+        // [전승!]
+        if (slot == HEIR_SLOT_EXECUTE) {
+            String sourceId = selectedHeirloomSource.get(uid);
+            String targetId = selectedHeirloomTarget.get(uid);
+            if (sourceId == null || targetId == null) { player.sendMessage("§c흔적과 대상을 모두 선택하세요."); return; }
+            if (combatStateService.isInCombat(uid)) { player.sendMessage("§c전투 중에는 전승할 수 없습니다."); return; }
+            PlayerGrowthState state = getState(player);
+            SuccessionService.SuccessionType type = selectedHeirloomType.getOrDefault(uid, SuccessionService.SuccessionType.BASIC);
+            var result = growthEngineRuntime.successionService().apply(state, sourceId, targetId, type);
+            if (result.isFailure()) { player.sendMessage("§c전승 실패: " + result.message()); return; }
+            selectedHeirloomSource.remove(uid);
+            selectedHeirloomTarget.remove(uid);
+            selectedHeirloomType.put(uid, SuccessionService.SuccessionType.BASIC);
+            scoreboardService.refresh(player);
+            String tgtName = itemDisplayName(state.inventoryItem(targetId).orElse(null));
+            player.sendMessage("§6§l[전승 완료] §f" + tgtName + " §e" + type.displayName() + " §a적용!");
+            player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.7f, 1.0f);
+            openGrowthHeirloom(player);
+        }
+    }
+
+    private void fillHeirloomEquipSelector(Inventory inv, PlayerGrowthState state, String selectedTargetId) {
+        Map<EquipmentSlot, String> equipped = state.equippedItems();
+        for (Map.Entry<Integer, EquipmentSlot> e : HEIR_SELECTOR_TO_EQUIP.entrySet()) {
+            int guiSlot  = e.getKey();
+            EquipmentSlot es = e.getValue();
+            String instanceId = equipped.get(es);
+            boolean selected = instanceId != null && instanceId.equals(selectedTargetId);
+            if (instanceId == null) {
+                inv.setItem(guiSlot, MainHubGui.icon(
+                        EQUIP_MATERIAL.getOrDefault(es, Material.GRAY_STAINED_GLASS_PANE),
+                        "§8" + slotLabel(es) + " (미장착)", List.of()));
+            } else {
+                PlayerEquipmentItem item = state.inventoryItem(instanceId).orElse(null);
+                inv.setItem(guiSlot, MainHubGui.icon(
+                        EQUIP_MATERIAL.getOrDefault(es, Material.NETHER_STAR),
+                        (selected ? "§a§l" : "§f") + itemDisplayName(item),
+                        List.of(selected ? "§a▶ 대상 선택됨" : "§7클릭하여 대상 선택",
+                                "§7등급: " + gradeColor(item != null ? item.grade() : ItemGrade.COMMON) + (item != null ? item.grade().displayName() : "?"),
+                                "§7강화: §e+" + (item != null ? item.enhanceLevel() : 0))));
+            }
+        }
+    }
+
+    private void refreshHeirloomPanels(Inventory inv, PlayerGrowthState state, UUID uid) {
+        String sourceId = selectedHeirloomSource.get(uid);
+        String targetId = selectedHeirloomTarget.get(uid);
+        SuccessionService.SuccessionType type = selectedHeirloomType.getOrDefault(uid, SuccessionService.SuccessionType.BASIC);
+
+        // 흔적 슬롯
+        if (sourceId != null) {
+            PlayerEquipmentItem src = state.inventoryItem(sourceId).orElse(null);
+            inv.setItem(HEIR_SLOT_SOURCE, MainHubGui.icon(
+                    Material.NETHER_STAR, "§e흔적: §f" + itemDisplayName(src),
+                    List.of("§7등급: " + gradeColor(src != null ? src.grade() : ItemGrade.COMMON) + (src != null ? src.grade().displayName() : "?"),
+                            "§7서브스탯: §e" + (src != null ? src.substatLines().size() : 0) + "라인",
+                            "§7──────────────",
+                            "§7클릭 → 다음 아이템으로")));
+            // 흔적 현재 옵션 미리보기
+            inv.setItem(HEIR_SLOT_PREVIEW_SRC, buildHeirloomPreviewIcon(src, "§7흔적 현재 옵션", "§7"));
+        } else {
+            inv.setItem(HEIR_SLOT_SOURCE, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§8흔적 (미선택)",
+                    List.of("§7클릭 → 보유 장비 순환")));
+            inv.setItem(HEIR_SLOT_PREVIEW_SRC, pane());
+        }
+
+        // 대상 슬롯
+        if (targetId != null) {
+            PlayerEquipmentItem tgt = state.inventoryItem(targetId).orElse(null);
+            inv.setItem(HEIR_SLOT_TARGET, MainHubGui.icon(
+                    Material.DIAMOND_SWORD, "§b대상: §f" + itemDisplayName(tgt),
+                    List.of("§7등급: " + gradeColor(tgt != null ? tgt.grade() : ItemGrade.COMMON) + (tgt != null ? tgt.grade().displayName() : "?"),
+                            "§7서브스탯: §e" + (tgt != null ? tgt.substatLines().size() : 0) + "라인")));
+            // 전승 후 대상 미리보기 (시뮬레이션)
+            if (sourceId != null) {
+                PlayerEquipmentItem src = state.inventoryItem(sourceId).orElse(null);
+                inv.setItem(HEIR_SLOT_PREVIEW_TGT, buildHeirloomAfterPreviewIcon(src, tgt, type));
+            } else {
+                inv.setItem(HEIR_SLOT_PREVIEW_TGT, buildHeirloomPreviewIcon(tgt, "§b대상 현재 옵션", "§b"));
+            }
+        } else {
+            inv.setItem(HEIR_SLOT_TARGET, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§8대상 (미선택)",
+                    List.of("§7오른쪽 슬롯에서 장착 장비 선택")));
+            inv.setItem(HEIR_SLOT_PREVIEW_TGT, pane());
+        }
+
+        refreshHeirloomExecuteButton(inv, state, uid);
+    }
+
+    private void refreshHeirloomExecuteButton(Inventory inv, PlayerGrowthState state, UUID uid) {
+        String sourceId = selectedHeirloomSource.get(uid);
+        String targetId = selectedHeirloomTarget.get(uid);
+        SuccessionService.SuccessionType type = selectedHeirloomType.getOrDefault(uid, SuccessionService.SuccessionType.BASIC);
+        if (sourceId == null || targetId == null) {
+            inv.setItem(HEIR_SLOT_EXECUTE, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§8전승!",
+                    List.of("§7흔적과 대상을 먼저 선택하세요"))); return;
+        }
+        long cost = type.goldCost();
+        boolean canAfford = cost == 0 || state.currency("gold") >= cost;
+        if (canAfford) {
+            String srcName = itemDisplayName(state.inventoryItem(sourceId).orElse(null));
+            String tgtName = itemDisplayName(state.inventoryItem(targetId).orElse(null));
+            inv.setItem(HEIR_SLOT_EXECUTE, MainHubGui.icon(Material.NETHER_STAR, "§e§l전승!",
+                    List.of("§7──────────────",
+                            "§7흔적: §e" + srcName + " §c(소모됨)",
+                            "§7대상: §b" + tgtName,
+                            "§7유형: " + type.displayName(),
+                            cost > 0 ? "§7비용: §e" + cost + "G" : "§a무료",
+                            "§7──────────────",
+                            "§e클릭하여 전승 실행")));
+        } else {
+            inv.setItem(HEIR_SLOT_EXECUTE, MainHubGui.icon(Material.RED_STAINED_GLASS_PANE, "§c골드 부족",
+                    List.of("§c필요: " + type.goldCost() + "G",
+                            "§c보유: " + state.currency("gold") + "G")));
+        }
+    }
+
+    private ItemStack buildTypeIcon(SuccessionService.SuccessionType type) {
+        Material mat = switch (type) {
+            case BASIC        -> Material.PAPER;
+            case GRADE_ONLY   -> Material.GOLD_INGOT;
+            case SUBSTAT_ONLY -> Material.DIAMOND;
+        };
+        return MainHubGui.icon(mat, "§f전승 유형: §e" + type.displayName(),
+                List.of("§7──────────────",
+                        switch (type) {
+                            case BASIC        -> "§7등급 + 서브스탯 전체 이전";
+                            case GRADE_ONLY   -> "§7등급만 이전, 서브스탯 무시";
+                            case SUBSTAT_ONLY -> "§7서브스탯만 이전, 등급 무시";
+                        },
+                        "§7──────────────",
+                        "§7클릭 → 다음 유형으로"));
+    }
+
+    private ItemStack buildHeirloomPreviewIcon(PlayerEquipmentItem item, String title, String color) {
+        if (item == null) return pane();
+        List<String> lore = new ArrayList<>();
+        lore.add(color + "등급: " + gradeColor(item.grade()) + item.grade().displayName());
+        List<PotentialLine> substats = item.substatLines();
+        if (substats.isEmpty()) {
+            lore.add("§8서브스탯: 없음");
+        } else {
+            substats.forEach(l -> lore.add("§7  " + l.optionCode() + " §e+" + String.format("%.2f", l.value())));
+        }
+        return MainHubGui.icon(Material.PAPER, color + title, lore);
+    }
+
+    private ItemStack buildHeirloomAfterPreviewIcon(PlayerEquipmentItem src, PlayerEquipmentItem tgt,
+                                                    SuccessionService.SuccessionType type) {
+        if (src == null || tgt == null) return pane();
+        ItemGrade grade = (type == SuccessionService.SuccessionType.SUBSTAT_ONLY) ? tgt.grade() : src.grade();
+        List<PotentialLine> substats = (type == SuccessionService.SuccessionType.GRADE_ONLY) ? tgt.substatLines() : src.substatLines();
+        List<String> lore = new ArrayList<>();
+        lore.add("§b전승 후 등급: " + gradeColor(grade) + grade.displayName());
+        if (substats.isEmpty()) {
+            lore.add("§8서브스탯: 없음");
+        } else {
+            substats.forEach(l -> lore.add("§7  " + l.optionCode() + " §e+" + String.format("%.2f", l.value())));
+        }
+        return MainHubGui.icon(Material.NETHER_STAR, "§b전승 후 대상 옵션", lore);
+    }
+
+    private List<PlayerEquipmentItem> heirloomSourcePool(PlayerGrowthState state) {
+        java.util.Set<String> equippedIds = new java.util.HashSet<>(state.equippedItems().values());
+        return state.inventorySnapshot().values().stream()
+                .filter(item -> !equippedIds.contains(item.itemInstanceId()))
+                .collect(Collectors.toList());
+    }
+
+    // ═══════════════════════════════════════════════════════════════
     // 장비 허브 열기 (내부)
     // ═══════════════════════════════════════════════════════════════
 
@@ -673,6 +951,16 @@ public final class GrowthGuiListener implements Listener {
     }
 
     private String gradeColor(PotentialGrade grade) {
+        return switch (grade) {
+            case COMMON    -> "§7";
+            case RARE      -> "§9";
+            case EPIC      -> "§5";
+            case UNIQUE    -> "§6";
+            case LEGENDARY -> "§c";
+        };
+    }
+
+    private String gradeColor(ItemGrade grade) {
         return switch (grade) {
             case COMMON    -> "§7";
             case RARE      -> "§9";

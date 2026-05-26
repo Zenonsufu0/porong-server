@@ -46,6 +46,10 @@ public final class PlayerGrowthState {
         inventory.put(item.itemInstanceId(), item);
     }
 
+    public void removeInventoryItem(String instanceId) {
+        inventory.remove(normalize(instanceId));
+    }
+
     public Optional<PlayerEquipmentItem> inventoryItem(String itemInstanceId) {
         return Optional.ofNullable(inventory.get(normalize(itemInstanceId)));
     }
