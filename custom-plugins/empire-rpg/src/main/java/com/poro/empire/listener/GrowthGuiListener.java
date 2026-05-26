@@ -5,6 +5,8 @@ import com.poro.empire.combat.weapon.WeaponType;
 import com.poro.empire.common.registry.master.ItemMasterRegistry;
 import com.poro.empire.common.registry.master.model.ItemMaster;
 import com.poro.empire.growth.GrowthStateStore;
+import com.poro.empire.growth.island.IslandTerritoryState;
+import com.poro.empire.growth.island.IslandTerritoryStateStore;
 import com.poro.empire.growth.engine.EnhancementRule;
 import com.poro.empire.growth.engine.EnhancementService;
 import com.poro.empire.growth.engine.EquipmentSlot;
@@ -158,25 +160,27 @@ public final class GrowthGuiListener implements Listener {
     private final Map<UUID, String>                     selectedEnhanceId       = new ConcurrentHashMap<>();
     private final Map<UUID, String>                     selectedPotentialId     = new ConcurrentHashMap<>();
     private final Map<UUID, PotentialService.PotentialOperationResult> pendingPotentialResult = new ConcurrentHashMap<>();
-    // 전승 상태
-    private final Map<UUID, String>                             selectedHeirloomTarget = new ConcurrentHashMap<>();
-    private final Map<UUID, String>                             selectedHeirloomSource = new ConcurrentHashMap<>();
-    private final Map<UUID, SuccessionService.SuccessionType>  selectedHeirloomType   = new ConcurrentHashMap<>();
+    // 전승 상태 (traceId = "equip_trace_broken" 등 customItems 키)
+    private final Map<UUID, String>                            selectedHeirloomTarget  = new ConcurrentHashMap<>();
+    private final Map<UUID, String>                            selectedHeirloomTraceId = new ConcurrentHashMap<>();
+    private final Map<UUID, SuccessionService.SuccessionType> selectedHeirloomType    = new ConcurrentHashMap<>();
 
     // ═══════════════════════════════════════════════════════════════
     // 의존성
     // ═══════════════════════════════════════════════════════════════
-    private final GrowthStateStore    growthStateStore;
-    private final GrowthEngineRuntime growthEngineRuntime;
-    private final PlayerDataManager   playerDataManager;
-    private final ItemMasterRegistry  itemMasters;
-    private final ScoreboardService   scoreboardService;
-    private final CombatStateService  combatStateService;
+    private final GrowthStateStore           growthStateStore;
+    private final IslandTerritoryStateStore  islandTerritoryStateStore;
+    private final GrowthEngineRuntime        growthEngineRuntime;
+    private final PlayerDataManager          playerDataManager;
+    private final ItemMasterRegistry         itemMasters;
+    private final ScoreboardService          scoreboardService;
+    private final CombatStateService         combatStateService;
     @SuppressWarnings("unused")
-    private final Plugin              plugin;
+    private final Plugin                     plugin;
 
     public GrowthGuiListener(
             GrowthStateStore growthStateStore,
+            IslandTerritoryStateStore islandTerritoryStateStore,
             GrowthEngineRuntime growthEngineRuntime,
             PlayerDataManager playerDataManager,
             ScoreboardService scoreboardService,
@@ -184,13 +188,14 @@ public final class GrowthGuiListener implements Listener {
             CombatStateService combatStateService,
             Plugin plugin
     ) {
-        this.growthStateStore    = growthStateStore;
-        this.growthEngineRuntime = growthEngineRuntime;
-        this.playerDataManager   = playerDataManager;
-        this.scoreboardService   = scoreboardService;
-        this.itemMasters         = itemMasters;
-        this.combatStateService  = combatStateService;
-        this.plugin              = plugin;
+        this.growthStateStore          = growthStateStore;
+        this.islandTerritoryStateStore = islandTerritoryStateStore;
+        this.growthEngineRuntime       = growthEngineRuntime;
+        this.playerDataManager         = playerDataManager;
+        this.scoreboardService         = scoreboardService;
+        this.itemMasters               = itemMasters;
+        this.combatStateService        = combatStateService;
+        this.plugin                    = plugin;
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -655,21 +660,29 @@ public final class GrowthGuiListener implements Listener {
     private void openGrowthHeirloom(Player player) {
         UUID uid = player.getUniqueId();
         selectedHeirloomTarget.remove(uid);
-        selectedHeirloomSource.remove(uid);
+        selectedHeirloomTraceId.remove(uid);
         selectedHeirloomType.put(uid, SuccessionService.SuccessionType.BASIC);
 
         PlayerGrowthState state = getState(player);
+        IslandTerritoryState islandState = islandTerritoryStateStore.getOrCreate(uid, player.getName());
         Inventory gui = Bukkit.createInventory(null, 45, GuiTitles.GROWTH_HEIRLOOM);
         ItemStack pane = pane();
         for (int i = 0; i < 45; i++) gui.setItem(i, pane);
 
         fillHeirloomEquipSelector(gui, state, null);
-        gui.setItem(HEIR_SLOT_SOURCE, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§8흔적 (미선택)",
-                List.of("§7──────────────",
-                        "§7전승할 소모 장비 선택",
-                        "§7클릭 → 보유 장비 순환",
-                        "§7──────────────",
-                        "§8장착 중인 아이템은 불가")));
+
+        List<String> tracePool = availableTraceIds(islandState);
+        if (!tracePool.isEmpty()) {
+            String firstTrace = tracePool.get(0);
+            selectedHeirloomTraceId.put(uid, firstTrace);
+            gui.setItem(HEIR_SLOT_SOURCE, buildTraceIcon(firstTrace, islandState));
+        } else {
+            gui.setItem(HEIR_SLOT_SOURCE, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§8흔적 (없음)",
+                    List.of("§7──────────────",
+                            "§7보유 중인 장비의 흔적이 없습니다",
+                            "§7필드 엘리트 몹 처치 시 획득",
+                            "§7──────────────")));
+        }
         gui.setItem(HEIR_SLOT_ARROW,  MainHubGui.icon(Material.ARROW, "§7→", List.of()));
         gui.setItem(HEIR_SLOT_TARGET, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§8대상 (미선택)",
                 List.of("§7오른쪽 슬롯에서 장착 장비 선택")));
@@ -693,24 +706,23 @@ public final class GrowthGuiListener implements Listener {
             if (instanceId == null) { player.sendMessage("§7해당 슬롯에 장착된 아이템이 없습니다."); return; }
             selectedHeirloomTarget.put(uid, instanceId);
             Inventory inv = player.getOpenInventory().getTopInventory();
+            IslandTerritoryState islandState = islandTerritoryStateStore.getOrCreate(uid, player.getName());
             fillHeirloomEquipSelector(inv, state, instanceId);
-            refreshHeirloomPanels(inv, state, uid);
+            refreshHeirloomPanels(inv, state, islandState, uid);
             return;
         }
 
         // 흔적 순환 선택
         if (slot == HEIR_SLOT_SOURCE) {
-            PlayerGrowthState state = getState(player);
-            List<PlayerEquipmentItem> pool = heirloomSourcePool(state);
-            if (pool.isEmpty()) { player.sendMessage("§7보유 중인 미장착 장비가 없습니다."); return; }
-            String current = selectedHeirloomSource.get(uid);
-            int idx = -1;
-            for (int i = 0; i < pool.size(); i++) {
-                if (pool.get(i).itemInstanceId().equals(current)) { idx = i; break; }
-            }
+            IslandTerritoryState islandState = islandTerritoryStateStore.getOrCreate(uid, player.getName());
+            List<String> pool = availableTraceIds(islandState);
+            if (pool.isEmpty()) { player.sendMessage("§7보유 중인 장비의 흔적이 없습니다."); return; }
+            String current = selectedHeirloomTraceId.get(uid);
+            int idx = pool.indexOf(current);
             int next = (idx + 1) % pool.size();
-            selectedHeirloomSource.put(uid, pool.get(next).itemInstanceId());
-            refreshHeirloomPanels(player.getOpenInventory().getTopInventory(), state, uid);
+            selectedHeirloomTraceId.put(uid, pool.get(next));
+            PlayerGrowthState state = getState(player);
+            refreshHeirloomPanels(player.getOpenInventory().getTopInventory(), state, islandState, uid);
             return;
         }
 
@@ -719,21 +731,24 @@ public final class GrowthGuiListener implements Listener {
             SuccessionService.SuccessionType type = selectedHeirloomType.getOrDefault(uid, SuccessionService.SuccessionType.BASIC).next();
             selectedHeirloomType.put(uid, type);
             player.getOpenInventory().getTopInventory().setItem(HEIR_SLOT_TYPE, buildTypeIcon(type));
-            refreshHeirloomExecuteButton(player.getOpenInventory().getTopInventory(), getState(player), uid);
+            PlayerGrowthState state = getState(player);
+            IslandTerritoryState islandState = islandTerritoryStateStore.getOrCreate(uid, player.getName());
+            refreshHeirloomExecuteButton(player.getOpenInventory().getTopInventory(), state, islandState, uid);
             return;
         }
 
         // [전승!]
         if (slot == HEIR_SLOT_EXECUTE) {
-            String sourceId = selectedHeirloomSource.get(uid);
+            String traceId = selectedHeirloomTraceId.get(uid);
             String targetId = selectedHeirloomTarget.get(uid);
-            if (sourceId == null || targetId == null) { player.sendMessage("§c흔적과 대상을 모두 선택하세요."); return; }
+            if (traceId == null || targetId == null) { player.sendMessage("§c흔적과 대상을 모두 선택하세요."); return; }
             if (combatStateService.isInCombat(uid)) { player.sendMessage("§c전투 중에는 전승할 수 없습니다."); return; }
             PlayerGrowthState state = getState(player);
+            IslandTerritoryState islandState = islandTerritoryStateStore.getOrCreate(uid, player.getName());
             SuccessionService.SuccessionType type = selectedHeirloomType.getOrDefault(uid, SuccessionService.SuccessionType.BASIC);
-            var result = growthEngineRuntime.successionService().apply(state, sourceId, targetId, type);
+            var result = growthEngineRuntime.successionService().apply(state, islandState, traceId, targetId, type);
             if (result.isFailure()) { player.sendMessage("§c전승 실패: " + result.message()); return; }
-            selectedHeirloomSource.remove(uid);
+            selectedHeirloomTraceId.remove(uid);
             selectedHeirloomTarget.remove(uid);
             selectedHeirloomType.put(uid, SuccessionService.SuccessionType.BASIC);
             scoreboardService.refresh(player);
@@ -767,25 +782,24 @@ public final class GrowthGuiListener implements Listener {
         }
     }
 
-    private void refreshHeirloomPanels(Inventory inv, PlayerGrowthState state, UUID uid) {
-        String sourceId = selectedHeirloomSource.get(uid);
+    private void refreshHeirloomPanels(Inventory inv, PlayerGrowthState state, IslandTerritoryState islandState, UUID uid) {
+        String traceId = selectedHeirloomTraceId.get(uid);
         String targetId = selectedHeirloomTarget.get(uid);
         SuccessionService.SuccessionType type = selectedHeirloomType.getOrDefault(uid, SuccessionService.SuccessionType.BASIC);
 
         // 흔적 슬롯
-        if (sourceId != null) {
-            PlayerEquipmentItem src = state.inventoryItem(sourceId).orElse(null);
-            inv.setItem(HEIR_SLOT_SOURCE, MainHubGui.icon(
-                    Material.NETHER_STAR, "§e흔적: §f" + itemDisplayName(src),
-                    List.of("§7등급: " + gradeColor(src != null ? src.grade() : ItemGrade.COMMON) + (src != null ? src.grade().displayName() : "?"),
-                            "§7서브스탯: §e" + (src != null ? src.substatLines().size() : 0) + "라인",
-                            "§7──────────────",
-                            "§7클릭 → 다음 아이템으로")));
-            // 흔적 현재 옵션 미리보기
-            inv.setItem(HEIR_SLOT_PREVIEW_SRC, buildHeirloomPreviewIcon(src, "§7흔적 현재 옵션", "§7"));
+        if (traceId != null) {
+            inv.setItem(HEIR_SLOT_SOURCE, buildTraceIcon(traceId, islandState));
+            ItemGrade traceGrade = SuccessionService.traceGrade(traceId);
+            List<String> srcLore = new ArrayList<>();
+            srcLore.add("§7등급: " + gradeColor(traceGrade) + traceGrade.displayName());
+            srcLore.add("§7보유: §e" + islandState.getCustomItem(traceId) + "개");
+            srcLore.add("§7──────────────");
+            srcLore.add("§8서브스탯은 전승 시 무작위 생성");
+            inv.setItem(HEIR_SLOT_PREVIEW_SRC, MainHubGui.icon(Material.PAPER, "§7흔적 정보", srcLore));
         } else {
             inv.setItem(HEIR_SLOT_SOURCE, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§8흔적 (미선택)",
-                    List.of("§7클릭 → 보유 장비 순환")));
+                    List.of("§7클릭 → 보유 흔적 순환")));
             inv.setItem(HEIR_SLOT_PREVIEW_SRC, pane());
         }
 
@@ -796,10 +810,8 @@ public final class GrowthGuiListener implements Listener {
                     Material.DIAMOND_SWORD, "§b대상: §f" + itemDisplayName(tgt),
                     List.of("§7등급: " + gradeColor(tgt != null ? tgt.grade() : ItemGrade.COMMON) + (tgt != null ? tgt.grade().displayName() : "?"),
                             "§7서브스탯: §e" + (tgt != null ? tgt.substatLines().size() : 0) + "라인")));
-            // 전승 후 대상 미리보기 (시뮬레이션)
-            if (sourceId != null) {
-                PlayerEquipmentItem src = state.inventoryItem(sourceId).orElse(null);
-                inv.setItem(HEIR_SLOT_PREVIEW_TGT, buildHeirloomAfterPreviewIcon(src, tgt, type));
+            if (traceId != null) {
+                inv.setItem(HEIR_SLOT_PREVIEW_TGT, buildHeirloomAfterPreviewIcon(traceId, tgt, type));
             } else {
                 inv.setItem(HEIR_SLOT_PREVIEW_TGT, buildHeirloomPreviewIcon(tgt, "§b대상 현재 옵션", "§b"));
             }
@@ -809,30 +821,34 @@ public final class GrowthGuiListener implements Listener {
             inv.setItem(HEIR_SLOT_PREVIEW_TGT, pane());
         }
 
-        refreshHeirloomExecuteButton(inv, state, uid);
+        refreshHeirloomExecuteButton(inv, state, islandState, uid);
     }
 
-    private void refreshHeirloomExecuteButton(Inventory inv, PlayerGrowthState state, UUID uid) {
-        String sourceId = selectedHeirloomSource.get(uid);
+    private void refreshHeirloomExecuteButton(Inventory inv, PlayerGrowthState state, IslandTerritoryState islandState, UUID uid) {
+        String traceId = selectedHeirloomTraceId.get(uid);
         String targetId = selectedHeirloomTarget.get(uid);
         SuccessionService.SuccessionType type = selectedHeirloomType.getOrDefault(uid, SuccessionService.SuccessionType.BASIC);
-        if (sourceId == null || targetId == null) {
+        if (traceId == null || targetId == null) {
             inv.setItem(HEIR_SLOT_EXECUTE, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§8전승!",
                     List.of("§7흔적과 대상을 먼저 선택하세요"))); return;
         }
         long cost = type.goldCost();
         boolean canAfford = cost == 0 || state.currency("gold") >= cost;
-        if (canAfford) {
-            String srcName = itemDisplayName(state.inventoryItem(sourceId).orElse(null));
+        boolean hasTrace = islandState.getCustomItem(traceId) >= 1;
+        if (canAfford && hasTrace) {
+            String traceName = traceDisplayName(traceId);
             String tgtName = itemDisplayName(state.inventoryItem(targetId).orElse(null));
             inv.setItem(HEIR_SLOT_EXECUTE, MainHubGui.icon(Material.NETHER_STAR, "§e§l전승!",
                     List.of("§7──────────────",
-                            "§7흔적: §e" + srcName + " §c(소모됨)",
+                            "§7흔적: §e" + traceName + " §c(소모됨)",
                             "§7대상: §b" + tgtName,
                             "§7유형: " + type.displayName(),
                             cost > 0 ? "§7비용: §e" + cost + "G" : "§a무료",
                             "§7──────────────",
                             "§e클릭하여 전승 실행")));
+        } else if (!hasTrace) {
+            inv.setItem(HEIR_SLOT_EXECUTE, MainHubGui.icon(Material.RED_STAINED_GLASS_PANE, "§c흔적 부족",
+                    List.of("§c" + traceDisplayName(traceId) + " 보유량 부족")));
         } else {
             inv.setItem(HEIR_SLOT_EXECUTE, MainHubGui.icon(Material.RED_STAINED_GLASS_PANE, "§c골드 부족",
                     List.of("§c필요: " + type.goldCost() + "G",
@@ -870,31 +886,49 @@ public final class GrowthGuiListener implements Listener {
         return MainHubGui.icon(Material.PAPER, color + title, lore);
     }
 
-    private ItemStack buildHeirloomAfterPreviewIcon(PlayerEquipmentItem src, PlayerEquipmentItem tgt,
+    private ItemStack buildHeirloomAfterPreviewIcon(String traceId, PlayerEquipmentItem tgt,
                                                     SuccessionService.SuccessionType type) {
-        if (src == null || tgt == null) return pane();
-        ItemGrade grade = (type == SuccessionService.SuccessionType.SUBSTAT_ONLY) ? tgt.grade() : src.grade();
-        List<PotentialLine> substats = (type == SuccessionService.SuccessionType.GRADE_ONLY) ? tgt.substatLines() : src.substatLines();
+        if (traceId == null || tgt == null) return pane();
+        ItemGrade traceGrade = SuccessionService.traceGrade(traceId);
+        ItemGrade resultGrade = (type == SuccessionService.SuccessionType.SUBSTAT_ONLY) ? tgt.grade() : traceGrade;
         List<String> lore = new ArrayList<>();
-        lore.add("§b전승 후 등급: " + gradeColor(grade) + grade.displayName());
-        if (substats.isEmpty()) {
-            lore.add("§8서브스탯: 없음");
+        lore.add("§b전승 후 등급: " + gradeColor(resultGrade) + resultGrade.displayName());
+        if (type == SuccessionService.SuccessionType.GRADE_ONLY) {
+            List<PotentialLine> substats = tgt.substatLines();
+            if (substats.isEmpty()) {
+                lore.add("§8서브스탯: 유지 (없음)");
+            } else {
+                lore.add("§7서브스탯: §f유지됨");
+                substats.forEach(l -> lore.add("§7  " + l.optionCode() + " §e+" + String.format("%.2f", l.value())));
+            }
         } else {
-            substats.forEach(l -> lore.add("§7  " + l.optionCode() + " §e+" + String.format("%.2f", l.value())));
+            lore.add("§7서브스탯: §e무작위 생성");
+            lore.add("§8(실행 시 확정)");
         }
         return MainHubGui.icon(Material.NETHER_STAR, "§b전승 후 대상 옵션", lore);
     }
 
-    private static final java.util.Set<String> EQUIP_SLOT_TYPES = java.util.Set.of("weapon", "armor");
-
-    private List<PlayerEquipmentItem> heirloomSourcePool(PlayerGrowthState state) {
-        java.util.Set<String> equippedIds = new java.util.HashSet<>(state.equippedItems().values());
-        return state.inventorySnapshot().values().stream()
-                .filter(item -> !equippedIds.contains(item.itemInstanceId()))
-                .filter(item -> itemMasters.find(item.itemId())
-                        .map(m -> EQUIP_SLOT_TYPES.contains(m.slotType()))
-                        .orElse(false))
+    private List<String> availableTraceIds(IslandTerritoryState islandState) {
+        return SuccessionService.TRACE_GRADE_MAP.keySet().stream()
+                .filter(id -> islandState.getCustomItem(id) > 0)
+                .sorted()
                 .collect(Collectors.toList());
+    }
+
+    private ItemStack buildTraceIcon(String traceId, IslandTerritoryState islandState) {
+        ItemGrade grade = SuccessionService.traceGrade(traceId);
+        String name = traceDisplayName(traceId);
+        long count = islandState.getCustomItem(traceId);
+        return MainHubGui.icon(Material.PAPER,
+                gradeColor(grade) + name,
+                List.of("§7등급: " + gradeColor(grade) + grade.displayName(),
+                        "§7보유: §e" + count + "개",
+                        "§7──────────────",
+                        "§7클릭 → 다음 흔적으로"));
+    }
+
+    private String traceDisplayName(String traceId) {
+        return itemMasters.find(traceId).map(ItemMaster::itemName).orElse(traceId);
     }
 
     // ═══════════════════════════════════════════════════════════════

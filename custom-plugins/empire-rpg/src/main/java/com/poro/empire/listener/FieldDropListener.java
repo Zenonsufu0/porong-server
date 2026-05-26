@@ -160,12 +160,12 @@ public final class FieldDropListener implements Listener {
     private String randomTraceId() {
         double roll = ThreadLocalRandom.current().nextDouble(100.0);
         if (roll < 5.0) {
-            return "mat_trace_sun";   // 태양의 흔적 (5%)
+            return "equip_trace_glowing";   // 에픽 (5%)
         }
         if (roll < 40.0) {
-            return "mat_trace_moon";  // 달의 흔적 (35%)
+            return "equip_trace_faded";     // 레어 (35%)
         }
-        return "mat_trace_star";      // 별의 흔적 (60%)
+        return "equip_trace_broken";        // 커먼 (60%)
     }
 
     private boolean roll(double chancePct) {
