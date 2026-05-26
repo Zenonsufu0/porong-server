@@ -10,6 +10,7 @@ import com.poro.empire.common.registry.master.BossMasterRegistry;
 import com.poro.empire.common.result.Result;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.block.sign.Side;
@@ -18,31 +19,34 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 
 public final class BossRoomListener implements Listener {
 
-    private final Plugin             plugin;
-    private final BossRoomManager    bossRoomManager;
-    private final BossEngineRuntime  bossEngineRuntime;
-    private final PartyManager       partyManager;
+    private final BossRoomManager             bossRoomManager;
+    private final BossEngineRuntime           bossEngineRuntime;
+    private final PartyManager                partyManager;
+    /** MythicMobs가 활성화된 경우에만 non-null. (mobId, spawnLocation) → void */
+    private final BiConsumer<String, Location> mythicSpawner;
 
-    public BossRoomListener(Plugin plugin, BossRoomManager bossRoomManager,
-                            BossMasterRegistry bossMasters, PartyManager partyManager,
-                            BossEngineRuntime bossEngineRuntime) {
-        this.plugin            = plugin;
+    public BossRoomListener(BossRoomManager bossRoomManager,
+                            BossMasterRegistry bossMasters,
+                            PartyManager partyManager,
+                            BossEngineRuntime bossEngineRuntime,
+                            BiConsumer<String, Location> mythicSpawner) {
         this.bossRoomManager   = bossRoomManager;
         this.bossEngineRuntime = bossEngineRuntime;
         this.partyManager      = partyManager;
+        this.mythicSpawner     = mythicSpawner;
     }
 
     /**
-     * "[보스]" 표지판 우클릭 → 빈 방 배정 → startRun() → 파티 전원 텔레포트 입장 → MythicMob 스폰.
+     * "[보스]" 표지판 우클릭 → 빈 방 배정 → startRun() → 온라인 파티원 전원 텔레포트 입장 → MythicMob 스폰.
      */
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
@@ -86,12 +90,18 @@ public final class BossRoomListener implements Listener {
         }
         BossRoomSlot slot = slotOpt.get();
 
-        // 파티 멤버 UUID 목록 수집 (리더 포함)
-        List<String> memberIds = new ArrayList<>();
+        // 온라인 멤버만 수집 — run participant = 실제 입장 가능한 인원
+        List<Player> onlineMembers = new ArrayList<>();
+        List<String> memberIds    = new ArrayList<>();
         memberIds.add(uuid.toString());
         if (party.isPresent()) {
             for (UUID memberId : party.get().members()) {
-                if (!memberId.equals(uuid)) memberIds.add(memberId.toString());
+                if (memberId.equals(uuid)) continue;
+                Player member = Bukkit.getPlayer(memberId);
+                if (member != null) {
+                    onlineMembers.add(member);
+                    memberIds.add(memberId.toString());
+                }
             }
         }
 
@@ -113,35 +123,24 @@ public final class BossRoomListener implements Listener {
         player.teleport(slot.playerSpawn());
 
         // 온라인 파티원 동반 입장
-        int coEntered = 0;
-        if (party.isPresent()) {
-            for (UUID memberId : party.get().members()) {
-                if (memberId.equals(uuid)) continue;
-                if (bossRoomManager.isInBossRoom(memberId)) continue;
-                Player member = Bukkit.getPlayer(memberId);
-                if (member == null) continue;
-                bossRoomManager.enterRoom(memberId, slot.id());
-                bossRoomManager.clearPendingBoss(memberId);
-                member.teleport(slot.playerSpawn());
-                member.sendMessage("§6[보스] §7파티 리더 §f" + player.getName()
-                        + "§7의 입장으로 §f" + bossId + " §7보스룸 §e" + slot.id() + "§7번에 입장합니다!");
-                coEntered++;
-            }
+        for (Player member : onlineMembers) {
+            if (bossRoomManager.isInBossRoom(member.getUniqueId())) continue;
+            bossRoomManager.enterRoom(member.getUniqueId(), slot.id());
+            bossRoomManager.clearPendingBoss(member.getUniqueId());
+            member.teleport(slot.playerSpawn());
+            member.sendMessage("§6[보스] §7파티 리더 §f" + player.getName()
+                    + "§7의 입장으로 §f" + bossId + " §7보스룸 §e" + slot.id() + "§7번에 입장합니다!");
         }
 
-        // MythicMob 스폰 (MythicMobs 플러그인 활성화 시)
-        if (Bukkit.getPluginManager().isPluginEnabled("MythicMobs")) {
-            try {
-                io.lumine.mythic.bukkit.MythicBukkit.inst()
-                        .getMobManager().spawnMob(bossId, slot.bossSpawn());
-            } catch (Exception e) {
-                plugin.getLogger().warning("[BossRoom] MythicMob 스폰 실패: " + bossId + " — " + e.getMessage());
-            }
+        // MythicMob 스폰 (MM 비활성화 시 mythicSpawner == null)
+        if (mythicSpawner != null) {
+            mythicSpawner.accept(bossId, slot.bossSpawn());
         }
 
-        if (coEntered > 0) {
+        int coCount = onlineMembers.size();
+        if (coCount > 0) {
             player.sendMessage("§6[보스] §f" + bossId + " §7룸 §e" + slot.id()
-                    + "§7번 입장. 파티원 §e" + coEntered + "명 §7함께 입장.");
+                    + "§7번 입장. 파티원 §e" + coCount + "명 §7함께 입장.");
         } else {
             player.sendMessage("§6[보스] §f" + bossId + " §7룸 §e" + slot.id() + "§7번 입장. 준비하세요!");
         }

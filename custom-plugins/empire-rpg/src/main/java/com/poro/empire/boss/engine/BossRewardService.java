@@ -62,6 +62,9 @@ public final class BossRewardService implements BossRewardResolverHook {
 
     @Override
     public void onRunEnded(BossResultSummary summary) {
+        // 슬롯 해제는 클리어 여부와 무관하게 항상 실행
+        bossRoomManager.releaseByRunId(summary.runId());
+
         if (!summary.clearSuccess()) return;
 
         RewardTable table = tableFor(summary.bossId());
@@ -96,7 +99,6 @@ public final class BossRewardService implements BossRewardResolverHook {
             rewarded++;
         }
 
-        bossRoomManager.releaseByRunId(summary.runId());
         logger.info("[BossReward] run_id=" + summary.runId()
                 + " boss_id=" + summary.bossId()
                 + " rewarded=" + rewarded + "/" + summary.participantSummaryPlaceholder().size());

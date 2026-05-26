@@ -451,8 +451,19 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(
                 new HotbarInteractListener(hotbarService, fieldStateProvider, combatStateService), this);
         FieldTeleportService fieldTeleportService = new FieldTeleportService(this);
+        java.util.function.BiConsumer<String, org.bukkit.Location> mythicSpawner = null;
+        if (getServer().getPluginManager().isPluginEnabled("MythicMobs")) {
+            mythicSpawner = (mobId, loc) -> {
+                try {
+                    io.lumine.mythic.bukkit.MythicBukkit.inst()
+                            .getAPIHelper().spawnMythicMob(mobId, loc);
+                } catch (Exception e) {
+                    getLogger().warning("[BossRoom] MythicMob 스폰 실패: " + mobId + " — " + e.getMessage());
+                }
+            };
+        }
         BossRoomListener bossRoomListenerInstance =
-                new BossRoomListener(this, bossRoomManager, masterRegistryContext.bossMasters(), partyManager, bossEngineRuntime);
+                new BossRoomListener(bossRoomManager, masterRegistryContext.bossMasters(), partyManager, bossEngineRuntime, mythicSpawner);
         getServer().getPluginManager().registerEvents(
                 new MainHubListener(this, fieldStateProvider, growthStateStore, growthEngineRuntime, scoreboardService, playerDataManager, islandStorageStore, islandTerritoryStateStore, fieldTeleportService, combatStateService, auctionGuiListener,
                         bossRoomListenerInstance, fieldHubListener, bossHubListener), this);
