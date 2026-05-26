@@ -141,7 +141,7 @@ class OperationsQuerySampleTest {
         );
 
         GrowthEngineRuntime growthRuntime = new GrowthEngineRuntime(
-                null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null,
                 null, null, null, null, null, new InMemoryEnhancementLogHook()
         );
 
