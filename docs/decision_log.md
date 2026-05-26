@@ -1243,3 +1243,24 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 - 보스 EXP는 수급 예측이 어렵고 경쟁 요소를 과도하게 자극할 수 있어 배제.
 
 **근거:** 사용자 구두 확정 2026-05-26, Codex 리뷰(P1) 지적 → 문서 갱신으로 해소.
+
+---
+
+### DL-068 장비의 흔적 드랍 등급 5종 확장
+
+**파일:**
+- `custom-plugins/empire-rpg/src/main/java/com/poro/empire/listener/FieldDropListener.java`
+- `custom-plugins/empire-rpg/src/main/java/com/poro/empire/boss/engine/BossRewardService.java`
+- `docs/06_fields_bosses/drop_tables_v1.md`
+- `docs/04_combat_weapon_skills/item_grade_substat_v1.md` (§2 표 "시즌보스 1~3" → "1~6")
+
+**변경:**
+- 초기 구현: 정예몹/보스 모두 broken/faded/glowing 3등급만 드랍.
+- 확장 후: 필드4/5 정예몹에 radiant(유니크)·brilliant(레전더리) 추가. 필드보스 필드4/5도 동일 확장. 시즌보스 1~6 전원 5등급 분포, 최종 3보스(균열왕·이중체·주시자)는 상위 분포 별도 적용.
+- 등급 분포 수치: `item_grade_substat_v1.md §2` 표 기준 (상세 확률은 `FieldDropListener.randomTraceId()`, `BossRewardService.pickTrace()` 구현 참조).
+
+**이유:**
+- 상위 필드/보스 콘텐츠에 차별화된 보상 가치가 없으면 필드4/5 진입 동기 부족.
+- `item_grade_substat_v1.md §2`는 처음부터 5등급 분포 체계를 설계했으나 초기 구현에서 3등급만 반영됨 — 이번 작업에서 문서 설계 의도 구현으로 정합.
+
+**근거:** 사용자 구두 확정 2026-05-26 (Codex 리뷰 P2 지적 → 구현 확장 선택).
