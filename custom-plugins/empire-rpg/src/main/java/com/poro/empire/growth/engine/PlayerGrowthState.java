@@ -118,6 +118,11 @@ public final class PlayerGrowthState {
     public void setCurrentExp(long exp)   { this.currentExp   = Math.max(0L, exp); }
     public void addExp(long amount)        { if (amount > 0) this.currentExp += amount; }
 
+    /** 잠재능력 GUI에서 '현재 유지' 롤백 용도. 엔진 패키지 내 전용. */
+    public void updatePotentialProfile(String instanceId, PotentialProfile profile) {
+        inventoryItem(instanceId).ifPresent(item -> item.setPotentialProfile(profile));
+    }
+
     public void addUnspentPts(int amount) {
         if (amount > 0) unspentPts += amount;
     }
