@@ -633,16 +633,23 @@ public final class AuctionGuiListener implements Listener {
     /**
      * 온라인 플레이어의 pending_delivery를 즉시 수령 처리한다.
      * 로그인 정산과 동일한 fetch → apply(main) → delete(async) 순서를 유지한다.
+     * tryStartClaim으로 동일 플레이어의 동시 수령을 방지한다.
      * 실제로 지급 성공한 ID만 삭제 대상에 포함 — 상태 미로드 항목은 다음 로그인에서 재시도.
      */
     private void deliverPendingToOnlinePlayer(Player player) {
+        UUID uuid = player.getUniqueId();
+        if (!auctionStore.tryStartClaim(uuid)) return;
+
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            List<AuctionStore.PendingDelivery> deliveries = auctionStore.fetchPending(player.getUniqueId());
-            if (deliveries.isEmpty()) return;
+            List<AuctionStore.PendingDelivery> deliveries = auctionStore.fetchPending(uuid);
+            if (deliveries.isEmpty()) {
+                auctionStore.endClaim(uuid);
+                return;
+            }
 
             Bukkit.getScheduler().runTask(plugin, () -> {
-                PlayerGrowthState growth = growthStateStore.get(player.getUniqueId()).orElse(null);
-                IslandTerritoryState territory = islandStore.get(player.getUniqueId()).orElse(null);
+                PlayerGrowthState growth = growthStateStore.get(uuid).orElse(null);
+                IslandTerritoryState territory = islandStore.get(uuid).orElse(null);
 
                 List<Long> deliveredIds = new ArrayList<>();
                 for (AuctionStore.PendingDelivery d : deliveries) {
@@ -659,10 +666,14 @@ public final class AuctionGuiListener implements Listener {
                     }
                 }
 
-                if (!deliveredIds.isEmpty()) {
-                    Bukkit.getScheduler().runTaskAsynchronously(plugin,
-                            () -> auctionStore.deletePendingByIds(deliveredIds));
+                if (deliveredIds.isEmpty()) {
+                    auctionStore.endClaim(uuid);
+                    return;
                 }
+                Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                    try { auctionStore.deletePendingByIds(deliveredIds); }
+                    finally { auctionStore.endClaim(uuid); }
+                });
             });
         });
     }

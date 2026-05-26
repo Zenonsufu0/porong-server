@@ -8,7 +8,9 @@ import com.poro.empire.common.result.Result;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 public final class AuctionStore {
@@ -22,6 +24,7 @@ public final class AuctionStore {
     private final ConnectionProvider connectionProvider;
     private final TransactionHelper  transactionHelper;
     private final Logger             logger;
+    private final Set<UUID>          claimInFlight = ConcurrentHashMap.newKeySet();
 
     public AuctionStore(ConnectionProvider connectionProvider,
                         TransactionHelper transactionHelper,
@@ -32,6 +35,10 @@ public final class AuctionStore {
     }
 
     public Logger logger() { return logger; }
+
+    /** true이면 클레임 진입 허용, false이면 이미 진행 중이므로 호출 측에서 중단해야 한다. */
+    public boolean tryStartClaim(UUID uuid) { return claimInFlight.add(uuid); }
+    public void    endClaim(UUID uuid)       { claimInFlight.remove(uuid); }
 
     public static long netPrice(long price) {
         return price - (long) (price * FEE_RATE);

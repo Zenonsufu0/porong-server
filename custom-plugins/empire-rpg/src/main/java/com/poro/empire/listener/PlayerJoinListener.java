@@ -81,10 +81,15 @@ public final class PlayerJoinListener implements Listener {
 
     private void claimAuctionPending(Player player) {
         UUID uuid = player.getUniqueId();
+        if (!auctionStore.tryStartClaim(uuid)) return; // 동시 수령 방지
+
         // 1단계(비동기): DB 조회만 수행 — 삭제 없음
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             List<AuctionStore.PendingDelivery> deliveries = auctionStore.fetchPending(uuid);
-            if (deliveries.isEmpty()) return;
+            if (deliveries.isEmpty()) {
+                auctionStore.endClaim(uuid);
+                return;
+            }
 
             // 2단계(메인스레드): 메모리 지급
             Bukkit.getScheduler().runTask(plugin, () -> {
@@ -107,11 +112,15 @@ public final class PlayerJoinListener implements Listener {
                     }
                 }
 
-                // 4단계(비동기): 실제 지급 성공한 ID만 삭제
-                if (!deliveredIds.isEmpty()) {
-                    Bukkit.getScheduler().runTaskAsynchronously(plugin,
-                            () -> auctionStore.deletePendingByIds(deliveredIds));
+                if (deliveredIds.isEmpty()) {
+                    auctionStore.endClaim(uuid);
+                    return;
                 }
+                // 4단계(비동기): 실제 지급 성공한 ID만 삭제 후 lock 해제
+                Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                    try { auctionStore.deletePendingByIds(deliveredIds); }
+                    finally { auctionStore.endClaim(uuid); }
+                });
             });
         });
     }
