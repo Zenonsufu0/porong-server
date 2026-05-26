@@ -220,7 +220,7 @@ PotentialService.reroll(state, slot)
 | `PotentialOptionRegistry` | 잠재 옵션 풀 (스탯 종류, 수치 범위) |
 | `RuneService` | 룬 장착/제거 |
 | `EngravingService` | 각인 장착 |
-| `LevelingService` | 경험치 처리, 레벨업 (공식: 550 × n^1.5) |
+| `PlayerLevelingService` | 경험치 처리, 레벨업 (공식: round(800 × 1.1^(n-1)), DL-067) |
 
 ---
 
