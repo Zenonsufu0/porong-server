@@ -885,8 +885,7 @@ public final class GrowthGuiListener implements Listener {
         return MainHubGui.icon(Material.NETHER_STAR, "§b전승 후 대상 옵션", lore);
     }
 
-    private static final java.util.Set<String> EQUIP_SLOT_TYPES = java.util.Set.of(
-            "weapon", "helmet", "chestplate", "leggings", "boots");
+    private static final java.util.Set<String> EQUIP_SLOT_TYPES = java.util.Set.of("weapon", "armor");
 
     private List<PlayerEquipmentItem> heirloomSourcePool(PlayerGrowthState state) {
         java.util.Set<String> equippedIds = new java.util.HashSet<>(state.equippedItems().values());
