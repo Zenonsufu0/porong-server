@@ -1,6 +1,7 @@
 package com.poro.empire.listener;
 
 import com.poro.empire.boss.party.PartyManager;
+import com.poro.empire.boss.room.BossRoomManager;
 import com.poro.empire.gui.BossHubGui;
 import com.poro.empire.gui.GuiTitles;
 import com.poro.empire.gui.MainHubGui;
@@ -20,10 +21,12 @@ import java.util.UUID;
 
 public final class BossHubListener implements Listener {
 
-    private final PartyManager partyManager;
+    private final PartyManager   partyManager;
+    private final BossRoomManager bossRoomManager;
 
-    public BossHubListener(PartyManager partyManager) {
-        this.partyManager = partyManager;
+    public BossHubListener(PartyManager partyManager, BossRoomManager bossRoomManager) {
+        this.partyManager    = partyManager;
+        this.bossRoomManager = bossRoomManager;
     }
 
     public void openBossHub(Player player)  { BossHubGui.open(player); }
@@ -51,11 +54,19 @@ public final class BossHubListener implements Listener {
     private void handleBossHub(Player player, int slot) {
         String bossId = BossHubGui.bossIdAt(slot);
         if (bossId != null) {
+            // 최종보스 — 공허 사자(보스6) 클리어 필요
+            if (BossHubGui.bossNeedsUnlockAt(slot)
+                    && !bossRoomManager.hasCleared(player.getUniqueId(), "void_herald")) {
+                player.sendMessage("§c[보스] §7공허 사자(시즌6)를 클리어해야 최종보스에 도전할 수 있습니다.");
+                return;
+            }
             Optional<PartyManager.Party> party = partyManager.findParty(player.getUniqueId());
             int size = party.map(PartyManager.Party::size).orElse(1);
+            bossRoomManager.setPendingBoss(player.getUniqueId(), bossId);
             player.closeInventory();
             player.sendMessage("§6[보스] §f" + BossHubGui.bossNameAt(slot)
-                    + " §7입장 준비. 파티: §e" + size + "인§7. 보스룸 앞에서 상호작용하여 입장하세요.");
+                    + " §7선택됨. 파티: §e" + size + "인§7."
+                    + " §7보스룸 앞 §e[보스] §7표지판을 우클릭하여 입장하세요.");
             return;
         }
         switch (slot) {

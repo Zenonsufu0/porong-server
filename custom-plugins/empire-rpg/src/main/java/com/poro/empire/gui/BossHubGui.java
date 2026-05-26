@@ -63,10 +63,7 @@ public final class BossHubGui {
         player.openInventory(inv);
     }
 
-    public static String bossIdAt(int slot)   {
-        BossDef d = SLOT_MAP.get(slot); return d == null ? null : d.id();
-    }
-    public static String bossNameAt(int slot) {
-        BossDef d = SLOT_MAP.get(slot); return d == null ? null : d.name();
-    }
+    public static String  bossIdAt(int slot)          { BossDef d = SLOT_MAP.get(slot); return d == null ? null : d.id(); }
+    public static String  bossNameAt(int slot)         { BossDef d = SLOT_MAP.get(slot); return d == null ? null : d.name(); }
+    public static boolean bossNeedsUnlockAt(int slot)  { BossDef d = SLOT_MAP.get(slot); return d != null && d.needsUnlock(); }
 }
