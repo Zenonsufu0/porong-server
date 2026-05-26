@@ -1,5 +1,7 @@
 package com.poro.empire.growth.engine;
 
+import com.poro.empire.common.registry.master.ItemMasterRegistry;
+import com.poro.empire.common.registry.master.model.ItemMaster;
 import com.poro.empire.common.result.ErrorCode;
 import com.poro.empire.common.result.Result;
 import com.poro.empire.growth.island.IslandTerritoryState;
@@ -14,12 +16,11 @@ import java.util.stream.Collectors;
 public final class SuccessionService {
 
     public static final Map<String, ItemGrade> TRACE_GRADE_MAP = Map.of(
-        "equip_trace_broken",       ItemGrade.COMMON,
-        "equip_trace_faded",        ItemGrade.RARE,
-        "equip_trace_glowing",      ItemGrade.EPIC,
-        "equip_trace_radiant",      ItemGrade.UNIQUE,
-        "equip_trace_brilliant",    ItemGrade.LEGENDARY,
-        "equip_trace_unidentified", ItemGrade.COMMON
+        "equip_trace_broken",    ItemGrade.COMMON,
+        "equip_trace_faded",     ItemGrade.RARE,
+        "equip_trace_glowing",   ItemGrade.EPIC,
+        "equip_trace_radiant",   ItemGrade.UNIQUE,
+        "equip_trace_brilliant", ItemGrade.LEGENDARY
     );
 
     private static final Map<ItemGrade, PotentialGrade> GRADE_TO_POT = Map.of(
@@ -70,10 +71,12 @@ public final class SuccessionService {
     ) {}
 
     private final PotentialOptionRegistry potentialOptionRegistry;
+    private final ItemMasterRegistry itemMasters;
     private final RandomProvider randomProvider;
 
-    public SuccessionService(PotentialOptionRegistry potentialOptionRegistry, RandomProvider randomProvider) {
+    public SuccessionService(PotentialOptionRegistry potentialOptionRegistry, ItemMasterRegistry itemMasters, RandomProvider randomProvider) {
         this.potentialOptionRegistry = potentialOptionRegistry;
+        this.itemMasters = itemMasters;
         this.randomProvider = randomProvider;
     }
 
@@ -117,7 +120,10 @@ public final class SuccessionService {
             target.setGrade(traceGrade);
         }
         if (type == SuccessionType.BASIC || type == SuccessionType.SUBSTAT_ONLY) {
-            appliedSubstats = generateSubstats(traceGrade);
+            String targetSlotType = itemMasters.find(target.itemId())
+                    .map(ItemMaster::slotType)
+                    .orElse("");
+            appliedSubstats = generateSubstats(traceGrade, targetSlotType);
             target.setSubstatLines(appliedSubstats);
         }
 
@@ -126,12 +132,14 @@ public final class SuccessionService {
         return Result.success(new SuccessionResult(traceId, targetInstanceId, type, appliedGrade, appliedSubstats));
     }
 
-    private List<PotentialLine> generateSubstats(ItemGrade grade) {
+    private List<PotentialLine> generateSubstats(ItemGrade grade, String slotType) {
         PotentialGrade potGrade = GRADE_TO_POT.getOrDefault(grade, PotentialGrade.COMMON);
         int count = GRADE_SUBSTAT_COUNT.getOrDefault(grade, 1);
+        String normSlot = normalize(slotType);
 
         List<PotentialOption> pool = potentialOptionRegistry.all().values().stream()
                 .filter(o -> o.grade() == potGrade)
+                .filter(o -> o.slotType().isBlank() || o.slotType().equals(normSlot))
                 .collect(Collectors.toList());
 
         if (pool.isEmpty()) return List.of();
