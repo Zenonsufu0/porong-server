@@ -361,17 +361,16 @@ public final class AuctionGuiListener implements Listener {
                             refreshMain(player);
                             return;
                         }
-                        // 아이템 즉시 지급 (선검사로 null 불가 보장됨)
-                        buyerTerritory.addCustomItem(listing.itemId(), listing.quantity());
-
                         player.sendMessage("§a[경매장] §f" + itemDisplayName(listing.itemId())
                                 + " §7을 §e" + fmt(listing.price()) + "G§7에 구매했습니다.");
 
-                        // 판매자 정산 — pending은 buy()에서 이미 DB에 삽입됨
-                        // 판매자가 온라인이면 pending을 즉시 수령 처리 (fetch → apply → delete)
+                        // 구매자 아이템 pending 즉시 수령 (buy()에서 원자적으로 삽입됨)
+                        deliverPendingToOnlinePlayer(player);
+
+                        // 판매자 골드 pending 즉시 수령
                         Player seller = Bukkit.getPlayer(listing.sellerUuid());
                         if (seller != null) {
-                            deliverPendingToOnlineSeller(seller);
+                            deliverPendingToOnlinePlayer(seller);
                         }
                         refreshMain(player);
                     });
@@ -632,34 +631,38 @@ public final class AuctionGuiListener implements Listener {
     // ── 내부 빌더 유틸 ────────────────────────────────────────────────────
 
     /**
-     * 온라인 판매자의 pending_delivery를 즉시 수령 처리한다.
+     * 온라인 플레이어의 pending_delivery를 즉시 수령 처리한다.
      * 로그인 정산과 동일한 fetch → apply(main) → delete(async) 순서를 유지한다.
+     * 실제로 지급 성공한 ID만 삭제 대상에 포함 — 상태 미로드 항목은 다음 로그인에서 재시도.
      */
-    private void deliverPendingToOnlineSeller(Player seller) {
+    private void deliverPendingToOnlinePlayer(Player player) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            List<AuctionStore.PendingDelivery> deliveries = auctionStore.fetchPending(seller.getUniqueId());
+            List<AuctionStore.PendingDelivery> deliveries = auctionStore.fetchPending(player.getUniqueId());
             if (deliveries.isEmpty()) return;
 
             Bukkit.getScheduler().runTask(plugin, () -> {
-                PlayerGrowthState growth = growthStateStore.get(seller.getUniqueId()).orElse(null);
-                IslandTerritoryState territory = islandStore.get(seller.getUniqueId()).orElse(null);
+                PlayerGrowthState growth = growthStateStore.get(player.getUniqueId()).orElse(null);
+                IslandTerritoryState territory = islandStore.get(player.getUniqueId()).orElse(null);
 
+                List<Long> deliveredIds = new ArrayList<>();
                 for (AuctionStore.PendingDelivery d : deliveries) {
                     if (d.gold() > 0 && growth != null) {
                         growth.addCurrency("gold", d.gold());
-                        seller.sendMessage("§a[경매장] §7판매 완료 수익: §e"
+                        deliveredIds.add(d.id());
+                        player.sendMessage("§a[경매장] §7판매 완료 수익: §e"
                                 + fmt(d.gold()) + "G §7자동 지급됨.");
                     } else if (d.itemId() != null && territory != null) {
                         territory.addCustomItem(d.itemId(), d.quantity());
-                        seller.sendMessage("§e[경매장] §7만료 등록 아이템 §f" + d.itemId()
-                                + " §7창고에 반환됐습니다.");
+                        deliveredIds.add(d.id());
+                        player.sendMessage("§a[경매장] §7아이템 §f" + itemDisplayName(d.itemId())
+                                + " §7창고에 지급됐습니다.");
                     }
                 }
 
-                List<Long> deliveredIds = deliveries.stream()
-                        .map(AuctionStore.PendingDelivery::id).toList();
-                Bukkit.getScheduler().runTaskAsynchronously(plugin,
-                        () -> auctionStore.deletePendingByIds(deliveredIds));
+                if (!deliveredIds.isEmpty()) {
+                    Bukkit.getScheduler().runTaskAsynchronously(plugin,
+                            () -> auctionStore.deletePendingByIds(deliveredIds));
+                }
             });
         });
     }

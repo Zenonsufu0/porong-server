@@ -25,6 +25,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -90,23 +91,27 @@ public final class PlayerJoinListener implements Listener {
                 IslandTerritoryState territory = islandTerritoryStateStore.get(uuid).orElse(null);
                 PlayerGrowthState growth = growthStateStore.get(uuid).orElse(null);
 
+                // 3단계(메인): 지급 — 상태 미로드 항목은 deliveredIds에서 제외해 다음 로그인에서 재시도
+                List<Long> deliveredIds = new ArrayList<>();
                 for (AuctionStore.PendingDelivery d : deliveries) {
                     if (d.gold() > 0 && growth != null) {
                         growth.addCurrency("gold", d.gold());
+                        deliveredIds.add(d.id());
                         player.sendMessage("§a[경매장] §7판매 완료 수익: §e"
                                 + fmt(d.gold()) + "G §7자동 지급됨.");
                     } else if (d.itemId() != null && territory != null) {
                         territory.addCustomItem(d.itemId(), d.quantity());
-                        player.sendMessage("§e[경매장] §7만료 등록 아이템 §f" + d.itemId()
-                                + " §7창고에 반환됐습니다.");
+                        deliveredIds.add(d.id());
+                        player.sendMessage("§a[경매장] §7아이템 §f" + d.itemId()
+                                + " §7창고에 지급됐습니다.");
                     }
                 }
 
-                // 3단계(비동기): 지급 성공 후 이번에 조회한 ID만 삭제
-                List<Long> deliveredIds = deliveries.stream()
-                        .map(AuctionStore.PendingDelivery::id).toList();
-                Bukkit.getScheduler().runTaskAsynchronously(plugin,
-                        () -> auctionStore.deletePendingByIds(deliveredIds));
+                // 4단계(비동기): 실제 지급 성공한 ID만 삭제
+                if (!deliveredIds.isEmpty()) {
+                    Bukkit.getScheduler().runTaskAsynchronously(plugin,
+                            () -> auctionStore.deletePendingByIds(deliveredIds));
+                }
             });
         });
     }

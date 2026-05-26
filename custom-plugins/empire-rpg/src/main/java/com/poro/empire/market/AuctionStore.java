@@ -188,12 +188,21 @@ public final class AuctionStore {
                 ps.setLong(2, listingId);
                 ps.executeUpdate();
             }
-            // 판매자 골드 pending 삽입 — 같은 트랜잭션 안에서 원자적으로 처리
+            // 판매자 골드 pending — 같은 트랜잭션 안에서 원자적으로 처리
             try (PreparedStatement ps = conn.prepareStatement(
                     "INSERT INTO auction_pending_delivery (player_uuid, gold, created_at) VALUES (?, ?, ?)")) {
                 ps.setString(1, listing.sellerUuid().toString());
                 ps.setLong(2, netPrice(listing.price()));
                 ps.setLong(3, now);
+                ps.executeUpdate();
+            }
+            // 구매자 아이템 pending — crash 시 다음 로그인에서 재전달 보장
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "INSERT INTO auction_pending_delivery (player_uuid, item_id, quantity, gold, created_at) VALUES (?, ?, ?, 0, ?)")) {
+                ps.setString(1, buyerUuid.toString());
+                ps.setString(2, listing.itemId());
+                ps.setInt(3, listing.quantity());
+                ps.setLong(4, now);
                 ps.executeUpdate();
             }
             return listing;
