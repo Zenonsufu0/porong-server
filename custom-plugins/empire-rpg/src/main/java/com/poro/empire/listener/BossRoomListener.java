@@ -86,6 +86,12 @@ public final class BossRoomListener implements Listener {
             return;
         }
 
+        // MM 비활성화 시 슬롯 배정/run 생성 전에 차단 — 실패 통계 기록 방지
+        if (mythicSpawner == null) {
+            player.sendMessage("§c[보스] MythicMobs가 활성화되어 있지 않아 입장할 수 없습니다.");
+            return;
+        }
+
         // 빈 방 배정
         Optional<BossRoomSlot> slotOpt = bossRoomManager.assignRoom(uuid, bossId);
         if (slotOpt.isEmpty()) {
@@ -121,13 +127,11 @@ public final class BossRoomListener implements Listener {
         bossRoomManager.registerRun(run.runId(), slot.id());
 
         // MythicMob 스폰 — 텔레포트 전에 먼저 수행하여 "보스 없는 방" 방지
-        // mythicSpawner == null은 MM 비활성화를 의미하므로 입장 자체를 거부
-        boolean spawned = mythicSpawner != null && mythicSpawner.apply(bossId, slot.bossSpawn());
-        if (!spawned) {
+        // 이 시점에서 mythicSpawner는 항상 non-null (위에서 사전 차단함)
+        if (!mythicSpawner.apply(bossId, slot.bossSpawn())) {
             // endRun이 onRunEnded → releaseByRunId 체인을 자동 처리
             bossEngineRuntime.runService().endRun(run.runId(), false, "spawn_failed");
-            String reason = mythicSpawner == null ? "MythicMobs가 활성화되어 있지 않습니다." : "보스 소환에 실패했습니다.";
-            player.sendMessage("§c[보스] " + reason + " 잠시 후 다시 시도하세요.");
+            player.sendMessage("§c[보스] 보스 소환에 실패했습니다. 잠시 후 다시 시도하세요.");
             return;
         }
 
