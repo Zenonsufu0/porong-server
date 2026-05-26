@@ -7,6 +7,7 @@ import com.poro.empire.growth.island.IslandTerritoryStateStore;
 import com.poro.empire.gui.StorageGui;
 import com.poro.empire.gui.TerritoryStatusGui;
 import com.poro.empire.gui.WorkshopGui;
+import com.poro.empire.listener.AuctionGuiListener;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -25,11 +26,14 @@ public class PlayerCommandRouter implements CommandExecutor {
 
     private final IslandStorageStore storageStore;
     private final IslandTerritoryStateStore territoryStore;
+    private final AuctionGuiListener auctionGuiListener;
 
     public PlayerCommandRouter(IslandStorageStore storageStore,
-                               IslandTerritoryStateStore territoryStore) {
+                               IslandTerritoryStateStore territoryStore,
+                               AuctionGuiListener auctionGuiListener) {
         this.storageStore = storageStore;
         this.territoryStore = territoryStore;
+        this.auctionGuiListener = auctionGuiListener;
     }
 
     @Override
@@ -62,7 +66,7 @@ public class PlayerCommandRouter implements CommandExecutor {
             case "영지이동"  -> stub(player, "영지이동");
             case "작물"     -> stub(player, "작물 관리");
             case "상점"     -> stub(player, "상점");
-            case "경매장"   -> stub(player, "경매장");
+            case "경매장"   -> auctionGuiListener.openMain(player);
             case "영지설정"  -> stub(player, "영지 설정");
             // ── 보스 계열 ──────────────────────────────────────────
             case "보스"     -> stub(player, "보스 메뉴");

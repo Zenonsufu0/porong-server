@@ -17,5 +17,7 @@ public final class GuiTitles {
     public static final Component GROWTH_ENHANCE   = Component.text("강화");
     public static final Component GROWTH_POTENTIAL = Component.text("잠재능력");
     public static final Component GROWTH_HEIRLOOM  = Component.text("전승");
-    public static final Component AUCTION          = Component.text("경매장");
+    public static final Component AUCTION           = Component.text("경매장");
+    public static final Component AUCTION_REGISTER  = Component.text("경매 등록");
+    public static final Component AUCTION_MY        = Component.text("내 등록 목록");
 }

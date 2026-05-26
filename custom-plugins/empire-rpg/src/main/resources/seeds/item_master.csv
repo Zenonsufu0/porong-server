@@ -33,15 +33,15 @@ mat_essence_farmer,농부의 정수,LIFE,material,capital,,,,0,false,workshop_cr
 mat_essence_miner,광부의 정수,LIFE,material,capital,,,,0,false,workshop_craft|estate
 mat_essence_nature,자연의 정수,LIFE,material,capital,,,,0,false,workshop_craft|estate
 equip_trace_unidentified,미감정 흔적,LIFE,material,field,,,,0,false,workshop_craft|loot_box
-equip_trace_broken,깨진 장비의 흔적,LIFE,material,field,,,,0,false,succession_material
-equip_trace_faded,빛 바랜 장비의 흔적,LIFE,material,field,,,,0,false,succession_material
-equip_trace_glowing,빛나는 장비의 흔적,LIFE,material,field,,,,0,false,succession_material
-equip_trace_radiant,눈부신 장비의 흔적,LIFE,material,field,,,,0,false,succession_material
-equip_trace_brilliant,찬란한 장비의 흔적,LIFE,material,field,,,,0,false,succession_material
-ancient_trace_faded,빛 바랜 고대흔적,LIFE,material,capital,,,,0,false,workshop_craft|equip_enhance
-ancient_trace_glowing,빛나는 고대흔적,LIFE,material,capital,,,,0,false,workshop_craft|equip_enhance
-ancient_trace_radiant,눈부신 고대흔적,LIFE,material,capital,,,,0,false,workshop_craft|equip_enhance
-ancient_trace_brilliant,찬란한 고대흔적,LIFE,material,capital,,,,0,false,workshop_craft|equip_enhance
+equip_trace_broken,깨진 장비의 흔적,LIFE,material,field,,,,0,true,succession_material
+equip_trace_faded,빛 바랜 장비의 흔적,LIFE,material,field,,,,0,true,succession_material
+equip_trace_glowing,빛나는 장비의 흔적,LIFE,material,field,,,,0,true,succession_material
+equip_trace_radiant,눈부신 장비의 흔적,LIFE,material,field,,,,0,true,succession_material
+equip_trace_brilliant,찬란한 장비의 흔적,LIFE,material,field,,,,0,true,succession_material
+ancient_trace_faded,빛 바랜 고대흔적,LIFE,material,capital,,,,0,true,workshop_craft|equip_enhance
+ancient_trace_glowing,빛나는 고대흔적,LIFE,material,capital,,,,0,true,workshop_craft|equip_enhance
+ancient_trace_radiant,눈부신 고대흔적,LIFE,material,capital,,,,0,true,workshop_craft|equip_enhance
+ancient_trace_brilliant,찬란한 고대흔적,LIFE,material,capital,,,,0,true,workshop_craft|equip_enhance
 con_heal_minor,치료 포션 (소),LIFE,consumable,capital,,,,0,true,potion|heal
 con_heal_mid,치료 포션 (중),LIFE,consumable,capital,,,,0,true,potion|heal
 con_heal_major,치료 포션 (대),LIFE,consumable,capital,,,,0,true,potion|heal

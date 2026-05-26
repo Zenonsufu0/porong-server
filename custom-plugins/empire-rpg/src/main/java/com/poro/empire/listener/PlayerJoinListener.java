@@ -1,6 +1,7 @@
 package com.poro.empire.listener;
 
 import com.poro.empire.growth.GrowthStateStore;
+import com.poro.empire.growth.engine.PlayerGrowthState;
 import com.poro.empire.growth.island.IslandStorage;
 import com.poro.empire.growth.island.IslandStorageStore;
 import com.poro.empire.growth.island.IslandTerritoryState;
@@ -14,6 +15,7 @@ import com.poro.empire.persistence.PlayerPersistenceService;
 import com.poro.empire.scoreboard.ScoreboardService;
 import com.poro.empire.storage.PlayerDataManager;
 import com.poro.empire.tutorial.TutorialService;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -22,7 +24,9 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 public final class PlayerJoinListener implements Listener {
@@ -33,7 +37,9 @@ public final class PlayerJoinListener implements Listener {
     private final GrowthStateStore growthStateStore;
     private final IslandTerritoryStateStore islandTerritoryStateStore;
     private final IslandStorageStore islandStorageStore;
+    private final AuctionStore auctionStore;
     private final ClassInitService classInitService;
+    private final Plugin plugin;
 
     public PlayerJoinListener(
             Plugin plugin,
@@ -48,6 +54,7 @@ public final class PlayerJoinListener implements Listener {
             AuctionStore auctionStore,
             ClassInitService classInitService
     ) {
+        this.plugin = plugin;
         this.playerDataManager = playerDataManager;
         this.hotbarService = hotbarService;
         this.scoreboardService = scoreboardService;
@@ -55,17 +62,45 @@ public final class PlayerJoinListener implements Listener {
         this.growthStateStore = growthStateStore;
         this.islandTerritoryStateStore = islandTerritoryStateStore;
         this.islandStorageStore = islandStorageStore;
+        this.auctionStore = auctionStore;
         this.classInitService = classInitService;
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        playerDataManager.onPlayerJoin(event.getPlayer());
-        playerPersistenceService.load(event.getPlayer().getUniqueId(), event.getPlayer().getName());
-        collectWorkshopResults(event.getPlayer());
-        hotbarService.updateHotbar(event.getPlayer());
-        scoreboardService.refresh(event.getPlayer());
-        classInitService.openSelectionGuiIfNeeded(event.getPlayer());
+        Player player = event.getPlayer();
+        playerDataManager.onPlayerJoin(player);
+        playerPersistenceService.load(player.getUniqueId(), player.getName());
+        collectWorkshopResults(player);
+        hotbarService.updateHotbar(player);
+        scoreboardService.refresh(player);
+        classInitService.openSelectionGuiIfNeeded(player);
+        claimAuctionPending(player);
+    }
+
+    private void claimAuctionPending(Player player) {
+        UUID uuid = player.getUniqueId();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            List<AuctionStore.PendingDelivery> deliveries = auctionStore.claimAndDeletePending(uuid);
+            if (deliveries.isEmpty()) return;
+
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                IslandTerritoryState territory = islandTerritoryStateStore.get(uuid).orElse(null);
+                PlayerGrowthState growth = growthStateStore.get(uuid).orElse(null);
+
+                for (AuctionStore.PendingDelivery d : deliveries) {
+                    if (d.gold() > 0 && growth != null) {
+                        growth.addCurrency("gold", d.gold());
+                        player.sendMessage("§a[경매장] §7판매 완료 수익: §e"
+                                + fmt(d.gold()) + "G §7자동 지급됨.");
+                    } else if (d.itemId() != null && territory != null) {
+                        territory.addCustomItem(d.itemId(), d.quantity());
+                        player.sendMessage("§e[경매장] §7만료 등록 아이템 §f" + d.itemId()
+                                + " §7창고에 반환됐습니다.");
+                    }
+                }
+            });
+        });
     }
 
     private void collectWorkshopResults(Player player) {
@@ -91,6 +126,10 @@ public final class PlayerJoinListener implements Listener {
 
         player.sendMessage("§a[공방] 완료된 제작 §e" + done.size()
                 + "§a건의 결과물이 저장고에 입금되었습니다.");
+    }
+
+    private static String fmt(long value) {
+        return NumberFormat.getIntegerInstance(Locale.KOREA).format(value);
     }
 
     @EventHandler

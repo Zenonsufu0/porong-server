@@ -131,9 +131,10 @@ public final class EmpireRPGPlugin extends JavaPlugin {
     private CombatStateService combatStateService;
     private ClassInitService classInitService;
     private PlayerLevelingService playerLevelingService;
-    private AuctionStore     auctionStore;
-    private BossRoomManager  bossRoomManager;
-    private BossRewardService bossRewardService;
+    private AuctionStore        auctionStore;
+    private AuctionGuiListener  auctionGuiListener;
+    private BossRoomManager     bossRoomManager;
+    private BossRewardService   bossRewardService;
 
     @Override
     public void onEnable() {
@@ -338,6 +339,12 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         // 20분(24000틱)마다 영지 자동재배기 생산
         new MachineProductionScheduler(this, islandTerritoryStateStore).start();
 
+        // 1분(1200틱)마다 경매소 만료 처리
+        Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
+            int expired = auctionStore.expireOld();
+            if (expired > 0) getLogger().info("[Auction] 만료 처리 " + expired + "건");
+        }, 1200L, 1200L);
+
         // 5분(6000틱)마다 온라인 플레이어 자동 저장
         Bukkit.getScheduler().runTaskTimer(this, () -> {
             var onlinePlayerIds = Bukkit.getOnlinePlayers().stream()
@@ -420,8 +427,11 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         FieldTeleportService fieldTeleportService = new FieldTeleportService(this);
         BossRoomListener bossRoomListenerInstance =
                 new BossRoomListener(this, bossRoomManager, masterRegistryContext.bossMasters());
+        this.auctionGuiListener = new AuctionGuiListener(
+                this, growthStateStore, islandTerritoryStateStore,
+                auctionStore, masterRegistryContext.itemMasters());
         getServer().getPluginManager().registerEvents(
-                new MainHubListener(this, fieldStateProvider, growthStateStore, growthEngineRuntime, scoreboardService, playerDataManager, islandStorageStore, islandTerritoryStateStore, fieldTeleportService, combatStateService, auctionStore,
+                new MainHubListener(this, fieldStateProvider, growthStateStore, growthEngineRuntime, scoreboardService, playerDataManager, islandStorageStore, islandTerritoryStateStore, fieldTeleportService, combatStateService, auctionGuiListener,
                         bossRoomListenerInstance), this);
         getServer().getPluginManager().registerEvents(bossRoomListenerInstance, this);
         getServer().getPluginManager().registerEvents(
@@ -458,8 +468,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                 ? new WorldGuardSafeZoneService()
                 : new NoopSafeZoneService();
         getServer().getPluginManager().registerEvents(new SkillInputListener(skillService, safeZoneService), this);
-        getServer().getPluginManager().registerEvents(
-                new AuctionGuiListener(this, growthStateStore, auctionStore), this);
+        getServer().getPluginManager().registerEvents(auctionGuiListener, this);
     }
 
     /** BossEngineRuntime 연동 전 stub — 모든 필드보스를 리스폰 대기 상태로 반환. */
@@ -491,7 +500,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         getCommand("empire").setTabCompleter(empireCommand);
 
         // 한글 단축 커맨드
-        PlayerCommandRouter router = new PlayerCommandRouter(islandStorageStore, islandTerritoryStateStore);
+        PlayerCommandRouter router = new PlayerCommandRouter(islandStorageStore, islandTerritoryStateStore, auctionGuiListener);
         String[] koreanCommands = {
             "메뉴", "장비", "강화", "잠재", "각인", "캐릭터", "전승",
             "영지", "영지이동", "영지상태", "창고", "공방", "작물", "상점", "경매장", "영지설정",

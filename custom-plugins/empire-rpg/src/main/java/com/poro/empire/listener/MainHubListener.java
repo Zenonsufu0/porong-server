@@ -18,7 +18,6 @@ import com.poro.empire.gui.StorageGui;
 import com.poro.empire.gui.TerritoryHubGui;
 import com.poro.empire.gui.TerritoryStatusGui;
 import com.poro.empire.gui.WorkshopGui;
-import com.poro.empire.market.AuctionStore;
 import com.poro.empire.scoreboard.ScoreboardService;
 import com.poro.empire.storage.PlayerDataManager;
 import org.bukkit.Bukkit;
@@ -43,6 +42,7 @@ public final class MainHubListener implements Listener {
     private final IslandTerritoryStateStore islandTerritoryStateStore;
     private final IslandStorageStore islandStorageStore;
     private final PlayerDataManager playerDataManager;
+    private final AuctionGuiListener auctionGuiListener;
 
     public MainHubListener(
             Plugin plugin,
@@ -55,13 +55,14 @@ public final class MainHubListener implements Listener {
             IslandTerritoryStateStore islandTerritoryStateStore,
             FieldTeleportService fieldTeleportService,
             CombatStateService combatStateService,
-            AuctionStore auctionStore,
+            AuctionGuiListener auctionGuiListener,
             BossRoomListener bossRoomListener
     ) {
         this.growthStateStore = growthStateStore;
         this.islandTerritoryStateStore = islandTerritoryStateStore;
         this.islandStorageStore = islandStorageStore;
         this.playerDataManager = playerDataManager;
+        this.auctionGuiListener = auctionGuiListener;
     }
 
     @EventHandler
@@ -140,8 +141,10 @@ public final class MainHubListener implements Listener {
             IslandTerritoryState territory = islandTerritoryStateStore.getOrCreate(
                     player.getUniqueId(), player.getName());
             WorkshopGui.open(player, WorkshopGui.WorkshopTab.ESTATE, territory);
+        } else if (TerritoryHubGui.ZONE_AUCTION.contains(slot)) {
+            auctionGuiListener.openMain(player);
         }
-        // 나머지 구역(이동/시설/상점/경매/설정) 및 장식 슬롯은 클릭 무반응
+        // 나머지 구역(이동/시설/상점/설정) 및 장식 슬롯은 클릭 무반응
     }
 
     // ─── 아이템 빌더 ─────────────────────────────────────────────

@@ -1,5 +1,6 @@
 package com.poro.empire.common.config;
 
+import com.poro.empire.common.db.AuctionMigration;
 import com.poro.empire.common.db.BossSessionMigration;
 import com.poro.empire.common.db.BossSessionMigrationV2;
 import com.poro.empire.common.db.CompositeMigrationEntryPoint;
@@ -46,7 +47,8 @@ public final class CommonFoundationBootstrap {
             MigrationEntryPoint migrationEntryPoint = new CompositeMigrationEntryPoint(List.of(
                     new PlayerFlagTableStubMigration(logger.domain("db.migration.player-flag")),
                     new BossSessionMigration(logger.domain("db.migration.boss-session")),
-                    new BossSessionMigrationV2(logger.domain("db.migration.boss-session-v2"))
+                    new BossSessionMigrationV2(logger.domain("db.migration.boss-session-v2")),
+                    new AuctionMigration(logger.domain("db.migration.auction"))
             ));
             DatabaseBootstrapper databaseBootstrapper = new DatabaseBootstrapper(
                     connectionProvider,
