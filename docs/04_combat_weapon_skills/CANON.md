@@ -23,7 +23,7 @@
 | `weapon_skills_v1.md` | 스킬 계수, 쿨타임, 자원, 구현 메모 |
 | `combat_balance_v2.md` | 전투 수치 계산 참조 |
 | `level_stat_system_v1.md` | 레벨별 스탯 |
-| `item_grade_substat_v1.md` | 아이템 등급별 서브스탯 |
+| `item_grade_substat_v1.md` | 아이템 등급 분포 확률 (§2만 유효) — §3 보조스텟·§4 전승은 구 설계, 현행 전승 모델은 `../02_database_api_stats/equipment_growth_spec.md §2.3` 참조 |
 | `season_boss_stats_v1.md` | 시즌보스 스탯 산정 참조 |
 
 ## 충돌 처리
