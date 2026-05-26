@@ -6,7 +6,7 @@ import com.poro.empire.field.FieldBossRespawnScheduler;
 import com.poro.empire.growth.GrowthStateStore;
 import com.poro.empire.growth.engine.PlayerGrowthState;
 import com.poro.empire.growth.island.IslandTerritoryStateStore;
-import com.poro.empire.leveling.LevelingService;
+import com.poro.empire.leveling.PlayerLevelingService;
 import com.poro.empire.storage.PlayerDataManager;
 import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
 import org.bukkit.entity.Entity;
@@ -31,7 +31,7 @@ public final class FieldDropListener implements Listener {
     private final GrowthStateStore growthStateStore;
     private final IslandTerritoryStateStore islandTerritoryStateStore;
     private final PlayerDataManager playerDataManager;
-    private final LevelingService levelingService;
+    private final PlayerLevelingService playerLevelingService;
     private final BossRewardService bossRewardService;
     private final ContributionTracker contributionTracker;
 
@@ -39,7 +39,7 @@ public final class FieldDropListener implements Listener {
             GrowthStateStore growthStateStore,
             IslandTerritoryStateStore islandTerritoryStateStore,
             PlayerDataManager playerDataManager,
-            LevelingService levelingService,
+            PlayerLevelingService playerLevelingService,
             FieldBossRespawnScheduler fieldBossScheduler,
             BossRewardService bossRewardService,
             ContributionTracker contributionTracker
@@ -47,7 +47,7 @@ public final class FieldDropListener implements Listener {
         this.growthStateStore = growthStateStore;
         this.islandTerritoryStateStore = islandTerritoryStateStore;
         this.playerDataManager = playerDataManager;
-        this.levelingService = levelingService;
+        this.playerLevelingService = playerLevelingService;
         this.bossRewardService = bossRewardService;
         this.contributionTracker = contributionTracker;
     }
@@ -92,18 +92,19 @@ public final class FieldDropListener implements Listener {
         }
         Player killer = event.getEntity().getKiller();
         if (killer == null) return;
-        levelingService.addExp(killer.getUniqueId(), 10L);
-        grantFieldDrops(killer, event.getEntity());
+        FieldDropProfile profile = profileFor(event.getEntity());
+        if (profile == null) return;
+        String classId = playerDataManager.getWeaponType(killer.getUniqueId()).name().toLowerCase(Locale.ROOT);
+        PlayerGrowthState growth = growthStateStore.getOrCreate(killer.getUniqueId(), classId);
+        int levelsGained = playerLevelingService.addExp(growth, profile.expAmount());
+        if (levelsGained > 0) {
+            killer.sendMessage("§6§l[레벨업!] §eLv " + growth.playerLevel()
+                    + " §7달성! 스탯 포인트 §a+" + (levelsGained * 3));
+        }
+        grantFieldDrops(killer, profile, growth);
     }
 
-    private void grantFieldDrops(Player player, Entity entity) {
-        FieldDropProfile profile = profileFor(entity);
-        if (profile == null) {
-            return;
-        }
-        String classId = playerDataManager.getWeaponType(player.getUniqueId()).name().toLowerCase(Locale.ROOT);
-        PlayerGrowthState growth = growthStateStore.getOrCreate(player.getUniqueId(), classId);
-
+    private void grantFieldDrops(Player player, FieldDropProfile profile, PlayerGrowthState growth) {
         growth.addCurrency(GOLD, randomInclusive(profile.goldMin, profile.goldMax));
         if (roll(profile.battleShardChancePct)) {
             islandTerritoryStateStore.getOrCreate(player.getUniqueId(), player.getName())
@@ -140,19 +141,19 @@ public final class FieldDropListener implements Listener {
         boolean elite = MobTagHelper.isElite(entity);
         if (elite) {
             return switch (field) {
-                case 2 -> new FieldDropProfile(true, 30, 50, 80, 2, 3, 15, 1, 1, 7, 5);
-                case 3 -> new FieldDropProfile(true, 35, 57, 75, 2, 3, 15, 1, 2, 10, 8);
-                case 4 -> new FieldDropProfile(true, 38, 65, 75, 2, 3, 20, 1, 2, 12, 10);
-                case 5 -> new FieldDropProfile(true, 45, 75, 75, 2, 3, 20, 1, 2, 15, 12);
-                default -> new FieldDropProfile(true, 23, 42, 80, 2, 3, 10, 1, 1, 5, 5);
+                case 2 -> new FieldDropProfile(true, 30, 50, 80, 2, 3, 15, 1, 1, 7, 5, 50);
+                case 3 -> new FieldDropProfile(true, 35, 57, 75, 2, 3, 15, 1, 2, 10, 8, 75);
+                case 4 -> new FieldDropProfile(true, 38, 65, 75, 2, 3, 20, 1, 2, 12, 10, 110);
+                case 5 -> new FieldDropProfile(true, 45, 75, 75, 2, 3, 20, 1, 2, 15, 12, 150);
+                default -> new FieldDropProfile(true, 23, 42, 80, 2, 3, 10, 1, 1, 5, 5, 25);
             };
         }
         return switch (field) {
-            case 2 -> new FieldDropProfile(false, 8, 14, 65, 1, 2, 8, 1, 1, 1.5, 0);
-            case 3 -> new FieldDropProfile(false, 9, 15, 60, 1, 2, 9, 1, 1, 2, 0);
-            case 4 -> new FieldDropProfile(false, 11, 17, 60, 1, 2, 10, 1, 1, 2.5, 0);
-            case 5 -> new FieldDropProfile(false, 12, 21, 55, 1, 2, 12, 1, 1, 3, 0);
-            default -> new FieldDropProfile(false, 6, 12, 70, 1, 2, 6, 1, 1, 1, 0);
+            case 2 -> new FieldDropProfile(false, 8, 14, 65, 1, 2, 8, 1, 1, 1.5, 0, 20);
+            case 3 -> new FieldDropProfile(false, 9, 15, 60, 1, 2, 9, 1, 1, 2, 0, 30);
+            case 4 -> new FieldDropProfile(false, 11, 17, 60, 1, 2, 10, 1, 1, 2.5, 0, 45);
+            case 5 -> new FieldDropProfile(false, 12, 21, 55, 1, 2, 12, 1, 1, 3, 0, 60);
+            default -> new FieldDropProfile(false, 6, 12, 70, 1, 2, 6, 1, 1, 1, 0, 10);
         };
     }
 
@@ -186,6 +187,7 @@ public final class FieldDropListener implements Listener {
             int enhancementStoneMin,
             int enhancementStoneMax,
             double cubeFragmentChancePct,
-            double traceChancePct
+            double traceChancePct,
+            int expAmount
     ) {}
 }

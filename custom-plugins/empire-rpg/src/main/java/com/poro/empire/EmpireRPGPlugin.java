@@ -20,7 +20,7 @@ import com.poro.empire.field.FieldTeleportService;
 import com.poro.empire.field.NoopSafeZoneService;
 import com.poro.empire.field.SafeZoneService;
 import com.poro.empire.field.WorldGuardSafeZoneService;
-import com.poro.empire.leveling.LevelingService;
+import com.poro.empire.leveling.PlayerLevelingService;
 import com.poro.empire.boss.room.BossRoomManager;
 import com.poro.empire.listener.AfkMonitorListener;
 import com.poro.empire.listener.BossDefenseListener;
@@ -130,7 +130,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
     private CooldownManager cooldownManager;
     private CombatStateService combatStateService;
     private ClassInitService classInitService;
-    private LevelingService levelingService;
+    private PlayerLevelingService playerLevelingService;
     private AuctionStore     auctionStore;
     private BossRoomManager  bossRoomManager;
     private BossRewardService bossRewardService;
@@ -287,7 +287,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
 
         this.cooldownManager = new CooldownManager();
         this.combatStateService = new CombatStateService();
-        this.levelingService = new LevelingService();
+        this.playerLevelingService = new PlayerLevelingService();
         this.bossRoomManager = new BossRoomManager();
         this.auctionStore = new AuctionStore(
                 foundationContext.connectionProvider(),
@@ -440,7 +440,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         if (getServer().getPluginManager().isPluginEnabled("MythicMobs")) {
             getServer().getPluginManager().registerEvents(
                     new FieldDropListener(growthStateStore, islandTerritoryStateStore, playerDataManager,
-                            levelingService, fieldBossScheduler, bossRewardService, new ContributionTracker()), this);
+                            playerLevelingService, fieldBossScheduler, bossRewardService, new ContributionTracker()), this);
             getServer().getPluginManager().registerEvents(new BossDefenseListener(), this);
             getLogger().info("MythicMobs detected — FieldDropListener + BossDefenseListener registered.");
         } else {
