@@ -1220,3 +1220,26 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 
 **이유:** GUI 설정 완료 상태와 공식 배경 4개 사용 방침을 문서 전체에 일관되게 반영하기 위함.
 **근거:** 사용자 확인 (2026-05-23)
+
+---
+
+### DL-067 플레이어 레벨링 경험치 곡선·몹 EXP·보스 EXP 재확정
+
+**파일:**
+- `docs/04_combat_weapon_skills/level_stat_system_v1.md` (§5 전체 대체)
+- `custom-plugins/empire-rpg/src/main/java/com/poro/empire/leveling/PlayerLevelingService.java` (신규)
+- `custom-plugins/empire-rpg/src/main/java/com/poro/empire/listener/FieldDropListener.java` (EXP 연동)
+
+**변경:**
+- 경험치 곡선: `550 × n^1.5` (2026-05-16 초안) → `round(800 × 1.1^(n-1))` (기하급수, 2026-05-26 확정)
+- 몹 EXP: F1 50/100 → 10/25, F2 70/140 → 20/50, F3 100/200 → 30/75, F4 140/275 → 45/110, F5 200/400 → 60/150
+- 보스 처치 EXP: **없음** (재화·흔적만 지급). 초안의 "보스 처치 시 보너스 경험치" 항목 삭제.
+- 레벨 목표: "80 사실상 불가" → 선발대(하루 8h) 83~87 목표, 일반 ~60, 활성 ~70, 상위 ~78 로 재설정
+
+**이유:**
+- 초안 멱함수(`550 × n^1.5`)는 고정 킬레이트(25/min) 기준 선발대가 45일에 100레벨 초과 → 설계 한계 역할 불가.
+- 기하급수 곡선은 레벨 85+ 진입 비용을 지수 폭증시켜 선발대의 80~85 목표를 자연 차단.
+- 구 문서의 몹 EXP(200/kill@F5)는 "80 사실상 불가" 주장과 내부적으로 모순됨.
+- 보스 EXP는 수급 예측이 어렵고 경쟁 요소를 과도하게 자극할 수 있어 배제.
+
+**근거:** 사용자 구두 확정 2026-05-26, Codex 리뷰(P1) 지적 → 문서 갱신으로 해소.
