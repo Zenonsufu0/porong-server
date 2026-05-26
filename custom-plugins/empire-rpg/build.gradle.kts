@@ -29,9 +29,6 @@ dependencies {
     compileOnly("me.clip:placeholderapi:2.11.6")
     compileOnly("net.luckperms:api:5.4")
 
-    // MythicMobs 5.x — 로컬 JAR (런타임은 서버 플러그인에서 제공)
-    compileOnly(files("../../server/plugins/MythicMobs-5.11.2.jar"))
-
     // IridiumSkyblock 4.x — 로컬 JAR (런타임은 서버 플러그인에서 제공)
     compileOnly(files("../../server/plugins/IridiumSkyblock-4.1.4.jar"))
 

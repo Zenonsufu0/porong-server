@@ -24,21 +24,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 
 public final class BossRoomListener implements Listener {
 
-    private final BossRoomManager             bossRoomManager;
-    private final BossEngineRuntime           bossEngineRuntime;
-    private final PartyManager                partyManager;
-    /** MythicMobs가 활성화된 경우에만 non-null. (mobId, spawnLocation) → void */
-    private final BiConsumer<String, Location> mythicSpawner;
+    private final BossRoomManager                    bossRoomManager;
+    private final BossEngineRuntime                  bossEngineRuntime;
+    private final PartyManager                       partyManager;
+    /**
+     * MM 활성화 시 non-null. (mobId, spawnLoc) → 스폰 성공 여부.
+     * reflection으로 구현되므로 이 클래스에 MythicMobs import 없음.
+     */
+    private final BiFunction<String, Location, Boolean> mythicSpawner;
 
     public BossRoomListener(BossRoomManager bossRoomManager,
                             BossMasterRegistry bossMasters,
                             PartyManager partyManager,
                             BossEngineRuntime bossEngineRuntime,
-                            BiConsumer<String, Location> mythicSpawner) {
+                            BiFunction<String, Location, Boolean> mythicSpawner) {
         this.bossRoomManager   = bossRoomManager;
         this.bossEngineRuntime = bossEngineRuntime;
         this.partyManager      = partyManager;
@@ -46,7 +49,8 @@ public final class BossRoomListener implements Listener {
     }
 
     /**
-     * "[보스]" 표지판 우클릭 → 빈 방 배정 → startRun() → 온라인 파티원 전원 텔레포트 입장 → MythicMob 스폰.
+     * "[보스]" 표지판 우클릭 → 빈 방 배정 → startRun() → MythicMob 스폰 → 온라인 파티원 텔레포트.
+     * 스폰 실패 시 endRun()으로 run·슬롯 전체 해제.
      */
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
@@ -90,7 +94,7 @@ public final class BossRoomListener implements Listener {
         }
         BossRoomSlot slot = slotOpt.get();
 
-        // 온라인 멤버만 수집 — run participant = 실제 입장 가능한 인원
+        // 온라인 멤버만 수집 — 오프라인 멤버는 run participant에서 제외
         List<Player> onlineMembers = new ArrayList<>();
         List<String> memberIds    = new ArrayList<>();
         memberIds.add(uuid.toString());
@@ -113,12 +117,23 @@ public final class BossRoomListener implements Listener {
             player.sendMessage("§c[보스] 입장 실패: " + runResult.errorCode().name());
             return;
         }
-
         BossRun run = runResult.value();
         bossRoomManager.registerRun(run.runId(), slot.id());
+
+        // MythicMob 스폰 — 텔레포트 전에 먼저 수행하여 "보스 없는 방" 방지
+        if (mythicSpawner != null) {
+            boolean spawned = mythicSpawner.apply(bossId, slot.bossSpawn());
+            if (!spawned) {
+                // endRun이 onRunEnded → releaseByRunId 체인을 자동 처리
+                bossEngineRuntime.runService().endRun(run.runId(), false, "spawn_failed");
+                player.sendMessage("§c[보스] 보스 소환에 실패했습니다. 잠시 후 다시 시도하세요.");
+                return;
+            }
+        }
+
         bossRoomManager.clearPendingBoss(uuid);
 
-        // 리더 입장
+        // 리더 입장 + 텔레포트
         bossRoomManager.enterRoom(uuid, slot.id());
         player.teleport(slot.playerSpawn());
 
@@ -130,11 +145,6 @@ public final class BossRoomListener implements Listener {
             member.teleport(slot.playerSpawn());
             member.sendMessage("§6[보스] §7파티 리더 §f" + player.getName()
                     + "§7의 입장으로 §f" + bossId + " §7보스룸 §e" + slot.id() + "§7번에 입장합니다!");
-        }
-
-        // MythicMob 스폰 (MM 비활성화 시 mythicSpawner == null)
-        if (mythicSpawner != null) {
-            mythicSpawner.accept(bossId, slot.bossSpawn());
         }
 
         int coCount = onlineMembers.size();

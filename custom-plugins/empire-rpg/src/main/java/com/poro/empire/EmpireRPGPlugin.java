@@ -451,14 +451,21 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(
                 new HotbarInteractListener(hotbarService, fieldStateProvider, combatStateService), this);
         FieldTeleportService fieldTeleportService = new FieldTeleportService(this);
-        java.util.function.BiConsumer<String, org.bukkit.Location> mythicSpawner = null;
+        // MythicMobs 스폰 어댑터 — reflection으로 완전 격리, import 없음
+        java.util.function.BiFunction<String, org.bukkit.Location, Boolean> mythicSpawner = null;
         if (getServer().getPluginManager().isPluginEnabled("MythicMobs")) {
             mythicSpawner = (mobId, loc) -> {
                 try {
-                    io.lumine.mythic.bukkit.MythicBukkit.inst()
-                            .getAPIHelper().spawnMythicMob(mobId, loc);
+                    Object inst   = Class.forName("io.lumine.mythic.bukkit.MythicBukkit")
+                            .getMethod("inst").invoke(null);
+                    Object helper = inst.getClass().getMethod("getAPIHelper").invoke(inst);
+                    helper.getClass()
+                            .getMethod("spawnMythicMob", String.class, org.bukkit.Location.class)
+                            .invoke(helper, mobId, loc);
+                    return true;
                 } catch (Exception e) {
                     getLogger().warning("[BossRoom] MythicMob 스폰 실패: " + mobId + " — " + e.getMessage());
+                    return false;
                 }
             };
         }
