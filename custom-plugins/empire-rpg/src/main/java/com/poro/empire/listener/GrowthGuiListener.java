@@ -199,6 +199,15 @@ public final class GrowthGuiListener implements Listener {
     }
 
     // ═══════════════════════════════════════════════════════════════
+    // 커맨드 진입점 (PlayerCommandRouter에서 호출)
+    // ═══════════════════════════════════════════════════════════════
+
+    public void openEquipHub(Player player)   { openEquipmentHub(player); }
+    public void openEnhancement(Player player){ openGrowthEnhance(player); }
+    public void openPotential(Player player)  { openGrowthPotential(player); }
+    public void openHeirloom(Player player)   { openGrowthHeirloom(player); }
+
+    // ═══════════════════════════════════════════════════════════════
     // 이벤트 처리
     // ═══════════════════════════════════════════════════════════════
 

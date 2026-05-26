@@ -8,6 +8,7 @@ import com.poro.empire.gui.StorageGui;
 import com.poro.empire.gui.TerritoryStatusGui;
 import com.poro.empire.gui.WorkshopGui;
 import com.poro.empire.listener.AuctionGuiListener;
+import com.poro.empire.listener.GrowthGuiListener;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -24,16 +25,19 @@ public class PlayerCommandRouter implements CommandExecutor {
     private static final String PREFIX = "§8[§e포로§8] ";
     private static final String NO_PERM = PREFIX + "§c사용할 수 없는 명령어입니다.";
 
-    private final IslandStorageStore storageStore;
+    private final IslandStorageStore        storageStore;
     private final IslandTerritoryStateStore territoryStore;
-    private final AuctionGuiListener auctionGuiListener;
+    private final AuctionGuiListener        auctionGuiListener;
+    private final GrowthGuiListener         growthGuiListener;
 
     public PlayerCommandRouter(IslandStorageStore storageStore,
                                IslandTerritoryStateStore territoryStore,
-                               AuctionGuiListener auctionGuiListener) {
-        this.storageStore = storageStore;
-        this.territoryStore = territoryStore;
+                               AuctionGuiListener auctionGuiListener,
+                               GrowthGuiListener growthGuiListener) {
+        this.storageStore       = storageStore;
+        this.territoryStore     = territoryStore;
         this.auctionGuiListener = auctionGuiListener;
+        this.growthGuiListener  = growthGuiListener;
     }
 
     @Override
@@ -56,12 +60,12 @@ public class PlayerCommandRouter implements CommandExecutor {
             case "공방"     -> WorkshopGui.open(player, WorkshopGui.WorkshopTab.ESTATE);
             // 이하 GUI 클래스 구현 후 연동
             case "메뉴"     -> stub(player, "메인 메뉴");
-            case "장비"     -> stub(player, "장비 메뉴");
-            case "강화"     -> stub(player, "강화");
-            case "잠재"     -> stub(player, "잠재 (큐브)");
+            case "장비"     -> growthGuiListener.openEquipHub(player);
+            case "강화"     -> growthGuiListener.openEnhancement(player);
+            case "잠재"     -> growthGuiListener.openPotential(player);
             case "각인"     -> stub(player, "각인");
             case "캐릭터"   -> stub(player, "캐릭터");
-            case "전승"     -> stub(player, "전승");
+            case "전승"     -> growthGuiListener.openHeirloom(player);
             case "영지"     -> stub(player, "영지 메뉴");
             case "영지이동"  -> stub(player, "영지이동");
             case "작물"     -> stub(player, "작물 관리");
