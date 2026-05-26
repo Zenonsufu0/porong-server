@@ -266,7 +266,7 @@ public final class AuctionStore {
 
     /**
      * 지급 대기 목록 조회 (읽기 전용, DB 변경 없음).
-     * 호출 측에서 메모리에 지급 성공 후 {@link #deletePendingForPlayer}를 호출해야 한다.
+     * 호출 측에서 메모리에 지급 성공 후 {@link #deletePendingByIds}를 호출해야 한다.
      */
     public List<PendingDelivery> fetchPending(UUID playerUuid) {
         try (Connection conn = connectionProvider.getConnection().value();
@@ -291,12 +291,18 @@ public final class AuctionStore {
         }
     }
 
-    /** 메모리 지급 완료 후 DB pending 레코드를 삭제한다. */
-    public void deletePendingForPlayer(UUID playerUuid) {
+    /**
+     * 메모리 지급 완료 후, fetch 시점에 조회된 ID만 삭제한다.
+     * player_uuid 전체 삭제 대신 id 기반으로 삭제해야 fetch↔delete 사이에
+     * 추가된 새 pending 레코드를 보호할 수 있다.
+     */
+    public void deletePendingByIds(List<Long> ids) {
+        if (ids.isEmpty()) return;
+        String placeholders = String.join(",", ids.stream().map(id -> "?").toArray(String[]::new));
+        String sql = "DELETE FROM auction_pending_delivery WHERE id IN (" + placeholders + ")";
         transactionHelper.inTransaction(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "DELETE FROM auction_pending_delivery WHERE player_uuid=?")) {
-                ps.setString(1, playerUuid.toString());
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                for (int i = 0; i < ids.size(); i++) ps.setLong(i + 1, ids.get(i));
                 ps.executeUpdate();
             }
             return null;

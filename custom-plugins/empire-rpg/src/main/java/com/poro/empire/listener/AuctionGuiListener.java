@@ -336,6 +336,12 @@ public final class AuctionGuiListener implements Listener {
                     return;
                 }
 
+                // DB 구매 전 선검사: 아이템 지급 불가면 구매 자체를 차단
+                IslandTerritoryState buyerTerritory = islandStore.get(uid).orElse(null);
+                if (buyerTerritory == null) {
+                    player.sendMessage("§c[경매장] 오류: 영지 데이터가 없습니다. 잠시 후 다시 시도하세요.");
+                    return;
+                }
                 PlayerGrowthState growth = growthStateStore.get(uid).orElse(null);
                 if (growth == null) { player.sendMessage("§c[경매장] 오류: 성장 데이터가 없습니다."); return; }
                 if (growth.currency("gold") < listing.price()) {
@@ -355,10 +361,8 @@ public final class AuctionGuiListener implements Listener {
                             refreshMain(player);
                             return;
                         }
-                        // 아이템 즉시 지급
-                        IslandTerritoryState territory = islandStore.get(uid).orElse(null);
-                        if (territory != null)
-                            territory.addCustomItem(listing.itemId(), listing.quantity());
+                        // 아이템 즉시 지급 (선검사로 null 불가 보장됨)
+                        buyerTerritory.addCustomItem(listing.itemId(), listing.quantity());
 
                         player.sendMessage("§a[경매장] §f" + itemDisplayName(listing.itemId())
                                 + " §7을 §e" + fmt(listing.price()) + "G§7에 구매했습니다.");
@@ -652,8 +656,10 @@ public final class AuctionGuiListener implements Listener {
                     }
                 }
 
+                List<Long> deliveredIds = deliveries.stream()
+                        .map(AuctionStore.PendingDelivery::id).toList();
                 Bukkit.getScheduler().runTaskAsynchronously(plugin,
-                        () -> auctionStore.deletePendingForPlayer(seller.getUniqueId()));
+                        () -> auctionStore.deletePendingByIds(deliveredIds));
             });
         });
     }

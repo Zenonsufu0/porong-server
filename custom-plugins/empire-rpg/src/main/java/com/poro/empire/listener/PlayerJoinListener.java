@@ -102,9 +102,11 @@ public final class PlayerJoinListener implements Listener {
                     }
                 }
 
-                // 3단계(비동기): 지급 성공 후 DB 삭제
+                // 3단계(비동기): 지급 성공 후 이번에 조회한 ID만 삭제
+                List<Long> deliveredIds = deliveries.stream()
+                        .map(AuctionStore.PendingDelivery::id).toList();
                 Bukkit.getScheduler().runTaskAsynchronously(plugin,
-                        () -> auctionStore.deletePendingForPlayer(uuid));
+                        () -> auctionStore.deletePendingByIds(deliveredIds));
             });
         });
     }
