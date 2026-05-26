@@ -28,6 +28,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -164,6 +165,22 @@ public final class GrowthGuiListener implements Listener {
     // ═══════════════════════════════════════════════════════════════
     // 이벤트 처리
     // ═══════════════════════════════════════════════════════════════
+
+    @EventHandler
+    public void onClose(InventoryCloseEvent event) {
+        if (!(event.getPlayer() instanceof Player player)) return;
+        if (!GuiTitles.GROWTH_POTENTIAL.equals(event.getView().title())) return;
+        UUID uid = player.getUniqueId();
+        PotentialService.PotentialOperationResult pending = pendingPotentialResult.remove(uid);
+        if (pending == null) return;
+        String instanceId = selectedPotentialId.get(uid);
+        if (instanceId == null) return;
+        PlayerGrowthState state = getState(player);
+        if (pending.before() != null) {
+            state.updatePotentialProfile(instanceId, pending.before());
+        }
+        player.sendMessage("§7[잠재] GUI를 닫아 기존 옵션이 유지되었습니다.");
+    }
 
     @EventHandler
     public void onClick(InventoryClickEvent event) {
