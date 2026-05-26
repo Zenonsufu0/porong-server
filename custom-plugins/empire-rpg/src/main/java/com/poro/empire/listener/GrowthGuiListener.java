@@ -371,6 +371,12 @@ public final class GrowthGuiListener implements Listener {
     }
 
     private void handlePotentialClick(Player player, int slot) {
+        // 대기 결과 강제 선택: CUR_KEEP·NEW_SELECT 외 모든 클릭 차단
+        if (pendingPotentialResult.containsKey(player.getUniqueId())
+                && slot != POT_SLOT_CUR_KEEP && slot != POT_SLOT_NEW_SELECT) {
+            player.sendMessage("§c먼저 결과를 선택하세요: §e[현재 유지] §cor §b[새 옵션 선택]");
+            return;
+        }
         if (slot == POT_SLOT_BACK) { openEquipmentHub(player); return; }
 
         // 장비 선택 (오른쪽 열)
@@ -414,7 +420,7 @@ public final class GrowthGuiListener implements Listener {
             if (pending.before() != null) {
                 state.updatePotentialProfile(instanceId, pending.before());
             }
-            player.sendMessage("§7[잠재] §f" + itemDisplayNameById(instanceId) + " §7기존 옵션 유지.");
+            player.sendMessage("§7[잠재] §f" + itemDisplayName(state.inventoryItem(instanceId).orElse(null)) + " §7기존 옵션 유지.");
             player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1.0f);
             scoreboardService.refresh(player);
             Inventory inv = player.getOpenInventory().getTopInventory();
@@ -429,10 +435,10 @@ public final class GrowthGuiListener implements Listener {
             PotentialService.PotentialOperationResult pending = pendingPotentialResult.remove(player.getUniqueId());
             if (pending == null) return;
             String instanceId = selectedPotentialId.get(player.getUniqueId());
-            player.sendMessage("§b[잠재] §f" + itemDisplayNameById(instanceId) + " §b새 옵션 확정!");
+            PlayerGrowthState state = getState(player);
+            player.sendMessage("§b[잠재] §f" + itemDisplayName(state.inventoryItem(instanceId).orElse(null)) + " §b새 옵션 확정!");
             player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.6f, 1.1f);
             scoreboardService.refresh(player);
-            PlayerGrowthState state = getState(player);
             Inventory inv = player.getOpenInventory().getTopInventory();
             refreshPotentialCurrentPanel(inv, state, instanceId);
             clearPotentialNewPanel(inv);
