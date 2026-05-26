@@ -294,6 +294,10 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                 foundationContext.connectionProvider(),
                 foundationContext.transactionHelper(),
                 getLogger());
+        // auctionGuiListener는 registerCommands() 전에 초기화해야 NPE 방지
+        this.auctionGuiListener = new AuctionGuiListener(
+                this, growthStateStore, islandTerritoryStateStore,
+                auctionStore, masterRegistryContext.itemMasters(), combatStateService);
         ShopGui.reloadItems(this);
         this.resourceTracker = new ResourceTracker();
         SkillContext skillContext = new SkillContext(
@@ -427,9 +431,6 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         FieldTeleportService fieldTeleportService = new FieldTeleportService(this);
         BossRoomListener bossRoomListenerInstance =
                 new BossRoomListener(this, bossRoomManager, masterRegistryContext.bossMasters());
-        this.auctionGuiListener = new AuctionGuiListener(
-                this, growthStateStore, islandTerritoryStateStore,
-                auctionStore, masterRegistryContext.itemMasters());
         getServer().getPluginManager().registerEvents(
                 new MainHubListener(this, fieldStateProvider, growthStateStore, growthEngineRuntime, scoreboardService, playerDataManager, islandStorageStore, islandTerritoryStateStore, fieldTeleportService, combatStateService, auctionGuiListener,
                         bossRoomListenerInstance), this);

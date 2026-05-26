@@ -80,10 +80,12 @@ public final class PlayerJoinListener implements Listener {
 
     private void claimAuctionPending(Player player) {
         UUID uuid = player.getUniqueId();
+        // 1단계(비동기): DB 조회만 수행 — 삭제 없음
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            List<AuctionStore.PendingDelivery> deliveries = auctionStore.claimAndDeletePending(uuid);
+            List<AuctionStore.PendingDelivery> deliveries = auctionStore.fetchPending(uuid);
             if (deliveries.isEmpty()) return;
 
+            // 2단계(메인스레드): 메모리 지급
             Bukkit.getScheduler().runTask(plugin, () -> {
                 IslandTerritoryState territory = islandTerritoryStateStore.get(uuid).orElse(null);
                 PlayerGrowthState growth = growthStateStore.get(uuid).orElse(null);
@@ -99,6 +101,10 @@ public final class PlayerJoinListener implements Listener {
                                 + " §7창고에 반환됐습니다.");
                     }
                 }
+
+                // 3단계(비동기): 지급 성공 후 DB 삭제
+                Bukkit.getScheduler().runTaskAsynchronously(plugin,
+                        () -> auctionStore.deletePendingForPlayer(uuid));
             });
         });
     }

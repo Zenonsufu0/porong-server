@@ -1,5 +1,6 @@
 package com.poro.empire.listener;
 
+import com.poro.empire.combat.CombatStateService;
 import com.poro.empire.common.registry.master.ItemMasterRegistry;
 import com.poro.empire.common.registry.master.model.ItemMaster;
 import com.poro.empire.growth.GrowthStateStore;
@@ -86,6 +87,7 @@ public final class AuctionGuiListener implements Listener {
     private final Plugin               plugin;
     private final GrowthStateStore     growthStateStore;
     private final IslandTerritoryStateStore islandStore;
+    private final CombatStateService   combatStateService;
     private final AuctionStore         auctionStore;
     private final ItemMasterRegistry   itemMasters;
 
@@ -93,17 +95,23 @@ public final class AuctionGuiListener implements Listener {
                                GrowthStateStore growthStateStore,
                                IslandTerritoryStateStore islandTerritoryStateStore,
                                AuctionStore auctionStore,
-                               ItemMasterRegistry itemMasters) {
-        this.plugin           = plugin;
-        this.growthStateStore = growthStateStore;
-        this.islandStore      = islandTerritoryStateStore;
-        this.auctionStore     = auctionStore;
-        this.itemMasters      = itemMasters;
+                               ItemMasterRegistry itemMasters,
+                               CombatStateService combatStateService) {
+        this.plugin             = plugin;
+        this.growthStateStore   = growthStateStore;
+        this.islandStore        = islandTerritoryStateStore;
+        this.auctionStore       = auctionStore;
+        this.itemMasters        = itemMasters;
+        this.combatStateService = combatStateService;
     }
 
     // ── 공개 진입점 ───────────────────────────────────────────────────────
 
     public void openMain(Player player) {
+        if (combatStateService.isInCombat(player.getUniqueId())) {
+            player.sendMessage("§c[경매장] 전투 중에는 경매장을 이용할 수 없습니다.");
+            return;
+        }
         playerMode.put(player.getUniqueId(), GuiMode.MAIN);
         playerCategory.putIfAbsent(player.getUniqueId(), CAT_ALL);
         playerSort.putIfAbsent(player.getUniqueId(), SortMode.LATEST);
@@ -355,18 +363,11 @@ public final class AuctionGuiListener implements Listener {
                         player.sendMessage("§a[경매장] §f" + itemDisplayName(listing.itemId())
                                 + " §7을 §e" + fmt(listing.price()) + "G§7에 구매했습니다.");
 
-                        // 판매자 정산 — 온라인이면 즉시 지급, 오프라인이면 pending 삽입
-                        long net = AuctionStore.netPrice(listing.price());
+                        // 판매자 정산 — pending은 buy()에서 이미 DB에 삽입됨
+                        // 판매자가 온라인이면 pending을 즉시 수령 처리 (fetch → apply → delete)
                         Player seller = Bukkit.getPlayer(listing.sellerUuid());
-                        PlayerGrowthState sellerGrowth = seller != null
-                                ? growthStateStore.get(listing.sellerUuid()).orElse(null) : null;
-                        if (sellerGrowth != null) {
-                            sellerGrowth.addCurrency("gold", net);
-                            seller.sendMessage("§a[경매장] §f" + itemDisplayName(listing.itemId())
-                                    + "§7이 판매됐습니다. 수익: §e" + fmt(net) + "G");
-                        } else {
-                            Bukkit.getScheduler().runTaskAsynchronously(plugin,
-                                    () -> auctionStore.insertPendingGold(listing.sellerUuid(), net));
+                        if (seller != null) {
+                            deliverPendingToOnlineSeller(seller);
                         }
                         refreshMain(player);
                     });
@@ -625,6 +626,37 @@ public final class AuctionGuiListener implements Listener {
     }
 
     // ── 내부 빌더 유틸 ────────────────────────────────────────────────────
+
+    /**
+     * 온라인 판매자의 pending_delivery를 즉시 수령 처리한다.
+     * 로그인 정산과 동일한 fetch → apply(main) → delete(async) 순서를 유지한다.
+     */
+    private void deliverPendingToOnlineSeller(Player seller) {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            List<AuctionStore.PendingDelivery> deliveries = auctionStore.fetchPending(seller.getUniqueId());
+            if (deliveries.isEmpty()) return;
+
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                PlayerGrowthState growth = growthStateStore.get(seller.getUniqueId()).orElse(null);
+                IslandTerritoryState territory = islandStore.get(seller.getUniqueId()).orElse(null);
+
+                for (AuctionStore.PendingDelivery d : deliveries) {
+                    if (d.gold() > 0 && growth != null) {
+                        growth.addCurrency("gold", d.gold());
+                        seller.sendMessage("§a[경매장] §7판매 완료 수익: §e"
+                                + fmt(d.gold()) + "G §7자동 지급됨.");
+                    } else if (d.itemId() != null && territory != null) {
+                        territory.addCustomItem(d.itemId(), d.quantity());
+                        seller.sendMessage("§e[경매장] §7만료 등록 아이템 §f" + d.itemId()
+                                + " §7창고에 반환됐습니다.");
+                    }
+                }
+
+                Bukkit.getScheduler().runTaskAsynchronously(plugin,
+                        () -> auctionStore.deletePendingForPlayer(seller.getUniqueId()));
+            });
+        });
+    }
 
     private List<String> buildTradeablePalette(IslandTerritoryState territory) {
         if (territory == null) return List.of();

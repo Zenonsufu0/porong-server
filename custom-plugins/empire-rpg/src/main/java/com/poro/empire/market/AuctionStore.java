@@ -165,8 +165,8 @@ public final class AuctionStore {
 
     /**
      * 구매 처리. 골드 차감은 호출 전에 GrowthState에서 해야 한다.
-     * 성공 시 listing 반환 — 아이템 지급 및 판매자 정산에 사용.
-     * pending_delivery 삽입은 호출 측에서 판매자 온라인 여부 확인 후 결정한다.
+     * 성공 시 listing 반환 — 아이템 지급에 사용.
+     * 판매자 골드 pending_delivery 삽입은 같은 트랜잭션에서 원자적으로 처리된다.
      */
     public Result<AuctionListing> buy(long listingId, UUID buyerUuid) {
         long now = System.currentTimeMillis();
@@ -188,21 +188,15 @@ public final class AuctionStore {
                 ps.setLong(2, listingId);
                 ps.executeUpdate();
             }
-            return listing;
-        });
-    }
-
-    /** 판매자가 오프라인일 때 골드 정산을 pending_delivery에 삽입한다. */
-    public void insertPendingGold(UUID playerUuid, long gold) {
-        transactionHelper.inTransaction(conn -> {
+            // 판매자 골드 pending 삽입 — 같은 트랜잭션 안에서 원자적으로 처리
             try (PreparedStatement ps = conn.prepareStatement(
                     "INSERT INTO auction_pending_delivery (player_uuid, gold, created_at) VALUES (?, ?, ?)")) {
-                ps.setString(1, playerUuid.toString());
-                ps.setLong(2, gold);
-                ps.setLong(3, System.currentTimeMillis());
+                ps.setString(1, listing.sellerUuid().toString());
+                ps.setLong(2, netPrice(listing.price()));
+                ps.setLong(3, now);
                 ps.executeUpdate();
             }
-            return null;
+            return listing;
         });
     }
 
@@ -270,33 +264,43 @@ public final class AuctionStore {
     public record PendingDelivery(long id, UUID playerUuid, String itemId,
                                    int quantity, long gold) {}
 
-    public List<PendingDelivery> claimAndDeletePending(UUID playerUuid) {
-        Result<List<PendingDelivery>> result = transactionHelper.inTransaction(conn -> {
+    /**
+     * 지급 대기 목록 조회 (읽기 전용, DB 변경 없음).
+     * 호출 측에서 메모리에 지급 성공 후 {@link #deletePendingForPlayer}를 호출해야 한다.
+     */
+    public List<PendingDelivery> fetchPending(UUID playerUuid) {
+        try (Connection conn = connectionProvider.getConnection().value();
+             PreparedStatement ps = conn.prepareStatement(
+                     "SELECT * FROM auction_pending_delivery WHERE player_uuid=?")) {
+            ps.setString(1, playerUuid.toString());
+            ResultSet rs = ps.executeQuery();
             List<PendingDelivery> deliveries = new ArrayList<>();
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT * FROM auction_pending_delivery WHERE player_uuid=?")) {
-                ps.setString(1, playerUuid.toString());
-                ResultSet rs = ps.executeQuery();
-                while (rs.next()) {
-                    deliveries.add(new PendingDelivery(
-                            rs.getLong("id"),
-                            playerUuid,
-                            rs.getString("item_id"),
-                            rs.getInt("quantity"),
-                            rs.getLong("gold")
-                    ));
-                }
-            }
-            if (!deliveries.isEmpty()) {
-                try (PreparedStatement ps = conn.prepareStatement(
-                        "DELETE FROM auction_pending_delivery WHERE player_uuid=?")) {
-                    ps.setString(1, playerUuid.toString());
-                    ps.executeUpdate();
-                }
+            while (rs.next()) {
+                deliveries.add(new PendingDelivery(
+                        rs.getLong("id"),
+                        playerUuid,
+                        rs.getString("item_id"),
+                        rs.getInt("quantity"),
+                        rs.getLong("gold")
+                ));
             }
             return deliveries;
+        } catch (Exception e) {
+            logger.warning("[Auction] fetchPending error: " + e.getMessage());
+            return List.of();
+        }
+    }
+
+    /** 메모리 지급 완료 후 DB pending 레코드를 삭제한다. */
+    public void deletePendingForPlayer(UUID playerUuid) {
+        transactionHelper.inTransaction(conn -> {
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "DELETE FROM auction_pending_delivery WHERE player_uuid=?")) {
+                ps.setString(1, playerUuid.toString());
+                ps.executeUpdate();
+            }
+            return null;
         });
-        return result.orElse(List.of());
     }
 
     // ── 내부 유틸 ─────────────────────────────────────────────────────────
