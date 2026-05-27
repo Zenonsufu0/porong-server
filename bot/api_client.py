@@ -75,3 +75,17 @@ class EmpireApiClient:
         async with self._get_session().get(url, headers=self._headers) as resp:
             resp.raise_for_status()
             return await resp.json()
+
+    async def get_island_by_nick(self, nick: str) -> dict:
+        """GET /island/by-nick/{nick} → DiscordCardResponse"""
+        url = f"{EMPIRE_API_URL}/island/by-nick/{nick}"
+        async with self._get_session().get(url, headers=self._headers) as resp:
+            resp.raise_for_status()
+            return await resp.json()
+
+    async def get_boss_by_nick(self, nick: str) -> dict:
+        """GET /boss-history/by-nick/{nick} → DiscordCardResponse"""
+        url = f"{EMPIRE_API_URL}/boss-history/by-nick/{nick}"
+        async with self._get_session().get(url, headers=self._headers) as resp:
+            resp.raise_for_status()
+            return await resp.json()

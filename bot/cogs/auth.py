@@ -93,6 +93,19 @@ class AuthCog(commands.Cog):
     async def on_ready(self) -> None:
         await self._setup_terms_message()
 
+    @commands.Cog.listener()
+    async def on_member_join(self, member: discord.Member) -> None:
+        if member.guild.id != config.GUILD_ID:
+            return
+        if config.ROLE_미인증_ID == 0:
+            return
+        role = member.guild.get_role(config.ROLE_미인증_ID)
+        if role:
+            try:
+                await member.add_roles(role, reason="신규 입장 — 미인증")
+            except discord.Forbidden:
+                pass
+
     async def _setup_terms_message(self) -> None:
         """인증 채널에 약관 메시지를 게시(없으면 새로 생성, 있으면 유지)."""
         guild = self.bot.get_guild(config.GUILD_ID)

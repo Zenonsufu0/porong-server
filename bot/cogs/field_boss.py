@@ -48,11 +48,17 @@ class FieldBossCog(commands.Cog):
         for entry in entries:
             field_id: str = entry.get("field_id", "")
             status: str = entry.get("status", "")
+            respawn_minutes: int = entry.get("respawn_minutes", 0) or 0
+            display = FIELD_NAMES.get(field_id, field_id)
+
+            # 0 < respawn_minutes <= 5 이면 IMMINENT로 취급
+            effective = (
+                "IMMINENT" if status == "RESPAWNING" and 0 < respawn_minutes <= 5
+                else status
+            )
             prev = self._prev_status.get(field_id)
 
-            # RESPAWNING → ALIVE 전환 감지
-            if prev is not None and prev != "ALIVE" and status == "ALIVE":
-                display = FIELD_NAMES.get(field_id, field_id)
+            if prev is not None and prev != "ALIVE" and effective == "ALIVE":
                 embed = discord.Embed(
                     title=f"⚠️ {display} 필드보스 등장!",
                     description=f"**{display}** 에 필드보스가 출현했습니다!",
@@ -63,8 +69,18 @@ class FieldBossCog(commands.Cog):
                     await channel.send(embed=embed)
                 except discord.HTTPException:
                     pass
+            elif prev is not None and prev != "IMMINENT" and effective == "IMMINENT":
+                embed = discord.Embed(
+                    title=f"🕐 {display} 필드보스 5분 전!",
+                    description=f"**{display}** 필드보스가 약 **{respawn_minutes}분** 후 출현합니다.",
+                    color=discord.Color.orange(),
+                )
+                try:
+                    await channel.send(embed=embed)
+                except discord.HTTPException:
+                    pass
 
-            self._prev_status[field_id] = status
+            self._prev_status[field_id] = effective
 
     @poll_field_boss.before_loop
     async def before_poll(self) -> None:

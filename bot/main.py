@@ -27,6 +27,7 @@ async def main() -> None:
         await bot.load_extension("cogs.player_commands")
         await bot.load_extension("cogs.field_boss")
         await bot.load_extension("cogs.role_poll")
+        await bot.load_extension("cogs.role_commands")
         await bot.start(DISCORD_TOKEN)
 
 
