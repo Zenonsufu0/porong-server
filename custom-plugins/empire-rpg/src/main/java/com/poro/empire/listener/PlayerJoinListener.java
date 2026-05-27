@@ -213,9 +213,12 @@ public final class PlayerJoinListener implements Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         UUID uuid = event.getPlayer().getUniqueId();
-        // quit 전 최신 성장 스냅샷 보존 (오프라인 조회용)
+        String userId = uuid.toString();
+        // quit 전 최신 스냅샷 보존 (오프라인 조회용)
         growthStateStore.get(uuid).ifPresent(state ->
-                operationsDataStore.upsertGrowthSnapshot(uuid.toString(), growthSnapshotBuilder.build(state)));
+                operationsDataStore.upsertGrowthSnapshot(userId, growthSnapshotBuilder.build(state)));
+        islandTerritoryStateStore.get(uuid).ifPresent(territory ->
+                operationsDataStore.upsertLifeSnapshot(userId, buildLifeSnapshot(territory)));
         playerPersistenceService.save(uuid);
         playerDataManager.onPlayerQuit(uuid);
         growthStateStore.remove(uuid);
