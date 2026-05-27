@@ -143,11 +143,21 @@
 | `PlayerCommandRouter` — `/경매장 등록 <가격> [수량]` args 파싱 추가 | ✅ |
 | `BUILD SUCCESSFUL` | ✅ |
 
+## §6-9 MM 보스룸 보스 스텁 — 완료 (2026-05-27)
+
+| 항목 | 상태 |
+|---|---|
+| `BossRoomBosses.yml` 신규 생성 — `fallen_knight`~`spirit_watcher` 8종 스텁 | ✅ |
+| HP/DEF: `season_boss_stats_v1.md` 확정값 (3인 기준) 적용 | ✅ |
+| `Skills: []` — 패턴 미구현 스텁, 자동 근접공격만 동작 | ✅ |
+| `rift_king`은 `FieldBosses.yml`에 기정의 — 중복 생성 안 함 | ✅ |
+| `corrupted_dyad` — 단일 890k HP 스텁 (실구현: 445k×2 소환 메카닉 예정) | ✅ |
+
 ## 다음 작업 후보
 
 | 우선도 | 항목 | 비고 |
 |---|---|---|
-| 높음 | 서버 통합 테스트 — `/보스` 선택 → `[보스]` 표지판 → MM 스폰 런타임 확인 | MythicMobs mobId 매칭 검증 |
+| 높음 | 서버 통합 테스트 — `/보스` 선택 → `[보스]` 표지판 → MM 스폰 런타임 확인 | BossRoomBosses.yml 로드 + bossId 매칭 검증 |
 | 중간 | 서버 통합 테스트 — 봇 `/영지`·`/보스`·`/프로필` → Java API → 응답 확인 | 닉네임 기반 조회 실제 동작 검증 |
 | 낮음 | 리소스팩 파이프라인 (Phase 8) | `docs/08_resourcepack_pipeline/index.md` |
 
