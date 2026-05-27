@@ -1,15 +1,15 @@
 # 포로 서버 작업 현황
 
-> 마지막 갱신: 2026-05-26 (Phase 5 WorkshopGui 레시피+영속화 + TerritoryHubGui 54슬롯 구현 완료)
+> 마지막 갱신: 2026-05-27 (§6-5 보스룸 풀 시스템 완성 — MythicMobs reflection 격리 + 슬롯 lifecycle 완전 구현)
 
 ---
 
 ## 현재 브랜치 상태
 
 - 브랜치: `master` = `codex-review` (동기화 완료)
-- 최근 커밋: `§6-4 fix — TerritoryHubGui 54슬롯 8패널 스펙 정합 재구현`
-- 빌드: `./gradlew compileJava → BUILD SUCCESSFUL`
-- Phase 5 영지/농장 핵심 GUI 구현 **모두 완료**
+- 최근 커밋: `874f89c §6-5 fix5 — MM 비활성화 차단을 assignRoom/startRun 전으로 이동`
+- 빌드: `./gradlew compileJava → BUILD SUCCESSFUL` (MythicMobs JAR compileOnly 제거 후도 통과)
+- §6-5 보스룸 풀 시스템 구현 **완료 · 리뷰 통과**
 
 ---
 
@@ -51,6 +51,23 @@
 | 5개 필드보스 YAML Phase 구조 + BossBar 업데이트 | ✅ |
 | `season_bosses.yml` 9보스 셸 신규 생성 | ✅ |
 
+## §6-5 보스룸 풀 시스템 — 완료 (2026-05-27)
+
+30개 물리 방(50×50×50 석재벽돌, 6×5 격자, `GAP=60`) 사전 생성 + 파티 단위 슬롯 배정.
+
+| 항목 | 커밋 | 상태 |
+|---|---|---|
+| `BossRoomSlot` (synchronized tryOccupy/release) | `7be9897` | ✅ |
+| `BossRoomManager` — `assignRoom`, `registerRun`, `releaseByRunId`, `exitRoom` 자동해제 | `9a899a4` | ✅ |
+| `BossRoomGenerationService` + `/empire-genrooms` 커맨드 | `7be9897` | ✅ |
+| `config.yml` boss-room-slots 30슬롯 + fields 5종 좌표 | `7be9897` | ✅ |
+| `BossRoomListener` — 표지판 입장 / `startRun()` / 슬롯 실패 cleanup | `342954f` | ✅ |
+| MythicMobs reflection 격리 (`build.gradle.kts` compileOnly 제거) | `eee0548` | ✅ |
+| 스폰 실패 → `endRun(false, "spawn_failed")` → `releaseByRunId` 체인 | `eee0548` | ✅ |
+| MM 비활성화 → `assignRoom`/`startRun` 전 조기 차단 | `874f89c` | ✅ |
+| `BossRewardService.onRunEnded` — `releaseByRunId` 를 clearSuccess 분기 앞으로 (항상 실행) | `342954f` | ✅ |
+| `PlayerJoinListener.onQuit` — `bossRoomManager.exitRoom(uuid)` 연결 | `9a899a4` | ✅ |
+
 ---
 
 ## Phase 7 선행 — 완료
@@ -84,11 +101,22 @@
 
 ---
 
+## §6-6 필드 드랍 완성 — 완료 (2026-05-27)
+
+| 항목 | 상태 |
+|---|---|
+| `FieldDropListener` — 일반몹/정예몹 전체 드랍 (골드·전장의 파편·강화석·큐브조각·장비의 흔적) | ✅ 기존 완료 |
+| `BossRewardService.grantFieldBossReward()` — 전장의 파편 추가 (F1:3~5 ~ F5:5~9) | ✅ |
+| `BossRewardService.grantFieldBossReward()` — 큐브 조각 → 큐브 자동 전환 (10조각=1큐브) | ✅ |
+| equip_trace 등급 분포 CANON §2 기준으로 수정 (F1~3: 커먼60/레어35/에픽5, F4/F5 상위 등급 상향) | ✅ |
+| 고대흔적(ancient_trace_*) 독립 드랍 — CANON §7.2 필드보스별 각 등급 독립 확률 | ✅ |
+| `BUILD SUCCESSFUL` | ✅ |
+
 ## 다음 작업 후보
 
 | 우선도 | 항목 | 비고 |
 |---|---|---|
-| 높음 | 필드/보스 드랍 완성 — FieldDropListener 몬스터 처치 시 mat_battle_shard 지급 로직 | `docs/06_fields_bosses/CANON.md` |
+| 높음 | 서버 통합 테스트 — `/보스` 선택 → `[보스]` 표지판 → MM 스폰 런타임 확인 | MythicMobs mobId 매칭 검증 |
 | 중간 | 디스코드 인증봇 (Phase 2) | `docs/03_discord_onboarding_bot/index.md` |
 | 중간 | 강화 시스템 GUI (GrowthGuiListener 플레이스홀더 → 실구현) | `docs/04_combat_weapon_skills/CANON.md` |
 | 낮음 | 리소스팩 파이프라인 (Phase 8) | `docs/08_resourcepack_pipeline/index.md` |
@@ -107,7 +135,8 @@
 | 항목 | 내용 |
 |---|---|
 | compileTestJava | GrowthEngineSampleTest legacy `EquipmentSlot` 참조 (§6 범위 외) |
-| MythicMobs/IridiumSkyblock | `../../server/plugins/` 로컬 JAR 경로 — review worktree 미지원 (pre-existing). Java 코드에서 `io.lumine.*` 임포트 없으므로 `compileOnly` JAR 불필요 → review worktree `compileJava` 정상 |
+| MythicMobs | §6-5에서 `compileOnly` JAR 선언 완전 제거. 스폰 호출은 `Class.forName` reflection으로 격리 — 컴파일/리뷰 환경에 JAR 불필요. 런타임 mobId 매칭은 서버 통합 테스트 필요 |
+| IridiumSkyblock | `../../server/plugins/` 로컬 JAR 경로 — review worktree 미지원 (pre-existing). Java 코드에서 `io.lumine.*` 임포트 없으므로 현재 `compileJava` 정상 |
 | BossSessionRepository 쓰기 경로 | ✅ 연결 완료 — DbBossRunRecordHook + CompositeBossRunRecordHook. 참여자 실수치(damage_share, il 등)는 §7+ 예정 (placeholder 0.0 유지) |
 | 시즌보스 damage_share | `BossResultSummaryBuilder` placeholder 0.0 유지 — §7+ 구현 (DL-064) |
 | AllowAllUnlockQuestChecker | 보스6 클리어 조건 stub — 퀘스트 시스템 구현 후 연결 |
