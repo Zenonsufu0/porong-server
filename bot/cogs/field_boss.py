@@ -45,6 +45,9 @@ class FieldBossCog(commands.Cog):
         if not isinstance(channel, discord.TextChannel):
             return
 
+        notify_role_id = config.NOTIFY_ROLE_IDS.get("필드보스알림", 0)
+        mention = f"<@&{notify_role_id}>" if notify_role_id else None
+
         for entry in entries:
             field_id: str = entry.get("field_id", "")
             status: str = entry.get("status", "")
@@ -66,7 +69,7 @@ class FieldBossCog(commands.Cog):
                 )
                 embed.add_field(name="현재 접속자", value=str(entry.get("player_count", 0)), inline=True)
                 try:
-                    await channel.send(embed=embed)
+                    await channel.send(content=mention, embed=embed)
                 except discord.HTTPException:
                     pass
             elif prev is not None and prev != "IMMINENT" and effective == "IMMINENT":
@@ -76,7 +79,7 @@ class FieldBossCog(commands.Cog):
                     color=discord.Color.orange(),
                 )
                 try:
-                    await channel.send(embed=embed)
+                    await channel.send(content=mention, embed=embed)
                 except discord.HTTPException:
                     pass
 

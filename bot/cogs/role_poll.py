@@ -35,8 +35,11 @@ class RolePollCog(commands.Cog):
         if guild is None:
             return
 
-        verified_role = guild.get_role(config.ROLE_인증유저_ID)
-        pending_role = guild.get_role(config.ROLE_접속대기_ID)
+        verified_role  = guild.get_role(config.ROLE_인증유저_ID)
+        pending_role   = guild.get_role(config.ROLE_접속대기_ID)
+        unverified_role = (
+            guild.get_role(config.ROLE_미인증_ID) if config.ROLE_미인증_ID else None
+        )
 
         for entry in entries:
             discord_user_id: str = entry.get("discord_user_id", "")
@@ -52,7 +55,10 @@ class RolePollCog(commands.Cog):
 
             if member:
                 roles_to_add = [verified_role] if verified_role else []
-                roles_to_remove = [pending_role] if pending_role and pending_role in member.roles else []
+                roles_to_remove = [
+                    r for r in (pending_role, unverified_role)
+                    if r and r in member.roles
+                ]
                 try:
                     if roles_to_add:
                         await member.add_roles(*roles_to_add, reason="마인크래프트 연동 완료")

@@ -129,7 +129,7 @@
 | `on_member_join` → 미인증 역할 자동 부여 | `bot/cogs/auth.py` | ✅ |
 | IMMINENT 감지 (RESPAWNING + ≤5분) → 5분 전 예고 embed | `bot/cogs/field_boss.py` | ✅ |
 | `/프로필`·`/영지`·`/보스` API 분리 (3개 별도 엔드포인트) | `bot/cogs/player_commands.py` | ✅ |
-| `get_island_by_nick` / `get_boss_by_nick` 추가 | `bot/api_client.py` | ✅ |
+| `get_island_by_nick` / `get_boss_by_nick` 추가 | `bot/api_client.py` | ✅ (봇 클라이언트만 — 서버 API 미구현) |
 | `/클래스선택` (6버튼, 1인1클래스) + `/알림설정` (3토글) 신규 Cog | `bot/cogs/role_commands.py` | ✅ |
 | `cogs.role_commands` 로드 | `bot/main.py` | ✅ |
 
