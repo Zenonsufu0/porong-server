@@ -4,6 +4,7 @@ import com.poro.empire.growth.GrowthStateStore;
 import com.poro.empire.growth.engine.PlayerGrowthSnapshotBuilder;
 import com.poro.empire.growth.engine.PlayerGrowthState;
 import com.poro.empire.growth.island.IslandStorage;
+import com.poro.empire.life.engine.EstateSnapshotBuilder;
 import com.poro.empire.growth.island.IslandStorageStore;
 import com.poro.empire.growth.island.IslandTerritoryState;
 import com.poro.empire.growth.island.IslandTerritoryStateStore;
@@ -31,8 +32,10 @@ import org.bukkit.plugin.Plugin;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 
 public final class PlayerJoinListener implements Listener {
@@ -103,6 +106,33 @@ public final class PlayerJoinListener implements Listener {
         operationsDataStore.upsertPlayerProfile(new PlayerProfileRecord(userId, player.getName(), classId));
         growthStateStore.get(player.getUniqueId()).ifPresent(state ->
                 operationsDataStore.upsertGrowthSnapshot(userId, growthSnapshotBuilder.build(state)));
+        islandTerritoryStateStore.get(player.getUniqueId()).ifPresent(territory ->
+                operationsDataStore.upsertLifeSnapshot(userId, buildLifeSnapshot(territory)));
+    }
+
+    private EstateSnapshotBuilder.EstateSnapshot buildLifeSnapshot(IslandTerritoryState territory) {
+        // 영지 창고 아이템 전체를 단일 pseudo-facility로 표현
+        Map<String, Long> stored = new LinkedHashMap<>();
+        territory.customItemsSnapshot().forEach((k, v) -> {
+            if (v > 0) stored.put(k, v);
+        });
+
+        List<EstateSnapshotBuilder.FacilitySnapshot> facilities = new ArrayList<>();
+        if (territory.reaperCount() > 0) {
+            facilities.add(new EstateSnapshotBuilder.FacilitySnapshot(
+                    0, "생산기×" + territory.reaperCount(), 1, null, 0L, Map.copyOf(stored)));
+        }
+        if (territory.storageCount() > 0) {
+            facilities.add(new EstateSnapshotBuilder.FacilitySnapshot(
+                    1, "저장고×" + territory.storageCount(), 1, null, 0L, Map.of()));
+        }
+        if (facilities.isEmpty()) {
+            facilities.add(new EstateSnapshotBuilder.FacilitySnapshot(
+                    0, "영지창고", 1, null, 0L, Map.copyOf(stored)));
+        }
+        return new EstateSnapshotBuilder.EstateSnapshot(
+                territory.islandName().isBlank() ? "영지" : territory.islandName(),
+                null, true, List.copyOf(facilities), null);
     }
 
     private void claimAuctionPending(Player player) {
