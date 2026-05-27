@@ -125,7 +125,7 @@ public final class MainHubListener implements Listener {
 
         gui.setItem(29, MainHubGui.icon(Material.ANVIL,         "§f강화",     List.of("§7──────────────", "§7클릭하여 열기")));
         gui.setItem(31, MainHubGui.icon(Material.NETHER_STAR,   "§f잠재능력", List.of("§7──────────────", "§7클릭하여 열기")));
-        gui.setItem(33, MainHubGui.icon(Material.ENCHANTED_BOOK,"§7전승",     List.of("§7──────────────", "§8준비 중")));
+        gui.setItem(33, MainHubGui.icon(Material.ENCHANTED_BOOK,"§f전승",     List.of("§7──────────────", "§7클릭하여 열기")));
         gui.setItem(45, MainHubGui.icon(Material.ARROW,         "§7뒤로",     List.of("§7메인 메뉴")));
         gui.setItem(49, MainHubGui.icon(Material.BARRIER,       "§c닫기",     List.of()));
 

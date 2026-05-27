@@ -945,15 +945,57 @@ public final class GrowthGuiListener implements Listener {
     // ═══════════════════════════════════════════════════════════════
 
     private void openEquipmentHub(Player player) {
+        WeaponType wt    = playerDataManager.getWeaponType(player.getUniqueId());
+        PlayerGrowthState state = growthStateStore.getOrCreate(
+                player.getUniqueId(), wt.name().toLowerCase(Locale.ROOT));
+
         Inventory gui = Bukkit.createInventory(null, 54, GuiTitles.EQUIPMENT_HUB);
         ItemStack pane = pane();
         for (int i = 0; i < 54; i++) gui.setItem(i, pane);
-        gui.setItem(29, MainHubGui.icon(Material.ANVIL,              "§f강화",      List.of("§7아이템 강화 / 강화석 소모")));
-        gui.setItem(31, MainHubGui.icon(Material.NETHER_STAR,        "§f잠재능력",  List.of("§7큐브 소비 → 잠재 재롤")));
-        gui.setItem(33, MainHubGui.icon(Material.EXPERIENCE_BOTTLE,  "§7전승",      List.of("§8준비 중")));
-        gui.setItem(45, MainHubGui.icon(Material.ARROW,              "§7뒤로",      List.of("§7메인 메뉴")));
-        gui.setItem(49, MainHubGui.icon(Material.BARRIER,            "§c닫기",      List.of()));
+
+        gui.setItem(10, equipHubSlotIcon(state, EquipmentSlot.WEAPON,     "무기",  weaponMaterial(wt)));
+        gui.setItem(11, equipHubSlotIcon(state, EquipmentSlot.HELMET,     "투구",  Material.NETHERITE_HELMET));
+        gui.setItem(12, equipHubSlotIcon(state, EquipmentSlot.CHESTPLATE, "갑옷",  Material.NETHERITE_CHESTPLATE));
+        gui.setItem(13, equipHubSlotIcon(state, EquipmentSlot.LEGGINGS,   "각반",  Material.NETHERITE_LEGGINGS));
+        gui.setItem(14, equipHubSlotIcon(state, EquipmentSlot.BOOTS,      "신발",  Material.NETHERITE_BOOTS));
+
+        gui.setItem(29, MainHubGui.icon(Material.ANVIL,          "§f강화",     List.of("§7──────────────", "§7클릭하여 열기")));
+        gui.setItem(31, MainHubGui.icon(Material.NETHER_STAR,    "§f잠재능력", List.of("§7──────────────", "§7클릭하여 열기")));
+        gui.setItem(33, MainHubGui.icon(Material.ENCHANTED_BOOK, "§f전승",     List.of("§7──────────────", "§7클릭하여 열기")));
+        gui.setItem(45, MainHubGui.icon(Material.ARROW,          "§7뒤로",     List.of("§7메인 메뉴")));
+        gui.setItem(49, MainHubGui.icon(Material.BARRIER,        "§c닫기",     List.of()));
         player.openInventory(gui);
+    }
+
+    private ItemStack equipHubSlotIcon(PlayerGrowthState state, EquipmentSlot slot,
+                                       String slotName, Material mat) {
+        String instanceId = state.equippedItems().get(slot);
+        if (instanceId == null) {
+            return MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE,
+                    "§7" + slotName + " §8[미장착]", List.of());
+        }
+        PlayerEquipmentItem item = state.inventoryItem(instanceId).orElse(null);
+        if (item == null) {
+            return MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE,
+                    "§7" + slotName + " §8[미장착]", List.of());
+        }
+        return MainHubGui.icon(mat, "§f" + slotName, List.of(
+                "§7──────────────",
+                "§7ID: §f" + item.itemId(),
+                "§7등급: §e" + item.grade().displayName(),
+                "§7강화: §a+" + item.enhanceLevel()
+        ));
+    }
+
+    private Material weaponMaterial(WeaponType wt) {
+        return switch (wt) {
+            case SWORD, SPEAR -> Material.NETHERITE_SWORD;
+            case AXE          -> Material.NETHERITE_AXE;
+            case CROSSBOW     -> Material.CROSSBOW;
+            case SCYTHE       -> Material.NETHERITE_HOE;
+            case STAFF        -> Material.BLAZE_ROD;
+            case NONE         -> Material.STICK;
+        };
     }
 
     // ═══════════════════════════════════════════════════════════════

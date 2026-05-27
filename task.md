@@ -112,13 +112,21 @@
 | 고대흔적(ancient_trace_*) 독립 드랍 — CANON §7.2 필드보스별 각 등급 독립 확률 | ✅ |
 | `BUILD SUCCESSFUL` | ✅ |
 
+## §6-7 강화 시스템 GUI 완성 — 완료 (2026-05-27)
+
+| 항목 | 상태 |
+|---|---|
+| `GrowthGuiListener.openEquipmentHub()` — 장비 슬롯 아이콘(5종) 추가, MainHubListener 버전과 레이아웃 통일 | ✅ |
+| 전승 버튼 "준비 중" → "§f전승 / 클릭하여 열기" (GrowthGuiListener + MainHubListener 양쪽) | ✅ |
+| `equipHubSlotIcon()` / `weaponMaterial()` 헬퍼 추가 | ✅ |
+| `BUILD SUCCESSFUL` | ✅ |
+
 ## 다음 작업 후보
 
 | 우선도 | 항목 | 비고 |
 |---|---|---|
 | 높음 | 서버 통합 테스트 — `/보스` 선택 → `[보스]` 표지판 → MM 스폰 런타임 확인 | MythicMobs mobId 매칭 검증 |
 | 중간 | 디스코드 인증봇 (Phase 2) | `docs/03_discord_onboarding_bot/index.md` |
-| 중간 | 강화 시스템 GUI (GrowthGuiListener 플레이스홀더 → 실구현) | `docs/04_combat_weapon_skills/CANON.md` |
 | 낮음 | 리소스팩 파이프라인 (Phase 8) | `docs/08_resourcepack_pipeline/index.md` |
 
 ## Phase 5 잔여 기술 부채
