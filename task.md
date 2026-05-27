@@ -143,15 +143,14 @@
 | `PlayerCommandRouter` — `/경매장 등록 <가격> [수량]` args 파싱 추가 | ✅ |
 | `BUILD SUCCESSFUL` | ✅ |
 
-## §6-9 MM 보스룸 보스 스텁 — 완료 (2026-05-27)
+## §6-9 MM 보스룸 보스 MobType ID 교체 — 완료 (2026-05-27)
 
 | 항목 | 상태 |
 |---|---|
-| `BossRoomBosses.yml` 신규 생성 — `fallen_knight`~`spirit_watcher` 8종 스텁 | ✅ |
-| HP/DEF: `season_boss_stats_v1.md` 확정값 (3인 기준) 적용 | ✅ |
-| `Skills: []` — 패턴 미구현 스텁, 자동 근접공격만 동작 | ✅ |
-| `rift_king`은 `FieldBosses.yml`에 기정의 — 중복 생성 안 함 | ✅ |
-| `corrupted_dyad` — 단일 890k HP 스텁 (실구현: 445k×2 소환 메카닉 예정) | ✅ |
+| `server-config/mythicmobs/mobs/season_bosses.yml` — MobType ID 9종 교체 (`SBoss1_FallenKnight` → `fallen_knight` 등) | ✅ |
+| `corrupted_dyad`(Z) `~onSpawn` 소환 추가 → `corrupted_dyad_s`(S) 자동 동반 스폰 | ✅ |
+| `SpiritWatcher_Mage` 소환체 ID는 유지 (보스 진입점 아님) | ✅ |
+| `rift_king`도 `season_bosses.yml` 내에 존재 (`Final_RiftKing` → `rift_king`) | ✅ |
 
 ## 다음 작업 후보
 
