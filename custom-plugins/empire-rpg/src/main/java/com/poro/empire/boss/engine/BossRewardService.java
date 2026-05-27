@@ -138,7 +138,16 @@ public final class BossRewardService implements BossRewardResolverHook {
         PlayerGrowthState growth = growthStateStore.getOrCreate(uuid, classId);
 
         growth.addCurrency(ENHANCEMENT_STONE, randomInclusive(table.stoneMin(), table.stoneMax()));
+
+        // 큐브 조각 → 큐브 자동 전환 (10조각 = 1큐브)
         growth.addCurrency(CUBE_FRAGMENT, table.cubeFixed());
+        long frags = growth.currency(CUBE_FRAGMENT);
+        if (frags >= 10) {
+            long newCubes = frags / 10;
+            growth.consumeCurrency(CUBE_FRAGMENT, newCubes * 10);
+            growth.addCurrency(CUBE, newCubes);
+            logger.info("[Cube] " + uuid + " season_boss frags→cubes=" + newCubes);
+        }
 
         if (roll(table.traceChancePct())) {
             islandTerritoryStateStore.getOrCreate(uuid)

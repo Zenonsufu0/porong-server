@@ -1,15 +1,15 @@
 # 포로 서버 작업 현황
 
-> 마지막 갱신: 2026-05-27 (§6-5 보스룸 풀 시스템 완성 — MythicMobs reflection 격리 + 슬롯 lifecycle 완전 구현)
+> 마지막 갱신: 2026-05-27 (§6-6 필드 드랍 완성 — 전장의 파편/고대흔적/큐브 자동전환 추가, 시즌보스 큐브 자동전환 수정)
 
 ---
 
 ## 현재 브랜치 상태
 
 - 브랜치: `master` = `codex-review` (동기화 완료)
-- 최근 커밋: `874f89c §6-5 fix5 — MM 비활성화 차단을 assignRoom/startRun 전으로 이동`
-- 빌드: `./gradlew compileJava → BUILD SUCCESSFUL` (MythicMobs JAR compileOnly 제거 후도 통과)
-- §6-5 보스룸 풀 시스템 구현 **완료 · 리뷰 통과**
+- 최근 커밋: `9f6dd15 §6-6 필드 드랍 완성 — 전장의 파편/고대흔적/큐브 자동전환 추가`
+- 빌드: `./gradlew compileJava → BUILD SUCCESSFUL`
+- §6-6 필드 드랍 완성 **완료 · 리뷰 통과 (시즌보스 큐브 자동전환 fix 포함)**
 
 ---
 
