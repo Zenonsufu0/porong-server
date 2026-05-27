@@ -205,9 +205,29 @@ public final class GrowthGuiListener implements Listener {
     // ═══════════════════════════════════════════════════════════════
 
     public void openEquipHub(Player player)   { openEquipmentHub(player); }
-    public void openEnhancement(Player player){ openGrowthEnhance(player); }
-    public void openPotential(Player player)  { openGrowthPotential(player); }
-    public void openHeirloom(Player player)   { openGrowthHeirloom(player); }
+
+    public void openEnhancement(Player player) {
+        if (isNoneClass(player)) return;
+        openGrowthEnhance(player);
+    }
+
+    public void openPotential(Player player) {
+        if (isNoneClass(player)) return;
+        openGrowthPotential(player);
+    }
+
+    public void openHeirloom(Player player) {
+        if (isNoneClass(player)) return;
+        openGrowthHeirloom(player);
+    }
+
+    private boolean isNoneClass(Player player) {
+        if (playerDataManager.getWeaponType(player.getUniqueId()) == WeaponType.NONE) {
+            player.sendMessage("§c[장비] 직업을 먼저 선택해야 합니다.");
+            return true;
+        }
+        return false;
+    }
 
     // ═══════════════════════════════════════════════════════════════
     // 이벤트 처리
@@ -951,11 +971,8 @@ public final class GrowthGuiListener implements Listener {
     // ═══════════════════════════════════════════════════════════════
 
     private void openEquipmentHub(Player player) {
+        if (isNoneClass(player)) return;
         WeaponType wt    = playerDataManager.getWeaponType(player.getUniqueId());
-        if (wt == WeaponType.NONE) {
-            player.sendMessage("§c[장비] 직업을 먼저 선택해야 합니다. §7(/클래스선택 또는 /시작)");
-            return;
-        }
         PlayerGrowthState state = growthStateStore.getOrCreate(
                 player.getUniqueId(), wt.name().toLowerCase(Locale.ROOT));
 
