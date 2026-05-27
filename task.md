@@ -133,6 +133,16 @@
 | `/클래스선택` (6버튼, 1인1클래스) + `/알림설정` (3토글) 신규 Cog | `bot/cogs/role_commands.py` | ✅ |
 | `cogs.role_commands` 로드 | `bot/main.py` | ✅ |
 
+## §6-8 경매장 직접 등록 커맨드 — 완료 (2026-05-27)
+
+| 항목 | 상태 |
+|---|---|
+| `AuctionGuiListener.handleDirectRegister(player, price, qty)` — 손에 든 아이템 PDC/displayName 매칭 → territory 수량 검증 → confirmRegister 위임 | ✅ |
+| `confirmRegister` qty 파라미터 추가 (GUI 경로는 qty=1 고정, 커맨드 경로는 사용자 지정) | ✅ |
+| `NamespacedKey "empire_item_id"` 추가 — PDC 태그 우선 조회, 없으면 displayName→ItemMaster.itemName() fallback | ✅ |
+| `PlayerCommandRouter` — `/경매장 등록 <가격> [수량]` args 파싱 추가 | ✅ |
+| `BUILD SUCCESSFUL` | ✅ |
+
 ## 다음 작업 후보
 
 | 우선도 | 항목 | 비고 |

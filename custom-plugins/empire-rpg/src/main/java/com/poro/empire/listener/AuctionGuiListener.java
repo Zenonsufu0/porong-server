@@ -14,8 +14,11 @@ import com.poro.empire.market.AuctionStore.SortMode;
 import com.poro.empire.common.result.Result;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -90,6 +93,7 @@ public final class AuctionGuiListener implements Listener {
     private final CombatStateService   combatStateService;
     private final AuctionStore         auctionStore;
     private final ItemMasterRegistry   itemMasters;
+    private final NamespacedKey        empireItemKey;
 
     public AuctionGuiListener(Plugin plugin,
                                GrowthStateStore growthStateStore,
@@ -103,6 +107,7 @@ public final class AuctionGuiListener implements Listener {
         this.auctionStore       = auctionStore;
         this.itemMasters        = itemMasters;
         this.combatStateService = combatStateService;
+        this.empireItemKey      = new NamespacedKey(plugin, "empire_item_id");
     }
 
     // ── 공개 진입점 ───────────────────────────────────────────────────────
@@ -504,7 +509,7 @@ public final class AuctionGuiListener implements Listener {
             String selectedItem = regSelectedItem.get(uid);
             Long price = regPrice.get(uid);
             if (selectedItem == null || price == null) return;
-            confirmRegister(player, selectedItem, price);
+            confirmRegister(player, selectedItem, 1, price);
             return;
         }
         if (slot == REG_BACK) {
@@ -515,11 +520,11 @@ public final class AuctionGuiListener implements Listener {
         }
     }
 
-    private void confirmRegister(Player player, String itemId, long price) {
+    private void confirmRegister(Player player, String itemId, long quantity, long price) {
         UUID uid = player.getUniqueId();
         IslandTerritoryState territory = islandStore.get(uid).orElse(null);
         if (territory == null) { player.sendMessage("§c[경매장] 오류: 영지 데이터가 없습니다."); return; }
-        if (territory.getCustomItem(itemId) < 1) {
+        if (territory.getCustomItem(itemId) < quantity) {
             player.sendMessage("§c[경매장] 보유 수량이 부족합니다.");
             openRegister(player);
             return;
@@ -530,16 +535,17 @@ public final class AuctionGuiListener implements Listener {
             return;
         }
 
-        territory.withdrawCustomItem(itemId, 1);
+        territory.withdrawCustomItem(itemId, quantity);
+        final long qty = quantity;
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            Result<Long> result = auctionStore.register(uid, player.getName(), itemId, 1, price);
+            Result<Long> result = auctionStore.register(uid, player.getName(), itemId, (int) qty, price);
             Bukkit.getScheduler().runTask(plugin, () -> {
                 if (result.isFailure()) {
-                    territory.addCustomItem(itemId, 1); // 롤백
+                    territory.addCustomItem(itemId, qty); // 롤백
                     player.sendMessage("§c[경매장] 등록 실패: " + result.message());
                 } else {
-                    player.sendMessage("§a[경매장] §f" + itemDisplayName(itemId)
-                            + "§7을 §e" + fmt(price) + "G§7에 등록했습니다.");
+                    player.sendMessage("§a[경매장] §f" + itemDisplayName(itemId) + " §7×" + qty
+                            + "개를 §e" + fmt(price) + "G§7에 등록했습니다.");
                 }
                 regSelectedItem.remove(uid);
                 regPrice.remove(uid);
@@ -547,6 +553,57 @@ public final class AuctionGuiListener implements Listener {
                 openMain(player);
             });
         });
+    }
+
+    public void handleDirectRegister(Player player, long price, long quantity) {
+        ItemStack held = player.getInventory().getItemInMainHand();
+        if (held.getType() == Material.AIR) {
+            player.sendMessage("§c[경매장] 손에 등록할 아이템을 들어야 합니다.");
+            return;
+        }
+        if (price < AuctionStore.MIN_PRICE) {
+            player.sendMessage("§c[경매장] 최소 가격은 §e" + fmt(AuctionStore.MIN_PRICE) + "G§c입니다.");
+            return;
+        }
+
+        // 1. PDC 키로 itemId 조회 (태그된 아이템 우선)
+        String itemId = null;
+        ItemMeta meta = held.getItemMeta();
+        if (meta != null && meta.getPersistentDataContainer().has(empireItemKey, PersistentDataType.STRING)) {
+            itemId = meta.getPersistentDataContainer().get(empireItemKey, PersistentDataType.STRING);
+        }
+        // 2. 디스플레이명 → ItemMaster.itemName() 매칭 fallback
+        if (itemId == null && meta != null && meta.hasDisplayName()) {
+            String stripped = ChatColor.stripColor(meta.getDisplayName());
+            itemId = itemMasters.all().values().stream()
+                    .filter(m -> m.itemName().equals(stripped))
+                    .map(ItemMaster::itemId)
+                    .findFirst()
+                    .orElse(null);
+        }
+        if (itemId == null) {
+            player.sendMessage("§c[경매장] 인식할 수 없는 아이템입니다. 창고의 등록 가능 아이템만 사용하세요.");
+            return;
+        }
+        final String resolvedId = itemId;
+        if (!itemMasters.find(resolvedId).map(ItemMaster::tradeable).orElse(false)) {
+            player.sendMessage("§c[경매장] §f" + itemDisplayName(resolvedId) + "§c은 거래 불가 아이템입니다.");
+            return;
+        }
+
+        UUID uid = player.getUniqueId();
+        IslandTerritoryState territory = islandStore.get(uid).orElse(null);
+        if (territory == null) {
+            player.sendMessage("§c[경매장] 영지 데이터가 없습니다.");
+            return;
+        }
+        long available = territory.getCustomItem(resolvedId);
+        if (available < 1) {
+            player.sendMessage("§c[경매장] 창고에 §f" + itemDisplayName(resolvedId) + "§c이 없습니다.");
+            return;
+        }
+        long resolvedQty = quantity <= 0 ? available : Math.min(quantity, available);
+        confirmRegister(player, resolvedId, resolvedQty, price);
     }
 
     // ── 내 목록 GUI ───────────────────────────────────────────────────────

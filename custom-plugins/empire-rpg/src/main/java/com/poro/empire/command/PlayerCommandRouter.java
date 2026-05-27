@@ -78,7 +78,7 @@ public class PlayerCommandRouter implements CommandExecutor {
             case "영지이동"  -> stub(player, "영지이동");
             case "작물"     -> stub(player, "작물 관리");
             case "상점"     -> stub(player, "상점");
-            case "경매장"   -> auctionGuiListener.openMain(player);
+            case "경매장"   -> handleAuction(player, args);
             case "영지설정"  -> stub(player, "영지 설정");
             // ── 보스 계열 ──────────────────────────────────────────
             case "보스"     -> bossHubListener.openBossHub(player);
@@ -102,6 +102,31 @@ public class PlayerCommandRouter implements CommandExecutor {
         IslandTerritoryState state = territoryStore.getOrCreate(player.getUniqueId());
         IslandStorage storage = storageStore.getOrCreate(player.getUniqueId());
         TerritoryStatusGui.open(player, state, storage);
+    }
+
+    private void handleAuction(Player player, String[] args) {
+        if (args.length >= 2 && "등록".equals(args[0])) {
+            long price;
+            try {
+                price = Long.parseLong(args[1]);
+            } catch (NumberFormatException e) {
+                player.sendMessage(PREFIX + "§c사용법: /경매장 등록 <가격> [수량]");
+                return;
+            }
+            long quantity = 0; // 0 = 전체
+            if (args.length >= 3) {
+                try {
+                    quantity = Long.parseLong(args[2]);
+                    if (quantity <= 0) quantity = 0;
+                } catch (NumberFormatException e) {
+                    player.sendMessage(PREFIX + "§c사용법: /경매장 등록 <가격> [수량]");
+                    return;
+                }
+            }
+            auctionGuiListener.handleDirectRegister(player, price, quantity);
+        } else {
+            auctionGuiListener.openMain(player);
+        }
     }
 
     private void stub(Player player, String feature) {
