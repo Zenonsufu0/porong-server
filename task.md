@@ -7,7 +7,7 @@
 ## 현재 브랜치 상태
 
 - 브랜치: `master` = `codex-review` (동기화 완료)
-- 최근 커밋: `9f6dd15 §6-6 필드 드랍 완성 — 전장의 파편/고대흔적/큐브 자동전환 추가`
+- 최근 커밋: `4dbc8c3 §6-6 fix — 시즌보스 grantRewards() 큐브 자동전환 추가, task.md 메타데이터 갱신`
 - 빌드: `./gradlew compileJava → BUILD SUCCESSFUL`
 - §6-6 필드 드랍 완성 **완료 · 리뷰 통과 (시즌보스 큐브 자동전환 fix 포함)**
 
