@@ -43,15 +43,19 @@ class NicknameModal(discord.ui.Modal, title="마인크래프트 닉네임 입력
         code: str = data["code"]
         expires_in: int = data.get("expires_in", 600)
 
-        # "접속대기" 역할 부여
+        # 접속대기 부여 + 미인증 제거 (약관 동의 단계에서 동시 처리)
         guild = interaction.guild
         if guild:
-            role = guild.get_role(config.ROLE_접속대기_ID)
-            if role:
-                try:
-                    await interaction.user.add_roles(role, reason="디스코드 인증 - 접속 대기")
-                except discord.Forbidden:
-                    pass  # 권한 없음 — 운영자가 봇 권한 확인 필요
+            pending_role    = guild.get_role(config.ROLE_접속대기_ID)
+            unverified_role = guild.get_role(config.ROLE_미인증_ID) if config.ROLE_미인증_ID else None
+            member = guild.get_member(interaction.user.id)
+            try:
+                if pending_role:
+                    await interaction.user.add_roles(pending_role, reason="디스코드 인증 - 접속 대기")
+                if unverified_role and member and unverified_role in member.roles:
+                    await interaction.user.remove_roles(unverified_role, reason="약관 동의 — 미인증 해제")
+            except discord.Forbidden:
+                pass  # 권한 없음 — 운영자가 봇 권한 확인 필요
 
         msg = (
             f"인증 코드: **{code}**\n"
