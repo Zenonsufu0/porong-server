@@ -1,6 +1,7 @@
 package com.poro.empire.listener;
 
 import com.poro.empire.growth.GrowthStateStore;
+import com.poro.empire.growth.engine.PlayerGrowthSnapshotBuilder;
 import com.poro.empire.growth.engine.PlayerGrowthState;
 import com.poro.empire.growth.island.IslandStorage;
 import com.poro.empire.growth.island.IslandStorageStore;
@@ -13,6 +14,8 @@ import com.poro.empire.init.ClassInitService;
 import com.poro.empire.boss.party.PartyManager;
 import com.poro.empire.boss.room.BossRoomManager;
 import com.poro.empire.market.AuctionStore;
+import com.poro.empire.operations.query.model.PlayerProfileRecord;
+import com.poro.empire.operations.query.store.OperationsDataStore;
 import com.poro.empire.persistence.PlayerPersistenceService;
 import com.poro.empire.scoreboard.ScoreboardService;
 import com.poro.empire.storage.PlayerDataManager;
@@ -33,18 +36,20 @@ import java.util.Locale;
 import java.util.UUID;
 
 public final class PlayerJoinListener implements Listener {
-    private final PlayerDataManager playerDataManager;
-    private final HotbarService hotbarService;
-    private final ScoreboardService scoreboardService;
-    private final PlayerPersistenceService playerPersistenceService;
-    private final GrowthStateStore growthStateStore;
-    private final IslandTerritoryStateStore islandTerritoryStateStore;
-    private final IslandStorageStore islandStorageStore;
-    private final AuctionStore     auctionStore;
-    private final ClassInitService classInitService;
-    private final PartyManager     partyManager;
-    private final BossRoomManager  bossRoomManager;
-    private final Plugin           plugin;
+    private final PlayerDataManager          playerDataManager;
+    private final HotbarService              hotbarService;
+    private final ScoreboardService          scoreboardService;
+    private final PlayerPersistenceService   playerPersistenceService;
+    private final GrowthStateStore           growthStateStore;
+    private final IslandTerritoryStateStore  islandTerritoryStateStore;
+    private final IslandStorageStore         islandStorageStore;
+    private final AuctionStore               auctionStore;
+    private final ClassInitService           classInitService;
+    private final PartyManager               partyManager;
+    private final BossRoomManager            bossRoomManager;
+    private final Plugin                     plugin;
+    private final OperationsDataStore        operationsDataStore;
+    private final PlayerGrowthSnapshotBuilder growthSnapshotBuilder;
 
     public PlayerJoinListener(
             Plugin plugin,
@@ -59,7 +64,9 @@ public final class PlayerJoinListener implements Listener {
             AuctionStore auctionStore,
             ClassInitService classInitService,
             PartyManager partyManager,
-            BossRoomManager bossRoomManager
+            BossRoomManager bossRoomManager,
+            OperationsDataStore operationsDataStore,
+            PlayerGrowthSnapshotBuilder growthSnapshotBuilder
     ) {
         this.plugin = plugin;
         this.playerDataManager = playerDataManager;
@@ -73,6 +80,8 @@ public final class PlayerJoinListener implements Listener {
         this.classInitService = classInitService;
         this.partyManager = partyManager;
         this.bossRoomManager = bossRoomManager;
+        this.operationsDataStore = operationsDataStore;
+        this.growthSnapshotBuilder = growthSnapshotBuilder;
     }
 
     @EventHandler
@@ -85,6 +94,15 @@ public final class PlayerJoinListener implements Listener {
         scoreboardService.refresh(player);
         classInitService.openSelectionGuiIfNeeded(player);
         claimAuctionPending(player);
+        syncOperationsSnapshot(player);
+    }
+
+    private void syncOperationsSnapshot(Player player) {
+        String userId = player.getUniqueId().toString();
+        String classId = playerDataManager.getWeaponType(player).name().toLowerCase(Locale.ROOT);
+        operationsDataStore.upsertPlayerProfile(new PlayerProfileRecord(userId, player.getName(), classId));
+        growthStateStore.get(player.getUniqueId()).ifPresent(state ->
+                operationsDataStore.upsertGrowthSnapshot(userId, growthSnapshotBuilder.build(state)));
     }
 
     private void claimAuctionPending(Player player) {
@@ -165,6 +183,9 @@ public final class PlayerJoinListener implements Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         UUID uuid = event.getPlayer().getUniqueId();
+        // quit 전 최신 성장 스냅샷 보존 (오프라인 조회용)
+        growthStateStore.get(uuid).ifPresent(state ->
+                operationsDataStore.upsertGrowthSnapshot(uuid.toString(), growthSnapshotBuilder.build(state)));
         playerPersistenceService.save(uuid);
         playerDataManager.onPlayerQuit(uuid);
         growthStateStore.remove(uuid);
