@@ -556,6 +556,10 @@ public final class AuctionGuiListener implements Listener {
     }
 
     public void handleDirectRegister(Player player, long price, long quantity) {
+        if (combatStateService.isInCombat(player.getUniqueId())) {
+            player.sendMessage("§c[경매장] 전투 중에는 경매장을 이용할 수 없습니다.");
+            return;
+        }
         ItemStack held = player.getInventory().getItemInMainHand();
         if (held.getType() == Material.AIR) {
             player.sendMessage("§c[경매장] 손에 등록할 아이템을 들어야 합니다.");
@@ -603,6 +607,7 @@ public final class AuctionGuiListener implements Listener {
             return;
         }
         long resolvedQty = quantity <= 0 ? available : Math.min(quantity, available);
+        resolvedQty = Math.min(resolvedQty, Integer.MAX_VALUE);
         confirmRegister(player, resolvedId, resolvedQty, price);
     }
 
