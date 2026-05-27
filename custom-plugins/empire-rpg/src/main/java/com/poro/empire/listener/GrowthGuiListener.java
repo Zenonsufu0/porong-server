@@ -104,6 +104,7 @@ public final class GrowthGuiListener implements Listener {
     private static final int POT_SLOT_NEW_SELECT     = 41;  // [새 옵션 선택] 버튼
     // 공통
     private static final int POT_SLOT_BACK           = 45;
+    private static final int POT_SLOT_CLOSE          = 53;
 
     private static final Map<Integer, EquipmentSlot> POT_SELECTOR_TO_EQUIP = Map.of(
         POT_SLOT_SEL_WEAPON,     EquipmentSlot.WEAPON,
@@ -144,7 +145,8 @@ public final class GrowthGuiListener implements Listener {
     private static final int HEIR_SLOT_PREVIEW_SRC     = 29;  // 흔적 현재 옵션 미리보기
     private static final int HEIR_SLOT_PREVIEW_TGT     = 33;  // 전승 후 대상 미리보기
     private static final int HEIR_SLOT_EXECUTE         = 40;  // [전승!]
-    private static final int HEIR_SLOT_BACK            = 36;
+    private static final int HEIR_SLOT_BACK            = 45;
+    private static final int HEIR_SLOT_CLOSE           = 53;
 
     private static final Map<Integer, EquipmentSlot> HEIR_SELECTOR_TO_EQUIP = Map.of(
         HEIR_SLOT_SEL_WEAPON,     EquipmentSlot.WEAPON,
@@ -430,12 +432,14 @@ public final class GrowthGuiListener implements Listener {
                         "§7골드: §e" + state.currency("gold"))));
         gui.setItem(POT_SLOT_USE_CUBE, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§8큐브 사용",
                 List.of("§7먼저 장비를 선택하세요")));
-        gui.setItem(POT_SLOT_BACK, MainHubGui.icon(Material.ARROW, "§7뒤로", List.of("§7장비 관리")));
+        gui.setItem(POT_SLOT_BACK,  MainHubGui.icon(Material.ARROW,   "§7뒤로",  List.of("§7장비 관리")));
+        gui.setItem(POT_SLOT_CLOSE, MainHubGui.icon(Material.BARRIER, "§c닫기", List.of()));
 
         player.openInventory(gui);
     }
 
     private void handlePotentialClick(Player player, int slot) {
+        if (slot == POT_SLOT_CLOSE) { player.closeInventory(); return; }
         // 대기 결과 강제 선택: CUR_KEEP·NEW_SELECT 외 모든 클릭 차단
         if (pendingPotentialResult.containsKey(player.getUniqueId())
                 && slot != POT_SLOT_CUR_KEEP && slot != POT_SLOT_NEW_SELECT) {
@@ -674,9 +678,9 @@ public final class GrowthGuiListener implements Listener {
 
         PlayerGrowthState state = getState(player);
         IslandTerritoryState islandState = islandTerritoryStateStore.getOrCreate(uid, player.getName());
-        Inventory gui = Bukkit.createInventory(null, 45, GuiTitles.GROWTH_HEIRLOOM);
+        Inventory gui = Bukkit.createInventory(null, 54, GuiTitles.GROWTH_HEIRLOOM);
         ItemStack pane = pane();
-        for (int i = 0; i < 45; i++) gui.setItem(i, pane);
+        for (int i = 0; i < 54; i++) gui.setItem(i, pane);
 
         fillHeirloomEquipSelector(gui, state, null);
 
@@ -698,14 +702,16 @@ public final class GrowthGuiListener implements Listener {
         gui.setItem(HEIR_SLOT_TYPE, buildTypeIcon(SuccessionService.SuccessionType.BASIC));
         gui.setItem(HEIR_SLOT_EXECUTE, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§8전승!",
                 List.of("§7흔적과 대상을 먼저 선택하세요")));
-        gui.setItem(HEIR_SLOT_BACK, MainHubGui.icon(Material.ARROW, "§7뒤로", List.of("§7장비 관리")));
+        gui.setItem(HEIR_SLOT_BACK,  MainHubGui.icon(Material.ARROW,   "§7뒤로",  List.of("§7장비 관리")));
+        gui.setItem(HEIR_SLOT_CLOSE, MainHubGui.icon(Material.BARRIER, "§c닫기", List.of()));
         player.openInventory(gui);
     }
 
     private void handleHeirloomClick(Player player, int slot) {
         UUID uid = player.getUniqueId();
 
-        if (slot == HEIR_SLOT_BACK) { openEquipmentHub(player); return; }
+        if (slot == HEIR_SLOT_CLOSE) { player.closeInventory(); return; }
+        if (slot == HEIR_SLOT_BACK)  { openEquipmentHub(player); return; }
 
         // 오른쪽 열: 대상 선택
         EquipmentSlot equipSlot = HEIR_SELECTOR_TO_EQUIP.get(slot);
@@ -946,6 +952,10 @@ public final class GrowthGuiListener implements Listener {
 
     private void openEquipmentHub(Player player) {
         WeaponType wt    = playerDataManager.getWeaponType(player.getUniqueId());
+        if (wt == WeaponType.NONE) {
+            player.sendMessage("§c[장비] 직업을 먼저 선택해야 합니다. §7(/클래스선택 또는 /시작)");
+            return;
+        }
         PlayerGrowthState state = growthStateStore.getOrCreate(
                 player.getUniqueId(), wt.name().toLowerCase(Locale.ROOT));
 

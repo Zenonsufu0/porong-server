@@ -110,6 +110,10 @@ public final class MainHubListener implements Listener {
 
     private void openEquipmentHub(Player player) {
         WeaponType wt = playerDataManager.getWeaponType(player);
+        if (wt == WeaponType.NONE) {
+            player.sendMessage("§c[장비] 직업을 먼저 선택해야 합니다.");
+            return;
+        }
         PlayerGrowthState state = growthStateStore.getOrCreate(
                 player.getUniqueId(), wt.name().toLowerCase(Locale.ROOT));
 

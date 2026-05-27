@@ -152,10 +152,37 @@
 | `SpiritWatcher_Mage` 소환체 ID는 유지 (보스 진입점 아님) | ✅ |
 | `rift_king`도 `season_bosses.yml` 내에 존재 (`Final_RiftKing` → `rift_king`) | ✅ |
 
+## §6-10 인게임 버그 수정 1차 (2026-05-28)
+
+| 항목 | 상태 |
+|---|---|
+| `GrowthGuiListener.openEquipmentHub()` — WeaponType.NONE 시 "직업 먼저 선택" 메시지 + early return | ✅ |
+| `MainHubListener.openEquipmentHub()` — WeaponType.NONE guard 동일 적용 | ✅ |
+| `GrowthGuiListener.openGrowthPotential()` — slot 53 닫기 버튼 추가, `handlePotentialClick` slot 53 처리 | ✅ |
+| `GrowthGuiListener.openGrowthHeirloom()` — 45→54 슬롯 확장, HEIR_SLOT_BACK=45·HEIR_SLOT_CLOSE=53 추가 | ✅ |
+| `BUILD SUCCESSFUL` | ✅ |
+
+### 서버 재배포 필요 항목 (JAR 구버전 의심)
+| 증상 | 판단 |
+|---|---|
+| 성공률 10000 표기 | 코드상 `String.format("%.1f%%", rate)` 정상 — 구 JAR 재배포로 해결 예상 |
+| /경매장 명령어 없음 | plugin.yml 88-90행에 등록 완료 — 구 JAR |
+| 각 UI 구버전처럼 보임 | 구 JAR 재배포 후 재확인 필요 |
+
+### 외부 플러그인 / 리소스팩 이슈 (코드 범위 외)
+| 증상 | 원인 | 조치 |
+|---|---|---|
+| 메뉴 PNG 안뜸 | 리소스팩 미적용 | 리소스팩 배포 확인 |
+| 물약 PNG 미적용 | 리소스팩 | 동일 |
+| 영지 평화로움 안됨 | WorldGuard 구역 설정 | WorldGuard 구역에 PVP off 설정 |
+| 새 영지 생성 시 IridiumSkyblock GUI | IridiumSkyblock 기본 동작 | 설정에서 island-create GUI 비활성화 검토 |
+| 작물관리에 마력 | IridiumSkyblock Crystals 표시 추정 | IS bankitems.yml crystals 항목 비활성화 검토 |
+
 ## 다음 작업 후보
 
 | 우선도 | 항목 | 비고 |
 |---|---|---|
+| 높음 | JAR 재빌드 + 서버 재배포 | §6-10 버그 수정 반영 |
 | 높음 | 서버 통합 테스트 — `/보스` 선택 → `[보스]` 표지판 → MM 스폰 런타임 확인 | `season_bosses.yml` 로드 + bossId 매칭 검증 |
 | 중간 | 서버 통합 테스트 — 봇 `/영지`·`/보스`·`/프로필` → Java API → 응답 확인 | 닉네임 기반 조회 실제 동작 검증 |
 | 낮음 | 리소스팩 파이프라인 (Phase 8) | `docs/08_resourcepack_pipeline/index.md` |
