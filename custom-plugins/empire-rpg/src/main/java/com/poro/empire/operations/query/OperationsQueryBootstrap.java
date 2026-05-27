@@ -10,6 +10,7 @@ import com.poro.empire.growth.engine.GrowthEngineRuntime;
 import com.poro.empire.life.engine.LifeEngineRuntime;
 import com.poro.empire.operations.http.BossApiHandler;
 import com.poro.empire.operations.http.EmpireHttpServer;
+import com.poro.empire.operations.http.PlayerApiHandler;
 import com.poro.empire.operations.query.api.AdminApiEndpointLayer;
 import com.poro.empire.operations.query.discord.DiscordCommandQueryAdapter;
 import com.poro.empire.operations.query.service.AdminDashboardService;
@@ -91,6 +92,7 @@ public final class OperationsQueryBootstrap {
         try {
             httpServer = EmpireHttpServer.create(
                     new BossApiHandler(bossSessionRepository, apiSecretKey),
+                    new PlayerApiHandler(publicSnapshotQueryService, apiSecretKey),
                     apiBind,
                     httpLogger
             );

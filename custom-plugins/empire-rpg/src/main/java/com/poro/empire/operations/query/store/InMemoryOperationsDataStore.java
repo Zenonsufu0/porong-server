@@ -47,6 +47,14 @@ public final class InMemoryOperationsDataStore implements OperationsDataStore {
     }
 
     @Override
+    public Optional<PlayerProfileRecord> playerProfileByNick(String nickname) {
+        String norm = normalize(nickname);
+        return profiles.values().stream()
+                .filter(p -> normalize(p.nickname()).equals(norm))
+                .findFirst();
+    }
+
+    @Override
     public void upsertGrowthSnapshot(String userId, PlayerGrowthSnapshotBuilder.PlayerGrowthSnapshot snapshot) {
         growthSnapshots.put(normalize(userId), snapshot);
     }

@@ -21,6 +21,8 @@ public interface OperationsDataStore {
 
     Optional<PlayerProfileRecord> playerProfile(String userId);
 
+    Optional<PlayerProfileRecord> playerProfileByNick(String nickname);
+
     void upsertGrowthSnapshot(String userId, PlayerGrowthSnapshotBuilder.PlayerGrowthSnapshot snapshot);
 
     Optional<PlayerGrowthSnapshotBuilder.PlayerGrowthSnapshot> growthSnapshot(String userId);

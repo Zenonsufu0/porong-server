@@ -129,7 +129,7 @@
 | `on_member_join` → 미인증 역할 자동 부여 | `bot/cogs/auth.py` | ✅ |
 | IMMINENT 감지 (RESPAWNING + ≤5분) → 5분 전 예고 embed | `bot/cogs/field_boss.py` | ✅ |
 | `/프로필`·`/영지`·`/보스` API 분리 (3개 별도 엔드포인트) | `bot/cogs/player_commands.py` | ✅ |
-| `get_island_by_nick` / `get_boss_by_nick` 추가 | `bot/api_client.py` | ✅ (봇 클라이언트만 — 서버 API 미구현) |
+| `get_island_by_nick` / `get_boss_by_nick` 추가 | `bot/api_client.py` | ✅ |
 | `/클래스선택` (6버튼, 1인1클래스) + `/알림설정` (3토글) 신규 Cog | `bot/cogs/role_commands.py` | ✅ |
 | `cogs.role_commands` 로드 | `bot/main.py` | ✅ |
 
@@ -138,7 +138,7 @@
 | 우선도 | 항목 | 비고 |
 |---|---|---|
 | 높음 | 서버 통합 테스트 — `/보스` 선택 → `[보스]` 표지판 → MM 스폰 런타임 확인 | MythicMobs mobId 매칭 검증 |
-| 중간 | 봇 서버사이드 API 구현 — `/island/by-nick/{nick}`, `/boss-history/by-nick/{nick}` 엔드포인트 | `EmpireHttpServer` 연결 |
+| 중간 | 서버 통합 테스트 — 봇 `/영지`·`/보스`·`/프로필` → Java API → 응답 확인 | 닉네임 기반 조회 실제 동작 검증 |
 | 낮음 | 리소스팩 파이프라인 (Phase 8) | `docs/08_resourcepack_pipeline/index.md` |
 
 ## Phase 5 잔여 기술 부채

@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 public final class PlayerDetailQueryService {
     private final OperationsDataStore dataStore;
@@ -71,6 +72,29 @@ public final class PlayerDetailQueryService {
 
     public LifeProjection lifeSnapshot(String userId) {
         return query(userId).life();
+    }
+
+    public Optional<PlayerSnapshotProjection> playerSnapshotByNick(String nick) {
+        return queryByNick(nick).map(d -> new PlayerSnapshotProjection(
+                d.userId(), d.nickname(), d.classId(),
+                d.equipment().enhancementSum(),
+                d.recentBossRecords().stream().findFirst().map(PlayerBossRecordProjection::bossId).orElse(""),
+                d.life().estateUnlocked(),
+                d.questHonor().completedQuestCount()
+        ));
+    }
+
+    public Optional<LifeProjection> lifeSnapshotByNick(String nick) {
+        return queryByNick(nick).map(PlayerDetailProjection::life);
+    }
+
+    public Optional<List<PlayerBossRecordProjection>> bossRecordsSnapshotByNick(String nick) {
+        return queryByNick(nick).map(PlayerDetailProjection::recentBossRecords);
+    }
+
+    private Optional<PlayerDetailProjection> queryByNick(String nick) {
+        return dataStore.playerProfileByNick(nick == null ? "" : nick.trim())
+                .map(profile -> query(profile.userId()));
     }
 
     private List<PlayerBossRecordProjection> recentBossRecords(String userId) {

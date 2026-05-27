@@ -4,6 +4,7 @@ import com.poro.empire.operations.query.model.QueryTimeRange;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public final class PublicSnapshotQueryService {
     private final PlayerDetailQueryService playerDetailQueryService;
@@ -42,5 +43,17 @@ public final class PublicSnapshotQueryService {
 
     public HallOfFameQueryService.HallOfFameSnapshot hallOfFameSnapshot(QueryTimeRange range) {
         return hallOfFameQueryService.query(range);
+    }
+
+    public Optional<PlayerDetailQueryService.PlayerSnapshotProjection> playerSnapshotByNick(String nick) {
+        return playerDetailQueryService.playerSnapshotByNick(nick);
+    }
+
+    public Optional<PlayerDetailQueryService.LifeProjection> lifeSnapshotByNick(String nick) {
+        return playerDetailQueryService.lifeSnapshotByNick(nick);
+    }
+
+    public Optional<List<PlayerDetailQueryService.PlayerBossRecordProjection>> bossRecordsSnapshotByNick(String nick) {
+        return playerDetailQueryService.bossRecordsSnapshotByNick(nick);
     }
 }
