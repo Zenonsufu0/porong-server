@@ -19,9 +19,17 @@ public final class AuctionMigration implements MigrationEntryPoint {
     @Override
     public Result<Void> migrate(Connection connection) {
         try (Statement st = connection.createStatement()) {
-            // 구 스키마(item_data 컬럼 존재) 감지 → 드롭 후 재생성
             if (isLegacySchema(connection)) {
-                logger.info("auction_listings 구 스키마 감지 (item_data 컬럼). 재생성합니다.");
+                int rowCount = legacyRowCount(connection);
+                if (rowCount > 0) {
+                    // 데이터 있음 → 수동 조치 필요. item_data(직렬화된 ItemStack)에서
+                    // item_id를 SQL 단계에서 추출할 수 없으므로 자동 이관 불가.
+                    // 관리자가 DB를 직접 백업·삭제한 뒤 서버를 재시작해야 합니다.
+                    return Result.failure(ErrorCode.DB_CONNECTION_FAILED,
+                            "auction_listings 구 스키마에 활성 매물 " + rowCount + "건이 있습니다. "
+                            + "storage/poro.sqlite 백업 후 auction_listings 테이블을 직접 삭제하고 재시작하세요.");
+                }
+                logger.info("auction_listings 구 스키마 감지 (데이터 없음). 드롭 후 재생성합니다.");
                 st.execute("DROP TABLE IF EXISTS auction_listings");
             }
             st.execute(AuctionDdl.CREATE_LISTINGS);
@@ -40,9 +48,18 @@ public final class AuctionMigration implements MigrationEntryPoint {
 
     private boolean isLegacySchema(Connection connection) {
         try (ResultSet rs = connection.getMetaData().getColumns(null, null, "auction_listings", "item_data")) {
-            return rs.next(); // item_data 컬럼이 있으면 구 스키마
+            return rs.next();
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    private int legacyRowCount(Connection connection) {
+        try (Statement st = connection.createStatement();
+             ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM auction_listings")) {
+            return rs.next() ? rs.getInt(1) : 0;
+        } catch (Exception e) {
+            return 0;
         }
     }
 }
