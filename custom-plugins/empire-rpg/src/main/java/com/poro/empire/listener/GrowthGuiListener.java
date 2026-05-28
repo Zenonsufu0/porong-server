@@ -286,6 +286,7 @@ public final class GrowthGuiListener implements Listener {
             case 29 -> openGrowthEnhance(player);
             case 31 -> openGrowthPotential(player);
             case 33 -> openGrowthHeirloom(player);
+            case 35 -> openGrowthEngraving(player);
             case 45 -> MainHubGui.open(player);
             case 49 -> player.closeInventory();
         }
@@ -998,6 +999,7 @@ public final class GrowthGuiListener implements Listener {
         gui.setItem(29, MainHubGui.icon(Material.ANVIL,          "§f강화",     List.of("§7──────────────", "§7클릭하여 열기")));
         gui.setItem(31, MainHubGui.icon(Material.NETHER_STAR,    "§f잠재능력", List.of("§7──────────────", "§7클릭하여 열기")));
         gui.setItem(33, MainHubGui.icon(Material.ENCHANTED_BOOK, "§f전승",     List.of("§7──────────────", "§7클릭하여 열기")));
+        gui.setItem(35, MainHubGui.icon(Material.NAME_TAG,       "§f각인",     List.of("§7──────────────", "§7클릭하여 열기")));
         gui.setItem(45, MainHubGui.icon(Material.ARROW,          "§7뒤로",     List.of("§7메인 메뉴")));
         gui.setItem(49, MainHubGui.icon(Material.BARRIER,        "§c닫기",     List.of()));
         player.openInventory(gui);
@@ -1120,7 +1122,7 @@ public final class GrowthGuiListener implements Listener {
 
     // ═══════════════════════════════════════════════════════════════
     // 각인 GUI (27슬롯)
-    //   slot 11: 유지형 각인 / slot 15: 소모형 각인 / slot 22: 닫기
+    //   slot 10: 현재각인(해제) / slot 14: 소모형(각인A) / slot 16: 유지형(각인B) / slot 18: 뒤로 / slot 26: 닫기
     // ═══════════════════════════════════════════════════════════════
 
     private void openGrowthEngraving(Player player) {
