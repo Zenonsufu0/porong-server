@@ -59,4 +59,8 @@ public class SkillService {
     public Collection<String> getSkillKeys() {
         return skillsByKey.keySet();
     }
+
+    public WeaponSkill getSkill(String key) {
+        return key == null ? null : skillsByKey.get(key.toLowerCase(Locale.ROOT));
+    }
 }
