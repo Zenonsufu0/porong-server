@@ -12,6 +12,7 @@
 | 문서 | 역할 |
 |---|---|
 | `implementation_design_plan.md` | 현재 스텁 구현을 본격 구현으로 확장하기 전 확정해야 할 식별자·GUI·입력·드랍·저장 설계 계획 |
+| `plugin_implementation_audit_plan.md` | 현재 플러그인 구현상태를 기획서·CANON 기준으로 대조하고, 실행/표시 누락·모순·후속 구현 우선순위를 정리한 점검 계획 |
 
 ---
 
