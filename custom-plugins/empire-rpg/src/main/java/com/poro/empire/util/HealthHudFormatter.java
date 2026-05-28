@@ -96,7 +96,7 @@ public final class HealthHudFormatter {
         char filled = (char) (0xE140 + idx * 2);
         char empty  = (char) (0xE141 + idx * 2);
         int stacks = rt.getStack(player.getUniqueId());
-        int max = 3;
+        int max = 6; // CANON: 유지형 자원 무기 무관 최대 6스택
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < Math.min(stacks, max); i++) sb.append(filled);
         for (int i = stacks; i < max; i++) sb.append(empty);
@@ -156,9 +156,11 @@ public final class HealthHudFormatter {
         return switch (c) {
             case '0' -> 0;  case '1' -> 1;  case '2' -> 2;  case '3' -> 3;  case '4' -> 4;
             case '5' -> 5;  case '6' -> 6;  case '7' -> 7;  case '8' -> 8;  case '9' -> 9;
-            case '/' -> 10; case '.' -> 12;
+            case '/' -> 10; case ',' -> 11; case '.' -> 12;
             case 'L' -> 13; case 'v' -> 14;
+            case 'R' -> 15; case 'S' -> 16; case 'F' -> 17;
             case 's' -> 18; case '-' -> 19;
+            case 'E' -> 20; case 'A' -> 21; case 'D' -> 22; case 'Y' -> 23;
             default  -> -1;
         };
     }
