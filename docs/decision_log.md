@@ -1301,3 +1301,18 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 - 정규대전 IL 동일화로 과금 우위 없이 클래스·각인·스킬 숙련도 경쟁 가능.
 
 **근거:** 사용자 확정 2026-05-28 (INBOX-003 → 설계 결정).
+
+## 2026-05-29 — 잠재 옵션 풀 slot_type 아키텍처 결정
+
+**결정:** 플러그인 잠재 옵션 풀은 방어구 slot_type을 `armor`(generic)로 유지한다. `head/chest/legs/boots` slot-specific 풀은 server-config DB용에만 존재한다.
+
+**이유:**
+- `EquipmentSlot.java`의 `itemSlotType()`이 모든 방어구 슬롯에 `"armor"`를 반환하므로, item_master에 `legs` 등을 쓰면 장착 검증(`EquipmentService:34`)이 실패한다.
+- 45일 시즌 서버에서 `EquipmentSlot` + item_master + pool 구조 전체 리팩터는 범위 초과.
+
+**결과 (1차 시즌):**
+- `t1_armor_pool`/`t2_armor_pool`에 `boss_damage_increase` 전 등급 포함 (values = 하의 기준).
+- `t1_legs_pool`/`t2_legs_pool`은 플러그인 seed에서 제거 (dead code).
+- 하의뿐 아니라 투구·상의·신발에도 `boss_damage_increase`가 등장할 수 있음 (doc 기준 하의 전용이나 허용).
+
+**부채:** 2차 확장 시 slot-specific 풀 아키텍처로 전환 필요.
