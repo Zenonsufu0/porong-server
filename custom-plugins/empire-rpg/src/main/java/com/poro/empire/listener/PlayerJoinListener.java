@@ -1,5 +1,6 @@
 package com.poro.empire.listener;
 
+import com.poro.empire.combat.ResourceTracker;
 import com.poro.empire.growth.GrowthStateStore;
 import com.poro.empire.growth.engine.PlayerGrowthSnapshotBuilder;
 import com.poro.empire.growth.engine.PlayerGrowthState;
@@ -53,6 +54,7 @@ public final class PlayerJoinListener implements Listener {
     private final Plugin                     plugin;
     private final OperationsDataStore        operationsDataStore;
     private final PlayerGrowthSnapshotBuilder growthSnapshotBuilder;
+    private final ResourceTracker             resourceTracker;
 
     public PlayerJoinListener(
             Plugin plugin,
@@ -69,7 +71,8 @@ public final class PlayerJoinListener implements Listener {
             PartyManager partyManager,
             BossRoomManager bossRoomManager,
             OperationsDataStore operationsDataStore,
-            PlayerGrowthSnapshotBuilder growthSnapshotBuilder
+            PlayerGrowthSnapshotBuilder growthSnapshotBuilder,
+            ResourceTracker resourceTracker
     ) {
         this.plugin = plugin;
         this.playerDataManager = playerDataManager;
@@ -85,6 +88,7 @@ public final class PlayerJoinListener implements Listener {
         this.bossRoomManager = bossRoomManager;
         this.operationsDataStore = operationsDataStore;
         this.growthSnapshotBuilder = growthSnapshotBuilder;
+        this.resourceTracker = resourceTracker;
     }
 
     @EventHandler
@@ -227,5 +231,6 @@ public final class PlayerJoinListener implements Listener {
         islandStorageStore.remove(uuid);
         partyManager.leaveParty(uuid);
         bossRoomManager.exitRoom(uuid);
+        resourceTracker.cleanup(uuid);
     }
 }

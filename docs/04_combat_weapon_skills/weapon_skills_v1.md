@@ -84,15 +84,15 @@ description: string
 ## 스킬 이펙트 시스템
 
 > **확정 (DL-031)** — 방안 4 혼합 구조. 판정·피해는 EmpireRPG 단독 책임.
+> **1차 시즌 추가 확정 (DL-070)** — 모든 플레이어 스킬 이펙트는 Bukkit Particle 직접 구현(`pt:`)으로 통일. MythicMobs `effect_key` 위임은 2차 확장으로 보류.
 
 ### 핵심 원칙
 
 1. 스킬 판정, 피해, 쿨타임, 상태 적용은 EmpireRPG가 전부 담당한다.
-2. MythicMobs는 파티클/사운드 이펙트 위임용으로만 사용한다. 판정 위임 없음.
+2. **1차 시즌**: 이펙트는 `BaseWeaponSkill` 헬퍼(`spawnParticleArc`, `spawnParticleCircle` 등) + Bukkit Particle 직접 구현. MythicMobs 이펙트 위임 없음 (DL-070).
 3. Display Entity는 0.5초 이상 시각적으로 유지되는 투사체·검기·마법탄에만 사용한다.
-4. Bukkit Particle 직접 구현은 fallback 핸들러로 둔다.
-5. MythicMobs나 Display Entity 이펙트 실패가 스킬 판정 실패로 이어지면 안 된다.
-6. ModelEngine/BetterModel은 2차 확장으로 보류한다.
+4. MythicMobs나 Display Entity 이펙트 실패가 스킬 판정 실패로 이어지면 안 된다.
+5. ModelEngine/BetterModel은 2차 확장으로 보류한다.
 
 ### 이펙트 설계 원칙
 
@@ -153,8 +153,8 @@ description: string
 | 석궁 | 회피사격 | RMB | `projectile` | `mm:crossbow_evade_shot` |
 | 석궁 | 관통볼트 | Shift+RMB | `projectile` | `dp:piercing_bolt` |
 | 석궁 | 저격태세 | F | `projectile` | `dp:sniper_bolt` |
-| 낫 | 사신베기 | LMB | `arc` | `mm:scythe_reaper_slash` |
-| 낫 | 월영회전 | RMB | `burst` | `mm:scythe_spin_slash` |
+| 낫 | 사신베기 | LMB | `arc` | `pt:scythe_death_slash` |
+| 낫 | 월영회전 | RMB | `burst` | `pt:scythe_shadow_spin` |
 | 낫 | 그믐참 | Shift+RMB | `cone` | `mm:scythe_dark_strike` |
 | 낫 | 처형낫 | F | `line` | `mm:scythe_execute_slash` |
 | 스태프 | 마력탄 | LMB | `projectile` | `dp:magic_bolt` |
