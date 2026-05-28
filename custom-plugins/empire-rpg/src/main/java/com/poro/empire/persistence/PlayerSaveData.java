@@ -30,9 +30,10 @@ public record PlayerSaveData(
         Map<String, Integer> ceilingCounters,
         int ilWarningCount,
         int mobIlHitCount,
-        int catalystBonusPct
+        int catalystBonusPct,
+        Map<String, String> cosmeticMaterials
 ) {
-    public static final int CURRENT_VERSION = 4;
+    public static final int CURRENT_VERSION = 5;
 
     public record ItemSaveData(
             String instanceId,
