@@ -11,8 +11,6 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
 
-import java.util.UUID;
-
 public final class HealthHudFormatter {
 
     private static final Key HUD_FONT     = Key.key("poro", "hud");
@@ -98,10 +96,10 @@ public final class HealthHudFormatter {
         if (idx < 0) return Component.empty();
         char filled = (char) (0xE140 + idx * 2);
         char empty  = (char) (0xE141 + idx * 2);
-        UUID uuid = player.getUniqueId();
-        int stacks = rt.getStack(uuid);
-        int max = rt.getStackMax(uuid);
-        if (max <= 0) return Component.empty(); // 아직 스킬 미사용 — 스택 표시 생략
+        int stacks = rt.getStack(player.getUniqueId());
+        // 1차 시즌: 각인 미구현, WeaponType 기준 소모형 default max 사용
+        // (유지형 6스택은 각인 시스템 구현 후 별도 대응)
+        int max = weaponDefaultStackMax(wt);
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < Math.min(stacks, max); i++) sb.append(filled);
         for (int i = stacks; i < max; i++) sb.append(empty);
@@ -197,6 +195,11 @@ public final class HealthHudFormatter {
             case SPEAR    -> 5;
             case NONE     -> -1;
         };
+    }
+
+    private static int weaponDefaultStackMax(WeaponType wt) {
+        // 창·지팡이 소모형 5, 나머지 3 (weapon_skills_v1.md §자원 시스템)
+        return (wt == WeaponType.SPEAR || wt == WeaponType.STAFF) ? 5 : 3;
     }
 
     // 스킬 슬롯 키 — SkillInputListener와 동일하게 유지

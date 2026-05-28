@@ -5,8 +5,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class ResourceTracker {
-    private final Map<UUID, Integer> stacks    = new ConcurrentHashMap<>();
-    private final Map<UUID, Integer> maxStacks = new ConcurrentHashMap<>();
+    private final Map<UUID, Integer> stacks = new ConcurrentHashMap<>();
 
     // 낫 전용: 월영회전 사용 타임스탬프 (2초 윈도우)
     private final Map<UUID, Long> shadowSpinTimestamp = new ConcurrentHashMap<>();
@@ -38,14 +37,8 @@ public final class ResourceTracker {
         stacks.put(uuid, value);
     }
 
-    public int getStackMax(UUID uuid) {
-        return maxStacks.getOrDefault(uuid, 0);
-    }
-
     public int incrementStack(UUID uuid, int max) {
-        int clampedMax = Math.max(1, max);
-        maxStacks.put(uuid, clampedMax);
-        int next = Math.min(clampedMax, getStack(uuid) + 1);
+        int next = Math.min(Math.max(1, max), getStack(uuid) + 1);
         stacks.put(uuid, next);
         return next;
     }
@@ -57,7 +50,6 @@ public final class ResourceTracker {
     /** 플레이어 퇴장 시 모든 상태를 제거한다. */
     public void cleanup(UUID uuid) {
         stacks.remove(uuid);
-        maxStacks.remove(uuid);
         shadowSpinTimestamp.remove(uuid);
     }
 }

@@ -17,7 +17,7 @@ public final class CrossbowArrowListener implements Listener {
     public void onLaunch(ProjectileLaunchEvent event) {
         Projectile projectile = event.getEntity();
         if (projectile.getShooter() instanceof org.bukkit.entity.Player player) {
-            resourceTracker.incrementStack(player.getUniqueId(), 5);
+            resourceTracker.incrementStack(player.getUniqueId(), 3);
         }
     }
 }
