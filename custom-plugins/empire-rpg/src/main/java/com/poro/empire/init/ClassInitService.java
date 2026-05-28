@@ -92,6 +92,13 @@ public final class ClassInitService {
         player.getInventory().setItem(8, menuCompass());
     }
 
+    /** 재접속 시 slot 8의 메뉴 컴퍼스가 없으면 복구한다. */
+    public void ensureMenuCompass(Player player) {
+        ItemStack current = player.getInventory().getItem(8);
+        if (current != null && current.getType() == Material.COMPASS) return;
+        player.getInventory().setItem(8, menuCompass());
+    }
+
     private ItemStack menuCompass() {
         ItemStack item = new ItemStack(Material.COMPASS);
         ItemMeta meta = item.getItemMeta();
