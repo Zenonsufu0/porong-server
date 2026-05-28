@@ -239,13 +239,9 @@ public final class PlayerPersistenceService {
         // 강화 촉진제 보너스 (schemaVersion 3+; 이전 파일은 0으로 역직렬화)
         if (data.catalystBonusPct() > 0) state.setCatalystBonusPct(data.catalystBonusPct());
 
-        // 치장 재질 (schemaVersion 5+)
+        // 치장 재질 (schemaVersion 5+) — 키 형식: "HELMET", "weapon_SWORD" 등
         if (data.cosmeticMaterials() != null) {
-            data.cosmeticMaterials().forEach((slotName, mat) -> {
-                try {
-                    state.setCosmeticMaterial(EquipmentSlot.from(slotName), mat);
-                } catch (IllegalArgumentException ignored) {}
-            });
+            data.cosmeticMaterials().forEach((key, mat) -> state.setCosmeticMaterial(key, mat));
         }
     }
 
@@ -413,9 +409,7 @@ public final class PlayerPersistenceService {
 
     private Map<String, String> toCosmeticMaterialsDto(PlayerGrowthState state) {
         if (state == null) return Map.of();
-        Map<String, String> map = new LinkedHashMap<>();
-        state.cosmeticMaterialsSnapshot().forEach((slot, mat) -> map.put(slot.name(), mat));
-        return map;
+        return new LinkedHashMap<>(state.cosmeticMaterialsSnapshot());
     }
 
     // ─── 역직렬화 헬퍼 ─────────────────────────────────────────────
