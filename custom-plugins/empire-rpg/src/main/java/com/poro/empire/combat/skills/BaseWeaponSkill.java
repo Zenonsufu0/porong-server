@@ -52,7 +52,10 @@ public abstract class BaseWeaponSkill implements WeaponSkill {
         return ctx.getResourceTracker().getStack(player.getUniqueId());
     }
 
-    protected void gainStack(SkillContext ctx, Player player, int max) {
+    protected void gainStack(SkillContext ctx, Player player, int baseMax) {
+        // 유지형 각인(*_retained_01)이면 무기 공통 최대 6스택 (weapon_skills_v1.md §자원 시스템)
+        String engId = ctx.playerState(player).classEngravingId();
+        int max = engId.endsWith("_retained_01") ? 6 : baseMax;
         ctx.getResourceTracker().incrementStack(player.getUniqueId(), max);
     }
 

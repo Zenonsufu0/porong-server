@@ -15,11 +15,12 @@ public final class CrossbowRapidFireSkill extends PluginWeaponSkill {
     @Override
     public boolean execute(Player player, SkillContext ctx) {
         double damage = scaledDamage(ctx, player, 0.75);
+        boolean[] hit = {false};
         for (int i = 0; i < 3; i++) {
             SkillHitboxHelper.projectileRaycast(player, 20.0, 0.5)
-                    .ifPresent(t -> dealDamage(player, t, damage));
+                    .ifPresent(t -> { dealDamage(player, t, damage); hit[0] = true; });
         }
-        gainStack(ctx, player, 3);
+        if (hit[0]) gainStack(ctx, player, 3);
         return true;
     }
 }

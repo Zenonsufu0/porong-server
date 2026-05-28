@@ -97,9 +97,7 @@ public final class HealthHudFormatter {
         char filled = (char) (0xE140 + idx * 2);
         char empty  = (char) (0xE141 + idx * 2);
         int stacks = rt.getStack(player.getUniqueId());
-        // 1차 시즌: 각인 미구현, WeaponType 기준 소모형 default max 사용
-        // (유지형 6스택은 각인 시스템 구현 후 별도 대응)
-        int max = weaponDefaultStackMax(wt);
+        int max = weaponDefaultStackMax(wt, state);
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < Math.min(stacks, max); i++) sb.append(filled);
         for (int i = stacks; i < max; i++) sb.append(empty);
@@ -197,8 +195,10 @@ public final class HealthHudFormatter {
         };
     }
 
-    private static int weaponDefaultStackMax(WeaponType wt) {
-        // 창·지팡이 소모형 5, 나머지 3 (weapon_skills_v1.md §자원 시스템)
+    private static int weaponDefaultStackMax(WeaponType wt, PlayerGrowthState state) {
+        // 유지형 각인(*_retained_01): 무기 공통 최대 6스택
+        if (state != null && state.classEngravingId().endsWith("_retained_01")) return 6;
+        // 소모형 default: 창·지팡이 5, 나머지 3
         return (wt == WeaponType.SPEAR || wt == WeaponType.STAFF) ? 5 : 3;
     }
 
