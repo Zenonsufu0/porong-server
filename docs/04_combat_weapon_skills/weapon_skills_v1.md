@@ -112,15 +112,16 @@ description: string
 
 ### effect_key prefix 규칙
 
-| prefix | 처리 방식 | 사용 조건 |
+**1차 시즌 기준 (DL-070)**
+
+| prefix | 처리 방식 | 1차 시즌 |
 |---|---|---|
-| `mm:xxx` | MythicMobs castSkill 호출 | 파티클·사운드 일반 이펙트 |
-| `dp:xxx` | Display Entity 기반 시각 이펙트 | 0.5초 이상 투사체·검기·마법탄 |
-| `pt:xxx` | Bukkit Particle 직접 구현 | fallback 또는 MythicMobs 미설치 |
+| `pt:xxx` | Bukkit Particle 직접 구현 (`BaseWeaponSkill` 헬퍼) | **표준** |
+| `mm:xxx` | MythicMobs castSkill 위임 | 2차 확장 예약 — 1차 시즌 미사용 |
+| `dp:xxx` | Display Entity 기반 시각 이펙트 | 2차 확장 예약 — 1차 시즌 미사용 |
 | (빈 값) | 이펙트 없음 | — |
 
-> MythicMobs 플러그인이 없거나 스킬명이 틀려도 `WARN` 로그만 남기고 전투 로직은 계속 진행한다.  
-> MythicMobs API 직접 호출은 `MythicMobsEffectHandler` 안에만 격리한다. EmpireRPG 코어는 `EffectDispatcher` 인터페이스만 참조한다.
+> 1차 시즌에서 `effect_key`는 식별자 역할만 한다. 실제 이펙트는 각 스킬 클래스가 `BaseWeaponSkill` 헬퍼를 직접 호출한다.
 
 ### 무기별 색상 테마
 
@@ -135,44 +136,46 @@ description: string
 
 ### 무기별 effect_key 기준값
 
-| 무기 | 스킬명 | 입력 | shape_type | effect_key |
+| 무기 | 스킬명 | 입력 | shape_type | effect_key (1차 시즌) |
 |---|---|---|---|---|
-| 검 | 섬광베기 | LMB | `arc` | `mm:sword_flash_slash` |
-| 검 | 연속참 | RMB | `arc` | `mm:sword_combo_slash` |
-| 검 | 수호반격 | Shift+RMB | `self` | `mm:sword_guard_counter` |
-| 검 | 결전일섬 | F | `line` | `mm:sword_final_line` |
-| 도끼 | 철퇴강타 | LMB | `arc` | `mm:axe_heavy_strike` |
-| 도끼 | 파쇄돌진 | RMB | `line` | `mm:axe_crush_charge` |
-| 도끼 | 불굴자세 | Shift+RMB | `self` | `mm:axe_endure_stance` |
-| 도끼 | 거신추락 | F | `burst` | `mm:axe_impact_burst` |
-| 창 | 관통찌르기 | LMB | `line` | `mm:spear_pierce_line` |
-| 창 | 반월창 | RMB | `arc` | `mm:spear_halfmoon_arc` |
-| 창 | 돌파창 | Shift+RMB | `line` | `mm:spear_dash_trail` |
-| 창 | 천뢰일창 | F | `line` | `dp:thunder_spear_line` |
-| 석궁 | 속사 | LMB | `projectile` | `mm:crossbow_rapid_fire` |
-| 석궁 | 회피사격 | RMB | `projectile` | `mm:crossbow_evade_shot` |
-| 석궁 | 관통볼트 | Shift+RMB | `projectile` | `dp:piercing_bolt` |
-| 석궁 | 저격태세 | F | `projectile` | `dp:sniper_bolt` |
+| 검 | 섬광베기 | LMB | `arc` | `pt:sword_flash_slash` |
+| 검 | 연속참 | RMB | `arc` | `pt:sword_combo_slash` |
+| 검 | 수호반격 | Shift+RMB | `self` | `pt:sword_guard_counter` |
+| 검 | 결전일섬 | F | `line` | `pt:sword_final_line` |
+| 도끼 | 철퇴강타 | LMB | `arc` | `pt:axe_heavy_strike` |
+| 도끼 | 파쇄돌진 | RMB | `line` | `pt:axe_crush_charge` |
+| 도끼 | 불굴자세 | Shift+RMB | `self` | `pt:axe_endure_stance` |
+| 도끼 | 거신추락 | F | `burst` | `pt:axe_impact_burst` |
+| 창 | 관통찌르기 | LMB | `line` | `pt:spear_pierce_line` |
+| 창 | 반월창 | RMB | `arc` | `pt:spear_halfmoon_arc` |
+| 창 | 돌파창 | Shift+RMB | `line` | `pt:spear_dash_trail` |
+| 창 | 천뢰일창 | F | `line` | `pt:thunder_spear_line` |
+| 석궁 | 속사 | LMB | `projectile` | `pt:crossbow_rapid_fire` |
+| 석궁 | 회피사격 | RMB | `projectile` | `pt:crossbow_evade_shot` |
+| 석궁 | 관통볼트 | Shift+RMB | `projectile` | `pt:piercing_bolt` |
+| 석궁 | 저격태세 | F | `projectile` | `pt:sniper_bolt` |
 | 낫 | 사신베기 | LMB | `arc` | `pt:scythe_death_slash` |
 | 낫 | 월영회전 | RMB | `burst` | `pt:scythe_shadow_spin` |
-| 낫 | 그믐참 | Shift+RMB | `cone` | `mm:scythe_dark_strike` |
-| 낫 | 처형낫 | F | `line` | `mm:scythe_execute_slash` |
-| 스태프 | 마력탄 | LMB | `projectile` | `dp:magic_bolt` |
-| 스태프 | 속성폭발 | RMB | `burst` | `mm:staff_element_burst` |
-| 스태프 | 마력쇄도 | Shift+RMB | `burst` | `mm:staff_magic_surge` |
-| 스태프 | 별빛쇄도 | F | `projectile` | `dp:starlight_beam` |
+| 낫 | 그믐참 | Shift+RMB | `cone` | `pt:scythe_dark_strike` |
+| 낫 | 처형낫 | F | `line` | `pt:scythe_execute_slash` |
+| 스태프 | 마력탄 | LMB | `projectile` | `pt:magic_bolt` |
+| 스태프 | 속성폭발 | RMB | `burst` | `pt:staff_element_burst` |
+| 스태프 | 마력쇄도 | Shift+RMB | `burst` | `pt:staff_magic_surge` |
+| 스태프 | 별빛쇄도 | F | `projectile` | `pt:starlight_beam` |
 
-> 도끼 effect_key는 `axe_` 접두어를 사용한다 (구버전 `hammer_` 식별자는 DL-003에 의해 `axe_`로 통일).
+> 도끼 effect_key는 `axe_` 접두어를 사용한다 (구버전 `hammer_` 식별자는 DL-003에 의해 `axe_`로 통일).  
+> 2차 확장 시 `mm:` / `dp:` 접두어로 전환 예정 (DL-070).
 
-### 1차 이펙트 구현 우선순위
+### 1차 이펙트 구현 우선순위 (DL-070 기준)
 
-1. **EffectDispatcher 인터페이스 + prefix 파서**
-2. **MythicMobsEffectHandler** (MythicMobs API 격리)
-3. **ParticleFallbackEffectHandler** (fallback)
-4. **검 4스킬** 이펙트 MythicMobs yml
-5. **창 4스킬** 이펙트 MythicMobs yml + `dp:thunder_spear_line`
-6. **석궁/스태프** 투사체 이펙트 (`dp:` 우선)
-7. **도끼/낫** 이펙트 MythicMobs yml
+1. **`BaseWeaponSkill` 헬퍼** (`spawnParticleArc`, `spawnParticleCircle`, `spawnParticleLine`, `playSound`) — 공통 인프라 확정
+2. **낫 2스킬** (사신베기·월영회전) — 완료
+3. **검 4스킬** — `pt:` 직접 구현
+4. **창 4스킬** — `pt:` 직접 구현
+5. **도끼 4스킬** — `pt:` 직접 구현
+6. **석궁·스태프** — `pt:` 직접 구현 (투사체는 Bukkit Particle 궤적)
+
+> `mm:` / `dp:` 기반 아키텍처(`EffectDispatcher`, `MythicMobsEffectHandler`)는 2차 확장 시 설계한다.
 
 ---
 
