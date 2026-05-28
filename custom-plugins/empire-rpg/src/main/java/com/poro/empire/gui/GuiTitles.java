@@ -29,6 +29,7 @@ public final class GuiTitles {
     public static final Component GROWTH_ENHANCE   = Component.text("강화");
     public static final Component GROWTH_POTENTIAL = Component.text("잠재능력");
     public static final Component GROWTH_HEIRLOOM  = Component.text("전승");
+    public static final Component GROWTH_ENGRAVING = Component.text("각인 선택");
     public static final Component FIELD_HUB        = Component.text("필드 이동");
     public static final Component PARTY_HUB        = Component.text("파티 관리");
     public static final Component PARTY_LIST       = Component.text("파티 목록");
