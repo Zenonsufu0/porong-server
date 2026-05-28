@@ -169,7 +169,8 @@ public final class GrowthGuiListener implements Listener {
             java.util.Set.of(27,28,29, 36,37,38, 45,46,47);
     private static final java.util.Set<Integer> HUB_HEIRLOOM_SLOTS  =
             java.util.Set.of(33,34,35, 42,43,44, 51,52,53);
-    // 캐릭터: 3~5, 12~14, 21~23, 30~32, 39~41, 48~50 — 1차 시즌 미구현
+    private static final java.util.Set<Integer> HUB_CHARACTER_SLOTS =
+            java.util.Set.of(3,4,5, 12,13,14, 21,22,23, 30,31,32, 39,40,41, 48,49,50);
 
     // ═══════════════════════════════════════════════════════════════
     // 플레이어별 상태 (선택 + 대기 결과)
@@ -296,11 +297,11 @@ public final class GrowthGuiListener implements Listener {
     // ═══════════════════════════════════════════════════════════════
 
     private void handleEquipmentHub(Player player, int slot) {
-        if (HUB_ENHANCE_SLOTS.contains(slot))   { openGrowthEnhance(player);   return; }
-        if (HUB_ENGRAVING_SLOTS.contains(slot))  { openGrowthEngraving(player); return; }
-        if (HUB_POTENTIAL_SLOTS.contains(slot))  { openGrowthPotential(player); return; }
-        if (HUB_HEIRLOOM_SLOTS.contains(slot))   { openGrowthHeirloom(player);  return; }
-        // 캐릭터 구역 — 1차 시즌 미구현, 클릭 무반응
+        if (HUB_ENHANCE_SLOTS.contains(slot))    { openGrowthEnhance(player);   return; }
+        if (HUB_ENGRAVING_SLOTS.contains(slot))   { openGrowthEngraving(player); return; }
+        if (HUB_POTENTIAL_SLOTS.contains(slot))   { openGrowthPotential(player); return; }
+        if (HUB_HEIRLOOM_SLOTS.contains(slot))    { openGrowthHeirloom(player);  return; }
+        if (HUB_CHARACTER_SLOTS.contains(slot))   { player.sendMessage("§7[캐릭터] 기능 준비 중입니다."); }
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -995,9 +996,9 @@ public final class GrowthGuiListener implements Listener {
         if (isNoneClass(player)) return;
 
         Inventory gui = Bukkit.createInventory(null, 54, GuiTitles.EQUIPMENT_HUB);
-        for (int i = 0; i < 54; i++) gui.setItem(i, pane());
 
-        // 각 구역 중앙 대표 아이콘 (gui_hub_structure.md §3 5구역)
+        // PNG 배경 시인성을 위해 구역 슬롯은 AIR, 중앙만 아이콘 배치
+        // (gui_hub_structure.md §3 5구역)
         gui.setItem(10, MainHubGui.icon(Material.ANVIL,          "§f강화",     List.of("§7클릭하여 열기")));
         gui.setItem(16, MainHubGui.icon(Material.NAME_TAG,       "§f각인",     List.of("§7클릭하여 열기")));
         gui.setItem(37, MainHubGui.icon(Material.NETHER_STAR,    "§f잠재능력", List.of("§7클릭하여 열기")));
