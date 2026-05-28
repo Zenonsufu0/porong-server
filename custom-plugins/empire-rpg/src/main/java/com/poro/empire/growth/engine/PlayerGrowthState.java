@@ -233,6 +233,23 @@ public final class PlayerGrowthState {
         return v;
     }
 
+    // ─── 치장 재질 ────────────────────────────────────────────────
+
+    private final Map<EquipmentSlot, String> cosmeticMaterials = new LinkedHashMap<>();
+
+    public void setCosmeticMaterial(EquipmentSlot slot, String mat) {
+        if (mat == null || mat.isBlank()) cosmeticMaterials.remove(slot);
+        else cosmeticMaterials.put(slot, normalize(mat));
+    }
+
+    public String getCosmeticMaterial(EquipmentSlot slot) {
+        return cosmeticMaterials.getOrDefault(slot, "");
+    }
+
+    public Map<EquipmentSlot, String> cosmeticMaterialsSnapshot() {
+        return Map.copyOf(new LinkedHashMap<>(cosmeticMaterials));
+    }
+
     private String normalize(String value) {
         return value == null ? "" : value.trim().toLowerCase(Locale.ROOT);
     }

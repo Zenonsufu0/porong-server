@@ -5,6 +5,9 @@ import com.poro.empire.combat.SkillService;
 import com.poro.empire.combat.WeaponPowerCalculator;
 import com.poro.empire.combat.WeaponSkill;
 import com.poro.empire.combat.weapon.WeaponType;
+import com.poro.empire.combat.weapon.WeaponTypeResolver;
+import net.kyori.adventure.text.Component;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.attribute.Attribute;
 import com.poro.empire.common.registry.master.ItemMasterRegistry;
 import com.poro.empire.common.registry.master.model.ItemMaster;
@@ -314,6 +317,9 @@ public final class GrowthGuiListener implements Listener {
         } else if (GuiTitles.EQUIP_DETAIL.equals(event.getView().title())) {
             event.setCancelled(true);
             handleEquipDetailClick(player, event.getRawSlot());
+        } else if (GuiTitles.WEAPON_CHANGE.equals(event.getView().title())) {
+            event.setCancelled(true);
+            handleWeaponChangeClick(player, event.getRawSlot());
         }
     }
 
@@ -1110,34 +1116,148 @@ public final class GrowthGuiListener implements Listener {
         Inventory gui = Bukkit.createInventory(null, 27, GuiTitles.EQUIP_DETAIL);
         for (int i = 0; i < 27; i++) gui.setItem(i, pane());
 
-        // slot 4: 현재 장착 아이템 상세 정보
         gui.setItem(4, buildEquipDetailIcon(state, equipSlot, wt));
 
-        // slot 8: 무기 슬롯이면 무기변경 stub, 방어구면 pane
         if (equipSlot == EquipmentSlot.WEAPON) {
-            gui.setItem(8, MainHubGui.icon(Material.IRON_SWORD, "§7무기 변경 §8[2차 확장]",
-                    List.of("§8무기 교체 기능은 2차 확장 예정입니다.")));
+            gui.setItem(8, MainHubGui.icon(Material.IRON_SWORD, "§e무기 변경",
+                    List.of("§7──────────────", "§7클릭하여 무기 종류 선택")));
         }
 
-        // 재질 선택 row (slots 10–16) — cosmetic 시스템 미구현으로 2차 확장 stub
-        String[] labels = (equipSlot == EquipmentSlot.WEAPON)
-                ? new String[]{"나무", "돌", "철", "금", "다이아", "네더", "─"}
-                : new String[]{"가죽", "사슬", "구리", "철", "금", "다이아", "네더"};
-        for (int i = 0; i < 7; i++) {
-            gui.setItem(10 + i, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE,
-                    "§7" + labels[i] + " §8[2차 확장]", List.of("§8외형 재질 선택은 2차 확장 예정입니다.")));
-        }
+        fillDetailMaterialRow(gui, state, equipSlot, wt);
 
-        // slot 18: 뒤로
         gui.setItem(18, MainHubGui.icon(Material.ARROW, "§7뒤로", List.of("§7캐릭터 허브")));
 
-        // slot 24: 숨김, slot 26: 보이기 — 2차 확장 stub
-        gui.setItem(24, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§7숨김 §8[2차 확장]",
-                List.of("§8외형 숨김 기능은 2차 확장 예정입니다.")));
-        gui.setItem(26, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§7보이기 §8[2차 확장]",
-                List.of("§8외형 표시 기능은 2차 확장 예정입니다.")));
+        // 숨김/보이기 — 치장템 시스템 미구현, 항상 비활성
+        gui.setItem(24, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§8숨김",
+                List.of("§8치장템 없음 (비활성)")));
+        gui.setItem(26, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§8보이기",
+                List.of("§8치장템 없음 (비활성)")));
 
         player.openInventory(gui);
+    }
+
+    private static final String[] ARMOR_MAT_KEYS   = {"leather","chainmail","copper","iron","golden","diamond","netherite"};
+    private static final String[] ARMOR_MAT_LABELS  = {"가죽","사슬","구리","철","금","다이아","네더"};
+    private static final Material[] ARMOR_MAT_ICONS = {
+        Material.LEATHER, Material.CHAINMAIL_CHESTPLATE, Material.COPPER_INGOT,
+        Material.IRON_INGOT, Material.GOLD_INGOT, Material.DIAMOND, Material.NETHERITE_INGOT
+    };
+    private static final String[] SWORD_AXE_SCYTHE_MAT_KEYS   = {"wood","stone","iron","golden","diamond","netherite",""};
+    private static final String[] SWORD_AXE_SCYTHE_MAT_LABELS = {"나무","돌","철","금","다이아","네더",""};
+    private static final String[] STAFF_MAT_KEYS   = {"","","stick","blaze_rod","","",""};
+    private static final String[] SPEAR_XBOW_MAT_KEYS = {"","","","default","","",""};
+
+    private void fillDetailMaterialRow(Inventory gui, PlayerGrowthState state,
+                                       EquipmentSlot equipSlot, WeaponType wt) {
+        String selected = state.getCosmeticMaterial(equipSlot);
+        if (selected.isEmpty()) selected = defaultCosmeticMat(equipSlot, wt);
+
+        if (equipSlot != EquipmentSlot.WEAPON) {
+            for (int i = 0; i < 7; i++) {
+                boolean sel = ARMOR_MAT_KEYS[i].equals(selected);
+                gui.setItem(10 + i, MainHubGui.icon(
+                        sel ? Material.LIME_STAINED_GLASS_PANE : ARMOR_MAT_ICONS[i],
+                        (sel ? "§a§l" : "§7") + ARMOR_MAT_LABELS[i],
+                        sel ? List.of("§a▶ 현재 재질") : List.of("§7클릭하여 선택")));
+            }
+            return;
+        }
+
+        switch (wt) {
+            case SWORD, AXE, SCYTHE -> {
+                for (int i = 0; i < 6; i++) {
+                    boolean sel = SWORD_AXE_SCYTHE_MAT_KEYS[i].equals(selected);
+                    Material icon = sel ? Material.LIME_STAINED_GLASS_PANE
+                                       : weaponCosmeticMaterial(wt, SWORD_AXE_SCYTHE_MAT_KEYS[i]);
+                    gui.setItem(10 + i, MainHubGui.icon(icon,
+                            (sel ? "§a§l" : "§7") + SWORD_AXE_SCYTHE_MAT_LABELS[i],
+                            sel ? List.of("§a▶ 현재 재질") : List.of("§7클릭하여 선택")));
+                }
+                // slot 16 — 무기는 6종이므로 빈칸
+            }
+            case STAFF -> {
+                boolean sel0 = "stick".equals(selected);
+                boolean sel1 = "blaze_rod".equals(selected);
+                gui.setItem(12, MainHubGui.icon(
+                        sel0 ? Material.LIME_STAINED_GLASS_PANE : Material.STICK,
+                        (sel0 ? "§a§l" : "§7") + "막대기",
+                        sel0 ? List.of("§a▶ 현재 재질") : List.of("§7클릭하여 선택")));
+                gui.setItem(13, MainHubGui.icon(
+                        sel1 ? Material.LIME_STAINED_GLASS_PANE : Material.BLAZE_ROD,
+                        (sel1 ? "§a§l" : "§7") + "블레이즈 막대",
+                        sel1 ? List.of("§a▶ 현재 재질") : List.of("§7클릭하여 선택")));
+            }
+            case SPEAR, CROSSBOW -> {
+                gui.setItem(13, MainHubGui.icon(Material.LIME_STAINED_GLASS_PANE,
+                        "§a§l기본 재질", List.of("§a▶ 현재 재질", "§8재질 변경 없음 (1종)")));
+            }
+            default -> {}
+        }
+    }
+
+    private String defaultCosmeticMat(EquipmentSlot slot, WeaponType wt) {
+        if (slot != EquipmentSlot.WEAPON) return "netherite";
+        return switch (wt) {
+            case SWORD, AXE, SCYTHE -> "netherite";
+            case STAFF -> "blaze_rod";
+            case SPEAR, CROSSBOW -> "default";
+            default -> "";
+        };
+    }
+
+    private String materialKeyAt(EquipmentSlot equipSlot, WeaponType wt, int index) {
+        if (index < 0 || index > 6) return "";
+        if (equipSlot != EquipmentSlot.WEAPON) return ARMOR_MAT_KEYS[index];
+        return switch (wt) {
+            case SWORD, AXE, SCYTHE -> SWORD_AXE_SCYTHE_MAT_KEYS[index];
+            case STAFF -> STAFF_MAT_KEYS[index];
+            case SPEAR, CROSSBOW -> SPEAR_XBOW_MAT_KEYS[index];
+            default -> "";
+        };
+    }
+
+    private Material weaponCosmeticMaterial(WeaponType wt, String tier) {
+        return switch (wt) {
+            case SWORD -> switch (tier) {
+                case "wood"    -> Material.WOODEN_SWORD;
+                case "stone"   -> Material.STONE_SWORD;
+                case "iron"    -> Material.IRON_SWORD;
+                case "golden"  -> Material.GOLDEN_SWORD;
+                case "diamond" -> Material.DIAMOND_SWORD;
+                default        -> Material.NETHERITE_SWORD;
+            };
+            case AXE -> switch (tier) {
+                case "wood"    -> Material.WOODEN_AXE;
+                case "stone"   -> Material.STONE_AXE;
+                case "iron"    -> Material.IRON_AXE;
+                case "golden"  -> Material.GOLDEN_AXE;
+                case "diamond" -> Material.DIAMOND_AXE;
+                default        -> Material.NETHERITE_AXE;
+            };
+            case SCYTHE -> switch (tier) {
+                case "wood"    -> Material.WOODEN_HOE;
+                case "stone"   -> Material.STONE_HOE;
+                case "iron"    -> Material.IRON_HOE;
+                case "golden"  -> Material.GOLDEN_HOE;
+                case "diamond" -> Material.DIAMOND_HOE;
+                default        -> Material.NETHERITE_HOE;
+            };
+            case STAFF -> "stick".equals(tier) ? Material.STICK : Material.BLAZE_ROD;
+            case SPEAR -> Material.NETHERITE_SWORD;
+            case CROSSBOW -> Material.CROSSBOW;
+            default -> Material.STICK;
+        };
+    }
+
+    private void applyWeaponMaterial(Player player, WeaponType wt, String matKey) {
+        ItemStack current = player.getInventory().getItem(0);
+        if (current == null || current.getType() == Material.AIR) return;
+        Material newMat = weaponCosmeticMaterial(wt, matKey);
+        if (current.getType() == newMat) return;
+        ItemStack newItem = new ItemStack(newMat, 1);
+        org.bukkit.inventory.meta.ItemMeta meta = current.getItemMeta();
+        if (meta != null) newItem.setItemMeta(meta);
+        player.getInventory().setItem(0, newItem);
     }
 
     private ItemStack buildEquipDetailIcon(PlayerGrowthState state, EquipmentSlot slot, WeaponType wt) {
@@ -1176,11 +1296,34 @@ public final class GrowthGuiListener implements Listener {
     }
 
     private void handleEquipDetailClick(Player player, int slot) {
+        EquipmentSlot equipSlot = equipDetailSlot.get(player.getUniqueId());
+        if (equipSlot == null) { player.closeInventory(); return; }
+
         if (slot == 18) {
             equipDetailSlot.remove(player.getUniqueId());
             openCharacterHub(player);
+            return;
         }
-        // 재질/숨김/보이기 클릭 — 2차 확장, 현재 무동작
+
+        if (slot == 8 && equipSlot == EquipmentSlot.WEAPON) {
+            openWeaponChange(player);
+            return;
+        }
+
+        if (slot >= 10 && slot <= 16) {
+            WeaponType wt = playerDataManager.getWeaponType(player.getUniqueId());
+            PlayerGrowthState state = getState(player);
+            String matKey = materialKeyAt(equipSlot, wt, slot - 10);
+            if (!matKey.isEmpty() && !"default".equals(matKey)) {
+                state.setCosmeticMaterial(equipSlot, matKey);
+                if (equipSlot == EquipmentSlot.WEAPON) {
+                    applyWeaponMaterial(player, wt, matKey);
+                }
+                player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1.0f);
+                openEquipDetail(player, equipSlot);
+            }
+        }
+        // slot 24/26: 숨김/보이기 — 치장템 없으므로 무동작
     }
 
     private ItemStack buildStatSummaryIcon(Player player, PlayerGrowthState state) {
@@ -1475,6 +1618,129 @@ public final class GrowthGuiListener implements Listener {
             case STAFF        -> Material.BLAZE_ROD;
             case NONE         -> Material.STICK;
         };
+    }
+
+    private String weaponDisplayName(WeaponType wt) {
+        return switch (wt) {
+            case SWORD    -> "검";
+            case AXE      -> "도끼";
+            case SPEAR    -> "창";
+            case CROSSBOW -> "석궁";
+            case SCYTHE   -> "낫";
+            case STAFF    -> "스태프";
+            case NONE     -> "없음";
+        };
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // 무기 변경 GUI (45슬롯, gui_equipment_detail.md §2)
+    // ══════════════════════════════════════════════════════════════════
+
+    private void openWeaponChange(Player player) {
+        WeaponType currentWt = playerDataManager.getWeaponType(player.getUniqueId());
+
+        Inventory gui = Bukkit.createInventory(null, 45, GuiTitles.WEAPON_CHANGE);
+        for (int i = 0; i < 45; i++) gui.setItem(i, pane());
+
+        // 슬롯 배치: 10=검, 13=도끼, 16=낫, 28=석궁, 31=창, 34=스태프
+        WeaponType[] wtOrder = {
+            WeaponType.SWORD, WeaponType.AXE, WeaponType.SCYTHE,
+            WeaponType.CROSSBOW, WeaponType.SPEAR, WeaponType.STAFF
+        };
+        int[] guiSlots = {10, 13, 16, 28, 31, 34};
+
+        for (int i = 0; i < wtOrder.length; i++) {
+            WeaponType wt = wtOrder[i];
+            boolean isCurrent = wt == currentWt;
+            PlayerGrowthState wtState = growthStateStore.getOrCreate(
+                    player.getUniqueId(), wt.name().toLowerCase(Locale.ROOT));
+            gui.setItem(guiSlots[i], buildWeaponChangeIcon(wt, wtState, isCurrent));
+        }
+
+        gui.setItem(36, MainHubGui.icon(Material.ARROW, "§7뒤로", List.of("§7장비 세부")));
+        player.openInventory(gui);
+    }
+
+    private ItemStack buildWeaponChangeIcon(WeaponType wt, PlayerGrowthState state, boolean isCurrent) {
+        String instanceId = state.equippedItems().get(EquipmentSlot.WEAPON);
+        PlayerEquipmentItem item = instanceId != null ? state.inventoryItem(instanceId).orElse(null) : null;
+
+        List<String> lore = new ArrayList<>();
+        lore.add("§7──────────────────");
+        if (item != null) {
+            lore.add("§7강화   : §e+" + item.enhanceLevel() + "강");
+            lore.add("§7등급   : " + gradeColor(item.grade()) + item.grade().displayName());
+        } else {
+            lore.add("§8장착 장비 없음");
+        }
+        String eid = state.classEngravingId();
+        lore.add("§7각인   : " + (!eid.isEmpty() ? "§a" + eid : "§8없음"));
+        lore.add("§7──────────────────");
+        if (isCurrent) {
+            lore.add("§a§l[현재 장착 중]");
+        } else {
+            lore.add("§7[클릭] §e이 무기로 교체");
+            lore.add("§c기존 무기는 회수됩니다.");
+        }
+
+        String cosmeticMat = state.getCosmeticMaterial(EquipmentSlot.WEAPON);
+        Material icon = isCurrent ? weaponCosmeticMaterial(wt, cosmeticMat) : weaponMaterial(wt);
+        String title = (isCurrent ? "§a§l" : "§e") + weaponDisplayName(wt) + (isCurrent ? " §a[장착 중]" : "");
+        return MainHubGui.icon(icon, title, lore);
+    }
+
+    private void handleWeaponChangeClick(Player player, int slot) {
+        if (slot == 36) {
+            EquipmentSlot prevSlot = equipDetailSlot.getOrDefault(player.getUniqueId(), EquipmentSlot.WEAPON);
+            openEquipDetail(player, prevSlot);
+            return;
+        }
+
+        WeaponType newWt = switch (slot) {
+            case 10 -> WeaponType.SWORD;
+            case 13 -> WeaponType.AXE;
+            case 16 -> WeaponType.SCYTHE;
+            case 28 -> WeaponType.CROSSBOW;
+            case 31 -> WeaponType.SPEAR;
+            case 34 -> WeaponType.STAFF;
+            default -> null;
+        };
+        if (newWt == null) return;
+
+        WeaponType currentWt = playerDataManager.getWeaponType(player.getUniqueId());
+        if (newWt == currentWt) {
+            player.sendMessage("§7이미 §e" + weaponDisplayName(newWt) + "§7 무기를 사용 중입니다.");
+            return;
+        }
+
+        if (combatStateService.isInCombat(player.getUniqueId())) {
+            player.sendMessage("§c전투 중에는 무기를 교체할 수 없습니다.");
+            return;
+        }
+
+        playerDataManager.setWeaponType(player.getUniqueId(), newWt);
+
+        // 새 무기 아이템 생성 (PDC 태그 포함)
+        PlayerGrowthState newState = growthStateStore.getOrCreate(
+                player.getUniqueId(), newWt.name().toLowerCase(Locale.ROOT));
+        String cosmeticMat = newState.getCosmeticMaterial(EquipmentSlot.WEAPON);
+        Material weapMat = weaponCosmeticMaterial(newWt, cosmeticMat);
+        ItemStack newWeapon = new ItemStack(weapMat, 1);
+        org.bukkit.inventory.meta.ItemMeta meta = newWeapon.getItemMeta();
+        meta.displayName(Component.text("§f" + weaponDisplayName(newWt)));
+        if (WeaponTypeResolver.WEAPON_TYPE_KEY != null) {
+            meta.getPersistentDataContainer().set(
+                    WeaponTypeResolver.WEAPON_TYPE_KEY,
+                    PersistentDataType.STRING,
+                    newWt.name());
+        }
+        newWeapon.setItemMeta(meta);
+        player.getInventory().setItem(0, newWeapon);
+
+        scoreboardService.refresh(player);
+        player.sendMessage("§a[무기 교체] §e" + weaponDisplayName(newWt) + "§a 무기로 교체되었습니다.");
+        player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_USE, 0.8f, 1.2f);
+        openWeaponChange(player);
     }
 
     // ═══════════════════════════════════════════════════════════════

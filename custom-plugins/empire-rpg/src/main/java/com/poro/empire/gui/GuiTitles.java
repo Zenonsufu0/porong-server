@@ -38,5 +38,6 @@ public final class GuiTitles {
     public static final Component AUCTION_MY       = Component.text("내 등록 목록");
     public static final Component CHARACTER_HUB    = Component.text("캐릭터");
     public static final Component EQUIP_DETAIL     = Component.text("장비 세부 정보");
+    public static final Component WEAPON_CHANGE    = Component.text("무기 변경");
     public static final Component STAT_ALLOCATION  = Component.text("스탯 배분");
 }

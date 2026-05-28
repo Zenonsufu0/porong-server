@@ -80,7 +80,8 @@ public final class PlayerPersistenceService {
                     current.workshopJobs(),
                     current.playerLevel(), current.unspentPts(), current.critPts(), current.specPts(),
                     current.endurPts(), current.currentExp(), current.ceilingCounters(),
-                    current.ilWarningCount(), current.mobIlHitCount(), current.catalystBonusPct());
+                    current.ilWarningCount(), current.mobIlHitCount(), current.catalystBonusPct(),
+                    Map.of());
             logger.info("[Migration] " + uuid + " v" + version + " → v2");
         }
 
@@ -93,7 +94,8 @@ public final class PlayerPersistenceService {
                     current.workshopJobs(),
                     current.playerLevel(), current.unspentPts(), current.critPts(), current.specPts(),
                     current.endurPts(), current.currentExp(), current.ceilingCounters(),
-                    current.ilWarningCount(), current.mobIlHitCount(), current.catalystBonusPct());
+                    current.ilWarningCount(), current.mobIlHitCount(), current.catalystBonusPct(),
+                    current.cosmeticMaterials() != null ? current.cosmeticMaterials() : Map.of());
             logger.info("[Migration] " + uuid + " v2 → v3");
         }
 
@@ -105,8 +107,22 @@ public final class PlayerPersistenceService {
                     current.workshopJobs() != null ? current.workshopJobs() : List.of(),
                     current.playerLevel(), current.unspentPts(), current.critPts(), current.specPts(),
                     current.endurPts(), current.currentExp(), current.ceilingCounters(),
-                    current.ilWarningCount(), current.mobIlHitCount(), current.catalystBonusPct());
+                    current.ilWarningCount(), current.mobIlHitCount(), current.catalystBonusPct(),
+                    current.cosmeticMaterials() != null ? current.cosmeticMaterials() : Map.of());
             logger.info("[Migration] " + uuid + " v3 → v4");
+        }
+
+        if (current.schemaVersion() < 5) {
+            current = new PlayerSaveData(5,
+                    current.weaponType(), current.classId(), current.classEngravingId(),
+                    current.wallet(), current.equippedSlots(), current.inventory(), current.equippedRunes(),
+                    current.commonEngravings(), current.territory(), current.storage(), current.customItems(),
+                    current.workshopJobs() != null ? current.workshopJobs() : List.of(),
+                    current.playerLevel(), current.unspentPts(), current.critPts(), current.specPts(),
+                    current.endurPts(), current.currentExp(), current.ceilingCounters(),
+                    current.ilWarningCount(), current.mobIlHitCount(), current.catalystBonusPct(),
+                    Map.of());
+            logger.info("[Migration] " + uuid + " v4 → v5");
         }
 
         return current;
@@ -222,6 +238,15 @@ public final class PlayerPersistenceService {
 
         // 강화 촉진제 보너스 (schemaVersion 3+; 이전 파일은 0으로 역직렬화)
         if (data.catalystBonusPct() > 0) state.setCatalystBonusPct(data.catalystBonusPct());
+
+        // 치장 재질 (schemaVersion 5+)
+        if (data.cosmeticMaterials() != null) {
+            data.cosmeticMaterials().forEach((slotName, mat) -> {
+                try {
+                    state.setCosmeticMaterial(EquipmentSlot.from(slotName), mat);
+                } catch (IllegalArgumentException ignored) {}
+            });
+        }
     }
 
     private void applyTerritory(UUID uuid, String playerName, PlayerSaveData data) {
@@ -297,7 +322,8 @@ public final class PlayerPersistenceService {
                 growth != null ? new LinkedHashMap<>(growth.ceilingCountersSnapshot()) : Map.of(),
                 growth != null ? growth.ilWarningCount()    : 0,
                 growth != null ? growth.mobIlHitCount()     : 0,
-                growth != null ? growth.catalystBonusPct()  : 0
+                growth != null ? growth.catalystBonusPct()  : 0,
+                toCosmeticMaterialsDto(growth)
         );
         repo.save(uuid, data);
     }
@@ -383,6 +409,13 @@ public final class PlayerPersistenceService {
         return t.workshopJobsSnapshot().stream()
                 .map(j -> new PlayerSaveData.WorkshopJobSaveData(j.recipeId(), j.startedAt(), j.completeAt()))
                 .toList();
+    }
+
+    private Map<String, String> toCosmeticMaterialsDto(PlayerGrowthState state) {
+        if (state == null) return Map.of();
+        Map<String, String> map = new LinkedHashMap<>();
+        state.cosmeticMaterialsSnapshot().forEach((slot, mat) -> map.put(slot.name(), mat));
+        return map;
     }
 
     // ─── 역직렬화 헬퍼 ─────────────────────────────────────────────
