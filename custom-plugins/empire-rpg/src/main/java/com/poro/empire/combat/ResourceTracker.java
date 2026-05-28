@@ -46,4 +46,10 @@ public final class ResourceTracker {
     public void resetStack(UUID uuid) {
         stacks.remove(uuid);
     }
+
+    /** 플레이어 퇴장 시 모든 상태를 제거한다. */
+    public void cleanup(UUID uuid) {
+        stacks.remove(uuid);
+        shadowSpinTimestamp.remove(uuid);
+    }
 }
