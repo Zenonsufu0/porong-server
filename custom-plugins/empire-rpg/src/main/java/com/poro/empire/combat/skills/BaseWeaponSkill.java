@@ -77,6 +77,24 @@ public abstract class BaseWeaponSkill implements WeaponSkill {
         player.setVelocity(right.multiply(blocks * 0.6));
     }
 
+    /**
+     * 플레이어의 현재 이동 속도 벡터 방향으로 대시한다.
+     * 정지 중일 때는 시선 기준 우측(기본 측면)으로 대시한다.
+     */
+    protected void dashInInputDirection(Player player, double blocks) {
+        Vector vel = player.getVelocity().setY(0);
+        Vector dir;
+        if (vel.lengthSquared() > 0.01) {
+            dir = vel.normalize();
+        } else {
+            // 이동 입력 없음 → 시선 기준 우측
+            Vector facing = player.getLocation().getDirection().setY(0);
+            if (facing.lengthSquared() < 0.001) return;
+            dir = new Vector(-facing.normalize().getZ(), 0, facing.getX()).normalize();
+        }
+        player.setVelocity(dir.multiply(blocks * 0.6));
+    }
+
     // --- utility ---
 
     protected void lifesteal(Player player, double amount) {

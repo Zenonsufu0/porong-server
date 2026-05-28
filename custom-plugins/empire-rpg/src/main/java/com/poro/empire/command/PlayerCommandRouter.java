@@ -4,6 +4,7 @@ import com.poro.empire.growth.island.IslandStorage;
 import com.poro.empire.growth.island.IslandStorageStore;
 import com.poro.empire.growth.island.IslandTerritoryState;
 import com.poro.empire.growth.island.IslandTerritoryStateStore;
+import com.poro.empire.gui.MainHubGui;
 import com.poro.empire.gui.StorageGui;
 import com.poro.empire.gui.TerritoryStatusGui;
 import com.poro.empire.gui.WorkshopGui;
@@ -67,7 +68,7 @@ public class PlayerCommandRouter implements CommandExecutor {
             case "영지상태"  -> openTerritoryStatus(player);
             case "공방"     -> WorkshopGui.open(player, WorkshopGui.WorkshopTab.ESTATE);
             // 이하 GUI 클래스 구현 후 연동
-            case "메뉴"     -> stub(player, "메인 메뉴");
+            case "메뉴"     -> MainHubGui.open(player);
             case "장비"     -> growthGuiListener.openEquipHub(player);
             case "강화"     -> growthGuiListener.openEnhancement(player);
             case "잠재"     -> growthGuiListener.openPotential(player);

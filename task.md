@@ -1,6 +1,6 @@
 # 포로 서버 작업 현황
 
-> 마지막 갱신: 2026-05-27 (서버 API — 닉네임 조회 3종 + 프로필/스냅샷 적재 연결)
+> 마지막 갱신: 2026-05-28 (§6-10 인게임 버그 수정 + AuctionMigration 구 스키마 처리 + JAR 재배포)
 
 ---
 
@@ -152,37 +152,69 @@
 | `SpiritWatcher_Mage` 소환체 ID는 유지 (보스 진입점 아님) | ✅ |
 | `rift_king`도 `season_bosses.yml` 내에 존재 (`Final_RiftKing` → `rift_king`) | ✅ |
 
-## §6-10 인게임 버그 수정 1차 (2026-05-28)
+## §6-11 HUD 5레이어·스코어보드·스킬·커맨드 구현 — 완료 (2026-05-28)
 
-| 항목 | 상태 |
+기준 문서: `docs/10_development_roadmap/implementation_plan_v2.md`
+
+| 항목 | 파일 | 상태 |
+|---|---|---|
+| Phase A-1: HealthHudListener → 1틱 repeating task + override map | `HealthHudListener.java` | ✅ |
+| Phase A-2: HealthHudFormatter → 5레이어 글리프 Component 빌더 (HP/XP/CD/Stack) | `HealthHudFormatter.java` | ✅ |
+| Phase A-2: CooldownManager `long[]` 저장 (expireAt + totalMs) → CD 진행률 계산 가능 | `CooldownManager.java` | ✅ |
+| Phase A-2: SkillService 쿨타임 action bar 텍스트 제거 (HUD로 통합) | `SkillService.java` | ✅ |
+| Phase B-1: ScoreboardService.refresh() 완전 구현 (골드·강화석·큐브·레벨·IL·위치) | `ScoreboardService.java` | ✅ |
+| Phase C-1: BaseWeaponSkill.dashInInputDirection() 추가 | `BaseWeaponSkill.java` | ✅ |
+| Phase C-1: 낫 월영회전 dashSideways → dashInInputDirection (키 입력 방향) | `ScytheShadowSpinSkill.java` | ✅ |
+| Phase D-1: /메뉴 → MainHubGui.open(player) 연결 | `PlayerCommandRouter.java` | ✅ |
+| `BUILD SUCCESSFUL` + `server/plugins/EmpireRPG.jar` 재배포 | — | ✅ |
+
+### 잔여 미구현 (구현 계획서 v2 기준)
+| 항목 | 비고 |
 |---|---|
-| `GrowthGuiListener.openEquipmentHub()` — WeaponType.NONE 시 "직업 먼저 선택" 메시지 + early return | ✅ |
-| `MainHubListener.openEquipmentHub()` — WeaponType.NONE guard 동일 적용 | ✅ |
-| `GrowthGuiListener.openGrowthPotential()` — slot 53 닫기 버튼 추가, `handlePotentialClick` slot 53 처리 | ✅ |
-| `GrowthGuiListener.openGrowthHeirloom()` — 45→54 슬롯 확장, HEIR_SLOT_BACK=45·HEIR_SLOT_CLOSE=53 추가 | ✅ |
-| `BUILD SUCCESSFUL` | ✅ |
+| Phase A-3: 스택 최대값 각인 연동 | 현재 max=3 하드코딩 |
+| Phase A-4: 강화 성공/실패 알림 HUD 오버라이드 연결 | `showAlert()` API 준비됨, GrowthGuiListener에서 호출 필요 |
+| Phase B-2: 재화 변경 시점 refresh() 호출 연결 | join 외 이벤트 구독 필요 |
+| Phase C-2: 낫 스킬 쿨타임 수치 정정 | weapon_skills_v1.md 대조 필요 |
+| Phase D-2: /영지·/작물·/상점 stub → GUI 연결 | |
+| Phase E-1: IridiumSkyblock 섬 크기 확장 | API JAR 미포함 |
+| Phase F-1: 보스 인스턴스 파티 스코어보드 | |
 
-### 서버 재배포 필요 항목 (JAR 구버전 의심)
+---
+
+## §6-10 인게임 버그 수정 + 경매장 마이그레이션 — 완료 (2026-05-28)
+
+| 항목 | 커밋 | 상태 |
+|---|---|---|
+| `GrowthGuiListener` — WeaponType.NONE guard (`isNoneClass()` 헬퍼) 4개 공개 진입점 전체 적용 | `a897c5f`→fix | ✅ |
+| `MainHubListener.openEquipmentHub()` — WeaponType.NONE guard 동일 적용 | `a897c5f` | ✅ |
+| `GrowthGuiListener.openGrowthPotential()` — slot 53 닫기 버튼 추가 | `a897c5f` | ✅ |
+| `GrowthGuiListener.openGrowthHeirloom()` — 45→54 슬롯 확장, HEIR_SLOT_BACK=45·HEIR_SLOT_CLOSE=53 추가 | `a897c5f` | ✅ |
+| `AuctionMigration` — 구 스키마(`item_data` 컬럼) 감지 → 비어 있으면 DROP·재생성, 데이터 있으면 abort+안내 | `cea6aeb` | ✅ |
+| JAR 재빌드 + `server/plugins/EmpireRPG.jar` 재배포 | — | ✅ |
+
+### 재배포 후 재확인 필요 항목
 | 증상 | 판단 |
 |---|---|
-| 성공률 10000 표기 | 코드상 `String.format("%.1f%%", rate)` 정상 — 구 JAR 재배포로 해결 예상 |
-| /경매장 명령어 없음 | plugin.yml 88-90행에 등록 완료 — 구 JAR |
-| 각 UI 구버전처럼 보임 | 구 JAR 재배포 후 재확인 필요 |
+| 성공률 10000 표기 | 코드상 `String.format("%.1f%%", rate)` 정상 — 신 JAR 로딩 후 재확인 |
+| 각 UI 구버전처럼 보임 | 신 JAR 재배포 후 재확인 |
 
 ### 외부 플러그인 / 리소스팩 이슈 (코드 범위 외)
 | 증상 | 원인 | 조치 |
 |---|---|---|
 | 메뉴 PNG 안뜸 | 리소스팩 미적용 | 리소스팩 배포 확인 |
 | 물약 PNG 미적용 | 리소스팩 | 동일 |
-| 영지 평화로움 안됨 | WorldGuard 구역 설정 | WorldGuard 구역에 PVP off 설정 |
-| 새 영지 생성 시 IridiumSkyblock GUI | IridiumSkyblock 기본 동작 | 설정에서 island-create GUI 비활성화 검토 |
-| 작물관리에 마력 | IridiumSkyblock Crystals 표시 추정 | IS bankitems.yml crystals 항목 비활성화 검토 |
+| 영지 평화로움 안됨 | WorldGuard 구역 설정 | WorldGuard 구역에 PVP off 설정 필요 |
+| 새 영지 생성 시 IridiumSkyblock GUI | IridiumSkyblock 기본 동작 | IS `configuration.yml` island-create GUI 비활성화 검토 |
+| 작물관리에 마력 | IridiumSkyblock Crystals 표시 추정 | IS `bankitems.yml` crystals 항목 비활성화 검토 |
+| 캐릭터 창 세부 UI | stub 미구현 | §7+ 예정 |
+| 보스정보 상세 | stub 미구현 | §7+ 예정 |
+| 영지설정 | stub 미구현 | §7+ 예정 |
 
 ## 다음 작업 후보
 
 | 우선도 | 항목 | 비고 |
 |---|---|---|
-| 높음 | JAR 재빌드 + 서버 재배포 | §6-10 버그 수정 반영 |
+| 높음 | 서버 재시작 후 인게임 재테스트 | §6-10 수정 검증, 성공률 표기 재확인 |
 | 높음 | 서버 통합 테스트 — `/보스` 선택 → `[보스]` 표지판 → MM 스폰 런타임 확인 | `season_bosses.yml` 로드 + bossId 매칭 검증 |
 | 중간 | 서버 통합 테스트 — 봇 `/영지`·`/보스`·`/프로필` → Java API → 응답 확인 | 닉네임 기반 조회 실제 동작 검증 |
 | 낮음 | 리소스팩 파이프라인 (Phase 8) | `docs/08_resourcepack_pipeline/index.md` |

@@ -6,40 +6,49 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class CooldownManager {
-    private final Map<UUID, Map<String, Long>> cooldowns = new ConcurrentHashMap<>();
+    // long[] = { expireAt (epoch ms), totalMs }
+    private final Map<UUID, Map<String, long[]>> cooldowns = new ConcurrentHashMap<>();
 
     public boolean isOnCooldown(UUID playerId, String key) {
         return getRemainingMillis(playerId, key) > 0;
     }
 
     public long getRemainingMillis(UUID playerId, String key) {
-        Map<String, Long> playerCooldowns = cooldowns.get(playerId);
-        if (playerCooldowns == null) {
-            return 0L;
-        }
-
-        long now = System.currentTimeMillis();
-        long expireAt = playerCooldowns.getOrDefault(key.toLowerCase(), 0L);
-        long remaining = expireAt - now;
+        long[] entry = getEntry(playerId, key);
+        if (entry == null) return 0L;
+        long remaining = entry[0] - System.currentTimeMillis();
         if (remaining <= 0) {
-            playerCooldowns.remove(key.toLowerCase());
-            if (playerCooldowns.isEmpty()) {
-                cooldowns.remove(playerId);
-            }
+            removeEntry(playerId, key);
             return 0L;
         }
-
         return remaining;
     }
 
+    public long getTotalMillis(UUID playerId, String key) {
+        long[] entry = getEntry(playerId, key);
+        return entry == null ? 0L : entry[1];
+    }
+
     public void applyCooldown(UUID playerId, String key, Duration duration) {
-        long expireAt = System.currentTimeMillis() + duration.toMillis();
+        long totalMs = duration.toMillis();
+        long expireAt = System.currentTimeMillis() + totalMs;
         cooldowns.computeIfAbsent(playerId, ignored -> new ConcurrentHashMap<>())
-                .put(key.toLowerCase(), expireAt);
+                 .put(key.toLowerCase(), new long[]{expireAt, totalMs});
     }
 
     public static String formatSeconds(long millis) {
-        double seconds = millis / 1000.0;
-        return String.format("%.1f", seconds);
+        return String.format("%.1f", millis / 1000.0);
+    }
+
+    private long[] getEntry(UUID playerId, String key) {
+        Map<String, long[]> playerMap = cooldowns.get(playerId);
+        return playerMap == null ? null : playerMap.get(key.toLowerCase());
+    }
+
+    private void removeEntry(UUID playerId, String key) {
+        Map<String, long[]> playerMap = cooldowns.get(playerId);
+        if (playerMap == null) return;
+        playerMap.remove(key.toLowerCase());
+        if (playerMap.isEmpty()) cooldowns.remove(playerId);
     }
 }

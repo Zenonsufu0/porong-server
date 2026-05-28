@@ -17,7 +17,7 @@ public final class ScytheShadowSpinSkill extends PluginWeaponSkill {
 
     @Override
     public boolean execute(Player player, SkillContext ctx) {
-        dashSideways(player, 2.5);
+        dashInInputDirection(player, 2.5);
         double damage = scaledDamage(ctx, player, 0.60);
         boolean hitAny = false;
         for (int i = 0; i < 4; i++) {
