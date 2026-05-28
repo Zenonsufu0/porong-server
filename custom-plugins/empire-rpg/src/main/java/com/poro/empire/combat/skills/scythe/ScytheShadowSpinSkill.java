@@ -32,7 +32,8 @@ public final class ScytheShadowSpinSkill extends PluginWeaponSkill {
                 hitAny = true;
             }
         }
-        if (hitAny) gainStack(ctx, player, 3);
+        // 사용 시점에 2초 윈도우 기록 — 사신베기 LMB 명중 시 1스택 충전
+        ctx.getResourceTracker().recordShadowSpin(player.getUniqueId());
 
         // 플레이어 주변 보라 ring + 바닐라 sweep 마크
         spawnParticleCircle(player, Particle.DUST, VIOLET, 2.0, 16);

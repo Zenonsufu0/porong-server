@@ -14,13 +14,19 @@ public final class ScytheDeathSlashSkill extends BaseWeaponSkill {
     private static final Particle.DustOptions CRIMSON = new Particle.DustOptions(Color.fromRGB(180, 0, 60), 1.0f);
 
     public ScytheDeathSlashSkill() {
-        super("scythe:death_slash", "사신베기", WeaponType.SCYTHE, 4000L);
+        super("scythe:death_slash", "사신베기", WeaponType.SCYTHE, 3000L);
     }
 
     @Override
     public boolean execute(Player player, SkillContext ctx) {
         double damage = scaledDamageWithStacks(ctx, player, 1.80, 0.05);
-        SkillHitboxHelper.arc(player, 3.0, 150).forEach(t -> dealDamage(player, t, damage));
+        var targets = SkillHitboxHelper.arc(player, 3.0, 150);
+        targets.forEach(t -> dealDamage(player, t, damage));
+
+        // 월영회전 2초 윈도우 내 명중 시 1스택 충전
+        if (!targets.isEmpty() && ctx.getResourceTracker().consumeShadowSpinWindow(player.getUniqueId())) {
+            gainStack(ctx, player, 3);
+        }
 
         // 보라 외호 + 검붉은 내호 + 바닐라 sweep 마크
         spawnParticleArc(player, Particle.DUST, PURPLE, 2.5, 150, 12);
