@@ -1,6 +1,6 @@
 # 장비 세부 GUI 설계 (27슬롯)
 
-> **[STATUS: REFERENCE]** — 장비 개별·일괄 외형 설정 GUI.  
+> **[STATUS: IMPLEMENTED-PARTIAL]** — 재질 선택/저장·무기 변경 구현됨. 치장템 숨김/보이기·방어구 외형 시각 반영·슬롯16 일괄선택은 2차 확장 미구현.  
 > 진입: 캐릭터 GUI(gui_equipment_panel.md) 장비 슬롯 클릭 또는 슬롯 16(일괄선택)
 
 ---

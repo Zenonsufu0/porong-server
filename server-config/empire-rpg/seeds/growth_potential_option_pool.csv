@@ -29,6 +29,7 @@ t2_weapon_pool,attack_percent,RARE,weapon,all,,,3,6,10
 t2_weapon_pool,general_damage_increase,RARE,weapon,all,,,2,4,10
 t2_weapon_pool,core_tag_damage_increase,EPIC,weapon,all,,,3,5,8
 t2_weapon_pool,precision_tag_damage_increase,EPIC,weapon,all,,,3,5,8
+t2_weapon_pool,boss_damage_increase,EPIC,weapon,all,,,2,5,4
 t2_weapon_pool,crack_efficiency,UNIQUE,weapon,warrior,,,6,10,6
 t2_weapon_pool,resonance_effect_up,UNIQUE,weapon,mage,,,6,10,6
 t2_weapon_pool,mark_target_damage_increase,UNIQUE,weapon,assassin,,,6,10,6
