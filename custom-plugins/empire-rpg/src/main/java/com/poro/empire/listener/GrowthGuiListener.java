@@ -1130,48 +1130,77 @@ public final class GrowthGuiListener implements Listener {
         String current = state.classEngravingId();
         String weaponId = wt.name().toLowerCase(Locale.ROOT);
 
-        String retainedId = weaponId + "_retained_01";
+        // 각인 A=소모형, 각인 B=유지형 (weapon_skills_v1.md §자원 시스템)
         String consumedId = weaponId + "_consumed_01";
-
-        EngravingMaster retained = growthEngineRuntime.engravingRegistry().find(retainedId).orElse(null);
+        String retainedId = weaponId + "_retained_01";
         EngravingMaster consumed = growthEngineRuntime.engravingRegistry().find(consumedId).orElse(null);
+        EngravingMaster retained = growthEngineRuntime.engravingRegistry().find(retainedId).orElse(null);
 
         Inventory gui = Bukkit.createInventory(null, 27, GuiTitles.GROWTH_ENGRAVING);
         for (int i = 0; i < 27; i++) gui.setItem(i, pane());
 
+        // slot 10: 현재 장착 각인 (클릭 → 해제)
+        if (current.isEmpty()) {
+            gui.setItem(10, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE,
+                    "§7[없음] 각인 미장착", List.of()));
+        } else {
+            EngravingMaster cur = growthEngineRuntime.engravingRegistry().find(current).orElse(null);
+            String name = cur != null ? cur.engravingName() : current;
+            gui.setItem(10, MainHubGui.icon(Material.ENCHANTED_BOOK,
+                    "§e[장착 중] §f" + name, List.of("§7클릭하여 해제")));
+        }
+
         int baseMax = (wt == WeaponType.SPEAR || wt == WeaponType.STAFF) ? 5 : 3;
 
-        if (retained != null) {
-            boolean sel = retainedId.equals(current);
-            gui.setItem(11, engravingIcon(retained, sel,
-                    "유지형", List.of("§7최대 6스택. F 소모 없음.", sel ? "§a현재 장착 중" : "§7클릭하여 선택")));
-        }
+        // slot 14: 각인 A (소모형)
         if (consumed != null) {
             boolean sel = consumedId.equals(current);
-            gui.setItem(15, engravingIcon(consumed, sel,
-                    "소모형", List.of("§7최대 " + baseMax + "스택. F 발동 시 전체 소모.", sel ? "§a현재 장착 중" : "§7클릭하여 선택")));
+            gui.setItem(14, engravingIcon(consumed, sel, "소모형 (각인 A)",
+                    List.of("§7최대 " + baseMax + "스택. F 발동 시 전체 소모.",
+                            sel ? "§a현재 장착 중" : "§7클릭하여 선택")));
         }
-        gui.setItem(22, MainHubGui.icon(Material.BARRIER, "§c닫기", List.of()));
+        // slot 16: 각인 B (유지형)
+        if (retained != null) {
+            boolean sel = retainedId.equals(current);
+            gui.setItem(16, engravingIcon(retained, sel, "유지형 (각인 B)",
+                    List.of("§7최대 6스택. F 소모 없음.",
+                            sel ? "§a현재 장착 중" : "§7클릭하여 선택")));
+        }
+
+        gui.setItem(18, MainHubGui.icon(Material.ARROW, "§7뒤로", List.of("§7장비 허브")));
+        gui.setItem(26, MainHubGui.icon(Material.BARRIER, "§c닫기", List.of()));
         player.openInventory(gui);
     }
 
     private void handleEngravingClick(Player player, int slot) {
-        if (slot == 22) { player.closeInventory(); return; }
         WeaponType wt = playerDataManager.getWeaponType(player.getUniqueId());
         if (wt == WeaponType.NONE) return;
         String weaponId = wt.name().toLowerCase(Locale.ROOT);
-        String engravingId = switch (slot) {
-            case 11 -> weaponId + "_retained_01";
-            case 15 -> weaponId + "_consumed_01";
-            default -> null;
-        };
-        if (engravingId == null) return;
+        PlayerGrowthState state = growthStateStore.getOrCreate(player.getUniqueId(), weaponId);
 
-        PlayerGrowthState state = growthStateStore.getOrCreate(
-                player.getUniqueId(), weaponId);
+        switch (slot) {
+            case 26 -> player.closeInventory();
+            case 18 -> openEquipmentHub(player);
+            case 10 -> { // 현재 각인 해제
+                if (!state.classEngravingId().isEmpty()) {
+                    state.setClassEngravingId("");
+                    scoreboardService.refresh(player);
+                    player.sendMessage("§7[각인] 각인을 해제했습니다.");
+                    openGrowthEngraving(player);
+                }
+            }
+            case 14 -> equipEngraving(player, state, weaponId + "_consumed_01");
+            case 16 -> equipEngraving(player, state, weaponId + "_retained_01");
+        }
+    }
+
+    private void equipEngraving(Player player, PlayerGrowthState state, String engravingId) {
         var result = growthEngineRuntime.engravingService().equipClassEngraving(state, engravingId);
         if (result.isOk()) {
-            player.sendMessage("§a[각인] §f" + engravingId + " §a각인을 장착했습니다.");
+            scoreboardService.refresh(player);
+            EngravingMaster em = growthEngineRuntime.engravingRegistry().find(engravingId).orElse(null);
+            String name = em != null ? em.engravingName() : engravingId;
+            player.sendMessage("§a[각인] §f" + name + " §a각인을 장착했습니다.");
             openGrowthEngraving(player);
         } else {
             player.sendMessage("§c[각인] " + result.message());
