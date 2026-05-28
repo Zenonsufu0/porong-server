@@ -169,9 +169,11 @@ public abstract class BaseWeaponSkill implements WeaponSkill {
         spawnParticleArc(player, particle, data, radius * 0.5, 150,  8);
     }
 
-    /** 특정 위치에 폭발형 임팩트 파티클을 뿌린다. */
+    /** 특정 위치에 폭발형 임팩트 파티클을 뿌린다. world가 null이면 무시한다. */
     protected void spawnImpactEffect(Location loc, Particle particle, Object data, int count) {
-        spawnAt(loc.getWorld(), particle, loc, data, count, 0.2, 0.2, 0.2, 0.05);
+        World world = loc.getWorld();
+        if (world == null) return;
+        spawnAt(world, particle, loc, data, count, 0.2, 0.2, 0.2, 0.05);
     }
 
     private void spawnAt(World world, Particle particle, Location loc, Object data) {

@@ -4,6 +4,19 @@
 
 ---
 
+### DL-070 스킬 이펙트 — 1차 시즌은 Bukkit Particle 직접 구현, MythicMobs 이펙트 키 사용 안 함
+
+**결정:** 모든 무기 스킬의 시각 이펙트(파티클·사운드)는 1차 시즌 동안 Bukkit API(`World.spawnParticle`, `World.playSound`)로 직접 구현한다. `weapon_skills_v1.md`의 `effect_key: mm:xxx / dp:xxx` 컬럼은 향후 참고용으로만 남기고 현재는 사용하지 않는다.
+
+**이유:**
+- MythicMobs 이펙트 키 연동은 MythicMobs 스킬 yaml 별도 관리와 플러그인 간 이벤트 브리지가 필요해 1차 시즌 구현 범위를 초과한다.
+- 바닐라 파티클만으로 낫·검 등 각 무기 색감(보라/붉은/파랑)을 충분히 표현 가능하다.
+- `BaseWeaponSkill`에 `spawnParticleArc`, `spawnParticleCircle`, `spawnParticleLine`, `spawnSlashEffect`, `spawnImpactEffect`, `playSound` 헬퍼를 추가해 각 스킬에서 간단히 호출한다.
+
+**영향 범위:** `BaseWeaponSkill.java` (헬퍼 추가), 각 스킬 구현체 (이펙트 호출). `weapon_skills_v1.md` `effect_key` 컬럼 주석 불필요 — 스펙 문서는 변경하지 않는다.
+
+---
+
 ### DL-066 영지 작위 승급 재료 — 전장의 파편 + 골드만으로 확정
 
 작위 승급 소비 재료를 **전장의 파편(`mat_battle_shard`) + 골드**만으로 확정한다.
