@@ -151,10 +151,10 @@ public final class PotentialService {
         List<PotentialLine> lines = new ArrayList<>();
         lines.add(buildLine(1, state, itemMaster, grade));
 
-        PotentialGrade secondGrade = randomProvider.nextDouble() < 0.15d ? grade : grade.lowerOrSame();
+        PotentialGrade secondGrade = randomProvider.nextDouble() < 0.10d ? grade : grade.lowerOrSame();
         lines.add(buildLine(2, state, itemMaster, secondGrade));
 
-        PotentialGrade thirdGrade = randomProvider.nextDouble() < 0.02d ? grade : grade.lowerOrSame();
+        PotentialGrade thirdGrade = randomProvider.nextDouble() < 0.05d ? grade : grade.lowerOrSame();
         lines.add(buildLine(3, state, itemMaster, thirdGrade));
 
         return new PotentialProfile(grade, lines.stream().sorted(Comparator.comparingInt(PotentialLine::lineNo)).toList());

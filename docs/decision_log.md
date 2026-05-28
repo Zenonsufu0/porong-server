@@ -1304,8 +1304,6 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 
 ### DL-070 잠재 옵션 풀 slot_type 아키텍처 결정
 
-## 2026-05-29 — DL-070 잠재 옵션 풀 slot_type 아키텍처 결정
-
 **결정:** 플러그인 잠재 옵션 풀은 방어구 slot_type을 `armor`(generic)로 유지한다. `head/chest/legs/boots` slot-specific 풀은 server-config DB용에만 존재한다.
 
 **이유:**
