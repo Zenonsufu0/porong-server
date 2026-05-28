@@ -9,7 +9,7 @@ import org.bukkit.plugin.Plugin;
 
 public final class CrossbowEvadeFireSkill extends PluginWeaponSkill {
     public CrossbowEvadeFireSkill(Plugin plugin) {
-        super(plugin, "crossbow:evade_fire", "회피사격", WeaponType.CROSSBOW, 6000L);
+        super(plugin, "crossbow:evade_fire", "회피사격", WeaponType.CROSSBOW, 5000L);
     }
 
     @Override

@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 
 public final class SpearCrescentSkill extends BaseWeaponSkill {
     public SpearCrescentSkill() {
-        super("spear:crescent", "반월창", WeaponType.SPEAR, 6000L);
+        super("spear:crescent", "반월창", WeaponType.SPEAR, 4000L);
     }
 
     @Override

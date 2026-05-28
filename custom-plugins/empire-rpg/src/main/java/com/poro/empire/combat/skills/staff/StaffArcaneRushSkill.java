@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 
 public final class StaffArcaneRushSkill extends BaseWeaponSkill {
     public StaffArcaneRushSkill() {
-        super("staff:arcane_rush", "마력쇄도", WeaponType.STAFF, 10000L);
+        super("staff:arcane_rush", "마력쇄도", WeaponType.STAFF, 11000L);
     }
 
     @Override

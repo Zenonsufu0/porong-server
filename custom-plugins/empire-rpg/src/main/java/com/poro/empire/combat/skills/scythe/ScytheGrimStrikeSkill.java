@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 
 public final class ScytheGrimStrikeSkill extends BaseWeaponSkill {
     public ScytheGrimStrikeSkill() {
-        super("scythe:grim_strike", "그믐참", WeaponType.SCYTHE, 8000L);
+        super("scythe:grim_strike", "그믐참", WeaponType.SCYTHE, 10000L);
     }
 
     @Override

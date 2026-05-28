@@ -1117,7 +1117,7 @@ public final class GrowthGuiListener implements Listener {
         Map.entry("sword:final_strike",   new SkillInfo("검세 소모/유지. 전방 직선 강한 참격.", "320% (+15%/스택)", "직선 6블럭", "핵심기·자원소모")),
         // ── 도끼 ────────────────────────────────────────────────────
         Map.entry("axe:smash",            new SkillInfo("전방의 적을 강하게 내려친다. 명중 시 충격 1충전.", "210% (+8%/스택)", "호형 2.5블럭·100°", "근접·자원생성")),
-        Map.entry("axe:crush_charge",     new SkillInfo("짧게 전진한 뒤 강하게 내려찍는다.", "280%", "직선 3블럭 돌진", "근접·돌진")),
+        Map.entry("axe:crush_charge",     new SkillInfo("짧게 전진한 뒤 강하게 내려찍는다.", "280%", "hitbox 직선 4블럭 (이동 3블럭)", "근접·돌진")),
         Map.entry("axe:unyielding",       new SkillInfo("충격 소모/유지. 3초간 피해 감소, 다음 강타 강화.", "다음 강타 +80% (+6%/스택)", "자신 기준", "방어·자기강화")),
         Map.entry("axe:colossal_drop",    new SkillInfo("제자리 거대 내려찍기. 주변 적 광역 피해.", "420% (+10%/스택)", "원형 4.5블럭", "핵심기·광역")),
         // ── 창 ──────────────────────────────────────────────────────
