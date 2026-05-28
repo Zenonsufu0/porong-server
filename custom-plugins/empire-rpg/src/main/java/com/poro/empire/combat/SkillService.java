@@ -45,12 +45,13 @@ public class SkillService {
             return false; // 쿨다운 중 — HUD가 쿨타임 표시, 바닐라 공격 허용
         }
 
+        // 쿨다운을 먼저 등록해야 execute() → dealDamage() → EntityDamageByEntityEvent
+        // 재진입 시 쿨다운 체크가 유효하게 동작한다 (StackOverflow 방지)
+        context.getCooldownManager().applyCooldown(player.getUniqueId(), skill.key(), Duration.ofMillis(skill.cooldown()));
         boolean used = skill.execute(player, context);
         if (!used) {
             return false;
         }
-
-        context.getCooldownManager().applyCooldown(player.getUniqueId(), skill.key(), Duration.ofMillis(skill.cooldown()));
         return true; // 스킬 실제 발동 — 바닐라 공격 취소
     }
 

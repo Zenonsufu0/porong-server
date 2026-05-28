@@ -96,6 +96,7 @@ public final class PlayerJoinListener implements Listener {
         hotbarService.updateHotbar(player);
         scoreboardService.refresh(player);
         classInitService.openSelectionGuiIfNeeded(player);
+        classInitService.ensureMenuCompass(player);
         claimAuctionPending(player);
         syncOperationsSnapshot(player);
     }
