@@ -277,7 +277,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
 
         this.reputationManager = new ReputationManager(playerDataManager);
         this.hotbarService = new HotbarService(this);
-        this.scoreboardService = new ScoreboardService();
+        this.scoreboardService = new ScoreboardService(growthStateStore, playerDataManager);
 
         PlayerDataRepository playerDataRepository = new PlayerDataRepository(this);
         this.playerPersistenceService = new PlayerPersistenceService(
@@ -499,7 +499,8 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new HungerLockListener(), this);
         getServer().getPluginManager().registerEvents(
                 new ConsumableUseListener(bossRoomManager, this), this);
-        getServer().getPluginManager().registerEvents(new HealthHudListener(this), this);
+        getServer().getPluginManager().registerEvents(
+                new HealthHudListener(this, cooldownManager, resourceTracker, growthStateStore, playerDataManager), this);
         getServer().getPluginManager().registerEvents(new SwordParryListener(), this);
         getServer().getPluginManager().registerEvents(new CrossbowArrowListener(resourceTracker), this);
         getServer().getPluginManager().registerEvents(new StaffProjectileListener(resourceTracker), this);

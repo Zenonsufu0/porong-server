@@ -2,7 +2,6 @@ package com.poro.empire.combat;
 
 import com.poro.empire.combat.weapon.WeaponType;
 import com.poro.empire.combat.weapon.WeaponTypeResolver;
-import net.kyori.adventure.text.Component;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -43,9 +42,7 @@ public class SkillService {
 
         long remaining = context.getCooldownManager().getRemainingMillis(player.getUniqueId(), skill.key());
         if (remaining > 0) {
-            player.sendActionBar(Component.text(
-                    "§e" + skill.displayName() + " §c" + CooldownManager.formatSeconds(remaining) + "s"));
-            return false; // 쿨다운 중 — 바닐라 공격 허용
+            return false; // 쿨다운 중 — HUD가 쿨타임 표시, 바닐라 공격 허용
         }
 
         boolean used = skill.execute(player, context);

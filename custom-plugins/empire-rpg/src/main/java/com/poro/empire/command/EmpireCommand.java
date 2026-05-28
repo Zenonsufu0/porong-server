@@ -287,9 +287,7 @@ public class EmpireCommand implements CommandExecutor, TabCompleter {
             player.sendMessage(ChatColor.RED + "You do not have permission: empire.hud");
             return true;
         }
-        String hudMessage = HealthHudFormatter.format(player);
-        player.sendActionBar(Component.text(hudMessage));
-        player.sendMessage(ChatColor.GREEN + "HUD test message sent: " + ChatColor.WHITE + hudMessage);
+        player.sendMessage(ChatColor.GREEN + "HUD is rendered by 1-tick task (HealthHudListener). No manual trigger needed.");
         return true;
     }
 
