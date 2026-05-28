@@ -9,7 +9,7 @@ import org.bukkit.plugin.Plugin;
 
 public final class CrossbowPierceBoltSkill extends PluginWeaponSkill {
     public CrossbowPierceBoltSkill(Plugin plugin) {
-        super(plugin, "crossbow:pierce_bolt", "관통볼트", WeaponType.CROSSBOW, 10000L);
+        super(plugin, "crossbow:pierce_bolt", "관통볼트", WeaponType.CROSSBOW, 8000L);
     }
 
     @Override

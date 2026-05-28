@@ -9,7 +9,7 @@ import org.bukkit.plugin.Plugin;
 
 public final class CrossbowSniperSkill extends PluginWeaponSkill {
     public CrossbowSniperSkill(Plugin plugin) {
-        super(plugin, "crossbow:sniper", "저격태세", WeaponType.CROSSBOW, 20000L);
+        super(plugin, "crossbow:sniper", "저격태세", WeaponType.CROSSBOW, 14000L);
     }
 
     @Override

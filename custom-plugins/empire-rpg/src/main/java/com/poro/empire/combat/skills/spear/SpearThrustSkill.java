@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 
 public final class SpearThrustSkill extends BaseWeaponSkill {
     public SpearThrustSkill() {
-        super("spear:thrust", "관통찌르기", WeaponType.SPEAR, 4000L);
+        super("spear:thrust", "관통찌르기", WeaponType.SPEAR, 3000L);
     }
 
     @Override
