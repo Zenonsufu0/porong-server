@@ -10,25 +10,58 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerAnimationEvent;
+import org.bukkit.event.player.PlayerAnimationType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 public final class SkillInputListener implements Listener {
+    private static final long SWING_WINDOW_MS = 200;
+
     private final SkillService skillService;
     private final SafeZoneService safeZoneService;
+    /** 이번 스윙에서 이미 스킬을 발동한 플레이어 UUID → 발동 시각(ms). */
+    private final Map<UUID, Long> swingFiredAt = new ConcurrentHashMap<>();
 
     public SkillInputListener(SkillService skillService, SafeZoneService safeZoneService) {
         this.skillService = skillService;
         this.safeZoneService = safeZoneService;
     }
 
-    /** LMB 공격 → slot1 기본기. 스킬 발동 시 바닐라 공격 취소. 쿨다운 중이면 바닐라 공격 통과. */
+    /** LMB 허공 스윙 → slot1 기본기 (논타겟). 엔티티 타격 시 onAttack과 중복 방지. */
+    @EventHandler
+    public void onSwing(PlayerAnimationEvent event) {
+        if (event.getAnimationType() != PlayerAnimationType.ARM_SWING) return;
+        Player player = event.getPlayer();
+        if (safeZoneService.isSafeZone(player.getLocation())) return;
+        String key = slot1Key(WeaponTypeResolver.resolve(player));
+        if (key == null) return;
+        if (skillService.useSkill(player, key)) {
+            swingFiredAt.put(player.getUniqueId(), System.currentTimeMillis());
+        }
+    }
+
+    /**
+     * LMB 엔티티 타격 → slot1 기본기.
+     * 같은 스윙에서 onSwing이 이미 발동했으면 바닐라 공격만 취소.
+     */
     @EventHandler
     public void onAttack(EntityDamageByEntityEvent event) {
         if (!(event.getDamager() instanceof Player player)) return;
         if (safeZoneService.isSafeZone(player.getLocation())) return;
-        WeaponType type = WeaponTypeResolver.resolve(player);
-        String key = slot1Key(type);
+
+        Long swungAt = swingFiredAt.remove(player.getUniqueId());
+        if (swungAt != null && System.currentTimeMillis() - swungAt < SWING_WINDOW_MS) {
+            // onSwing에서 이미 발동 — 바닐라 공격만 취소
+            event.setCancelled(true);
+            return;
+        }
+
+        String key = slot1Key(WeaponTypeResolver.resolve(player));
         if (key != null && skillService.useSkill(player, key)) {
             event.setCancelled(true);
         }
