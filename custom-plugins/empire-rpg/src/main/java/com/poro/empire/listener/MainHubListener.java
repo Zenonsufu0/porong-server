@@ -89,14 +89,11 @@ public final class MainHubListener implements Listener {
 
         if (GuiTitles.MAIN_HUB.equals(event.getView().title())) {
             event.setCancelled(true);
-            switch (event.getRawSlot()) {
-                case 20 -> openEquipmentHub(player);
-                case 22 -> openTerritoryHub(player);
-                case 24 -> bossHubListener.openBossHub(player);
-                case 26 -> auctionGuiListener.openMain(player);
-                case 31 -> fieldHubListener.openFieldHub(player);
-                case 49 -> player.closeInventory();
-            }
+            int slot = event.getRawSlot();
+            if (MainHubGui.ZONE_EQUIP.contains(slot))      openEquipmentHub(player);
+            else if (MainHubGui.ZONE_TERRITORY.contains(slot)) openTerritoryHub(player);
+            else if (MainHubGui.ZONE_BOSS.contains(slot))   bossHubListener.openBossHub(player);
+            else if (MainHubGui.ZONE_EXPLORE.contains(slot)) fieldHubListener.openFieldHub(player);
             return;
         }
 
