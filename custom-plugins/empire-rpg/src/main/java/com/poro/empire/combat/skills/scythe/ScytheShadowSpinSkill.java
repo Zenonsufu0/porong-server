@@ -4,6 +4,9 @@ import com.poro.empire.combat.SkillContext;
 import com.poro.empire.combat.hitbox.SkillHitboxHelper;
 import com.poro.empire.combat.skills.PluginWeaponSkill;
 import com.poro.empire.combat.weapon.WeaponType;
+import org.bukkit.Color;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -11,6 +14,8 @@ import org.bukkit.plugin.Plugin;
 import java.util.List;
 
 public final class ScytheShadowSpinSkill extends PluginWeaponSkill {
+    private static final Particle.DustOptions VIOLET = new Particle.DustOptions(Color.fromRGB(100, 0, 180), 1.0f);
+
     public ScytheShadowSpinSkill(Plugin plugin) {
         super(plugin, "scythe:shadow_spin", "월영회전", WeaponType.SCYTHE, 5000L);
     }
@@ -28,6 +33,11 @@ public final class ScytheShadowSpinSkill extends PluginWeaponSkill {
             }
         }
         if (hitAny) gainStack(ctx, player, 3);
+
+        // 플레이어 주변 보라 ring + 바닐라 sweep 마크
+        spawnParticleCircle(player, Particle.DUST, VIOLET, 2.0, 16);
+        spawnParticleCircle(player, Particle.SWEEP_ATTACK, null, 1.5, 6);
+        playSound(player, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.0f, 1.4f);
         return true;
     }
 }
