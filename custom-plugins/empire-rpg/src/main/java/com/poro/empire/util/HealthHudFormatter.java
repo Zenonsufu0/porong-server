@@ -41,14 +41,18 @@ public final class HealthHudFormatter {
                                    ResourceTracker rt,
                                    PlayerGrowthState state,
                                    WeaponType wt) {
-        Component out = Component.empty()
-                .append(buildHp(player))
+        // 각 행을 overlay: rewind() (-176px)로 커서를 되감아 다음 행이 같은 X에서 시작
+        Component out = buildHp(player)
+                .append(rewind())
                 .append(buildXp(player, state));
 
         if (wt != WeaponType.NONE) {
             out = out
+                    .append(rewind())
                     .append(buildCdRow1(player, cdm, wt))
+                    .append(rewind())
                     .append(buildCdRow2(player, cdm, wt))
+                    .append(rewind())
                     .append(buildStack(player, rt, wt, state));
         }
         return out;
@@ -138,6 +142,11 @@ public final class HealthHudFormatter {
     }
 
     // ─── helpers ──────────────────────────────────────────────────────────
+
+    /** poro:hud 폰트의  = -176px advance로 커서를 행 시작으로 되감는다. */
+    private static Component rewind() {
+        return Component.text("").font(HUD_FONT);
+    }
 
     /**
      * 문자열을 행 전용 글리프로 변환한다.

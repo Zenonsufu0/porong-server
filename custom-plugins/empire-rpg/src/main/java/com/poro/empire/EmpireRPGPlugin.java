@@ -12,6 +12,7 @@ import com.poro.empire.common.registry.master.MasterRegistryContext;
 import com.poro.empire.common.result.Result;
 import com.poro.empire.boss.room.BossRoomGenerationService;
 import com.poro.empire.command.BossRoomGenCommand;
+import com.poro.empire.command.ClassAdminCommand;
 import com.poro.empire.command.EmpireCommand;
 import com.poro.empire.command.PlayerCommandRouter;
 import com.poro.empire.init.ClassInitService;
@@ -556,6 +557,16 @@ public final class EmpireRPGPlugin extends JavaPlugin {
             } else {
                 getLogger().warning("커맨드 /" + cmd + " plugin.yml 미등록 — 건너뜀.");
             }
+        }
+
+        // 운용자 전용 한글 커맨드
+        ClassAdminCommand classAdminCommand = new ClassAdminCommand(classInitService, playerDataManager);
+        var jobCmd = getCommand("직업");
+        if (jobCmd != null) {
+            jobCmd.setExecutor(classAdminCommand);
+            jobCmd.setTabCompleter(classAdminCommand);
+        } else {
+            getLogger().warning("커맨드 /직업 plugin.yml 미등록 — 건너뜀.");
         }
     }
 }

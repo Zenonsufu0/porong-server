@@ -122,6 +122,12 @@ commands:
     usage: /필드
     permission: empire.use
 
+  # 운용자 전용
+  직업:
+    description: 플레이어 직업 변경 및 초기 장비 지급 (관리자 전용)
+    usage: /직업 <플레이어> <검|도끼|창|석궁|낫|스태프>
+    permission: empire.admin
+
 permissions:
   empire.admin:
     description: EmpireRPG 관리자 권한

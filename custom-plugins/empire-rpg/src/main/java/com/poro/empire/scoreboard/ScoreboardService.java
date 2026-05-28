@@ -6,6 +6,9 @@ import com.poro.empire.growth.engine.EquipmentSlot;
 import com.poro.empire.growth.engine.PlayerEquipmentItem;
 import com.poro.empire.growth.engine.PlayerGrowthState;
 import com.poro.empire.storage.PlayerDataManager;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
@@ -13,10 +16,10 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
+import org.bukkit.scoreboard.Team;
 
 import java.text.NumberFormat;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 
 public final class ScoreboardService {
@@ -27,6 +30,11 @@ public final class ScoreboardService {
     private static final String OBJ_NAME = "poro_sidebar";
     private static final String LINE_SEP = "§7──────────";
     private static final NumberFormat NUM_FMT = NumberFormat.getInstance(Locale.ROOT);
+
+    private static final Key HUD_FONT       = Key.key("poro", "hud");
+    private static final char GOLD_ICON     = ''; // poro:hud gold.png
+    private static final char ENHANCE_ICON  = ''; // poro:hud enhance.png
+    private static final char CUBE_ICON     = ''; // poro:hud cube.png
 
     public ScoreboardService(GrowthStateStore growthStore,
                               PlayerDataManager playerDataManager) {
@@ -68,13 +76,13 @@ public final class ScoreboardService {
         if (stateOpt.isPresent()) {
             PlayerGrowthState state = stateOpt.get();
 
-            // 골드·강화석·큐브
+            // 골드·강화석·큐브 (poro:hud PNG 아이콘 + 수치)
             long gold   = state.currency("gold");
             long stone  = state.currency("mat_stone_enhance");
             long cube   = state.currency("mat_cube");
-            row = setRow(obj, " §e" + fmtNum(gold) + "§7G", row);
-            row = setRow(obj, " §b" + fmtNum(stone) + "§7개", row);
-            row = setRow(obj, " §5" + fmtNum(cube) + "§7개", row);
+            row = setIconRow(board, obj, GOLD_ICON,    fmtNum(gold)  + "G",  NamedTextColor.YELLOW,      row);
+            row = setIconRow(board, obj, ENHANCE_ICON, fmtNum(stone) + "개", NamedTextColor.AQUA,         row);
+            row = setIconRow(board, obj, CUBE_ICON,    fmtNum(cube)  + "개", NamedTextColor.DARK_PURPLE,  row);
 
             row = setRow(obj, LINE_SEP + "§0..", row);
 
@@ -105,6 +113,26 @@ public final class ScoreboardService {
     private static int setRow(Objective obj, String text, int score) {
         Score s = obj.getScore(text);
         s.setScore(score);
+        return score - 1;
+    }
+
+    /**
+     * poro:hud 폰트 아이콘 + 컬러 텍스트를 Team prefix로 사이드바에 표시한다.
+     * Team entry = "poro_entry_N" 형식으로 score 값마다 고유.
+     */
+    private static int setIconRow(Scoreboard board, Objective obj,
+                                   char icon, String text,
+                                   net.kyori.adventure.text.format.TextColor color, int score) {
+        String entryKey = "poro_e" + score;
+        Team team = board.getTeam("poro_t" + score);
+        if (team == null) team = board.registerNewTeam("poro_t" + score);
+        if (!team.hasEntry(entryKey)) team.addEntry(entryKey);
+        team.prefix(
+                Component.text(String.valueOf(icon)).font(HUD_FONT)
+                        .append(Component.text(" " + text).color(color))
+        );
+        team.suffix(Component.empty());
+        obj.getScore(entryKey).setScore(score);
         return score - 1;
     }
 
