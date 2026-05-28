@@ -234,19 +234,33 @@ public final class PlayerGrowthState {
     }
 
     // ─── 치장 재질 ────────────────────────────────────────────────
+    // 키 규칙: 방어구 = EquipmentSlot.name() (e.g. "HELMET"),
+    //          무기 타입별 = "weapon_" + WeaponType.name() (e.g. "weapon_SWORD")
 
-    private final Map<EquipmentSlot, String> cosmeticMaterials = new LinkedHashMap<>();
+    private final Map<String, String> cosmeticMaterials = new LinkedHashMap<>();
 
+    /** 임의 문자열 키 — 무기 타입별("weapon_SWORD") 또는 방어구("HELMET") */
+    public void setCosmeticMaterial(String key, String mat) {
+        if (key == null || key.isBlank()) return;
+        if (mat == null || mat.isBlank()) cosmeticMaterials.remove(key);
+        else cosmeticMaterials.put(key, normalize(mat));
+    }
+
+    /** 방어구 슬롯 헬퍼 (key = slot.name()) */
     public void setCosmeticMaterial(EquipmentSlot slot, String mat) {
-        if (mat == null || mat.isBlank()) cosmeticMaterials.remove(slot);
-        else cosmeticMaterials.put(slot, normalize(mat));
+        setCosmeticMaterial(slot.name(), mat);
     }
 
+    public String getCosmeticMaterial(String key) {
+        return key == null ? "" : cosmeticMaterials.getOrDefault(key, "");
+    }
+
+    /** 방어구 슬롯 헬퍼 */
     public String getCosmeticMaterial(EquipmentSlot slot) {
-        return cosmeticMaterials.getOrDefault(slot, "");
+        return getCosmeticMaterial(slot.name());
     }
 
-    public Map<EquipmentSlot, String> cosmeticMaterialsSnapshot() {
+    public Map<String, String> cosmeticMaterialsSnapshot() {
         return Map.copyOf(new LinkedHashMap<>(cosmeticMaterials));
     }
 

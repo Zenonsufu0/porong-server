@@ -1149,7 +1149,9 @@ public final class GrowthGuiListener implements Listener {
 
     private void fillDetailMaterialRow(Inventory gui, PlayerGrowthState state,
                                        EquipmentSlot equipSlot, WeaponType wt) {
-        String selected = state.getCosmeticMaterial(equipSlot);
+        String selected = equipSlot == EquipmentSlot.WEAPON
+                ? state.getCosmeticMaterial(weaponCosmeticKey(wt))
+                : state.getCosmeticMaterial(equipSlot);
         if (selected.isEmpty()) selected = defaultCosmeticMat(equipSlot, wt);
 
         if (equipSlot != EquipmentSlot.WEAPON) {
@@ -1271,7 +1273,7 @@ public final class GrowthGuiListener implements Listener {
             return MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§7" + name + " §8[미장착]", List.of());
         }
         Material mat = slot == EquipmentSlot.WEAPON
-                ? weaponMaterial(wt)
+                ? weaponCosmeticMaterial(wt, state.getCosmeticMaterial(weaponCosmeticKey(wt)))
                 : EQUIP_MATERIAL.getOrDefault(slot, Material.PAPER);
         List<String> lore = new ArrayList<>();
         lore.add("§7──────────────────");
@@ -1315,9 +1317,11 @@ public final class GrowthGuiListener implements Listener {
             PlayerGrowthState state = getState(player);
             String matKey = materialKeyAt(equipSlot, wt, slot - 10);
             if (!matKey.isEmpty() && !"default".equals(matKey)) {
-                state.setCosmeticMaterial(equipSlot, matKey);
                 if (equipSlot == EquipmentSlot.WEAPON) {
+                    state.setCosmeticMaterial(weaponCosmeticKey(wt), matKey);
                     applyWeaponMaterial(player, wt, matKey);
+                } else {
+                    state.setCosmeticMaterial(equipSlot, matKey);
                 }
                 player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1.0f);
                 openEquipDetail(player, equipSlot);
@@ -1632,6 +1636,26 @@ public final class GrowthGuiListener implements Listener {
         };
     }
 
+    /** 무기 타입별 치장 재질 저장 키 */
+    private static String weaponCosmeticKey(WeaponType wt) {
+        return "weapon_" + wt.name();
+    }
+
+    /** 무기 타입의 스킬 4개 이름을 " / "로 연결한 요약 문자열 */
+    private String weaponSkillSummary(WeaponType wt) {
+        if (wt == WeaponType.NONE) return "없음";
+        StringBuilder sb = new StringBuilder();
+        for (int i = 1; i <= 4; i++) {
+            String key = skillKeyByNo(wt, i);
+            WeaponSkill sk = (key != null && skillService != null) ? skillService.getSkill(key) : null;
+            if (sb.length() > 0) sb.append(" / ");
+            if (sk != null) sb.append(sk.displayName());
+            else if (key != null) sb.append(key.contains(":") ? key.split(":")[1] : key);
+            else sb.append("?");
+        }
+        return sb.toString();
+    }
+
     // ══════════════════════════════════════════════════════════════════
     // 무기 변경 GUI (45슬롯, gui_equipment_detail.md §2)
     // ══════════════════════════════════════════════════════════════════
@@ -1663,28 +1687,28 @@ public final class GrowthGuiListener implements Listener {
     private ItemStack buildWeaponChangeIcon(WeaponType wt, PlayerGrowthState sharedState, boolean isCurrent) {
         List<String> lore = new ArrayList<>();
         lore.add("§7──────────────────");
+
+        // 공유 장비 데이터 표시 (현재/비현재 모두)
+        String instanceId = sharedState.equippedItems().get(EquipmentSlot.WEAPON);
+        PlayerEquipmentItem item = instanceId != null ? sharedState.inventoryItem(instanceId).orElse(null) : null;
+        if (item != null) {
+            lore.add("§7강화   : §e+" + item.enhanceLevel() + "강" + (isCurrent ? "" : " §8(공유)"));
+            lore.add("§7등급   : " + gradeColor(item.grade()) + item.grade().displayName() + (isCurrent ? "" : " §8(공유)"));
+        } else {
+            lore.add("§8장착 장비 없음");
+        }
+        String eid = sharedState.classEngravingId();
+        lore.add("§7각인   : " + (!eid.isEmpty() ? "§a" + eid : "§8없음") + (isCurrent ? "" : " §8(공유)"));
+        lore.add("§7스킬   : §7" + weaponSkillSummary(wt));
+        lore.add("§7──────────────────");
         if (isCurrent) {
-            // 현재 무기 타입의 장비 데이터만 표시
-            String instanceId = sharedState.equippedItems().get(EquipmentSlot.WEAPON);
-            PlayerEquipmentItem item = instanceId != null ? sharedState.inventoryItem(instanceId).orElse(null) : null;
-            if (item != null) {
-                lore.add("§7강화   : §e+" + item.enhanceLevel() + "강");
-                lore.add("§7등급   : " + gradeColor(item.grade()) + item.grade().displayName());
-            } else {
-                lore.add("§8장착 장비 없음");
-            }
-            String eid = sharedState.classEngravingId();
-            lore.add("§7각인   : " + (!eid.isEmpty() ? "§a" + eid : "§8없음"));
-            lore.add("§7──────────────────");
             lore.add("§a§l[현재 장착 중]");
         } else {
-            lore.add("§7클릭하여 이 무기 타입으로 전환");
-            lore.add("§7──────────────────");
             lore.add("§7[클릭] §e이 무기로 교체");
         }
 
-        String cosmeticMat = isCurrent ? sharedState.getCosmeticMaterial(EquipmentSlot.WEAPON) : "";
-        Material icon = isCurrent ? weaponCosmeticMaterial(wt, cosmeticMat) : weaponMaterial(wt);
+        String cosmeticMat = sharedState.getCosmeticMaterial(weaponCosmeticKey(wt));
+        Material icon = weaponCosmeticMaterial(wt, cosmeticMat);
         String title = (isCurrent ? "§a§l" : "§e") + weaponDisplayName(wt) + (isCurrent ? " §a[장착 중]" : "");
         return MainHubGui.icon(icon, title, lore);
     }
@@ -1721,9 +1745,8 @@ public final class GrowthGuiListener implements Listener {
         playerDataManager.setWeaponType(player.getUniqueId(), newWt);
 
         // 새 무기 아이템 생성 (PDC 태그 포함)
-        // 단일 state 공유 구조이므로 cosmeticMaterial도 공유 state에서 읽음
         PlayerGrowthState sharedState = getState(player);
-        String cosmeticMat = sharedState.getCosmeticMaterial(EquipmentSlot.WEAPON);
+        String cosmeticMat = sharedState.getCosmeticMaterial(weaponCosmeticKey(newWt));
         Material weapMat = weaponCosmeticMaterial(newWt, cosmeticMat);
         ItemStack newWeapon = new ItemStack(weapMat, 1);
         org.bukkit.inventory.meta.ItemMeta meta = newWeapon.getItemMeta();
