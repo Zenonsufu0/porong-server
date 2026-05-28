@@ -42,6 +42,12 @@ public class SkillContext {
         return resourceTracker;
     }
 
+    /** 플레이어의 현재 성장 상태를 반환한다. */
+    public PlayerGrowthState playerState(Player player) {
+        WeaponType wt = playerDataManager.getWeaponType(player.getUniqueId());
+        return growthStateStore.getOrCreate(player.getUniqueId(), wt.name().toLowerCase());
+    }
+
     /**
      * 플레이어의 현재 유효 무기 ATK를 반환한다.
      * 장비 없을 경우 T1 기본값(80) 반환.

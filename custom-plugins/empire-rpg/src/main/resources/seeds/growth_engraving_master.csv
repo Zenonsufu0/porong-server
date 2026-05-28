@@ -2,6 +2,18 @@ engraving_id,engraving_name,engraving_type,class_filter,max_level,effect_type,va
 warrior_gs_crack_01,파쇄의 권위,class,warrior,1,crack_efficiency,PERCENT,12,warrior class engraving
 assassin_shadow_mark_01,암영 집행,class,assassin,1,mark_target_damage_increase,PERCENT,12,assassin class engraving
 mage_resonance_break_01,공명 붕괴,class,mage,1,resonance_effect_up,PERCENT,12,mage class engraving
+sword_retained_01,수호검,class,sword,1,resource_retained,FLAG,1,sword retained engraving — 유지형 6스택
+sword_consumed_01,결투검,class,sword,1,resource_consumed,FLAG,1,sword consumed engraving — 소모형 3스택
+axe_retained_01,성벽수호자,class,axe,1,resource_retained,FLAG,1,axe retained engraving — 유지형 6스택
+axe_consumed_01,파쇄자,class,axe,1,resource_consumed,FLAG,1,axe consumed engraving — 소모형 3스택
+spear_retained_01,질풍창,class,spear,1,resource_retained,FLAG,1,spear retained engraving — 유지형 6스택
+spear_consumed_01,관통창,class,spear,1,resource_consumed,FLAG,1,spear consumed engraving — 소모형 5스택
+crossbow_retained_01,기계궁수,class,crossbow,1,resource_retained,FLAG,1,crossbow retained engraving — 유지형 6스택
+crossbow_consumed_01,추적자,class,crossbow,1,resource_consumed,FLAG,1,crossbow consumed engraving — 소모형 3스택
+scythe_retained_01,암영무희,class,scythe,1,resource_retained,FLAG,1,scythe retained engraving — 유지형 6스택
+scythe_consumed_01,사신,class,scythe,1,resource_consumed,FLAG,1,scythe consumed engraving — 소모형 3스택
+staff_retained_01,비전술사,class,staff,1,resource_retained,FLAG,1,staff retained engraving — 유지형 6스택
+staff_consumed_01,화염술사,class,staff,1,resource_consumed,FLAG,1,staff consumed engraving — 소모형 5스택
 common_recovery_01,회복 강화,common,all,5,recovery_efficiency,PERCENT,2,common engraving
 common_combat_01,전투 집중,common,all,5,general_damage_increase,PERCENT,1.5,common engraving
 common_weakpoint_01,약점 추적,common,all,5,damage_vs_exposed_weakness,PERCENT,2,common engraving
