@@ -91,6 +91,7 @@ import com.poro.empire.listener.TerritoryStatusGuiListener;
 import com.poro.empire.listener.ConsumableUseListener;
 import com.poro.empire.listener.WorkshopGuiListener;
 import com.poro.empire.listener.WeaponSelectionGuiListener;
+import com.poro.empire.listener.EmpireItemGuardListener;
 import com.poro.empire.growth.engine.CatalystConfig;
 import com.poro.empire.growth.island.MachineProductionScheduler;
 import com.poro.empire.scoreboard.ScoreboardService;
@@ -502,6 +503,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(
                 new HealthHudListener(this, cooldownManager, resourceTracker, growthStateStore, playerDataManager), this);
         getServer().getPluginManager().registerEvents(new SwordParryListener(), this);
+        getServer().getPluginManager().registerEvents(new EmpireItemGuardListener(), this);
         getServer().getPluginManager().registerEvents(new CrossbowArrowListener(resourceTracker), this);
         getServer().getPluginManager().registerEvents(new StaffProjectileListener(resourceTracker), this);
         SafeZoneService safeZoneService = getServer().getPluginManager().isPluginEnabled("WorldGuard")

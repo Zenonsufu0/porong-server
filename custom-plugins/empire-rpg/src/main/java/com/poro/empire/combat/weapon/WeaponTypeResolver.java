@@ -27,13 +27,10 @@ public final class WeaponTypeResolver {
         if (itemStack == null) {
             return WeaponType.NONE;
         }
-
-        WeaponType tagged = resolveTaggedType(itemStack);
-        if (tagged != WeaponType.NONE) {
-            return tagged;
-        }
-
-        return resolve(itemStack.getType());
+        // PDC 태그 기반으로만 인식한다.
+        // Material 폴백을 허용하면 영지 도구(네더라이트 곡괭이/호미/도끼 등)가
+        // 무기 타입으로 잘못 인식되어 스킬이 발동된다.
+        return resolveTaggedType(itemStack);
     }
 
     public static WeaponType resolve(Material material) {

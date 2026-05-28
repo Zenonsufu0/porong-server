@@ -49,18 +49,11 @@ public final class MainHubGui {
 
     public static void open(Player player) {
         Inventory gui = Bukkit.createInventory(null, 54, GuiTitles.MAIN_HUB);
-        ItemStack pane = icon(Material.BLACK_STAINED_GLASS_PANE, " ", List.of());
+
+        // col4 = PNG 분할선 위치만 명시. 나머지 구역 슬롯은 AIR로 두어 PNG 배경이 보이도록 함.
+        // 클릭은 모두 MainHubListener에서 취소하므로 빈 슬롯에 아이템이 이동하지 않는다.
         ItemStack divider = icon(Material.GRAY_STAINED_GLASS_PANE, " ", List.of());
-        for (int i = 0; i < 54; i++) gui.setItem(i, pane);
-
-        // col4 = PNG 분할선 위치
         for (int div : new int[]{4, 13, 22, 31, 40, 49}) gui.setItem(div, divider);
-
-        // 구역별 대표 아이콘 (PNG 로드 전 폴백 UX)
-        fillZone(gui, ZONE_EQUIP,    icon(Material.GOLDEN_SWORD,  "§f장비", List.of("§7강화·잠재·전승")));
-        fillZone(gui, ZONE_TERRITORY,icon(Material.GRASS_BLOCK,   "§f영지", List.of("§7창고·공방·경매장")));
-        fillZone(gui, ZONE_BOSS,     icon(Material.NETHER_STAR,   "§f보스", List.of("§7보스 도전")));
-        fillZone(gui, ZONE_EXPLORE,  icon(Material.COMPASS,       "§f탐험", List.of("§7필드 이동")));
 
         player.openInventory(gui);
     }
