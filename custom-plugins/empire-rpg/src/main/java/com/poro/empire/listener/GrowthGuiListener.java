@@ -5,6 +5,7 @@ import com.poro.empire.combat.SkillService;
 import com.poro.empire.combat.WeaponPowerCalculator;
 import com.poro.empire.combat.WeaponSkill;
 import com.poro.empire.combat.weapon.WeaponType;
+import org.bukkit.attribute.Attribute;
 import com.poro.empire.common.registry.master.ItemMasterRegistry;
 import com.poro.empire.common.registry.master.model.ItemMaster;
 import com.poro.empire.growth.GrowthStateStore;
@@ -265,17 +266,20 @@ public final class GrowthGuiListener implements Listener {
     @EventHandler
     public void onClose(InventoryCloseEvent event) {
         if (!(event.getPlayer() instanceof Player player)) return;
-        if (!GuiTitles.GROWTH_POTENTIAL.equals(event.getView().title())) return;
         UUID uid = player.getUniqueId();
-        PotentialService.PotentialOperationResult pending = pendingPotentialResult.remove(uid);
-        if (pending == null) return;
-        String instanceId = selectedPotentialId.get(uid);
-        if (instanceId == null) return;
-        PlayerGrowthState state = getState(player);
-        if (pending.before() != null) {
-            state.updatePotentialProfile(instanceId, pending.before());
+        if (GuiTitles.GROWTH_POTENTIAL.equals(event.getView().title())) {
+            PotentialService.PotentialOperationResult pending = pendingPotentialResult.remove(uid);
+            if (pending == null) return;
+            String instanceId = selectedPotentialId.get(uid);
+            if (instanceId == null) return;
+            PlayerGrowthState state = getState(player);
+            if (pending.before() != null) {
+                state.updatePotentialProfile(instanceId, pending.before());
+            }
+            player.sendMessage("§7[잠재] GUI를 닫아 기존 옵션이 유지되었습니다.");
+        } else if (GuiTitles.STAT_ALLOCATION.equals(event.getView().title())) {
+            pendingStatReset.remove(uid);
         }
-        player.sendMessage("§7[잠재] GUI를 닫아 기존 옵션이 유지되었습니다.");
     }
 
     @EventHandler
@@ -1049,7 +1053,7 @@ public final class GrowthGuiListener implements Listener {
         gui.setItem(16, MainHubGui.icon(Material.COMPASS, "§7재질 일괄선택 §8(준비 중)", List.of()));
 
         // 스탯 요약 (slot 25, 읽기 전용)
-        gui.setItem(25, buildStatSummaryIcon(state));
+        gui.setItem(25, buildStatSummaryIcon(player, state));
 
         // 스탯 찍기 버튼 (slot 34)
         int unspent = state.unspentPts();
@@ -1080,23 +1084,24 @@ public final class GrowthGuiListener implements Listener {
         }
     }
 
-    private ItemStack buildStatSummaryIcon(PlayerGrowthState state) {
-        double atk     = WeaponPowerCalculator.calculate(state, itemMasters, growthEngineRuntime.potentialService());
-        int critPts    = state.critPts();
-        int specPts    = state.specPts();
-        int endurPts   = state.endurPts();
-        double critRate   = 5.0  + critPts  * 0.30;
-        double critDmgPct = 150.0 + critPts  * 0.15;
-        double skillDmgPct= specPts  * 0.30;
-        double defBonus   = endurPts * 0.4;
-        double dmgRedPct  = endurPts * 0.15;
+    private ItemStack buildStatSummaryIcon(Player player, PlayerGrowthState state) {
+        double atk      = WeaponPowerCalculator.calculate(state, itemMasters, growthEngineRuntime.potentialService());
+        var maxHpAttr   = player.getAttribute(Attribute.MAX_HEALTH);
+        double hp       = maxHpAttr != null ? maxHpAttr.getValue() : 20.0;
+        int critPts     = state.critPts();
+        int endurPts    = state.endurPts();
+        double critRate    = 5.0   + critPts  * 0.30;
+        double critDmgPct  = 150.0 + critPts  * 0.15;
+        double defBonus    = endurPts * 0.4;
+        double dmgRedPct   = endurPts * 0.15;
         List<String> lore = List.of(
                 "§7──────────────────",
                 "§7 공격력  : §e" + (int) atk,
-                "§7 방어력+ : §e" + String.format("%.1f", defBonus),
+                "§7 방어력  : §e" + String.format("%.1f", defBonus),
+                "§7 체력    : §e" + (int) hp,
                 "§7 치명확률: §e" + String.format("%.1f", critRate) + "%",
                 "§7 치명피해: §e" + String.format("%.0f", critDmgPct) + "%",
-                "§7 스킬피해: §e+" + String.format("%.1f", skillDmgPct) + "%",
+                "§7 보스피해: §e0% §8(잠재·서브스탯 기반)",
                 "§7 피해감소: §e" + String.format("%.1f", dmgRedPct) + "%"
         );
         return MainHubGui.icon(Material.PAPER, "§e현재 스탯", lore);
@@ -1110,7 +1115,12 @@ public final class GrowthGuiListener implements Listener {
         }
         long cdSec = sk.cooldown() / 1000;
         return MainHubGui.icon(Material.PAPER, "§e" + label + " §f" + sk.displayName(),
-                List.of("§7──────────────────", "§7쿨타임: §e" + cdSec + "초"));
+                List.of("§7──────────────────",
+                        "§7설명  : §8N/A",
+                        "§7계수  : §8N/A",
+                        "§7쿨타임: §e" + cdSec + "초",
+                        "§7범위  : §8N/A",
+                        "§7태그  : §8N/A"));
     }
 
     private static String skillKeyByNo(WeaponType wt, int no) {
@@ -1216,10 +1226,10 @@ public final class GrowthGuiListener implements Listener {
     }
 
     private void handleStatAllocClick(Player player, int slot) {
-        if (slot == 45) { openCharacterHub(player); return; }
-
-        boolean inCombat = combatStateService.isInCombat(player.getUniqueId());
         UUID uid = player.getUniqueId();
+        if (slot == 45) { pendingStatReset.remove(uid); openCharacterHub(player); return; }
+
+        boolean inCombat = combatStateService.isInCombat(uid);
         PlayerGrowthState state = getState(player);
 
         if (slot == 50) {
@@ -1230,6 +1240,7 @@ public final class GrowthGuiListener implements Listener {
                 state.setUnspentPts(total);
                 pendingStatReset.remove(uid);
                 player.sendMessage("§a[스탯] 포인트가 모두 초기화되었습니다.");
+                scoreboardService.refresh(player);
             } else {
                 pendingStatReset.put(uid, true);
             }
@@ -1256,6 +1267,7 @@ public final class GrowthGuiListener implements Listener {
             case 33 -> { for (int i = 0; i < 10; i++) state.allocatePt("endur"); }
             default -> { return; }
         }
+        scoreboardService.refresh(player);
         openStatAllocation(player);
     }
 
