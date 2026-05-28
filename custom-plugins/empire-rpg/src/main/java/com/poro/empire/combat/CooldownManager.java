@@ -36,6 +36,10 @@ public class CooldownManager {
                  .put(key.toLowerCase(), new long[]{expireAt, totalMs});
     }
 
+    public void cancelCooldown(UUID playerId, String key) {
+        removeEntry(playerId, key);
+    }
+
     public static String formatSeconds(long millis) {
         return String.format("%.1f", millis / 1000.0);
     }
