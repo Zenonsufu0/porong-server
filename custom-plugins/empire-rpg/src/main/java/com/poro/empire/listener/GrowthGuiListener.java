@@ -188,6 +188,8 @@ public final class GrowthGuiListener implements Listener {
     private final Map<UUID, SuccessionService.SuccessionType> selectedHeirloomType    = new ConcurrentHashMap<>();
     // 스탯 배분 초기화 확인 대기
     private final Map<UUID, Boolean>                           pendingStatReset        = new ConcurrentHashMap<>();
+    // 장비 세부 GUI — 어느 슬롯을 보는 중인지 기억
+    private final Map<UUID, EquipmentSlot>                     equipDetailSlot         = new ConcurrentHashMap<>();
 
     // ═══════════════════════════════════════════════════════════════
     // 의존성
@@ -279,6 +281,8 @@ public final class GrowthGuiListener implements Listener {
             player.sendMessage("§7[잠재] GUI를 닫아 기존 옵션이 유지되었습니다.");
         } else if (GuiTitles.STAT_ALLOCATION.equals(event.getView().title())) {
             pendingStatReset.remove(uid);
+        } else if (GuiTitles.EQUIP_DETAIL.equals(event.getView().title())) {
+            equipDetailSlot.remove(uid);
         }
     }
 
@@ -307,6 +311,9 @@ public final class GrowthGuiListener implements Listener {
         } else if (GuiTitles.STAT_ALLOCATION.equals(event.getView().title())) {
             event.setCancelled(true);
             handleStatAllocClick(player, event.getRawSlot());
+        } else if (GuiTitles.EQUIP_DETAIL.equals(event.getView().title())) {
+            event.setCancelled(true);
+            handleEquipDetailClick(player, event.getRawSlot());
         }
     }
 
@@ -1045,12 +1052,12 @@ public final class GrowthGuiListener implements Listener {
         gui.setItem(31, equipHubSlotIcon(state, EquipmentSlot.LEGGINGS,   "하의",  Material.NETHERITE_LEGGINGS));
         gui.setItem(40, equipHubSlotIcon(state, EquipmentSlot.BOOTS,      "신발",  Material.NETHERITE_BOOTS));
 
-        // 치장 슬롯 (stub — 치장 시스템 미구현)
+        // 치장 슬롯 (2차 확장 — 치장 시스템 미구현)
         for (int s : new int[]{14, 21, 23, 32, 41}) {
-            gui.setItem(s, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§7치장 §8(준비 중)", List.of()));
+            gui.setItem(s, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§7치장 §8[2차 확장]", List.of()));
         }
-        // 재질 일괄선택 stub (slot 16)
-        gui.setItem(16, MainHubGui.icon(Material.COMPASS, "§7재질 일괄선택 §8(준비 중)", List.of()));
+        // 재질 일괄선택 (2차 확장, slot 16)
+        gui.setItem(16, MainHubGui.icon(Material.COMPASS, "§7재질 일괄선택 §8[2차 확장]", List.of()));
 
         // 스탯 요약 (slot 25, 읽기 전용)
         gui.setItem(25, buildStatSummaryIcon(player, state));
@@ -1061,9 +1068,9 @@ public final class GrowthGuiListener implements Listener {
                 unspent > 0 ? "§a스탯 배분 §e(+" + unspent + "pt)" : "§f스탯 배분",
                 List.of("§7클릭하여 스탯 투자")));
 
-        // 외형 토글 stub (slots 43/44)
-        gui.setItem(43, MainHubGui.icon(Material.LIME_STAINED_GLASS_PANE,  "§a일괄 보이기 §8(준비 중)", List.of()));
-        gui.setItem(44, MainHubGui.icon(Material.RED_STAINED_GLASS_PANE,   "§c일괄 숨김 §8(준비 중)",  List.of()));
+        // 외형 토글 (2차 확장, slots 43/44)
+        gui.setItem(43, MainHubGui.icon(Material.LIME_STAINED_GLASS_PANE,  "§a일괄 보이기 §8[2차 확장]", List.of()));
+        gui.setItem(44, MainHubGui.icon(Material.RED_STAINED_GLASS_PANE,   "§c일괄 숨김 §8[2차 확장]",  List.of()));
 
         // 스킬 슬롯 lore (slots 46/48/50/52, 읽기 전용)
         gui.setItem(46, skillSlotIcon(wt, 1, "[LC]"));
@@ -1081,7 +1088,99 @@ public final class GrowthGuiListener implements Listener {
         switch (slot) {
             case 45 -> openEquipmentHub(player);
             case 34 -> openStatAllocation(player);
+            case 13 -> openEquipDetail(player, EquipmentSlot.HELMET);
+            case 20 -> openEquipDetail(player, EquipmentSlot.WEAPON);
+            case 22 -> openEquipDetail(player, EquipmentSlot.CHESTPLATE);
+            case 31 -> openEquipDetail(player, EquipmentSlot.LEGGINGS);
+            case 40 -> openEquipDetail(player, EquipmentSlot.BOOTS);
         }
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // 장비 세부 GUI (27슬롯, gui_equipment_detail.md §1)
+    // 재질 선택·숨김·보이기는 2차 확장 — 현재는 아이템 정보 표시만 구현
+    // ══════════════════════════════════════════════════════════════════
+
+    private void openEquipDetail(Player player, EquipmentSlot equipSlot) {
+        WeaponType wt = playerDataManager.getWeaponType(player.getUniqueId());
+        PlayerGrowthState state = growthStateStore.getOrCreate(
+                player.getUniqueId(), wt.name().toLowerCase(Locale.ROOT));
+        equipDetailSlot.put(player.getUniqueId(), equipSlot);
+
+        Inventory gui = Bukkit.createInventory(null, 27, GuiTitles.EQUIP_DETAIL);
+        for (int i = 0; i < 27; i++) gui.setItem(i, pane());
+
+        // slot 4: 현재 장착 아이템 상세 정보
+        gui.setItem(4, buildEquipDetailIcon(state, equipSlot, wt));
+
+        // slot 8: 무기 슬롯이면 무기변경 stub, 방어구면 pane
+        if (equipSlot == EquipmentSlot.WEAPON) {
+            gui.setItem(8, MainHubGui.icon(Material.IRON_SWORD, "§7무기 변경 §8[2차 확장]",
+                    List.of("§8무기 교체 기능은 2차 확장 예정입니다.")));
+        }
+
+        // 재질 선택 row (slots 10–16) — cosmetic 시스템 미구현으로 2차 확장 stub
+        String[] labels = (equipSlot == EquipmentSlot.WEAPON)
+                ? new String[]{"나무", "돌", "철", "금", "다이아", "네더", "─"}
+                : new String[]{"가죽", "사슬", "구리", "철", "금", "다이아", "네더"};
+        for (int i = 0; i < 7; i++) {
+            gui.setItem(10 + i, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE,
+                    "§7" + labels[i] + " §8[2차 확장]", List.of("§8외형 재질 선택은 2차 확장 예정입니다.")));
+        }
+
+        // slot 18: 뒤로
+        gui.setItem(18, MainHubGui.icon(Material.ARROW, "§7뒤로", List.of("§7캐릭터 허브")));
+
+        // slot 24: 숨김, slot 26: 보이기 — 2차 확장 stub
+        gui.setItem(24, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§7숨김 §8[2차 확장]",
+                List.of("§8외형 숨김 기능은 2차 확장 예정입니다.")));
+        gui.setItem(26, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§7보이기 §8[2차 확장]",
+                List.of("§8외형 표시 기능은 2차 확장 예정입니다.")));
+
+        player.openInventory(gui);
+    }
+
+    private ItemStack buildEquipDetailIcon(PlayerGrowthState state, EquipmentSlot slot, WeaponType wt) {
+        String name = slotLabel(slot);
+        String instanceId = state.equippedItems().get(slot);
+        if (instanceId == null) {
+            return MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§7" + name + " §8[미장착]", List.of());
+        }
+        PlayerEquipmentItem item = state.inventoryItem(instanceId).orElse(null);
+        if (item == null) {
+            return MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§7" + name + " §8[미장착]", List.of());
+        }
+        Material mat = slot == EquipmentSlot.WEAPON
+                ? weaponMaterial(wt)
+                : EQUIP_MATERIAL.getOrDefault(slot, Material.PAPER);
+        List<String> lore = new ArrayList<>();
+        lore.add("§7──────────────────");
+        lore.add("§7아이템: §f" + itemDisplayName(item));
+        lore.add("§7등급  : " + gradeColor(item.grade()) + item.grade().displayName());
+        lore.add("§7강화  : §a+" + item.enhanceLevel());
+        PotentialProfile pp = item.potentialProfile();
+        if (pp != null && !pp.lines().isEmpty()) {
+            lore.add("§7잠재  : " + gradeColor(pp.grade()) + pp.grade().name()
+                    + " §7(" + pp.lines().size() + "라인)");
+            for (PotentialLine pl : pp.lines()) {
+                lore.add("§8  " + pl.optionCode() + " §e+" + String.format("%.2f", pl.value()));
+            }
+        } else {
+            lore.add("§7잠재  : §8없음");
+        }
+        if (slot == EquipmentSlot.WEAPON) {
+            String eid = state.classEngravingId();
+            lore.add("§7각인  : " + (eid != null && !eid.isEmpty() ? "§a" + eid : "§8없음"));
+        }
+        return MainHubGui.icon(mat, "§f" + name, lore);
+    }
+
+    private void handleEquipDetailClick(Player player, int slot) {
+        if (slot == 18) {
+            equipDetailSlot.remove(player.getUniqueId());
+            openCharacterHub(player);
+        }
+        // 재질/숨김/보이기 클릭 — 2차 확장, 현재 무동작
     }
 
     private ItemStack buildStatSummaryIcon(Player player, PlayerGrowthState state) {
