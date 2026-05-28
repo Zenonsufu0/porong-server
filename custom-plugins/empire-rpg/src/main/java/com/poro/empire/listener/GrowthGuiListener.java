@@ -1,6 +1,9 @@
 package com.poro.empire.listener;
 
 import com.poro.empire.combat.CombatStateService;
+import com.poro.empire.combat.SkillService;
+import com.poro.empire.combat.WeaponPowerCalculator;
+import com.poro.empire.combat.WeaponSkill;
 import com.poro.empire.combat.weapon.WeaponType;
 import com.poro.empire.common.registry.master.ItemMasterRegistry;
 import com.poro.empire.common.registry.master.model.ItemMaster;
@@ -182,6 +185,8 @@ public final class GrowthGuiListener implements Listener {
     private final Map<UUID, String>                            selectedHeirloomTarget  = new ConcurrentHashMap<>();
     private final Map<UUID, String>                            selectedHeirloomTraceId = new ConcurrentHashMap<>();
     private final Map<UUID, SuccessionService.SuccessionType> selectedHeirloomType    = new ConcurrentHashMap<>();
+    // 스탯 배분 초기화 확인 대기
+    private final Map<UUID, Boolean>                           pendingStatReset        = new ConcurrentHashMap<>();
 
     // ═══════════════════════════════════════════════════════════════
     // 의존성
@@ -195,6 +200,7 @@ public final class GrowthGuiListener implements Listener {
     private final CombatStateService         combatStateService;
     @SuppressWarnings("unused")
     private final Plugin                     plugin;
+    private SkillService                     skillService; // setter injection (초기화 순서상)
 
     public GrowthGuiListener(
             GrowthStateStore growthStateStore,
@@ -219,6 +225,8 @@ public final class GrowthGuiListener implements Listener {
     // ═══════════════════════════════════════════════════════════════
     // 커맨드 진입점 (PlayerCommandRouter에서 호출)
     // ═══════════════════════════════════════════════════════════════
+
+    public void setSkillService(SkillService svc) { this.skillService = svc; }
 
     public void openEquipHub(Player player)   { openEquipmentHub(player); }
 
@@ -291,8 +299,10 @@ public final class GrowthGuiListener implements Listener {
             handleEngravingClick(player, event.getRawSlot());
         } else if (GuiTitles.CHARACTER_HUB.equals(event.getView().title())) {
             event.setCancelled(true);
-            if (event.getRawSlot() == 18) openEquipmentHub(player);
-            else if (event.getRawSlot() == 26) player.closeInventory();
+            handleCharacterHubClick(player, event.getRawSlot());
+        } else if (GuiTitles.STAT_ALLOCATION.equals(event.getView().title())) {
+            event.setCancelled(true);
+            handleStatAllocClick(player, event.getRawSlot());
         }
     }
 
@@ -1012,12 +1022,277 @@ public final class GrowthGuiListener implements Listener {
         player.openInventory(gui);
     }
 
+    // ══════════════════════════════════════════════════════════════════
+    // 캐릭터 허브 (54슬롯, gui_equipment_panel.md)
+    // ══════════════════════════════════════════════════════════════════
+
     private void openCharacterHub(Player player) {
-        Inventory gui = Bukkit.createInventory(null, 27, GuiTitles.CHARACTER_HUB);
-        gui.setItem(13, MainHubGui.icon(Material.PLAYER_HEAD, "§7캐릭터", List.of("§8(준비 중)")));
-        gui.setItem(18, MainHubGui.icon(Material.ARROW,   "§7뒤로", List.of("§7장비 관리")));
-        gui.setItem(26, MainHubGui.icon(Material.BARRIER, "§c닫기", List.of()));
+        WeaponType wt = playerDataManager.getWeaponType(player.getUniqueId());
+        PlayerGrowthState state = growthStateStore.getOrCreate(
+                player.getUniqueId(), wt.name().toLowerCase(Locale.ROOT));
+
+        Inventory gui = Bukkit.createInventory(null, 54, GuiTitles.CHARACTER_HUB);
+        for (int i = 0; i < 54; i++) gui.setItem(i, pane());
+
+        // 장착 슬롯 (읽기 전용 표시)
+        gui.setItem(13, equipHubSlotIcon(state, EquipmentSlot.HELMET,     "투구",  Material.NETHERITE_HELMET));
+        gui.setItem(20, equipHubSlotIcon(state, EquipmentSlot.WEAPON,     "무기",  weaponMaterial(wt)));
+        gui.setItem(22, equipHubSlotIcon(state, EquipmentSlot.CHESTPLATE, "상의",  Material.NETHERITE_CHESTPLATE));
+        gui.setItem(31, equipHubSlotIcon(state, EquipmentSlot.LEGGINGS,   "하의",  Material.NETHERITE_LEGGINGS));
+        gui.setItem(40, equipHubSlotIcon(state, EquipmentSlot.BOOTS,      "신발",  Material.NETHERITE_BOOTS));
+
+        // 치장 슬롯 (stub — 치장 시스템 미구현)
+        for (int s : new int[]{14, 21, 23, 32, 41}) {
+            gui.setItem(s, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§7치장 §8(준비 중)", List.of()));
+        }
+        // 재질 일괄선택 stub (slot 16)
+        gui.setItem(16, MainHubGui.icon(Material.COMPASS, "§7재질 일괄선택 §8(준비 중)", List.of()));
+
+        // 스탯 요약 (slot 25, 읽기 전용)
+        gui.setItem(25, buildStatSummaryIcon(state));
+
+        // 스탯 찍기 버튼 (slot 34)
+        int unspent = state.unspentPts();
+        gui.setItem(34, MainHubGui.icon(Material.EXPERIENCE_BOTTLE,
+                unspent > 0 ? "§a스탯 배분 §e(+" + unspent + "pt)" : "§f스탯 배분",
+                List.of("§7클릭하여 스탯 투자")));
+
+        // 외형 토글 stub (slots 43/44)
+        gui.setItem(43, MainHubGui.icon(Material.LIME_STAINED_GLASS_PANE,  "§a일괄 보이기 §8(준비 중)", List.of()));
+        gui.setItem(44, MainHubGui.icon(Material.RED_STAINED_GLASS_PANE,   "§c일괄 숨김 §8(준비 중)",  List.of()));
+
+        // 스킬 슬롯 lore (slots 46/48/50/52, 읽기 전용)
+        gui.setItem(46, skillSlotIcon(wt, 1, "[LC]"));
+        gui.setItem(48, skillSlotIcon(wt, 2, "[RC]"));
+        gui.setItem(50, skillSlotIcon(wt, 3, "[SRC]"));
+        gui.setItem(52, skillSlotIcon(wt, 4, "[F]"));
+
+        // 뒤로 (slot 45)
+        gui.setItem(45, MainHubGui.icon(Material.ARROW, "§7뒤로", List.of("§7장비 관리")));
+
         player.openInventory(gui);
+    }
+
+    private void handleCharacterHubClick(Player player, int slot) {
+        switch (slot) {
+            case 45 -> openEquipmentHub(player);
+            case 34 -> openStatAllocation(player);
+        }
+    }
+
+    private ItemStack buildStatSummaryIcon(PlayerGrowthState state) {
+        double atk     = WeaponPowerCalculator.calculate(state, itemMasters, growthEngineRuntime.potentialService());
+        int critPts    = state.critPts();
+        int specPts    = state.specPts();
+        int endurPts   = state.endurPts();
+        double critRate   = 5.0  + critPts  * 0.30;
+        double critDmgPct = 150.0 + critPts  * 0.15;
+        double skillDmgPct= specPts  * 0.30;
+        double defBonus   = endurPts * 0.4;
+        double dmgRedPct  = endurPts * 0.15;
+        List<String> lore = List.of(
+                "§7──────────────────",
+                "§7 공격력  : §e" + (int) atk,
+                "§7 방어력+ : §e" + String.format("%.1f", defBonus),
+                "§7 치명확률: §e" + String.format("%.1f", critRate) + "%",
+                "§7 치명피해: §e" + String.format("%.0f", critDmgPct) + "%",
+                "§7 스킬피해: §e+" + String.format("%.1f", skillDmgPct) + "%",
+                "§7 피해감소: §e" + String.format("%.1f", dmgRedPct) + "%"
+        );
+        return MainHubGui.icon(Material.PAPER, "§e현재 스탯", lore);
+    }
+
+    private ItemStack skillSlotIcon(WeaponType wt, int skillNo, String label) {
+        String key = skillKeyByNo(wt, skillNo);
+        WeaponSkill sk = (key != null && skillService != null) ? skillService.getSkill(key) : null;
+        if (sk == null) {
+            return MainHubGui.icon(Material.PAPER, "§7" + label + " §8미등록", List.of());
+        }
+        long cdSec = sk.cooldown() / 1000;
+        return MainHubGui.icon(Material.PAPER, "§e" + label + " §f" + sk.displayName(),
+                List.of("§7──────────────────", "§7쿨타임: §e" + cdSec + "초"));
+    }
+
+    private static String skillKeyByNo(WeaponType wt, int no) {
+        return switch (no) {
+            case 1 -> switch (wt) {
+                case SWORD -> "sword:flash_slash";    case AXE -> "axe:smash";
+                case SPEAR -> "spear:thrust";         case CROSSBOW -> "crossbow:rapid_fire";
+                case SCYTHE -> "scythe:death_slash";  case STAFF -> "staff:arcane_orb";
+                case NONE -> null;
+            };
+            case 2 -> switch (wt) {
+                case SWORD -> "sword:triple_strike";  case AXE -> "axe:crush_charge";
+                case SPEAR -> "spear:crescent";       case CROSSBOW -> "crossbow:evade_fire";
+                case SCYTHE -> "scythe:shadow_spin";  case STAFF -> "staff:elemental_burst";
+                case NONE -> null;
+            };
+            case 3 -> switch (wt) {
+                case SWORD -> "sword:guard_counter";  case AXE -> "axe:unyielding";
+                case SPEAR -> "spear:charge";         case CROSSBOW -> "crossbow:pierce_bolt";
+                case SCYTHE -> "scythe:grim_strike";  case STAFF -> "staff:arcane_rush";
+                case NONE -> null;
+            };
+            case 4 -> switch (wt) {
+                case SWORD -> "sword:final_strike";   case AXE -> "axe:colossal_drop";
+                case SPEAR -> "spear:thunderstrike";  case CROSSBOW -> "crossbow:sniper";
+                case SCYTHE -> "scythe:execution";    case STAFF -> "staff:starburst";
+                case NONE -> null;
+            };
+            default -> null;
+        };
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // 스탯 배분 GUI (54슬롯, gui_stat_allocation.md)
+    // ══════════════════════════════════════════════════════════════════
+
+    private void openStatAllocation(Player player) {
+        PlayerGrowthState state = getState(player);
+        boolean inCombat = combatStateService.isInCombat(player.getUniqueId());
+        int unspent = state.unspentPts();
+        int crit    = state.critPts();
+        int spec    = state.specPts();
+        int endur   = state.endurPts();
+        int total   = crit + spec + endur + unspent;
+
+        Inventory gui = Bukkit.createInventory(null, 54, GuiTitles.STAT_ALLOCATION);
+        for (int i = 0; i < 54; i++) gui.setItem(i, pane());
+
+        // 잔여 포인트 (slot 4)
+        gui.setItem(4, MainHubGui.icon(Material.EXPERIENCE_BOTTLE, "§e잔여 스탯 포인트", List.of(
+                "§7──────────────────",
+                "§7 잔여  : §e" + unspent + "pt",
+                "§7 사용  : §7" + (total - unspent) + "pt",
+                "§7 총계  : §7" + total + "pt",
+                "§7──────────────────",
+                "§7 비전투 중에만 재배분 가능.")));
+
+        // 치명 트리 (row 1: slots 10~17)
+        gui.setItem(10, MainHubGui.icon(Material.QUARTZ,        "§e치명 트리", List.of("§7치명타 확률/피해량")));
+        gui.setItem(11, statMinusBtn(crit,   10, inCombat));
+        gui.setItem(12, statMinusBtn(crit,    1, inCombat));
+        gui.setItem(13, treePtsIcon("치명", crit, crit * 0.30, "치명타 확률%", crit * 0.15, "치명타 피해량%"));
+        gui.setItem(14, statPlusBtn(unspent,  1, inCombat));
+        gui.setItem(15, statPlusBtn(unspent, 10, inCombat));
+        gui.setItem(16, statValueIcon("치명타 확률",   5.0 + crit * 0.30, "%"));
+        gui.setItem(17, statValueIcon("치명타 피해량", 150.0 + crit * 0.15, "%"));
+
+        // 특화 트리 (row 2: slots 19~26)
+        gui.setItem(19, MainHubGui.icon(Material.BLAZE_POWDER,  "§e특화 트리", List.of("§7스킬/태그 피해량")));
+        gui.setItem(20, statMinusBtn(spec,   10, inCombat));
+        gui.setItem(21, statMinusBtn(spec,    1, inCombat));
+        gui.setItem(22, treePtsIcon("특화", spec, spec * 0.30, "스킬 피해%", spec * 0.15, "태그 피해%"));
+        gui.setItem(23, statPlusBtn(unspent,  1, inCombat));
+        gui.setItem(24, statPlusBtn(unspent, 10, inCombat));
+        gui.setItem(25, statValueIcon("스킬 피해",  spec * 0.30,  "%"));
+        gui.setItem(26, statValueIcon("태그 피해",  spec * 0.15,  "%"));
+
+        // 인내 트리 (row 3: slots 28~35)
+        gui.setItem(28, MainHubGui.icon(Material.SHIELD,        "§e인내 트리", List.of("§7피해 감소/방어력")));
+        gui.setItem(29, statMinusBtn(endur,  10, inCombat));
+        gui.setItem(30, statMinusBtn(endur,   1, inCombat));
+        gui.setItem(31, treePtsIcon("인내", endur, endur * 0.15, "피해감소%", endur * 0.4, "방어력+"));
+        gui.setItem(32, statPlusBtn(unspent,  1, inCombat));
+        gui.setItem(33, statPlusBtn(unspent, 10, inCombat));
+        gui.setItem(34, statValueIcon("받는 피해 감소", endur * 0.15, "%"));
+        gui.setItem(35, statValueIcon("방어력 보너스",  endur * 0.4,  ""));
+
+        // 뒤로 / 초기화
+        gui.setItem(45, MainHubGui.icon(Material.ARROW, "§7뒤로", List.of("§7캐릭터")));
+        boolean resetting = pendingStatReset.getOrDefault(player.getUniqueId(), false);
+        if (resetting) {
+            gui.setItem(50, MainHubGui.icon(Material.FIRE_CHARGE, "§c확인하려면 다시 클릭",
+                    List.of("§7재클릭 → 초기화 실행", "§7다른 슬롯 클릭 → 취소")));
+        } else {
+            gui.setItem(50, MainHubGui.icon(Material.BARRIER, "§c전체 초기화",
+                    List.of("§7──────────────────",
+                            "§7 투자한 모든 포인트를 초기화합니다.",
+                            "§7 클릭 후 확인 클릭으로 적용됩니다.",
+                            inCombat ? "§c 전투 중에는 사용할 수 없습니다." : "")));
+        }
+
+        player.openInventory(gui);
+    }
+
+    private void handleStatAllocClick(Player player, int slot) {
+        if (slot == 45) { openCharacterHub(player); return; }
+
+        boolean inCombat = combatStateService.isInCombat(player.getUniqueId());
+        UUID uid = player.getUniqueId();
+        PlayerGrowthState state = getState(player);
+
+        if (slot == 50) {
+            if (inCombat) { player.sendMessage("§c[스탯] 전투 중에는 초기화할 수 없습니다."); return; }
+            if (pendingStatReset.getOrDefault(uid, false)) {
+                int total = state.critPts() + state.specPts() + state.endurPts() + state.unspentPts();
+                state.setCritPts(0); state.setSpecPts(0); state.setEndurPts(0);
+                state.setUnspentPts(total);
+                pendingStatReset.remove(uid);
+                player.sendMessage("§a[스탯] 포인트가 모두 초기화되었습니다.");
+            } else {
+                pendingStatReset.put(uid, true);
+            }
+            openStatAllocation(player);
+            return;
+        }
+
+        pendingStatReset.remove(uid);
+
+        if (inCombat) { player.sendMessage("§c[스탯] 전투 중에는 포인트를 변경할 수 없습니다."); return; }
+
+        switch (slot) {
+            case 11 -> { for (int i = 0; i < 10; i++) state.deallocatePt("crit"); }
+            case 12 -> state.deallocatePt("crit");
+            case 14 -> state.allocatePt("crit");
+            case 15 -> { for (int i = 0; i < 10; i++) state.allocatePt("crit"); }
+            case 20 -> { for (int i = 0; i < 10; i++) state.deallocatePt("spec"); }
+            case 21 -> state.deallocatePt("spec");
+            case 23 -> state.allocatePt("spec");
+            case 24 -> { for (int i = 0; i < 10; i++) state.allocatePt("spec"); }
+            case 29 -> { for (int i = 0; i < 10; i++) state.deallocatePt("endur"); }
+            case 30 -> state.deallocatePt("endur");
+            case 32 -> state.allocatePt("endur");
+            case 33 -> { for (int i = 0; i < 10; i++) state.allocatePt("endur"); }
+            default -> { return; }
+        }
+        openStatAllocation(player);
+    }
+
+    private ItemStack statMinusBtn(int currentPts, int amount, boolean inCombat) {
+        boolean disabled = inCombat || currentPts < amount;
+        if (disabled) {
+            return MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§8-" + amount,
+                    List.of(inCombat ? "§c전투 중 사용 불가" : "§c포인트 부족"));
+        }
+        Material mat = amount >= 10 ? Material.RED_STAINED_GLASS_PANE : Material.ORANGE_STAINED_GLASS_PANE;
+        return MainHubGui.icon(mat, "§c-" + amount, List.of());
+    }
+
+    private ItemStack statPlusBtn(int unspent, int amount, boolean inCombat) {
+        boolean disabled = inCombat || unspent < amount;
+        if (disabled) {
+            return MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§8+" + amount,
+                    List.of(inCombat ? "§c전투 중 사용 불가" : "§c잔여 포인트 부족"));
+        }
+        Material mat = amount >= 10 ? Material.GREEN_STAINED_GLASS_PANE : Material.LIME_STAINED_GLASS_PANE;
+        return MainHubGui.icon(mat, "§a+" + amount, List.of());
+    }
+
+    private ItemStack treePtsIcon(String treeName, int pts,
+                                   double mainVal, String mainName,
+                                   double subVal,  String subName) {
+        return MainHubGui.icon(Material.PAPER, "§e" + treeName + " 트리", List.of(
+                "§7──────────────────",
+                "§7 투자 포인트: §e" + pts + "pt",
+                "§7──────────────────",
+                "§a주 효과§7 : " + mainName + " §e+" + String.format("%.2f", mainVal),
+                "§7부 효과§7 : " + subName  + " §7+" + String.format("%.2f", subVal)));
+    }
+
+    private ItemStack statValueIcon(String name, double value, String unit) {
+        return MainHubGui.icon(Material.BOOK, "§f" + name,
+                List.of("§7현재값: §e" + String.format("%.2f", value) + unit));
     }
 
     private ItemStack equipHubSlotIcon(PlayerGrowthState state, EquipmentSlot slot,

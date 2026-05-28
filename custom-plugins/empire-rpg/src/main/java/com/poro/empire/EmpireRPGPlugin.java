@@ -352,6 +352,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         skillService.registerSkill(new StaffElementalBurstSkill(this));
         skillService.registerSkill(new StaffArcaneRushSkill());
         skillService.registerSkill(new StaffStarburstSkill(this));
+        growthGuiListener.setSkillService(skillService);
 
         registerCommands();
         registerListeners(fieldStateProvider, fieldBossScheduler);
