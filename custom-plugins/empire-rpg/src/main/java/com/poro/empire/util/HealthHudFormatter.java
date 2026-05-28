@@ -16,11 +16,19 @@ public final class HealthHudFormatter {
     private static final Key HUD_FONT     = Key.key("poro", "hud");
     private static final Key DEFAULT_FONT = Key.key("minecraft", "default");
 
-    // 글리프 베이스 코드포인트
-    private static final int HP_BASE  = 0xE100; // U+E100~E114, 5% 단위 21단계
-    private static final int XP_BASE  = 0xE150; // U+E150~E164, 5% 단위 21단계
-    private static final int CD1_BASE = 0xE120; // U+E120~E129, Row1 (LC/RC)
-    private static final int CD2_BASE = 0xE130; // U+E130~E139, Row2 (SRC/F)
+    // ─── 글리프 베이스 (bar 이미지) ───────────────────────────────
+    private static final int HP_BASE  = 0xE100; // U+E100~E114 (ascent=-36)
+    private static final int XP_BASE  = 0xE150; // U+E150~E164 (ascent=-26)
+    private static final int CD1_BASE = 0xE120; // U+E120~E129 Row1 (ascent=-6)
+    private static final int CD2_BASE = 0xE130; // U+E130~E139 Row2 (ascent=-16)
+
+    // ─── 행별 텍스트 베이스 (chars.png 각 ascent 버전) ─────────────
+    // chars.png 24자 순서: 0~9, /, comma, ., L, v, R, S, F, s, -, E, A, D, Y
+    private static final int HP_TEXT  = 0xE200; // ascent=-37
+    private static final int XP_TEXT  = 0xE250; // ascent=-27
+    private static final int CD1_TEXT = 0xE280; // ascent=-7
+    private static final int CD2_TEXT = 0xE2A0; // ascent=-17
+    private static final int SK_TEXT  = 0xE2C0; // ascent=+3
 
     private HealthHudFormatter() {}
 
@@ -55,33 +63,31 @@ public final class HealthHudFormatter {
         return Component.empty()
                 .append(glyph(HP_BASE + step))
                 .append(txt(" "))
-                .append(txt(fmt(cur)).color(NamedTextColor.WHITE))
-                .append(txt("/").color(NamedTextColor.GRAY))
-                .append(txt(fmt(max)).color(NamedTextColor.WHITE));
+                .append(rowText(HP_TEXT, fmt(cur) + "/" + fmt(max)));
     }
 
     private static Component buildXp(Player player, PlayerGrowthState state) {
-        float prog = player.getExp(); // 0.0~1.0 within current level bar
+        float prog = player.getExp();
         int step = Math.min(20, (int) (prog * 20));
         int level = state != null ? state.playerLevel() : player.getLevel();
         return Component.empty()
                 .append(glyph(XP_BASE + step))
-                .append(txt(" Lv.").color(NamedTextColor.GRAY))
-                .append(txt(String.valueOf(level)).color(NamedTextColor.WHITE));
+                .append(txt(" "))
+                .append(rowText(XP_TEXT, "Lv." + level));
     }
 
     private static Component buildCdRow1(Player player, CooldownManager cdm, WeaponType wt) {
         return Component.empty()
-                .append(cdEntry(player, cdm, slot1Key(wt), CD1_BASE))
+                .append(cdEntry(player, cdm, slot1Key(wt), CD1_BASE, CD1_TEXT))
                 .append(txt("  "))
-                .append(cdEntry(player, cdm, slot2Key(wt), CD1_BASE));
+                .append(cdEntry(player, cdm, slot2Key(wt), CD1_BASE, CD1_TEXT));
     }
 
     private static Component buildCdRow2(Player player, CooldownManager cdm, WeaponType wt) {
         return Component.empty()
-                .append(cdEntry(player, cdm, slot3Key(wt), CD2_BASE))
+                .append(cdEntry(player, cdm, slot3Key(wt), CD2_BASE, CD2_TEXT))
                 .append(txt("  "))
-                .append(cdEntry(player, cdm, slot4Key(wt), CD2_BASE));
+                .append(cdEntry(player, cdm, slot4Key(wt), CD2_BASE, CD2_TEXT));
     }
 
     private static Component buildStack(Player player, ResourceTracker rt, WeaponType wt) {
@@ -97,15 +103,15 @@ public final class HealthHudFormatter {
         return Component.empty()
                 .append(Component.text(sb.toString()).font(HUD_FONT))
                 .append(txt(" "))
-                .append(txt(stacks + "/" + max).color(NamedTextColor.WHITE));
+                .append(rowText(SK_TEXT, stacks + "/" + max));
     }
 
-    private static Component cdEntry(Player player, CooldownManager cdm, String key, int base) {
+    private static Component cdEntry(Player player, CooldownManager cdm,
+                                      String key, int glyphBase, int textBase) {
         if (key == null) return Component.empty();
         long remaining = cdm.getRemainingMillis(player.getUniqueId(), key);
         long total     = cdm.getTotalMillis(player.getUniqueId(), key);
 
-        // step 0 = 쿨타임 시작(바 거의 비어있음), step 9 = 완료(바 꽉참)
         int step;
         if (remaining <= 0 || total <= 0) {
             step = 9;
@@ -114,21 +120,48 @@ public final class HealthHudFormatter {
             step = Math.min(8, (int) (elapsed * 9 / total));
         }
 
-        Component timeText;
+        Component timeComp;
         if (remaining <= 0) {
-            timeText = txt("-").color(NamedTextColor.GREEN);
+            timeComp = rowText(textBase, "-").color(NamedTextColor.GREEN);
         } else if (remaining <= 5000) {
-            timeText = txt(CooldownManager.formatSeconds(remaining) + "s").color(NamedTextColor.RED);
+            timeComp = rowText(textBase, CooldownManager.formatSeconds(remaining) + "s")
+                    .color(NamedTextColor.RED);
         } else {
-            timeText = txt(CooldownManager.formatSeconds(remaining) + "s").color(NamedTextColor.YELLOW);
+            timeComp = rowText(textBase, CooldownManager.formatSeconds(remaining) + "s")
+                    .color(NamedTextColor.YELLOW);
         }
         return Component.empty()
-                .append(glyph(base + step))
+                .append(glyph(glyphBase + step))
                 .append(txt(" "))
-                .append(timeText);
+                .append(timeComp);
     }
 
     // ─── helpers ──────────────────────────────────────────────────────────
+
+    /**
+     * 문자열을 행 전용 글리프로 변환한다.
+     * chars.png 인덱스: 0-9(0~9) /(10) .(12) L(13) v(14) s(18) -(19)
+     */
+    private static Component rowText(int base, String s) {
+        StringBuilder sb = new StringBuilder();
+        for (char c : s.toCharArray()) {
+            int idx = charIdx(c);
+            if (idx >= 0) sb.append((char) (base + idx));
+        }
+        return sb.isEmpty() ? Component.empty()
+                : Component.text(sb.toString()).font(HUD_FONT);
+    }
+
+    private static int charIdx(char c) {
+        return switch (c) {
+            case '0' -> 0;  case '1' -> 1;  case '2' -> 2;  case '3' -> 3;  case '4' -> 4;
+            case '5' -> 5;  case '6' -> 6;  case '7' -> 7;  case '8' -> 8;  case '9' -> 9;
+            case '/' -> 10; case '.' -> 12;
+            case 'L' -> 13; case 'v' -> 14;
+            case 's' -> 18; case '-' -> 19;
+            default  -> -1;
+        };
+    }
 
     private static Component glyph(int codePoint) {
         return Component.text(String.valueOf((char) codePoint)).font(HUD_FONT);
@@ -159,7 +192,7 @@ public final class HealthHudFormatter {
         };
     }
 
-    // 스킬 슬롯 키 — SkillInputListener와 동일하게 유지해야 함
+    // 스킬 슬롯 키 — SkillInputListener와 동일하게 유지
     private static String slot1Key(WeaponType t) {
         return switch (t) {
             case SWORD -> "sword:flash_slash"; case AXE -> "axe:smash";
