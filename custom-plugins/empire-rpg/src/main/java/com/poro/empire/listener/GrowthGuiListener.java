@@ -1160,7 +1160,8 @@ public final class GrowthGuiListener implements Listener {
                 gui.setItem(10 + i, MainHubGui.icon(
                         sel ? Material.LIME_STAINED_GLASS_PANE : ARMOR_MAT_ICONS[i],
                         (sel ? "§a§l" : "§7") + ARMOR_MAT_LABELS[i],
-                        sel ? List.of("§a▶ 현재 재질") : List.of("§7클릭하여 선택")));
+                        sel ? List.of("§a▶ 현재 재질", "§8외형 반영: 2차 시즌 적용 예정")
+                            : List.of("§7클릭하여 선택", "§8외형 반영: 2차 시즌 적용 예정")));
             }
             return;
         }
@@ -1340,6 +1341,7 @@ public final class GrowthGuiListener implements Listener {
         double critDmgPct  = 150.0 + critPts  * 0.15;
         double defBonus    = endurPts * 0.4;
         double dmgRedPct   = endurPts * 0.15;
+        double bossDmgPct  = sumOptionFromEquipped(state, "boss_damage_increase");
         List<String> lore = List.of(
                 "§7──────────────────",
                 "§7 공격력  : §e" + (int) atk,
@@ -1347,10 +1349,29 @@ public final class GrowthGuiListener implements Listener {
                 "§7 체력    : §e" + (int) hp,
                 "§7 치명확률: §e" + String.format("%.1f", critRate) + "%",
                 "§7 치명피해: §e" + String.format("%.0f", critDmgPct) + "%",
-                "§7 보스피해: §e0% §8(잠재·서브스탯 기반)",
+                "§7 보스피해: §e" + String.format("%.1f", bossDmgPct) + "%",
                 "§7 피해감소: §e" + String.format("%.1f", dmgRedPct) + "%"
         );
         return MainHubGui.icon(Material.PAPER, "§e현재 스탯", lore);
+    }
+
+    /** 모든 장착 슬롯의 잠재 라인 + 서브스탯 라인에서 특정 optionCode 값을 합산. */
+    private double sumOptionFromEquipped(PlayerGrowthState state, String optionCode) {
+        double total = 0.0;
+        for (String instanceId : state.equippedItems().values()) {
+            PlayerEquipmentItem item = state.inventoryItem(instanceId).orElse(null);
+            if (item == null) continue;
+            PotentialProfile pp = item.potentialProfile();
+            if (pp != null) {
+                for (PotentialLine line : pp.lines()) {
+                    if (optionCode.equals(line.optionCode())) total += line.value();
+                }
+            }
+            for (PotentialLine line : item.substatLines()) {
+                if (optionCode.equals(line.optionCode())) total += line.value();
+            }
+        }
+        return total;
     }
 
     private record SkillInfo(String desc, String coeff, String range, String tags) {}
