@@ -36,4 +36,5 @@ public final class GuiTitles {
     public static final Component AUCTION          = Component.text("경매장");
     public static final Component AUCTION_REGISTER = Component.text("경매 등록");
     public static final Component AUCTION_MY       = Component.text("내 등록 목록");
+    public static final Component CHARACTER_HUB    = Component.text("캐릭터");
 }
