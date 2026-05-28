@@ -1713,8 +1713,18 @@ public final class GrowthGuiListener implements Listener {
         String instanceId = sharedState.equippedItems().get(EquipmentSlot.WEAPON);
         PlayerEquipmentItem item = instanceId != null ? sharedState.inventoryItem(instanceId).orElse(null) : null;
         if (item != null) {
-            lore.add("§7강화   : §e+" + item.enhanceLevel() + "강" + (isCurrent ? "" : " §8(공유)"));
-            lore.add("§7등급   : " + gradeColor(item.grade()) + item.grade().displayName() + (isCurrent ? "" : " §8(공유)"));
+            String shared = isCurrent ? "" : " §8(공유)";
+            lore.add("§7강화   : §e+" + item.enhanceLevel() + "강" + shared);
+            lore.add("§7등급   : " + gradeColor(item.grade()) + item.grade().displayName() + shared);
+            PotentialProfile pp = item.potentialProfile();
+            if (pp != null && !pp.lines().isEmpty()) {
+                lore.add("§7잠재   : " + gradeColor(pp.grade()) + pp.grade().name()
+                        + " §7(" + pp.lines().size() + "라인)" + shared);
+            } else {
+                lore.add("§7잠재   : §8없음" + shared);
+            }
+            List<PotentialLine> substats = item.substatLines();
+            lore.add("§7세부스탯: " + (substats.isEmpty() ? "§8없음" : "§f" + substats.size() + "줄") + shared);
         } else {
             lore.add("§8장착 장비 없음");
         }
