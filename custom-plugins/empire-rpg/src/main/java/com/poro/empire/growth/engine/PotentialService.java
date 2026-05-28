@@ -149,33 +149,26 @@ public final class PotentialService {
 
     private PotentialProfile generateProfile(PlayerGrowthState state, ItemMaster itemMaster, PotentialGrade grade) {
         List<PotentialLine> lines = new ArrayList<>();
-        lines.add(new PotentialLine(1, grade, selectOptionCode(state, itemMaster, grade), selectOptionValue(state, itemMaster, grade)));
+        lines.add(buildLine(1, state, itemMaster, grade));
 
         PotentialGrade secondGrade = randomProvider.nextDouble() < 0.15d ? grade : grade.lowerOrSame();
-        lines.add(new PotentialLine(2, secondGrade, selectOptionCode(state, itemMaster, secondGrade), selectOptionValue(state, itemMaster, secondGrade)));
+        lines.add(buildLine(2, state, itemMaster, secondGrade));
 
         PotentialGrade thirdGrade = randomProvider.nextDouble() < 0.02d ? grade : grade.lowerOrSame();
-        lines.add(new PotentialLine(3, thirdGrade, selectOptionCode(state, itemMaster, thirdGrade), selectOptionValue(state, itemMaster, thirdGrade)));
+        lines.add(buildLine(3, state, itemMaster, thirdGrade));
 
         return new PotentialProfile(grade, lines.stream().sorted(Comparator.comparingInt(PotentialLine::lineNo)).toList());
     }
 
-    private String selectOptionCode(PlayerGrowthState state, ItemMaster itemMaster, PotentialGrade grade) {
+    /** 단일 weightedSelect 호출로 option code와 value를 함께 결정해 pair 일관성을 보장. */
+    private PotentialLine buildLine(int lineNo, PlayerGrowthState state, ItemMaster itemMaster, PotentialGrade grade) {
         List<PotentialOption> filtered = filteredOptions(state, itemMaster, grade);
         if (filtered.isEmpty()) {
-            return "generic_" + grade.name().toLowerCase(Locale.ROOT);
+            return new PotentialLine(lineNo, grade, "generic_" + grade.name().toLowerCase(Locale.ROOT), 1.0d);
         }
-        return weightedSelect(filtered).optionCode();
-    }
-
-    private double selectOptionValue(PlayerGrowthState state, ItemMaster itemMaster, PotentialGrade grade) {
-        List<PotentialOption> filtered = filteredOptions(state, itemMaster, grade);
-        if (filtered.isEmpty()) {
-            return 1.0d;
-        }
-        PotentialOption selected = weightedSelect(filtered);
-        double random = randomProvider.nextDouble();
-        return round2(selected.valueMin() + (selected.valueMax() - selected.valueMin()) * random);
+        PotentialOption option = weightedSelect(filtered);
+        double value = round2(option.valueMin() + (option.valueMax() - option.valueMin()) * randomProvider.nextDouble());
+        return new PotentialLine(lineNo, grade, option.optionCode(), value);
     }
 
     private List<PotentialOption> filteredOptions(PlayerGrowthState state, ItemMaster itemMaster, PotentialGrade grade) {
