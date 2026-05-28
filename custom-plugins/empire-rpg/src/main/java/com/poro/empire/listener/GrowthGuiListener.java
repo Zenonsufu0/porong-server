@@ -289,6 +289,10 @@ public final class GrowthGuiListener implements Listener {
         } else if (GuiTitles.GROWTH_ENGRAVING.equals(event.getView().title())) {
             event.setCancelled(true);
             handleEngravingClick(player, event.getRawSlot());
+        } else if (GuiTitles.CHARACTER_HUB.equals(event.getView().title())) {
+            event.setCancelled(true);
+            if (event.getRawSlot() == 18) openEquipmentHub(player);
+            else if (event.getRawSlot() == 26) player.closeInventory();
         }
     }
 
@@ -301,7 +305,7 @@ public final class GrowthGuiListener implements Listener {
         if (HUB_ENGRAVING_SLOTS.contains(slot))   { openGrowthEngraving(player); return; }
         if (HUB_POTENTIAL_SLOTS.contains(slot))   { openGrowthPotential(player); return; }
         if (HUB_HEIRLOOM_SLOTS.contains(slot))    { openGrowthHeirloom(player);  return; }
-        if (HUB_CHARACTER_SLOTS.contains(slot))   { player.sendMessage("§7[캐릭터] 기능 준비 중입니다."); }
+        if (HUB_CHARACTER_SLOTS.contains(slot))   { openCharacterHub(player); }
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -1005,6 +1009,14 @@ public final class GrowthGuiListener implements Listener {
         gui.setItem(43, MainHubGui.icon(Material.ENCHANTED_BOOK, "§f전승",     List.of("§7클릭하여 열기")));
         gui.setItem(22, MainHubGui.icon(Material.PAPER,          "§7캐릭터",   List.of("§8(준비 중)")));
 
+        player.openInventory(gui);
+    }
+
+    private void openCharacterHub(Player player) {
+        Inventory gui = Bukkit.createInventory(null, 27, GuiTitles.CHARACTER_HUB);
+        gui.setItem(13, MainHubGui.icon(Material.PLAYER_HEAD, "§7캐릭터", List.of("§8(준비 중)")));
+        gui.setItem(18, MainHubGui.icon(Material.ARROW,   "§7뒤로", List.of("§7장비 관리")));
+        gui.setItem(26, MainHubGui.icon(Material.BARRIER, "§c닫기", List.of()));
         player.openInventory(gui);
     }
 
