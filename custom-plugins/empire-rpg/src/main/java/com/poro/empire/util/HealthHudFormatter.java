@@ -49,7 +49,7 @@ public final class HealthHudFormatter {
             out = out
                     .append(buildCdRow1(player, cdm, wt))
                     .append(buildCdRow2(player, cdm, wt))
-                    .append(buildStack(player, rt, wt));
+                    .append(buildStack(player, rt, wt, state));
         }
         return out;
     }
@@ -90,13 +90,15 @@ public final class HealthHudFormatter {
                 .append(cdEntry(player, cdm, slot4Key(wt), CD2_BASE, CD2_TEXT));
     }
 
-    private static Component buildStack(Player player, ResourceTracker rt, WeaponType wt) {
+    private static Component buildStack(Player player, ResourceTracker rt, WeaponType wt,
+                                         PlayerGrowthState state) {
         int idx = weaponIdx(wt);
         if (idx < 0) return Component.empty();
         char filled = (char) (0xE140 + idx * 2);
         char empty  = (char) (0xE141 + idx * 2);
         int stacks = rt.getStack(player.getUniqueId());
-        int max = 6; // CANON: 유지형 자원 무기 무관 최대 6스택
+        String engravingId = state != null ? state.classEngravingId() : "";
+        int max = resolveStackMax(wt, engravingId);
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < Math.min(stacks, max); i++) sb.append(filled);
         for (int i = stacks; i < max; i++) sb.append(empty);
@@ -192,6 +194,22 @@ public final class HealthHudFormatter {
             case SPEAR    -> 5;
             case NONE     -> -1;
         };
+    }
+
+    private static int resolveStackMax(WeaponType wt, String engravingId) {
+        // 유지형 각인은 무기 공통 최대 6스택 (weapon_skills_v1.md §자원 시스템)
+        boolean retained = switch (wt) {
+            case SWORD    -> "수호검".equals(engravingId);
+            case AXE      -> "성벽수호자".equals(engravingId);
+            case SPEAR    -> "질풍창".equals(engravingId);
+            case CROSSBOW -> "기계궁수".equals(engravingId);
+            case SCYTHE   -> "암영무희".equals(engravingId);
+            case STAFF    -> "비전술사".equals(engravingId);
+            case NONE     -> false;
+        };
+        if (retained) return 6;
+        // 소모형 상한: 창·지팡이 5, 나머지 3
+        return (wt == WeaponType.SPEAR || wt == WeaponType.STAFF) ? 5 : 3;
     }
 
     // 스킬 슬롯 키 — SkillInputListener와 동일하게 유지

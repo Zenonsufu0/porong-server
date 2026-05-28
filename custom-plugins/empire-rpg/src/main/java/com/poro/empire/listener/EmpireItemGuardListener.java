@@ -7,7 +7,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.persistence.PersistentDataType;
 
 import static org.bukkit.event.inventory.InventoryType.SlotType;
@@ -24,19 +23,19 @@ public final class EmpireItemGuardListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
-        if (!(event.getInventory() instanceof PlayerInventory)) return;
 
-        // Case 1: 아이템을 커서에서 방어구 슬롯으로 직접 배치
+        // Case 1: 방어구 슬롯 직접 클릭 — 배치·탈착 모두 차단 (방어구 빼기 불가)
+        // top inventory 무관하게 SlotType.ARMOR 기준으로 검사한다.
         if (event.getSlotType() == SlotType.ARMOR) {
+            event.setCancelled(true);
             ItemStack cursor = event.getCursor();
             if (cursor != null && !cursor.getType().isAir() && !isTagged(cursor)) {
-                event.setCancelled(true);
                 player.sendMessage(DENY_MSG);
             }
             return;
         }
 
-        // Case 2: shift-click으로 방어구 자동 장착
+        // Case 2: shift-click 자동 장착 — 외부 인벤토리(상자·창고 등)에서도 차단
         if (event.isShiftClick()) {
             ItemStack item = event.getCurrentItem();
             if (item != null && !item.getType().isAir()
