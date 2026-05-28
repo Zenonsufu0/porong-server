@@ -158,6 +158,20 @@ public final class GrowthGuiListener implements Listener {
     );
 
     // ═══════════════════════════════════════════════════════════════
+    // 장비 허브 구역 슬롯 세트 (gui_hub_structure.md §3, 54슬롯 6×9)
+    // 구역 내 어느 슬롯을 클릭해도 해당 GUI로 이동
+    // ═══════════════════════════════════════════════════════════════
+    private static final java.util.Set<Integer> HUB_ENHANCE_SLOTS  =
+            java.util.Set.of(0,1,2, 9,10,11, 18,19,20);
+    private static final java.util.Set<Integer> HUB_ENGRAVING_SLOTS =
+            java.util.Set.of(6,7,8, 15,16,17, 24,25,26);
+    private static final java.util.Set<Integer> HUB_POTENTIAL_SLOTS =
+            java.util.Set.of(27,28,29, 36,37,38, 45,46,47);
+    private static final java.util.Set<Integer> HUB_HEIRLOOM_SLOTS  =
+            java.util.Set.of(33,34,35, 42,43,44, 51,52,53);
+    // 캐릭터: 3~5, 12~14, 21~23, 30~32, 39~41, 48~50 — 1차 시즌 미구현
+
+    // ═══════════════════════════════════════════════════════════════
     // 플레이어별 상태 (선택 + 대기 결과)
     // ═══════════════════════════════════════════════════════════════
     private final Map<UUID, String>                     selectedEnhanceId       = new ConcurrentHashMap<>();
@@ -282,14 +296,11 @@ public final class GrowthGuiListener implements Listener {
     // ═══════════════════════════════════════════════════════════════
 
     private void handleEquipmentHub(Player player, int slot) {
-        switch (slot) {
-            case 29 -> openGrowthEnhance(player);
-            case 31 -> openGrowthPotential(player);
-            case 33 -> openGrowthHeirloom(player);
-            case 35 -> openGrowthEngraving(player);
-            case 45 -> MainHubGui.open(player);
-            case 49 -> player.closeInventory();
-        }
+        if (HUB_ENHANCE_SLOTS.contains(slot))   { openGrowthEnhance(player);   return; }
+        if (HUB_ENGRAVING_SLOTS.contains(slot))  { openGrowthEngraving(player); return; }
+        if (HUB_POTENTIAL_SLOTS.contains(slot))  { openGrowthPotential(player); return; }
+        if (HUB_HEIRLOOM_SLOTS.contains(slot))   { openGrowthHeirloom(player);  return; }
+        // 캐릭터 구역 — 1차 시즌 미구현, 클릭 무반응
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -982,26 +993,17 @@ public final class GrowthGuiListener implements Listener {
 
     private void openEquipmentHub(Player player) {
         if (isNoneClass(player)) return;
-        WeaponType wt    = playerDataManager.getWeaponType(player.getUniqueId());
-        PlayerGrowthState state = growthStateStore.getOrCreate(
-                player.getUniqueId(), wt.name().toLowerCase(Locale.ROOT));
 
         Inventory gui = Bukkit.createInventory(null, 54, GuiTitles.EQUIPMENT_HUB);
-        ItemStack pane = pane();
-        for (int i = 0; i < 54; i++) gui.setItem(i, pane);
+        for (int i = 0; i < 54; i++) gui.setItem(i, pane());
 
-        gui.setItem(10, equipHubSlotIcon(state, EquipmentSlot.WEAPON,     "무기",  weaponMaterial(wt)));
-        gui.setItem(11, equipHubSlotIcon(state, EquipmentSlot.HELMET,     "투구",  Material.NETHERITE_HELMET));
-        gui.setItem(12, equipHubSlotIcon(state, EquipmentSlot.CHESTPLATE, "갑옷",  Material.NETHERITE_CHESTPLATE));
-        gui.setItem(13, equipHubSlotIcon(state, EquipmentSlot.LEGGINGS,   "각반",  Material.NETHERITE_LEGGINGS));
-        gui.setItem(14, equipHubSlotIcon(state, EquipmentSlot.BOOTS,      "신발",  Material.NETHERITE_BOOTS));
+        // 각 구역 중앙 대표 아이콘 (gui_hub_structure.md §3 5구역)
+        gui.setItem(10, MainHubGui.icon(Material.ANVIL,          "§f강화",     List.of("§7클릭하여 열기")));
+        gui.setItem(16, MainHubGui.icon(Material.NAME_TAG,       "§f각인",     List.of("§7클릭하여 열기")));
+        gui.setItem(37, MainHubGui.icon(Material.NETHER_STAR,    "§f잠재능력", List.of("§7클릭하여 열기")));
+        gui.setItem(43, MainHubGui.icon(Material.ENCHANTED_BOOK, "§f전승",     List.of("§7클릭하여 열기")));
+        gui.setItem(22, MainHubGui.icon(Material.PAPER,          "§7캐릭터",   List.of("§8(준비 중)")));
 
-        gui.setItem(29, MainHubGui.icon(Material.ANVIL,          "§f강화",     List.of("§7──────────────", "§7클릭하여 열기")));
-        gui.setItem(31, MainHubGui.icon(Material.NETHER_STAR,    "§f잠재능력", List.of("§7──────────────", "§7클릭하여 열기")));
-        gui.setItem(33, MainHubGui.icon(Material.ENCHANTED_BOOK, "§f전승",     List.of("§7──────────────", "§7클릭하여 열기")));
-        gui.setItem(35, MainHubGui.icon(Material.NAME_TAG,       "§f각인",     List.of("§7──────────────", "§7클릭하여 열기")));
-        gui.setItem(45, MainHubGui.icon(Material.ARROW,          "§7뒤로",     List.of("§7메인 메뉴")));
-        gui.setItem(49, MainHubGui.icon(Material.BARRIER,        "§c닫기",     List.of()));
         player.openInventory(gui);
     }
 
