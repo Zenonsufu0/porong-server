@@ -9,6 +9,7 @@ import com.poro.empire.growth.island.IslandTerritoryState;
 import com.poro.empire.growth.island.IslandTerritoryStateStore;
 import com.poro.empire.growth.engine.EnhancementRule;
 import com.poro.empire.growth.engine.EnhancementService;
+import com.poro.empire.growth.engine.EngravingMaster;
 import com.poro.empire.growth.engine.EquipmentSlot;
 import com.poro.empire.growth.engine.GrowthEngineRuntime;
 import com.poro.empire.growth.engine.GrowthTier;
@@ -221,6 +222,11 @@ public final class GrowthGuiListener implements Listener {
         openGrowthHeirloom(player);
     }
 
+    public void openEngraving(Player player) {
+        if (isNoneClass(player)) return;
+        openGrowthEngraving(player);
+    }
+
     private boolean isNoneClass(Player player) {
         if (playerDataManager.getWeaponType(player.getUniqueId()) == WeaponType.NONE) {
             player.sendMessage("§c[장비] 직업을 먼저 선택해야 합니다.");
@@ -265,6 +271,9 @@ public final class GrowthGuiListener implements Listener {
         } else if (GuiTitles.GROWTH_HEIRLOOM.equals(event.getView().title())) {
             event.setCancelled(true);
             handleHeirloomClick(player, event.getRawSlot());
+        } else if (GuiTitles.GROWTH_ENGRAVING.equals(event.getView().title())) {
+            event.setCancelled(true);
+            handleEngravingClick(player, event.getRawSlot());
         }
     }
 
@@ -1107,5 +1116,72 @@ public final class GrowthGuiListener implements Listener {
 
     private ItemStack pane() {
         return MainHubGui.icon(Material.BLACK_STAINED_GLASS_PANE, " ", List.of());
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // 각인 GUI (27슬롯)
+    //   slot 11: 유지형 각인 / slot 15: 소모형 각인 / slot 22: 닫기
+    // ═══════════════════════════════════════════════════════════════
+
+    private void openGrowthEngraving(Player player) {
+        WeaponType wt = playerDataManager.getWeaponType(player.getUniqueId());
+        PlayerGrowthState state = growthStateStore.getOrCreate(
+                player.getUniqueId(), wt.name().toLowerCase(Locale.ROOT));
+        String current = state.classEngravingId();
+        String weaponId = wt.name().toLowerCase(Locale.ROOT);
+
+        String retainedId = weaponId + "_retained_01";
+        String consumedId = weaponId + "_consumed_01";
+
+        EngravingMaster retained = growthEngineRuntime.engravingRegistry().find(retainedId).orElse(null);
+        EngravingMaster consumed = growthEngineRuntime.engravingRegistry().find(consumedId).orElse(null);
+
+        Inventory gui = Bukkit.createInventory(null, 27, GuiTitles.GROWTH_ENGRAVING);
+        for (int i = 0; i < 27; i++) gui.setItem(i, pane());
+
+        int baseMax = (wt == WeaponType.SPEAR || wt == WeaponType.STAFF) ? 5 : 3;
+
+        if (retained != null) {
+            boolean sel = retainedId.equals(current);
+            gui.setItem(11, engravingIcon(retained, sel,
+                    "유지형", List.of("§7최대 6스택. F 소모 없음.", sel ? "§a현재 장착 중" : "§7클릭하여 선택")));
+        }
+        if (consumed != null) {
+            boolean sel = consumedId.equals(current);
+            gui.setItem(15, engravingIcon(consumed, sel,
+                    "소모형", List.of("§7최대 " + baseMax + "스택. F 발동 시 전체 소모.", sel ? "§a현재 장착 중" : "§7클릭하여 선택")));
+        }
+        gui.setItem(22, MainHubGui.icon(Material.BARRIER, "§c닫기", List.of()));
+        player.openInventory(gui);
+    }
+
+    private void handleEngravingClick(Player player, int slot) {
+        if (slot == 22) { player.closeInventory(); return; }
+        WeaponType wt = playerDataManager.getWeaponType(player.getUniqueId());
+        if (wt == WeaponType.NONE) return;
+        String weaponId = wt.name().toLowerCase(Locale.ROOT);
+        String engravingId = switch (slot) {
+            case 11 -> weaponId + "_retained_01";
+            case 15 -> weaponId + "_consumed_01";
+            default -> null;
+        };
+        if (engravingId == null) return;
+
+        PlayerGrowthState state = growthStateStore.getOrCreate(
+                player.getUniqueId(), weaponId);
+        var result = growthEngineRuntime.engravingService().equipClassEngraving(state, engravingId);
+        if (result.isOk()) {
+            player.sendMessage("§a[각인] §f" + engravingId + " §a각인을 장착했습니다.");
+            openGrowthEngraving(player);
+        } else {
+            player.sendMessage("§c[각인] " + result.message());
+        }
+    }
+
+    private static ItemStack engravingIcon(EngravingMaster e, boolean selected,
+                                            String type, List<String> desc) {
+        Material mat = selected ? Material.ENCHANTED_BOOK : Material.BOOK;
+        String name = (selected ? "§e[장착 중] " : "§f") + e.engravingName() + " §8(" + type + ")";
+        return MainHubGui.icon(mat, name, desc);
     }
 }

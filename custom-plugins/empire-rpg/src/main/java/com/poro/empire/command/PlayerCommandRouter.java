@@ -72,7 +72,7 @@ public class PlayerCommandRouter implements CommandExecutor {
             case "장비"     -> growthGuiListener.openEquipHub(player);
             case "강화"     -> growthGuiListener.openEnhancement(player);
             case "잠재"     -> growthGuiListener.openPotential(player);
-            case "각인"     -> stub(player, "각인");
+            case "각인"     -> growthGuiListener.openEngraving(player);
             case "캐릭터"   -> stub(player, "캐릭터");
             case "전승"     -> growthGuiListener.openHeirloom(player);
             case "영지"     -> stub(player, "영지 메뉴");
