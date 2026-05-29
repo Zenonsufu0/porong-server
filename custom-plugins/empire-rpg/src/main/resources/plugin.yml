@@ -86,6 +86,10 @@ commands:
     description: 정규대전 랭킹 조회
     usage: /대전랭킹
     permission: empire.use
+  친선:
+    description: 친선대전 요청 수락/거절
+    usage: /친선 <수락|거절>
+    permission: empire.use
   창고:
     description: 창고 GUI 열기
     usage: /창고

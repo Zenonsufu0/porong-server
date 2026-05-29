@@ -103,6 +103,7 @@ public class PlayerCommandRouter implements CommandExecutor {
             case "영지초대"  -> handleInviteResponse(player, args);
             case "대전"     -> pvpHubListener.openHub(player);
             case "대전랭킹"  -> pvpHubListener.openRanking(player);
+            case "친선"     -> handleFriendlyResponse(player, args);
             // ── 보스 계열 ──────────────────────────────────────────
             case "보스"     -> bossHubListener.openBossHub(player);
             case "파티"     -> bossHubListener.openPartyHub(player);
@@ -130,6 +131,18 @@ public class PlayerCommandRouter implements CommandExecutor {
     private void openTerritoryMove(Player player) {
         IslandTerritoryState state = territoryStore.getOrCreate(player.getUniqueId());
         TerritoryMoveGui.open(player, state, territoryStore);
+    }
+
+    private void handleFriendlyResponse(Player player, String[] args) {
+        if (args.length < 1) {
+            player.sendMessage(PREFIX + "§7사용법: /친선 수락 §7or §f/친선 거절");
+            return;
+        }
+        switch (args[0]) {
+            case "수락", "accept", "y" -> pvpHubListener.friendlyService().accept(player);
+            case "거절", "reject", "n" -> pvpHubListener.friendlyService().reject(player);
+            default -> player.sendMessage(PREFIX + "§7사용법: /친선 수락 §7or §f/친선 거절");
+        }
     }
 
     private void handleInviteResponse(Player player, String[] args) {

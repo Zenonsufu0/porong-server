@@ -93,6 +93,7 @@ import com.poro.empire.listener.StorageGuiListener;
 import com.poro.empire.listener.TerritorySettingsGuiListener;
 import com.poro.empire.listener.PvpHubListener;
 import com.poro.empire.listener.ShopGuiListener;
+import com.poro.empire.pvp.PvpFriendlyService;
 import com.poro.empire.pvp.PvpMatchService;
 import com.poro.empire.pvp.PvpRatingService;
 import com.poro.empire.listener.TerritoryStatusGuiListener;
@@ -340,10 +341,11 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                 bossEngineRuntime.bossSessionRepository(), islandTerritoryStateStore);
         ShopGui.reloadItems(this);
         this.shopGuiListener = new ShopGuiListener(growthStateStore, islandStorageStore, combatStateService, scoreboardService);
-        this.pvpRatingService = new PvpRatingService();
-        this.pvpArenaManager  = PvpArenaManager.fromConfig(this);
-        this.pvpMatchService  = new PvpMatchService(this, pvpArenaManager, pvpRatingService);
-        this.pvpHubListener   = new PvpHubListener(pvpRatingService, pvpMatchService);
+        this.pvpRatingService   = new PvpRatingService();
+        this.pvpArenaManager    = PvpArenaManager.fromConfig(this);
+        this.pvpMatchService    = new PvpMatchService(this, pvpArenaManager, pvpRatingService);
+        PvpFriendlyService pvpFriendlyService = new PvpFriendlyService(this, pvpMatchService);
+        this.pvpHubListener     = new PvpHubListener(pvpRatingService, pvpMatchService, pvpFriendlyService);
         this.resourceTracker = new ResourceTracker();
         SkillContext skillContext = new SkillContext(
                 playerDataManager, this.cooldownManager, this.resourceTracker,
@@ -584,7 +586,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
             "메뉴", "장비", "강화", "잠재", "각인", "캐릭터", "전승",
             "영지", "영지이동", "영지상태", "영지초대", "창고", "공방", "작물", "상점", "경매장", "영지설정",
             "보스", "파티", "파티목록", "보스정보", "클리어", "필드",
-            "대전", "대전랭킹"
+            "대전", "대전랭킹", "친선"
         };
         for (String cmd : koreanCommands) {
             var registered = getCommand(cmd);
