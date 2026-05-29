@@ -81,6 +81,17 @@ public final class PvpFriendlyService {
             target.sendMessage("§c[친선] 대기 중인 요청이 없습니다.");
             return false;
         }
+        // 수락 시점 재검증 — 신청 후 다른 대전이 시작됐을 수 있음
+        if (matchService.isInMatch(target.getUniqueId())) {
+            target.sendMessage("§c[친선] 이미 대전 중이라 수락할 수 없습니다.");
+            return false;
+        }
+        if (matchService.isInMatch(r.requesterUuid())) {
+            target.sendMessage("§c[친선] 신청자가 다른 대전에 참여 중입니다.");
+            Player rq = Bukkit.getPlayer(r.requesterUuid());
+            if (rq != null) rq.sendMessage("§c[친선] 요청을 수락하려 했으나 본인이 다른 대전 중입니다.");
+            return false;
+        }
         Player requester = Bukkit.getPlayer(r.requesterUuid());
         if (requester == null) {
             target.sendMessage("§c[친선] 신청자가 오프라인 상태입니다.");

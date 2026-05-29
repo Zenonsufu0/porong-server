@@ -343,6 +343,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                 bossEngineRuntime.bossSessionRepository(), islandTerritoryStateStore);
         ShopGui.reloadItems(this);
         this.shopGuiListener = new ShopGuiListener(growthStateStore, islandStorageStore, combatStateService, scoreboardService);
+        this.territorySettingsGuiListener = new TerritorySettingsGuiListener(islandTerritoryStateStore, combatStateService, this);
         this.pvpRatingService   = new PvpRatingService();
         this.pvpArenaManager    = PvpArenaManager.fromConfig(this);
         this.pvpMatchService    = new PvpMatchService(this, pvpArenaManager, pvpRatingService);
@@ -528,9 +529,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(
                 new TerritoryStatusGuiListener(islandTerritoryStateStore, islandStorageStore, growthStateStore, playerDataManager, scoreboardService), this);
         getServer().getPluginManager().registerEvents(
-                this.territorySettingsGuiListener =
-                        new TerritorySettingsGuiListener(islandTerritoryStateStore, combatStateService, this),
-                this);
+                this.territorySettingsGuiListener, this);
         getServer().getPluginManager().registerEvents(
                 new WorkshopGuiListener(islandTerritoryStateStore, islandStorageStore, this), this);
         getServer().getPluginManager().registerEvents(

@@ -117,22 +117,36 @@ public final class PvpMatchService {
             Player pb = Bukkit.getPlayer(b);
             if (pa == null) { queue.addFirst(b); return; }
             if (pb == null) { queue.addFirst(a); return; }
-            startMatch(pa, pb, type);
+            if (!startMatch(pa, pb, type)) {
+                // 매치 실패 (아레나 없음 등) — 큐 복귀
+                queue.addFirst(b);
+                queue.addFirst(a);
+            }
         }
     }
 
     /** 친선대전 — 양측 합의 후 호출. */
-    public void startFriendly(Player a, Player b) {
-        startMatch(a, b, PvpMatchType.FRIENDLY);
+    public boolean startFriendly(Player a, Player b) {
+        return startMatch(a, b, PvpMatchType.FRIENDLY);
     }
 
-    private void startMatch(Player a, Player b, PvpMatchType type) {
+    /** @return true=시작 성공, false=실패 (큐 복귀 등 후속 처리 필요). */
+    private boolean startMatch(Player a, Player b, PvpMatchType type) {
+        // 매치 중복 검증 — 어느 한쪽이라도 이미 대전 중이면 거부
+        if (playerToMatch.containsKey(a.getUniqueId())) {
+            a.sendMessage("§c[PvP] 이미 대전 중입니다.");
+            return false;
+        }
+        if (playerToMatch.containsKey(b.getUniqueId())) {
+            b.sendMessage("§c[PvP] 이미 대전 중입니다.");
+            return false;
+        }
         UUID matchId = UUID.randomUUID();
         Optional<PvpArenaSlot> slot = arenaManager.tryAssign(matchId.toString());
         if (slot.isEmpty()) {
             a.sendMessage("§c[PvP] 빈 아레나가 없습니다. 잠시 후 다시 시도하세요.");
             b.sendMessage("§c[PvP] 빈 아레나가 없습니다. 잠시 후 다시 시도하세요.");
-            return;
+            return false;
         }
         PvpArenaSlot arena = slot.get();
         PvpMatch match = new PvpMatch(
@@ -168,6 +182,7 @@ public final class PvpMatchService {
             if (activeMatches.containsKey(matchId)) endByTimeout(matchId);
         }, TIMEOUT_TICKS).getTaskId();
         timeoutTasks.put(matchId, taskId);
+        return true;
     }
 
     // ─── 매치 종료 ───────────────────────────────────────────────────
