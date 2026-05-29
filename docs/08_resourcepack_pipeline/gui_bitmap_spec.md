@@ -27,7 +27,7 @@
 
 ## 2. 파일 구조
 
-배경 PNG는 4개만 존재하며 이 4개만 공식 사용한다. 나머지 GUI는 chest + 유리판/바닐라 아이템/lore로 구성한다.
+배경 PNG 4개(menu_main/equipment/territory/boss.png)는 현행 구현에서 미사용 — 모든 허브 GUI가 색상 유리판 + 중앙 아이콘 방식으로 전환됨(DL-073). 나머지 GUI는 chest + 유리판/바닐라 아이템/lore 구성.
 
 ```
 assets/source/gui/                     ← Figma 원본 소스
@@ -142,26 +142,12 @@ assets/export/resourcepack/assets/poro/
 
 ## 6. 플러그인 연동 (EmpireRPG)
 
+> **[DL-073]** 현행 구현은 PNG 배경 font character를 사용하지 않으며, 모든 허브 GUI는 순수 텍스트 타이틀만 사용한다.
+
 ```java
-private Component buildTitle(char backgroundChar) {
-    return Component.text()
-        .font(Key.key("poro", "gui"))
-        .content("" + backgroundChar)
-        .color(NamedTextColor.WHITE)
-        .decoration(TextDecoration.ITALIC, false)
-        .build();
-}
-
-// 메인 허브
-Inventory inv = Bukkit.createInventory(null, 54, buildTitle(''));
-// 장비 하위 GUI
-Inventory inv = Bukkit.createInventory(null, 54, buildTitle(''));
-// 영지 하위 GUI
-Inventory inv = Bukkit.createInventory(null, 54, buildTitle(''));
-// 보스 하위 GUI
-Inventory inv = Bukkit.createInventory(null, 54, buildTitle(''));
-// 나머지 GUI (강화·잠재 등) — 배경 char 없이 title만
-Inventory inv = Bukkit.createInventory(null, 54, Component.text("강화"));
+// 현행 구현 — 순수 텍스트 타이틀 (배경 char 없음)
+Inventory inv = Bukkit.createInventory(null, 54, Component.text("제국의 거점"));
+Inventory inv = Bukkit.createInventory(null, 54, Component.text("장비 관리"));
+Inventory inv = Bukkit.createInventory(null, 54, Component.text("영지 관리"));
+Inventory inv = Bukkit.createInventory(null, 54, Component.text("보스 도전"));
 ```
-
-> 각 GUI 슬롯 배치는 `gui_hub_structure.md` 및 각 `gui_*.md` 문서 참조.
