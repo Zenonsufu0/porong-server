@@ -193,6 +193,7 @@ public final class TerritorySettingsGuiListener implements Listener {
         if (click == ClickType.RIGHT) {
             // 강퇴
             territory.removeMember(memberUuid);
+            islandTerritoryStateStore.persistMembers(player.getUniqueId());
             player.sendMessage("§c[영지] §f" + memberName + "§c님을 영지에서 강퇴했습니다.");
             TerritorySettingsGui.open(player, territory);
         } else {
@@ -202,6 +203,7 @@ public final class TerritorySettingsGuiListener implements Listener {
                     ? IslandTerritoryState.Role.RESIDENT
                     : IslandTerritoryState.Role.VICE_LORD;
             territory.setMemberRole(memberUuid, next);
+            islandTerritoryStateStore.persistMembers(player.getUniqueId());
             String roleLabel = (next == IslandTerritoryState.Role.VICE_LORD) ? "§b부영주" : "§e영지민";
             player.sendMessage("§a[영지] §f" + memberName + "§a의 등급을 " + roleLabel + "§a로 변경");
             TerritorySettingsGui.open(player, territory);
@@ -280,6 +282,7 @@ public final class TerritorySettingsGuiListener implements Listener {
             target.sendMessage("§c[영지] 해당 영지가 가득 찼습니다.");
             return false;
         }
+        islandTerritoryStateStore.persistMembers(p.islandOwnerUuid());
         target.sendMessage("§a[영지] §f" + p.islandOwnerName() + "§a님의 영지에 가입했습니다.");
         Player inviter = Bukkit.getPlayer(p.islandOwnerUuid());
         if (inviter != null) inviter.sendMessage("§a[영지] §f" + target.getName() + "§a님이 초대를 수락했습니다.");
@@ -335,6 +338,7 @@ public final class TerritorySettingsGuiListener implements Listener {
 
         IslandTerritoryState territory = territory(player);
         territory.togglePermission(role, perm);
+        islandTerritoryStateStore.persistPermissions(player.getUniqueId(), role);
         // 해당 슬롯만 갱신 (전체 재오픈 시 인벤토리 깜빡임 회피)
         String label = labelFor(slot);
         var inv = player.getOpenInventory().getTopInventory();
@@ -369,6 +373,7 @@ public final class TerritorySettingsGuiListener implements Listener {
     private void cycleVisitMode(Player player) {
         IslandTerritoryState t = territory(player);
         IslandTerritoryState.VisitMode next = t.cycleVisitMode();
+        islandTerritoryStateStore.persistVisitMode(player.getUniqueId());
         var inv = player.getOpenInventory().getTopInventory();
         inv.setItem(TerritorySettingsGui.SLOT_VISIT, TerritorySettingsGui.visitIcon(t));
         String label = switch (next) {

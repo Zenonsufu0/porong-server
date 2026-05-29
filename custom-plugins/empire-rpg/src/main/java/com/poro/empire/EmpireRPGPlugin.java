@@ -344,6 +344,13 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         ShopGui.reloadItems(this);
         this.shopGuiListener = new ShopGuiListener(growthStateStore, islandStorageStore, combatStateService, scoreboardService);
         this.territorySettingsGuiListener = new TerritorySettingsGuiListener(islandTerritoryStateStore, combatStateService, this);
+        // 영지 설정·멤버·권한 DB 영속화 hook 주입 (foundationContext 초기화 완료 후)
+        com.poro.empire.growth.island.db.IslandSettingsRepository islandSettingsRepo =
+                new com.poro.empire.growth.island.db.IslandSettingsRepository(
+                        foundationContext.connectionProvider(),
+                        foundationContext.logger().domain("island.settings"));
+        islandTerritoryStateStore.attachRepository(islandSettingsRepo);
+
         this.pvpRatingService   = new PvpRatingService();
         this.pvpArenaManager    = PvpArenaManager.fromConfig(this);
         this.pvpMatchService    = new PvpMatchService(this, pvpArenaManager, pvpRatingService);

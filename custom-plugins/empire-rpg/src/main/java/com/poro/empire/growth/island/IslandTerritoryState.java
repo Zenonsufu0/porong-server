@@ -53,13 +53,13 @@ public final class IslandTerritoryState {
     private IslandRank rank;
     private int  convenienceUnlocks;
     private String islandName;
-    /** in-memory only — 영속화는 권한 시스템과 함께 추후 추가. */
+    /** 방문 공개 설정 — IslandSettingsRepository로 영속화. */
     private VisitMode visitMode = VisitMode.PUBLIC;
-    /** 등급별 권한 비트마스크. in-memory only — 영속화는 권한 시스템 통합 시. */
+    /** 등급별 권한 비트마스크 — IslandSettingsRepository로 영속화. */
     private final java.util.EnumMap<Role, Integer> rolePermissions = new java.util.EnumMap<>(Role.class);
-    /** 영지 멤버: UUID → Role. in-memory only. */
+    /** 영지 멤버: UUID → Role — IslandSettingsRepository로 영속화. */
     private final java.util.Map<java.util.UUID, Role> members = new java.util.LinkedHashMap<>();
-    /** 멤버 표시용 이름 캐시: UUID → playerName (Bukkit 조회 fallback). */
+    /** 멤버 표시용 이름 캐시. */
     private final java.util.Map<java.util.UUID, String> memberNames = new java.util.HashMap<>();
     /** 멤버 최대 인원 (gui_territory_settings.md §11). */
     public static final int MAX_MEMBERS = 8;

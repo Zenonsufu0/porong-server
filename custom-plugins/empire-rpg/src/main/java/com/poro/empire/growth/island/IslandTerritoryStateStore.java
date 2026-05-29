@@ -1,5 +1,7 @@
 package com.poro.empire.growth.island;
 
+import com.poro.empire.growth.island.db.IslandSettingsRepository;
+
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -7,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class IslandTerritoryStateStore {
     private final Map<UUID, IslandTerritoryState> territories = new ConcurrentHashMap<>();
+    private IslandSettingsRepository repository; // optional
 
     public IslandTerritoryState getOrCreate(UUID uuid) {
         return getOrCreate(uuid, "플레이어");
@@ -31,5 +34,58 @@ public final class IslandTerritoryStateStore {
     /** 모든 영지 (UUID → State) 스냅샷. */
     public Map<UUID, IslandTerritoryState> snapshot() {
         return Map.copyOf(territories);
+    }
+
+    // ─── 영속화 hook (IslandSettingsRepository) ─────────────────────
+
+    public void attachRepository(IslandSettingsRepository repository) {
+        this.repository = repository;
+        if (repository == null) return;
+        // DB 캐시 로드 — IslandTerritoryState 생성 후 visit/members/perms 적용
+        repository.loadAll().forEach((owner, bundle) -> {
+            IslandTerritoryState s = getOrCreate(owner);
+            s.setVisitMode(bundle.visitMode());
+            for (var memberRow : bundle.members()) {
+                s.addMember(memberRow.memberUuid(), memberRow.memberName(), memberRow.role());
+            }
+            bundle.permissions().forEach((role, mask) -> {
+                int diff = mask ^ s.rolePermissionMask(role);
+                // bit-by-bit toggle until masks match
+                for (var perm : IslandTerritoryState.Permission.values()) {
+                    if ((diff & perm.bit) != 0) s.togglePermission(role, perm);
+                }
+            });
+        });
+    }
+
+    public IslandSettingsRepository repository() {
+        return repository;
+    }
+
+    /** 영지 설정 영속화 헬퍼 — owner UUID 기준으로 visit 저장. */
+    public void persistVisitMode(UUID ownerUuid) {
+        if (repository == null) return;
+        IslandTerritoryState state = territories.get(ownerUuid);
+        if (state != null) repository.saveSettings(ownerUuid, state.visitMode());
+    }
+
+    /** 영지 멤버 전체 영속화 (변경 후 일괄). */
+    public void persistMembers(UUID ownerUuid) {
+        if (repository == null) return;
+        IslandTerritoryState state = territories.get(ownerUuid);
+        if (state == null) return;
+        Map<UUID, String> names = new java.util.HashMap<>();
+        for (var e : state.memberList()) {
+            String name = state.memberName(e.getKey());
+            if (name != null) names.put(e.getKey(), name);
+        }
+        repository.saveMembers(ownerUuid, state.memberList(), names);
+    }
+
+    /** 등급별 권한 영속화. */
+    public void persistPermissions(UUID ownerUuid, IslandTerritoryState.Role role) {
+        if (repository == null) return;
+        IslandTerritoryState state = territories.get(ownerUuid);
+        if (state != null) repository.savePermissions(ownerUuid, role, state.rolePermissionMask(role));
     }
 }
