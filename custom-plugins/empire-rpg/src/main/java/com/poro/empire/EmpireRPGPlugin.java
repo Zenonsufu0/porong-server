@@ -12,6 +12,9 @@ import com.poro.empire.common.registry.master.MasterRegistryContext;
 import com.poro.empire.common.result.Result;
 import com.poro.empire.boss.room.BossRoomGenerationService;
 import com.poro.empire.command.BossRoomGenCommand;
+import com.poro.empire.command.PvpArenaGenCommand;
+import com.poro.empire.pvp.PvpArenaGenerationService;
+import com.poro.empire.pvp.PvpArenaManager;
 import com.poro.empire.command.ClassAdminCommand;
 import com.poro.empire.command.EmpireCommand;
 import com.poro.empire.command.PlayerCommandRouter;
@@ -151,6 +154,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
     private TerritorySettingsGuiListener territorySettingsGuiListener;
     private PvpHubListener      pvpHubListener;
     private PvpRatingService    pvpRatingService;
+    private PvpArenaManager     pvpArenaManager;
     private BossRoomManager     bossRoomManager;
     private BossRewardService   bossRewardService;
 
@@ -335,6 +339,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         ShopGui.reloadItems(this);
         this.shopGuiListener = new ShopGuiListener(growthStateStore, islandStorageStore, combatStateService, scoreboardService);
         this.pvpRatingService = new PvpRatingService();
+        this.pvpArenaManager  = PvpArenaManager.fromConfig(this);
         this.pvpHubListener   = new PvpHubListener(pvpRatingService);
         this.resourceTracker = new ResourceTracker();
         SkillContext skillContext = new SkillContext(
@@ -377,6 +382,10 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         BossRoomGenerationService genService = new BossRoomGenerationService(this);
         var genCmd = getCommand("empire-genrooms");
         if (genCmd != null) genCmd.setExecutor(new BossRoomGenCommand(genService));
+
+        PvpArenaGenerationService arenaGenService = new PvpArenaGenerationService(this);
+        var arenaGenCmd = getCommand("empire-genarenas");
+        if (arenaGenCmd != null) arenaGenCmd.setExecutor(new PvpArenaGenCommand(arenaGenService));
         ExploreHubRefresher.start(this, fieldStateProvider); // uses the scheduler as provider
 
         // 20분(24000틱)마다 영지 자동재배기 생산

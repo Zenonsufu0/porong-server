@@ -232,3 +232,18 @@ catalyst-requirements:
   tier3: { max-level: 15, minor:  6, mid:  4, major: 2 }
   tier4: { max-level: 20, minor: 10, mid:  7, major: 5 }
   tier5: { max-level: 99, minor: 15, mid: 10, major: 7 }
+
+# PvP 아레나 슬롯 — /empire-genarenas 로 방 생성 후 자동 사용.
+# 5×2 배치 (방 20블록, 간격 10블록). 맵 확정 후 좌표 수정.
+# spawn-a (서쪽), spawn-b (동쪽) — 양측 플레이어가 마주보도록 yaw 설정.
+pvp-room-slots:
+  slot-0: { id: 0, world: "world", spawn-a: { x: 20003.5, y: 65.0, z: 20010.0, yaw:  90.0, pitch: 0.0 }, spawn-b: { x: 20016.5, y: 65.0, z: 20010.0, yaw: -90.0, pitch: 0.0 } }
+  slot-1: { id: 1, world: "world", spawn-a: { x: 20033.5, y: 65.0, z: 20010.0, yaw:  90.0, pitch: 0.0 }, spawn-b: { x: 20046.5, y: 65.0, z: 20010.0, yaw: -90.0, pitch: 0.0 } }
+  slot-2: { id: 2, world: "world", spawn-a: { x: 20063.5, y: 65.0, z: 20010.0, yaw:  90.0, pitch: 0.0 }, spawn-b: { x: 20076.5, y: 65.0, z: 20010.0, yaw: -90.0, pitch: 0.0 } }
+  slot-3: { id: 3, world: "world", spawn-a: { x: 20093.5, y: 65.0, z: 20010.0, yaw:  90.0, pitch: 0.0 }, spawn-b: { x: 20106.5, y: 65.0, z: 20010.0, yaw: -90.0, pitch: 0.0 } }
+  slot-4: { id: 4, world: "world", spawn-a: { x: 20123.5, y: 65.0, z: 20010.0, yaw:  90.0, pitch: 0.0 }, spawn-b: { x: 20136.5, y: 65.0, z: 20010.0, yaw: -90.0, pitch: 0.0 } }
+  slot-5: { id: 5, world: "world", spawn-a: { x: 20003.5, y: 65.0, z: 20040.0, yaw:  90.0, pitch: 0.0 }, spawn-b: { x: 20016.5, y: 65.0, z: 20040.0, yaw: -90.0, pitch: 0.0 } }
+  slot-6: { id: 6, world: "world", spawn-a: { x: 20033.5, y: 65.0, z: 20040.0, yaw:  90.0, pitch: 0.0 }, spawn-b: { x: 20046.5, y: 65.0, z: 20040.0, yaw: -90.0, pitch: 0.0 } }
+  slot-7: { id: 7, world: "world", spawn-a: { x: 20063.5, y: 65.0, z: 20040.0, yaw:  90.0, pitch: 0.0 }, spawn-b: { x: 20076.5, y: 65.0, z: 20040.0, yaw: -90.0, pitch: 0.0 } }
+  slot-8: { id: 8, world: "world", spawn-a: { x: 20093.5, y: 65.0, z: 20040.0, yaw:  90.0, pitch: 0.0 }, spawn-b: { x: 20106.5, y: 65.0, z: 20040.0, yaw: -90.0, pitch: 0.0 } }
+  slot-9: { id: 9, world: "world", spawn-a: { x: 20123.5, y: 65.0, z: 20040.0, yaw:  90.0, pitch: 0.0 }, spawn-b: { x: 20136.5, y: 65.0, z: 20040.0, yaw: -90.0, pitch: 0.0 } }

@@ -24,6 +24,11 @@ commands:
     usage: /empire-genrooms [world] [x] [y] [z]
     permission: empire.admin
 
+  empire-genarenas:
+    description: PvP 아레나 10개 월드 자동 생성 (관리자 전용, 서버 오픈 전 1회 실행)
+    usage: /empire-genarenas [world] [x] [y] [z]
+    permission: empire.admin
+
   # 메인
   메뉴:
     description: 메인 GUI 열기
