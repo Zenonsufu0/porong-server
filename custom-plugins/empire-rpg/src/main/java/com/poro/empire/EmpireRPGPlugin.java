@@ -325,6 +325,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         this.bossHubListener  = new BossHubListener(partyManager, bossRoomManager,
                 bossEngineRuntime.bossSessionRepository(), islandTerritoryStateStore);
         ShopGui.reloadItems(this);
+        this.shopGuiListener = new ShopGuiListener(growthStateStore, islandStorageStore, combatStateService, scoreboardService);
         this.resourceTracker = new ResourceTracker();
         SkillContext skillContext = new SkillContext(
                 playerDataManager, this.cooldownManager, this.resourceTracker,
@@ -477,7 +478,6 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         }
         BossRoomListener bossRoomListenerInstance =
                 new BossRoomListener(bossRoomManager, masterRegistryContext.bossMasters(), partyManager, bossEngineRuntime, mythicSpawner);
-        this.shopGuiListener = new ShopGuiListener(growthStateStore, islandStorageStore, combatStateService, scoreboardService);
         getServer().getPluginManager().registerEvents(shopGuiListener, this);
         getServer().getPluginManager().registerEvents(
                 new MainHubListener(growthGuiListener, islandStorageStore, islandTerritoryStateStore,
