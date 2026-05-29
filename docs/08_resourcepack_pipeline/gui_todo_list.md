@@ -178,21 +178,12 @@ row4 [보스정보] ×4cols  [-]  [클리어기록] ×3cols  ░
 
 ## 6. 플러그인 구현 참조 (Java)
 
-```java
-// 인벤토리 타이틀에 배경 char 삽입
-private Component buildTitle(char backgroundChar) {
-    return Component.text()
-        .font(Key.key("poro", "gui"))
-        .content("" + backgroundChar)   //  역행 오프셋 + 배경 char
-        .color(NamedTextColor.WHITE)
-        .decoration(TextDecoration.ITALIC, false)
-        .build();
-}
+> **[DL-073]** 현행 구현은 PNG 배경 font character를 사용하지 않는다. 순수 텍스트 타이틀 사용.
 
-// 예시: 메인 허브 열기
-Inventory inv = Bukkit.createInventory(null, 54, buildTitle(''));
-// 장비 서브 허브
-Inventory inv = Bukkit.createInventory(null, 27, buildTitle(''));
+```java
+// 현행 구현 — 순수 텍스트 타이틀
+Inventory inv = Bukkit.createInventory(null, 54, Component.text("제국의 거점"));
+Inventory inv = Bukkit.createInventory(null, 54, Component.text("장비 관리"));
 ```
 
-> 전체 스펙은 `gui_bitmap_spec.md §7`, 장비 패널 이벤트 처리는 `gui_equipment_panel.md §6` 참조.
+> 장비 패널 이벤트 처리는 `gui_equipment_panel.md §6` 참조.
