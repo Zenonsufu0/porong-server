@@ -221,6 +221,9 @@ public final class EmpireRPGPlugin extends JavaPlugin {
             return;
         }
         this.bossEngineRuntime = bossEngineResult.value();
+        this.bossRewardService.setSeasonContext(
+                this.bossEngineRuntime.bossSessionRepository(),
+                foundationContext.config().seasonStartEpoch());
         this.foundationContext.logger().domain("boss-engine").info("Boss engine bootstrap completed.");
 
         Result<GrowthEngineRuntime> growthEngineResult = GrowthEngineBootstrap.bootstrap(this, foundationContext, masterRegistryContext);

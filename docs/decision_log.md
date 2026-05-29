@@ -1381,3 +1381,32 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 - 우클릭: `max(1, 64 / amount)` 세트 = 약 64개
 - 인벤토리 풀일 시 영지 창고 자동 적재 (`IslandStorage.add`)
 - `gui_shop.md` §3/§4 동기화 완료
+
+---
+
+### DL-076 시즌보스 보상 — 등급 폐기 + 주간 10회 보너스 모델
+
+**결정:** S/A/B/C 등급 시스템을 1차 시즌에서 폐기. 단순 확률 기반 단일 테이블 + 주간 누적 클리어 10회 임계 기반 분기로 대체.
+
+**이유:**
+- 등급 판정 기준(`damage_share`)이 1차 시즌 미사용 (DL-064).
+- 클리어 시간 기반 등급은 별도 기획 결정 필요. 시즌 오픈 우선.
+- "깨기만 하면 보상"이 1차 시즌 유저 경험에 더 적합.
+
+**결과 (코드 구조):**
+- 주간 1~10회 클리어: `firstTen` 보상 (강화석/큐브 풍부 + 장비 흔적 N개 확정 + 고대흔적 확정 + 치장 파편)
+- 주간 11회+ 클리어: `beyondTen` 보상 (강화석/큐브만, 적게)
+- 보스별 보상량: `drop_tables_v1.md §4` S 클리어 보상(=firstTen), S 재도전 보상(=beyondTen) 값 매핑
+- 인원 배율 모두 1.0 (개인 지급이라 1인/2인 차등 없음)
+- 시즌 칭호 재료 제외 (1차 시즌 칭호 시스템 미구현)
+- 균열왕 심장: rift_king 주간 1~10회 클리어 시 1개 확정 (11회+ 없음)
+- 흔적 등급 분포: 커먼 5%/레어 25%/에픽 45%/유니크 23%/레전더리 2%
+
+**구현:**
+- `BossSessionRepository.countClearsThisWeekAcrossBosses(uuid, week)` 추가
+- `BossRewardService.setSeasonContext(repo, seasonStartEpoch)` setter — BossEngineRuntime 초기화 후 주입
+- `SEASON_REWARDS` Map<String, BossSeasonRewards> — 보스 9종 인라인
+
+**부채:**
+- WorldGuard 등 외부 hook 없이 in-engine만 작동
+- 치장 제작 파편(`cosmetic_fragment`)은 적립만 되고 사용처(치장 시스템) 미구현

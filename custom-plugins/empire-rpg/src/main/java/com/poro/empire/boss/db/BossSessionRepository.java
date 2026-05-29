@@ -198,6 +198,28 @@ public final class BossSessionRepository {
         }
     }
 
+    /** 플레이어의 이번 주차 보스 전체 클리어 횟수 (모든 보스 합산). */
+    public int countClearsThisWeekAcrossBosses(String uuid, int seasonWeek) {
+        String sql = """
+            SELECT COUNT(*) FROM boss_session_log l
+            JOIN boss_session_player p ON l.id = p.session_id
+            WHERE p.player_uuid = ? AND l.season_week = ? AND l.result = 'clear'
+            """;
+        Result<Connection> connResult = connectionProvider.getConnection();
+        if (connResult.isFailure()) return 0;
+        try (Connection conn = connResult.value();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, uuid);
+            ps.setInt(2, seasonWeek);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        } catch (Exception e) {
+            logger.warn("countClearsThisWeekAcrossBosses failed [" + uuid + ", week=" + seasonWeek + "]: " + e.getMessage());
+            return 0;
+        }
+    }
+
     /** 서버 최단 클리어 시간 (초). 미클리어 시 null. */
     public Long serverBestClearTime(String bossId) {
         String sql = """
