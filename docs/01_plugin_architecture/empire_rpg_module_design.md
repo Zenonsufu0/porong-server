@@ -40,7 +40,7 @@ EmpireRPGPlugin (진입점)
 │   ├── PlayerPersistenceService   (JSON 저장/로드)
 │   ├── ScoreboardService          (스코어보드)
 │   ├── HotbarService              (핫바 유지)
-│   ├── CombatStateService         (전투 상태 5초)
+│   ├── CombatStateService         (전투 상태 8초)
 │   ├── CooldownManager            (스킬 쿨타임)
 │   ├── AuthService                (Discord 인증)
 │   └── BossRoomManager            (보스 방 관리)
@@ -133,7 +133,7 @@ SkillService.useSkill(player, inputType)
 | `SkillService` | 스킬 등록/실행 진입점 |
 | `CooldownManager` | 스킬 쿨타임 추적 및 진행도 계산 |
 | `ResourceTracker` | 무기별 리소스 스택 관리 |
-| `CombatStateService` | 전투 상태 5초 유지 (마지막 피해 후) |
+| `CombatStateService` | 전투 상태 8초 유지 (마지막 피해 후) |
 | `StateApplier` | 버프/디버프 대상에게 적용 |
 | `BuffDebuffService` | 활성 상태 목록 관리 (만료 처리 포함) |
 | `CombatFormulaResolver` | 최종 피해량 계산 공식 |
@@ -496,7 +496,7 @@ Component.text("").font(Key.key("poro","gui"))
 | PlayerQuitListener | 퇴장 → 데이터 저장, 캐시 제거 |
 | SkillInputListener | 좌클릭/우클릭/F 입력 → 스킬 실행 |
 | HotbarInteractListener | 핫바 우클릭 → 탐험/메뉴 열기 |
-| CombatStateListener | 피해 이벤트 → 전투 상태 5초 마킹 |
+| CombatStateListener | 피해 이벤트 → 전투 상태 8초 마킹 |
 | HealthHudListener | 체력 변경 → 이름 위 HUD 갱신 |
 | WeaponSelectionGuiListener | 무기 선택 GUI 클릭 → weaponClass 저장 |
 | GrowthGuiListener | 강화/잠재/각인 GUI 클릭 |
