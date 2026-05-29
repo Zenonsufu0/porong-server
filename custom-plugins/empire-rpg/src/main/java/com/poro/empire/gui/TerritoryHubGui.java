@@ -48,7 +48,7 @@ public final class TerritoryHubGui {
         gui.setItem(13, MainHubGui.icon(Material.TOTEM_OF_UNDYING, "§a영지 상태", List.of("§7작위  ·  기계  ·  편의 설정", "§8▶ 클릭하여 열기")));
         gui.setItem(16, MainHubGui.icon(Material.CHEST,           "§6창고",      List.of("§7보관 재료 확인 및 입금",       "§8▶ 클릭하여 열기")));
         gui.setItem(37, MainHubGui.icon(Material.BLAST_FURNACE,   "§f공방",      List.of("§7재료 가공  ·  정제  ·  제련",  "§8▶ 클릭하여 열기")));
-        gui.setItem(40, MainHubGui.icon(Material.EMERALD,         "§7상점",      List.of("§8준비 중")));
+        gui.setItem(40, MainHubGui.icon(Material.EMERALD,         "§a상점",      List.of("§7재료·블럭·치장·특수 구매", "§8▶ 클릭하여 열기")));
         gui.setItem(43, MainHubGui.icon(Material.COMPARATOR,      "§7영지 설정", List.of("§7시설 현황 포함", "§8준비 중")));
 
         player.openInventory(gui);

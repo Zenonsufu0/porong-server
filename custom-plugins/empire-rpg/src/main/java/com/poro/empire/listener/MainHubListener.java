@@ -29,6 +29,7 @@ public final class MainHubListener implements Listener {
     private final AuctionGuiListener        auctionGuiListener;
     private final FieldHubListener          fieldHubListener;
     private final BossHubListener           bossHubListener;
+    private final ShopGuiListener           shopGuiListener;
     private final CombatStateService        combatStateService;
 
     public MainHubListener(
@@ -38,6 +39,7 @@ public final class MainHubListener implements Listener {
             AuctionGuiListener auctionGuiListener,
             FieldHubListener fieldHubListener,
             BossHubListener bossHubListener,
+            ShopGuiListener shopGuiListener,
             CombatStateService combatStateService
     ) {
         this.growthGuiListener        = growthGuiListener;
@@ -46,6 +48,7 @@ public final class MainHubListener implements Listener {
         this.auctionGuiListener       = auctionGuiListener;
         this.fieldHubListener         = fieldHubListener;
         this.bossHubListener          = bossHubListener;
+        this.shopGuiListener          = shopGuiListener;
         this.combatStateService       = combatStateService;
     }
 
@@ -112,6 +115,8 @@ public final class MainHubListener implements Listener {
             IslandTerritoryState territory = islandTerritoryStateStore.getOrCreate(
                     player.getUniqueId(), player.getName());
             WorkshopGui.open(player, WorkshopGui.WorkshopTab.ESTATE, territory);
+        } else if (TerritoryHubGui.ZONE_SHOP.contains(slot)) {
+            shopGuiListener.openShop(player);
         } else if (TerritoryHubGui.ZONE_SETTINGS.contains(slot)) {
             if (combatStateService.isInCombat(player.getUniqueId())) {
                 player.sendMessage("§c[영지] 전투 중에는 영지 설정을 열 수 없습니다.");
@@ -121,7 +126,7 @@ public final class MainHubListener implements Listener {
                     player.getUniqueId(), player.getName());
             TerritorySettingsGui.open(player, territory);
         }
-        // 상점 구역 및 테두리 슬롯은 클릭 무반응
+        // 테두리 슬롯은 클릭 무반응
     }
 
     private void handleTerritoryMove(Player player, int slot) {

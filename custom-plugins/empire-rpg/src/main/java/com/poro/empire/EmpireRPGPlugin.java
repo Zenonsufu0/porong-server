@@ -88,6 +88,7 @@ import com.poro.empire.listener.MainHubListener;
 import com.poro.empire.listener.PlayerJoinListener;
 import com.poro.empire.listener.StorageGuiListener;
 import com.poro.empire.listener.TerritorySettingsGuiListener;
+import com.poro.empire.listener.ShopGuiListener;
 import com.poro.empire.listener.TerritoryStatusGuiListener;
 import com.poro.empire.listener.ConsumableUseListener;
 import com.poro.empire.listener.WorkshopGuiListener;
@@ -475,9 +476,11 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         }
         BossRoomListener bossRoomListenerInstance =
                 new BossRoomListener(bossRoomManager, masterRegistryContext.bossMasters(), partyManager, bossEngineRuntime, mythicSpawner);
+        ShopGuiListener shopGuiListener = new ShopGuiListener(growthStateStore, combatStateService);
+        getServer().getPluginManager().registerEvents(shopGuiListener, this);
         getServer().getPluginManager().registerEvents(
                 new MainHubListener(growthGuiListener, islandStorageStore, islandTerritoryStateStore,
-                        auctionGuiListener, fieldHubListener, bossHubListener, combatStateService), this);
+                        auctionGuiListener, fieldHubListener, bossHubListener, shopGuiListener, combatStateService), this);
         getServer().getPluginManager().registerEvents(bossRoomListenerInstance, this);
         getServer().getPluginManager().registerEvents(growthGuiListener, this);
         getServer().getPluginManager().registerEvents(
