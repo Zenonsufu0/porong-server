@@ -65,8 +65,9 @@ public final class IslandTerritoryState {
     public static final int MAX_MEMBERS = 8;
 
     /** 기계 설치 대수. */
-    private int reaperCount  = 0; // 자동 재배기
+    private int reaperCount  = 0; // 자동 재배기 (약초)
     private int storageCount = 0; // 영지 저장고
+    private int minerCount   = 0; // 광물 채굴기
 
     /** 공방 대기열. 완료된 작업은 GUI 열 때 collect 처리. */
     private final List<WorkshopJob> workshopJobs = new ArrayList<>();
@@ -99,9 +100,11 @@ public final class IslandTerritoryState {
     // ─── 기계 대수 ────────────────────────────────────────────────
     public int reaperCount()  { return reaperCount;  }
     public int storageCount() { return storageCount; }
+    public int minerCount()   { return minerCount;   }
 
     public void setReaperCount(int n)  { this.reaperCount  = Math.max(0, n); }
     public void setStorageCount(int n) { this.storageCount = Math.max(0, n); }
+    public void setMinerCount(int n)   { this.minerCount   = Math.max(0, n); }
 
     // ─── 공방 ─────────────────────────────────────────────────────
     public List<WorkshopJob> workshopJobs() { return workshopJobs; }

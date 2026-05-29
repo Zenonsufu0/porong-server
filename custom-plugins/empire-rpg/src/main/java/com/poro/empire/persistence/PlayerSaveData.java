@@ -66,8 +66,15 @@ public record PlayerSaveData(
             String rankName,
             int    convenienceUnlocks,
             int    reaperCount,
-            int    storageCount
-    ) {}
+            int    storageCount,
+            int    minerCount
+    ) {
+        /** legacy 5-arg deserialization 호환 */
+        public TerritorySaveData(String ownerName, String rankName, int convenienceUnlocks,
+                                 int reaperCount, int storageCount) {
+            this(ownerName, rankName, convenienceUnlocks, reaperCount, storageCount, 0);
+        }
+    }
 
     public record WorkshopJobSaveData(
             String recipeId,

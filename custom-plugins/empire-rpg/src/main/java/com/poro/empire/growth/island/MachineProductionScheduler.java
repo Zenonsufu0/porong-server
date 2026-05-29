@@ -15,6 +15,8 @@ public final class MachineProductionScheduler {
     private static final long   TICK_INTERVAL        = 20L * 60 * 20; // 20분
     private static final String MAT_HERB_IMPERIAL     = "mat_herb_imperial";
     private static final String MAT_ESSENCE_IMPERIAL  = "mat_essence_imperial";
+    private static final String MAT_ORE_RESONANCE     = "res_ore_resonance"; // 마도철 원석
+    private static final String MAT_SILVER_ORE        = "res_silver_ore";    // 은 원석 (레어)
 
     private final JavaPlugin                plugin;
     private final IslandTerritoryStateStore stateStore;
@@ -30,7 +32,10 @@ public final class MachineProductionScheduler {
 
     private void tick() {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            stateStore.get(player.getUniqueId()).ifPresent(this::produceHerbs);
+            stateStore.get(player.getUniqueId()).ifPresent(state -> {
+                produceHerbs(state);
+                produceOres(state);
+            });
         }
     }
 
@@ -68,5 +73,34 @@ public final class MachineProductionScheduler {
 
         state.addCustomItem(MAT_HERB_IMPERIAL, totalHerbs);
         if (totalEssence > 0) state.addCustomItem(MAT_ESSENCE_IMPERIAL, totalEssence);
+    }
+
+    private void produceOres(IslandTerritoryState state) {
+        int miners = state.minerCount();
+        if (miners <= 0) return;
+
+        int tier = state.rank().tier;
+        int machineLevel = tier < 3 ? 1 : tier < 5 ? 2 : 3;
+
+        ThreadLocalRandom rng = ThreadLocalRandom.current();
+        long totalOre = 0;
+        long totalSilver = 0;
+
+        for (int i = 0; i < miners; i++) {
+            switch (machineLevel) {
+                case 3 -> {
+                    totalOre += rng.nextInt(4, 7);
+                    if (rng.nextInt(100) < 30) totalSilver++;
+                }
+                case 2 -> {
+                    totalOre += rng.nextInt(3, 5);
+                    if (rng.nextInt(100) < 10) totalSilver++;
+                }
+                default -> totalOre += rng.nextInt(2, 4);
+            }
+        }
+
+        state.addCustomItem(MAT_ORE_RESONANCE, totalOre);
+        if (totalSilver > 0) state.addCustomItem(MAT_SILVER_ORE, totalSilver);
     }
 }

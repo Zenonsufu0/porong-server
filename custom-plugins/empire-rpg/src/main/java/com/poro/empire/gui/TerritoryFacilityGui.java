@@ -27,13 +27,14 @@ public final class TerritoryFacilityGui {
         for (int i = 0; i < 45; i++) inv.setItem(i, gray);
 
         int reapers = territory.reaperCount();
+        int miners  = territory.minerCount();
         int lv      = machineLevel(territory);
 
         // row0-1: 약초 재배기
         for (int i = 0; i < Math.min(reapers, 18); i++) {
             inv.setItem(i, MainHubGui.icon(Material.WHEAT,
                     "§a약초 재배기 §fLv." + lv,
-                    List.of("§720분 주기 생산", "§7자동 창고 적재")));
+                    List.of("§720분 주기 생산", "§7제국 약초·정수 자동 적립")));
         }
         if (reapers == 0) {
             inv.setItem(8, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE,
@@ -41,10 +42,17 @@ public final class TerritoryFacilityGui {
                     List.of("§7작위 승급 후 설치 가능")));
         }
 
-        // row2-3: 광물 채굴기 (데이터 미지원, 안내 아이콘만)
-        inv.setItem(26, MainHubGui.icon(Material.IRON_PICKAXE,
-                "§7광물 채굴기 §8[준비 중]",
-                List.of("§8추후 업데이트 예정")));
+        // row2-3: 광물 채굴기 (slot 18~35)
+        for (int i = 0; i < Math.min(miners, 18); i++) {
+            inv.setItem(18 + i, MainHubGui.icon(Material.IRON_PICKAXE,
+                    "§b광물 채굴기 §fLv." + lv,
+                    List.of("§720분 주기 생산", "§7마도철 원석·은 원석 자동 적립")));
+        }
+        if (miners == 0) {
+            inv.setItem(26, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE,
+                    "§7광물 채굴기 §8[미설치]",
+                    List.of("§7작위 승급 후 설치 가능")));
+        }
 
         inv.setItem(SLOT_BACK, MainHubGui.icon(Material.ARROW, "§7뒤로", List.of("§7영지 설정")));
 
