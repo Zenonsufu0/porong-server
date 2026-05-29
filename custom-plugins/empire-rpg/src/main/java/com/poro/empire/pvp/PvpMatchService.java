@@ -292,7 +292,20 @@ public final class PvpMatchService {
             }
         }
 
-        // 3초 후 자동 영지 귀환
+        // DB 매치 로그
+        if (matchLogRepository != null) {
+            int durationS = (int) ((System.currentTimeMillis() - match.startedAt()) / 1000L);
+            matchLogRepository.record(match.type(), winnerUuid, loserUuid, draw, durationS, reason);
+        }
+
+        // 즉시 정리 — 매치 진입 가능 상태로 복원 (큐 등에서 ALREADY_IN_MATCH 필터링 풀림)
+        activeMatches.remove(match.matchId());
+        playerToMatch.remove(match.playerA());
+        playerToMatch.remove(match.playerB());
+        rankedContexts.remove(match.matchId());
+
+        // 3초 후: 자동 영지 귀환 + 아레나 해제 + 큐 재매칭 트리거
+        // (귀환 전 release하면 새 매치가 같은 아레나에 들어와 충돌 가능)
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             Player pa = Bukkit.getPlayer(match.playerA());
             Player pb = Bukkit.getPlayer(match.playerB());
@@ -304,24 +317,10 @@ public final class PvpMatchService {
                 if (pb.isDead()) { pb.spigot().respawn(); }
                 pb.performCommand("is home");
             }
+            arenaManager.releaseByMatchId(match.matchId().toString());
+            tryMatch(PvpMatchType.FREE);
+            tryMatch(PvpMatchType.RANKED);
         }, AUTO_RETURN_TICKS);
-
-        // DB 매치 로그
-        if (matchLogRepository != null) {
-            int durationS = (int) ((System.currentTimeMillis() - match.startedAt()) / 1000L);
-            matchLogRepository.record(match.type(), winnerUuid, loserUuid, draw, durationS, reason);
-        }
-
-        // 정리
-        activeMatches.remove(match.matchId());
-        playerToMatch.remove(match.playerA());
-        playerToMatch.remove(match.playerB());
-        rankedContexts.remove(match.matchId());
-        arenaManager.releaseByMatchId(match.matchId().toString());
-
-        // 아레나 해제 직후 NO_ARENA로 대기 중이던 큐 자동 재매칭 트리거
-        tryMatch(PvpMatchType.FREE);
-        tryMatch(PvpMatchType.RANKED);
     }
 
     private void broadcastMatch(PvpMatch match, String msg) {
