@@ -1,17 +1,22 @@
 package com.poro.empire.command;
 
+import com.poro.empire.combat.CombatStateService;
 import com.poro.empire.growth.island.IslandStorage;
 import com.poro.empire.growth.island.IslandStorageStore;
 import com.poro.empire.growth.island.IslandTerritoryState;
 import com.poro.empire.growth.island.IslandTerritoryStateStore;
 import com.poro.empire.gui.MainHubGui;
 import com.poro.empire.gui.StorageGui;
+import com.poro.empire.gui.TerritoryHubGui;
+import com.poro.empire.gui.TerritoryMoveGui;
+import com.poro.empire.gui.TerritorySettingsGui;
 import com.poro.empire.gui.TerritoryStatusGui;
 import com.poro.empire.gui.WorkshopGui;
 import com.poro.empire.listener.AuctionGuiListener;
 import com.poro.empire.listener.BossHubListener;
 import com.poro.empire.listener.FieldHubListener;
 import com.poro.empire.listener.GrowthGuiListener;
+import com.poro.empire.listener.ShopGuiListener;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -34,19 +39,25 @@ public class PlayerCommandRouter implements CommandExecutor {
     private final GrowthGuiListener         growthGuiListener;
     private final FieldHubListener          fieldHubListener;
     private final BossHubListener           bossHubListener;
+    private final ShopGuiListener           shopGuiListener;
+    private final CombatStateService        combatStateService;
 
     public PlayerCommandRouter(IslandStorageStore storageStore,
                                IslandTerritoryStateStore territoryStore,
                                AuctionGuiListener auctionGuiListener,
                                GrowthGuiListener growthGuiListener,
                                FieldHubListener fieldHubListener,
-                               BossHubListener bossHubListener) {
+                               BossHubListener bossHubListener,
+                               ShopGuiListener shopGuiListener,
+                               CombatStateService combatStateService) {
         this.storageStore       = storageStore;
         this.territoryStore     = territoryStore;
         this.auctionGuiListener = auctionGuiListener;
         this.growthGuiListener  = growthGuiListener;
         this.fieldHubListener   = fieldHubListener;
         this.bossHubListener    = bossHubListener;
+        this.shopGuiListener    = shopGuiListener;
+        this.combatStateService = combatStateService;
     }
 
     @Override
@@ -75,18 +86,18 @@ public class PlayerCommandRouter implements CommandExecutor {
             case "각인"     -> growthGuiListener.openEngraving(player);
             case "캐릭터"   -> stub(player, "캐릭터");
             case "전승"     -> growthGuiListener.openHeirloom(player);
-            case "영지"     -> stub(player, "영지 메뉴");
-            case "영지이동"  -> stub(player, "영지이동");
+            case "영지"     -> TerritoryHubGui.open(player);
+            case "영지이동"  -> openTerritoryMove(player);
             case "작물"     -> stub(player, "작물 관리");
-            case "상점"     -> stub(player, "상점");
+            case "상점"     -> shopGuiListener.openShop(player);
             case "경매장"   -> handleAuction(player, args);
-            case "영지설정"  -> stub(player, "영지 설정");
+            case "영지설정"  -> openTerritorySettings(player);
             // ── 보스 계열 ──────────────────────────────────────────
             case "보스"     -> bossHubListener.openBossHub(player);
             case "파티"     -> bossHubListener.openPartyHub(player);
             case "파티목록"  -> bossHubListener.openPartyList(player);
-            case "보스정보"  -> stub(player, "보스 정보");
-            case "클리어"   -> stub(player, "클리어 기록");
+            case "보스정보"  -> bossHubListener.openBossInfo(player);
+            case "클리어"   -> bossHubListener.openClearRecords(player);
             // ── 필드 ──────────────────────────────────────────────
             case "필드"     -> fieldHubListener.openFieldHub(player);
             default          -> stub(player, label);
@@ -103,6 +114,20 @@ public class PlayerCommandRouter implements CommandExecutor {
         IslandTerritoryState state = territoryStore.getOrCreate(player.getUniqueId());
         IslandStorage storage = storageStore.getOrCreate(player.getUniqueId());
         TerritoryStatusGui.open(player, state, storage);
+    }
+
+    private void openTerritoryMove(Player player) {
+        IslandTerritoryState state = territoryStore.getOrCreate(player.getUniqueId());
+        TerritoryMoveGui.open(player, state);
+    }
+
+    private void openTerritorySettings(Player player) {
+        if (combatStateService.isInCombat(player.getUniqueId())) {
+            player.sendMessage(PREFIX + "§c전투 중에는 영지 설정을 열 수 없습니다.");
+            return;
+        }
+        IslandTerritoryState state = territoryStore.getOrCreate(player.getUniqueId());
+        TerritorySettingsGui.open(player, state);
     }
 
     private void handleAuction(Player player, String[] args) {

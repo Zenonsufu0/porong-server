@@ -145,6 +145,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
     private com.poro.empire.boss.party.PartyManager partyManager;
     private FieldHubListener    fieldHubListener;
     private BossHubListener     bossHubListener;
+    private ShopGuiListener     shopGuiListener;
     private BossRoomManager     bossRoomManager;
     private BossRewardService   bossRewardService;
 
@@ -476,7 +477,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         }
         BossRoomListener bossRoomListenerInstance =
                 new BossRoomListener(bossRoomManager, masterRegistryContext.bossMasters(), partyManager, bossEngineRuntime, mythicSpawner);
-        ShopGuiListener shopGuiListener = new ShopGuiListener(growthStateStore, islandStorageStore, combatStateService);
+        this.shopGuiListener = new ShopGuiListener(growthStateStore, islandStorageStore, combatStateService);
         getServer().getPluginManager().registerEvents(shopGuiListener, this);
         getServer().getPluginManager().registerEvents(
                 new MainHubListener(growthGuiListener, islandStorageStore, islandTerritoryStateStore,
@@ -551,7 +552,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         getCommand("empire").setTabCompleter(empireCommand);
 
         // 한글 단축 커맨드
-        PlayerCommandRouter router = new PlayerCommandRouter(islandStorageStore, islandTerritoryStateStore, auctionGuiListener, growthGuiListener, fieldHubListener, bossHubListener);
+        PlayerCommandRouter router = new PlayerCommandRouter(islandStorageStore, islandTerritoryStateStore, auctionGuiListener, growthGuiListener, fieldHubListener, bossHubListener, shopGuiListener, combatStateService);
         String[] koreanCommands = {
             "메뉴", "장비", "강화", "잠재", "각인", "캐릭터", "전승",
             "영지", "영지이동", "영지상태", "창고", "공방", "작물", "상점", "경매장", "영지설정",

@@ -42,6 +42,11 @@ public final class BossHubListener implements Listener {
     public void openBossHub(Player player)  { BossHubGui.open(player); }
     public void openPartyHub(Player player) { renderPartyHub(player); }
     public void openPartyList(Player player){ renderPartyList(player); }
+    public void openClearRecords(Player player) {
+        BossClearRecordsGui.open(player, bossSessionRepository,
+                islandTerritoryStateStore.getOrCreate(player.getUniqueId(), player.getName()));
+    }
+    public void openBossInfo(Player player) { BossHubGui.openBossInfo(player); }
 
     @EventHandler
     public void onClick(InventoryClickEvent event) {
