@@ -33,8 +33,11 @@ public final class TerritorySettingsGuiListener implements Listener {
         } else if (GuiTitles.TERRITORY_FACILITY.equals(event.getView().title())) {
             event.setCancelled(true);
             if (event.getRawSlot() == TerritoryFacilityGui.SLOT_BACK) {
-                IslandTerritoryState territory = territory(player);
-                TerritorySettingsGui.open(player, territory);
+                if (combatStateService.isInCombat(player.getUniqueId())) {
+                    player.sendMessage("§c[영지] 전투 중에는 영지 설정을 열 수 없습니다.");
+                    return;
+                }
+                TerritorySettingsGui.open(player, territory(player));
             }
         }
     }

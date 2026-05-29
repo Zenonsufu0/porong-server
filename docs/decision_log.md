@@ -1316,3 +1316,52 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 - 하의뿐 아니라 투구·상의·신발에도 `boss_damage_increase`가 등장할 수 있음 (doc 기준 하의 전용이나 허용).
 
 **부채:** 2차 확장 시 slot-specific 풀 아키텍처로 전환 필요.
+
+---
+
+### DL-071 CombatStateService 전투 태그 8초 만료 추가
+
+**결정:** `isInCombat()`이 마지막 피격 시각으로부터 8초 경과 시 자동 해제된다.
+
+**이유:**
+- 기존 구현은 `exitCombat()` 명시 호출 없이 영구 유지 — 영지 바닐라 몹 피격 한 번으로 모든 전투 제한 GUI 영구 차단 버그 발생.
+- `getLastHitTime()` 필드는 이미 존재했으나 `isInCombat()`에서 미사용 상태였음.
+
+**결과:** `isInCombat()` 내부에서 lazy cleanup — 별도 스케줄러 없이 호출 시점 만료 판정.
+
+---
+
+### DL-072 영지 설정·시설 현황 GUI 전투 중 접근 차단
+
+**결정:** `TerritorySettingsGui`, `TerritoryFacilityGui` 진입·복귀 경로 전체에 `combatStateService.isInCombat()` 검사 추가.
+
+**이유:**
+- 설계 문서 접근 조건 "전투 중 불가" 계약 이행.
+- DL-071 수정 전까지는 영지 몹 피격 시 영구 전투 태그로 인해 실질적 차단 불가 상태였음.
+
+**적용 위치:** `MainHubListener.handleTerritoryHub` (ZONE_SETTINGS), `TerritorySettingsGuiListener.handleSettings` (SLOT_FACILITY), `TerritorySettingsGuiListener.onClick` (TERRITORY_FACILITY 뒤로).
+
+---
+
+### DL-073 영지 허브 구조 개편 — 시설관리 영지설정 흡수·경매장 메인 이동
+
+**결정:**
+- 영지 서브 허브 8구역 → 6구역 (3×3 격자).
+- 시설 관리 구역 제거 → 영지 설정 GUI 내 "시설 현황 →" 버튼(slot 17)으로 흡수.
+- 경매장 구역 → 메인 허브 6번째 구역으로 이동.
+
+**이유:** PNG 배경 제거 후 8구역 레이아웃이 시각적으로 복잡. 6구역 3×3은 메인 허브와 동일 패턴으로 일관성 확보.
+
+**영향:** `gui_territory_settings.md` slot 17 기존 회색 → 시설현황 버튼으로 변경 기록.
+
+---
+
+### DL-074 강화·전승 GUI 45슬롯 정렬 — 설계 문서 기준 복원
+
+**결정:**
+- 강화 GUI: 54슬롯 → 45슬롯, 장비 선택 col8 세로 배치, 정보 슬롯 5개 독립.
+- 전승 GUI: 54슬롯 → 45슬롯, `HEIR_SLOT_BACK` 45 → 36.
+
+**이유:** 구현 당시 설계 문서(`gui_enhancement.md`, `gui_succession.md`)와 다른 레이아웃으로 구현됨. 강화 GUI는 신발 슬롯이 row3에 낙오되는 버그 포함.
+
+**결과:** 두 GUI 모두 `gui_enhancement.md`·`gui_succession.md` 스펙과 일치.
