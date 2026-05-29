@@ -37,8 +37,6 @@ public final class FieldHubListener implements Listener {
             fieldTeleportService.teleportToField(player, fieldId);
             return;
         }
-        switch (slot) {
-            case 45 -> MainHubGui.open(player);
-        }
+        if (slot == 18) MainHubGui.open(player);
     }
 }

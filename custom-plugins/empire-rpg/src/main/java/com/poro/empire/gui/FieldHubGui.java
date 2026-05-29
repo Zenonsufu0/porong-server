@@ -21,13 +21,13 @@ public final class FieldHubGui {
             new FieldDef("ruins",   "고대 성벽 잔해", Material.MOSSY_COBBLESTONE)
     );
 
-    // 슬롯 배치: 3 + 2 레이아웃
-    private static final int[] FIELD_SLOTS = {10, 12, 14, 21, 23};
+    // 슬롯 배치: row1 한 줄 (27슬롯)
+    private static final int[] FIELD_SLOTS = {9, 10, 11, 12, 13};
 
     public static void open(Player player, ExploreHubGui.FieldStateProvider provider) {
-        Inventory inv = Bukkit.createInventory(null, 54, GuiTitles.FIELD_HUB);
+        Inventory inv = Bukkit.createInventory(null, 27, GuiTitles.FIELD_HUB);
         ItemStack pane = MainHubGui.icon(Material.BLACK_STAINED_GLASS_PANE, " ", List.of());
-        for (int i = 0; i < 54; i++) inv.setItem(i, pane);
+        for (int i = 0; i < 27; i++) inv.setItem(i, pane);
 
         for (int i = 0; i < FIELDS.size(); i++) {
             FieldDef f = FIELDS.get(i);
@@ -49,7 +49,7 @@ public final class FieldHubGui {
                             "§a클릭하여 이동")));
         }
 
-        inv.setItem(45, MainHubGui.icon(Material.ARROW, "§7뒤로", List.of("§7메인 메뉴")));
+        inv.setItem(18, MainHubGui.icon(Material.ARROW, "§7뒤로", List.of("§7메인 메뉴")));
         player.openInventory(inv);
     }
 
