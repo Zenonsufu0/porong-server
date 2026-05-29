@@ -93,6 +93,7 @@ import com.poro.empire.listener.StorageGuiListener;
 import com.poro.empire.listener.TerritorySettingsGuiListener;
 import com.poro.empire.listener.PvpHubListener;
 import com.poro.empire.listener.ShopGuiListener;
+import com.poro.empire.pvp.PvpMatchService;
 import com.poro.empire.pvp.PvpRatingService;
 import com.poro.empire.listener.TerritoryStatusGuiListener;
 import com.poro.empire.listener.ConsumableUseListener;
@@ -155,6 +156,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
     private PvpHubListener      pvpHubListener;
     private PvpRatingService    pvpRatingService;
     private PvpArenaManager     pvpArenaManager;
+    private PvpMatchService     pvpMatchService;
     private BossRoomManager     bossRoomManager;
     private BossRewardService   bossRewardService;
 
@@ -340,7 +342,8 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         this.shopGuiListener = new ShopGuiListener(growthStateStore, islandStorageStore, combatStateService, scoreboardService);
         this.pvpRatingService = new PvpRatingService();
         this.pvpArenaManager  = PvpArenaManager.fromConfig(this);
-        this.pvpHubListener   = new PvpHubListener(pvpRatingService);
+        this.pvpMatchService  = new PvpMatchService(this, pvpArenaManager, pvpRatingService);
+        this.pvpHubListener   = new PvpHubListener(pvpRatingService, pvpMatchService);
         this.resourceTracker = new ResourceTracker();
         SkillContext skillContext = new SkillContext(
                 playerDataManager, this.cooldownManager, this.resourceTracker,

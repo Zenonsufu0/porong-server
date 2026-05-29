@@ -4,18 +4,24 @@ import com.poro.empire.gui.GuiTitles;
 import com.poro.empire.gui.MainHubGui;
 import com.poro.empire.gui.PvpHubGui;
 import com.poro.empire.gui.PvpRankingGui;
+import com.poro.empire.pvp.PvpMatchService;
+import com.poro.empire.pvp.PvpMatchType;
 import com.poro.empire.pvp.PvpRatingService;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 public final class PvpHubListener implements Listener {
 
     private final PvpRatingService ratingService;
+    private final PvpMatchService  matchService;
 
-    public PvpHubListener(PvpRatingService ratingService) {
+    public PvpHubListener(PvpRatingService ratingService, PvpMatchService matchService) {
         this.ratingService = ratingService;
+        this.matchService  = matchService;
     }
 
     public void openHub(Player player) {
@@ -43,11 +49,30 @@ public final class PvpHubListener implements Listener {
 
     private void handleHub(Player player, int slot) {
         switch (slot) {
-            case PvpHubGui.SLOT_FREE     -> player.sendMessage("§7[PvP] 자유대전은 Phase 2에서 활성화됩니다.");
-            case PvpHubGui.SLOT_RANKED   -> player.sendMessage("§7[PvP] 정규대전은 Phase 2에서 활성화됩니다.");
-            case PvpHubGui.SLOT_FRIENDLY -> player.sendMessage("§7[PvP] 친선대전은 Phase 2에서 활성화됩니다.");
+            case PvpHubGui.SLOT_FREE -> {
+                player.closeInventory();
+                matchService.enqueue(player, PvpMatchType.FREE);
+            }
+            case PvpHubGui.SLOT_RANKED -> {
+                player.closeInventory();
+                matchService.enqueue(player, PvpMatchType.RANKED);
+            }
+            case PvpHubGui.SLOT_FRIENDLY -> player.sendMessage("§7[PvP] 친선대전은 Phase 2e에서 활성화됩니다.");
             case PvpHubGui.SLOT_RANKING  -> PvpRankingGui.open(player, ratingService);
             case PvpHubGui.SLOT_BACK     -> MainHubGui.open(player);
         }
+    }
+
+    @EventHandler
+    public void onDeath(PlayerDeathEvent event) {
+        Player p = event.getEntity();
+        if (matchService.isInMatch(p.getUniqueId())) {
+            matchService.onPlayerDeath(p);
+        }
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        matchService.onPlayerQuit(event.getPlayer());
     }
 }
