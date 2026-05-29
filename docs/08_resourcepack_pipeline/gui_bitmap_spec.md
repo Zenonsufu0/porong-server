@@ -133,10 +133,10 @@ assets/export/resourcepack/assets/poro/
 |---|---|---|
 | `` | -176px 오프셋 (전체 폭 역행) | — |
 | ``~`` | 세밀 오프셋 (-1~-128px) | — |
-| `` | 메인 허브 배경 | `menu_main.png` |
-| `` | 장비 하위 GUI 배경 | `menu_equipment.png` |
-| `` | 영지 하위 GUI 배경 | `menu_territory.png` |
-| `` | 보스 하위 GUI 배경 | `menu_boss.png` |
+| `` | 메인 허브 배경 *(미사용)* | `menu_main.png` |
+| `` | 장비 하위 GUI 배경 *(미사용)* | `menu_equipment.png` |
+| `` | 영지 하위 GUI 배경 *(미사용)* | `menu_territory.png` |
+| `` | 보스 하위 GUI 배경 *(미사용)* | `menu_boss.png` |
 
 ---
 

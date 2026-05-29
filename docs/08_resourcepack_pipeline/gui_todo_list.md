@@ -17,10 +17,10 @@
 
 | 상태 | 파일명 | 유니코드 | 용도 |
 |:---:|---|---|---|
-| [완료] | `menu_main.png` | `` | 메인 허브 (장비/필드/영지/보스 선택) |
-| [완료] | `menu_equipment.png` | `` | 장비 하위 GUI |
-| [완료] | `menu_territory.png` | `` | 영지 하위 GUI |
-| [완료] | `menu_boss.png` | `` | 보스 하위 GUI |
+| [완료] | `menu_main.png` | `` | 메인 허브 *(현행 미사용 — 색상 유리 대체)* |
+| [완료] | `menu_equipment.png` | `` | 장비 하위 GUI *(현행 미사용)* |
+| [완료] | `menu_territory.png` | `` | 영지 하위 GUI *(현행 미사용)* |
+| [완료] | `menu_boss.png` | `` | 보스 하위 GUI *(현행 미사용)* |
 
 
 ---
@@ -54,9 +54,9 @@
 | 상태 | 화면 | 슬롯 | 설계문서 | 비고 |
 |:---:|---|:---:|---|---|
 | [설계완료] | 메인 허브 | 54 | `gui_hub_structure.md §2` | 6구역 3×3 (장비/영지/보스/탐험/PvP/경매장) |
-| [설계완료] | 장비 서브 허브 | 54 | `gui_hub_structure.md §3` | 공식 배경 `menu_equipment.png` |
-| [설계완료] | 영지 서브 허브 | 54 | `gui_hub_structure.md §4` | 공식 배경 `menu_territory.png` |
-| [설계완료] | 보스 서브 허브 | 54 | `gui_hub_structure.md §5` | 공식 배경 `menu_boss.png` |
+| [설계완료] | 장비 서브 허브 | 54 | `gui_hub_structure.md §3` | 색상 유리판 방식 (menu_equipment.png 미사용) |
+| [설계완료] | 영지 서브 허브 | 54 | `gui_hub_structure.md §4` | 색상 유리판 방식 (menu_territory.png 미사용) |
+| [설계완료] | 보스 서브 허브 | 54 | `gui_hub_structure.md §5` | 색상 유리판 방식 (menu_boss.png 미사용) |
 | [설계완료] | 탐험 서브 허브 | 27 | `gui_hub_structure.md §6` | |
 
 ### 3-2. 장비 계열

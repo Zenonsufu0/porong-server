@@ -9,7 +9,7 @@
 - [GUI 허브 구조 설계](gui_hub_structure.md) — 메인 허브 6구역 3×3, 서브 허브 4종, 보스 방 시스템, 접근 제한 정책 (DL-073)
 - [GUI 장비 패널 설계](gui_equipment_panel.md) — 54슬롯 장착·치장·외형 토글·스탯 배분 패널
 
-> GUI 세부 설계는 최신 커밋 기준으로 전체 완료 상태다. 배경 PNG는 `menu_main.png`, `menu_equipment.png`, `menu_territory.png`, `menu_boss.png` 4개만 공식 사용하며, 나머지 GUI는 chest + 유리판/바닐라 아이템/lore 구성으로 처리한다.
+> GUI 세부 설계는 최신 커밋 기준으로 전체 완료 상태다. 배경 PNG 4개(menu_main/equipment/territory/boss.png)는 현행 구현에서 **미사용** — 모든 허브 GUI가 색상 유리판 + 중앙 아이콘 방식으로 전환됨(DL-073). 나머지 GUI는 chest + 유리판/바닐라 아이템/lore 구성.
 
 ---
 
