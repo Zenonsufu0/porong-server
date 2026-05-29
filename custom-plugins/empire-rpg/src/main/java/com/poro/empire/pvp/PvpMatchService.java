@@ -117,27 +117,51 @@ public final class PvpMatchService {
         Deque<UUID> queue = queueFor(type);
         if (queue == null) return;
         synchronized (queue) {
-            if (queue.size() < 2) return;
-            UUID a = queue.poll();
-            UUID b = queue.poll();
+            // 큐 앞에서부터 정상 후보 2명을 찾는다.
+            // 매치 중인 플레이어는 자동 제거 (stale 정리).
+            UUID a = nextValidCandidate(queue);
+            if (a == null) return;
+            UUID b = nextValidCandidate(queue);
+            if (b == null) {
+                queue.addFirst(a);  // 단독 후보 — 다음 매칭 트리거 대기
+                return;
+            }
             Player pa = Bukkit.getPlayer(a);
             Player pb = Bukkit.getPlayer(b);
-            if (pa == null) { if (b != null) queue.addFirst(b); return; }
-            if (pb == null) { queue.addFirst(a); return; }
+            if (pa == null) {        // a 오프라인 — 제거하고 b만 복귀
+                queue.addFirst(b);
+                return;
+            }
+            if (pb == null) {        // b 오프라인 — 제거하고 a만 복귀
+                queue.addFirst(a);
+                return;
+            }
             StartResult result = startMatch(pa, pb, type);
             switch (result) {
                 case SUCCESS -> { /* 양측 매치 진입 — 큐에서 빠진 그대로 */ }
                 case NO_ARENA -> {
-                    // 일시적 — 양측 큐 재대기
+                    // 일시적 — 양측 큐 재대기. 매치 종료 시 endMatch에서 자동 재시도 트리거.
                     queue.addFirst(b);
                     queue.addFirst(a);
                 }
                 case ALREADY_IN_MATCH -> {
-                    // 한쪽 또는 양쪽이 다른 매치 진입 — 해당 큐에서도 제거 상태 유지
-                    // (재삽입하면 무한 fail 반복 위험)
+                    // 사전 필터로 막혔어야 하지만 race로 통과한 경우 — 안전망:
+                    // 실제 매치 중인 쪽만 제거, 정상 쪽만 복귀.
+                    if (!playerToMatch.containsKey(a)) queue.addFirst(a);
+                    if (!playerToMatch.containsKey(b)) queue.addFirst(b);
                 }
             }
         }
+    }
+
+    /** 큐에서 매치 중이지 않은 첫 후보를 꺼낸다. 매치 중인 stale 항목은 자동 제거. */
+    private UUID nextValidCandidate(Deque<UUID> queue) {
+        while (!queue.isEmpty()) {
+            UUID uuid = queue.poll();
+            if (!playerToMatch.containsKey(uuid)) return uuid;
+            // stale: 매치 중인데 큐에 남아 있던 항목 — 그냥 버린다.
+        }
+        return null;
     }
 
     /** 친선대전 — 양측 합의 후 호출. */
@@ -294,6 +318,10 @@ public final class PvpMatchService {
         playerToMatch.remove(match.playerB());
         rankedContexts.remove(match.matchId());
         arenaManager.releaseByMatchId(match.matchId().toString());
+
+        // 아레나 해제 직후 NO_ARENA로 대기 중이던 큐 자동 재매칭 트리거
+        tryMatch(PvpMatchType.FREE);
+        tryMatch(PvpMatchType.RANKED);
     }
 
     private void broadcastMatch(PvpMatch match, String msg) {
