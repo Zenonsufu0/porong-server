@@ -87,6 +87,7 @@ import com.poro.empire.listener.HotbarInteractListener;
 import com.poro.empire.listener.MainHubListener;
 import com.poro.empire.listener.PlayerJoinListener;
 import com.poro.empire.listener.StorageGuiListener;
+import com.poro.empire.listener.TerritorySettingsGuiListener;
 import com.poro.empire.listener.TerritoryStatusGuiListener;
 import com.poro.empire.listener.ConsumableUseListener;
 import com.poro.empire.listener.WorkshopGuiListener;
@@ -482,6 +483,8 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                 new StorageGuiListener(islandStorageStore), this);
         getServer().getPluginManager().registerEvents(
                 new TerritoryStatusGuiListener(islandTerritoryStateStore, islandStorageStore, growthStateStore, playerDataManager), this);
+        getServer().getPluginManager().registerEvents(
+                new TerritorySettingsGuiListener(islandTerritoryStateStore), this);
         getServer().getPluginManager().registerEvents(
                 new WorkshopGuiListener(islandTerritoryStateStore, islandStorageStore, this), this);
         getServer().getPluginManager().registerEvents(

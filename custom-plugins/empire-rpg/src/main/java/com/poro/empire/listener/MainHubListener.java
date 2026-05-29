@@ -7,6 +7,7 @@ import com.poro.empire.gui.GuiTitles;
 import com.poro.empire.gui.MainHubGui;
 import com.poro.empire.gui.StorageGui;
 import com.poro.empire.gui.TerritoryHubGui;
+import com.poro.empire.gui.TerritorySettingsGui;
 import com.poro.empire.gui.TerritoryStatusGui;
 import com.poro.empire.gui.WorkshopGui;
 import org.bukkit.Material;
@@ -96,7 +97,11 @@ public final class MainHubListener implements Listener {
             IslandTerritoryState territory = islandTerritoryStateStore.getOrCreate(
                     player.getUniqueId(), player.getName());
             WorkshopGui.open(player, WorkshopGui.WorkshopTab.ESTATE, territory);
+        } else if (TerritoryHubGui.ZONE_SETTINGS.contains(slot)) {
+            IslandTerritoryState territory = islandTerritoryStateStore.getOrCreate(
+                    player.getUniqueId(), player.getName());
+            TerritorySettingsGui.open(player, territory);
         }
-        // 이동·상점·설정 구역 및 테두리 슬롯은 클릭 무반응
+        // 이동·상점 구역 및 테두리 슬롯은 클릭 무반응
     }
 }
