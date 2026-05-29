@@ -13,6 +13,7 @@ public final class GuiTitles {
     public static final Component TERRITORY_FACILITY = Component.text("시설 현황");
     public static final Component BOSS_HUB         = Component.text("보스 도전");
     public static final Component BOSS_INFO        = Component.text("보스 선택");
+    public static final Component BOSS_CLEAR_RECORDS = Component.text("클리어 기록");
     public static final Component EXPLORE_HUB      = Component.text("탐험 지도");
     public static final Component STORAGE          = Component.text("영지 저장고");
     public static final Component TERRITORY_STATUS = Component.text("영지 상태");

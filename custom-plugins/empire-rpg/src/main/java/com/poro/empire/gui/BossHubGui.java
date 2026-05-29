@@ -41,7 +41,7 @@ public final class BossHubGui {
         inv.setItem(10, MainHubGui.icon(Material.GREEN_WOOL,           "§a파티 생성",   List.of("§7새 파티를 만들어 도전", "§8▶ 클릭하여 열기")));
         inv.setItem(12, MainHubGui.icon(Material.BOOK,                  "§f파티 목록",   List.of("§7열린 파티에 참가",     "§8▶ 클릭하여 열기")));
         inv.setItem(14, MainHubGui.icon(Material.WITHER_SKELETON_SKULL, "§c보스 도전",   List.of("§7보스 선택 후 입장",    "§8▶ 클릭하여 열기")));
-        inv.setItem(16, MainHubGui.icon(Material.NETHER_STAR,           "§e클리어 기록", List.of("§8준비 중")));
+        inv.setItem(16, MainHubGui.icon(Material.NETHER_STAR,           "§e클리어 기록", List.of("§7보스별 개인·서버 기록", "§8▶ 클릭하여 열기")));
 
         inv.setItem(18, MainHubGui.icon(Material.ARROW, "§7뒤로", List.of("§7메인 메뉴")));
         player.openInventory(inv);

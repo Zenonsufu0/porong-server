@@ -320,7 +320,8 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                 ? fieldBossScheduler : buildFieldStateProvider();
         FieldTeleportService fieldTeleportService = new FieldTeleportService(this);
         this.fieldHubListener = new FieldHubListener(fieldStateProvider, fieldTeleportService);
-        this.bossHubListener  = new BossHubListener(partyManager, bossRoomManager);
+        this.bossHubListener  = new BossHubListener(partyManager, bossRoomManager,
+                bossEngineRuntime.bossSessionRepository(), islandTerritoryStateStore);
         ShopGui.reloadItems(this);
         this.resourceTracker = new ResourceTracker();
         SkillContext skillContext = new SkillContext(

@@ -1,7 +1,10 @@
 package com.poro.empire.listener;
 
+import com.poro.empire.boss.db.BossSessionRepository;
 import com.poro.empire.boss.party.PartyManager;
 import com.poro.empire.boss.room.BossRoomManager;
+import com.poro.empire.growth.island.IslandTerritoryStateStore;
+import com.poro.empire.gui.BossClearRecordsGui;
 import com.poro.empire.gui.BossHubGui;
 import com.poro.empire.gui.GuiTitles;
 import com.poro.empire.gui.MainHubGui;
@@ -21,12 +24,19 @@ import java.util.UUID;
 
 public final class BossHubListener implements Listener {
 
-    private final PartyManager   partyManager;
-    private final BossRoomManager bossRoomManager;
+    private final PartyManager              partyManager;
+    private final BossRoomManager           bossRoomManager;
+    private final BossSessionRepository     bossSessionRepository;
+    private final IslandTerritoryStateStore islandTerritoryStateStore;
 
-    public BossHubListener(PartyManager partyManager, BossRoomManager bossRoomManager) {
-        this.partyManager    = partyManager;
-        this.bossRoomManager = bossRoomManager;
+    public BossHubListener(PartyManager partyManager,
+                           BossRoomManager bossRoomManager,
+                           BossSessionRepository bossSessionRepository,
+                           IslandTerritoryStateStore islandTerritoryStateStore) {
+        this.partyManager              = partyManager;
+        this.bossRoomManager           = bossRoomManager;
+        this.bossSessionRepository     = bossSessionRepository;
+        this.islandTerritoryStateStore = islandTerritoryStateStore;
     }
 
     public void openBossHub(Player player)  { BossHubGui.open(player); }
@@ -43,6 +53,9 @@ public final class BossHubListener implements Listener {
         } else if (GuiTitles.BOSS_INFO.equals(event.getView().title())) {
             event.setCancelled(true);
             handleBossInfo(player, event.getRawSlot());
+        } else if (GuiTitles.BOSS_CLEAR_RECORDS.equals(event.getView().title())) {
+            event.setCancelled(true);
+            if (event.getRawSlot() == BossClearRecordsGui.SLOT_BACK) BossHubGui.open(player);
         } else if (GuiTitles.PARTY_HUB.equals(event.getView().title())) {
             event.setCancelled(true);
             handlePartyHub(player, event.getRawSlot());
@@ -59,7 +72,8 @@ public final class BossHubListener implements Listener {
             case 10 -> renderPartyHub(player);
             case 12 -> renderPartyList(player);
             case 14 -> BossHubGui.openBossInfo(player);
-            case 16 -> player.sendMessage("§7[클리어 기록] 준비 중입니다.");
+            case 16 -> BossClearRecordsGui.open(player, bossSessionRepository,
+                            islandTerritoryStateStore.getOrCreate(player.getUniqueId(), player.getName()));
             case 18 -> MainHubGui.open(player);
         }
     }

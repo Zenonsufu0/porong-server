@@ -152,6 +152,74 @@ public final class BossSessionRepository {
         return queryRowsParam(sql, bossId);
     }
 
+    /** 플레이어별 보스 클리어 횟수 (클리어 기록 GUI용). */
+    public int countClearsByPlayer(String uuid, String bossId) {
+        String sql = """
+            SELECT COUNT(*) FROM boss_session_log l
+            JOIN boss_session_player p ON l.id = p.session_id
+            WHERE p.player_uuid = ? AND l.boss_id = ? AND l.result = 'clear'
+            """;
+        Result<Connection> connResult = connectionProvider.getConnection();
+        if (connResult.isFailure()) return 0;
+        try (Connection conn = connResult.value();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, uuid);
+            ps.setString(2, bossId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        } catch (Exception e) {
+            logger.warn("countClearsByPlayer failed [" + uuid + ", " + bossId + "]: " + e.getMessage());
+            return 0;
+        }
+    }
+
+    /** 플레이어별 보스 최단 클리어 시간 (초). 미클리어 시 null. */
+    public Long bestClearTimeByPlayer(String uuid, String bossId) {
+        String sql = """
+            SELECT MIN(l.clear_time_seconds) FROM boss_session_log l
+            JOIN boss_session_player p ON l.id = p.session_id
+            WHERE p.player_uuid = ? AND l.boss_id = ? AND l.result = 'clear'
+            """;
+        Result<Connection> connResult = connectionProvider.getConnection();
+        if (connResult.isFailure()) return null;
+        try (Connection conn = connResult.value();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, uuid);
+            ps.setString(2, bossId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return null;
+                long v = rs.getLong(1);
+                return rs.wasNull() ? null : v;
+            }
+        } catch (Exception e) {
+            logger.warn("bestClearTimeByPlayer failed [" + uuid + ", " + bossId + "]: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /** 서버 최단 클리어 시간 (초). 미클리어 시 null. */
+    public Long serverBestClearTime(String bossId) {
+        String sql = """
+            SELECT MIN(clear_time_seconds) FROM boss_session_log
+            WHERE boss_id = ? AND result = 'clear'
+            """;
+        Result<Connection> connResult = connectionProvider.getConnection();
+        if (connResult.isFailure()) return null;
+        try (Connection conn = connResult.value();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, bossId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return null;
+                long v = rs.getLong(1);
+                return rs.wasNull() ? null : v;
+            }
+        } catch (Exception e) {
+            logger.warn("serverBestClearTime failed [" + bossId + "]: " + e.getMessage());
+            return null;
+        }
+    }
+
     /** GET /boss/{boss_id}/party-spec — 클리어 파티 스펙 분포 (강화·방무 포함). */
     public List<Map<String, Object>> queryPartySpec(String bossId) {
         String sql = """
