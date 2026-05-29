@@ -77,8 +77,7 @@ public final class TerritoryStatusGui {
         inv.setItem(SLOT_TOGGLE_PLANT,   buildConvToggle(state, IslandTerritoryState.CONV_AUTO_PLANT,
                 "자동 심기", "작위 해금 후 씨앗을 자동으로 심습니다.", 50_000));
 
-        inv.setItem(SLOT_BACK,  MainHubGui.icon(Material.ARROW,   "§7뒤로",  List.of("§7영지 메뉴")));
-        inv.setItem(SLOT_CLOSE, MainHubGui.icon(Material.BARRIER, "§c닫기", List.of()));
+        inv.setItem(SLOT_BACK, MainHubGui.icon(Material.ARROW, "§7뒤로", List.of("§7영지 메뉴")));
     }
 
     // ─── 아이템 빌더 ──────────────────────────────────────────────

@@ -39,7 +39,6 @@ public final class FieldHubListener implements Listener {
         }
         switch (slot) {
             case 45 -> MainHubGui.open(player);
-            case 49 -> player.closeInventory();
         }
     }
 }

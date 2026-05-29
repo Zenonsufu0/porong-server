@@ -49,8 +49,7 @@ public final class FieldHubGui {
                             "§a클릭하여 이동")));
         }
 
-        inv.setItem(45, MainHubGui.icon(Material.ARROW,   "§7뒤로", List.of("§7메인 메뉴")));
-        inv.setItem(49, MainHubGui.icon(Material.BARRIER, "§c닫기", List.of()));
+        inv.setItem(45, MainHubGui.icon(Material.ARROW, "§7뒤로", List.of("§7메인 메뉴")));
         player.openInventory(inv);
     }
 

@@ -357,15 +357,13 @@ public final class GrowthGuiListener implements Listener {
                         "§7강화석: §e" + state.currency("mat_stone_enhance"))));
         gui.setItem(ENH_SLOT_ACTION, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§8강화 시도",
                 List.of("§7먼저 아이템을 선택하세요")));
-        gui.setItem(ENH_SLOT_BACK,  MainHubGui.icon(Material.ARROW,   "§7뒤로", List.of("§7장비 관리")));
-        gui.setItem(ENH_SLOT_CLOSE, MainHubGui.icon(Material.BARRIER, "§c닫기", List.of()));
+        gui.setItem(ENH_SLOT_BACK, MainHubGui.icon(Material.ARROW, "§7뒤로", List.of("§7장비 관리")));
 
         player.openInventory(gui);
     }
 
     private void handleEnhanceClick(Player player, int slot) {
-        if (slot == ENH_SLOT_BACK)  { openEquipmentHub(player); return; }
-        if (slot == ENH_SLOT_CLOSE) { player.closeInventory(); return; }
+        if (slot == ENH_SLOT_BACK) { openEquipmentHub(player); return; }
 
         EquipmentSlot equipSlot = ENH_GUI_TO_EQUIP.get(slot);
         if (equipSlot != null) {
@@ -505,14 +503,12 @@ public final class GrowthGuiListener implements Listener {
                         "§7골드: §e" + state.currency("gold"))));
         gui.setItem(POT_SLOT_USE_CUBE, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§8큐브 사용",
                 List.of("§7먼저 장비를 선택하세요")));
-        gui.setItem(POT_SLOT_BACK,  MainHubGui.icon(Material.ARROW,   "§7뒤로",  List.of("§7장비 관리")));
-        gui.setItem(POT_SLOT_CLOSE, MainHubGui.icon(Material.BARRIER, "§c닫기", List.of()));
+        gui.setItem(POT_SLOT_BACK, MainHubGui.icon(Material.ARROW, "§7뒤로", List.of("§7장비 관리")));
 
         player.openInventory(gui);
     }
 
     private void handlePotentialClick(Player player, int slot) {
-        if (slot == POT_SLOT_CLOSE) { player.closeInventory(); return; }
         // 대기 결과 강제 선택: CUR_KEEP·NEW_SELECT 외 모든 클릭 차단
         if (pendingPotentialResult.containsKey(player.getUniqueId())
                 && slot != POT_SLOT_CUR_KEEP && slot != POT_SLOT_NEW_SELECT) {
@@ -775,16 +771,14 @@ public final class GrowthGuiListener implements Listener {
         gui.setItem(HEIR_SLOT_TYPE, buildTypeIcon(SuccessionService.SuccessionType.BASIC));
         gui.setItem(HEIR_SLOT_EXECUTE, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§8전승!",
                 List.of("§7흔적과 대상을 먼저 선택하세요")));
-        gui.setItem(HEIR_SLOT_BACK,  MainHubGui.icon(Material.ARROW,   "§7뒤로",  List.of("§7장비 관리")));
-        gui.setItem(HEIR_SLOT_CLOSE, MainHubGui.icon(Material.BARRIER, "§c닫기", List.of()));
+        gui.setItem(HEIR_SLOT_BACK, MainHubGui.icon(Material.ARROW, "§7뒤로", List.of("§7장비 관리")));
         player.openInventory(gui);
     }
 
     private void handleHeirloomClick(Player player, int slot) {
         UUID uid = player.getUniqueId();
 
-        if (slot == HEIR_SLOT_CLOSE) { player.closeInventory(); return; }
-        if (slot == HEIR_SLOT_BACK)  { openEquipmentHub(player); return; }
+        if (slot == HEIR_SLOT_BACK) { openEquipmentHub(player); return; }
 
         // 오른쪽 열: 대상 선택
         EquipmentSlot equipSlot = HEIR_SELECTOR_TO_EQUIP.get(slot);
@@ -1942,7 +1936,6 @@ public final class GrowthGuiListener implements Listener {
         }
 
         gui.setItem(18, MainHubGui.icon(Material.ARROW, "§7뒤로", List.of("§7장비 허브")));
-        gui.setItem(26, MainHubGui.icon(Material.BARRIER, "§c닫기", List.of()));
         player.openInventory(gui);
     }
 
@@ -1953,7 +1946,6 @@ public final class GrowthGuiListener implements Listener {
         PlayerGrowthState state = growthStateStore.getOrCreate(player.getUniqueId(), weaponId);
 
         switch (slot) {
-            case 26 -> player.closeInventory();
             case 18 -> openEquipmentHub(player);
             case 10 -> { // 현재 각인 해제
                 if (!state.classEngravingId().isEmpty()) {

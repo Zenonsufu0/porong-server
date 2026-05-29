@@ -143,9 +143,7 @@ public class StorageGui {
                 "§e전체 입금",
                 List.of("§7인벤토리의 모든 아이템을", "§7창고에 입금합니다.", "§7", "§f[클릭]")));
 
-        // 뒤로 / 닫기
-        inv.setItem(SLOT_BACK,  MainHubGui.icon(Material.DARK_OAK_DOOR, "§7◀ 뒤로", List.of("§7영지 메뉴")));
-        inv.setItem(SLOT_CLOSE, MainHubGui.icon(Material.BARRIER, "§c닫기", List.of()));
+        inv.setItem(SLOT_BACK, MainHubGui.icon(Material.DARK_OAK_DOOR, "§7◀ 뒤로", List.of("§7영지 메뉴")));
     }
 
     // ─── internal ────────────────────────────────────────────────

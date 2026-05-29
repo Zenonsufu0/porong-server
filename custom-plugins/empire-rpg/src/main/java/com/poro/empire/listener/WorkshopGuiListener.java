@@ -73,10 +73,6 @@ public class WorkshopGuiListener implements Listener {
             TerritoryHubGui.open(player);
             return;
         }
-        // 닫기
-        if (slot == WorkshopGui.SLOT_CLOSE) {
-            player.closeInventory();
-        }
     }
 
     private void handleRecipeEnqueue(Player player, WorkshopTab tab, WorkshopRecipe recipe) {

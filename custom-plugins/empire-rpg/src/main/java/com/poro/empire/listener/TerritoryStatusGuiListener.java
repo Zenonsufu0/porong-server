@@ -67,8 +67,7 @@ public final class TerritoryStatusGuiListener implements Listener {
                     handleConvToggle(player, territory, storage, IslandTerritoryState.CONV_AUTO_PLANT, "자동 심기");
             case TerritoryStatusGui.SLOT_WORKSHOP_MACHINE -> WorkshopGui.open(player, WorkshopGui.WorkshopTab.ESTATE);
             case TerritoryStatusGui.SLOT_STORAGE_MACHINE  -> StorageGui.open(player, storage, 0);
-            case TerritoryStatusGui.SLOT_BACK  -> TerritoryHubGui.open(player);
-            case TerritoryStatusGui.SLOT_CLOSE -> player.closeInventory();
+            case TerritoryStatusGui.SLOT_BACK -> TerritoryHubGui.open(player);
             default -> { /* 정보 전용 슬롯 — 무시 */ }
         }
     }

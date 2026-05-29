@@ -40,6 +40,9 @@ public final class BossHubListener implements Listener {
         if (GuiTitles.BOSS_HUB.equals(event.getView().title())) {
             event.setCancelled(true);
             handleBossHub(player, event.getRawSlot());
+        } else if (GuiTitles.BOSS_INFO.equals(event.getView().title())) {
+            event.setCancelled(true);
+            handleBossInfo(player, event.getRawSlot());
         } else if (GuiTitles.PARTY_HUB.equals(event.getView().title())) {
             event.setCancelled(true);
             handlePartyHub(player, event.getRawSlot());
@@ -49,12 +52,23 @@ public final class BossHubListener implements Listener {
         }
     }
 
-    // ── 보스 허브 ────────────────────────────────────────────────────
+    // ── 보스 허브 (27슬롯 중간 허브) ────────────────────────────────
 
     private void handleBossHub(Player player, int slot) {
+        switch (slot) {
+            case 10 -> renderPartyHub(player);
+            case 12 -> renderPartyList(player);
+            case 14 -> BossHubGui.openBossInfo(player);
+            case 16 -> player.sendMessage("§7[클리어 기록] 준비 중입니다.");
+            case 18 -> MainHubGui.open(player);
+        }
+    }
+
+    // ── 보스 선택 (54슬롯) ────────────────────────────────────────
+
+    private void handleBossInfo(Player player, int slot) {
         String bossId = BossHubGui.bossIdAt(slot);
         if (bossId != null) {
-            // 최종보스 — 공허 사자(보스6) 클리어 필요
             if (BossHubGui.bossNeedsUnlockAt(slot)
                     && !bossRoomManager.hasCleared(player.getUniqueId(), "void_herald")) {
                 player.sendMessage("§c[보스] §7공허 사자(시즌6)를 클리어해야 최종보스에 도전할 수 있습니다.");
@@ -69,10 +83,7 @@ public final class BossHubListener implements Listener {
                     + " §7보스룸 앞 §e[보스] §7표지판을 우클릭하여 입장하세요.");
             return;
         }
-        switch (slot) {
-            case 45 -> MainHubGui.open(player);
-            case 49 -> player.closeInventory();
-        }
+        if (slot == 45) BossHubGui.open(player);
     }
 
     // ── 파티 허브 ────────────────────────────────────────────────────
@@ -91,8 +102,8 @@ public final class BossHubListener implements Listener {
                     }
                     renderPartyHub(player);
                 }
-                case 24 -> renderPartyList(player);   // 파티 목록
-                case 49 -> player.closeInventory();
+                case 24 -> renderPartyList(player);
+                case 45 -> BossHubGui.open(player);
             }
         } else {
             switch (slot) {
@@ -102,7 +113,7 @@ public final class BossHubListener implements Listener {
                     player.sendMessage(isLeader ? "§c[파티] 파티를 해산했습니다." : "§c[파티] 파티에서 탈퇴했습니다.");
                     renderPartyHub(player);
                 }
-                case 49 -> player.closeInventory();
+                case 45 -> BossHubGui.open(player);
             }
         }
     }
@@ -136,14 +147,13 @@ public final class BossHubListener implements Listener {
                     List.of("§7──────────────", "§c클릭하여 " + (isLeader ? "해산" : "탈퇴"))));
         }
 
-        inv.setItem(49, MainHubGui.icon(Material.BARRIER, "§c닫기", List.of()));
+        inv.setItem(45, MainHubGui.icon(Material.ARROW, "§7뒤로", List.of("§7보스 허브")));
         player.openInventory(inv);
     }
 
     // ── 파티 목록 ────────────────────────────────────────────────────
 
     private void handlePartyList(Player player, int slot) {
-        if (slot == 49) { player.closeInventory(); return; }
         if (slot == 45) { renderPartyHub(player); return; }
 
         List<PartyManager.Party> open = partyManager.openParties();
@@ -182,8 +192,7 @@ public final class BossHubListener implements Listener {
                     List.of("§7새 파티를 생성하거나", "§7잠시 후 다시 확인하세요.")));
         }
 
-        inv.setItem(45, MainHubGui.icon(Material.ARROW,   "§7뒤로", List.of("§7파티 관리")));
-        inv.setItem(49, MainHubGui.icon(Material.BARRIER, "§c닫기", List.of()));
+        inv.setItem(45, MainHubGui.icon(Material.ARROW, "§7뒤로", List.of("§7파티 관리")));
         player.openInventory(inv);
     }
 }

@@ -58,11 +58,6 @@ public class StorageGuiListener implements Listener {
             TerritoryHubGui.open(player);
             return;
         }
-        if (slot == StorageGui.SLOT_CLOSE) {
-            currentPage.remove(uuid);
-            player.closeInventory();
-            return;
-        }
         if (slot == StorageGui.SLOT_PREV) {
             int newPage = Math.max(0, page - 1);
             currentPage.put(uuid, newPage);

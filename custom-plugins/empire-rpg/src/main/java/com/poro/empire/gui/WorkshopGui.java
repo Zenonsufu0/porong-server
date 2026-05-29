@@ -119,9 +119,7 @@ public final class WorkshopGui {
             }
         }
 
-        // row5: 뒤로 / 닫기
-        inv.setItem(SLOT_BACK,  icon(Material.DARK_OAK_DOOR, "§7◀ 뒤로", List.of("§7영지 메뉴")));
-        inv.setItem(SLOT_CLOSE, icon(Material.BARRIER, "§c닫기", List.of()));
+        inv.setItem(SLOT_BACK, icon(Material.DARK_OAK_DOOR, "§7◀ 뒤로", List.of("§7영지 메뉴")));
     }
 
     // ─── 아이템 빌더 ─────────────────────────────────────────────
