@@ -150,6 +150,12 @@ commands:
     usage: /empire-setclass <플레이어> <검|도끼|창|석궁|낫|스태프>
     permission: empire.admin.setclass
 
+  empire-admin:
+    description: 관리자 메인 허브 GUI (인스펙트·매치·통계)
+    aliases: [관리자]
+    usage: /empire-admin
+    permission: empire.admin
+
 permissions:
   empire.admin:
     description: EmpireRPG 관리자 전체 권한

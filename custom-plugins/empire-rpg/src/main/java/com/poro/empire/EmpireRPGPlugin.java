@@ -637,5 +637,19 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         } else {
             getLogger().warning("커맨드 /empire-setclass plugin.yml 미등록 — 건너뜀.");
         }
+
+        // 관리자 GUI 허브 (Phase 1)
+        com.poro.empire.listener.AdminGuiListener adminGuiListener =
+                new com.poro.empire.listener.AdminGuiListener(
+                        playerDataManager, growthStateStore, islandTerritoryStateStore,
+                        pvpRatingService, pvpMatchService, pvpArenaManager, bossRoomManager,
+                        foundationContext.config().seasonStartEpoch());
+        getServer().getPluginManager().registerEvents(adminGuiListener, this);
+        var adminCmd = getCommand("empire-admin");
+        if (adminCmd != null) {
+            adminCmd.setExecutor(new com.poro.empire.command.AdminHubCommand(adminGuiListener));
+        } else {
+            getLogger().warning("커맨드 /empire-admin plugin.yml 미등록 — 건너뜀.");
+        }
     }
 }

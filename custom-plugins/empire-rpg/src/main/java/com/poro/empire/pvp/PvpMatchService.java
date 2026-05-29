@@ -396,6 +396,17 @@ public final class PvpMatchService {
         return Optional.empty();
     }
 
+    /** 진행 중 모든 매치 스냅샷 (관리자 GUI용). */
+    public java.util.Collection<PvpMatch> activeMatches() {
+        return java.util.List.copyOf(activeMatches.values());
+    }
+
+    /** 관리자 강제 종료 — 무승부 처리. */
+    public void adminForceEnd(UUID matchId, String reason) {
+        PvpMatch match = activeMatches.get(matchId);
+        if (match != null) endMatch(match, null, null, true, reason);
+    }
+
     /** 대전 중 서버 이탈 = 자동 패배 (CANON §5). */
     public void onPlayerQuit(Player player) {
         PvpMatch match = playerToMatch.get(player.getUniqueId());

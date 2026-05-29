@@ -18,6 +18,10 @@ public final class GuiTitles {
     public static final Component PERMISSION_EDIT    = Component.text("권한 편집");
     public static final Component PVP_HUB            = Component.text("PvP 대전");
     public static final Component PVP_RANKING        = Component.text("정규대전 랭킹");
+    public static final Component ADMIN_HUB          = Component.text("§c[관리자] 메인");
+    public static final Component ADMIN_INSPECT      = Component.text("§c[관리자] 플레이어 인스펙트");
+    public static final Component ADMIN_MATCHES      = Component.text("§c[관리자] 진행 중 매치");
+    public static final Component ADMIN_STATS        = Component.text("§c[관리자] 서버 통계");
     public static final Component BOSS_HUB         = Component.text("보스 도전");
     public static final Component BOSS_INFO        = Component.text("보스 선택");
     public static final Component BOSS_CLEAR_RECORDS = Component.text("클리어 기록");
