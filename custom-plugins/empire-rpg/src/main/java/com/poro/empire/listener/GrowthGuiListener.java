@@ -55,33 +55,39 @@ import java.util.stream.Collectors;
 public final class GrowthGuiListener implements Listener {
 
     // ═══════════════════════════════════════════════════════════════
-    // 강화 GUI 슬롯 상수
-    // 5슬롯(무기/투구/상의/하의/신발) — 악세서리 제외(1차 시즌 확정)
+    // 강화 GUI 슬롯 상수 (gui_enhancement.md 기준, 45슬롯)
+    // 장비 선택: col8 세로 / 강화 정보: 좌·중앙 분산
     // ═══════════════════════════════════════════════════════════════
-    private static final int ENH_SLOT_WEAPON     = 10;
-    private static final int ENH_SLOT_HELMET     = 12;
-    private static final int ENH_SLOT_CHESTPLATE = 14;
-    private static final int ENH_SLOT_LEGGINGS   = 16;
-    private static final int ENH_SLOT_BOOTS      = 28;
-    private static final int ENH_SLOT_INFO       = 22;
-    private static final int ENH_SLOT_ACTION     = 40;
-    private static final int ENH_SLOT_BACK       = 45;
-    private static final int ENH_SLOT_CLOSE      = 53;
+    // 장비 선택 (col8)
+    private static final int ENH_SLOT_SEL_WEAPON     = 8;
+    private static final int ENH_SLOT_SEL_HELMET     = 17;
+    private static final int ENH_SLOT_SEL_CHESTPLATE = 26;
+    private static final int ENH_SLOT_SEL_LEGGINGS   = 35;
+    private static final int ENH_SLOT_SEL_BOOTS      = 44;
+    // 강화 정보 표시
+    private static final int ENH_SLOT_SUCCESS_RATE   = 10;
+    private static final int ENH_SLOT_CEILING        = 15;
+    private static final int ENH_SLOT_PREVIEW        = 22;
+    private static final int ENH_SLOT_GOLD           = 28;
+    private static final int ENH_SLOT_STONE          = 33;
+    // 액션
+    private static final int ENH_SLOT_BACK           = 36;
+    private static final int ENH_SLOT_ACTION         = 40;
 
     private static final Map<Integer, EquipmentSlot> ENH_GUI_TO_EQUIP = Map.of(
-        ENH_SLOT_WEAPON,     EquipmentSlot.WEAPON,
-        ENH_SLOT_HELMET,     EquipmentSlot.HELMET,
-        ENH_SLOT_CHESTPLATE, EquipmentSlot.CHESTPLATE,
-        ENH_SLOT_LEGGINGS,   EquipmentSlot.LEGGINGS,
-        ENH_SLOT_BOOTS,      EquipmentSlot.BOOTS
+        ENH_SLOT_SEL_WEAPON,     EquipmentSlot.WEAPON,
+        ENH_SLOT_SEL_HELMET,     EquipmentSlot.HELMET,
+        ENH_SLOT_SEL_CHESTPLATE, EquipmentSlot.CHESTPLATE,
+        ENH_SLOT_SEL_LEGGINGS,   EquipmentSlot.LEGGINGS,
+        ENH_SLOT_SEL_BOOTS,      EquipmentSlot.BOOTS
     );
 
     private static final Map<EquipmentSlot, Integer> ENH_EQUIP_TO_GUI = Map.of(
-        EquipmentSlot.WEAPON,     ENH_SLOT_WEAPON,
-        EquipmentSlot.HELMET,     ENH_SLOT_HELMET,
-        EquipmentSlot.CHESTPLATE, ENH_SLOT_CHESTPLATE,
-        EquipmentSlot.LEGGINGS,   ENH_SLOT_LEGGINGS,
-        EquipmentSlot.BOOTS,      ENH_SLOT_BOOTS
+        EquipmentSlot.WEAPON,     ENH_SLOT_SEL_WEAPON,
+        EquipmentSlot.HELMET,     ENH_SLOT_SEL_HELMET,
+        EquipmentSlot.CHESTPLATE, ENH_SLOT_SEL_CHESTPLATE,
+        EquipmentSlot.LEGGINGS,   ENH_SLOT_SEL_LEGGINGS,
+        EquipmentSlot.BOOTS,      ENH_SLOT_SEL_BOOTS
     );
 
     // ═══════════════════════════════════════════════════════════════
@@ -343,18 +349,23 @@ public final class GrowthGuiListener implements Listener {
         selectedEnhanceId.remove(player.getUniqueId());
         PlayerGrowthState state = getState(player);
 
-        Inventory gui = Bukkit.createInventory(null, 54, GuiTitles.GROWTH_ENHANCE);
-        ItemStack pane = pane();
-        for (int i = 0; i < 54; i++) gui.setItem(i, pane);
+        Inventory gui = Bukkit.createInventory(null, 45, GuiTitles.GROWTH_ENHANCE);
+        for (int i = 0; i < 45; i++) gui.setItem(i, pane());
 
         fillEnhancementEquipSlots(gui, state);
-        gui.setItem(ENH_SLOT_INFO, MainHubGui.icon(Material.BOOK, "§7강화 안내",
+
+        // 초기 안내 아이콘 (장비 미선택)
+        gui.setItem(ENH_SLOT_SUCCESS_RATE, MainHubGui.icon(Material.PAPER,      "§8성공률",    List.of("§7장비를 선택하세요")));
+        gui.setItem(ENH_SLOT_CEILING,      MainHubGui.icon(Material.CLOCK,      "§8가호 천장", List.of("§7장비를 선택하세요")));
+        gui.setItem(ENH_SLOT_PREVIEW, MainHubGui.icon(Material.BOOK, "§7강화 안내",
                 List.of("§7──────────────",
-                        "§7장착 슬롯 클릭 → 아이템 선택",
+                        "§7오른쪽 장비 클릭 → 선택",
                         "§e강화 시도§7 버튼으로 강화",
                         "§7──────────────",
-                        "§7골드: §e" + state.currency("gold"),
+                        "§7골드: §e"    + state.currency("gold"),
                         "§7강화석: §e" + state.currency("mat_stone_enhance"))));
+        gui.setItem(ENH_SLOT_GOLD,  MainHubGui.icon(Material.GOLD_INGOT, "§8골드 비용", List.of("§7장비를 선택하세요")));
+        gui.setItem(ENH_SLOT_STONE, MainHubGui.icon(Material.PAPER,      "§8강화석",    List.of("§7장비를 선택하세요")));
         gui.setItem(ENH_SLOT_ACTION, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§8강화 시도",
                 List.of("§7먼저 아이템을 선택하세요")));
         gui.setItem(ENH_SLOT_BACK, MainHubGui.icon(Material.ARROW, "§7뒤로", List.of("§7장비 관리")));
@@ -413,16 +424,24 @@ public final class GrowthGuiListener implements Listener {
     private void refreshEnhanceInfo(Inventory inv, PlayerGrowthState state, String instanceId) {
         PlayerEquipmentItem item = state.inventoryItem(instanceId).orElse(null);
         if (item == null) {
-            inv.setItem(ENH_SLOT_INFO,   MainHubGui.icon(Material.BARRIER, "§c오류", List.of("§7아이템 없음")));
-            inv.setItem(ENH_SLOT_ACTION, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§8강화 시도", List.of("§7오류")));
+            inv.setItem(ENH_SLOT_PREVIEW, MainHubGui.icon(Material.BARRIER, "§c오류", List.of("§7아이템 없음")));
+            inv.setItem(ENH_SLOT_ACTION,  MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§8강화 시도", List.of("§7오류")));
             return;
         }
         String itemName = itemDisplayName(item);
         int curLv = item.enhanceLevel();
 
+        // 미리보기 (중앙 고정)
+        inv.setItem(ENH_SLOT_PREVIEW, MainHubGui.icon(Material.PAPER, "§f" + itemName + " §e+" + curLv,
+                List.of("§7──────────────",
+                        "§7현재 강화: §e+" + curLv,
+                        "§7잠재: " + potentialOneLiner(item))));
+
         if (curLv >= EnhancementService.MAX_ENHANCE_LEVEL) {
-            inv.setItem(ENH_SLOT_INFO, MainHubGui.icon(Material.PAPER, "§f" + itemName + " §e+" + curLv,
-                    List.of("§7──────────────", "§a최대 강화 달성")));
+            inv.setItem(ENH_SLOT_SUCCESS_RATE, MainHubGui.icon(Material.LIME_DYE, "§a성공률 §2[최대]", List.of()));
+            inv.setItem(ENH_SLOT_CEILING, pane());
+            inv.setItem(ENH_SLOT_GOLD,  pane());
+            inv.setItem(ENH_SLOT_STONE, pane());
             inv.setItem(ENH_SLOT_ACTION, MainHubGui.icon(Material.LIME_STAINED_GLASS_PANE, "§a최대 강화 달성",
                     List.of("§7+" + curLv + " — 더 이상 강화 불가")));
             return;
@@ -430,29 +449,74 @@ public final class GrowthGuiListener implements Listener {
 
         GrowthTier tier = masterFor(item).map(m -> GrowthTier.from(m.tier())).orElse(GrowthTier.T1);
         EnhancementRule rule = growthEngineRuntime.enhancementRuleRegistry().find(tier, curLv + 1).orElse(null);
-
-        inv.setItem(ENH_SLOT_INFO, buildEnhInfoIcon(item, itemName, curLv, rule));
-
         if (rule == null) {
+            inv.setItem(ENH_SLOT_SUCCESS_RATE, MainHubGui.icon(Material.PAPER, "§8성공률", List.of("§7규칙 없음")));
+            inv.setItem(ENH_SLOT_CEILING, pane());
+            inv.setItem(ENH_SLOT_GOLD,  pane());
+            inv.setItem(ENH_SLOT_STONE, pane());
             inv.setItem(ENH_SLOT_ACTION, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§8강화 불가",
                     List.of("§7강화 규칙 없음")));
+            return;
+        }
+
+        // 가호 천장 계산
+        EquipmentSlot equipSlot = state.equippedItems().entrySet().stream()
+                .filter(e -> e.getValue().equals(instanceId))
+                .map(Map.Entry::getKey).findFirst().orElse(null);
+        int ceilingCap   = (int) Math.ceil(200.0 / rule.successRate());
+        int ceilingCount = equipSlot != null
+                ? state.getCeilingCounter(equipSlot.name().toLowerCase() + "_" + (curLv + 1))
+                : 0;
+
+        // 성공률
+        inv.setItem(ENH_SLOT_SUCCESS_RATE, MainHubGui.icon(Material.PAPER, "§e강화 성공률",
+                List.of("§7──────────────",
+                        "§7현재 단계: §e+" + curLv,
+                        "§7성공률   : §e" + String.format("%.1f%%", rule.successRate()),
+                        "§7가호     : §e" + ceilingCount + " / " + ceilingCap + "회")));
+
+        // 가호 천장
+        inv.setItem(ENH_SLOT_CEILING, MainHubGui.icon(Material.CLOCK, "§e가호 천장",
+                List.of("§7──────────────",
+                        "§7연속 실패: §e" + ceilingCount + " / " + ceilingCap + "회",
+                        ceilingCount >= ceilingCap
+                                ? "§a다음 강화 100% 보정!"
+                                : "§7" + (ceilingCap - ceilingCount) + "회 더 실패 시 보정")));
+
+        // 골드 비용
+        long myGold = state.currency("gold");
+        inv.setItem(ENH_SLOT_GOLD, MainHubGui.icon(Material.GOLD_INGOT, "§6골드 비용",
+                List.of("§7──────────────",
+                        "§7차감 골드: §6" + rule.goldCost() + "G",
+                        myGold >= rule.goldCost()
+                                ? "§7보유: §e" + myGold + "G"
+                                : "§c부족: §e" + myGold + "G")));
+
+        // 강화석
+        long myStone = state.currency("mat_stone_enhance");
+        inv.setItem(ENH_SLOT_STONE, MainHubGui.icon(Material.PAPER, "§e강화석",
+                List.of("§7──────────────",
+                        "§7필요: §e" + rule.stoneCost() + "개",
+                        myStone >= rule.stoneCost()
+                                ? "§7보유: §e" + myStone + "개"
+                                : "§c부족: §e" + myStone + "개")));
+
+        // 강화 실행 버튼
+        boolean okGold  = myGold  >= rule.goldCost();
+        boolean okStone = myStone >= rule.stoneCost();
+        if (okGold && okStone) {
+            inv.setItem(ENH_SLOT_ACTION, MainHubGui.icon(Material.ANVIL, "§e§l강화 시도",
+                    List.of("§7──────────────",
+                            "§7" + itemName + " §e+" + curLv + " → +" + (curLv + 1),
+                            "§7성공률: §e" + String.format("%.1f", rule.successRate()) + "%",
+                            "§7비용: 골드 §e" + rule.goldCost() + " §7/ 강화석 §e" + rule.stoneCost(),
+                            "§7──────────────",
+                            "§a클릭하여 강화 시도")));
         } else {
-            boolean okGold  = state.currency("gold") >= rule.goldCost();
-            boolean okStone = state.currency("mat_stone_enhance") >= rule.stoneCost();
-            if (okGold && okStone) {
-                inv.setItem(ENH_SLOT_ACTION, MainHubGui.icon(Material.ANVIL, "§e§l강화 시도",
-                        List.of("§7──────────────",
-                                "§7" + itemName + " §e+" + curLv + " → +" + (curLv + 1),
-                                "§7성공률: §e" + String.format("%.1f", rule.successRate()) + "%",
-                                "§7비용: 골드 §e" + rule.goldCost() + " §7/ 강화석 §e" + rule.stoneCost(),
-                                "§7──────────────",
-                                "§a클릭하여 강화 시도")));
-            } else {
-                List<String> lacks = new ArrayList<>();
-                if (!okGold)  lacks.add("§c골드 부족 (필요: " + rule.goldCost() + ")");
-                if (!okStone) lacks.add("§c강화석 부족 (필요: " + rule.stoneCost() + ")");
-                inv.setItem(ENH_SLOT_ACTION, MainHubGui.icon(Material.RED_STAINED_GLASS_PANE, "§c재화 부족", lacks));
-            }
+            List<String> lacks = new ArrayList<>();
+            if (!okGold)  lacks.add("§c골드 부족 (필요: " + rule.goldCost() + ")");
+            if (!okStone) lacks.add("§c강화석 부족 (필요: " + rule.stoneCost() + ")");
+            inv.setItem(ENH_SLOT_ACTION, MainHubGui.icon(Material.RED_STAINED_GLASS_PANE, "§c재화 부족", lacks));
         }
     }
 
