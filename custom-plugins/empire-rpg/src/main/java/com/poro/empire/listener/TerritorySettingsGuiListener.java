@@ -103,6 +103,19 @@ public final class TerritorySettingsGuiListener implements Listener {
         UUID uid = player.getUniqueId();
         switch (slot) {
             case TerritorySettingsGui.SLOT_NAME -> openNameChangeAnvil(player);
+            case TerritorySettingsGui.SLOT_VISIT -> cycleVisitMode(player);
+            case TerritorySettingsGui.SLOT_VISITOR_MINE  -> toggleBit(player, IslandTerritoryState.CONV_VISITOR_MINE,
+                    "방문자 채굴", TerritorySettingsGui.SLOT_VISITOR_MINE, Material.IRON_PICKAXE,
+                    "방문자가 영지에서 채굴할 수 있습니다.");
+            case TerritorySettingsGui.SLOT_VISITOR_FARM  -> toggleBit(player, IslandTerritoryState.CONV_VISITOR_FARM,
+                    "방문자 농사", TerritorySettingsGui.SLOT_VISITOR_FARM, Material.WHEAT,
+                    "방문자가 영지에서 농사지을 수 있습니다.");
+            case TerritorySettingsGui.SLOT_CROP_PROTECT  -> toggleBit(player, IslandTerritoryState.CONV_CROP_PROTECT,
+                    "농작물 보호", TerritorySettingsGui.SLOT_CROP_PROTECT, Material.WHEAT,
+                    "다 자라지 않은 작물 파괴 방지.");
+            case TerritorySettingsGui.SLOT_WATER_PROTECT -> toggleBit(player, IslandTerritoryState.CONV_WATER_PROTECT,
+                    "물 파괴 보호", TerritorySettingsGui.SLOT_WATER_PROTECT, Material.WATER_BUCKET,
+                    "방문자가 영지 내 물을 제거할 수 없습니다.");
             case TerritorySettingsGui.SLOT_WEATHER -> toggleWeather(player, uid);
             case TerritorySettingsGui.SLOT_TIME    -> toggleTime(player, uid);
             case TerritorySettingsGui.SLOT_FACILITY -> {
@@ -114,7 +127,30 @@ public final class TerritorySettingsGuiListener implements Listener {
             }
             case TerritorySettingsGui.SLOT_BACK -> TerritoryHubGui.open(player);
         }
-        // 나머지 stub 버튼: 무반응
+        // 나머지 stub 버튼(권한설정 등): 무반응
+    }
+
+    private void cycleVisitMode(Player player) {
+        IslandTerritoryState t = territory(player);
+        IslandTerritoryState.VisitMode next = t.cycleVisitMode();
+        var inv = player.getOpenInventory().getTopInventory();
+        inv.setItem(TerritorySettingsGui.SLOT_VISIT, TerritorySettingsGui.visitIcon(t));
+        String label = switch (next) {
+            case PUBLIC  -> "§a전체 공개";
+            case FRIENDS -> "§e친구만";
+            case PRIVATE -> "§c비공개";
+        };
+        player.sendMessage("§a[영지] 방문 설정: " + label + "§a로 변경");
+    }
+
+    private void toggleBit(Player player, int bit, String label, int guiSlot,
+                           Material mat, String description) {
+        IslandTerritoryState t = territory(player);
+        t.toggleConvenience(bit);
+        boolean on = t.hasConvenience(bit);
+        var inv = player.getOpenInventory().getTopInventory();
+        inv.setItem(guiSlot, TerritorySettingsGui.toggleIcon(t, bit, mat, label, description));
+        player.sendMessage("§a[영지] " + label + ": " + (on ? "§2[허용]" : "§7[비허용]"));
     }
 
     // ─── 날씨 토글 ───────────────────────────────────────────────────

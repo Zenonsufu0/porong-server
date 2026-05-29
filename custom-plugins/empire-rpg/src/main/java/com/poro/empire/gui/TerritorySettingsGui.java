@@ -20,11 +20,16 @@ import java.util.List;
 public final class TerritorySettingsGui {
     private TerritorySettingsGui() {}
 
-    public static final int SLOT_NAME     = 0;
-    public static final int SLOT_WEATHER  = 4;
-    public static final int SLOT_TIME     = 5;
-    public static final int SLOT_FACILITY = 17;
-    public static final int SLOT_BACK     = 27;
+    public static final int SLOT_NAME            = 0;
+    public static final int SLOT_VISIT           = 1;
+    public static final int SLOT_VISITOR_MINE    = 2;
+    public static final int SLOT_VISITOR_FARM    = 3;
+    public static final int SLOT_WEATHER         = 4;
+    public static final int SLOT_TIME            = 5;
+    public static final int SLOT_CROP_PROTECT    = 6;
+    public static final int SLOT_WATER_PROTECT   = 7;
+    public static final int SLOT_FACILITY        = 17;
+    public static final int SLOT_BACK            = 27;
 
     /** weatherState: 0=서버기본, 1=맑음, 2=비 */
     public static final int WEATHER_DEFAULT = 0;
@@ -49,13 +54,17 @@ public final class TerritorySettingsGui {
         // row0 — 설정 버튼
         inv.setItem(SLOT_NAME, MainHubGui.icon(Material.NAME_TAG, "§f영지명 변경",
                 List.of("§7현재: §e" + territory.islandName(), "§8▶ 클릭하여 변경")));
-        inv.setItem(1, stub(Material.LIME_STAINED_GLASS_PANE, "§f방문 설정"));
-        inv.setItem(2, stub(Material.IRON_PICKAXE,            "§f방문자 채굴 허용"));
-        inv.setItem(3, stub(Material.WHEAT,                    "§f방문자 농사 허용"));
+        inv.setItem(SLOT_VISIT,         visitIcon(territory));
+        inv.setItem(SLOT_VISITOR_MINE,  toggleIcon(territory, IslandTerritoryState.CONV_VISITOR_MINE,
+                Material.IRON_PICKAXE, "방문자 채굴", "방문자가 영지에서 채굴할 수 있습니다."));
+        inv.setItem(SLOT_VISITOR_FARM,  toggleIcon(territory, IslandTerritoryState.CONV_VISITOR_FARM,
+                Material.WHEAT,         "방문자 농사", "방문자가 영지에서 농사지을 수 있습니다."));
         inv.setItem(SLOT_WEATHER, weatherIcon(weatherState));
         inv.setItem(SLOT_TIME,    timeIcon(timeState));
-        inv.setItem(6, stub(Material.WHEAT,                    "§f농작물 보호"));
-        inv.setItem(7, stub(Material.WATER_BUCKET,             "§f물 파괴 보호"));
+        inv.setItem(SLOT_CROP_PROTECT,  toggleIcon(territory, IslandTerritoryState.CONV_CROP_PROTECT,
+                Material.WHEAT,         "농작물 보호", "다 자라지 않은 작물 파괴 방지."));
+        inv.setItem(SLOT_WATER_PROTECT, toggleIcon(territory, IslandTerritoryState.CONV_WATER_PROTECT,
+                Material.WATER_BUCKET,  "물 파괴 보호", "방문자가 영지 내 물을 제거할 수 없습니다."));
         inv.setItem(8, stub(Material.BOOK,                     "§f권한 설정"));
 
         // row1 — 자동입금 상태 표시 + 시설현황
@@ -95,6 +104,30 @@ public final class TerritorySettingsGui {
             default         -> MainHubGui.icon(Material.CLOCK,     "§7시간 설정 §f[서버 기본]",
                     List.of("§7클릭 → §e낮 고정"));
         };
+    }
+
+    public static ItemStack visitIcon(IslandTerritoryState t) {
+        return switch (t.visitMode()) {
+            case PUBLIC -> MainHubGui.icon(Material.LIME_STAINED_GLASS_PANE,
+                    "§a방문 설정: §f전체 공개",
+                    List.of("§7모든 플레이어가 방문 가능", "§7클릭 → §e친구만"));
+            case FRIENDS -> MainHubGui.icon(Material.YELLOW_STAINED_GLASS_PANE,
+                    "§e방문 설정: §f친구만",
+                    List.of("§7친구 목록의 플레이어만 방문 가능", "§7클릭 → §c비공개"));
+            case PRIVATE -> MainHubGui.icon(Material.RED_STAINED_GLASS_PANE,
+                    "§c방문 설정: §f비공개",
+                    List.of("§7소유자/공동관리자만 입장", "§7클릭 → §a전체 공개"));
+        };
+    }
+
+    public static ItemStack toggleIcon(IslandTerritoryState t, int bit, Material mat,
+                                       String name, String description) {
+        boolean on = t.hasConvenience(bit);
+        return on
+                ? MainHubGui.icon(mat, "§a" + name + " §2[허용]",
+                        List.of("§7" + description, "§7클릭 → §c비허용"))
+                : MainHubGui.icon(mat, "§7" + name + " §8[비허용]",
+                        List.of("§7" + description, "§7클릭 → §a허용"));
     }
 
     private static ItemStack autoDepositIcon(IslandTerritoryState t) {

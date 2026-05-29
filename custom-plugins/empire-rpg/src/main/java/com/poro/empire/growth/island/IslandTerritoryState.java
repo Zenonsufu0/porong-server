@@ -19,14 +19,23 @@ import java.util.Map;
  */
 public final class IslandTerritoryState {
 
-    public static final int CONV_AUTO_PLANT    = 0x01;
-    public static final int CONV_AUTO_DEPOSIT  = 0x02;
-    public static final int CONV_WORKSHOP_LINK = 0x04;
-    public static final int CONV_AUCTION_LINK  = 0x08;
+    public static final int CONV_AUTO_PLANT     = 0x01;
+    public static final int CONV_AUTO_DEPOSIT   = 0x02;
+    public static final int CONV_WORKSHOP_LINK  = 0x04;
+    public static final int CONV_AUCTION_LINK   = 0x08;
+    public static final int CONV_VISITOR_MINE   = 0x10; // 방문자 채굴 허용
+    public static final int CONV_VISITOR_FARM   = 0x20; // 방문자 농사 허용
+    public static final int CONV_CROP_PROTECT   = 0x40; // 농작물 보호
+    public static final int CONV_WATER_PROTECT  = 0x80; // 물 파괴 보호
+
+    /** 방문 공개 설정. PUBLIC=전체공개, FRIENDS=친구만, PRIVATE=비공개. */
+    public enum VisitMode { PUBLIC, FRIENDS, PRIVATE }
 
     private IslandRank rank;
     private int  convenienceUnlocks;
     private String islandName;
+    /** in-memory only — 영속화는 권한 시스템과 함께 추후 추가. */
+    private VisitMode visitMode = VisitMode.PUBLIC;
 
     /** 기계 설치 대수. */
     private int reaperCount  = 0; // 자동 재배기
@@ -102,8 +111,25 @@ public final class IslandTerritoryState {
     // ─── 편의 해금 ────────────────────────────────────────────────
     public boolean hasConvenience(int bit) { return (convenienceUnlocks & bit) != 0; }
     public void unlockConvenience(int bit) { convenienceUnlocks |= bit; }
+    public void revokeConvenience(int bit) { convenienceUnlocks &= ~bit; }
+    public void toggleConvenience(int bit) {
+        if (hasConvenience(bit)) revokeConvenience(bit);
+        else unlockConvenience(bit);
+    }
     public int convenienceUnlocks() { return convenienceUnlocks; }
     public void setConvenienceUnlocks(int mask) { this.convenienceUnlocks = mask; }
+
+    // ─── 방문 공개 설정 (in-memory) ───────────────────────────────
+    public VisitMode visitMode() { return visitMode; }
+    public void setVisitMode(VisitMode mode) { this.visitMode = mode == null ? VisitMode.PUBLIC : mode; }
+    public VisitMode cycleVisitMode() {
+        visitMode = switch (visitMode) {
+            case PUBLIC  -> VisitMode.FRIENDS;
+            case FRIENDS -> VisitMode.PRIVATE;
+            case PRIVATE -> VisitMode.PUBLIC;
+        };
+        return visitMode;
+    }
 
     // ─── 영지명 ───────────────────────────────────────────────────
     public String islandName() { return islandName; }
