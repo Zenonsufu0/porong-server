@@ -123,7 +123,7 @@ public class PlayerCommandRouter implements CommandExecutor {
 
     private void openTerritoryMove(Player player) {
         IslandTerritoryState state = territoryStore.getOrCreate(player.getUniqueId());
-        TerritoryMoveGui.open(player, state);
+        TerritoryMoveGui.open(player, state, territoryStore);
     }
 
     private void handleInviteResponse(Player player, String[] args) {

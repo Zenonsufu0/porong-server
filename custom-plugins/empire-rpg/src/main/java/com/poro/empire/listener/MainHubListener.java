@@ -21,6 +21,10 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 public final class MainHubListener implements Listener {
 
     private final GrowthGuiListener         growthGuiListener;
@@ -31,6 +35,9 @@ public final class MainHubListener implements Listener {
     private final BossHubListener           bossHubListener;
     private final ShopGuiListener           shopGuiListener;
     private final CombatStateService        combatStateService;
+
+    /** 영지 이동 GUI 페이지 추적 (in-memory). */
+    private final Map<UUID, Integer> territoryMovePage = new ConcurrentHashMap<>();
 
     public MainHubListener(
             GrowthGuiListener growthGuiListener,
@@ -102,7 +109,8 @@ public final class MainHubListener implements Listener {
         if (TerritoryHubGui.ZONE_MOVE.contains(slot)) {
             IslandTerritoryState territory = islandTerritoryStateStore.getOrCreate(
                     player.getUniqueId(), player.getName());
-            TerritoryMoveGui.open(player, territory);
+            territoryMovePage.put(player.getUniqueId(), 0);
+            TerritoryMoveGui.open(player, territory, islandTerritoryStateStore, 0);
         } else if (TerritoryHubGui.ZONE_STATUS.contains(slot)) {
             IslandTerritoryState territory = islandTerritoryStateStore.getOrCreate(
                     player.getUniqueId(), player.getName());
@@ -130,9 +138,12 @@ public final class MainHubListener implements Listener {
     }
 
     private void handleTerritoryMove(Player player, int slot) {
+        UUID uid = player.getUniqueId();
+        int page = territoryMovePage.getOrDefault(uid, 0);
+
         switch (slot) {
             case TerritoryMoveGui.SLOT_MY_ISLAND -> {
-                if (combatStateService.isInCombat(player.getUniqueId())) {
+                if (combatStateService.isInCombat(uid)) {
                     player.sendMessage("§c[영지] 전투 중에는 이동할 수 없습니다.");
                     return;
                 }
@@ -140,9 +151,51 @@ public final class MainHubListener implements Listener {
                 if (!player.performCommand("is home")) {
                     player.sendMessage("§c[영지] 이동에 실패했습니다.");
                 }
+                return;
             }
-            case TerritoryMoveGui.SLOT_BACK -> openTerritoryHub(player);
+            case TerritoryMoveGui.SLOT_BACK -> {
+                territoryMovePage.remove(uid);
+                openTerritoryHub(player);
+                return;
+            }
+            case TerritoryMoveGui.SLOT_PREV_PAGE -> {
+                if (page > 0) {
+                    territoryMovePage.put(uid, page - 1);
+                    var t = islandTerritoryStateStore.getOrCreate(uid, player.getName());
+                    TerritoryMoveGui.open(player, t, islandTerritoryStateStore, page - 1);
+                }
+                return;
+            }
+            case TerritoryMoveGui.SLOT_NEXT_PAGE -> {
+                territoryMovePage.put(uid, page + 1);
+                var t = islandTerritoryStateStore.getOrCreate(uid, player.getName());
+                TerritoryMoveGui.open(player, t, islandTerritoryStateStore, page + 1);
+                return;
+            }
         }
-        // 공개 영지 슬롯·페이지 네비: 현재 데이터 없음, 무반응
+
+        // 공개 영지 슬롯
+        UUID targetOwner = TerritoryMoveGui.publicOwnerAt(islandTerritoryStateStore, uid, slot, page);
+        if (targetOwner == null) return;
+        if (combatStateService.isInCombat(uid)) {
+            player.sendMessage("§c[영지] 전투 중에는 이동할 수 없습니다.");
+            return;
+        }
+        // 방문 설정 재확인
+        var targetTerritory = islandTerritoryStateStore.get(targetOwner).orElse(null);
+        if (targetTerritory == null || targetTerritory.visitMode() != IslandTerritoryState.VisitMode.PUBLIC) {
+            player.sendMessage("§c[영지] 해당 영지에 입장할 수 없습니다.");
+            return;
+        }
+        player.closeInventory();
+        String ownerName = org.bukkit.Bukkit.getOfflinePlayer(targetOwner).getName();
+        if (ownerName == null) {
+            player.sendMessage("§c[영지] 소유자 정보를 찾을 수 없습니다.");
+            return;
+        }
+        // IridiumSkyblock /is visit <player>
+        if (!player.performCommand("is visit " + ownerName)) {
+            player.sendMessage("§c[영지] 방문에 실패했습니다.");
+        }
     }
 }

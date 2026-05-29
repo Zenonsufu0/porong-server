@@ -27,4 +27,9 @@ public final class IslandTerritoryStateStore {
     public void remove(UUID uuid) {
         territories.remove(uuid);
     }
+
+    /** 모든 영지 (UUID → State) 스냅샷. */
+    public Map<UUID, IslandTerritoryState> snapshot() {
+        return Map.copyOf(territories);
+    }
 }
