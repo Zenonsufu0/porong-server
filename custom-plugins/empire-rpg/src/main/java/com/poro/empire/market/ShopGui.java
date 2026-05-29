@@ -55,15 +55,33 @@ public final class ShopGui {
     }
 
     private static final List<ShopItem> MATERIAL_ITEMS = new ArrayList<>();
+    private static final List<ShopItem> BLOCK_ITEMS    = new ArrayList<>();
 
-    /** config.yml의 shop.items 섹션에서 아이템 로드. */
+    /** config.yml의 shop.<category> 섹션에서 카테고리별 아이템 로드. */
     public static void reloadItems(Plugin plugin) {
-        MATERIAL_ITEMS.clear();
-        ConfigurationSection sec = plugin.getConfig().getConfigurationSection("shop.items");
-        if (sec == null) {
-            plugin.getLogger().warning("[Shop] config.yml shop.items 섹션이 없습니다.");
-            return;
+        loadCategory(plugin, "material", MATERIAL_ITEMS);
+        loadCategory(plugin, "block",    BLOCK_ITEMS);
+
+        // legacy: shop.items (구버전 단일 섹션) — 존재하면 material에 병합
+        ConfigurationSection legacy = plugin.getConfig().getConfigurationSection("shop.items");
+        if (legacy != null) {
+            int before = MATERIAL_ITEMS.size();
+            loadInto(plugin, legacy, MATERIAL_ITEMS);
+            if (MATERIAL_ITEMS.size() > before) {
+                plugin.getLogger().warning("[Shop] shop.items (legacy) 섹션을 material로 병합 — config을 shop.material로 마이그레이션하세요.");
+            }
         }
+    }
+
+    private static void loadCategory(Plugin plugin, String category, List<ShopItem> bucket) {
+        bucket.clear();
+        ConfigurationSection sec = plugin.getConfig().getConfigurationSection("shop." + category);
+        if (sec == null) return;
+        loadInto(plugin, sec, bucket);
+        plugin.getLogger().info("[Shop] " + category + " 탭 " + bucket.size() + "종 로드 완료.");
+    }
+
+    private static void loadInto(Plugin plugin, ConfigurationSection sec, List<ShopItem> bucket) {
         for (String key : sec.getKeys(false)) {
             ConfigurationSection itemSec = sec.getConfigurationSection(key);
             if (itemSec == null) continue;
@@ -73,16 +91,19 @@ public final class ShopGui {
                 String name    = itemSec.getString("display-name", key);
                 long   price   = itemSec.getLong("price", 0);
                 List<String> lore = itemSec.getStringList("lore");
-                MATERIAL_ITEMS.add(new ShopItem(key, mat, amount, name, price, lore));
+                bucket.add(new ShopItem(key, mat, amount, name, price, lore));
             } catch (Exception e) {
                 plugin.getLogger().warning("[Shop] " + key + " 로드 실패: " + e.getMessage());
             }
         }
-        plugin.getLogger().info("[Shop] 아이템 " + MATERIAL_ITEMS.size() + "종 로드 완료.");
     }
 
     public static List<ShopItem> items(Tab tab) {
-        return tab == Tab.MATERIAL ? MATERIAL_ITEMS : List.of();
+        return switch (tab) {
+            case MATERIAL -> MATERIAL_ITEMS;
+            case BLOCK    -> BLOCK_ITEMS;
+            default       -> List.of();
+        };
     }
 
     public static void open(Player player, Tab activeTab) {

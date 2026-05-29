@@ -16,8 +16,9 @@ common:
 
 # 상점 아이템 — 키 이름은 자유. 순서 = GUI 표시 순서.
 # 지원 필드: material, amount, display-name, price, lore[]
+# 카테고리별 섹션 (material/block/cosmetic/special). 1차 시즌: material/block만 활성.
 shop:
-  items:
+  material:
     golden-apple:
       material: GOLDEN_APPLE
       amount: 1
@@ -46,6 +47,78 @@ shop:
       price: 800
       lore:
         - "§7캐릭터 경험치 획득"
+  # 블럭 탭 — gui_shop.md §7 블럭 상점 표 (목재 8종 + 기본 석재 6종 1차 등록)
+  block:
+    oak-planks:
+      material: OAK_PLANKS
+      amount: 64
+      display-name: "§f참나무 판자 ×64"
+      price: 320
+    spruce-planks:
+      material: SPRUCE_PLANKS
+      amount: 64
+      display-name: "§f가문비나무 판자 ×64"
+      price: 320
+    birch-planks:
+      material: BIRCH_PLANKS
+      amount: 64
+      display-name: "§f자작나무 판자 ×64"
+      price: 320
+    jungle-planks:
+      material: JUNGLE_PLANKS
+      amount: 64
+      display-name: "§f정글 판자 ×64"
+      price: 512
+    acacia-planks:
+      material: ACACIA_PLANKS
+      amount: 64
+      display-name: "§f아카시아 판자 ×64"
+      price: 512
+    dark-oak-planks:
+      material: DARK_OAK_PLANKS
+      amount: 64
+      display-name: "§f짙은참나무 판자 ×64"
+      price: 512
+    mangrove-planks:
+      material: MANGROVE_PLANKS
+      amount: 64
+      display-name: "§f맹그로브 판자 ×64"
+      price: 640
+    cherry-planks:
+      material: CHERRY_PLANKS
+      amount: 64
+      display-name: "§f벚나무 판자 ×64"
+      price: 768
+    cobblestone:
+      material: COBBLESTONE
+      amount: 64
+      display-name: "§7조약돌 ×64"
+      price: 128
+    stone:
+      material: STONE
+      amount: 64
+      display-name: "§7돌 ×64"
+      price: 192
+    smooth-stone:
+      material: SMOOTH_STONE
+      amount: 64
+      display-name: "§7매끄러운 돌 ×64"
+      price: 320
+    granite:
+      material: GRANITE
+      amount: 64
+      display-name: "§7화강암 ×64"
+      price: 320
+    diorite:
+      material: DIORITE
+      amount: 64
+      display-name: "§7섬록암 ×64"
+      price: 320
+    andesite:
+      material: ANDESITE
+      amount: 64
+      display-name: "§7안산암 ×64"
+      price: 320
 
 # 필드 텔레포트 좌표 — 맵 확정 후 실제 좌표로 교체.
 # world: 월드 이름 (보통 "world"). 설정 없으면 해당 필드 이동 불가 메시지 표시.
