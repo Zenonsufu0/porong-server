@@ -298,14 +298,12 @@ public final class PvpMatchService {
             matchLogRepository.record(match.type(), winnerUuid, loserUuid, draw, durationS, reason);
         }
 
-        // 즉시 정리 — 매치 진입 가능 상태로 복원 (큐 등에서 ALREADY_IN_MATCH 필터링 풀림)
+        // 즉시 정리 — 외부 추적 상태만. playerToMatch는 귀환 후 해제 (3초간 새 매치 진입 차단).
         activeMatches.remove(match.matchId());
-        playerToMatch.remove(match.playerA());
-        playerToMatch.remove(match.playerB());
         rankedContexts.remove(match.matchId());
 
-        // 3초 후: 자동 영지 귀환 + 아레나 해제 + 큐 재매칭 트리거
-        // (귀환 전 release하면 새 매치가 같은 아레나에 들어와 충돌 가능)
+        // 3초 후: 자동 영지 귀환 + playerToMatch 해제 + 아레나 해제 + 큐 재매칭 트리거
+        // (귀환 전 release/playerToMatch 해제하면 새 매치가 충돌하거나 귀환이 새 매치에 영향)
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             Player pa = Bukkit.getPlayer(match.playerA());
             Player pb = Bukkit.getPlayer(match.playerB());
@@ -317,6 +315,8 @@ public final class PvpMatchService {
                 if (pb.isDead()) { pb.spigot().respawn(); }
                 pb.performCommand("is home");
             }
+            playerToMatch.remove(match.playerA());
+            playerToMatch.remove(match.playerB());
             arenaManager.releaseByMatchId(match.matchId().toString());
             tryMatch(PvpMatchType.FREE);
             tryMatch(PvpMatchType.RANKED);
