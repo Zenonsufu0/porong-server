@@ -211,7 +211,8 @@ public final class GrowthGuiListener implements Listener {
     private final CombatStateService         combatStateService;
     @SuppressWarnings("unused")
     private final Plugin                     plugin;
-    private SkillService                     skillService; // setter injection (초기화 순서상)
+    private SkillService                     skillService;       // setter injection (초기화 순서상)
+    private HealthHudListener                healthHudListener;  // setter injection (HUD 알림 오버라이드)
 
     public GrowthGuiListener(
             GrowthStateStore growthStateStore,
@@ -238,6 +239,7 @@ public final class GrowthGuiListener implements Listener {
     // ═══════════════════════════════════════════════════════════════
 
     public void setSkillService(SkillService svc) { this.skillService = svc; }
+    public void setHealthHudListener(HealthHudListener listener) { this.healthHudListener = listener; }
 
     public void openEquipHub(Player player)   { openEquipmentHub(player); }
 
@@ -532,10 +534,18 @@ public final class GrowthGuiListener implements Listener {
             player.sendMessage("§6§l[강화 성공!] §e" + itemDisplayNameById(r.itemId())
                     + " §a+" + r.finalLevel() + " 달성!" + (r.forcedByCeiling() ? " §7(천장 보정)" : ""));
             player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_USE, 1.0f, 1.2f);
+            if (healthHudListener != null) {
+                healthHudListener.showAlert(player.getUniqueId(),
+                        Component.text("§6§l✦ 강화 성공! §e+" + r.finalLevel()), 60);
+            }
         } else {
             player.sendMessage("§7[강화] §e" + itemDisplayNameById(r.itemId()) + " §c+" + r.targetLevel() + " 실패."
                     + " §7(" + String.format("%.1f%%", r.successRate()) + ")");
             player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_LAND, 0.7f, 0.8f);
+            if (healthHudListener != null) {
+                healthHudListener.showAlert(player.getUniqueId(),
+                        Component.text("§c§l✗ 강화 실패 §7(+" + r.targetLevel() + ")"), 60);
+            }
         }
         scoreboardService.refresh(player);
         Inventory inv = player.getOpenInventory().getTopInventory();

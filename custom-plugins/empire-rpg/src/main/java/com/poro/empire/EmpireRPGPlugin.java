@@ -509,8 +509,9 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new HungerLockListener(), this);
         getServer().getPluginManager().registerEvents(
                 new ConsumableUseListener(bossRoomManager, this), this);
-        getServer().getPluginManager().registerEvents(
-                new HealthHudListener(this, cooldownManager, resourceTracker, growthStateStore, playerDataManager), this);
+        HealthHudListener healthHudListener = new HealthHudListener(this, cooldownManager, resourceTracker, growthStateStore, playerDataManager);
+        getServer().getPluginManager().registerEvents(healthHudListener, this);
+        growthGuiListener.setHealthHudListener(healthHudListener);
         getServer().getPluginManager().registerEvents(new SwordParryListener(), this);
         getServer().getPluginManager().registerEvents(new EmpireItemGuardListener(), this);
         getServer().getPluginManager().registerEvents(new StaffProjectileListener(resourceTracker), this);
