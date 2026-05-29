@@ -1,5 +1,7 @@
 package com.poro.empire.listener;
 
+import com.poro.empire.admin.AdminTogglesService;
+import com.poro.empire.admin.AdminTogglesService.Toggle;
 import com.poro.empire.boss.room.BossRoomManager;
 import com.poro.empire.boss.room.BossRoomSlot;
 import com.poro.empire.growth.GrowthStateStore;
@@ -8,6 +10,7 @@ import com.poro.empire.gui.AdminHubGui;
 import com.poro.empire.gui.AdminInspectGui;
 import com.poro.empire.gui.AdminMatchesGui;
 import com.poro.empire.gui.AdminStatsGui;
+import com.poro.empire.gui.AdminTogglesGui;
 import com.poro.empire.gui.GuiTitles;
 import com.poro.empire.pvp.PvpArenaManager;
 import com.poro.empire.pvp.PvpArenaSlot;
@@ -46,12 +49,15 @@ public final class AdminGuiListener implements Listener {
     private final PvpMatchService            pvpMatchService;
     private final PvpArenaManager            pvpArenaManager;
     private final BossRoomManager            bossRoomManager;
+    private final AdminTogglesService        togglesService;
     private final long                       seasonStartEpoch;
 
     /** Anvil 인스펙트 닉네임 입력 대기. */
     private final Set<UUID> pendingInspectAnvil = Collections.newSetFromMap(new ConcurrentHashMap<>());
     /** 진행 중 매치 GUI에서 슬롯 인덱스 → matchId. */
     private final Map<UUID, List<UUID>> matchSlotMapping = new ConcurrentHashMap<>();
+    /** 운영 토글 GUI에서 슬롯 인덱스 → Toggle (open 호출 시 갱신). */
+    private final Map<UUID, Toggle[]> toggleSlotMapping = new ConcurrentHashMap<>();
 
     public AdminGuiListener(PlayerDataManager playerDataManager,
                             GrowthStateStore growthStateStore,
@@ -60,6 +66,7 @@ public final class AdminGuiListener implements Listener {
                             PvpMatchService pvpMatchService,
                             PvpArenaManager pvpArenaManager,
                             BossRoomManager bossRoomManager,
+                            AdminTogglesService togglesService,
                             long seasonStartEpoch) {
         this.playerDataManager  = playerDataManager;
         this.growthStateStore   = growthStateStore;
@@ -68,6 +75,7 @@ public final class AdminGuiListener implements Listener {
         this.pvpMatchService    = pvpMatchService;
         this.pvpArenaManager    = pvpArenaManager;
         this.bossRoomManager    = bossRoomManager;
+        this.togglesService     = togglesService;
         this.seasonStartEpoch   = seasonStartEpoch;
     }
 
@@ -99,6 +107,10 @@ public final class AdminGuiListener implements Listener {
             int slot = event.getRawSlot();
             if (slot == AdminStatsGui.SLOT_BACK) AdminHubGui.open(player);
             else if (slot == AdminStatsGui.SLOT_CLOSE) player.closeInventory();
+
+        } else if (GuiTitles.ADMIN_TOGGLES.equals(event.getView().title())) {
+            event.setCancelled(true);
+            handleTogglesClick(player, event.getRawSlot());
 
         } else if (pendingInspectAnvil.contains(uid)
                 && event.getInventory() instanceof AnvilInventory anvil
@@ -152,6 +164,8 @@ public final class AdminGuiListener implements Listener {
                     AdminMatchesGui.open(admin, pvpMatchService));
             case AdminHubGui.SLOT_STATS   -> AdminStatsGui.open(admin,
                     seasonStartEpoch, pvpArenaManager, bossRoomManager, pvpMatchService);
+            case AdminHubGui.SLOT_TOGGLES -> toggleSlotMapping.put(admin.getUniqueId(),
+                    AdminTogglesGui.open(admin, togglesService));
             case AdminHubGui.SLOT_RELEASE -> {
                 if (click.isShiftClick()) {
                     forceReleaseAllSlots(admin);
@@ -161,6 +175,20 @@ public final class AdminGuiListener implements Listener {
             }
             case AdminHubGui.SLOT_CLOSE -> admin.closeInventory();
         }
+    }
+
+    private void handleTogglesClick(Player admin, int slot) {
+        if (slot == AdminTogglesGui.SLOT_BACK)  { AdminHubGui.open(admin); return; }
+        if (slot == AdminTogglesGui.SLOT_CLOSE) { admin.closeInventory(); return; }
+        Toggle[] mapping = toggleSlotMapping.getOrDefault(admin.getUniqueId(), new Toggle[0]);
+        int idx = slot - 9;
+        if (idx < 0 || idx >= mapping.length) return;
+        Toggle t = mapping[idx];
+        boolean next = togglesService.toggle(t);
+        admin.sendMessage("§e[관리자] §f" + t.displayName + " §7→ " + (next ? "§a[ON]" : "§c[OFF]"));
+        Bukkit.getLogger().info("[empire-admin] " + admin.getName() + " toggled " + t.name() + " → " + next);
+        // GUI refresh
+        toggleSlotMapping.put(admin.getUniqueId(), AdminTogglesGui.open(admin, togglesService));
     }
 
     private void handleMatchesClick(Player admin, int slot, ClickType click) {

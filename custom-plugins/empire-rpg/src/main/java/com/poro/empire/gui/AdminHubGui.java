@@ -46,9 +46,11 @@ public final class AdminHubGui {
                         "§c⚠ 진행 중 매치/보스 모두 종료됨",
                         "§e▶ Shift+클릭으로 확인")));
 
-        // Phase 2 — stub
+        // Phase 2
         inv.setItem(SLOT_TERRITORY, stub("§8영지 관리"));
-        inv.setItem(SLOT_TOGGLES,   stub("§8운영 토글"));
+        inv.setItem(SLOT_TOGGLES, MainHubGui.icon(Material.LEVER, "§e운영 토글",
+                List.of("§7보스 스폰·강화/EXP/드랍 부스트·PvP 큐",
+                        "§a▶ 클릭하여 열기")));
         inv.setItem(SLOT_LOGS,      stub("§8로그/감시"));
 
         inv.setItem(SLOT_CLOSE, MainHubGui.icon(Material.BARRIER, "§c닫기", List.of()));

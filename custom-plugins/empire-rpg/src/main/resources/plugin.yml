@@ -189,6 +189,10 @@ commands:
     description: 영지 멤버/권한/방문설정 초기화 (창고·작위 미포함)
     usage: /empire-island-reset <플레이어>
     permission: empire.admin
+  empire-toggle:
+    description: 운영 토글 (보스 스폰 일시정지·강화/EXP/드랍 부스트·PvP 큐)
+    usage: /empire-toggle <flag> [on|off]  또는  /empire-toggle list
+    permission: empire.admin
 
 permissions:
   empire.admin:

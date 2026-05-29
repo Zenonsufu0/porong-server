@@ -30,15 +30,19 @@
 | 멤버 강제 제거 | 외부 플레이어가 가입한 영지에서 빼기 |
 | 자원 강제 지급/회수 | 골드·강화석·큐브·전장의 파편 |
 
-### 운영 토글 (slot 31)
+### 운영 토글 (slot 31) — **Step 2 GUI+명령어 완료, hook 적용은 Step 2b**
 
-| 기능 | 비고 |
-|---|---|
-| 보스 스폰 일시정지 | 글로벌 플래그 + 표지판 우클릭 차단 |
-| 강화 확률 부스트 | 이벤트용 — 모든 성공률 × N |
-| EXP 부스트 | 필드 EXP × N |
-| 영지 자동입금 글로벌 OFF | 자동입금 해금자 일괄 차감 없이 disable |
-| PvP 점수 초기화 | 시즌 종료 또는 이벤트 |
+| 기능 | 플래그 | hook 상태 |
+|---|---|---|
+| 보스 스폰 일시정지 | `BOSS_SPAWN_PAUSE` | TODO — 표지판/MythicMobs 스폰 차단 미연결 |
+| 강화 확률 부스트(2배) | `ENHANCE_BOOST`   | TODO — EnhanceService 미연결 |
+| EXP 2배              | `EXP_BOOST`       | TODO — EXP 지급 경로 미연결 |
+| 필드 드랍 2배         | `DROP_BOOST`      | TODO — 드랍 테이블 미연결 |
+| PvP 큐 일시정지       | `PVP_QUEUE_PAUSE` | TODO — PvpMatchService.enqueue 가드 미연결 |
+
+진입 경로:
+- GUI: `/empire-admin` → slot 31 (운영 토글)
+- 명령어: `/empire-toggle <flag> [on|off]`, `/empire-toggle list`
 
 ### 로그/감시 (slot 33)
 

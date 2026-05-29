@@ -638,11 +638,14 @@ public final class EmpireRPGPlugin extends JavaPlugin {
             getLogger().warning("커맨드 /empire-setclass plugin.yml 미등록 — 건너뜀.");
         }
 
-        // 관리자 GUI 허브 (Phase 1)
+        // 관리자 GUI 허브 (Phase 1 + Phase 2 toggles)
+        com.poro.empire.admin.AdminTogglesService adminTogglesService =
+                new com.poro.empire.admin.AdminTogglesService();
         com.poro.empire.listener.AdminGuiListener adminGuiListener =
                 new com.poro.empire.listener.AdminGuiListener(
                         playerDataManager, growthStateStore, islandTerritoryStateStore,
                         pvpRatingService, pvpMatchService, pvpArenaManager, bossRoomManager,
+                        adminTogglesService,
                         foundationContext.config().seasonStartEpoch());
         getServer().getPluginManager().registerEvents(adminGuiListener, this);
         var adminCmd = getCommand("empire-admin");
@@ -663,6 +666,14 @@ public final class EmpireRPGPlugin extends JavaPlugin {
             var registered = getCommand(c);
             if (registered != null) registered.setExecutor(adminPlayerCmd);
             else getLogger().warning("커맨드 /" + c + " plugin.yml 미등록 — 건너뜀.");
+        }
+
+        // 운영 토글 명령 (Phase 2 Step 2)
+        var toggleCmd = getCommand("empire-toggle");
+        if (toggleCmd != null) {
+            toggleCmd.setExecutor(new com.poro.empire.command.AdminTogglesCommand(adminTogglesService));
+        } else {
+            getLogger().warning("커맨드 /empire-toggle plugin.yml 미등록 — 건너뜀.");
         }
     }
 }
