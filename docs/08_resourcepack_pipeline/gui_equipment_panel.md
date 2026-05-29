@@ -3,7 +3,7 @@
 > **[STATUS: REFERENCE]** — 캐릭터 GUI 레이아웃·흐름 기준. 장비 수치는 `04_combat_weapon_skills/CANON.md`가 우선.
 
 > 배경 PNG 없음 — chest + 유리판/아이콘 구성.  
-> 진입: 장비 하위 GUI(menu_equipment.png) 캐릭터 구역 클릭
+> 진입: 장비 하위 GUI 캐릭터 구역 클릭
 
 ---
 
