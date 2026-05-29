@@ -17,7 +17,7 @@ import java.util.Set;
  *
  *  col0-2       col3-5       col6-8
  *  [장비 3×3]   [영지 3×3]   [보스 3×3]   ← row 0-2
- *  [탐험 3×3]   [PvP 3×3]    [예정 3×3]   ← row 3-5
+ *  [탐험 3×3]   [PvP 3×3]    [경매장 3×3] ← row 3-5
  */
 public final class MainHubGui {
 

@@ -53,7 +53,7 @@
 
 | 상태 | 화면 | 슬롯 | 설계문서 | 비고 |
 |:---:|---|:---:|---|---|
-| [설계완료] | 메인 허브 | 54 | `gui_hub_structure.md §2` | 4분할 (장비/영지/보스/탐험) |
+| [설계완료] | 메인 허브 | 54 | `gui_hub_structure.md §2` | 6구역 3×3 (장비/영지/보스/탐험/PvP/경매장) |
 | [설계완료] | 장비 서브 허브 | 54 | `gui_hub_structure.md §3` | 공식 배경 `menu_equipment.png` |
 | [설계완료] | 영지 서브 허브 | 54 | `gui_hub_structure.md §4` | 공식 배경 `menu_territory.png` |
 | [설계완료] | 보스 서브 허브 | 54 | `gui_hub_structure.md §5` | 공식 배경 `menu_boss.png` |
