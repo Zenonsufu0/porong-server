@@ -132,15 +132,19 @@ public final class ShopGui {
     }
 
     private static ItemStack displayItem(ShopItem si) {
+        int rightSets = Math.max(1, 64 / Math.max(1, si.amount()));
+        int rightTotalItems = rightSets * si.amount();
+        long rightTotalCost = (long) rightSets * si.price();
+
         ItemStack stack = new ItemStack(si.material(), Math.max(1, Math.min(si.amount(), 64)));
         ItemMeta meta = stack.getItemMeta();
         meta.displayName(Component.text(si.displayName()));
         List<Component> lore = new ArrayList<>();
         si.lore().forEach(l -> lore.add(Component.text(l)));
         lore.add(Component.text("§7──────────────"));
-        lore.add(Component.text("§e구매: §f" + si.price() + "G §7(" + si.amount() + "개)"));
-        lore.add(Component.text("§7좌클릭  §f1세트 구매"));
-        lore.add(Component.text("§7우클릭  §f64세트 구매"));
+        lore.add(Component.text("§e1세트: §f" + si.price() + "G §7(" + si.amount() + "개)"));
+        lore.add(Component.text("§7좌클릭  §f1세트 구매 §7(" + si.amount() + "개 / " + si.price() + "G)"));
+        lore.add(Component.text("§7우클릭  §f" + rightSets + "세트 구매 §7(" + rightTotalItems + "개 / " + rightTotalCost + "G)"));
         meta.lore(lore);
         stack.setItemMeta(meta);
         return stack;
