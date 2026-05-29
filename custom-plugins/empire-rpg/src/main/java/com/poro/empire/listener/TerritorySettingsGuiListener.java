@@ -1,5 +1,6 @@
 package com.poro.empire.listener;
 
+import com.poro.empire.combat.CombatStateService;
 import com.poro.empire.growth.island.IslandTerritoryState;
 import com.poro.empire.growth.island.IslandTerritoryStateStore;
 import com.poro.empire.gui.GuiTitles;
@@ -14,9 +15,12 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 public final class TerritorySettingsGuiListener implements Listener {
 
     private final IslandTerritoryStateStore islandTerritoryStateStore;
+    private final CombatStateService        combatStateService;
 
-    public TerritorySettingsGuiListener(IslandTerritoryStateStore islandTerritoryStateStore) {
+    public TerritorySettingsGuiListener(IslandTerritoryStateStore islandTerritoryStateStore,
+                                        CombatStateService combatStateService) {
         this.islandTerritoryStateStore = islandTerritoryStateStore;
+        this.combatStateService        = combatStateService;
     }
 
     @EventHandler
@@ -38,6 +42,10 @@ public final class TerritorySettingsGuiListener implements Listener {
     private void handleSettings(Player player, int slot) {
         switch (slot) {
             case TerritorySettingsGui.SLOT_FACILITY -> {
+                if (combatStateService.isInCombat(player.getUniqueId())) {
+                    player.sendMessage("§c[영지] 전투 중에는 시설 현황을 열 수 없습니다.");
+                    return;
+                }
                 TerritoryFacilityGui.open(player, territory(player));
             }
             case TerritorySettingsGui.SLOT_BACK -> TerritoryHubGui.open(player);

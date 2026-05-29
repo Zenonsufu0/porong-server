@@ -1,5 +1,6 @@
 package com.poro.empire.listener;
 
+import com.poro.empire.combat.CombatStateService;
 import com.poro.empire.growth.island.IslandStorageStore;
 import com.poro.empire.growth.island.IslandTerritoryState;
 import com.poro.empire.growth.island.IslandTerritoryStateStore;
@@ -27,6 +28,7 @@ public final class MainHubListener implements Listener {
     private final AuctionGuiListener        auctionGuiListener;
     private final FieldHubListener          fieldHubListener;
     private final BossHubListener           bossHubListener;
+    private final CombatStateService        combatStateService;
 
     public MainHubListener(
             GrowthGuiListener growthGuiListener,
@@ -34,7 +36,8 @@ public final class MainHubListener implements Listener {
             IslandTerritoryStateStore islandTerritoryStateStore,
             AuctionGuiListener auctionGuiListener,
             FieldHubListener fieldHubListener,
-            BossHubListener bossHubListener
+            BossHubListener bossHubListener,
+            CombatStateService combatStateService
     ) {
         this.growthGuiListener        = growthGuiListener;
         this.islandTerritoryStateStore = islandTerritoryStateStore;
@@ -42,6 +45,7 @@ public final class MainHubListener implements Listener {
         this.auctionGuiListener       = auctionGuiListener;
         this.fieldHubListener         = fieldHubListener;
         this.bossHubListener          = bossHubListener;
+        this.combatStateService       = combatStateService;
     }
 
     @EventHandler
@@ -98,6 +102,10 @@ public final class MainHubListener implements Listener {
                     player.getUniqueId(), player.getName());
             WorkshopGui.open(player, WorkshopGui.WorkshopTab.ESTATE, territory);
         } else if (TerritoryHubGui.ZONE_SETTINGS.contains(slot)) {
+            if (combatStateService.isInCombat(player.getUniqueId())) {
+                player.sendMessage("§c[영지] 전투 중에는 영지 설정을 열 수 없습니다.");
+                return;
+            }
             IslandTerritoryState territory = islandTerritoryStateStore.getOrCreate(
                     player.getUniqueId(), player.getName());
             TerritorySettingsGui.open(player, territory);
