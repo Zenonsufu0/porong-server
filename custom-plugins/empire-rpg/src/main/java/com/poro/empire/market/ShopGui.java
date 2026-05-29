@@ -46,7 +46,13 @@ public final class ShopGui {
     public enum Tab { MATERIAL, BLOCK, COSMETIC, SPECIAL }
 
     public record ShopItem(String key, Material material, int amount,
-                           String displayName, long price, List<String> lore) {}
+                           String displayName, long price, List<String> lore) {
+        /** 1개당 판매가 = (1개당 구매가)의 30% (자동 계산, 최소 1G). */
+        public long unitSellPrice() {
+            long unitBuy = Math.max(1, price / Math.max(1, amount));
+            return Math.max(1, Math.round(unitBuy * 0.30));
+        }
+    }
 
     private static final List<ShopItem> MATERIAL_ITEMS = new ArrayList<>();
 
@@ -145,9 +151,48 @@ public final class ShopGui {
         lore.add(Component.text("§e1세트: §f" + si.price() + "G §7(" + si.amount() + "개)"));
         lore.add(Component.text("§7좌클릭  §f1세트 구매 §7(" + si.amount() + "개 / " + si.price() + "G)"));
         lore.add(Component.text("§7우클릭  §f" + rightSets + "세트 구매 §7(" + rightTotalItems + "개 / " + rightTotalCost + "G)"));
+        lore.add(Component.text("§2판매가: §f" + si.unitSellPrice() + "G §71개  §8(Shift+클릭 = 1개 판매)"));
         meta.lore(lore);
         stack.setItemMeta(meta);
         return stack;
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // 판매 서브 GUI (54슬롯)
+    // ═══════════════════════════════════════════════════════════════════
+    public static final int SELL_ITEM_AREA_START = 0;
+    public static final int SELL_ITEM_AREA_END   = 44;
+    public static final int SLOT_SELL_ALL        = 45;
+    public static final int SLOT_SELL_BACK       = 53;
+
+    /** 판매 GUI 슬롯에 표시할 ItemStack 빌더. inv/storage 카운트는 caller가 계산해서 전달. */
+    public static ItemStack sellDisplayItem(ShopItem si, long invCount, long storageCount) {
+        long total = invCount + storageCount;
+        long totalGold = total * si.unitSellPrice();
+
+        ItemStack stack = new ItemStack(si.material(), Math.max(1, Math.min((int) Math.min(total, 64), 64)));
+        ItemMeta meta = stack.getItemMeta();
+        meta.displayName(Component.text(si.displayName()));
+        List<Component> lore = new ArrayList<>();
+        lore.add(Component.text("§2판매가: §f" + si.unitSellPrice() + "G §71개"));
+        lore.add(Component.text("§7──────────────"));
+        lore.add(Component.text("§7인벤토리: §f" + invCount + "개"));
+        lore.add(Component.text("§7창고: §f" + storageCount + "개"));
+        lore.add(Component.text("§7합계: §f" + total + "개  →  §e" + totalGold + "G"));
+        lore.add(Component.text("§7──────────────"));
+        lore.add(Component.text("§7좌클릭    §f1개 판매"));
+        lore.add(Component.text("§7우클릭    §f64개 판매"));
+        lore.add(Component.text("§7Shift+클릭  §f전량 판매"));
+        meta.lore(lore);
+        stack.setItemMeta(meta);
+        return stack;
+    }
+
+    public static Inventory createSellInventory(Player player) {
+        Inventory inv = Bukkit.createInventory(null, 54, GuiTitles.SHOP_SELL);
+        ItemStack gray = MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, " ", List.of());
+        for (int i = 0; i < 54; i++) inv.setItem(i, gray);
+        return inv;
     }
 
     private static String tabName(Tab tab) {
