@@ -4,6 +4,8 @@ import com.poro.empire.combat.CombatStateService;
 import com.poro.empire.growth.island.IslandTerritoryState;
 import com.poro.empire.growth.island.IslandTerritoryStateStore;
 import com.poro.empire.gui.GuiTitles;
+import com.poro.empire.gui.PermissionEditGui;
+import com.poro.empire.gui.PermissionRolesGui;
 import com.poro.empire.gui.TerritoryFacilityGui;
 import com.poro.empire.gui.TerritoryHubGui;
 import com.poro.empire.gui.TerritorySettingsGui;
@@ -32,6 +34,9 @@ public final class TerritorySettingsGuiListener implements Listener {
     private final IslandTerritoryStateStore islandTerritoryStateStore;
     private final CombatStateService        combatStateService;
 
+    /** 권한 편집 GUI에서 현재 편집 중인 등급 추적. */
+    private final Map<UUID, IslandTerritoryState.Role> editingRole = new ConcurrentHashMap<>();
+
     // 플레이어별 날씨·시간 상태 (in-memory, 재시작 시 초기화)
     private final Map<UUID, Integer> weatherStates   = new ConcurrentHashMap<>();
     private final Map<UUID, Integer> timeStates      = new ConcurrentHashMap<>();
@@ -51,6 +56,14 @@ public final class TerritorySettingsGuiListener implements Listener {
         if (GuiTitles.TERRITORY_SETTINGS.equals(event.getView().title())) {
             event.setCancelled(true);
             handleSettings(player, event.getRawSlot());
+
+        } else if (GuiTitles.PERMISSION_ROLES.equals(event.getView().title())) {
+            event.setCancelled(true);
+            handlePermissionRoles(player, event.getRawSlot());
+
+        } else if (GuiTitles.PERMISSION_EDIT.equals(event.getView().title())) {
+            event.setCancelled(true);
+            handlePermissionEdit(player, event.getRawSlot());
 
         } else if (GuiTitles.TERRITORY_FACILITY.equals(event.getView().title())) {
             event.setCancelled(true);
@@ -125,9 +138,76 @@ public final class TerritorySettingsGuiListener implements Listener {
                 }
                 TerritoryFacilityGui.open(player, territory(player));
             }
+            case TerritorySettingsGui.SLOT_PERMISSION -> PermissionRolesGui.open(player);
             case TerritorySettingsGui.SLOT_BACK -> TerritoryHubGui.open(player);
         }
-        // 나머지 stub 버튼(권한설정 등): 무반응
+    }
+
+    private void handlePermissionRoles(Player player, int slot) {
+        IslandTerritoryState territory = territory(player);
+        IslandTerritoryState.Role role = switch (slot) {
+            case PermissionRolesGui.SLOT_VICE_LORD -> IslandTerritoryState.Role.VICE_LORD;
+            case PermissionRolesGui.SLOT_RESIDENT  -> IslandTerritoryState.Role.RESIDENT;
+            case PermissionRolesGui.SLOT_VISITOR   -> IslandTerritoryState.Role.VISITOR;
+            default -> null;
+        };
+        if (role != null) {
+            editingRole.put(player.getUniqueId(), role);
+            PermissionEditGui.open(player, territory, role);
+            return;
+        }
+        if (slot == PermissionRolesGui.SLOT_BACK) {
+            TerritorySettingsGui.open(player, territory);
+        }
+    }
+
+    private void handlePermissionEdit(Player player, int slot) {
+        UUID uid = player.getUniqueId();
+        IslandTerritoryState.Role role = editingRole.get(uid);
+        if (role == null) {
+            PermissionRolesGui.open(player);
+            return;
+        }
+        if (slot == PermissionEditGui.SLOT_BACK) {
+            editingRole.remove(uid);
+            PermissionRolesGui.open(player);
+            return;
+        }
+        if (slot < 9 || slot > 17) return;
+        IslandTerritoryState.Permission perm = PermissionEditGui.SLOT_TO_PERM[slot];
+        if (perm == null) return;
+
+        IslandTerritoryState territory = territory(player);
+        territory.togglePermission(role, perm);
+        // 해당 슬롯만 갱신 (전체 재오픈 시 인벤토리 깜빡임 회피)
+        String label = labelFor(slot);
+        var inv = player.getOpenInventory().getTopInventory();
+        inv.setItem(slot, PermissionEditGui.permIcon(territory, role, perm, label));
+        boolean on = territory.hasPermission(role, perm);
+        player.sendMessage("§a[영지] " + roleLabel(role) + " §7- §f" + label + ": " + (on ? "§2[허용]" : "§7[비허용]"));
+    }
+
+    private String labelFor(int slot) {
+        return switch (slot) {
+            case  9 -> "창고 입출금";
+            case 10 -> "공방 가공기";
+            case 11 -> "채굴";
+            case 12 -> "농사";
+            case 13 -> "물 제거·배치";
+            case 14 -> "멤버 초대";
+            case 15 -> "멤버 강퇴";
+            case 16 -> "블록 파괴·배치";
+            case 17 -> "영지 설정 변경";
+            default -> "?";
+        };
+    }
+
+    private String roleLabel(IslandTerritoryState.Role role) {
+        return switch (role) {
+            case VICE_LORD -> "§b부영주";
+            case RESIDENT  -> "§e영지민";
+            case VISITOR   -> "§7방문자";
+        };
     }
 
     private void cycleVisitMode(Player player) {
