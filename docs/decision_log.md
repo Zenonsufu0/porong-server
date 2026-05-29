@@ -1428,13 +1428,14 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 - 정규대전 가상 컨텍스트 (PvpContext: 12강 IL60 보관)
 - /대전 /대전랭킹 /친선 명령
 
-**미해결 (후속 작업):**
-- 정규대전 가상 스탯의 **실제 IL 비율 스케일링 공식** — 현재 `PvpDamageListener`에서 RANKED_MAX_DAMAGE=14.0 클램프 (1차 시즌 압축). 진짜 IL 비율 기반 데미지 재계산은 미적용
-- 매치 중 텔레포트 등 회피 차단 없음
+**미해결:** 없음 (모든 잔여 항목 처리 완료)
 
 **처리됨 (후속 커밋):**
 - 아레나 외 영역 PvP 차단 — `PvpDamageListener`에서 매치 외 PvP 전체 cancel + 매치 페어의 아레나 외부 데미지 cancel (WorldGuard 없는 환경에서도 차단됨)
 - 영지 검증 — `PvpFriendlyService.attachSafeZone(svc, enforceIsland)`로 WorldGuard 환경에서만 영지 검증 적용. 미설치 환경에서는 검증 우회로 친선전 가능 (영지 구역 정의 자체가 없는 환경)
+- 정규대전 IL 비율 데미지 공식 — `PvpContext.damageScale()` (VIRTUAL_IL / actualAvgIl) + `PvpMatchService.computeAverageIl` (5슬롯 평균, 강화 1당 IL 5). `PvpDamageListener`가 공격자 ctx.damageScale() 곱하고 2.0~18.0 클램프 (커밋 `fe89283`)
+- 매치 중 텔레포트/명령 회피 차단 — `PvpTeleportListener` (`PlayerTeleportEvent` non-PLUGIN 차단 + 회피 명령 차단) (커밋 `a2c87db`)
+- 보스 패턴 CSV ↔ Mythic 매핑 — `boss_pattern_mythic_mapping.csv` 신규 + `BossPatternMythicMapping` Registry. 향후 scheduler 결과를 Mythic `castSkill`로 발동시키는 hook 연결 시 사용
 
 **파일:**
 - `pvp/` 신규 패키지 (PvpRatingService, PvpArenaManager/Slot, PvpMatchService, PvpMatchType, PvpMatch, PvpContext, PvpFriendlyService, PvpArenaGenerationService)

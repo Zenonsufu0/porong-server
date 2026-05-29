@@ -1,0 +1,92 @@
+pattern_id,mythic_skill,notes
+# 매핑 정책 (DL-077 잔여 3/3): CSV pattern_id ↔ server-config/mythicmobs/skills/boss_patterns.yml P_NN
+# 1차 시즌은 메타데이터로만 보관. 향후 BossPatternScheduler.select 결과를
+# Mythic BukkitAPIHelper.castSkill로 발동시키는 hook 연결 시 사용.
+
+# 보스1 — 타락 기사장
+magma_claw,P_00_BasicAttack,basic
+eruption_line,P_02_LinearDash,linear core
+overheat_zone_expand,P_03_CircleBlast,phase2 zone expand
+core_exposure_stagger,P_09_Invincible,phase3 stagger gate
+eruption_cross,P_04_FanSweep,stagger success cross
+overheat_collapse,P_13_DropImpact,phase4 collapse
+molten_heart_last_exposure,P_08_PhaseTransition,berserk finale
+
+# 보스2 — 오염된 군주
+sector_shift_plus,P_02_LinearDash,phase1 core
+safe_cell_relocate_plus,P_08_PhaseTransition,phase2 opener
+sync_core_stagger_plus,P_09_Invincible,stagger gate
+beam_grid_lock,P_06_ScatterShot,stagger fail
+resonance_collapse,P_03_CircleBlast,stagger success
+sector_annihilation,P_04_FanSweep,phase4 pressure
+final_resonance_break,P_08_PhaseTransition,berserk finale
+
+# 보스3 — 석조 거상
+stone_slam,P_00_BasicAttack,basic
+stone_dash,P_02_LinearDash,linear core
+tremor_zone,P_03_CircleBlast,phase2 zone
+core_exposure_stagger,P_09_Invincible,stagger gate
+quake_aftershock,P_04_FanSweep,stagger success
+summon_minions,P_07_SummonCall,stagger fail
+fortress_collapse,P_13_DropImpact,phase4 collapse
+stone_collapse,P_08_PhaseTransition,berserk
+
+# 보스4 — 폭풍 술사
+storm_bolt,P_00_BasicAttack,basic
+chain_lightning,P_05_Projectile,chain core
+thunder_field,P_03_CircleBlast,phase2 field
+arcane_seal_stagger,P_09_Invincible,stagger gate
+arcane_explosion,P_03_CircleBlast,stagger success
+lightning_barrage,P_06_ScatterShot,stagger fail
+tempest_eye,P_11_TrackingOrb,phase4 eye
+storm_surge,P_08_PhaseTransition,berserk
+
+# 보스5 — 심연 수호자
+abyss_slash,P_00_BasicAttack,basic
+shadow_strike,P_12_ComboStrike,combo core
+void_pool,P_03_CircleBlast,phase2 pool
+abyssal_grip_stagger,P_09_Invincible,stagger gate
+shadow_eruption,P_04_FanSweep,stagger success
+darkness_circle,P_03_CircleBlast,stagger fail
+abyss_devour,P_13_DropImpact,phase4 devour
+abyss_wrath,P_08_PhaseTransition,berserk
+
+# 보스6 — 공허 사자
+void_strike,P_00_BasicAttack,basic
+warp_slash,P_02_LinearDash,warp core
+reality_tear,P_03_CircleBlast,phase2 tear
+dimension_lock_stagger,P_09_Invincible,stagger gate
+void_explosion,P_03_CircleBlast,stagger success
+gravity_warp,P_11_TrackingOrb,stagger fail
+reality_collapse,P_13_DropImpact,phase4 collapse
+void_collapse,P_08_PhaseTransition,berserk
+
+# 최종보스 1 — 균열왕
+rift_slash,P_00_BasicAttack,basic
+rift_blade,P_12_ComboStrike,combo core
+rift_pulse,P_03_CircleBlast,phase2 pulse
+dimension_break_stagger,P_09_Invincible,stagger gate
+rift_fracture_burst,P_04_FanSweep,stagger success
+reality_shatter,P_06_ScatterShot,stagger fail
+rift_apocalypse,P_13_DropImpact,phase4 apocalypse
+rift_fracture,P_08_PhaseTransition,berserk
+
+# 최종보스 2 — 타락한 이중체
+corrupt_strike,P_00_BasicAttack,basic
+corrupt_dual_strike,P_12_ComboStrike,dual combo
+corruption_zone,P_03_CircleBlast,phase2 zone
+sync_disrupt_stagger,P_09_Invincible,stagger gate
+corruption_burst,P_03_CircleBlast,stagger success
+polarity_shift,P_11_TrackingOrb,stagger fail
+sync_collapse,P_13_DropImpact,phase4 collapse
+corrupt_finale,P_08_PhaseTransition,berserk
+
+# 최종보스 3 — 진혼의 주시자
+spirit_gaze,P_00_BasicAttack,basic
+soul_lash,P_05_Projectile,lash core
+spirit_wave,P_03_CircleBlast,phase2 wave
+soul_bind_stagger,P_09_Invincible,stagger gate
+spirit_break,P_04_FanSweep,stagger success
+soul_storm,P_06_ScatterShot,stagger fail
+soul_eternal,P_13_DropImpact,phase4 eternal
+spirit_surge,P_08_PhaseTransition,berserk

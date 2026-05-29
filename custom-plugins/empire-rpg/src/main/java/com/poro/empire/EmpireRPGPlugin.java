@@ -130,6 +130,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
     private MasterRegistryContext masterRegistryContext;
     private CombatEngineRuntime combatEngineRuntime;
     private BossEngineRuntime bossEngineRuntime;
+    private com.poro.empire.boss.engine.BossPatternMythicMapping bossPatternMythicMapping;
     private GrowthEngineRuntime growthEngineRuntime;
     private LifeEngineRuntime lifeEngineRuntime;
     private QuestAchievementRuntime questAchievementRuntime;
@@ -237,6 +238,9 @@ public final class EmpireRPGPlugin extends JavaPlugin {
             return;
         }
         this.bossEngineRuntime = bossEngineResult.value();
+        // 보스 패턴 ↔ Mythic 스킬 매핑 로드 (DL-077 잔여 3/3 — future hook용)
+        this.bossPatternMythicMapping = new com.poro.empire.boss.engine.BossPatternMythicMapping();
+        this.bossPatternMythicMapping.loadFromResource(this, "seeds/boss_pattern_mythic_mapping.csv");
         this.bossRewardService.setSeasonContext(
                 this.bossEngineRuntime.bossSessionRepository(),
                 foundationContext.config().seasonStartEpoch());
