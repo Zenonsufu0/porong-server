@@ -44,7 +44,7 @@ public final class TerritoryHubGui {
         fillZone(gui, ZONE_WORKSHOP, MainHubGui.icon(Material.LIGHT_BLUE_STAINED_GLASS_PANE, " ", List.of()));
 
         // 중앙 아이콘
-        gui.setItem(10, MainHubGui.icon(Material.ENDER_PEARL,    "§7영지 이동",  List.of("§8준비 중")));
+        gui.setItem(10, MainHubGui.icon(Material.ENDER_PEARL,    "§a영지 이동",  List.of("§7내 영지 / 공개 영지 목록", "§8▶ 클릭하여 열기")));
         gui.setItem(13, MainHubGui.icon(Material.TOTEM_OF_UNDYING, "§a영지 상태", List.of("§7작위  ·  기계  ·  편의 설정", "§8▶ 클릭하여 열기")));
         gui.setItem(16, MainHubGui.icon(Material.CHEST,           "§6창고",      List.of("§7보관 재료 확인 및 입금",       "§8▶ 클릭하여 열기")));
         gui.setItem(37, MainHubGui.icon(Material.BLAST_FURNACE,   "§f공방",      List.of("§7재료 가공  ·  정제  ·  제련",  "§8▶ 클릭하여 열기")));

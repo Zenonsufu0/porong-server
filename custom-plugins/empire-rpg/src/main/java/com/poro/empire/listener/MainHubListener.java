@@ -8,6 +8,7 @@ import com.poro.empire.gui.GuiTitles;
 import com.poro.empire.gui.MainHubGui;
 import com.poro.empire.gui.StorageGui;
 import com.poro.empire.gui.TerritoryHubGui;
+import com.poro.empire.gui.TerritoryMoveGui;
 import com.poro.empire.gui.TerritorySettingsGui;
 import com.poro.empire.gui.TerritoryStatusGui;
 import com.poro.empire.gui.WorkshopGui;
@@ -79,6 +80,12 @@ public final class MainHubListener implements Listener {
         if (GuiTitles.TERRITORY_HUB.equals(event.getView().title())) {
             event.setCancelled(true);
             handleTerritoryHub(player, event.getRawSlot());
+            return;
+        }
+
+        if (GuiTitles.TERRITORY_MOVE.equals(event.getView().title())) {
+            event.setCancelled(true);
+            handleTerritoryMove(player, event.getRawSlot());
         }
     }
 
@@ -89,7 +96,11 @@ public final class MainHubListener implements Listener {
     }
 
     private void handleTerritoryHub(Player player, int slot) {
-        if (TerritoryHubGui.ZONE_STATUS.contains(slot)) {
+        if (TerritoryHubGui.ZONE_MOVE.contains(slot)) {
+            IslandTerritoryState territory = islandTerritoryStateStore.getOrCreate(
+                    player.getUniqueId(), player.getName());
+            TerritoryMoveGui.open(player, territory);
+        } else if (TerritoryHubGui.ZONE_STATUS.contains(slot)) {
             IslandTerritoryState territory = islandTerritoryStateStore.getOrCreate(
                     player.getUniqueId(), player.getName());
             var storage = islandStorageStore.getOrCreate(player.getUniqueId());
@@ -110,6 +121,23 @@ public final class MainHubListener implements Listener {
                     player.getUniqueId(), player.getName());
             TerritorySettingsGui.open(player, territory);
         }
-        // 이동·상점 구역 및 테두리 슬롯은 클릭 무반응
+        // 상점 구역 및 테두리 슬롯은 클릭 무반응
+    }
+
+    private void handleTerritoryMove(Player player, int slot) {
+        switch (slot) {
+            case TerritoryMoveGui.SLOT_MY_ISLAND -> {
+                if (combatStateService.isInCombat(player.getUniqueId())) {
+                    player.sendMessage("§c[영지] 전투 중에는 이동할 수 없습니다.");
+                    return;
+                }
+                player.closeInventory();
+                if (!player.performCommand("is home")) {
+                    player.sendMessage("§c[영지] 이동에 실패했습니다.");
+                }
+            }
+            case TerritoryMoveGui.SLOT_BACK -> openTerritoryHub(player);
+        }
+        // 공개 영지 슬롯·페이지 네비: 현재 데이터 없음, 무반응
     }
 }
