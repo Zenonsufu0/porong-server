@@ -159,8 +159,7 @@ public final class GrowthGuiListener implements Listener {
     private static final int HEIR_SLOT_PREVIEW_SRC     = 29;  // 흔적 현재 옵션 미리보기
     private static final int HEIR_SLOT_PREVIEW_TGT     = 33;  // 전승 후 대상 미리보기
     private static final int HEIR_SLOT_EXECUTE         = 40;  // [전승!]
-    private static final int HEIR_SLOT_BACK            = 45;
-    private static final int HEIR_SLOT_CLOSE           = 53;
+    private static final int HEIR_SLOT_BACK            = 36;
 
     private static final Map<Integer, EquipmentSlot> HEIR_SELECTOR_TO_EQUIP = Map.of(
         HEIR_SLOT_SEL_WEAPON,     EquipmentSlot.WEAPON,
@@ -811,9 +810,8 @@ public final class GrowthGuiListener implements Listener {
 
         PlayerGrowthState state = getState(player);
         IslandTerritoryState islandState = islandTerritoryStateStore.getOrCreate(uid, player.getName());
-        Inventory gui = Bukkit.createInventory(null, 54, GuiTitles.GROWTH_HEIRLOOM);
-        ItemStack pane = pane();
-        for (int i = 0; i < 54; i++) gui.setItem(i, pane);
+        Inventory gui = Bukkit.createInventory(null, 45, GuiTitles.GROWTH_HEIRLOOM);
+        for (int i = 0; i < 45; i++) gui.setItem(i, pane());
 
         fillHeirloomEquipSelector(gui, state, null);
 
