@@ -1365,3 +1365,19 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 **이유:** 구현 당시 설계 문서(`gui_enhancement.md`, `gui_succession.md`)와 다른 레이아웃으로 구현됨. 강화 GUI는 신발 슬롯이 row3에 낙오되는 버그 포함.
 
 **결과:** 두 GUI 모두 `gui_enhancement.md`·`gui_succession.md` 스펙과 일치.
+
+---
+
+### DL-075 상점 구매 단위 — 1세트/N세트 기준 (amount 인식)
+
+**결정:** 상점 좌클릭 = 1세트(amount개), 우클릭 = `max(1, 64 / amount)` 세트 (~64개 기준).
+
+**이유:**
+- config.yml `shop.items.<item>.amount`는 1세트당 개수를 의미하지만 기존 `gui_shop.md` 기준 "1개/64개"로 구현 시 `amount: 64` 화살 우클릭 1회에 4,096개 지급되는 문제 발생.
+- amount 인식 방식으로 변경 시 모든 품목에서 우클릭 = 약 64개 지급으로 일관성 확보.
+
+**결과:**
+- 좌클릭: 1세트 = `amount`개 × `price`G
+- 우클릭: `max(1, 64 / amount)` 세트 = 약 64개
+- 인벤토리 풀일 시 영지 창고 자동 적재 (`IslandStorage.add`)
+- `gui_shop.md` §3/§4 동기화 완료
