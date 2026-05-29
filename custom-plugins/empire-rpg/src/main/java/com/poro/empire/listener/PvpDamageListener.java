@@ -55,19 +55,26 @@ public final class PvpDamageListener implements Listener {
             return;
         }
 
-        // 정규대전 — IL 60 가상 동일화 (CANON §3). 1차 시즌 압축: 데미지 max 14.0 클램프.
-        // (정확한 IL 비율 스케일링은 후속 작업 — DL-077 잔여)
+        // 정규대전 — IL 60 가상 동일화 (CANON §3, DL-077).
+        // 공격자 PvpContext의 damageScale (VIRTUAL_IL / actualAvgIl) 적용.
+        // attacker IL > 60: 데미지 감소 (강자의 강타가 IL60 기준으로 줄어듬)
+        // attacker IL < 60: 데미지 증가 (약자의 공격이 IL60 기준으로 보정됨)
         if (match.get().type() == PvpMatchType.RANKED) {
-            double rawDamage = event.getDamage();
-            double clamped = Math.min(rawDamage, RANKED_MAX_DAMAGE);
-            if (clamped < rawDamage) {
-                event.setDamage(clamped);
-            }
+            matchService.contextOf(match.get().matchId(), attacker.getUniqueId()).ifPresent(ctx -> {
+                double scale = ctx.damageScale();
+                if (scale != 1.0) {
+                    double scaled = event.getDamage() * scale;
+                    // 안전 클램프 (상·하한)
+                    scaled = Math.max(RANKED_MIN_DAMAGE, Math.min(scaled, RANKED_MAX_DAMAGE));
+                    event.setDamage(scaled);
+                }
+            });
         }
     }
 
-    /** 정규대전 가상 IL60 기준 데미지 상한 (1차 시즌 압축치). */
-    private static final double RANKED_MAX_DAMAGE = 14.0;
+    /** 정규대전 데미지 상·하한 — 비율 적용 후 극단값 보호. */
+    private static final double RANKED_MAX_DAMAGE = 18.0;
+    private static final double RANKED_MIN_DAMAGE = 2.0;
 
     private Player resolvePlayer(org.bukkit.entity.Entity entity) {
         if (entity instanceof Player p) return p;

@@ -1,5 +1,9 @@
 package com.poro.empire.pvp;
 
+import com.poro.empire.growth.GrowthStateStore;
+import com.poro.empire.growth.engine.EquipmentSlot;
+import com.poro.empire.growth.engine.PlayerEquipmentItem;
+import com.poro.empire.growth.engine.PlayerGrowthState;
 import com.poro.empire.pvp.db.PvpMatchLogRepository;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -31,6 +35,7 @@ public final class PvpMatchService {
     private final PvpArenaManager     arenaManager;
     private final PvpRatingService    ratingService;
     private PvpMatchLogRepository     matchLogRepository; // optional
+    private GrowthStateStore          growthStateStore;   // setter — 정규대전 IL 계산용
 
     /** 자유대전 큐: FIFO. */
     private final Deque<UUID> freeQueue   = new ArrayDeque<>();
@@ -54,6 +59,23 @@ public final class PvpMatchService {
 
     public void attachMatchLog(PvpMatchLogRepository repository) {
         this.matchLogRepository = repository;
+    }
+
+    public void attachGrowthState(GrowthStateStore growthStateStore) {
+        this.growthStateStore = growthStateStore;
+    }
+
+    /** 5슬롯 평균 IL 계산. 강화 1당 IL 5 (메모리). 슬롯 비어있으면 0. */
+    private double computeAverageIl(Player player) {
+        if (growthStateStore == null) return PvpContext.VIRTUAL_IL;
+        PlayerGrowthState state = growthStateStore.get(player.getUniqueId()).orElse(null);
+        if (state == null) return PvpContext.VIRTUAL_IL;
+        int totalIl = 0;
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            PlayerEquipmentItem item = state.equippedItem(slot).orElse(null);
+            if (item != null) totalIl += item.enhanceLevel() * 5;
+        }
+        return totalIl / 5.0;
     }
 
     /** startMatch 결과 — tryMatch와 startFriendly가 사유별로 처리. */
@@ -197,11 +219,11 @@ public final class PvpMatchService {
         playerToMatch.put(a.getUniqueId(), match);
         playerToMatch.put(b.getUniqueId(), match);
 
-        // 정규대전: 가상 컨텍스트 주입
+        // 정규대전: 가상 컨텍스트 주입 (양측 실제 IL 계산 → 데미지 스케일 계수)
         if (type == PvpMatchType.RANKED) {
             rankedContexts.put(matchId, new PvpContext[]{
-                    PvpContext.ranked(matchId, a.getUniqueId()),
-                    PvpContext.ranked(matchId, b.getUniqueId())
+                    PvpContext.ranked(matchId, a.getUniqueId(), computeAverageIl(a)),
+                    PvpContext.ranked(matchId, b.getUniqueId(), computeAverageIl(b))
             });
         }
 

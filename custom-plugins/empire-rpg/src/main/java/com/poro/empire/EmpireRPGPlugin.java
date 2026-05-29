@@ -365,6 +365,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                 foundationContext.connectionProvider(),
                 foundationContext.logger().domain("pvp.matchlog"));
         pvpMatchService.attachMatchLog(pvpMatchLogRepo);
+        pvpMatchService.attachGrowthState(growthStateStore);
 
         PvpFriendlyService pvpFriendlyService = new PvpFriendlyService(this, pvpMatchService);
         this.pvpHubListener     = new PvpHubListener(pvpRatingService, pvpMatchService, pvpFriendlyService);
