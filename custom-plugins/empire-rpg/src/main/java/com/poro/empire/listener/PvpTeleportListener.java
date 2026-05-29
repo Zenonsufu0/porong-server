@@ -21,7 +21,9 @@ public final class PvpTeleportListener implements Listener {
 
     private static final Set<String> BLOCKED_COMMANDS = Set.of(
             "spawn", "tp", "tpa", "tpaccept", "tphere", "back", "home", "warp",
-            "rtp", "wild", "는집", "집", "스폰", "워프"
+            "rtp", "wild",
+            "is", "island", "iridiumskyblock", // IridiumSkyblock /is home 등
+            "집", "스폰", "워프", "영지", "영지이동"
     );
 
     private final PvpMatchService matchService;

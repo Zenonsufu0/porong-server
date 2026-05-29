@@ -65,17 +65,23 @@ public final class PvpMatchService {
         this.growthStateStore = growthStateStore;
     }
 
-    /** 5슬롯 평균 IL 계산. 강화 1당 IL 5 (메모리). 슬롯 비어있으면 0. */
+    /** CANON §3: 정규대전 IL 산정은 5슬롯(무기·투구·갑옷·각반·신발)만 사용. 액세서리 제외. */
+    private static final EquipmentSlot[] IL_SLOTS = {
+            EquipmentSlot.WEAPON, EquipmentSlot.HELMET, EquipmentSlot.CHESTPLATE,
+            EquipmentSlot.LEGGINGS, EquipmentSlot.BOOTS
+    };
+
+    /** 5슬롯 평균 IL 계산. 강화 1당 IL 5 (메모리). 미장착 슬롯은 0 IL로 계산. */
     private double computeAverageIl(Player player) {
         if (growthStateStore == null) return PvpContext.VIRTUAL_IL;
         PlayerGrowthState state = growthStateStore.get(player.getUniqueId()).orElse(null);
         if (state == null) return PvpContext.VIRTUAL_IL;
         int totalIl = 0;
-        for (EquipmentSlot slot : EquipmentSlot.values()) {
+        for (EquipmentSlot slot : IL_SLOTS) {
             PlayerEquipmentItem item = state.equippedItem(slot).orElse(null);
             if (item != null) totalIl += item.enhanceLevel() * 5;
         }
-        return totalIl / 5.0;
+        return totalIl / (double) IL_SLOTS.length;
     }
 
     /** startMatch 결과 — tryMatch와 startFriendly가 사유별로 처리. */

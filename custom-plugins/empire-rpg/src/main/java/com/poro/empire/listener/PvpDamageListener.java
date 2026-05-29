@@ -61,13 +61,10 @@ public final class PvpDamageListener implements Listener {
         // attacker IL < 60: 데미지 증가 (약자의 공격이 IL60 기준으로 보정됨)
         if (match.get().type() == PvpMatchType.RANKED) {
             matchService.contextOf(match.get().matchId(), attacker.getUniqueId()).ifPresent(ctx -> {
-                double scale = ctx.damageScale();
-                if (scale != 1.0) {
-                    double scaled = event.getDamage() * scale;
-                    // 안전 클램프 (상·하한)
-                    scaled = Math.max(RANKED_MIN_DAMAGE, Math.min(scaled, RANKED_MAX_DAMAGE));
-                    event.setDamage(scaled);
-                }
+                // 스케일 + 안전 클램프 항상 적용 (IL60 동일화 가정에서도 극단 회피)
+                double scaled = event.getDamage() * ctx.damageScale();
+                scaled = Math.max(RANKED_MIN_DAMAGE, Math.min(scaled, RANKED_MAX_DAMAGE));
+                event.setDamage(scaled);
             });
         }
     }
