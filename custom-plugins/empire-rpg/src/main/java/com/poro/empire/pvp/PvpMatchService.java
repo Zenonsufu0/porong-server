@@ -56,6 +56,13 @@ public final class PvpMatchService {
         this.matchLogRepository = repository;
     }
 
+    /** startMatch 결과 — tryMatch와 startFriendly가 사유별로 처리. */
+    public enum StartResult {
+        SUCCESS,
+        ALREADY_IN_MATCH,  // 한쪽 또는 양쪽이 이미 매치 중 — 큐 재삽입 X (해당 플레이어 큐 정리)
+        NO_ARENA           // 빈 아레나 없음 — 큐 재삽입 O (재대기)
+    }
+
     // ─── 큐 진입 ─────────────────────────────────────────────────────
 
     public boolean enqueue(Player player, PvpMatchType type) {
@@ -115,38 +122,45 @@ public final class PvpMatchService {
             UUID b = queue.poll();
             Player pa = Bukkit.getPlayer(a);
             Player pb = Bukkit.getPlayer(b);
-            if (pa == null) { queue.addFirst(b); return; }
+            if (pa == null) { if (b != null) queue.addFirst(b); return; }
             if (pb == null) { queue.addFirst(a); return; }
-            if (!startMatch(pa, pb, type)) {
-                // 매치 실패 (아레나 없음 등) — 큐 복귀
-                queue.addFirst(b);
-                queue.addFirst(a);
+            StartResult result = startMatch(pa, pb, type);
+            switch (result) {
+                case SUCCESS -> { /* 양측 매치 진입 — 큐에서 빠진 그대로 */ }
+                case NO_ARENA -> {
+                    // 일시적 — 양측 큐 재대기
+                    queue.addFirst(b);
+                    queue.addFirst(a);
+                }
+                case ALREADY_IN_MATCH -> {
+                    // 한쪽 또는 양쪽이 다른 매치 진입 — 해당 큐에서도 제거 상태 유지
+                    // (재삽입하면 무한 fail 반복 위험)
+                }
             }
         }
     }
 
     /** 친선대전 — 양측 합의 후 호출. */
-    public boolean startFriendly(Player a, Player b) {
+    public StartResult startFriendly(Player a, Player b) {
         return startMatch(a, b, PvpMatchType.FRIENDLY);
     }
 
-    /** @return true=시작 성공, false=실패 (큐 복귀 등 후속 처리 필요). */
-    private boolean startMatch(Player a, Player b, PvpMatchType type) {
+    private StartResult startMatch(Player a, Player b, PvpMatchType type) {
         // 매치 중복 검증 — 어느 한쪽이라도 이미 대전 중이면 거부
         if (playerToMatch.containsKey(a.getUniqueId())) {
             a.sendMessage("§c[PvP] 이미 대전 중입니다.");
-            return false;
+            return StartResult.ALREADY_IN_MATCH;
         }
         if (playerToMatch.containsKey(b.getUniqueId())) {
             b.sendMessage("§c[PvP] 이미 대전 중입니다.");
-            return false;
+            return StartResult.ALREADY_IN_MATCH;
         }
         UUID matchId = UUID.randomUUID();
         Optional<PvpArenaSlot> slot = arenaManager.tryAssign(matchId.toString());
         if (slot.isEmpty()) {
             a.sendMessage("§c[PvP] 빈 아레나가 없습니다. 잠시 후 다시 시도하세요.");
             b.sendMessage("§c[PvP] 빈 아레나가 없습니다. 잠시 후 다시 시도하세요.");
-            return false;
+            return StartResult.NO_ARENA;
         }
         PvpArenaSlot arena = slot.get();
         PvpMatch match = new PvpMatch(
@@ -182,7 +196,12 @@ public final class PvpMatchService {
             if (activeMatches.containsKey(matchId)) endByTimeout(matchId);
         }, TIMEOUT_TICKS).getTaskId();
         timeoutTasks.put(matchId, taskId);
-        return true;
+
+        // 매치 시작 시 양측을 다른 큐에서도 제거 — 동시 매치 진입 방지
+        synchronized (freeQueue)   { freeQueue.remove(a.getUniqueId());   freeQueue.remove(b.getUniqueId()); }
+        synchronized (rankedQueue) { rankedQueue.remove(a.getUniqueId()); rankedQueue.remove(b.getUniqueId()); }
+
+        return StartResult.SUCCESS;
     }
 
     // ─── 매치 종료 ───────────────────────────────────────────────────

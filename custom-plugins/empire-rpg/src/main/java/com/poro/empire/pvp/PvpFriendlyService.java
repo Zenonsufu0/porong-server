@@ -97,8 +97,8 @@ public final class PvpFriendlyService {
             target.sendMessage("§c[친선] 신청자가 오프라인 상태입니다.");
             return false;
         }
-        matchService.startFriendly(requester, target);
-        return true;
+        PvpMatchService.StartResult result = matchService.startFriendly(requester, target);
+        return result == PvpMatchService.StartResult.SUCCESS;
     }
 
     /** 친선 요청 거절. */
