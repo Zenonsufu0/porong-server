@@ -50,6 +50,24 @@ public final class PvpMatchService {
     private final Map<UUID, PvpContext[]>  rankedContexts = new ConcurrentHashMap<>();
     /** matchId → 타임아웃 task id. */
     private final Map<UUID, Integer>       timeoutTasks  = new ConcurrentHashMap<>();
+    /** 내부 텔레포트 마커 — PvpTeleportListener가 PLUGIN cause 허용 판정에 사용.
+     *  마커가 있을 때만 매치 중 PLUGIN 텔레포트 허용. 다른 플러그인의 텔레포트는 차단. */
+    private final java.util.Set<UUID>      internalTeleport = ConcurrentHashMap.newKeySet();
+
+    /** PvpTeleportListener에서 호출. */
+    public boolean isInternalTeleport(UUID uuid) {
+        return internalTeleport.contains(uuid);
+    }
+
+    /** 내부 텔레포트 헬퍼 — 마커 설정 후 teleport, 동기 finally remove. */
+    private void teleportWithMarker(Player player, Location loc) {
+        internalTeleport.add(player.getUniqueId());
+        try {
+            player.teleport(loc);
+        } finally {
+            internalTeleport.remove(player.getUniqueId());
+        }
+    }
 
     public PvpMatchService(Plugin plugin, PvpArenaManager arenaManager, PvpRatingService ratingService) {
         this.plugin       = plugin;
@@ -234,8 +252,8 @@ public final class PvpMatchService {
         }
 
         // 텔레포트
-        a.teleport(arena.spawnA());
-        b.teleport(arena.spawnB());
+        teleportWithMarker(a, arena.spawnA());
+        teleportWithMarker(b, arena.spawnB());
         a.sendMessage("§6[PvP] " + typeName(type) + " §7vs §f" + b.getName() + " §7시작! §c3분 제한");
         b.sendMessage("§6[PvP] " + typeName(type) + " §7vs §f" + a.getName() + " §7시작! §c3분 제한");
         if (type == PvpMatchType.RANKED) {
@@ -333,6 +351,9 @@ public final class PvpMatchService {
         // 3초 후: 자동 영지 귀환 + playerToMatch 해제 + 아레나 해제 + 큐 재매칭 트리거
         // (귀환 전 release/playerToMatch 해제하면 새 매치가 충돌하거나 귀환이 새 매치에 영향)
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            // playerToMatch 먼저 해제 — /is home 명령이 PvpTeleportListener 명령 차단을 통과해야 함
+            playerToMatch.remove(match.playerA());
+            playerToMatch.remove(match.playerB());
             Player pa = Bukkit.getPlayer(match.playerA());
             Player pb = Bukkit.getPlayer(match.playerB());
             if (pa != null && pa.isOnline()) {
@@ -343,8 +364,6 @@ public final class PvpMatchService {
                 if (pb.isDead()) { pb.spigot().respawn(); }
                 pb.performCommand("is home");
             }
-            playerToMatch.remove(match.playerA());
-            playerToMatch.remove(match.playerB());
             arenaManager.releaseByMatchId(match.matchId().toString());
             tryMatch(PvpMatchType.FREE);
             tryMatch(PvpMatchType.RANKED);

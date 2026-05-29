@@ -39,8 +39,8 @@ public final class PvpTeleportListener implements Listener {
         Player p = event.getPlayer();
         if (!matchService.isInMatch(p.getUniqueId())) return;
 
-        // PvpMatchService가 trigger한 PLUGIN 텔레포트는 허용 (시작/종료 자동 텔레포트)
-        if (event.getCause() == PlayerTeleportEvent.TeleportCause.PLUGIN) return;
+        // PvpMatchService 내부 텔레포트(시작/귀환)만 마커로 허용. 그 외 PLUGIN cause는 차단.
+        if (matchService.isInternalTeleport(p.getUniqueId())) return;
         // 도착지가 아레나 내부라면 허용 (예: 보스룸 같은 다른 시스템과 충돌 회피)
         if (event.getTo() != null && arenaManager.isInArena(event.getTo())) return;
 
