@@ -57,6 +57,15 @@ public final class PvpRatingService {
         return r;
     }
 
+    /** 관리자 임의 점수 조정. 승/패 카운터는 그대로. */
+    public Rating adminAdjustScore(UUID uuid, String name, int delta) {
+        Rating r = getOrInit(uuid, name);
+        Rating updated = new Rating(r.uuid(), r.name(), Math.max(0, r.score() + delta), r.wins(), r.losses());
+        ratings.put(uuid, updated);
+        if (repository != null) repository.save(updated);
+        return updated;
+    }
+
     /** 점수 순위 — 점수 desc → 승 desc → 이름 asc. */
     public List<Rating> rankings() {
         List<Rating> sorted = new ArrayList<>(ratings.values());

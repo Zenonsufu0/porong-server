@@ -33,7 +33,7 @@ public final class PlayerEquipmentItem {
         return potentialProfile;
     }
 
-    void setEnhanceLevel(int enhanceLevel) {
+    public void setEnhanceLevel(int enhanceLevel) {
         this.enhanceLevel = Math.max(0, enhanceLevel);
     }
 

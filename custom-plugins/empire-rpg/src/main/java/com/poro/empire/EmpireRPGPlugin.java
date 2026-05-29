@@ -651,5 +651,18 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         } else {
             getLogger().warning("커맨드 /empire-admin plugin.yml 미등록 — 건너뜀.");
         }
+
+        // 운영자 단건 변경 명령 8종 — 동일 핸들러 공유
+        com.poro.empire.command.AdminPlayerCommand adminPlayerCmd =
+                new com.poro.empire.command.AdminPlayerCommand(
+                        playerDataManager, growthStateStore, islandTerritoryStateStore,
+                        islandStorageStore, pvpRatingService, pvpMatchService);
+        for (String c : new String[]{
+                "empire-give", "empire-currency", "empire-rank", "empire-enhance",
+                "empire-level", "empire-pvp-score", "empire-cleanse", "empire-island-reset"}) {
+            var registered = getCommand(c);
+            if (registered != null) registered.setExecutor(adminPlayerCmd);
+            else getLogger().warning("커맨드 /" + c + " plugin.yml 미등록 — 건너뜀.");
+        }
     }
 }

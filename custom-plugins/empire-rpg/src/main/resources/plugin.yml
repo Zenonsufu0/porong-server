@@ -156,6 +156,40 @@ commands:
     usage: /empire-admin
     permission: empire.admin
 
+  # 운영자 단건 변경 — Phase 2 명령어
+  empire-give:
+    description: 영지 창고에 아이템 강제 지급
+    usage: /empire-give <플레이어> <itemId> [수량]
+    permission: empire.admin
+  empire-currency:
+    description: 재화 ± 조정 (gold/mat_stone_enhance/mat_cube 등)
+    usage: /empire-currency <플레이어> <code> <±N>
+    permission: empire.admin
+  empire-rank:
+    description: 영지 작위 강제 변경
+    usage: /empire-rank <플레이어> <FRONTIER|KNIGHT|BARONET|BARON|VISCOUNT|COUNT|MARQUESS|DUKE>
+    permission: empire.admin
+  empire-enhance:
+    description: 강화 단계 강제 설정 (5슬롯)
+    usage: /empire-enhance <플레이어> <WEAPON|HELMET|CHESTPLATE|LEGGINGS|BOOTS> <강화레벨>
+    permission: empire.admin
+  empire-level:
+    description: 플레이어 레벨 설정
+    usage: /empire-level <플레이어> <레벨>
+    permission: empire.admin
+  empire-pvp-score:
+    description: 정규대전 점수 ± 조정 (승패 카운터 영향 없음)
+    usage: /empire-pvp-score <플레이어> <±N>
+    permission: empire.admin
+  empire-cleanse:
+    description: 플레이어 매치/큐/대기 상태 일괄 정리
+    usage: /empire-cleanse <플레이어>
+    permission: empire.admin
+  empire-island-reset:
+    description: 영지 멤버/권한/방문설정 초기화 (창고·작위 미포함)
+    usage: /empire-island-reset <플레이어>
+    permission: empire.admin
+
 permissions:
   empire.admin:
     description: EmpireRPG 관리자 전체 권한
