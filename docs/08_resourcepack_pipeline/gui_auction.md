@@ -244,7 +244,7 @@ row5   [뒤로] ░ ░ [◀] [페이지] [▶] ░ ░ ░
 
 | 항목 | 내용 |
 |---|---|
-| 열기 트리거 | 영지 서브 허브 슬롯 15 클릭 |
+| 열기 트리거 | 메인 허브 경매장 구역 (slot 33~35, 42~44, 51~53, 중앙 43) 클릭 — DL-073으로 메인 이동 |
 | 접근 제한 | 비전투 |
 | DB 테이블 | `auction_listings` (item_data, price, seller_uuid, listed_at, expires_at, status) |
 | 평균시세 쿼리 | `SELECT AVG(price) FROM auction_listings WHERE item_type=? AND status='sold' AND sold_at > NOW()-INTERVAL 3 DAY` |
