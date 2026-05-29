@@ -13,17 +13,59 @@ corrupted_lord,3,beam_grid_lock,PHASE,HIGH,62,14,1,false,NONE,,,-,stagger failur
 corrupted_lord,3,resonance_collapse,ULTIMATE,HIGH,62,20,1,false,NONE,,,-,stagger success follow-up
 corrupted_lord,4,sector_annihilation,PHASE,HIGH,40,24,1,false,TIME_ELAPSED,20,,-,phase 4 pressure
 corrupted_lord,0,final_resonance_break,BERSERK,FORCED,0,999,1,true,HP_ZERO,true,boss_clear,battle_fail,berserk finale
-stone_colossus,1,stone_slam,BASIC,LOW,100,8,1,false,NONE,,,-,placeholder basic
+stone_colossus,1,stone_slam,BASIC,LOW,100,7,1,false,NONE,,,-,phase 1 basic
+stone_colossus,1,stone_dash,CORE,HIGH,100,16,1,false,TIME_ELAPSED,9,,-,linear dash core
+stone_colossus,2,tremor_zone,PHASE,HIGH,75,20,1,true,PHASE_ENTER,2,,-,phase 2 forced opener
+stone_colossus,3,core_exposure_stagger,STAGGER,FORCED,50,999,1,true,PHASE_ENTER,3,quake_aftershock,summon_minions,stagger gate
+stone_colossus,3,quake_aftershock,CORE,HIGH,50,12,1,false,NONE,,,-,stagger success follow-up
+stone_colossus,3,summon_minions,PHASE,HIGH,50,18,1,false,NONE,,,-,stagger failure follow-up
+stone_colossus,4,fortress_collapse,PHASE,HIGH,30,22,1,true,PHASE_ENTER,4,,-,phase 4 forced opener
 stone_colossus,0,stone_collapse,BERSERK,FORCED,0,999,1,true,HP_ZERO,true,boss_clear,battle_fail,berserk finale
-storm_sorcerer,1,storm_bolt,BASIC,LOW,100,8,1,false,NONE,,,-,placeholder basic
+storm_sorcerer,1,storm_bolt,BASIC,LOW,100,6,1,false,NONE,,,-,phase 1 basic
+storm_sorcerer,1,chain_lightning,CORE,HIGH,100,15,1,false,TIME_ELAPSED,8,,-,chain lightning core
+storm_sorcerer,2,thunder_field,PHASE,HIGH,75,18,1,true,PHASE_ENTER,2,,-,phase 2 forced opener
+storm_sorcerer,3,arcane_seal_stagger,STAGGER,FORCED,50,999,1,true,PHASE_ENTER,3,arcane_explosion,lightning_barrage,stagger gate
+storm_sorcerer,3,arcane_explosion,ULTIMATE,HIGH,50,16,1,false,NONE,,,-,stagger success follow-up
+storm_sorcerer,3,lightning_barrage,PHASE,HIGH,50,12,1,false,NONE,,,-,stagger failure follow-up
+storm_sorcerer,4,tempest_eye,PHASE,HIGH,30,20,1,true,PHASE_ENTER,4,,-,phase 4 forced opener
 storm_sorcerer,0,storm_surge,BERSERK,FORCED,0,999,1,true,HP_ZERO,true,boss_clear,battle_fail,berserk finale
-abyss_guardian,1,abyss_slash,BASIC,LOW,100,8,1,false,NONE,,,-,placeholder basic
+abyss_guardian,1,abyss_slash,BASIC,LOW,100,7,1,false,NONE,,,-,phase 1 basic
+abyss_guardian,1,shadow_strike,CORE,HIGH,100,17,1,false,TIME_ELAPSED,10,,-,shadow strike core
+abyss_guardian,2,void_pool,PHASE,HIGH,75,20,1,true,PHASE_ENTER,2,,-,phase 2 forced opener
+abyss_guardian,3,abyssal_grip_stagger,STAGGER,FORCED,50,999,1,true,PHASE_ENTER,3,shadow_eruption,darkness_circle,stagger gate
+abyss_guardian,3,shadow_eruption,ULTIMATE,HIGH,50,18,1,false,NONE,,,-,stagger success follow-up
+abyss_guardian,3,darkness_circle,PHASE,HIGH,50,14,1,false,NONE,,,-,stagger failure follow-up
+abyss_guardian,4,abyss_devour,PHASE,HIGH,30,22,1,true,PHASE_ENTER,4,,-,phase 4 forced opener
 abyss_guardian,0,abyss_wrath,BERSERK,FORCED,0,999,1,true,HP_ZERO,true,boss_clear,battle_fail,berserk finale
-void_herald,1,void_strike,BASIC,LOW,100,8,1,false,NONE,,,-,placeholder basic
+void_herald,1,void_strike,BASIC,LOW,100,6,1,false,NONE,,,-,phase 1 basic
+void_herald,1,warp_slash,CORE,HIGH,100,16,1,false,TIME_ELAPSED,9,,-,warp slash core
+void_herald,2,reality_tear,PHASE,HIGH,75,20,1,true,PHASE_ENTER,2,,-,phase 2 forced opener
+void_herald,3,dimension_lock_stagger,STAGGER,FORCED,50,999,1,true,PHASE_ENTER,3,void_explosion,gravity_warp,stagger gate
+void_herald,3,void_explosion,ULTIMATE,HIGH,50,18,1,false,NONE,,,-,stagger success follow-up
+void_herald,3,gravity_warp,PHASE,HIGH,50,14,1,false,NONE,,,-,stagger failure follow-up
+void_herald,4,reality_collapse,PHASE,HIGH,30,22,1,true,PHASE_ENTER,4,,-,phase 4 forced opener
 void_herald,0,void_collapse,BERSERK,FORCED,0,999,1,true,HP_ZERO,true,boss_clear,battle_fail,berserk finale
-rift_king,1,rift_slash,BASIC,LOW,100,8,1,false,NONE,,,-,placeholder basic
+rift_king,1,rift_slash,BASIC,LOW,100,6,1,false,NONE,,,-,final boss 1 phase basic
+rift_king,1,rift_blade,CORE,HIGH,100,15,1,false,TIME_ELAPSED,8,,-,rift blade core
+rift_king,2,rift_pulse,PHASE,HIGH,75,18,1,true,PHASE_ENTER,2,,-,phase 2 forced opener
+rift_king,3,dimension_break_stagger,STAGGER,FORCED,50,999,1,true,PHASE_ENTER,3,rift_fracture_burst,reality_shatter,stagger gate
+rift_king,3,rift_fracture_burst,ULTIMATE,HIGH,50,16,1,false,NONE,,,-,stagger success follow-up
+rift_king,3,reality_shatter,PHASE,HIGH,50,12,1,false,NONE,,,-,stagger failure follow-up
+rift_king,4,rift_apocalypse,PHASE,HIGH,30,20,1,true,PHASE_ENTER,4,,-,phase 4 forced opener
 rift_king,0,rift_fracture,BERSERK,FORCED,0,999,1,true,HP_ZERO,true,boss_clear,battle_fail,berserk finale
-corrupted_dyad,1,corrupt_strike,BASIC,LOW,100,8,1,false,NONE,,,-,placeholder basic
+corrupted_dyad,1,corrupt_strike,BASIC,LOW,100,6,1,false,NONE,,,-,final boss 2 phase basic
+corrupted_dyad,1,corrupt_dual_strike,CORE,HIGH,100,15,1,false,TIME_ELAPSED,8,,-,zombie+skeleton sync core
+corrupted_dyad,2,corruption_zone,PHASE,HIGH,75,18,1,true,PHASE_ENTER,2,,-,phase 2 forced opener
+corrupted_dyad,3,sync_disrupt_stagger,STAGGER,FORCED,50,999,1,true,PHASE_ENTER,3,corruption_burst,polarity_shift,stagger gate
+corrupted_dyad,3,corruption_burst,ULTIMATE,HIGH,50,16,1,false,NONE,,,-,stagger success follow-up
+corrupted_dyad,3,polarity_shift,PHASE,HIGH,50,12,1,false,NONE,,,-,stagger failure follow-up
+corrupted_dyad,4,sync_collapse,PHASE,HIGH,30,20,1,true,PHASE_ENTER,4,,-,phase 4 forced opener
 corrupted_dyad,0,corrupt_finale,BERSERK,FORCED,0,999,1,true,HP_ZERO,true,boss_clear,battle_fail,berserk finale
-spirit_watcher,1,spirit_gaze,BASIC,LOW,100,8,1,false,NONE,,,-,placeholder basic
+spirit_watcher,1,spirit_gaze,BASIC,LOW,100,6,1,false,NONE,,,-,final boss 3 phase basic
+spirit_watcher,1,soul_lash,CORE,HIGH,100,15,1,false,TIME_ELAPSED,8,,-,soul lash core
+spirit_watcher,2,spirit_wave,PHASE,HIGH,75,18,1,true,PHASE_ENTER,2,,-,phase 2 forced opener
+spirit_watcher,3,soul_bind_stagger,STAGGER,FORCED,50,999,1,true,PHASE_ENTER,3,spirit_break,soul_storm,stagger gate
+spirit_watcher,3,spirit_break,ULTIMATE,HIGH,50,16,1,false,NONE,,,-,stagger success follow-up
+spirit_watcher,3,soul_storm,PHASE,HIGH,50,12,1,false,NONE,,,-,stagger failure follow-up
+spirit_watcher,4,soul_eternal,PHASE,HIGH,30,20,1,true,PHASE_ENTER,4,,-,phase 4 forced opener
 spirit_watcher,0,spirit_surge,BERSERK,FORCED,0,999,1,true,HP_ZERO,true,boss_clear,battle_fail,berserk finale
