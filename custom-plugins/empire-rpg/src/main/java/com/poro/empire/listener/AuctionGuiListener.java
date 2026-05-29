@@ -93,6 +93,7 @@ public final class AuctionGuiListener implements Listener {
     private final CombatStateService   combatStateService;
     private final AuctionStore         auctionStore;
     private final ItemMasterRegistry   itemMasters;
+    private final com.poro.empire.scoreboard.ScoreboardService scoreboardService;
     private final NamespacedKey        empireItemKey;
 
     public AuctionGuiListener(Plugin plugin,
@@ -100,13 +101,15 @@ public final class AuctionGuiListener implements Listener {
                                IslandTerritoryStateStore islandTerritoryStateStore,
                                AuctionStore auctionStore,
                                ItemMasterRegistry itemMasters,
-                               CombatStateService combatStateService) {
+                               CombatStateService combatStateService,
+                               com.poro.empire.scoreboard.ScoreboardService scoreboardService) {
         this.plugin             = plugin;
         this.growthStateStore   = growthStateStore;
         this.islandStore        = islandTerritoryStateStore;
         this.auctionStore       = auctionStore;
         this.itemMasters        = itemMasters;
         this.combatStateService = combatStateService;
+        this.scoreboardService  = scoreboardService;
         this.empireItemKey      = new NamespacedKey(plugin, "empire_item_id");
     }
 
@@ -368,6 +371,7 @@ public final class AuctionGuiListener implements Listener {
                         }
                         player.sendMessage("§a[경매장] §f" + itemDisplayName(listing.itemId())
                                 + " §7을 §e" + fmt(listing.price()) + "G§7에 구매했습니다.");
+                        scoreboardService.refresh(player);
 
                         // 구매자 아이템 pending 즉시 수령 (buy()에서 원자적으로 삽입됨)
                         deliverPendingToOnlinePlayer(player);
@@ -376,6 +380,7 @@ public final class AuctionGuiListener implements Listener {
                         Player seller = Bukkit.getPlayer(listing.sellerUuid());
                         if (seller != null) {
                             deliverPendingToOnlinePlayer(seller);
+                            scoreboardService.refresh(seller);
                         }
                         refreshMain(player);
                     });
@@ -732,6 +737,7 @@ public final class AuctionGuiListener implements Listener {
                     auctionStore.endClaim(uuid);
                     return;
                 }
+                scoreboardService.refresh(player);
                 Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                     try { auctionStore.deletePendingByIds(deliveredIds); }
                     finally { auctionStore.endClaim(uuid); }

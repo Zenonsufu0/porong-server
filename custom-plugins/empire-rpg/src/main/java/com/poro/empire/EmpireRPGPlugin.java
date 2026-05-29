@@ -310,7 +310,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         // registerCommands() 전에 초기화해야 NPE 방지
         this.auctionGuiListener = new AuctionGuiListener(
                 this, growthStateStore, islandTerritoryStateStore,
-                auctionStore, masterRegistryContext.itemMasters(), combatStateService);
+                auctionStore, masterRegistryContext.itemMasters(), combatStateService, scoreboardService);
         this.growthGuiListener = new GrowthGuiListener(
                 growthStateStore, islandTerritoryStateStore, growthEngineRuntime,
                 playerDataManager, scoreboardService,
@@ -477,7 +477,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         }
         BossRoomListener bossRoomListenerInstance =
                 new BossRoomListener(bossRoomManager, masterRegistryContext.bossMasters(), partyManager, bossEngineRuntime, mythicSpawner);
-        this.shopGuiListener = new ShopGuiListener(growthStateStore, islandStorageStore, combatStateService);
+        this.shopGuiListener = new ShopGuiListener(growthStateStore, islandStorageStore, combatStateService, scoreboardService);
         getServer().getPluginManager().registerEvents(shopGuiListener, this);
         getServer().getPluginManager().registerEvents(
                 new MainHubListener(growthGuiListener, islandStorageStore, islandTerritoryStateStore,
@@ -487,7 +487,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(
                 new StorageGuiListener(islandStorageStore), this);
         getServer().getPluginManager().registerEvents(
-                new TerritoryStatusGuiListener(islandTerritoryStateStore, islandStorageStore, growthStateStore, playerDataManager), this);
+                new TerritoryStatusGuiListener(islandTerritoryStateStore, islandStorageStore, growthStateStore, playerDataManager, scoreboardService), this);
         getServer().getPluginManager().registerEvents(
                 new TerritorySettingsGuiListener(islandTerritoryStateStore, combatStateService), this);
         getServer().getPluginManager().registerEvents(
@@ -499,7 +499,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         if (getServer().getPluginManager().isPluginEnabled("MythicMobs")) {
             getServer().getPluginManager().registerEvents(
                     new FieldDropListener(growthStateStore, islandTerritoryStateStore, playerDataManager,
-                            playerLevelingService, fieldBossScheduler, bossRewardService, new ContributionTracker()), this);
+                            playerLevelingService, fieldBossScheduler, bossRewardService, new ContributionTracker(), scoreboardService), this);
             getServer().getPluginManager().registerEvents(new BossDefenseListener(), this);
             getLogger().info("MythicMobs detected — FieldDropListener + BossDefenseListener registered.");
         } else {

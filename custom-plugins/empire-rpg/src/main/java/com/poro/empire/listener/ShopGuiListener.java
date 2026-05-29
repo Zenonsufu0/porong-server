@@ -8,6 +8,7 @@ import com.poro.empire.growth.island.IslandStorageStore;
 import com.poro.empire.gui.GuiTitles;
 import com.poro.empire.gui.TerritoryHubGui;
 import com.poro.empire.market.ShopGui;
+import com.poro.empire.scoreboard.ScoreboardService;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -25,16 +26,19 @@ public final class ShopGuiListener implements Listener {
     private final GrowthStateStore   growthStateStore;
     private final IslandStorageStore islandStorageStore;
     private final CombatStateService combatStateService;
+    private final ScoreboardService  scoreboardService;
 
     // 플레이어별 현재 탭 (재시작 시 초기화)
     private final Map<UUID, ShopGui.Tab> activeTab = new ConcurrentHashMap<>();
 
     public ShopGuiListener(GrowthStateStore growthStateStore,
                            IslandStorageStore islandStorageStore,
-                           CombatStateService combatStateService) {
+                           CombatStateService combatStateService,
+                           ScoreboardService scoreboardService) {
         this.growthStateStore   = growthStateStore;
         this.islandStorageStore = islandStorageStore;
         this.combatStateService = combatStateService;
+        this.scoreboardService  = scoreboardService;
     }
 
     public void openShop(Player player) {
@@ -120,5 +124,6 @@ public final class ShopGuiListener implements Listener {
                 ? " §7(인벤 적재 후 §b창고 +" + storedToStorage + "개§7)"
                 : "";
         player.sendMessage("§a[상점] §f" + item.displayName() + " §a×" + sets + "세트 §7= §a" + totalItems + "개 §7구매 (-" + totalCost + "G)" + suffix);
+        scoreboardService.refresh(player);
     }
 }

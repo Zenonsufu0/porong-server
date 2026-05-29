@@ -33,17 +33,20 @@ public final class TerritoryStatusGuiListener implements Listener {
     private final GrowthStateStore growthStateStore;
     @SuppressWarnings("unused")
     private final PlayerDataManager playerDataManager;
+    private final com.poro.empire.scoreboard.ScoreboardService scoreboardService;
 
     public TerritoryStatusGuiListener(
             IslandTerritoryStateStore islandTerritoryStateStore,
             IslandStorageStore islandStorageStore,
             GrowthStateStore growthStateStore,
-            PlayerDataManager playerDataManager
+            PlayerDataManager playerDataManager,
+            com.poro.empire.scoreboard.ScoreboardService scoreboardService
     ) {
         this.islandTerritoryStateStore = islandTerritoryStateStore;
         this.islandStorageStore        = islandStorageStore;
         this.growthStateStore          = growthStateStore;
         this.playerDataManager         = playerDataManager;
+        this.scoreboardService         = scoreboardService;
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -125,6 +128,7 @@ public final class TerritoryStatusGuiListener implements Listener {
         // SkyblockAPI.getIslandManager().getIslandByOwner(player).ifPresent(island -> island.setBorderSize(next의 XZ 크기));
 
         TerritoryStatusGui.open(player, territory, storage);
+        scoreboardService.refresh(player);
         player.sendMessage("§a[영지] 작위 승급: §e" + current.displayName + " §7→ §e" + next.displayName + "§a!");
     }
 
@@ -149,6 +153,7 @@ public final class TerritoryStatusGuiListener implements Listener {
 
         territory.unlockConvenience(bit);
         TerritoryStatusGui.open(player, territory, storage);
+        scoreboardService.refresh(player);
         player.sendMessage("§a" + name + " 해금 완료! §7(-" + FMT.format(CONV_COST) + "G)");
     }
 }

@@ -7,6 +7,7 @@ import com.poro.empire.growth.GrowthStateStore;
 import com.poro.empire.growth.engine.PlayerGrowthState;
 import com.poro.empire.growth.island.IslandTerritoryStateStore;
 import com.poro.empire.leveling.PlayerLevelingService;
+import com.poro.empire.scoreboard.ScoreboardService;
 import com.poro.empire.storage.PlayerDataManager;
 import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
 import org.bukkit.entity.Entity;
@@ -34,6 +35,7 @@ public final class FieldDropListener implements Listener {
     private final PlayerLevelingService playerLevelingService;
     private final BossRewardService bossRewardService;
     private final ContributionTracker contributionTracker;
+    private final ScoreboardService scoreboardService;
 
     public FieldDropListener(
             GrowthStateStore growthStateStore,
@@ -42,7 +44,8 @@ public final class FieldDropListener implements Listener {
             PlayerLevelingService playerLevelingService,
             FieldBossRespawnScheduler fieldBossScheduler,
             BossRewardService bossRewardService,
-            ContributionTracker contributionTracker
+            ContributionTracker contributionTracker,
+            ScoreboardService scoreboardService
     ) {
         this.growthStateStore = growthStateStore;
         this.islandTerritoryStateStore = islandTerritoryStateStore;
@@ -50,6 +53,7 @@ public final class FieldDropListener implements Listener {
         this.playerLevelingService = playerLevelingService;
         this.bossRewardService = bossRewardService;
         this.contributionTracker = contributionTracker;
+        this.scoreboardService = scoreboardService;
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -102,6 +106,7 @@ public final class FieldDropListener implements Listener {
                     + " §7달성! 스탯 포인트 §a+" + (levelsGained * 3));
         }
         grantFieldDrops(killer, profile, growth);
+        scoreboardService.refresh(killer);
     }
 
     private void grantFieldDrops(Player player, FieldDropProfile profile, PlayerGrowthState growth) {
