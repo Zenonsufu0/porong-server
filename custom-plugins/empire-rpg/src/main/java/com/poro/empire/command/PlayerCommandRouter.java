@@ -17,6 +17,7 @@ import com.poro.empire.listener.BossHubListener;
 import com.poro.empire.listener.FieldHubListener;
 import com.poro.empire.listener.GrowthGuiListener;
 import com.poro.empire.listener.ShopGuiListener;
+import com.poro.empire.listener.TerritorySettingsGuiListener;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -41,6 +42,7 @@ public class PlayerCommandRouter implements CommandExecutor {
     private final BossHubListener           bossHubListener;
     private final ShopGuiListener           shopGuiListener;
     private final CombatStateService        combatStateService;
+    private final TerritorySettingsGuiListener territorySettingsGuiListener;
 
     public PlayerCommandRouter(IslandStorageStore storageStore,
                                IslandTerritoryStateStore territoryStore,
@@ -49,7 +51,8 @@ public class PlayerCommandRouter implements CommandExecutor {
                                FieldHubListener fieldHubListener,
                                BossHubListener bossHubListener,
                                ShopGuiListener shopGuiListener,
-                               CombatStateService combatStateService) {
+                               CombatStateService combatStateService,
+                               TerritorySettingsGuiListener territorySettingsGuiListener) {
         this.storageStore       = storageStore;
         this.territoryStore     = territoryStore;
         this.auctionGuiListener = auctionGuiListener;
@@ -58,6 +61,7 @@ public class PlayerCommandRouter implements CommandExecutor {
         this.bossHubListener    = bossHubListener;
         this.shopGuiListener    = shopGuiListener;
         this.combatStateService = combatStateService;
+        this.territorySettingsGuiListener = territorySettingsGuiListener;
     }
 
     @Override
@@ -92,6 +96,7 @@ public class PlayerCommandRouter implements CommandExecutor {
             case "상점"     -> shopGuiListener.openShop(player);
             case "경매장"   -> handleAuction(player, args);
             case "영지설정"  -> openTerritorySettings(player);
+            case "영지초대"  -> handleInviteResponse(player, args);
             // ── 보스 계열 ──────────────────────────────────────────
             case "보스"     -> bossHubListener.openBossHub(player);
             case "파티"     -> bossHubListener.openPartyHub(player);
@@ -119,6 +124,18 @@ public class PlayerCommandRouter implements CommandExecutor {
     private void openTerritoryMove(Player player) {
         IslandTerritoryState state = territoryStore.getOrCreate(player.getUniqueId());
         TerritoryMoveGui.open(player, state);
+    }
+
+    private void handleInviteResponse(Player player, String[] args) {
+        if (args.length < 1) {
+            player.sendMessage(PREFIX + "§7사용법: /영지초대 수락 §7or §f/영지초대 거절");
+            return;
+        }
+        switch (args[0]) {
+            case "수락", "accept", "y" -> territorySettingsGuiListener.acceptInvite(player);
+            case "거절", "reject", "n" -> territorySettingsGuiListener.rejectInvite(player);
+            default -> player.sendMessage(PREFIX + "§7사용법: /영지초대 수락 §7or §f/영지초대 거절");
+        }
     }
 
     private void openTerritorySettings(Player player) {

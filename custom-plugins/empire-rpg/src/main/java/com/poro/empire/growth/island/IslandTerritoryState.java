@@ -57,6 +57,12 @@ public final class IslandTerritoryState {
     private VisitMode visitMode = VisitMode.PUBLIC;
     /** 등급별 권한 비트마스크. in-memory only — 영속화는 권한 시스템 통합 시. */
     private final java.util.EnumMap<Role, Integer> rolePermissions = new java.util.EnumMap<>(Role.class);
+    /** 영지 멤버: UUID → Role. in-memory only. */
+    private final java.util.Map<java.util.UUID, Role> members = new java.util.LinkedHashMap<>();
+    /** 멤버 표시용 이름 캐시: UUID → playerName (Bukkit 조회 fallback). */
+    private final java.util.Map<java.util.UUID, String> memberNames = new java.util.HashMap<>();
+    /** 멤버 최대 인원 (gui_territory_settings.md §11). */
+    public static final int MAX_MEMBERS = 8;
 
     /** 기계 설치 대수. */
     private int reaperCount  = 0; // 자동 재배기
@@ -151,6 +157,28 @@ public final class IslandTerritoryState {
     }
     public int convenienceUnlocks() { return convenienceUnlocks; }
     public void setConvenienceUnlocks(int mask) { this.convenienceUnlocks = mask; }
+
+    // ─── 멤버 관리 (in-memory) ────────────────────────────────────
+    public boolean addMember(java.util.UUID uuid, String name, Role role) {
+        if (members.size() >= MAX_MEMBERS) return false;
+        members.put(uuid, role == null ? Role.RESIDENT : role);
+        if (name != null && !name.isBlank()) memberNames.put(uuid, name);
+        return true;
+    }
+    public boolean removeMember(java.util.UUID uuid) {
+        memberNames.remove(uuid);
+        return members.remove(uuid) != null;
+    }
+    public boolean hasMember(java.util.UUID uuid) { return members.containsKey(uuid); }
+    public Role memberRole(java.util.UUID uuid) { return members.get(uuid); }
+    public void setMemberRole(java.util.UUID uuid, Role role) {
+        if (members.containsKey(uuid) && role != null) members.put(uuid, role);
+    }
+    public String memberName(java.util.UUID uuid) { return memberNames.get(uuid); }
+    public int memberCount() { return members.size(); }
+    public java.util.List<java.util.Map.Entry<java.util.UUID, Role>> memberList() {
+        return new java.util.ArrayList<>(members.entrySet());
+    }
 
     // ─── 권한 등급 (in-memory) ────────────────────────────────────
     public boolean hasPermission(Role role, Permission perm) {

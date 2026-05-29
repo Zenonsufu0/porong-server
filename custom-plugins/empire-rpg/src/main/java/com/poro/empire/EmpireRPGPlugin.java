@@ -146,6 +146,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
     private FieldHubListener    fieldHubListener;
     private BossHubListener     bossHubListener;
     private ShopGuiListener     shopGuiListener;
+    private TerritorySettingsGuiListener territorySettingsGuiListener;
     private BossRoomManager     bossRoomManager;
     private BossRewardService   bossRewardService;
 
@@ -492,7 +493,9 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(
                 new TerritoryStatusGuiListener(islandTerritoryStateStore, islandStorageStore, growthStateStore, playerDataManager, scoreboardService), this);
         getServer().getPluginManager().registerEvents(
-                new TerritorySettingsGuiListener(islandTerritoryStateStore, combatStateService), this);
+                this.territorySettingsGuiListener =
+                        new TerritorySettingsGuiListener(islandTerritoryStateStore, combatStateService, this),
+                this);
         getServer().getPluginManager().registerEvents(
                 new WorkshopGuiListener(islandTerritoryStateStore, islandStorageStore, this), this);
         getServer().getPluginManager().registerEvents(
@@ -556,10 +559,10 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         getCommand("empire").setTabCompleter(empireCommand);
 
         // 한글 단축 커맨드
-        PlayerCommandRouter router = new PlayerCommandRouter(islandStorageStore, islandTerritoryStateStore, auctionGuiListener, growthGuiListener, fieldHubListener, bossHubListener, shopGuiListener, combatStateService);
+        PlayerCommandRouter router = new PlayerCommandRouter(islandStorageStore, islandTerritoryStateStore, auctionGuiListener, growthGuiListener, fieldHubListener, bossHubListener, shopGuiListener, combatStateService, territorySettingsGuiListener);
         String[] koreanCommands = {
             "메뉴", "장비", "강화", "잠재", "각인", "캐릭터", "전승",
-            "영지", "영지이동", "영지상태", "창고", "공방", "작물", "상점", "경매장", "영지설정",
+            "영지", "영지이동", "영지상태", "영지초대", "창고", "공방", "작물", "상점", "경매장", "영지설정",
             "보스", "파티", "파티목록", "보스정보", "클리어", "필드"
         };
         for (String cmd : koreanCommands) {

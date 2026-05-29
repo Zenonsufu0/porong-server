@@ -69,6 +69,10 @@ commands:
     description: 영지상태 GUI 열기
     usage: /영지상태
     permission: empire.use
+  영지초대:
+    description: 영지 초대 수락/거절
+    usage: /영지초대 <수락|거절>
+    permission: empire.use
   창고:
     description: 창고 GUI 열기
     usage: /창고

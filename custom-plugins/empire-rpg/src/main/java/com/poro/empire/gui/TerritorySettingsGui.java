@@ -1,13 +1,18 @@
 package com.poro.empire.gui;
 
 import com.poro.empire.growth.island.IslandTerritoryState;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * 영지 설정 GUI (36슬롯, 4×9).
@@ -30,6 +35,8 @@ public final class TerritorySettingsGui {
     public static final int SLOT_WATER_PROTECT   = 7;
     public static final int SLOT_PERMISSION      = 8;
     public static final int SLOT_FACILITY        = 17;
+    public static final int SLOT_MEMBER_START    = 18;
+    public static final int SLOT_MEMBER_END      = 25;
     public static final int SLOT_BACK            = 27;
 
     /** weatherState: 0=서버기본, 1=맑음, 2=비 */
@@ -74,10 +81,15 @@ public final class TerritorySettingsGui {
         inv.setItem(17, MainHubGui.icon(Material.PISTON, "§f시설 현황",
                 List.of("§7약초 재배기 현황 확인", "§8▶ 클릭하여 열기")));
 
-        // row2 — 멤버 슬롯
-        for (int i = 18; i <= 25; i++) {
-            inv.setItem(i, MainHubGui.icon(Material.WHITE_STAINED_GLASS_PANE,
-                    "§7플레이어 초대", List.of("§8준비 중")));
+        // row2 — 멤버 슬롯 (영지 멤버 표시, 빈 슬롯은 초대 가능)
+        java.util.List<Map.Entry<UUID, IslandTerritoryState.Role>> members = territory.memberList();
+        for (int i = 0; i < (SLOT_MEMBER_END - SLOT_MEMBER_START + 1); i++) {
+            int slot = SLOT_MEMBER_START + i;
+            if (i < members.size()) {
+                inv.setItem(slot, memberIcon(territory, members.get(i)));
+            } else {
+                inv.setItem(slot, inviteIcon());
+            }
         }
 
         // row3 — 네비게이션
@@ -106,6 +118,46 @@ public final class TerritorySettingsGui {
             default         -> MainHubGui.icon(Material.CLOCK,     "§7시간 설정 §f[서버 기본]",
                     List.of("§7클릭 → §e낮 고정"));
         };
+    }
+
+    public static ItemStack memberIcon(IslandTerritoryState territory, Map.Entry<UUID, IslandTerritoryState.Role> entry) {
+        UUID uuid = entry.getKey();
+        IslandTerritoryState.Role role = entry.getValue();
+        String name = territory.memberName(uuid);
+        if (name == null) {
+            OfflinePlayer op = Bukkit.getOfflinePlayer(uuid);
+            name = op.getName() != null ? op.getName() : uuid.toString().substring(0, 8);
+        }
+        String roleColor = switch (role) {
+            case VICE_LORD -> "§b";
+            case RESIDENT  -> "§e";
+            case VISITOR   -> "§7";
+        };
+        String roleLabel = switch (role) {
+            case VICE_LORD -> "부영주";
+            case RESIDENT  -> "영지민";
+            case VISITOR   -> "방문자";
+        };
+
+        ItemStack head = new ItemStack(Material.PLAYER_HEAD);
+        SkullMeta meta = (SkullMeta) head.getItemMeta();
+        meta.setOwningPlayer(Bukkit.getOfflinePlayer(uuid));
+        meta.displayName(Component.text("§f" + name));
+        meta.lore(List.of(
+                Component.text("§7등급: " + roleColor + roleLabel),
+                Component.text("§7──────────────"),
+                Component.text("§7좌클릭  §f등급 변경"),
+                Component.text("§7우클릭  §c강퇴")
+        ));
+        head.setItemMeta(meta);
+        return head;
+    }
+
+    public static ItemStack inviteIcon() {
+        return MainHubGui.icon(Material.WHITE_STAINED_GLASS_PANE, "§7플레이어 초대",
+                List.of("§7──────────────",
+                        "§7클릭 후 플레이어 이름 입력",
+                        "§8(Anvil GUI)"));
     }
 
     public static ItemStack visitIcon(IslandTerritoryState t) {
