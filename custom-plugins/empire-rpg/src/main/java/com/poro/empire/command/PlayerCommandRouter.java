@@ -16,6 +16,7 @@ import com.poro.empire.listener.AuctionGuiListener;
 import com.poro.empire.listener.BossHubListener;
 import com.poro.empire.listener.FieldHubListener;
 import com.poro.empire.listener.GrowthGuiListener;
+import com.poro.empire.listener.PvpHubListener;
 import com.poro.empire.listener.ShopGuiListener;
 import com.poro.empire.listener.TerritorySettingsGuiListener;
 import org.bukkit.command.Command;
@@ -43,6 +44,7 @@ public class PlayerCommandRouter implements CommandExecutor {
     private final ShopGuiListener           shopGuiListener;
     private final CombatStateService        combatStateService;
     private final TerritorySettingsGuiListener territorySettingsGuiListener;
+    private final PvpHubListener            pvpHubListener;
 
     public PlayerCommandRouter(IslandStorageStore storageStore,
                                IslandTerritoryStateStore territoryStore,
@@ -52,7 +54,8 @@ public class PlayerCommandRouter implements CommandExecutor {
                                BossHubListener bossHubListener,
                                ShopGuiListener shopGuiListener,
                                CombatStateService combatStateService,
-                               TerritorySettingsGuiListener territorySettingsGuiListener) {
+                               TerritorySettingsGuiListener territorySettingsGuiListener,
+                               PvpHubListener pvpHubListener) {
         this.storageStore       = storageStore;
         this.territoryStore     = territoryStore;
         this.auctionGuiListener = auctionGuiListener;
@@ -62,6 +65,7 @@ public class PlayerCommandRouter implements CommandExecutor {
         this.shopGuiListener    = shopGuiListener;
         this.combatStateService = combatStateService;
         this.territorySettingsGuiListener = territorySettingsGuiListener;
+        this.pvpHubListener     = pvpHubListener;
     }
 
     @Override
@@ -97,6 +101,8 @@ public class PlayerCommandRouter implements CommandExecutor {
             case "경매장"   -> handleAuction(player, args);
             case "영지설정"  -> openTerritorySettings(player);
             case "영지초대"  -> handleInviteResponse(player, args);
+            case "대전"     -> pvpHubListener.openHub(player);
+            case "대전랭킹"  -> pvpHubListener.openRanking(player);
             // ── 보스 계열 ──────────────────────────────────────────
             case "보스"     -> bossHubListener.openBossHub(player);
             case "파티"     -> bossHubListener.openPartyHub(player);

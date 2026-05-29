@@ -73,6 +73,14 @@ commands:
     description: 영지 초대 수락/거절
     usage: /영지초대 <수락|거절>
     permission: empire.use
+  대전:
+    description: PvP 대전 허브 열기
+    usage: /대전
+    permission: empire.use
+  대전랭킹:
+    description: 정규대전 랭킹 조회
+    usage: /대전랭킹
+    permission: empire.use
   창고:
     description: 창고 GUI 열기
     usage: /창고

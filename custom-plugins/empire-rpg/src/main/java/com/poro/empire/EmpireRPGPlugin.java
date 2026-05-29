@@ -88,7 +88,9 @@ import com.poro.empire.listener.MainHubListener;
 import com.poro.empire.listener.PlayerJoinListener;
 import com.poro.empire.listener.StorageGuiListener;
 import com.poro.empire.listener.TerritorySettingsGuiListener;
+import com.poro.empire.listener.PvpHubListener;
 import com.poro.empire.listener.ShopGuiListener;
+import com.poro.empire.pvp.PvpRatingService;
 import com.poro.empire.listener.TerritoryStatusGuiListener;
 import com.poro.empire.listener.ConsumableUseListener;
 import com.poro.empire.listener.WorkshopGuiListener;
@@ -147,6 +149,8 @@ public final class EmpireRPGPlugin extends JavaPlugin {
     private BossHubListener     bossHubListener;
     private ShopGuiListener     shopGuiListener;
     private TerritorySettingsGuiListener territorySettingsGuiListener;
+    private PvpHubListener      pvpHubListener;
+    private PvpRatingService    pvpRatingService;
     private BossRoomManager     bossRoomManager;
     private BossRewardService   bossRewardService;
 
@@ -330,6 +334,8 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                 bossEngineRuntime.bossSessionRepository(), islandTerritoryStateStore);
         ShopGui.reloadItems(this);
         this.shopGuiListener = new ShopGuiListener(growthStateStore, islandStorageStore, combatStateService, scoreboardService);
+        this.pvpRatingService = new PvpRatingService();
+        this.pvpHubListener   = new PvpHubListener(pvpRatingService);
         this.resourceTracker = new ResourceTracker();
         SkillContext skillContext = new SkillContext(
                 playerDataManager, this.cooldownManager, this.resourceTracker,
@@ -483,9 +489,11 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         BossRoomListener bossRoomListenerInstance =
                 new BossRoomListener(bossRoomManager, masterRegistryContext.bossMasters(), partyManager, bossEngineRuntime, mythicSpawner);
         getServer().getPluginManager().registerEvents(shopGuiListener, this);
+        getServer().getPluginManager().registerEvents(pvpHubListener, this);
         getServer().getPluginManager().registerEvents(
                 new MainHubListener(growthGuiListener, islandStorageStore, islandTerritoryStateStore,
-                        auctionGuiListener, fieldHubListener, bossHubListener, shopGuiListener, combatStateService), this);
+                        auctionGuiListener, fieldHubListener, bossHubListener, shopGuiListener,
+                        pvpHubListener, combatStateService), this);
         getServer().getPluginManager().registerEvents(bossRoomListenerInstance, this);
         getServer().getPluginManager().registerEvents(growthGuiListener, this);
         getServer().getPluginManager().registerEvents(
@@ -559,11 +567,12 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         getCommand("empire").setTabCompleter(empireCommand);
 
         // 한글 단축 커맨드
-        PlayerCommandRouter router = new PlayerCommandRouter(islandStorageStore, islandTerritoryStateStore, auctionGuiListener, growthGuiListener, fieldHubListener, bossHubListener, shopGuiListener, combatStateService, territorySettingsGuiListener);
+        PlayerCommandRouter router = new PlayerCommandRouter(islandStorageStore, islandTerritoryStateStore, auctionGuiListener, growthGuiListener, fieldHubListener, bossHubListener, shopGuiListener, combatStateService, territorySettingsGuiListener, pvpHubListener);
         String[] koreanCommands = {
             "메뉴", "장비", "강화", "잠재", "각인", "캐릭터", "전승",
             "영지", "영지이동", "영지상태", "영지초대", "창고", "공방", "작물", "상점", "경매장", "영지설정",
-            "보스", "파티", "파티목록", "보스정보", "클리어", "필드"
+            "보스", "파티", "파티목록", "보스정보", "클리어", "필드",
+            "대전", "대전랭킹"
         };
         for (String cmd : koreanCommands) {
             var registered = getCommand(cmd);

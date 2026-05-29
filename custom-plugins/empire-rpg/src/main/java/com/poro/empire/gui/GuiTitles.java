@@ -16,6 +16,8 @@ public final class GuiTitles {
     public static final Component SHOP_SELL          = Component.text("상점 판매");
     public static final Component PERMISSION_ROLES   = Component.text("권한 등급 선택");
     public static final Component PERMISSION_EDIT    = Component.text("권한 편집");
+    public static final Component PVP_HUB            = Component.text("PvP 대전");
+    public static final Component PVP_RANKING        = Component.text("정규대전 랭킹");
     public static final Component BOSS_HUB         = Component.text("보스 도전");
     public static final Component BOSS_INFO        = Component.text("보스 선택");
     public static final Component BOSS_CLEAR_RECORDS = Component.text("클리어 기록");

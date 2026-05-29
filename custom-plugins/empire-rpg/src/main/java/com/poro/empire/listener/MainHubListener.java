@@ -34,6 +34,7 @@ public final class MainHubListener implements Listener {
     private final FieldHubListener          fieldHubListener;
     private final BossHubListener           bossHubListener;
     private final ShopGuiListener           shopGuiListener;
+    private final PvpHubListener            pvpHubListener;
     private final CombatStateService        combatStateService;
 
     /** 영지 이동 GUI 페이지 추적 (in-memory). */
@@ -47,6 +48,7 @@ public final class MainHubListener implements Listener {
             FieldHubListener fieldHubListener,
             BossHubListener bossHubListener,
             ShopGuiListener shopGuiListener,
+            PvpHubListener pvpHubListener,
             CombatStateService combatStateService
     ) {
         this.growthGuiListener        = growthGuiListener;
@@ -56,6 +58,7 @@ public final class MainHubListener implements Listener {
         this.fieldHubListener         = fieldHubListener;
         this.bossHubListener          = bossHubListener;
         this.shopGuiListener          = shopGuiListener;
+        this.pvpHubListener           = pvpHubListener;
         this.combatStateService       = combatStateService;
     }
 
@@ -82,7 +85,7 @@ public final class MainHubListener implements Listener {
             else if (MainHubGui.ZONE_TERRITORY.contains(slot)) openTerritoryHub(player);
             else if (MainHubGui.ZONE_BOSS.contains(slot))      bossHubListener.openBossHub(player);
             else if (MainHubGui.ZONE_EXPLORE.contains(slot))   fieldHubListener.openFieldHub(player);
-            else if (MainHubGui.ZONE_PVP.contains(slot))       player.sendMessage("§7[PvP] 준비 중입니다.");
+            else if (MainHubGui.ZONE_PVP.contains(slot))       pvpHubListener.openHub(player);
             else if (MainHubGui.ZONE_AUCTION.contains(slot))   auctionGuiListener.openMain(player);
             return;
         }
