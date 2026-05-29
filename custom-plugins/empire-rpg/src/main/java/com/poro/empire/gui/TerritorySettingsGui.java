@@ -20,22 +20,40 @@ import java.util.List;
 public final class TerritorySettingsGui {
     private TerritorySettingsGui() {}
 
+    public static final int SLOT_NAME     = 0;
+    public static final int SLOT_WEATHER  = 4;
+    public static final int SLOT_TIME     = 5;
     public static final int SLOT_FACILITY = 17;
     public static final int SLOT_BACK     = 27;
 
+    /** weatherState: 0=서버기본, 1=맑음, 2=비 */
+    public static final int WEATHER_DEFAULT = 0;
+    public static final int WEATHER_CLEAR   = 1;
+    public static final int WEATHER_RAIN    = 2;
+
+    /** timeState: 0=서버기본, 1=낮, 2=밤 */
+    public static final int TIME_DEFAULT = 0;
+    public static final int TIME_DAY     = 1;
+    public static final int TIME_NIGHT   = 2;
+
     public static void open(Player player, IslandTerritoryState territory) {
+        open(player, territory, WEATHER_DEFAULT, TIME_DEFAULT);
+    }
+
+    public static void open(Player player, IslandTerritoryState territory,
+                            int weatherState, int timeState) {
         Inventory inv = Bukkit.createInventory(null, 36, GuiTitles.TERRITORY_SETTINGS);
         ItemStack gray = MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, " ", List.of());
         for (int i = 0; i < 36; i++) inv.setItem(i, gray);
 
         // row0 — 설정 버튼
-        inv.setItem(0, MainHubGui.icon(Material.NAME_TAG, "§f영지명 변경",
-                List.of("§7현재: §e" + territory.islandName(), "§8준비 중")));
+        inv.setItem(SLOT_NAME, MainHubGui.icon(Material.NAME_TAG, "§f영지명 변경",
+                List.of("§7현재: §e" + territory.islandName(), "§8▶ 클릭하여 변경")));
         inv.setItem(1, stub(Material.LIME_STAINED_GLASS_PANE, "§f방문 설정"));
         inv.setItem(2, stub(Material.IRON_PICKAXE,            "§f방문자 채굴 허용"));
         inv.setItem(3, stub(Material.WHEAT,                    "§f방문자 농사 허용"));
-        inv.setItem(4, stub(Material.CLOCK,                    "§f날씨 설정"));
-        inv.setItem(5, stub(Material.CLOCK,                    "§f시간 설정"));
+        inv.setItem(SLOT_WEATHER, weatherIcon(weatherState));
+        inv.setItem(SLOT_TIME,    timeIcon(timeState));
         inv.setItem(6, stub(Material.WHEAT,                    "§f농작물 보호"));
         inv.setItem(7, stub(Material.WATER_BUCKET,             "§f물 파괴 보호"));
         inv.setItem(8, stub(Material.BOOK,                     "§f권한 설정"));
@@ -55,6 +73,28 @@ public final class TerritorySettingsGui {
         inv.setItem(SLOT_BACK, MainHubGui.icon(Material.ARROW, "§7뒤로", List.of("§7영지 관리")));
 
         player.openInventory(inv);
+    }
+
+    public static ItemStack weatherIcon(int state) {
+        return switch (state) {
+            case WEATHER_CLEAR -> MainHubGui.icon(Material.SUNFLOWER, "§a날씨 설정 §f[맑음 고정]",
+                    List.of("§7클릭 → §b비 고정"));
+            case WEATHER_RAIN  -> MainHubGui.icon(Material.WATER_BUCKET, "§b날씨 설정 §f[비 고정]",
+                    List.of("§7클릭 → §7서버 기본"));
+            default            -> MainHubGui.icon(Material.CLOCK, "§7날씨 설정 §f[서버 기본]",
+                    List.of("§7클릭 → §a맑음 고정"));
+        };
+    }
+
+    public static ItemStack timeIcon(int state) {
+        return switch (state) {
+            case TIME_DAY   -> MainHubGui.icon(Material.SUNFLOWER, "§e시간 설정 §f[낮 고정]",
+                    List.of("§7클릭 → §9밤 고정"));
+            case TIME_NIGHT -> MainHubGui.icon(Material.INK_SAC,   "§9시간 설정 §f[밤 고정]",
+                    List.of("§7클릭 → §7서버 기본"));
+            default         -> MainHubGui.icon(Material.CLOCK,     "§7시간 설정 §f[서버 기본]",
+                    List.of("§7클릭 → §e낮 고정"));
+        };
     }
 
     private static ItemStack autoDepositIcon(IslandTerritoryState t) {
