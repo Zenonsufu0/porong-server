@@ -91,6 +91,7 @@ import com.poro.empire.listener.MainHubListener;
 import com.poro.empire.listener.PlayerJoinListener;
 import com.poro.empire.listener.StorageGuiListener;
 import com.poro.empire.listener.TerritorySettingsGuiListener;
+import com.poro.empire.listener.PvpDamageListener;
 import com.poro.empire.listener.PvpHubListener;
 import com.poro.empire.listener.ShopGuiListener;
 import com.poro.empire.pvp.PvpFriendlyService;
@@ -569,6 +570,9 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(auctionGuiListener, this);
         getServer().getPluginManager().registerEvents(fieldHubListener, this);
         getServer().getPluginManager().registerEvents(bossHubListener, this);
+        // PvP — 친선 영지 검증 hook + 데미지 게이트 (아레나 외 차단 + 정규대전 클램프)
+        pvpHubListener.friendlyService().attachSafeZone(safeZoneService);
+        getServer().getPluginManager().registerEvents(new PvpDamageListener(pvpMatchService, pvpArenaManager), this);
     }
 
     /** BossEngineRuntime 연동 전 stub — 모든 필드보스를 리스폰 대기 상태로 반환. */

@@ -1,5 +1,6 @@
 package com.poro.empire.pvp;
 
+import com.poro.empire.field.SafeZoneService;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -20,6 +21,7 @@ public final class PvpFriendlyService {
 
     private final Plugin          plugin;
     private final PvpMatchService matchService;
+    private SafeZoneService       safeZoneService; // setter — 영지 검증
 
     /** target UUID → Request. */
     private final Map<UUID, Request> pendingRequests = new ConcurrentHashMap<>();
@@ -29,10 +31,18 @@ public final class PvpFriendlyService {
         this.matchService = matchService;
     }
 
+    public void attachSafeZone(SafeZoneService safeZoneService) {
+        this.safeZoneService = safeZoneService;
+    }
+
     /** 친선 요청 발송. */
     public boolean sendRequest(Player requester, String targetName) {
         if (matchService.isInMatch(requester.getUniqueId())) {
             requester.sendMessage("§c[친선] 대전 중에는 요청할 수 없습니다.");
+            return false;
+        }
+        if (!isInIsland(requester)) {
+            requester.sendMessage("§c[친선] 영지에서만 신청할 수 있습니다.");
             return false;
         }
         Player target = Bukkit.getPlayerExact(targetName);
@@ -86,6 +96,10 @@ public final class PvpFriendlyService {
             target.sendMessage("§c[친선] 이미 대전 중이라 수락할 수 없습니다.");
             return false;
         }
+        if (!isInIsland(target)) {
+            target.sendMessage("§c[친선] 영지에서만 수락할 수 있습니다.");
+            return false;
+        }
         if (matchService.isInMatch(r.requesterUuid())) {
             target.sendMessage("§c[친선] 신청자가 다른 대전에 참여 중입니다.");
             Player rq = Bukkit.getPlayer(r.requesterUuid());
@@ -99,6 +113,12 @@ public final class PvpFriendlyService {
         }
         PvpMatchService.StartResult result = matchService.startFriendly(requester, target);
         return result == PvpMatchService.StartResult.SUCCESS;
+    }
+
+    /** 영지(SafeZone) 검사. SafeZoneService 미주입 시 항상 true (런타임 회피). */
+    private boolean isInIsland(Player player) {
+        if (safeZoneService == null) return true;
+        return safeZoneService.isSafeZone(player.getLocation());
     }
 
     /** 친선 요청 거절. */
