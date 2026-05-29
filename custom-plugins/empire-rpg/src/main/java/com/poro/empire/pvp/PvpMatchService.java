@@ -1,5 +1,6 @@
 package com.poro.empire.pvp;
 
+import com.poro.empire.pvp.db.PvpMatchLogRepository;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -29,6 +30,7 @@ public final class PvpMatchService {
     private final Plugin              plugin;
     private final PvpArenaManager     arenaManager;
     private final PvpRatingService    ratingService;
+    private PvpMatchLogRepository     matchLogRepository; // optional
 
     /** 자유대전 큐: FIFO. */
     private final Deque<UUID> freeQueue   = new ArrayDeque<>();
@@ -48,6 +50,10 @@ public final class PvpMatchService {
         this.plugin       = plugin;
         this.arenaManager = arenaManager;
         this.ratingService = ratingService;
+    }
+
+    public void attachMatchLog(PvpMatchLogRepository repository) {
+        this.matchLogRepository = repository;
     }
 
     // ─── 큐 진입 ─────────────────────────────────────────────────────
@@ -241,6 +247,12 @@ public final class PvpMatchService {
                 pb.performCommand("is home");
             }
         }, AUTO_RETURN_TICKS);
+
+        // DB 매치 로그
+        if (matchLogRepository != null) {
+            int durationS = (int) ((System.currentTimeMillis() - match.startedAt()) / 1000L);
+            matchLogRepository.record(match.type(), winnerUuid, loserUuid, draw, durationS, reason);
+        }
 
         // 정리
         activeMatches.remove(match.matchId());

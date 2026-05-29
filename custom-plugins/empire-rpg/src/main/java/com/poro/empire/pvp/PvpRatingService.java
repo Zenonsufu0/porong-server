@@ -1,5 +1,7 @@
 package com.poro.empire.pvp;
 
+import com.poro.empire.pvp.db.PvpRatingRepository;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -27,6 +29,15 @@ public final class PvpRatingService {
     }
 
     private final Map<UUID, Rating> ratings = new ConcurrentHashMap<>();
+    private PvpRatingRepository repository; // optional — DB 영속화. null이면 in-memory만.
+
+    /** 서버 시작 후 DB 캐시 로드 + 이후 변경 시 자동 영속화. */
+    public void attachRepository(PvpRatingRepository repository) {
+        this.repository = repository;
+        if (repository != null) {
+            repository.loadAll().forEach(r -> ratings.put(r.uuid(), r));
+        }
+    }
 
     public Rating getOrInit(UUID uuid, String name) {
         return ratings.computeIfAbsent(uuid, k -> new Rating(uuid, name, INITIAL_SCORE, 0, 0));
@@ -35,12 +46,14 @@ public final class PvpRatingService {
     public Rating recordWin(UUID uuid, String name) {
         Rating r = getOrInit(uuid, name).withDelta(WIN_DELTA);
         ratings.put(uuid, r);
+        if (repository != null) repository.save(r);
         return r;
     }
 
     public Rating recordLoss(UUID uuid, String name) {
         Rating r = getOrInit(uuid, name).withDelta(LOSS_DELTA);
         ratings.put(uuid, r);
+        if (repository != null) repository.save(r);
         return r;
     }
 

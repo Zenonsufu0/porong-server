@@ -96,6 +96,8 @@ import com.poro.empire.listener.ShopGuiListener;
 import com.poro.empire.pvp.PvpFriendlyService;
 import com.poro.empire.pvp.PvpMatchService;
 import com.poro.empire.pvp.PvpRatingService;
+import com.poro.empire.pvp.db.PvpMatchLogRepository;
+import com.poro.empire.pvp.db.PvpRatingRepository;
 import com.poro.empire.listener.TerritoryStatusGuiListener;
 import com.poro.empire.listener.ConsumableUseListener;
 import com.poro.empire.listener.WorkshopGuiListener;
@@ -344,6 +346,17 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         this.pvpRatingService   = new PvpRatingService();
         this.pvpArenaManager    = PvpArenaManager.fromConfig(this);
         this.pvpMatchService    = new PvpMatchService(this, pvpArenaManager, pvpRatingService);
+
+        // DB 영속화 hook 주입
+        PvpRatingRepository pvpRatingRepo = new PvpRatingRepository(
+                foundationContext.connectionProvider(),
+                foundationContext.logger().domain("pvp.rating"));
+        pvpRatingService.attachRepository(pvpRatingRepo);
+        PvpMatchLogRepository pvpMatchLogRepo = new PvpMatchLogRepository(
+                foundationContext.connectionProvider(),
+                foundationContext.logger().domain("pvp.matchlog"));
+        pvpMatchService.attachMatchLog(pvpMatchLogRepo);
+
         PvpFriendlyService pvpFriendlyService = new PvpFriendlyService(this, pvpMatchService);
         this.pvpHubListener     = new PvpHubListener(pvpRatingService, pvpMatchService, pvpFriendlyService);
         this.resourceTracker = new ResourceTracker();

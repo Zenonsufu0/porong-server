@@ -1410,3 +1410,36 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 **부채:**
 - WorldGuard 등 외부 hook 없이 in-engine만 작동
 - 치장 제작 파편(`cosmetic_fragment`)은 적립만 되고 사용처(치장 시스템) 미구현
+
+---
+
+### DL-077 PvP 시스템 1차 시즌 압축 구현 + 미해결 항목
+
+**결정:** PvP 시스템 (CANON `docs/13_pvp_system/CANON.md`)을 다음 범위로 1차 시즌 구현.
+
+**구현 범위:**
+- PvP 허브 GUI (54슬롯, 자유/정규/친선/랭킹)
+- 정규대전 점수 (in-memory + pvp_rating DB 영속화, 초기 100점/승+15/패-10)
+- 자유/정규 매칭 큐 (FIFO, 2명 모이면 즉시 텔레포트)
+- 친선대전 (Anvil 닉네임 입력 + 30초 응답)
+- 아레나 방 풀 (5×2 = 10개, /empire-genarenas 명령으로 생성)
+- 매치 진행 (3분 타임아웃, 사망=패배, 서버이탈=자동 패배, HP 비율 비교)
+- 매치 로그 (pvp_match_log DDL, FREE/RANKED/FRIENDLY 구분)
+- 정규대전 가상 컨텍스트 (PvpContext: 12강 IL60 보관)
+- /대전 /대전랭킹 /친선 명령
+
+**미해결 (후속 작업):**
+- 정규대전 가상 스탯의 **실제 전투 적용** — PvpContext는 데이터만 생성됨. damage 계산 시 hook으로 조회·적용 필요
+- 아레나 외 영역 PvP 차단 — 현재 WorldGuard pvp-deny에 의존 (별도 설정 필요)
+- 영지 검증 — CANON §2 "친선 수락은 영지에서만" 미구현 (현재 위치 무관 수락 가능)
+- 매치 중 텔레포트 등 회피 차단 없음
+
+**파일:**
+- `pvp/` 신규 패키지 (PvpRatingService, PvpArenaManager/Slot, PvpMatchService, PvpMatchType, PvpMatch, PvpContext, PvpFriendlyService, PvpArenaGenerationService)
+- `pvp/db/` (PvpRatingRepository, PvpMatchLogRepository)
+- `common/db/PvpDdl + PvpMigration`
+- `gui/PvpHubGui + PvpRankingGui`
+- `listener/PvpHubListener`
+- `command/PvpArenaGenCommand`
+
+**커밋:** b284fe5 (Phase 1) → bbde535 (2a) → 83a1dc9 (2b/c/d) → a806e1b (2e) → 2f (이 커밋)
