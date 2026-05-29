@@ -630,12 +630,12 @@ public final class EmpireRPGPlugin extends JavaPlugin {
 
         // 운용자 전용 한글 커맨드
         ClassAdminCommand classAdminCommand = new ClassAdminCommand(classInitService, playerDataManager);
-        var jobCmd = getCommand("직업");
-        if (jobCmd != null) {
-            jobCmd.setExecutor(classAdminCommand);
-            jobCmd.setTabCompleter(classAdminCommand);
+        var setClassCmd = getCommand("empire-setclass");
+        if (setClassCmd != null) {
+            setClassCmd.setExecutor(classAdminCommand);
+            setClassCmd.setTabCompleter(classAdminCommand);
         } else {
-            getLogger().warning("커맨드 /직업 plugin.yml 미등록 — 건너뜀.");
+            getLogger().warning("커맨드 /empire-setclass plugin.yml 미등록 — 건너뜀.");
         }
     }
 }

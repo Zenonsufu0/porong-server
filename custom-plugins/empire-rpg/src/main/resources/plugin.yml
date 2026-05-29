@@ -22,12 +22,12 @@ commands:
   empire-genrooms:
     description: 보스룸 30개 월드 자동 생성 (관리자 전용, 서버 오픈 전 1회 실행)
     usage: /empire-genrooms [world] [x] [y] [z]
-    permission: empire.admin
+    permission: empire.admin.genrooms
 
   empire-genarenas:
     description: PvP 아레나 10개 월드 자동 생성 (관리자 전용, 서버 오픈 전 1회 실행)
     usage: /empire-genarenas [world] [x] [y] [z]
-    permission: empire.admin
+    permission: empire.admin.genarenas
 
   # 메인
   메뉴:
@@ -144,27 +144,36 @@ commands:
     permission: empire.use
 
   # 운용자 전용
-  직업:
+  empire-setclass:
     description: 플레이어 직업 변경 및 초기 장비 지급 (관리자 전용)
-    usage: /직업 <플레이어> <검|도끼|창|석궁|낫|스태프>
-    permission: empire.admin
+    aliases: [직업]
+    usage: /empire-setclass <플레이어> <검|도끼|창|석궁|낫|스태프>
+    permission: empire.admin.setclass
 
 permissions:
   empire.admin:
-    description: EmpireRPG 관리자 권한
+    description: EmpireRPG 관리자 전체 권한
     default: op
     children:
       empire.admin.setclass: true
       empire.admin.reputation: true
       empire.admin.reload: true
+      empire.admin.genrooms: true
+      empire.admin.genarenas: true
   empire.admin.setclass:
-    description: 타 플레이어 클래스 강제 설정
+    description: 타 플레이어 클래스 강제 설정 (/empire-setclass, /직업)
     default: op
   empire.admin.reputation:
     description: 타 플레이어 명성치 조작
     default: op
   empire.admin.reload:
     description: 설정 리로드
+    default: op
+  empire.admin.genrooms:
+    description: 보스룸 자동 생성 (/empire-genrooms)
+    default: op
+  empire.admin.genarenas:
+    description: PvP 아레나 자동 생성 (/empire-genarenas)
     default: op
   empire.use:
     description: EmpireRPG 기본 사용 권한
