@@ -93,6 +93,7 @@ import com.poro.empire.listener.StorageGuiListener;
 import com.poro.empire.listener.TerritorySettingsGuiListener;
 import com.poro.empire.listener.PvpDamageListener;
 import com.poro.empire.listener.PvpHubListener;
+import com.poro.empire.listener.PvpTeleportListener;
 import com.poro.empire.listener.ShopGuiListener;
 import com.poro.empire.pvp.PvpFriendlyService;
 import com.poro.empire.pvp.PvpMatchService;
@@ -575,6 +576,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         // PvP — 친선 영지 검증 hook (WorldGuard 없으면 검증 우회) + 데미지 게이트
         pvpHubListener.friendlyService().attachSafeZone(safeZoneService, worldGuardEnabled);
         getServer().getPluginManager().registerEvents(new PvpDamageListener(pvpMatchService, pvpArenaManager), this);
+        getServer().getPluginManager().registerEvents(new PvpTeleportListener(pvpMatchService, pvpArenaManager), this);
     }
 
     /** BossEngineRuntime 연동 전 stub — 모든 필드보스를 리스폰 대기 상태로 반환. */
