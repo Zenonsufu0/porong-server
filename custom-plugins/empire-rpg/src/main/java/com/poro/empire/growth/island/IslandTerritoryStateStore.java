@@ -16,7 +16,28 @@ public final class IslandTerritoryStateStore {
     }
 
     public IslandTerritoryState getOrCreate(UUID uuid, String playerName) {
-        return territories.computeIfAbsent(uuid, key -> new IslandTerritoryState(playerName));
+        return territories.computeIfAbsent(uuid, key -> {
+            IslandTerritoryState state = new IslandTerritoryState(playerName);
+            applyBundle(uuid, state);
+            return state;
+        });
+    }
+
+    /** repository에서 단건 로드해 state에 적용 (재로그인 시 멤버/권한/visit 복원). */
+    private void applyBundle(UUID uuid, IslandTerritoryState state) {
+        if (repository == null) return;
+        IslandSettingsRepository.IslandBundle bundle = repository.loadOne(uuid);
+        if (bundle == null) return;
+        state.setVisitMode(bundle.visitMode());
+        for (var memberRow : bundle.members()) {
+            state.addMember(memberRow.memberUuid(), memberRow.memberName(), memberRow.role());
+        }
+        bundle.permissions().forEach((role, mask) -> {
+            int diff = mask ^ state.rolePermissionMask(role);
+            for (var perm : IslandTerritoryState.Permission.values()) {
+                if ((diff & perm.bit) != 0) state.togglePermission(role, perm);
+            }
+        });
     }
 
     public Optional<IslandTerritoryState> get(UUID uuid) {

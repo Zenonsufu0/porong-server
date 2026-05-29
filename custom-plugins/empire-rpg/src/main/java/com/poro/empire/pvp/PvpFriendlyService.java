@@ -22,6 +22,7 @@ public final class PvpFriendlyService {
     private final Plugin          plugin;
     private final PvpMatchService matchService;
     private SafeZoneService       safeZoneService; // setter — 영지 검증
+    private boolean               enforceIsland;   // WorldGuard 환경에서만 영지 검증 활성화
 
     /** target UUID → Request. */
     private final Map<UUID, Request> pendingRequests = new ConcurrentHashMap<>();
@@ -31,8 +32,9 @@ public final class PvpFriendlyService {
         this.matchService = matchService;
     }
 
-    public void attachSafeZone(SafeZoneService safeZoneService) {
+    public void attachSafeZone(SafeZoneService safeZoneService, boolean enforceIsland) {
         this.safeZoneService = safeZoneService;
+        this.enforceIsland   = enforceIsland;
     }
 
     /** 친선 요청 발송. */
@@ -115,9 +117,9 @@ public final class PvpFriendlyService {
         return result == PvpMatchService.StartResult.SUCCESS;
     }
 
-    /** 영지(SafeZone) 검사. SafeZoneService 미주입 시 항상 true (런타임 회피). */
+    /** 영지(SafeZone) 검사. WorldGuard 미설치 환경(enforceIsland=false)이면 항상 true. */
     private boolean isInIsland(Player player) {
-        if (safeZoneService == null) return true;
+        if (!enforceIsland || safeZoneService == null) return true;
         return safeZoneService.isSafeZone(player.getLocation());
     }
 

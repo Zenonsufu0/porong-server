@@ -563,15 +563,16 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new SwordParryListener(), this);
         getServer().getPluginManager().registerEvents(new EmpireItemGuardListener(), this);
         getServer().getPluginManager().registerEvents(new StaffProjectileListener(resourceTracker), this);
-        SafeZoneService safeZoneService = getServer().getPluginManager().isPluginEnabled("WorldGuard")
+        boolean worldGuardEnabled = getServer().getPluginManager().isPluginEnabled("WorldGuard");
+        SafeZoneService safeZoneService = worldGuardEnabled
                 ? new WorldGuardSafeZoneService()
                 : new NoopSafeZoneService();
         getServer().getPluginManager().registerEvents(new SkillInputListener(skillService, safeZoneService), this);
         getServer().getPluginManager().registerEvents(auctionGuiListener, this);
         getServer().getPluginManager().registerEvents(fieldHubListener, this);
         getServer().getPluginManager().registerEvents(bossHubListener, this);
-        // PvP — 친선 영지 검증 hook + 데미지 게이트 (아레나 외 차단 + 정규대전 클램프)
-        pvpHubListener.friendlyService().attachSafeZone(safeZoneService);
+        // PvP — 친선 영지 검증 hook (WorldGuard 없으면 검증 우회) + 데미지 게이트
+        pvpHubListener.friendlyService().attachSafeZone(safeZoneService, worldGuardEnabled);
         getServer().getPluginManager().registerEvents(new PvpDamageListener(pvpMatchService, pvpArenaManager), this);
     }
 

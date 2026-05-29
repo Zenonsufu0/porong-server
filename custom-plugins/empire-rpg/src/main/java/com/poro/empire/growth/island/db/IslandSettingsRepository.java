@@ -112,6 +112,57 @@ public final class IslandSettingsRepository {
         }
     }
 
+    // ─── 단건 로드 (재로그인 lazy 복원) ─────────────────────────────
+
+    /** 특정 owner의 설정/멤버/권한을 한번에 로드. 없으면 null. */
+    public IslandBundle loadOne(UUID ownerUuid) {
+        IslandTerritoryState.VisitMode visit = IslandTerritoryState.VisitMode.PUBLIC;
+        List<MemberRow> members = new ArrayList<>();
+        Map<IslandTerritoryState.Role, Integer> perms = new LinkedHashMap<>();
+        boolean found = false;
+
+        try (Connection c = openConn()) {
+            try (PreparedStatement ps = c.prepareStatement(
+                    "SELECT visit_mode FROM island_settings WHERE owner_uuid = ?")) {
+                ps.setString(1, ownerUuid.toString());
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        visit = parseVisit(rs.getString("visit_mode"));
+                        found = true;
+                    }
+                }
+            }
+            try (PreparedStatement ps = c.prepareStatement(
+                    "SELECT member_uuid, member_name, role FROM island_members WHERE owner_uuid = ?")) {
+                ps.setString(1, ownerUuid.toString());
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        found = true;
+                        members.add(new MemberRow(
+                                UUID.fromString(rs.getString("member_uuid")),
+                                rs.getString("member_name"),
+                                parseRole(rs.getString("role"))
+                        ));
+                    }
+                }
+            }
+            try (PreparedStatement ps = c.prepareStatement(
+                    "SELECT role, perm_mask FROM island_role_permissions WHERE owner_uuid = ?")) {
+                ps.setString(1, ownerUuid.toString());
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        found = true;
+                        perms.put(parseRole(rs.getString("role")), rs.getInt("perm_mask"));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.warn("IslandSettingsRepository.loadOne failed [" + ownerUuid + "]: " + e.getMessage());
+            return null;
+        }
+        return found ? new IslandBundle(ownerUuid, visit, members, perms) : null;
+    }
+
     // ─── 통합 로드 (서버 시작 시) ────────────────────────────────────
 
     /** 모든 영지의 설정/멤버/권한을 한번에 로드. */

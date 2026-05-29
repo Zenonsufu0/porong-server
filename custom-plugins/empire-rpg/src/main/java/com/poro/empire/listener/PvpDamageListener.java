@@ -34,15 +34,13 @@ public final class PvpDamageListener implements Listener {
         Player attacker = resolvePlayer(event.getDamager());
         if (attacker == null) return;
 
-        // 매치 중인 양측 페어만 통과시킴 — 그 외 PvP는 차단
+        // 매치 중인 양측 페어만 통과시킴 — 그 외 PvP는 모두 차단 (1차 시즌: PvE 전용 정책)
         Optional<PvpMatch> match = matchService.matchOf(attacker.getUniqueId());
         if (match.isEmpty()) {
-            // 공격자가 매치 중이 아닌데 피해자가 매치 중이면 → 매치 방해 차단
-            if (matchService.isInMatch(victim.getUniqueId())) {
-                event.setCancelled(true);
-                attacker.sendMessage("§c[PvP] 대전 중인 플레이어를 공격할 수 없습니다.");
-            }
-            return; // 그 외는 WorldGuard pvp flag가 처리
+            // 양측 모두 매치 외 — 플러그인 차원에서 PvP 차단 (WorldGuard 미설치 환경 보장)
+            event.setCancelled(true);
+            attacker.sendMessage("§c[PvP] 대전 외부에서는 다른 플레이어를 공격할 수 없습니다.");
+            return;
         }
         // 공격자 매치 중 — 같은 매치 상대인지 확인
         if (!match.get().involves(victim.getUniqueId())) {
