@@ -1028,13 +1028,24 @@ public final class GrowthGuiListener implements Listener {
 
         Inventory gui = Bukkit.createInventory(null, 54, GuiTitles.EQUIPMENT_HUB);
 
-        // PNG 배경 시인성을 위해 구역 슬롯은 AIR, 중앙만 아이콘 배치
-        // (gui_hub_structure.md §3 5구역)
-        gui.setItem(10, MainHubGui.icon(Material.ANVIL,          "§f강화",     List.of("§7클릭하여 열기")));
-        gui.setItem(16, MainHubGui.icon(Material.NAME_TAG,       "§f각인",     List.of("§7클릭하여 열기")));
-        gui.setItem(37, MainHubGui.icon(Material.NETHER_STAR,    "§f잠재능력", List.of("§7클릭하여 열기")));
-        gui.setItem(43, MainHubGui.icon(Material.ENCHANTED_BOOK, "§f전승",     List.of("§7클릭하여 열기")));
-        gui.setItem(22, MainHubGui.icon(Material.PAPER,          "§7캐릭터",   List.of("§8(준비 중)")));
+        // 구역별 색상 채움 — 중앙 아이콘은 fillZone 뒤에 덮어쓴다
+        ItemStack lgPane = MainHubGui.icon(Material.LIGHT_GRAY_STAINED_GLASS_PANE, " ", List.of());
+        ItemStack puPane = MainHubGui.icon(Material.PURPLE_STAINED_GLASS_PANE,     " ", List.of());
+        ItemStack bkPane = MainHubGui.icon(Material.BLACK_STAINED_GLASS_PANE,      " ", List.of());
+        ItemStack cyPane = MainHubGui.icon(Material.CYAN_STAINED_GLASS_PANE,       " ", List.of());
+        ItemStack orPane = MainHubGui.icon(Material.ORANGE_STAINED_GLASS_PANE,     " ", List.of());
+        for (int s : HUB_ENHANCE_SLOTS)   gui.setItem(s, lgPane);
+        for (int s : HUB_ENGRAVING_SLOTS) gui.setItem(s, puPane);
+        for (int s : HUB_CHARACTER_SLOTS) gui.setItem(s, bkPane);
+        for (int s : HUB_POTENTIAL_SLOTS) gui.setItem(s, cyPane);
+        for (int s : HUB_HEIRLOOM_SLOTS)  gui.setItem(s, orPane);
+
+        // 중앙 아이콘 (각 구역 row1 center)
+        gui.setItem(10, MainHubGui.icon(Material.ANVIL,          "§f강화",     List.of("§7장비 강화  ·  성공 확률", "§8▶ 클릭하여 열기")));
+        gui.setItem(16, MainHubGui.icon(Material.NAME_TAG,       "§d각인",     List.of("§7능력 강화  ·  각인 선택", "§8▶ 클릭하여 열기")));
+        gui.setItem(22, MainHubGui.icon(Material.PAPER,          "§7캐릭터",   List.of("§7장착 장비  ·  스탯",     "§8▶ 클릭하여 열기")));
+        gui.setItem(37, MainHubGui.icon(Material.NETHER_STAR,    "§b잠재능력", List.of("§7큐브로 잠재 재구성",      "§8▶ 클릭하여 열기")));
+        gui.setItem(43, MainHubGui.icon(Material.ENCHANTED_BOOK, "§6전승",     List.of("§7흔적을 이용한 능력 이전", "§8▶ 클릭하여 열기")));
 
         player.openInventory(gui);
     }

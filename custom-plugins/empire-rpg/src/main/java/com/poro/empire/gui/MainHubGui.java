@@ -12,48 +12,42 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 메인 허브 GUI (54슬롯, gui_hub_structure.md §2).
+ * 메인 허브 GUI (54슬롯).
+ * 3×2 격자 — 구역당 3×3=9슬롯, 색상 유리 채움 + 중앙 아이콘.
  *
- * 배경 menu_main.png — 4분할 프레임.
- * 구역 내 어느 슬롯 클릭해도 해당 하위 GUI로 이동.
- *
- *      col0  col1  col2  col3  [col4]  col5  col6  col7  col8
- * row0 [장비]×4                [div]         [영지]×4
- * row1 [장비]×4                [div]         [영지]×4
- * row2 [장비]×4                [div]         [영지]×4
- * row3 [보스]×4                [div]         [탐험]×4
- * row4 [보스]×4                [div]         [탐험]×4
- * row5 [보스]×4                [div]         [탐험]×4
+ *  col0-2       col3-5       col6-8
+ *  [장비 3×3]   [영지 3×3]   [보스 3×3]   ← row 0-2
+ *  [탐험 3×3]   [PvP 3×3]    [예정 3×3]   ← row 3-5
  */
 public final class MainHubGui {
 
-    // 클릭 구역 (MainHubListener에서 사용)
-    public static final Set<Integer> ZONE_EQUIP    = Set.of(
-            0,  1,  2,  3,
-            9, 10, 11, 12,
-            18, 19, 20, 21);
-    public static final Set<Integer> ZONE_TERRITORY = Set.of(
-            5,  6,  7,  8,
-            14, 15, 16, 17,
-            23, 24, 25, 26);
-    public static final Set<Integer> ZONE_BOSS     = Set.of(
-            27, 28, 29, 30,
-            36, 37, 38, 39,
-            45, 46, 47, 48);
-    public static final Set<Integer> ZONE_EXPLORE  = Set.of(
-            32, 33, 34, 35,
-            41, 42, 43, 44,
-            50, 51, 52, 53);
+    // ─── 클릭 구역 ────────────────────────────────────────────────────
+    public static final Set<Integer> ZONE_EQUIP     = Set.of(0,1,2,   9,10,11,  18,19,20);
+    public static final Set<Integer> ZONE_TERRITORY = Set.of(3,4,5,  12,13,14,  21,22,23);
+    public static final Set<Integer> ZONE_BOSS      = Set.of(6,7,8,  15,16,17,  24,25,26);
+    public static final Set<Integer> ZONE_EXPLORE   = Set.of(27,28,29, 36,37,38, 45,46,47);
+    public static final Set<Integer> ZONE_PVP       = Set.of(30,31,32, 39,40,41, 48,49,50);
+    public static final Set<Integer> ZONE_AUCTION   = Set.of(33,34,35, 42,43,44, 51,52,53);
 
     private MainHubGui() {}
 
     public static void open(Player player) {
         Inventory gui = Bukkit.createInventory(null, 54, GuiTitles.MAIN_HUB);
 
-        // col4 = PNG 분할선 위치만 명시. 나머지 구역 슬롯은 AIR로 두어 PNG 배경이 보이도록 함.
-        // 클릭은 모두 MainHubListener에서 취소하므로 빈 슬롯에 아이템이 이동하지 않는다.
-        ItemStack divider = icon(Material.GRAY_STAINED_GLASS_PANE, " ", List.of());
-        for (int div : new int[]{4, 13, 22, 31, 40, 49}) gui.setItem(div, divider);
+        fillZone(gui, ZONE_EQUIP,     icon(Material.LIGHT_BLUE_STAINED_GLASS_PANE, " ", List.of()));
+        fillZone(gui, ZONE_TERRITORY, icon(Material.GREEN_STAINED_GLASS_PANE,       " ", List.of()));
+        fillZone(gui, ZONE_BOSS,      icon(Material.RED_STAINED_GLASS_PANE,         " ", List.of()));
+        fillZone(gui, ZONE_EXPLORE,   icon(Material.YELLOW_STAINED_GLASS_PANE,      " ", List.of()));
+        fillZone(gui, ZONE_PVP,       icon(Material.ORANGE_STAINED_GLASS_PANE,      " ", List.of()));
+        fillZone(gui, ZONE_AUCTION,   icon(Material.YELLOW_STAINED_GLASS_PANE,      " ", List.of()));
+
+        // 중앙 아이콘 — row1(slots 9-17) + row4(slots 36-44) 의 각 구역 중심
+        gui.setItem(10, icon(Material.NETHERITE_SWORD,      "§b장비 허브",  List.of("§7강화  ·  잠재  ·  전승", "§8▶ 클릭하여 열기")));
+        gui.setItem(13, icon(Material.GRASS_BLOCK,           "§a영지 허브",  List.of("§7작위  ·  창고  ·  공방", "§8▶ 클릭하여 열기")));
+        gui.setItem(16, icon(Material.WITHER_SKELETON_SKULL, "§c보스 허브",  List.of("§7필드보스  ·  시즌보스",  "§8▶ 클릭하여 열기")));
+        gui.setItem(37, icon(Material.FILLED_MAP,            "§e탐험 허브",  List.of("§7필드 이동  ·  던전",     "§8▶ 클릭하여 열기")));
+        gui.setItem(40, icon(Material.IRON_SWORD,            "§6PvP 허브",   List.of("§7전투 구역  ·  랭킹",    "§8▶ 클릭하여 열기")));
+        gui.setItem(43, icon(Material.GOLD_INGOT,            "§e경매장",     List.of("§7아이템  ·  즉시구매",   "§8▶ 클릭하여 열기")));
 
         player.openInventory(gui);
     }

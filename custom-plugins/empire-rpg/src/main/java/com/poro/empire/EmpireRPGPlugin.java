@@ -474,8 +474,8 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         BossRoomListener bossRoomListenerInstance =
                 new BossRoomListener(bossRoomManager, masterRegistryContext.bossMasters(), partyManager, bossEngineRuntime, mythicSpawner);
         getServer().getPluginManager().registerEvents(
-                new MainHubListener(this, fieldStateProvider, growthStateStore, growthEngineRuntime, scoreboardService, playerDataManager, islandStorageStore, islandTerritoryStateStore, fieldTeleportService, combatStateService, auctionGuiListener,
-                        bossRoomListenerInstance, fieldHubListener, bossHubListener), this);
+                new MainHubListener(growthGuiListener, islandStorageStore, islandTerritoryStateStore,
+                        auctionGuiListener, fieldHubListener, bossHubListener), this);
         getServer().getPluginManager().registerEvents(bossRoomListenerInstance, this);
         getServer().getPluginManager().registerEvents(growthGuiListener, this);
         getServer().getPluginManager().registerEvents(

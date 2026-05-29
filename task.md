@@ -1,15 +1,25 @@
 # 포로 서버 작업 현황
 
-> 마지막 갱신: 2026-05-28 (§6-10 인게임 버그 수정 + AuctionMigration 구 스키마 처리 + JAR 재배포)
+> 마지막 갱신: 2026-05-29 (§6-12 HUD overlay 수정 + 스코어보드 PNG 아이콘 + 메뉴 GUI 아이콘 대체 + /직업 명령어)
 
 ---
 
 ## 현재 브랜치 상태
 
-- 브랜치: `master` = `codex-review` (동기화 완료)
-- 최근 기능 커밋: `0a9ccfa 서버 API fix — 닉네임 조회 프로필/스냅샷 적재 연결`
+- 브랜치: `master` (미커밋 변경 있음 — §6-12 작업분)
+- 최근 커밋: `cea6aeb AuctionMigration 구 스키마 안전 처리`
 - 빌드: `./gradlew compileJava → BUILD SUCCESSFUL`
-- 서버사이드 닉네임 API + Phase 2 봇 **완료 · 리뷰 통과**
+- **§6-12 작업 완료, 미커밋 상태** → `orc handoff-main "§6-12 HUD overlay + 스코어보드 PNG 아이콘 + 메뉴GUI 아이콘 대체 + /직업 명령어"` 로 커밋 예정
+
+### 미커밋 변경 파일 (§6-12)
+| 파일 | 변경 내용 |
+|---|---|
+| `src/.../gui/GuiTitles.java` | poro:gui 글리프 제거, 순수 텍스트 |
+| `src/.../util/HealthHudFormatter.java` | rewind() overlay 기법 |
+| `src/.../scoreboard/ScoreboardService.java` | PNG 아이콘 + Team.prefix |
+| `src/.../command/ClassAdminCommand.java` | 신규 — /직업 명령어 |
+| `src/.../EmpireRPGPlugin.java` | ClassAdminCommand 등록 |
+| `src/main/resources/plugin.yml` | /직업 선언 |
 
 ---
 
@@ -210,12 +220,33 @@
 | 보스정보 상세 | stub 미구현 | §7+ 예정 |
 | 영지설정 | stub 미구현 | §7+ 예정 |
 
+## §6-12 HUD·스코어보드·GUI·명령어 개선 — 완료 (2026-05-29)
+
+| 항목 | 파일 | 상태 |
+|---|---|---|
+| `GuiTitles` — MAIN/EQUIPMENT/TERRITORY/BOSS_HUB 4종 `poro:gui` 글리프 제거, 순수 텍스트로 대체 | `GuiTitles.java` | ✅ |
+| `HealthHudFormatter.build()` — 5레이어 HUD를 수평 나열 → `` (-176px) rewind overlay 기법으로 수직 적층 (좌우 퍼짐 수정) | `HealthHudFormatter.java` | ✅ |
+| `ScoreboardService` — 골드/강화석/큐브 행에 `poro:hud` PNG 아이콘 (U+E034~E036) 추가 (`Team.prefix(Component)` 방식) | `ScoreboardService.java` | ✅ |
+| `/직업 <플레이어> <검\|도끼\|창\|석궁\|낫\|스태프>` 운용자 명령어 (`empire.admin`) — `ClassInitService.grantStarterEquipment()` 호출 | `ClassAdminCommand.java` (신규) | ✅ |
+| `plugin.yml` — `/직업` 명령어 등록 (`empire.admin` 권한) | `plugin.yml` | ✅ |
+| `BUILD SUCCESSFUL` | — | ✅ |
+
+### §6-12 남은 확인 항목
+| 항목 | 비고 |
+|---|---|
+| HUD 행 X 정렬 미세조정 | rewind -176px 고정이라 행 너비 차이만큼 X 시작점 최대 ~30px 어긋날 수 있음. in-game 확인 후 행별 패딩 추가 결정 |
+| 스코어보드 아이콘 크기 | U+E034~E036 height=16 — 아이콘 행이 텍스트 행보다 2배 높게 보일 수 있음 |
+| 리소스팩 재배포 | 현재 SHA1 `5ba9751...` 변경 없음. 신 JAR 배포 후 `/resource-pack reload` 또는 서버 재시작 필요 |
+
+---
+
 ## 다음 작업 후보
 
 | 우선도 | 항목 | 비고 |
 |---|---|---|
-| 높음 | 서버 재시작 후 인게임 재테스트 | §6-10 수정 검증, 성공률 표기 재확인 |
+| 높음 | JAR 재빌드 + 서버 배포 + in-game HUD/스코어보드 확인 | §6-12 수정 검증 — HUD 행 정렬, 아이콘 크기 확인 |
 | 높음 | 서버 통합 테스트 — `/보스` 선택 → `[보스]` 표지판 → MM 스폰 런타임 확인 | `season_bosses.yml` 로드 + bossId 매칭 검증 |
+| 중간 | HUD 행 X 정렬 패딩 (행별 advance 패딩으로 정확한 overlay) | 확인 후 필요 시 |
 | 중간 | 서버 통합 테스트 — 봇 `/영지`·`/보스`·`/프로필` → Java API → 응답 확인 | 닉네임 기반 조회 실제 동작 검증 |
 | 낮음 | 리소스팩 파이프라인 (Phase 8) | `docs/08_resourcepack_pipeline/index.md` |
 
