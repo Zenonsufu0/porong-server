@@ -22,7 +22,7 @@
 
 | 파일명 | export 경로 | 용도 |
 |---|---|---|
-| `menu_main.png` | `textures/gui/` | 메인 허브 (4분할 배경) |
+| `menu_main.png` | `textures/gui/` | 메인 허브 (현행 미사용 — 색상 유리로 대체, DL-073) |
 | `menu_equipment.png` | `textures/gui/` | 장비 하위 GUI |
 | `menu_territory.png` | `textures/gui/` | 영지 하위 GUI |
 | `menu_boss.png` | `textures/gui/` | 보스 하위 GUI |

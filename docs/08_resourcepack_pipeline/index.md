@@ -6,7 +6,7 @@
 
 - [GUI 제작 전체 체크리스트](gui_todo_list.md) — 배경 PNG·아이콘 제작 목록, 화면별 설계 상태, 슬롯 배치 빠른 참조
 - [GUI 비트맵 배경 스펙](gui_bitmap_spec.md) — Custom Font Bitmap 방식, 인벤토리 배경 PNG 연동 구조
-- [GUI 허브 구조 설계](gui_hub_structure.md) — 메인 허브 4분할, 서브 허브 4종, 보스 방 시스템, 접근 제한 정책
+- [GUI 허브 구조 설계](gui_hub_structure.md) — 메인 허브 6구역 3×3, 서브 허브 4종, 보스 방 시스템, 접근 제한 정책 (DL-073)
 - [GUI 장비 패널 설계](gui_equipment_panel.md) — 54슬롯 장착·치장·외형 토글·스탯 배분 패널
 
 > GUI 세부 설계는 최신 커밋 기준으로 전체 완료 상태다. 배경 PNG는 `menu_main.png`, `menu_equipment.png`, `menu_territory.png`, `menu_boss.png` 4개만 공식 사용하며, 나머지 GUI는 chest + 유리판/바닐라 아이템/lore 구성으로 처리한다.
