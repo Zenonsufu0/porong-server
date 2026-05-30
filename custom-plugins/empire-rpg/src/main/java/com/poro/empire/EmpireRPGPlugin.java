@@ -168,6 +168,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
     private com.poro.empire.persistence.GrowthSnapshotRepository growthSnapshotRepo;
     private com.poro.empire.admin.AdminTogglesService adminTogglesService;
     private BossRoomManager     bossRoomManager;
+    private com.poro.empire.boss.room.BossDamageTracker bossDamageTracker;
     private BossRewardService   bossRewardService;
 
     @Override
@@ -229,10 +230,11 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         this.islandStorageStore = new IslandStorageStore();
         this.islandTerritoryStateStore = new IslandTerritoryStateStore();
         this.bossRoomManager = BossRoomManager.fromConfig(this);
+        this.bossDamageTracker = new com.poro.empire.boss.room.BossDamageTracker();
         this.bossRewardService = new BossRewardService(
                 growthStateStore, islandTerritoryStateStore, playerDataManager, bossRoomManager, getLogger());
 
-        Result<BossEngineRuntime> bossEngineResult = BossEngineBootstrap.bootstrap(this, foundationContext, masterRegistryContext, this.bossRewardService, this::resolveBossParticipantSpec);
+        Result<BossEngineRuntime> bossEngineResult = BossEngineBootstrap.bootstrap(this, foundationContext, masterRegistryContext, this.bossRewardService, this::resolveBossParticipantSpec, this.bossDamageTracker);
         if (bossEngineResult.isFailure()) {
             getLogger().severe("Failed to initialize boss engine: " + bossEngineResult.message());
             if (bossEngineResult.cause() != null) {
@@ -598,26 +600,29 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(
                 new HotbarInteractListener(hotbarService, fieldStateProvider, combatStateService), this);
         FieldTeleportService fieldTeleportService = new FieldTeleportService(this);
-        // MythicMobs 스폰 어댑터 — reflection으로 완전 격리, import 없음
-        java.util.function.BiFunction<String, org.bukkit.Location, Boolean> mythicSpawner = null;
+        // MythicMobs 스폰 어댑터 — reflection으로 완전 격리, import 없음.
+        // 스폰된 보스 mob의 UUID 반환(실패 시 null) — 데미지 기여 추적(DL-084)에 사용.
+        java.util.function.BiFunction<String, org.bukkit.Location, java.util.UUID> mythicSpawner = null;
         if (getServer().getPluginManager().isPluginEnabled("MythicMobs")) {
             mythicSpawner = (mobId, loc) -> {
                 try {
                     Object inst   = Class.forName("io.lumine.mythic.bukkit.MythicBukkit")
                             .getMethod("inst").invoke(null);
                     Object helper = inst.getClass().getMethod("getAPIHelper").invoke(inst);
-                    helper.getClass()
+                    Object result = helper.getClass()
                             .getMethod("spawnMythicMob", String.class, org.bukkit.Location.class)
                             .invoke(helper, mobId, loc);
-                    return true;
+                    // spawnMythicMob은 org.bukkit.entity.Entity를 반환 — UUID 추출
+                    if (result instanceof org.bukkit.entity.Entity ent) return ent.getUniqueId();
+                    return null;
                 } catch (Exception e) {
                     getLogger().warning("[BossRoom] MythicMob 스폰 실패: " + mobId + " — " + e.getMessage());
-                    return false;
+                    return null;
                 }
             };
         }
         BossRoomListener bossRoomListenerInstance =
-                new BossRoomListener(bossRoomManager, masterRegistryContext.bossMasters(), partyManager, bossEngineRuntime, mythicSpawner, adminTogglesService);
+                new BossRoomListener(bossRoomManager, masterRegistryContext.bossMasters(), partyManager, bossEngineRuntime, mythicSpawner, adminTogglesService, bossDamageTracker);
         getServer().getPluginManager().registerEvents(shopGuiListener, this);
         getServer().getPluginManager().registerEvents(pvpHubListener, this);
         getServer().getPluginManager().registerEvents(
@@ -643,7 +648,9 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                     new FieldDropListener(growthStateStore, islandTerritoryStateStore, playerDataManager,
                             playerLevelingService, fieldBossScheduler, bossRewardService, new ContributionTracker(), scoreboardService, adminTogglesService), this);
             getServer().getPluginManager().registerEvents(new BossDefenseListener(), this);
-            getLogger().info("MythicMobs detected — FieldDropListener + BossDefenseListener registered.");
+            getServer().getPluginManager().registerEvents(
+                    new com.poro.empire.listener.BossInstanceDamageListener(bossDamageTracker), this);
+            getLogger().info("MythicMobs detected — FieldDropListener + BossDefenseListener + BossInstanceDamageListener registered.");
         } else {
             getLogger().warning("MythicMobs not found — field mob drops + boss DEF scaling disabled.");
         }

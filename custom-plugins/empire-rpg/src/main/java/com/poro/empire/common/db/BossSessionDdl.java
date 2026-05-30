@@ -34,12 +34,17 @@ public final class BossSessionDdl {
             weapon_enhance      INTEGER DEFAULT 0,
             avg_enhance         REAL    DEFAULT 0.0,
             il                  REAL    DEFAULT 0.0,
-            defense_ignore_pct  REAL    DEFAULT 0.0
+            defense_ignore_pct  REAL    DEFAULT 0.0,
+            damage_share        REAL    DEFAULT 0.0     -- 데미지 기여 점유율(%) (DL-084)
         )
         """;
 
     public static final String CREATE_INDEX_SESSION =
         "CREATE INDEX IF NOT EXISTS idx_bsp_session ON boss_session_player (session_id)";
+
+    /** 기존 boss_session_player에 damage_share 컬럼 추가 (DL-084). 컬럼 존재 시 건너뜀(idempotent). */
+    public static final String ALTER_SESSION_PLAYER_DAMAGE_SHARE =
+        "ALTER TABLE boss_session_player ADD COLUMN damage_share REAL DEFAULT 0.0";
 
     public static final String DROP_STATS_SUMMARY_VIEW =
         "DROP VIEW IF EXISTS boss_stats_summary";

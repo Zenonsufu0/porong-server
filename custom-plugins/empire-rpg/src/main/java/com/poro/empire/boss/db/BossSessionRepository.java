@@ -91,6 +91,26 @@ public final class BossSessionRepository {
         }
     }
 
+    /** 참여자 데미지 기여 점유율(%) 기록 — 종료 시 boss_session_player UPDATE (DL-084). */
+    public Result<Void> recordPlayerDamage(long sessionId, String uuid, double damageShare) {
+        String sql = "UPDATE boss_session_player SET damage_share = ? WHERE session_id = ? AND player_uuid = ?";
+        Result<Connection> connResult = connectionProvider.getConnection();
+        if (connResult.isFailure()) {
+            return Result.failure(connResult.errorCode(), connResult.message(), connResult.cause());
+        }
+        try (Connection conn = connResult.value();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setDouble(1, damageShare);
+            ps.setLong(2, sessionId);
+            ps.setString(3, uuid);
+            ps.executeUpdate();
+            return Result.success();
+        } catch (Exception e) {
+            logger.warn("recordPlayerDamage failed [session=" + sessionId + ", uuid=" + uuid + "]: " + e.getMessage());
+            return Result.failure(ErrorCode.DB_CONNECTION_FAILED, "recordPlayerDamage failed", e);
+        }
+    }
+
     /** 파티 평균 스펙 갱신 — 전 참여자 입장 기록 후 boss_session_log UPDATE (DL-081). */
     public Result<Void> recordPartySpec(long sessionId, double avgEnhance, double avgIl) {
         String sql = "UPDATE boss_session_log SET party_avg_enhance = ?, party_avg_il = ? WHERE id = ?";

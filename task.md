@@ -392,11 +392,10 @@
 | compileTestJava | GrowthEngineSampleTest legacy `EquipmentSlot` 참조 (§6 범위 외) |
 | MythicMobs | §6-5에서 `compileOnly` JAR 선언 완전 제거. 스폰 호출은 `Class.forName` reflection으로 격리 — 컴파일/리뷰 환경에 JAR 불필요. 런타임 mobId 매칭은 서버 통합 테스트 필요 |
 | IridiumSkyblock | `../../server/plugins/` 로컬 JAR 경로 — review worktree 미지원 (pre-existing). Java 코드에서 `io.lumine.*` 임포트 없으므로 현재 `compileJava` 정상 |
-| BossSessionRepository 쓰기 경로 | ✅ 연결 완료 — DbBossRunRecordHook + CompositeBossRunRecordHook. 참여자 IL/강화·파티 평균은 **실측 기록(DL-081)**. damage_share만 §7+ 예정(#5) |
-| 시즌보스 damage_share (#5) | `BossResultSummaryBuilder` placeholder 0.0 유지 — 런타임 데미지 추적 미구현. il/enhance는 DL-081로 해소, damage_share만 잔존 (DL-064) |
+| BossSessionRepository 쓰기 경로 | ✅ 완료 — IL/강화·파티 평균 실측(DL-081), damage_share 실측(DL-084). `BossResultSummary`의 participantSummaryPlaceholder(damage_total·stagger)는 미사용(damage_share는 별도 boss_session_player 경로로 기록) |
 | AllowAllUnlockQuestChecker | 보스6 클리어 조건 stub — 퀘스트 시스템 구현 후 연결 |
 | questSnapshot 미적재 | `upsertQuestSnapshot` 호출 경로 없음 — `/player/by-nick` 응답의 `완료 퀘스트` 항목은 0 고정. 퀘스트 시스템 구현(§8+) 후 PlayerJoinListener에 연결 |
 | boss_pattern_seed.csv | 7개 보스 placeholder 패턴만 있음 — 실제 패턴 설계 필요 |
 | 스킬 자원 스택 최대값 | 각 스킬 파일에 max=3 또는 5 하드코딩 — CANON "유지형 자원 최대 6스택"은 각인(유지형/소모형 분기) 기반이며 1차 시즌 각인 제외로 해당 없음. 현재 값은 스킬 스펙(weapon_skills_v1.md) 기본값 |
 | ~~스킬 이펙트 22종 미구현 (DL-070)~~ ✅ 해소 (2026-05-30) | **24/24종 전체 이펙트 구현 완료.** 검·창·도끼·낫·석궁·스태프 전 스킬 `pt:` 파티클+사운드 보유. 원거리 8종은 신규 `BaseWeaponSkill.spawnBeam`(시선 빔) 헬퍼 사용. 무기별 커밋: 검→창→도끼→낫→석궁·스태프. F는 전부 논타겟 유지 |
-| 데이터 수집 공백 (운영 판단용) — 7종 중 6종 해소 | 검토일 2026-05-30 (→ idea_inbox INBOX-004). 해소: #1 리텐션(DL-078)·#2 골드 흐름(DL-080)·#3 강화 로그(DL-079)·#4 보스 파티 스펙(DL-081)·#6 PvP 무기/IL(DL-082)·#7 성장 시계열(DL-083). API: `/api/v1/activity·economy·pvp·growth`. **남은 공백**: ⑤보스 데미지 기여(`damage_share` 테이블 없음 — 런타임 인스턴스 보스 데미지 추적 필요, 가장 큰 작업). 죽은 모델 `MarketPricePoint`·`LifeResourceSupplyRecord`(write 0건, 미사용) |
+| ~~데이터 수집 공백 7종~~ ✅ 전체 해소 (2026-05-30) | INBOX-004 7종 모두 완료. #1 리텐션(DL-078)·#2 골드 흐름(DL-080)·#3 강화 로그(DL-079)·#4 보스 파티 스펙(DL-081)·#5 보스 데미지 기여(DL-084)·#6 PvP 무기/IL(DL-082)·#7 성장 시계열(DL-083). API: `/api/v1/activity·economy·pvp·growth`. 한계: 골드 source 미세분, 보스 damage add 미집계, MM spawn 반환 reflection 런타임 의존. 죽은 모델 `MarketPricePoint`·`LifeResourceSupplyRecord`(미사용 유지) |

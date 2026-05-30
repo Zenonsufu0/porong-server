@@ -14,14 +14,17 @@ public final class DbBossRunRecordHook implements BossRunRecordHook {
     private final long seasonStartEpoch;
     private final DomainLogger logger;
     private final BossParticipantSpecResolver specResolver;
+    private final com.poro.empire.boss.room.BossDamageTracker damageTracker;
     private final ConcurrentHashMap<String, Long> runIdToSessionId = new ConcurrentHashMap<>();
 
     public DbBossRunRecordHook(BossSessionRepository repository, long seasonStartEpoch,
-                               DomainLogger logger, BossParticipantSpecResolver specResolver) {
+                               DomainLogger logger, BossParticipantSpecResolver specResolver,
+                               com.poro.empire.boss.room.BossDamageTracker damageTracker) {
         this.repository = Objects.requireNonNull(repository, "repository");
         this.seasonStartEpoch = seasonStartEpoch;
         this.logger = Objects.requireNonNull(logger, "logger");
         this.specResolver = specResolver != null ? specResolver : BossParticipantSpecResolver.ZERO;
+        this.damageTracker = damageTracker;
     }
 
     @Override
@@ -74,6 +77,17 @@ public final class DbBossRunRecordHook implements BossRunRecordHook {
         if (result.isFailure()) {
             logger.warn("Failed to record boss session end. session_id=" + sessionId
                     + ", run_id=" + summary.runId() + ": " + result.message());
+        }
+
+        // 참여자 데미지 기여 점유율 기록 (DL-084) — 추적된 보스 mob 데미지 → boss_session_player
+        if (damageTracker != null) {
+            damageTracker.finalizeShares(summary.runId()).forEach((playerUuid, share) -> {
+                Result<Void> dmgResult = repository.recordPlayerDamage(sessionId, playerUuid.toString(), share);
+                if (dmgResult.isFailure()) {
+                    logger.warn("Failed to record damage share. session_id=" + sessionId
+                            + ", uuid=" + playerUuid + ": " + dmgResult.message());
+                }
+            });
         }
     }
 

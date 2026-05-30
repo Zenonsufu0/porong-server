@@ -93,7 +93,7 @@
   | 2 | 골드 인플레이션/싱크 | **✅ 구현 완료 (2026-05-30) [PROMOTED → DL-080]** — `economy_flow`(지갑 후킹+로드 우회) + `/api/v1/economy/flow`. net 정확, source 미세분은 후속 | ~~inflow/outflow를 재화 변동 지점에서 기록 + DB 영속~~ |
   | 3 | 강화 성공률·소모량 | **✅ 구현 완료 (2026-05-30) [PROMOTED → DL-079]** — `enhancement_log` + Composite hook + `/api/v1/economy/enhancement` | ~~`DbEnhancementLogHook` 추가~~ |
   | 4 | 보스 파티 스펙 밸런스 | **✅ 구현 완료 (2026-05-30) [PROMOTED → DL-081]** — 입장 시 실측 IL/강화(`recordPlayerEntry`+`recordPartySpec`). defense_ignore는 1차 시즌 N/A로 0 | ~~입장 시 실측 IL/강화 기록~~ |
-  | 5 | 무기·클래스 보스 DPS 밸런스 | `damage_share`/`damage_total` 테이블에 없음 | 참여자 데미지 집계 컬럼 추가 |
+  | 5 | 보스 데미지 기여(damage_share) | **✅ 구현 완료 (2026-05-30) [PROMOTED → DL-084]** — mob UUID 추적+`BossDamageTracker`+`boss_session_player.damage_share`. damage_total은 미저장 | ~~참여자 데미지 집계 컬럼 추가~~ |
   | 6 | PvP 클래스 밸런스 | **✅ 구현 완료 (2026-05-30) [PROMOTED → DL-082]** — `pvp_match_log` 무기/IL 컬럼 + `/api/v1/pvp/balance`(무기별 승률). 데미지량은 미수집(별도) | ~~양측 무기/IL 컬럼 추가~~ |
   | 7 | 성장 시계열 곡선 | **✅ 구현 완료 (2026-05-30) [PROMOTED → DL-083]** — `growth_snapshot`(30분 일별 upsert) + `/api/v1/growth/curve` | ~~일/주 단위 성장 스냅샷 누적 테이블~~ |
 
@@ -103,7 +103,7 @@
 
 - 분류: [ ] CANON 반영 후보 / [x] 기획 확정 필요 / [ ] 실험적 / [ ] 폐기 후보
 - 관련 문서: `docs/02_database_api_stats/CANON.md`, `boss_clear_stats_spec.md`, task.md 알려진 기술 부채
-- 상태: DRAFT (구현 우선순위·범위 미확정)
+- 상태: ✅ 전체 완료 (2026-05-30) — 7종 모두 구현 [PROMOTED → DL-078~084]. 죽은 모델 `MarketPricePoint`·`LifeResourceSupplyRecord`는 미사용 유지(필요 시 별도 검토)
 
   **오픈 질문 (답변 완료)**
   1. 1차 시즌 포함 여부? (구현 규모 상 2차 시즌 이후 적합할 수 있음)

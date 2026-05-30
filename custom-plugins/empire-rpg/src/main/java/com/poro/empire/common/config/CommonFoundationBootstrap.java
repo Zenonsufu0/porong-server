@@ -3,6 +3,7 @@ package com.poro.empire.common.config;
 import com.poro.empire.common.db.AuctionMigration;
 import com.poro.empire.common.db.BossSessionMigration;
 import com.poro.empire.common.db.BossSessionMigrationV2;
+import com.poro.empire.common.db.BossSessionPlayerMigrationV3;
 import com.poro.empire.common.db.CompositeMigrationEntryPoint;
 import com.poro.empire.common.db.IslandSettingsMigration;
 import com.poro.empire.common.db.PvpMigration;
@@ -55,6 +56,7 @@ public final class CommonFoundationBootstrap {
                     new PlayerFlagTableStubMigration(logger.domain("db.migration.player-flag")),
                     new BossSessionMigration(logger.domain("db.migration.boss-session")),
                     new BossSessionMigrationV2(logger.domain("db.migration.boss-session-v2")),
+                    new BossSessionPlayerMigrationV3(logger.domain("db.migration.boss-session-v3")),
                     new AuctionMigration(logger.domain("db.migration.auction")),
                     new PvpMigration(logger.domain("db.migration.pvp")),
                     new PvpMatchLogMigrationV2(logger.domain("db.migration.pvp-v2")),

@@ -5,6 +5,7 @@ import com.poro.empire.boss.engine.BossEngineRuntime;
 import com.poro.empire.boss.engine.BossEntryRequest;
 import com.poro.empire.boss.engine.BossRun;
 import com.poro.empire.boss.party.PartyManager;
+import com.poro.empire.boss.room.BossDamageTracker;
 import com.poro.empire.boss.room.BossRoomManager;
 import com.poro.empire.boss.room.BossRoomSlot;
 import com.poro.empire.common.registry.master.BossMasterRegistry;
@@ -33,24 +34,28 @@ public final class BossRoomListener implements Listener {
     private final BossEngineRuntime                  bossEngineRuntime;
     private final PartyManager                       partyManager;
     /**
-     * MM 활성화 시 non-null. (mobId, spawnLoc) → 스폰 성공 여부.
+     * MM 활성화 시 non-null. (mobId, spawnLoc) → 스폰된 보스 mob UUID (실패 시 null).
      * reflection으로 구현되므로 이 클래스에 MythicMobs import 없음.
      */
-    private final BiFunction<String, Location, Boolean> mythicSpawner;
+    private final BiFunction<String, Location, UUID> mythicSpawner;
     /** BOSS_SPAWN_PAUSE 운영 토글 (optional — null이면 미적용). */
     private final AdminTogglesService togglesService;
+    /** 인스턴스 보스 데미지 기여 추적 (DL-084). */
+    private final BossDamageTracker damageTracker;
 
     public BossRoomListener(BossRoomManager bossRoomManager,
                             BossMasterRegistry bossMasters,
                             PartyManager partyManager,
                             BossEngineRuntime bossEngineRuntime,
-                            BiFunction<String, Location, Boolean> mythicSpawner,
-                            AdminTogglesService togglesService) {
+                            BiFunction<String, Location, UUID> mythicSpawner,
+                            AdminTogglesService togglesService,
+                            BossDamageTracker damageTracker) {
         this.bossRoomManager   = bossRoomManager;
         this.bossEngineRuntime = bossEngineRuntime;
         this.partyManager      = partyManager;
         this.mythicSpawner     = mythicSpawner;
         this.togglesService    = togglesService;
+        this.damageTracker     = damageTracker;
     }
 
     /**
@@ -138,12 +143,18 @@ public final class BossRoomListener implements Listener {
         bossRoomManager.registerRun(run.runId(), slot.id());
 
         // MythicMob 스폰 — 텔레포트 전에 먼저 수행하여 "보스 없는 방" 방지
-        // 이 시점에서 mythicSpawner는 항상 non-null (위에서 사전 차단함)
-        if (!mythicSpawner.apply(bossId, slot.bossSpawn())) {
+        // 이 시점에서 mythicSpawner는 항상 non-null (위에서 사전 차단함). 반환=보스 mob UUID(실패 시 null)
+        UUID bossMobUuid = mythicSpawner.apply(bossId, slot.bossSpawn());
+        if (bossMobUuid == null) {
             // endRun이 onRunEnded → releaseByRunId 체인을 자동 처리
             bossEngineRuntime.runService().endRun(run.runId(), false, "spawn_failed");
             player.sendMessage("§c[보스] 보스 소환에 실패했습니다. 잠시 후 다시 시도하세요.");
             return;
+        }
+
+        // 보스 mob ↔ run 등록 — 데미지 기여 추적 (DL-084)
+        if (damageTracker != null) {
+            damageTracker.registerMob(run.runId(), bossMobUuid);
         }
 
         bossRoomManager.clearPendingBoss(uuid);

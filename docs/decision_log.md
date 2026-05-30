@@ -4,6 +4,29 @@
 
 ---
 
+### DL-084 보스 데미지 기여 추적 — damage_share 실측 (데이터 공백 7/7 완료)
+
+**결정:** 인스턴스 보스(보스룸) 처치 시 참여자별 데미지 점유율(%)을 `boss_session_player.damage_share`에 기록한다.
+
+**이유:**
+- "누가 보스 처치에 얼마나 기여하는가"는 보스 밸런스·파티 기여 분석의 핵심인데, damage_share가 테이블에 없고 placeholder 0.0이었다 (INBOX-004 #5, DL-064).
+
+**구현 (핵심 — 추적 대상 식별 메커니즘 신설):**
+- **mob UUID 캡처:** `mythicSpawner` 반환을 `Boolean` → `UUID`로 변경. reflection `spawnMythicMob`이 반환하는 `Entity`의 UUID 추출(실패 시 null).
+- `BossDamageTracker`(신규): 범용 `ContributionTracker` 래핑 + mob UUID ↔ runId 매핑. registerMob/recordDamage/finalizeShares.
+- `BossInstanceDamageListener`(신규): `EntityDamageByEntityEvent` → 추적 대상 보스면 가해자별 누적(직접/투사체). MM 활성 시 등록.
+- `BossRoomListener`: 스폰 성공 시 `registerMob(runId, mobUuid)`.
+- `DbBossRunRecordHook.onRunEnded`: `finalizeShares(runId)` → 참여자별 `recordPlayerDamage(sessionId, uuid, share)`.
+- `boss_session_player.damage_share` 컬럼 추가(CREATE + `BossSessionPlayerMigrationV3` ALTER, PRAGMA idempotent).
+
+**한계:** 보스가 소환한 add(소환수)는 다른 UUID라 미집계(메인 보스 데미지만). 페이즈 전환으로 엔티티 교체 시 추적 끊김(1차 시즌 단일 엔티티 전제). reflection `spawnMythicMob` 반환 타입(Entity) 런타임 의존 — MM 버전 통합 테스트 필요. damage_total(원시값)은 미저장(share만).
+
+**영향 범위:** `BossDamageTracker`/`BossInstanceDamageListener`/`BossSessionPlayerMigrationV3`(신규), `mythicSpawner`(plugin), `BossRoomListener`, `BossSessionDdl`, `BossSessionRepository`, `DbBossRunRecordHook`, `BossEngineBootstrap`, `EmpireRPGPlugin`, `CommonFoundationBootstrap`.
+
+**관련:** `docs/idea_inbox.md` INBOX-004 #5 (PROMOTED). **데이터 수집 공백 7종 전부 해소 — INBOX-004 완료.**
+
+---
+
 ### DL-083 성장 시계열 스냅샷 — 성장 곡선 판단
 
 **결정:** `growth_snapshot` 테이블에 온라인 플레이어 성장(레벨·평균 IL·총 강화·골드)을 30분 주기로 일별 upsert한다.
