@@ -76,6 +76,35 @@
 - 분류: [x] CANON 반영 후보 / [ ] 기획 확정 필요 / [ ] 실험적 / [ ] 폐기 후보
 - 관련 문서: `docs/13_pvp_system/CANON.md`, `docs/decision_log.md` DL-069
 
+---
+
+### INBOX-004 데이터 수집 보강 — 운영 판단용 공백 7종
+- 날짜: 2026-05-30
+- 출처: 사용자 요청 "웹쪽 검토 — 지금 충분히 판단 가능한 데이터를 수집하는지" 검토 결과
+- 내용:
+
+  현재 **판단 가능**(DB 영속·실측): 보스 클리어 통계(`boss_stats_summary`), PvP 랭킹·매치 로그, 경매 거래/시세(`auction_listings`).
+
+  **판단 불가 공백** (우선순위순). 45일 시즌 서버 기준 #1·#2가 가장 치명적:
+
+  | # | 영역 | 현재 상태 | 보강 방향(미확정) |
+  |---|---|---|---|
+  | 1 | 리텐션·활동(DAU·플레이타임·이탈) | 접속 시각조차 미기록, 테이블 없음 | `player_session_log`(join/quit 시각) 신규 + DAU/플레이타임 집계 |
+  | 2 | 골드 인플레이션/싱크 | `addEconomyFlow` 호출 0건 — 모델만 있고 미수집(죽은 코드) | inflow/outflow를 재화 변동 지점에서 기록 + DB 영속 |
+  | 3 | 강화 성공률·소모량 | `InMemoryEnhancementLogHook` 휘발(DB hook 없음) | `DbEnhancementLogHook` 추가(가장 적은 작업, 풍부한 로그 이미 존재) |
+  | 4 | 보스 파티 스펙 밸런스 | `party_avg_il/enhance`·참여자 `il/enhance` 전부 placeholder 0/NULL | 입장 시 실측 IL/강화 기록 (DL-064/§7+ 기존 부채) |
+  | 5 | 무기·클래스 보스 DPS 밸런스 | `damage_share`/`damage_total` 테이블에 없음 | 참여자 데미지 집계 컬럼 추가 |
+  | 6 | PvP 클래스 밸런스 | 매치 로그에 무기·IL·데미지 미저장 | `pvp_match_log`에 양측 무기/IL 컬럼 추가 |
+  | 7 | 성장 시계열 곡선 | 플레이어 JSON 현재값 덮어쓰기(스냅샷 누적 X) | 일/주 단위 성장 스냅샷 누적 테이블 |
+
+  **죽은 데이터 모델**(모델 정의만 있고 write 호출 0건): `EconomyFlowRecord`, `MarketPricePoint`, `LifeResourceSupplyRecord`. (단 `EstateHarvestLogHook`은 기록되나 in-memory 휘발)
+
+  ※ 시세(market price)는 별도 수집 없이도 `auction_listings`의 sold price/time으로 재구성 가능(`getAveragePrice` 이미 존재).
+
+- 분류: [ ] CANON 반영 후보 / [x] 기획 확정 필요 / [ ] 실험적 / [ ] 폐기 후보
+- 관련 문서: `docs/02_database_api_stats/CANON.md`, `boss_clear_stats_spec.md`, task.md 알려진 기술 부채
+- 상태: DRAFT (구현 우선순위·범위 미확정)
+
   **오픈 질문 (답변 완료)**
   1. 1차 시즌 포함 여부? (구현 규모 상 2차 시즌 이후 적합할 수 있음)
   2. 아레나 맵 — 별도 월드/방인가, 보스룸 풀과 동일 방식인가?
