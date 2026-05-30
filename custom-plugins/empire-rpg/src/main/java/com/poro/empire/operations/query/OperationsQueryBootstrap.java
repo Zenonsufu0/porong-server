@@ -105,6 +105,10 @@ public final class OperationsQueryBootstrap {
                             new com.poro.empire.persistence.EconomyFlowRepository(
                                     foundationContext.connectionProvider(), httpLogger),
                             apiSecretKey),
+                    new com.poro.empire.operations.http.PvpApiHandler(
+                            new com.poro.empire.pvp.db.PvpMatchLogRepository(
+                                    foundationContext.connectionProvider(), httpLogger),
+                            apiSecretKey),
                     apiBind,
                     httpLogger
             );

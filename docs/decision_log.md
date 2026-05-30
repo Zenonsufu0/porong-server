@@ -4,6 +4,28 @@
 
 ---
 
+### DL-082 PvP 매치 무기/IL 기록 — 클래스 밸런스 판단
+
+**결정:** `pvp_match_log`에 winner_weapon·winner_il·loser_weapon·loser_il 컬럼을 추가하고 매치 종료 시 양측 무기(클래스)·실측 평균 IL을 기록한다.
+
+**이유:**
+- "어느 직업/IL이 PvP에서 강한가"는 클래스 밸런스 판단의 핵심인데 매치 로그에 무기·IL이 전혀 없어 분석 불가였다 (INBOX-004 #6).
+- IL은 **랭크 가상화(12강 IL 60) 전의 실측값** 기록 — 참가자 실제 스펙 분포를 봐야 밸런스를 판단할 수 있음.
+
+**결과 (코드 구조):**
+- `PvpDdl` CREATE에 4컬럼 추가(신규 DB) + `PvpMatchLogMigrationV2`(기존 DB ALTER, PRAGMA로 idempotent).
+- `PvpMatchService.endMatch`: `weaponOf(uuid)`(classId)·`ilOf(uuid)`(5슬롯 강화×5) 계산 → `record(...)`에 전달. 무승부/상태없음은 null.
+- `PvpMatchLogRepository.record` 시그니처에 4파라미터 추가, `weaponWinRates()` 집계(무기별 승/패/승률) 추가.
+- 읽기 API: `GET /api/v1/pvp/balance` (신규 `PvpApiHandler`) — 무기별 승률.
+
+**한계:** 무승부·플레이어 상태 소실(quit) 시 해당 측 무기/IL은 null. 데미지량(누가 얼마 때렸는지)은 미수집(별도).
+
+**영향 범위:** `PvpDdl`, `PvpMatchLogMigrationV2`(신규), `PvpMatchLogRepository`, `PvpMatchService`, `PvpApiHandler`(신규), `EmpireHttpServer`, `OperationsQueryBootstrap`, `CommonFoundationBootstrap`.
+
+**관련:** `docs/idea_inbox.md` INBOX-004 #6 (PROMOTED). 남은 공백 2종(#5 보스 데미지 기여·#7 성장 시계열).
+
+---
+
 ### DL-081 보스 참여자 스펙 실측 — placeholder 0/NULL 해소
 
 **결정:** `boss_session_player`의 weapon_enhance·avg_enhance·il, `boss_session_log`의 party_avg_enhance·party_avg_il을 보스 입장 시점 실측값으로 기록한다. (기존 DL-064/§7+ 부채 해소.)

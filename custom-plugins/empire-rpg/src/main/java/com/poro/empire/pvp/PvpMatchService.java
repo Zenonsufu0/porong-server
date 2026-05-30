@@ -108,6 +108,25 @@ public final class PvpMatchService {
         return totalIl / (double) IL_SLOTS.length;
     }
 
+    /** UUID 기준 실측 평균 IL — 매치 로그용 (랭크 가상화와 무관한 실값). 상태 없으면 null. */
+    private Double ilOf(UUID uuid) {
+        if (growthStateStore == null) return null;
+        PlayerGrowthState state = growthStateStore.get(uuid).orElse(null);
+        if (state == null) return null;
+        int totalIl = 0;
+        for (EquipmentSlot slot : IL_SLOTS) {
+            PlayerEquipmentItem item = state.equippedItem(slot).orElse(null);
+            if (item != null) totalIl += item.enhanceLevel() * 5;
+        }
+        return totalIl / (double) IL_SLOTS.length;
+    }
+
+    /** UUID 기준 무기(클래스) 코드 — 매치 로그용. 상태 없으면 null. */
+    private String weaponOf(UUID uuid) {
+        if (growthStateStore == null) return null;
+        return growthStateStore.get(uuid).map(PlayerGrowthState::classId).orElse(null);
+    }
+
     /** startMatch 결과 — tryMatch와 startFriendly가 사유별로 처리. */
     public enum StartResult {
         SUCCESS,
@@ -348,10 +367,15 @@ public final class PvpMatchService {
             }
         }
 
-        // DB 매치 로그
+        // DB 매치 로그 (무기/IL 포함 — 클래스 밸런스 분석, DL-082)
         if (matchLogRepository != null) {
             int durationS = (int) ((System.currentTimeMillis() - match.startedAt()) / 1000L);
-            matchLogRepository.record(match.type(), winnerUuid, loserUuid, draw, durationS, reason);
+            String wWeapon = winnerUuid != null ? weaponOf(winnerUuid) : null;
+            Double wIl     = winnerUuid != null ? ilOf(winnerUuid)     : null;
+            String lWeapon = loserUuid  != null ? weaponOf(loserUuid)  : null;
+            Double lIl     = loserUuid  != null ? ilOf(loserUuid)      : null;
+            matchLogRepository.record(match.type(), winnerUuid, loserUuid, draw, durationS, reason,
+                    wWeapon, wIl, lWeapon, lIl);
         }
 
         // 즉시 정리 — 외부 추적 상태만. playerToMatch는 귀환 후 해제 (3초간 새 매치 진입 차단).
