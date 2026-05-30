@@ -17,11 +17,12 @@ public final class PotentialService {
     private static final String MATERIAL_GOLD = "gold";
     private static final long CUBE_USE_GOLD_COST = 500L;
 
+    // 메모리얼 승급 확률 (단조 상승, COMMON 시작 / DL-094). 레전더리 기대 ~96큐브(~48k골드).
     private static final Map<PotentialGrade, Double> UPGRADE_CHANCE_BY_GRADE = Map.of(
-            PotentialGrade.COMMON, 0.30d,
-            PotentialGrade.RARE, 0.15d,
-            PotentialGrade.EPIC, 0.075d,
-            PotentialGrade.UNIQUE, 0.03d
+            PotentialGrade.COMMON, 0.25d,   // → RARE
+            PotentialGrade.RARE, 0.12d,     // → EPIC
+            PotentialGrade.EPIC, 0.06d,     // → UNIQUE
+            PotentialGrade.UNIQUE, 0.015d   // → LEGENDARY
     );
 
     private final ItemMasterRegistry itemMasterRegistry;
