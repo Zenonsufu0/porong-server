@@ -4,6 +4,23 @@
 
 ---
 
+### DL-096 전투 공식 후속 — 보스 피해증가 + 치명 피해량 스탯 적용 (#7 잔여)
+
+**결정:** DL-092(#7)에서 후속으로 미뤘던 두 계층을 중앙 데미지 적용부에 마저 배선한다.
+
+**구현:**
+- **boss_damage_increase(보스 피해증가) 적용**: 타깃이 보스일 때만 `× (1 + Σboss_damage_increase%/100)`. 보스 판정 = `MobTagHelper.isFieldBoss`(필드보스 태그 `empire_type_field_boss`) **또는** `BossDamageTracker.isTracked`(인스턴스 보스). `SkillContext`에 `BossDamageTracker` 주입.
+- **치명 피해량 스탯 적용**: 고정 ×1.5 → **1.5 + critPts × 0.15%/pt**(치명 트리 부효과, `level_stat_system §2`, DL-061). 150pt 시 ×1.725. `potential_options_v1`의 stale 0.2%/pt도 0.15로 정정.
+
+**최종 1차 피해 공식 (중앙 `BaseWeaponSkill.dealDamage`):**
+`피해 = ATK(attack_percent 반영) × 계수 × (1+general%) × (보스면 1+boss%) × 치명배율(발동 시)`. DEF는 바닐라 armor 위임(커스텀 보스 DEF 시드 없음).
+
+**영향 범위:** `SkillContext`, `BaseWeaponSkill`, `EmpireRPGPlugin`(생성자), 문서 `potential_options_v1`.
+
+**관련:** DL-092(#7 본체), DL-095(치명 확률), `level_stat_system §2`(치명 부효과 0.15%/pt), `growth_potential_option_pool.csv`(boss_damage_increase).
+
+---
+
 ### DL-095 치명타 확률 %/pt 정합 — 0.30%/pt 확정 (문서 충돌 해소)
 
 **결정:** 치명타 확률 스탯 계수를 **0.30%/pt**로 확정. `potential_options_v1`의 구 0.45%/pt 표기 폐기.

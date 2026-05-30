@@ -397,7 +397,8 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                 playerDataManager, this.cooldownManager, this.resourceTracker,
                 growthStateStore,
                 masterRegistryContext.itemMasters(),
-                growthEngineRuntime.potentialService());
+                growthEngineRuntime.potentialService(),
+                this.bossDamageTracker);
 
         this.skillService = new SkillService(skillContext);
         skillService.registerSkill(new SwordFlashSlashSkill());
