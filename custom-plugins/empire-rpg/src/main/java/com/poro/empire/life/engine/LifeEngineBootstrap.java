@@ -183,17 +183,18 @@ public final class LifeEngineBootstrap {
         }
 
         for (LifeRecipe recipe : recipeRegistry.all().values()) {
-            if (masterRegistryContext.itemMasters().find(recipe.resultItemId()).isEmpty()) {
+            if (isUnknownItem(masterRegistryContext, recipe.resultItemId())) {
                 blockingErrors.add("life_recipe_master references missing result_item_id: recipe_id=" + recipe.recipeId()
                         + ", result_item_id=" + recipe.resultItemId());
             }
             for (String materialId : recipe.materials().keySet()) {
-                if (masterRegistryContext.itemMasters().find(materialId).isEmpty()) {
+                if (isUnknownItem(masterRegistryContext, materialId)) {
                     blockingErrors.add("life_recipe_master references missing material item_id: recipe_id=" + recipe.recipeId()
                             + ", item_id=" + materialId);
                 }
             }
-            if (skillExpRegistry.rules(recipe.lifeType()).isEmpty()) {
+            // 공방(crafting/workshop) 가공은 생활 스킬 레벨링이 없어 exp table 면제 (DL-098)
+            if (!isExpExempt(recipe.lifeType().code()) && skillExpRegistry.rules(recipe.lifeType()).isEmpty()) {
                 blockingErrors.add("life_recipe_master references life_type without exp table: recipe_id=" + recipe.recipeId()
                         + ", life_type=" + recipe.lifeType().code());
             }
@@ -215,16 +216,19 @@ public final class LifeEngineBootstrap {
         }
 
         for (EstateFacilityMaster facility : facilityRegistry.all().values()) {
-            if (masterRegistryContext.itemMasters().find(facility.baseItemId()).isEmpty()) {
+            // base_item_id "-"/공백은 물리 아이템 없는 추상 시설(공방 등) — 면제 (DL-098)
+            if (!isBlank(facility.baseItemId()) && !"-".equals(facility.baseItemId())
+                    && isUnknownItem(masterRegistryContext, facility.baseItemId())) {
                 blockingErrors.add("estate_facility_master references missing base_item_id: facility_id=" + facility.facilityId()
                         + ", base_item_id=" + facility.baseItemId());
             }
             if (!isBlank(facility.rareItemId()) && !"-".equals(facility.rareItemId())
-                    && masterRegistryContext.itemMasters().find(facility.rareItemId()).isEmpty()) {
+                    && isUnknownItem(masterRegistryContext, facility.rareItemId())) {
                 blockingErrors.add("estate_facility_master references missing rare_item_id: facility_id=" + facility.facilityId()
                         + ", rare_item_id=" + facility.rareItemId());
             }
-            if (skillExpRegistry.rules(facility.lifeType()).isEmpty()) {
+            // 공방(crafting/workshop)은 생활 스킬 레벨링 없어 exp table 면제 (DL-098)
+            if (!isExpExempt(facility.lifeType().code()) && skillExpRegistry.rules(facility.lifeType()).isEmpty()) {
                 blockingErrors.add("estate_facility_master references life_type without exp table: facility_id=" + facility.facilityId()
                         + ", life_type=" + facility.lifeType().code());
             }
@@ -259,6 +263,18 @@ public final class LifeEngineBootstrap {
             );
         }
         return Result.success();
+    }
+
+    /** 생활 스킬 레벨링이 없는 life_type(공방 가공) — exp table 검증 면제 (DL-098). */
+    private static boolean isExpExempt(String lifeTypeCode) {
+        return "crafting".equals(lifeTypeCode) || "workshop".equals(lifeTypeCode);
+    }
+
+    /** 커스텀 item_master에도 없고 바닐라 Bukkit Material도 아니면 true (레시피는 바닐라 재료 사용 가능, DL-098). */
+    private static boolean isUnknownItem(MasterRegistryContext ctx, String itemId) {
+        if (itemId == null || itemId.isBlank()) return true;
+        if (ctx.itemMasters().find(itemId).isPresent()) return false;
+        return org.bukkit.Material.matchMaterial(itemId) == null;
     }
 
     private static void validateFacilityNumbers(

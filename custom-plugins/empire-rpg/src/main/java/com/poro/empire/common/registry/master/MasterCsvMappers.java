@@ -38,7 +38,7 @@ final class MasterCsvMappers {
     static SkillMaster skill(CsvRow row) {
         return new SkillMaster(
                 row.required("skill_id"),
-                row.required("class_id"),
+                row.optional("class_id"), // 1차 시즌은 클래스 미사용(무기 기반) — 빈 값 허용 (DL-098)
                 row.required("weapon_id"),
                 row.required("skill_name"),
                 row.optional("role_type"),

@@ -5,16 +5,15 @@
 
 ---
 
-## 0. 🔴 최우선 — 빌드/배포 동기화 (런타임이 stale)
+## 0. ✅ 빌드/배포 동기화 — 완료 (2026-05-31, DL-098)
 
-런타임(`server/plugins/EmpireRPG/`)이 **옛 jar + 옛 seed**로 돌고 있다. 플러그인은 `saveResource(path, false)`로 seed를 추출하는데 `replace=false`라 **기존 seeds 폴더가 있으면 갱신하지 않는다.** 따라서 jar만 바꿔도 seed는 그대로다.
+- [x] **jar 재빌드** — DL-091~097 코드 반영. `empire-rpg-0.1.0.jar` 빌드(테스트 통과).
+- [x] **런타임 jar 단일화** — server/plugins의 중복 jar 2개(EmpireRPG.jar + empire-rpg-0.1.0.jar) 제거 후 새 빌드 1개 배치.
+- [x] **stale seed 동기화** — src 정본을 `server/plugins/EmpireRPG/seeds/`에 덮어쓰기(25→27파일). boss_master(시즌6+최종3)·강화표·item_master·잠재풀 src 정합 확인.
+- [x] **MM 셸 배포** — server-config/mythicmobs → 런타임. 옛 stale 파일(FieldBosses/SeasonBosses/PoroFieldMobs) 제거로 `rift_king` 중복 충돌 해소. Outpost_Knight 리네임 반영.
+- [x] **부팅 검증** — 실서버 부팅 시 8개 bootstrap 전부 completed, disable 0, MythicMobs 감지 → 리스너 등록, Done. (부팅 중 드러난 검증 과엄격 4건 DL-098로 해소.)
 
-- [ ] **플러그인 jar 재빌드** — 이번 세션 코드 수정(#3 보스 보상 브리지, #4 원샷 클램프, #5 게이트, #6 ATK flat, #7 피해 공식, #10 타임아웃) + DL-086~090이 src에만 있음. 빌드 필요.
-- [ ] **런타임 stale seed 제거** — `server/plugins/EmpireRPG/seeds/`가 DL-087 이전(boss_master에 void_herald·최종보스 없음, 옛 시즌3 earth_tyrant 등). **폴더를 비우고 재시작**해야 jar에서 최신 seed 재추출. (또는 src seed를 직접 복사)
-  - 확인된 stale: `boss_master.csv`(로스터), `growth_enhancement_table.csv`(DL-086), `growth_potential_option_pool.csv`, `item_master.csv`. 그 외 estate_*·quest_*·life_* 등은 런타임에 존재하나 src 변경분 미반영 가능 — 전체 재추출 권장.
-- [ ] **재빌드 jar를 `server/plugins/`에 배치 + 재시작**, 부팅 로그에서 8개 bootstrap 완료 + 12개 마이그레이션 통과 확인.
-
-> ⚠️ `server-config/empire-rpg/seeds/`도 stale·불완전(4개만 존재, 대부분 누락)이나 이건 스테이징 사본 — 런타임 경로는 `server/plugins/EmpireRPG/seeds/`다. 배포 파이프라인이 어느 쪽을 쓰는지 확정 필요.
+> ⚠️ 운영 팁: 종료는 콘솔 `stop`으로 클린 셧다운. `kill`/timeout 종료는 `world/session.lock` 잔존 → 다음 부팅 크래시(`session.lock already locked`). 크래시 시 `find server -name session.lock -delete`.
 
 ---
 

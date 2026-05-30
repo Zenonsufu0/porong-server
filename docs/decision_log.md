@@ -4,6 +4,26 @@
 
 ---
 
+### DL-098 깨끗한 배포 부팅 검증 — 검증 과엄격 4건 해소 (런타임 부팅 통과)
+
+**배경:** 신규 jar + src 정본 seed로 런타임을 배포(server/plugins)하니, 그간 stale 런타임 seed(`saveResource(replace=false)`로 미갱신)가 가려온 **검증 과엄격 버그 4건**이 연쇄로 표면화 — 플러그인이 부팅 중 disable. 실서버 띄워 부팅 로그로 1건씩 해소.
+
+**해소 (전부 src 수정):**
+1. **skill_master class_id required→optional** (`MasterCsvMappers.skill`): 1차 시즌은 클래스 미사용(무기 기반)이라 class_id가 빈 값인데 `required`라 파싱 실패. → `optional`.
+2. **NPC sync 비fatal** (`EmpireRPGPlugin`): `npc_spawn_seed.csv`가 정본 월드 `world_main` 참조 → 월드 미생성 시 fatal로 플러그인 disable. NPC는 비핵심이므로 실패해도 warn+continue(코어 정상 가동). `getNpcSyncRuntime()` 외부 호출처 0이라 null 안전.
+3. **onDisable null 가드** (`EmpireRPGPlugin`): 부팅 초기 실패 disable 시 `playerPersistenceService`가 null이라 onDisable이 2차 NPE로 진짜 원인 가림 → 가드.
+4. **life/estate 검증 정합** (`LifeEngineBootstrap`): ①레시피·시설이 **바닐라 재료**(iron_block·diamond_block·carrot 등)를 쓰는데 커스텀 item_master로만 확인 → `Material.matchMaterial`로 바닐라 인식. ②공방 life_type(`crafting`/`workshop`)은 생활 스킬 레벨링이 없어 exp table 면제. ③`base_item_id="-"`(추상 시설=공방) 면제.
+
+**검증 결과 (실부팅):** 8개 부트스트랩 전부 completed, disable 0, MythicMobs 감지 → 전투/보스 리스너 등록, Done. seed 로스터 정합(시즌6+최종3·강화표·잠재풀).
+
+**남은 선행조건(코드 아님, 맵 작업):** 0개 보스룸 슬롯 로드·NPC sync 비활성 = 월드(world_main/boss) 미생성·`/empire genrooms` 미실행 때문. config 좌표·월드 + genrooms로 해소(server_test_prep.md). 운영 팁: 종료 시 `stop`으로 클린 셧다운(timeout kill은 session.lock 잔존→다음 부팅 크래시).
+
+**영향 범위:** `MasterCsvMappers`, `EmpireRPGPlugin`, `LifeEngineBootstrap`. (배포물 server/는 git 밖.)
+
+**관련:** INBOX-005 2차, server_test_prep.md, DL-086~088(seed 정본).
+
+---
+
 ### DL-097 보스 클리어 게이트 영속화 + 페이즈 틱 불요 확정 (INBOX-005 2차 후속 마무리)
 
 **결정:**

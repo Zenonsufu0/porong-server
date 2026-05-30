@@ -202,16 +202,16 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         this.foundationContext.logger().domain("master-registry").info("Master registry bootstrap completed.");
 
         Result<NpcSyncRuntime> npcSyncResult = NpcSyncBootstrap.bootstrap(this, foundationContext, masterRegistryContext);
+        // NPC 동기화는 비핵심(편의 NPC) — 실패해도 플러그인을 죽이지 않고 NPC만 비활성 (DL-098).
+        // 예: 월드 미생성(world_main 등)으로 NPC 배치 불가 시에도 코어(전투·성장·보스·GUI)는 정상 가동.
         if (npcSyncResult.isFailure()) {
-            getLogger().severe("Failed to initialize NPC sync module: " + npcSyncResult.message());
-            if (npcSyncResult.cause() != null) {
-                getLogger().severe("Cause: " + npcSyncResult.cause().getMessage());
-            }
-            getServer().getPluginManager().disablePlugin(this);
-            return;
+            getLogger().warning("NPC sync 비활성 (핵심 기능은 정상): " + npcSyncResult.message()
+                    + (npcSyncResult.cause() != null ? " — " + npcSyncResult.cause().getMessage() : ""));
+            this.npcSyncRuntime = null;
+        } else {
+            this.npcSyncRuntime = npcSyncResult.value();
+            this.foundationContext.logger().domain("npc-sync").info("NPC sync bootstrap completed.");
         }
-        this.npcSyncRuntime = npcSyncResult.value();
-        this.foundationContext.logger().domain("npc-sync").info("NPC sync bootstrap completed.");
 
         Result<CombatEngineRuntime> combatEngineResult = CombatEngineBootstrap.bootstrap(this, foundationContext, masterRegistryContext);
         if (combatEngineResult.isFailure()) {
@@ -500,12 +500,14 @@ public final class EmpireRPGPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        // 서버 종료 시 온라인 전원 저장
-        playerPersistenceService.saveAll(
-                Bukkit.getOnlinePlayers().stream()
-                        .map(p -> p.getUniqueId())
-                        .toList()
-        );
+        // 서버 종료 시 온라인 전원 저장. 부팅 초기 실패로 disable된 경우 null일 수 있어 가드 (DL-098).
+        if (playerPersistenceService != null) {
+            playerPersistenceService.saveAll(
+                    Bukkit.getOnlinePlayers().stream()
+                            .map(p -> p.getUniqueId())
+                            .toList()
+            );
+        }
         if (operationsQueryRuntime != null && operationsQueryRuntime.httpServer() != null) {
             operationsQueryRuntime.httpServer().stop();
         }

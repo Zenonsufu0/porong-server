@@ -169,7 +169,8 @@
   - ✅ 완료(DL-095): 치명 %/pt 충돌 해소 — **0.30%/pt 정본 확정**(level_stat_system §3). #7 코드 이미 정합(변경 없음), potential_options_v1 정정. ※치명 피해량 0.2%/pt 미적용은 #7 후속
   - ✅ 완료(DL-096): boss_damage_increase 보스판정 적용(필드태그+인스턴스추적) + 치명 피해량 0.15%/pt 스탯 적용. #7 피해 공식 계층 완성
   - ✅ 완료(DL-097): 보스 클리어 게이트 영속화(boss_session lazy 복원). 페이즈/패턴 틱은 MM 구동이라 불요 확정(스킵)
-  - → **코드/기획 항목 전부 정리됨. 남은 건 배포 선행조건뿐** (server_test_prep.md)
+  - ✅ 완료(DL-098): 배포(jar+seed+MM) + 실부팅 검증. 부팅 중 드러난 검증 과엄격 4건(skill_master class_id, NPC sync fatal, life 바닐라 재료, facility workshop) 해소. **8개 bootstrap 전부 통과·disable 0**
+  - → **코드/기획/배포 전부 완료. 남은 건 맵 작업뿐**: 월드(world_main/boss) 생성 + config 좌표 + `/empire genrooms`·`genarenas` (server_test_prep.md §1)
   - ⏳ 선행조건(코드 밖) → `docs/10_development_roadmap/server_test_prep.md` 체크리스트로 정리(2026-05-31):
     - 🔴 **런타임 seed/jar stale** — `server/plugins/EmpireRPG/seeds/boss_master.csv`가 DL-087 이전(void_herald·최종보스 없음). `saveResource(replace=false)`라 jar 교체로도 갱신 안 됨 → 빌드+seeds폴더 비우고 재시작 필수. DL-086~090·이번 코드수정 전부 미배포 상태.
     - 🔴 config 좌표·월드명(world_main/farm/boss/test), `/empire genrooms`·`genarenas`
