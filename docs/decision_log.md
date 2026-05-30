@@ -4,6 +4,26 @@
 
 ---
 
+### DL-083 성장 시계열 스냅샷 — 성장 곡선 판단
+
+**결정:** `growth_snapshot` 테이블에 온라인 플레이어 성장(레벨·평균 IL·총 강화·골드)을 30분 주기로 일별 upsert한다.
+
+**이유:**
+- 플레이어 JSON은 현재값 덮어쓰기라 "며칠차에 평균 몇 레벨/강인지" 성장 곡선을 알 수 없었다 (INBOX-004 #7). 시즌 진행에 따른 성장 속도·정체 구간 판단 불가.
+
+**결과 (코드 구조):**
+- `growth_snapshot` (player_uuid, snapshot_date, player_level, avg_il, total_enhance, gold, captured_at), PK(player_uuid, snapshot_date). `GrowthSnapshotMigration` 등록.
+- 스케줄러: 30분(36000틱)마다 메인 스레드에서 온라인 플레이어 상태 읽어 행 구성 → async DB upsert. `(uuid, date)` 충돌 시 갱신 → 하루 1행(그날 마지막).
+- 읽기 API: `GET /api/v1/growth/curve?days=N`(기본 45=시즌 길이) — 일별 평균 레벨·IL·골드 + 집계 플레이어 수.
+
+**한계:** 30분 주기 스냅샷이라 그 사이 변동은 미포착(일별 평균엔 무관). 오프라인 기간은 행 없음(그날 미접속). 개별 성장 추적이 아닌 모집단 평균 곡선용.
+
+**영향 범위:** `GrowthSnapshotDdl`/`GrowthSnapshotMigration`/`GrowthSnapshotRepository`(신규), `EmpireRPGPlugin`(스케줄러+행 구성), `GrowthApiHandler`(신규), `EmpireHttpServer`, `OperationsQueryBootstrap`, `CommonFoundationBootstrap`.
+
+**관련:** `docs/idea_inbox.md` INBOX-004 #7 (PROMOTED). 남은 공백 1종(#5 보스 데미지 기여 — 런타임 데미지 추적).
+
+---
+
 ### DL-082 PvP 매치 무기/IL 기록 — 클래스 밸런스 판단
 
 **결정:** `pvp_match_log`에 winner_weapon·winner_il·loser_weapon·loser_il 컬럼을 추가하고 매치 종료 시 양측 무기(클래스)·실측 평균 IL을 기록한다.

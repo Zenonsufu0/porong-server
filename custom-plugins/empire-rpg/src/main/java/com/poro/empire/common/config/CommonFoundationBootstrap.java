@@ -10,6 +10,7 @@ import com.poro.empire.common.db.PvpMatchLogMigrationV2;
 import com.poro.empire.common.db.PlayerSessionMigration;
 import com.poro.empire.common.db.EnhancementLogMigration;
 import com.poro.empire.common.db.EconomyFlowMigration;
+import com.poro.empire.common.db.GrowthSnapshotMigration;
 import com.poro.empire.common.db.ConnectionProvider;
 import com.poro.empire.common.db.DatabaseBootstrapper;
 import com.poro.empire.common.db.JdbcTransactionHelper;
@@ -60,7 +61,8 @@ public final class CommonFoundationBootstrap {
                     new IslandSettingsMigration(logger.domain("db.migration.island-settings")),
                     new PlayerSessionMigration(logger.domain("db.migration.player-session")),
                     new EnhancementLogMigration(logger.domain("db.migration.enhancement-log")),
-                    new EconomyFlowMigration(logger.domain("db.migration.economy-flow"))
+                    new EconomyFlowMigration(logger.domain("db.migration.economy-flow")),
+                    new GrowthSnapshotMigration(logger.domain("db.migration.growth-snapshot"))
             ));
             DatabaseBootstrapper databaseBootstrapper = new DatabaseBootstrapper(
                     connectionProvider,

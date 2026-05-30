@@ -109,6 +109,10 @@ public final class OperationsQueryBootstrap {
                             new com.poro.empire.pvp.db.PvpMatchLogRepository(
                                     foundationContext.connectionProvider(), httpLogger),
                             apiSecretKey),
+                    new com.poro.empire.operations.http.GrowthApiHandler(
+                            new com.poro.empire.persistence.GrowthSnapshotRepository(
+                                    foundationContext.connectionProvider(), httpLogger),
+                            apiSecretKey),
                     apiBind,
                     httpLogger
             );

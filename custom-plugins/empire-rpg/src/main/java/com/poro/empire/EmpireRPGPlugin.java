@@ -165,6 +165,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
     private PvpMatchService     pvpMatchService;
     private PvpMatchLogRepository pvpMatchLogRepo;
     private com.poro.empire.persistence.PlayerSessionRepository playerSessionRepo;
+    private com.poro.empire.persistence.GrowthSnapshotRepository growthSnapshotRepo;
     private com.poro.empire.admin.AdminTogglesService adminTogglesService;
     private BossRoomManager     bossRoomManager;
     private BossRewardService   bossRewardService;
@@ -381,6 +382,10 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         growthStateStore.attachFlowListener(new com.poro.empire.persistence.EconomyFlowRepository(
                 foundationContext.connectionProvider(),
                 foundationContext.logger().domain("db.economy")));
+        // 성장 시계열 스냅샷 (성장 곡선, INBOX-004 #7 / DL-083)
+        this.growthSnapshotRepo = new com.poro.empire.persistence.GrowthSnapshotRepository(
+                foundationContext.connectionProvider(),
+                foundationContext.logger().domain("db.growth-snapshot"));
         pvpMatchService.attachGrowthState(growthStateStore);
 
         PvpFriendlyService pvpFriendlyService = new PvpFriendlyService(this, pvpMatchService);
@@ -449,6 +454,18 @@ public final class EmpireRPGPlugin extends JavaPlugin {
             Bukkit.getScheduler().runTaskAsynchronously(this,
                     () -> playerPersistenceService.saveAll(onlinePlayerIds));
         }, 6000L, 6000L);
+
+        // 30분(36000틱)마다 성장 시계열 스냅샷 (메인: 상태 읽기 → async: DB 일별 upsert, DL-083)
+        Bukkit.getScheduler().runTaskTimer(this, () -> {
+            long now = System.currentTimeMillis();
+            var rows = Bukkit.getOnlinePlayers().stream()
+                    .map(p -> buildGrowthSnapshotRow(p.getUniqueId()))
+                    .filter(java.util.Objects::nonNull)
+                    .toList();
+            if (rows.isEmpty()) return;
+            Bukkit.getScheduler().runTaskAsynchronously(this,
+                    () -> rows.forEach(row -> growthSnapshotRepo.upsert(row, now)));
+        }, 36000L, 36000L);
     }
 
     @Override
@@ -515,6 +532,30 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         double avgEnhance = total / 5.0;
         double il = avgEnhance * 5.0;
         return new com.poro.empire.boss.db.BossParticipantSpec(weapon, avgEnhance, il);
+    }
+
+    /**
+     * 성장 시계열 스냅샷 1행 구성 (DL-083) — 메인 스레드에서 상태 읽기. 상태 없으면 null.
+     * level·평균 IL(강화 1당 5)·총 강화·골드.
+     */
+    private com.poro.empire.persistence.GrowthSnapshotRepository.SnapshotRow buildGrowthSnapshotRow(java.util.UUID uuid) {
+        com.poro.empire.growth.engine.PlayerGrowthState st = growthStateStore.get(uuid).orElse(null);
+        if (st == null) return null;
+        com.poro.empire.growth.engine.EquipmentSlot[] slots = {
+                com.poro.empire.growth.engine.EquipmentSlot.WEAPON,
+                com.poro.empire.growth.engine.EquipmentSlot.HELMET,
+                com.poro.empire.growth.engine.EquipmentSlot.CHESTPLATE,
+                com.poro.empire.growth.engine.EquipmentSlot.LEGGINGS,
+                com.poro.empire.growth.engine.EquipmentSlot.BOOTS
+        };
+        int total = 0;
+        for (com.poro.empire.growth.engine.EquipmentSlot slot : slots) {
+            total += st.equippedItem(slot)
+                    .map(com.poro.empire.growth.engine.PlayerEquipmentItem::enhanceLevel).orElse(0);
+        }
+        double il = (total / 5.0) * 5.0;
+        return new com.poro.empire.persistence.GrowthSnapshotRepository.SnapshotRow(
+                uuid.toString(), st.playerLevel(), il, total, st.currency("gold"));
     }
 
     public GrowthEngineRuntime getGrowthEngineRuntime() {

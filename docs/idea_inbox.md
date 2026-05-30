@@ -95,7 +95,7 @@
   | 4 | 보스 파티 스펙 밸런스 | **✅ 구현 완료 (2026-05-30) [PROMOTED → DL-081]** — 입장 시 실측 IL/강화(`recordPlayerEntry`+`recordPartySpec`). defense_ignore는 1차 시즌 N/A로 0 | ~~입장 시 실측 IL/강화 기록~~ |
   | 5 | 무기·클래스 보스 DPS 밸런스 | `damage_share`/`damage_total` 테이블에 없음 | 참여자 데미지 집계 컬럼 추가 |
   | 6 | PvP 클래스 밸런스 | **✅ 구현 완료 (2026-05-30) [PROMOTED → DL-082]** — `pvp_match_log` 무기/IL 컬럼 + `/api/v1/pvp/balance`(무기별 승률). 데미지량은 미수집(별도) | ~~양측 무기/IL 컬럼 추가~~ |
-  | 7 | 성장 시계열 곡선 | 플레이어 JSON 현재값 덮어쓰기(스냅샷 누적 X) | 일/주 단위 성장 스냅샷 누적 테이블 |
+  | 7 | 성장 시계열 곡선 | **✅ 구현 완료 (2026-05-30) [PROMOTED → DL-083]** — `growth_snapshot`(30분 일별 upsert) + `/api/v1/growth/curve` | ~~일/주 단위 성장 스냅샷 누적 테이블~~ |
 
   **죽은 데이터 모델**(모델 정의만 있고 write 호출 0건): `EconomyFlowRecord`, `MarketPricePoint`, `LifeResourceSupplyRecord`. (단 `EstateHarvestLogHook`은 기록되나 in-memory 휘발)
 
