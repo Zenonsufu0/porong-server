@@ -658,7 +658,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         com.poro.empire.hub.HubWorldService hubWorldService = new com.poro.empire.hub.HubWorldService(this);
         hubWorldService.ensureHubWorld();
         getServer().getPluginManager().registerEvents(
-                new com.poro.empire.listener.HubSpawnListener(this, hubWorldService, playerDataManager), this);
+                new com.poro.empire.listener.HubSpawnListener(this, hubWorldService), this);
 
         BossRoomListener bossRoomListenerInstance =
                 new BossRoomListener(bossRoomManager, masterRegistryContext.bossMasters(), partyManager, bossEngineRuntime, mythicSpawner, adminTogglesService, bossDamageTracker);

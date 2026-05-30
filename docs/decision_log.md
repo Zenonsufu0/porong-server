@@ -4,6 +4,25 @@
 
 ---
 
+### DL-102 첫 접속 라우팅 + 영지(IS 섬) 자동 생성·이동 (INBOX-006 온보딩 ①)
+
+**결정:** 첫 접속 온보딩을 "허브에서 무기 선택 → 영지(IS 섬) 자동 생성+이동"으로 연결. 튜토리얼 맵(안내 스텝)은 후속(②).
+
+**구현:**
+- `HubSpawnListener`: 접속 시 **전원 허브 이동**(첫 접속도 안전한 허브에서 무기 선택 — 필드 동적 스폰 위험 회피). `playerDataManager` 의존 제거.
+- `WeaponSelectionGuiListener`: 무기 선택 완료 → 스타터 지급 후 **`is create poro`**(IridiumSkyblock, poro 스키매틱 강제로 스키매틱 GUI 회피) → IS가 비동기 생성 후 새 섬으로 자동 텔레포트.
+- 흐름: 접속 → 허브 → (첫 접속) 무기 선택 GUI → 선택 → 스타터+도구 → 영지 생성·이동. 복귀 유저는 허브에서 `/필드`·`/영지` 분기.
+
+**검증:** 부팅 클린(disable 0, world_hub OK, 에러 0). **실 온보딩 흐름(접속→허브→무기→섬)은 인게임 접속 검증 필요.**
+
+**남은 단계 (온보딩 ②):** 첫 접속을 허브가 아닌 **튜토리얼 맵**으로 → 안내 스텝(이동·공격·메뉴) → 무기 선택 → 영지. `TutorialService`(빈 스텁) 구현. IS create 인자(`poro`)가 GUI를 여는 경우 대비(스키매틱명 직접 지정으로 회피 의도).
+
+**영향 범위:** `HubSpawnListener`, `WeaponSelectionGuiListener`, `EmpireRPGPlugin`. IS 스키매틱 키 `poro`(schematics.yml) 의존.
+
+**관련:** INBOX-006, DL-101(허브 월드), `ClassInitService`(무기선택), IridiumSkyblock(`is create`).
+
+---
+
 ### DL-101 허브 월드 + 접속 스폰 이동 — 온보딩 코어 (INBOX-006)
 
 **결정:** 스폰을 **별도 평지 월드 `world_hub`**로 분리(사장님이 수도 건축). 접속 시 복귀 유저는 허브로 이동, 거기서 `/필드`·`/영지`로 분기. 단일 `world`(필드·보스·PvP)와 분리해 허브 전용 규칙(평화·세이프) 적용. 같은 월드 먼 좌표 대신 별도 월드 선택(허브가 필드 몹·규칙과 분리되도록).

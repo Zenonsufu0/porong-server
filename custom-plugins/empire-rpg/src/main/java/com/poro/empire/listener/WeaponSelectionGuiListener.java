@@ -49,5 +49,10 @@ public final class WeaponSelectionGuiListener implements Listener {
         scoreboardService.refresh(player);
         player.closeInventory();
         player.sendMessage("§a무기 클래스 선택: " + selected.name().toLowerCase(java.util.Locale.ROOT));
+
+        // 첫 접속 온보딩 — IS 영지(섬) 자동 생성 + 이동 (DL-102). poro 스키매틱 강제(스키매틱 GUI 회피).
+        // IS create는 비동기 — 생성 후 IS가 새 섬으로 자동 텔레포트한다.
+        player.sendMessage("§e[영지] §7당신의 영지를 생성합니다. 잠시만 기다려 주세요...");
+        player.performCommand("is create poro");
     }
 }
