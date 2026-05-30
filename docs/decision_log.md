@@ -12,10 +12,13 @@
 - **#6 무기 ATK 선형→flat 테이블.** `WeaponPowerCalculator`가 `×(1+0.1L)` 선형(20강 240)이라 CANON flat 테이블(`combat_balance_v2 §1`, 20강 157)과 +53% 괴리 → 누적 가산 배열로 교체. 검증: 10강 103·18강 144·20강 157·25강 192 일치. (잠재 ATK 합산·DEF/치명/스킬% 계층은 #7에서 처리.)
 - **#3 보스 처치→클리어 종료 브리지.** 보스 mob `EntityDeathEvent`→`endRun(true)` 리스너 부재로 잡아도 보상 0·슬롯 미회수였음. `BossInstanceDamageListener`에 사망 핸들러 추가(이미 보유한 `BossDamageTracker`의 신규 `runIdForMob`로 mob→runId 조회 후 `runService.endRun(runId,true,"")`). 보상·`markCleared`·`damage_share`는 기존 `endRun` 훅 체인(`BossRewardService.onRunEnded`, `DbBossRunRecordHook.finalizeShares`)에서 처리.
 - **#5 최종보스 입장 게이트.** `AllowAllUnlockQuestChecker`(무조건 true)로 보스6 미클리어도 최종보스 입장 가능했음 → `BossClearUnlockQuestChecker` 신설(`quest_boss6_clear`=`void_herald` 클리어 시 해금, `boss_entry_rule.csv`/DL-044 일치). `BossRoomManager.hasCleared` 조회. 부트스트랩에 `bossRoomManager` 주입.
+- **#4 보스 원샷 방지 85% 클램프.** 빈 스텁이던 `BossDefenseListener`를 구현 — 추적 보스(`BossDamageTracker.isTracked`) 대상 단일 타격을 maxHP×0.85로 상한 + 같은 타이밍(≈1틱) 후속 타격 0(다단 히트 우회 차단). `EventPriority.LOW`로 기여도 집계(NORMAL)보다 먼저 적용. 1차 시즌은 커스텀 보스 DEF 시드가 없어(보스 능력치 MM 소관) DEF/(DEF+200) 경감은 미적용, 원샷 방지만.
+
+**#7 설계 결정 (구현은 후속 커밋):** `combat/engine/CombatFormulaResolver` literal 배선은 1차 시즌엔 과함 — 매 타격 `SkillMaster`+`SkillExecutionContext`+공/방 `CombatUnitSnapshot`+태그/조건부 리졸버 조립 필요, 라이브 빌더도 부재. 게다가 1차 공격 옵션은 `attack_percent`·`general_damage_increase`·`boss_damage_increase`(잠재)+`critPts`(스탯 배분, 0.3%/pt)뿐(태그피해·치명%는 T2). 결정: **엔진 공식(DEF/(DEF+200)·치명 구조)은 재사용하되 경량 중앙 적용부로 처리.** 위치는 `BaseWeaponSkill` 중앙 메서드(스킬이 `target.damage()` 직전 1회 적용) — 전역 `EntityDamageByEntityEvent` 리스너는 `SkillInputListener`가 바닐라 평타를 취소·스킬 대체하는 재진입 흐름과 충돌하므로 배제. ※부수 버그: 현재 `WeaponPowerCalculator`가 `attack_percent`(%)·general/boss 증가를 flat ATK로 잘못 합산 → #7에서 attack_percent는 ATK 승산, general/boss는 피해 승산으로 분리 교정 예정.
 
 **한계:** #3의 보스 클리어 기록(`BossRoomManager.clearedBosses`)은 in-memory라 재시작 시 소실 → #5 게이트도 재시작 후 풀림. 영속화는 후속. #3은 단일 보스 엔티티 사망 기준이라 페이즈 전환으로 엔티티가 교체되는 보스는 조기 종료 가능(1차 시즌 바닐라 MM 셸은 동일 엔티티 HP 페이즈라 무해 추정).
 
-**남은 블로커 (후속 커밋):** #4 원샷 85% 클램프 + #7 피해 공식 계층(기존 `combat/engine/CombatFormulaResolver` 배선 — 두 개가 같은 중앙 데미지 적용부로 수렴) + #10 보스 타임아웃·페이즈 틱 루프. 선행조건(코드 밖): config 좌표·월드명 실값, MM 셸 설치·ID 충돌.
+**남은 블로커 (후속 커밋):** #7 피해 공식 계층(경량 중앙 적용부, 위 설계대로) + #10 보스 타임아웃·페이즈 틱 루프. 선행조건(코드 밖): config 좌표·월드명 실값, MM 셸 설치·ID 충돌.
 
 **영향 범위:** `WeaponPowerCalculator`, `BossDamageTracker`, `BossInstanceDamageListener`, `BossClearUnlockQuestChecker`(신규), `BossEngineBootstrap`, `EmpireRPGPlugin`. 문서: `idea_inbox.md`(INBOX-005 2차 감사).
 

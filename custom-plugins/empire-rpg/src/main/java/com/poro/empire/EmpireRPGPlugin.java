@@ -649,7 +649,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
             getServer().getPluginManager().registerEvents(
                     new FieldDropListener(growthStateStore, islandTerritoryStateStore, playerDataManager,
                             playerLevelingService, fieldBossScheduler, bossRewardService, new ContributionTracker(), scoreboardService, adminTogglesService), this);
-            getServer().getPluginManager().registerEvents(new BossDefenseListener(), this);
+            getServer().getPluginManager().registerEvents(new BossDefenseListener(bossDamageTracker), this);
             getServer().getPluginManager().registerEvents(
                     new com.poro.empire.listener.BossInstanceDamageListener(bossDamageTracker, bossEngineRuntime.runService()), this);
             getLogger().info("MythicMobs detected — FieldDropListener + BossDefenseListener + BossInstanceDamageListener registered.");
