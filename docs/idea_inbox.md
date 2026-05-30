@@ -124,7 +124,7 @@
 
   | 우선도 | 불일치 | 근거 |
   |---|---|---|
-  | 🔴 높음 | 강화 테이블 수치 전면 불일치 | `growth_enhancement_table.csv` T1(11강 76%·20강 15%·1강 80G) vs 기획 DL-033(11강 25%·20강 1%·1강 2,000G). 가호 천장(`ceil(200/rate)`)도 전이 |
+  | ~~🔴 높음 강화 테이블 수치 불일치~~ ✅ 해소 (2026-05-30, DL-086) | T1 1~25강 확정 표 반영 + 21~25강 추가 + 방어구 강화석 `ceil(÷1.5)` 구현 + validate 1~3강 완화. ※배포 사본 동기화 필요 |
   | 🔴 높음 | 보스 시드 두 벌 모순 | `boss_master.csv`(시즌3·구 ID) vs `boss_entry_rule.csv`+`BossRewardService`(시즌6+최종3·신 ID). `fallen_knight` 필드/시즌 충돌 |
   | 🟠 중간 | 영지 생산 온라인 전용 | 라이브=`MachineProductionScheduler`(20분 온라인 틱). 오프라인 타임스탬프 모델(EstateFacilityService) GUI 미연결 |
   | 🟠 중간 | 광물 채굴기 시드 누락 | `estate_facility_master.csv`에 약초·공방만, `estate_resonance_extractor` 빠짐 |

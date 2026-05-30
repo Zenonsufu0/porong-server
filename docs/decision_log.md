@@ -4,6 +4,29 @@
 
 ---
 
+### DL-086 강화 테이블 확정 수치 반영 + 방어구 강화석 보정 (INBOX-005 🔴 해소)
+
+**결정:** `growth_enhancement_table.csv` T1을 `economy_numbers_v2.md`/DL-033 확정 수치로 전면 교체하고, 미구현이던 방어구 강화석 보정(`ceil(무기÷1.5)`)을 코드에 추가한다.
+
+**배경 (감사로 발견된 불일치):**
+- 기존 시드 T1: 11강 76%·20강 15%·1강 80G — DL-033(11강 25%·20강 1%·1강 2,000G) 미반영. 골드 싱크·강화석 수요·가호 천장 전부 어긋남.
+- T1이 **20강까지만** 존재 → `MAX_ENHANCE_LEVEL=25`인데 T1 21강 시도 시 "rule not found" 차단.
+- 방어구 강화석 `ceil(÷1.5)` 미구현 — 방어구도 무기 강화석 그대로 소모(스펙보다 1.5배 비쌈).
+
+**결과:**
+- T1 1~25강을 확정 표로 교체. 가호 천장은 코드 `ceil(200/성공률)`이 표 값과 자동 일치(11강 8회·20강 200회·25강 4,000회 검증).
+- `EnhancementService`: 아이템 `slotType`이 weapon이 아니면 강화석 = `ceil(stoneCost/1.5)`. EnhancementResult·강화 로그도 실소모량 반영.
+- `GrowthEngineBootstrap.validate`: "1~5강 100% 필수" → **"1~3강 100%"로 완화** (확정 표가 4강 95%·5강 90%이므로 기존 검증과 충돌, 스펙 우선).
+- T2(1차 시즌 미사용)는 **유지** — validate가 전 tier 1~25강 룰을 강제하므로 제거 시 부트스트랩 실패. inert 데이터로 보존.
+
+**한계/후속:** 배포 사본(`server-config/`, `server/plugins/EmpireRPG/seeds/`)은 미수정 — 다음 배포 시 동기화 필요. T2 완전 제거는 validate를 T1 한정으로 바꿔야 하는 별도 작업.
+
+**영향 범위:** `growth_enhancement_table.csv`(src), `EnhancementService`, `GrowthEngineBootstrap`.
+
+**관련:** `docs/idea_inbox.md` INBOX-005 #강화 테이블(🔴) 해소. economy_numbers_v2.md §강화 비용표, DL-033.
+
+---
+
 ### DL-085 바닐라 경험치 바 억제 — 커스텀 레벨링만 노출
 
 **결정:** 바닐라 마인크래프트 경험치(초록 XP 바)를 전면 억제한다. EmpireRPG는 커스텀 레벨링(`PlayerLevelingService`, HUD 표시)을 쓰므로 바닐라 XP 바는 노출하지 않는다.

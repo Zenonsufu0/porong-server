@@ -148,8 +148,9 @@ public final class GrowthEngineBootstrap {
                     blockingErrors.add("Missing enhancement rule: tier=" + tier + ", level=" + level);
                     continue;
                 }
-                if (level <= 5 && rule.successRate() != 100.0d) {
-                    blockingErrors.add("Enhancement level 1~5 must be 100%. tier=" + tier + ", level=" + level + ", actual=" + rule.successRate());
+                // 확정 강화표(economy_numbers_v2): 1~3강 100%, 4강 95%·5강 90%부터 하향. 검증은 1~3강만 100% 보장.
+                if (level <= 3 && rule.successRate() != 100.0d) {
+                    blockingErrors.add("Enhancement level 1~3 must be 100%. tier=" + tier + ", level=" + level + ", actual=" + rule.successRate());
                 }
                 if (rule.breakOnFail() || rule.downgradeOnFail()) {
                     blockingErrors.add("Enhancement fail policy must not break/downgrade. tier=" + tier + ", level=" + level);

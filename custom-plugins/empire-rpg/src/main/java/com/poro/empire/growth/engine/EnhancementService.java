@@ -72,17 +72,23 @@ public final class EnhancementService {
             );
         }
 
+        // 강화석: 시드값은 무기 기준. 방어구는 ceil(무기 ÷ 1.5) (economy_numbers_v2 / DL-033).
+        long stoneCost = rule.stoneCost();
+        if (!"weapon".equalsIgnoreCase(itemMaster.slotType())) {
+            stoneCost = (long) Math.ceil(stoneCost / 1.5);
+        }
+
         if (!state.consumeCurrency(CURRENCY_GOLD, rule.goldCost())) {
             return Result.failure(
                     ErrorCode.INVALID_ARGUMENT,
                     "Not enough gold. required=" + rule.goldCost() + ", current=" + state.currency(CURRENCY_GOLD)
             );
         }
-        if (!state.consumeCurrency(MATERIAL_ENHANCE_STONE, rule.stoneCost())) {
+        if (!state.consumeCurrency(MATERIAL_ENHANCE_STONE, stoneCost)) {
             state.addCurrency(CURRENCY_GOLD, rule.goldCost());
             return Result.failure(
                     ErrorCode.INVALID_ARGUMENT,
-                    "Not enough enhancement stone. required=" + rule.stoneCost() + ", current=" + state.currency(MATERIAL_ENHANCE_STONE)
+                    "Not enough enhancement stone. required=" + stoneCost + ", current=" + state.currency(MATERIAL_ENHANCE_STONE)
             );
         }
 
@@ -150,7 +156,7 @@ public final class EnhancementService {
                 rule.successRate(),
                 roll,
                 rule.goldCost(),
-                rule.stoneCost(),
+                stoneCost,
                 ceilingCountAfter,
                 ceilingCap,
                 forcedByCeiling
