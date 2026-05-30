@@ -166,7 +166,8 @@
   - ✅ 완료(DL-093): #10 보스 전투 타임아웃(15/10분) 스케줄러 — 경과 런 강제종료+슬롯회수+보스 디스폰+알림. ※페이즈/패턴 진행 틱·참가자 자동 텔레포트는 후속
   - ⏳ 남음(코드): boss_damage_increase 보스판정 배선, 보스 클리어 기록 영속화(in-memory 소실), 페이즈/패턴 진행 틱
   - ✅ 완료(DL-094): 잠재(큐브) 등급 모델 = 메모리얼 승급 확정 + 확률 강화(25/12/6/1.5%, 레전 ~96큐브). drop_tables §6 플랫표 폐기
-  - 🟠 **신규 발견(2026-05-31): 치명 %/pt 충돌** — `level_stat_system_v1 §3` = 0.3%/pt(150pt=45%) vs `potential_options_v1 §치명 5%행` = 0.45%/pt(100% 캡 math 기준). #7 코드(DL-092)는 0.3%/pt 사용 → 정본 확정 필요(0.45면 코드+level_stat 수정)
+  - ✅ 완료(DL-095): 치명 %/pt 충돌 해소 — **0.30%/pt 정본 확정**(level_stat_system §3). #7 코드 이미 정합(변경 없음), potential_options_v1 정정. ※치명 피해량 0.2%/pt 미적용은 #7 후속
+  - ⏳ 후속(코드): boss_damage_increase 보스판정, 치명 피해량 0.2%/pt 적용, 보스 클리어 영속화, 페이즈 틱
   - ⏳ 선행조건(코드 밖) → `docs/10_development_roadmap/server_test_prep.md` 체크리스트로 정리(2026-05-31):
     - 🔴 **런타임 seed/jar stale** — `server/plugins/EmpireRPG/seeds/boss_master.csv`가 DL-087 이전(void_herald·최종보스 없음). `saveResource(replace=false)`라 jar 교체로도 갱신 안 됨 → 빌드+seeds폴더 비우고 재시작 필수. DL-086~090·이번 코드수정 전부 미배포 상태.
     - 🔴 config 좌표·월드명(world_main/farm/boss/test), `/empire genrooms`·`genarenas`
