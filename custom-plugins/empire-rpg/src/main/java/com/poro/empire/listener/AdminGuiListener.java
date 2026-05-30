@@ -6,6 +6,8 @@ import com.poro.empire.boss.engine.BossRunService;
 import com.poro.empire.boss.room.BossRoomManager;
 import com.poro.empire.boss.room.BossRoomSlot;
 import com.poro.empire.growth.GrowthStateStore;
+import com.poro.empire.growth.island.IslandRank;
+import com.poro.empire.growth.island.IslandTerritoryState;
 import com.poro.empire.growth.island.IslandTerritoryStateStore;
 import com.poro.empire.growth.engine.InMemoryEnhancementLogHook;
 import com.poro.empire.gui.AdminBossGui;
@@ -14,6 +16,7 @@ import com.poro.empire.gui.AdminInspectGui;
 import com.poro.empire.gui.AdminLogGui;
 import com.poro.empire.gui.AdminMatchesGui;
 import com.poro.empire.gui.AdminStatsGui;
+import com.poro.empire.gui.AdminTerritoryGui;
 import com.poro.empire.gui.AdminTogglesGui;
 import com.poro.empire.gui.GuiTitles;
 import com.poro.empire.market.AuctionStore;
@@ -72,6 +75,8 @@ public final class AdminGuiListener implements Listener {
     private final Map<UUID, LogView> logView = new ConcurrentHashMap<>();
     /** 보스 디버그 GUI에서 슬롯 인덱스 → runId. */
     private final Map<UUID, List<String>> bossRunMapping = new ConcurrentHashMap<>();
+    /** 영지 관리 GUI 보기 상태 (슬롯 인덱스 → ownerUuid + 현재 페이지). */
+    private final Map<UUID, AdminTerritoryGui.View> territoryView = new ConcurrentHashMap<>();
 
     private record LogView(AdminLogGui.LogTab tab, int page) {}
 
@@ -144,6 +149,10 @@ public final class AdminGuiListener implements Listener {
             event.setCancelled(true);
             handleBossClick(player, event.getRawSlot(), event.getClick());
 
+        } else if (GuiTitles.ADMIN_TERRITORY.equals(event.getView().title())) {
+            event.setCancelled(true);
+            handleTerritoryClick(player, event.getRawSlot(), event.getClick());
+
         } else if (pendingInspectAnvil.contains(uid)
                 && event.getInventory() instanceof AnvilInventory anvil
                 && event.getRawSlot() == 2) {
@@ -201,6 +210,7 @@ public final class AdminGuiListener implements Listener {
             case AdminHubGui.SLOT_LOGS    -> openLog(admin, AdminLogGui.LogTab.ENHANCE, 0);
             case AdminHubGui.SLOT_BOSS    -> bossRunMapping.put(admin.getUniqueId(),
                     AdminBossGui.open(admin, bossRunService));
+            case AdminHubGui.SLOT_TERRITORY -> openTerritory(admin, 0);
             case AdminHubGui.SLOT_RELEASE -> {
                 if (click.isShiftClick()) {
                     forceReleaseAllSlots(admin);
@@ -258,6 +268,56 @@ public final class AdminGuiListener implements Listener {
         admin.sendMessage("§a[관리자] 매치 강제 종료 (무승부 처리).");
         // GUI 갱신
         matchSlotMapping.put(admin.getUniqueId(), AdminMatchesGui.open(admin, pvpMatchService));
+    }
+
+    private void openTerritory(Player admin, int page) {
+        territoryView.put(admin.getUniqueId(), AdminTerritoryGui.open(admin, islandStore, page));
+    }
+
+    private void handleTerritoryClick(Player admin, int slot, ClickType click) {
+        AdminTerritoryGui.View view = territoryView.get(admin.getUniqueId());
+        int page = view != null ? view.page() : 0;
+        switch (slot) {
+            case AdminTerritoryGui.SLOT_BACK  -> { AdminHubGui.open(admin); return; }
+            case AdminTerritoryGui.SLOT_CLOSE -> { admin.closeInventory(); return; }
+            case AdminTerritoryGui.SLOT_PREV  -> { openTerritory(admin, page - 1); return; }
+            case AdminTerritoryGui.SLOT_NEXT  -> { openTerritory(admin, page + 1); return; }
+            default -> { /* 아이템 영역 — 아래 처리 */ }
+        }
+        if (slot < 0 || slot >= AdminTerritoryGui.PAGE_SIZE || view == null) return;
+        if (slot >= view.pageOwners().size()) return;
+        UUID owner = view.pageOwners().get(slot);
+        IslandTerritoryState state = islandStore.get(owner).orElse(null);
+        if (state == null) return;
+
+        if (click.isShiftClick() && click.isRightClick()) {
+            islandStore.resetSocialSettings(owner);
+            admin.sendMessage("§a[관리자] §f" + nameOf(owner) + "§a 영지 소셜 설정 초기화 완료.");
+            Bukkit.getLogger().info("[empire-admin] " + admin.getName() + " reset territory social " + owner);
+        } else if (click.isLeftClick()) {
+            IslandRank changed = shiftRank(state, +1);
+            admin.sendMessage("§a[관리자] §f" + nameOf(owner) + "§a 작위 ▲ → §e" + changed.displayName);
+        } else if (click.isRightClick()) {
+            IslandRank changed = shiftRank(state, -1);
+            admin.sendMessage("§e[관리자] §f" + nameOf(owner) + "§e 작위 ▼ → §f" + changed.displayName);
+        } else {
+            return;
+        }
+        openTerritory(admin, page); // 갱신
+    }
+
+    /** 작위를 인접 단계로 이동 (clamp). 변경된 작위 반환. */
+    private IslandRank shiftRank(IslandTerritoryState state, int delta) {
+        IslandRank[] ranks = IslandRank.values();
+        int next = Math.max(0, Math.min(state.rank().ordinal() + delta, ranks.length - 1));
+        IslandRank changed = ranks[next];
+        state.setRank(changed);
+        return changed;
+    }
+
+    private static String nameOf(UUID uuid) {
+        String name = Bukkit.getOfflinePlayer(uuid).getName();
+        return name != null ? name : uuid.toString().substring(0, 8);
     }
 
     private void handleBossClick(Player admin, int slot, ClickType click) {

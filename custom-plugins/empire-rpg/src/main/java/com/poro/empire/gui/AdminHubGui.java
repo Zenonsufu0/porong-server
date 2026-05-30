@@ -51,7 +51,9 @@ public final class AdminHubGui {
                         "§a▶ 클릭하여 열기")));
 
         // Phase 2
-        inv.setItem(SLOT_TERRITORY, stub("§8영지 관리"));
+        inv.setItem(SLOT_TERRITORY, MainHubGui.icon(Material.GRASS_BLOCK, "§e영지 관리",
+                List.of("§7전체 영지 목록 / 작위 강제 변경 / 소셜 초기화",
+                        "§a▶ 클릭하여 열기")));
         inv.setItem(SLOT_TOGGLES, MainHubGui.icon(Material.LEVER, "§e운영 토글",
                 List.of("§7보스 스폰·강화/EXP/드랍 부스트·PvP 큐",
                         "§a▶ 클릭하여 열기")));

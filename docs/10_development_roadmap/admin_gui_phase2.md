@@ -20,15 +20,19 @@
 
 ## Phase 2 — 미구현 (stub 슬롯 위치 확정)
 
-### 영지 관리 (slot 29)
+### 영지 관리 (slot 29) — **Step 5 구현 완료 (2026-05-30)**
 
-| 기능 | 비고 |
+| 기능 | 상태 |
 |---|---|
-| 영지 목록 GUI | 전체 영지 페이지네이션, 작위·멤버·자원 표시 |
-| 영지 초기화 | 멤버/권한/방문설정 reset + 확인 단계 |
-| 작위 강제 승급/강등 | 명령 또는 GUI |
-| 멤버 강제 제거 | 외부 플레이어가 가입한 영지에서 빼기 |
-| 자원 강제 지급/회수 | 골드·강화석·큐브·전장의 파편 |
+| 영지 목록 GUI | ✅ `AdminTerritoryGui` — `snapshot()` 작위 내림차순 페이지네이션(45/page), 작위·시설 표시 |
+| 영지 초기화 | ✅ Shift+우클릭 → `IslandTerritoryStateStore.resetSocialSettings` (멤버·권한·방문모드 reset, 작위·시설 보존) |
+| 작위 강제 승급/강등 | ✅ 좌클릭=▲ / 우클릭=▼ (ordinal ±1 clamp). 명령 `/empire-rank`도 존재 |
+| 멤버 강제 제거 | ⏳ 보류 — 초기화로 전체 멤버 제거는 가능, 개별 제거 GUI는 후속 |
+| 자원 강제 지급/회수 | ⏳ 보류 — `/empire-currency`·`/empire-give` 명령 존재 (영지 customItem 직접 조작 GUI는 후속) |
+
+- GUI: `AdminTerritoryGui` (54슬롯, 목록+클릭 액션). 진입: `/empire-admin` → slot 29.
+- 명령어: 신규 없음 — 액션은 기존 `/empire-rank`(작위)·`/empire-island-reset`(소셜 초기화)와 동일 (C 방식: GUI 액션 ↔ 명령 동등). 초기화 로직은 `resetSocialSettings`로 공통화(DRY).
+- 확인 단계: 초기화는 Shift+우클릭(오클릭 방지). 별도 확인 GUI 없음.
 
 ### 운영 토글 (slot 31) — **Step 2 GUI+명령어 완료, Step 2b hook 적용 완료 (2026-05-30)**
 

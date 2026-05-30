@@ -170,20 +170,9 @@ public final class AdminPlayerCommand implements CommandExecutor {
 
     // ─── /empire-island-reset <player> ───────────────────────────────
     private boolean handleIslandReset(CommandSender s, UUID uuid, String name) {
-        IslandTerritoryState t = islandStore.getOrCreate(uuid, name);
-        // 멤버/권한/visit 초기화
-        for (var entry : t.memberList()) t.removeMember(entry.getKey());
-        for (var role : IslandTerritoryState.Role.values()) {
-            // 권한 마스크 전부 toggle해서 0으로
-            int mask = t.rolePermissionMask(role);
-            for (var perm : IslandTerritoryState.Permission.values()) {
-                if ((mask & perm.bit) != 0) t.togglePermission(role, perm);
-            }
-        }
-        t.setVisitMode(IslandTerritoryState.VisitMode.PUBLIC);
-        islandStore.persistVisitMode(uuid);
-        islandStore.persistMembers(uuid);
-        for (var role : IslandTerritoryState.Role.values()) islandStore.persistPermissions(uuid, role);
+        // 영지 상태 보장 후 공통 초기화 헬퍼 호출 (GUI와 동일 로직)
+        islandStore.getOrCreate(uuid, name);
+        islandStore.resetSocialSettings(uuid);
         s.sendMessage("§a[관리자] §f" + name + "§a 영지 멤버/권한/방문설정 초기화 완료.");
         return true;
     }

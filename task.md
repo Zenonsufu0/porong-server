@@ -7,12 +7,11 @@
 ## 현재 브랜치 상태
 
 - 브랜치: `master`
-- 최근 기능 커밋: `7c02972` (§6-17 Step 4 — 보스 디버그 GUI + /empire-boss-list·/empire-boss-end)
-  - ※ "최근 기능 커밋"은 직후 task.md 정정 커밋과 무관하게 마지막 *기능* 커밋을 가리킨다 (상태 드리프트 방지)
-  - ※ per-step 섹션에는 커밋/미커밋 상태를 적지 않는다 (커밋되는 순간 거짓이 되어 드리프트 유발). 완료 여부만 표기
+- **관리자 GUI Phase 2 Step 1~5 모두 구현 완료** — Phase 2 마감. 상세는 각 §6-NN 섹션
 - 빌드: `./gradlew compileJava → BUILD SUCCESSFUL` (기존 deprecated AnvilInventory warning만 잔존)
-- **관리자 Phase 2 Step 1~4 모두 커밋·동기화 완료** (master == codex-review, 최신 기능 `7c02972`)
-- 다음: 관리자 Phase 2 Step 5 — 영지 관리 GUI (slot 29)
+- 동기화: 매 handoff 시 master == codex-review 유지
+- 다음: Phase 2 인게임 통합 테스트 / 또는 별도 지시
+- ※ **상태 드리프트 방지 정책**: task.md에 "최신 커밋 해시"·"미커밋/커밋" 상태를 박지 않는다. 최신 커밋 기준은 항상 `git log`. per-step 섹션은 완료 여부만 표기한다. (자기 자신을 포함한 커밋의 해시는 미리 알 수 없어 반드시 한 발 늦기 때문)
 
 ---
 
@@ -259,6 +258,29 @@
 | `docs/10_development_roadmap/admin_gui_phase2.md` — Step 2 완료/Step 2b hook 명시 | docs | ✅ |
 | `BUILD SUCCESSFUL` | — | ✅ |
 
+## §6-18 관리자 Phase 2 Step 5 — 영지 관리 GUI (slot 29) — 완료 (2026-05-30)
+
+기준: `docs/10_development_roadmap/admin_gui_phase2.md` §영지 관리 (slot 29). **Phase 2 마지막 단계.**
+
+| 항목 | 파일 | 상태 |
+|---|---|---|
+| `AdminTerritoryGui` — 전체 영지 목록(작위 내림차순 페이지네이션 45/page) + 클릭 액션 | `gui/AdminTerritoryGui.java` (신규) | ✅ |
+| 작위 강제 변경: 좌클릭=▲ / 우클릭=▼ (ordinal ±1 clamp) | `listener/AdminGuiListener.java` | ✅ |
+| 소셜 초기화: Shift+우클릭 → `resetSocialSettings` (멤버·권한·방문모드, 작위·시설 보존) | — | ✅ |
+| `IslandTerritoryStateStore.resetSocialSettings(uuid)` 공통 추출 (명령/GUI DRY) | `growth/island/IslandTerritoryStateStore.java` | ✅ |
+| `AdminPlayerCommand.handleIslandReset` → 공통 헬퍼 호출로 리팩터 (중복 제거) | `command/AdminPlayerCommand.java` | ✅ |
+| `GuiTitles.ADMIN_TERRITORY` + `AdminHubGui` slot 29 stub→활성 | `gui/*` | ✅ |
+| `AdminGuiListener` — `ADMIN_TERRITORY` 핸들러 + `territoryView` 상태 + `shiftRank` | `listener/AdminGuiListener.java` | ✅ |
+| 신규 명령 없음 — 액션은 기존 `/empire-rank`·`/empire-island-reset`와 동등 (C 방식) | — | ✅ |
+| `BUILD SUCCESSFUL` | — | ✅ |
+
+### §6-18 잔여
+- 멤버 개별 강제 제거 GUI — 현재는 전체 초기화만. 후속
+- 영지 customItem(자원) 직접 지급/회수 GUI — `/empire-currency`·`/empire-give` 명령 존재, GUI는 후속
+- 작위 변경 즉시 영속화 — `/empire-rank`와 동일하게 `setRank`만 (기존 저장 경로 위임). 별도 persist 미호출
+
+---
+
 ## §6-17 관리자 Phase 2 Step 4 — 보스 디버그 GUI + /empire-boss-list·/empire-boss-end — 완료 (2026-05-30, 커밋 `7c02972`)
 
 기준: `docs/10_development_roadmap/admin_gui_phase2.md` §보스 디버그 (slot 24)
@@ -318,8 +340,8 @@
 - `BUILD SUCCESSFUL` (기존 AnvilInventory deprecation 경고만 잔존)
 - **범위 주의:** EXP/DROP 부스트는 `FieldDropListener`(필드몹) 한정. 보스 보상(`BossRewardService`) 경로는 미적용 — 필요 시 확장 검토
 
-### Phase 2 Step 5+ 미진행
-- Step 5: 영지 관리 GUI (slot 29) — 목록/초기화/작위 강제 변경
+### Phase 2 — 전체 완료 (Step 1~5)
+- Step 1~5 모두 구현 완료. 후속 확장(멤버 개별 제거·자원 GUI·강제 페이즈 트리거·의심활동 알림)은 각 §6-NN 잔여 항목 참조.
 
 ---
 
@@ -347,7 +369,7 @@
 
 | 우선도 | 항목 | 비고 |
 |---|---|---|
-| 높음 | 관리자 Phase 2 Step 5 — 영지 관리 GUI (slot 29) | 목록/초기화/작위 강제 변경. 1차 시즌 영지 분쟁 빈도 높을 가능성 |
+| 높음 | 관리자 GUI Phase 2 인게임 통합 테스트 | Step 1~5 GUI 클릭·명령·DB 표시 실서버 검증 |
 | 높음 | JAR 재빌드 + 서버 배포 + in-game HUD/스코어보드 확인 | §6-12 수정 검증 — HUD 행 정렬, 아이콘 크기 확인 |
 | 높음 | 서버 통합 테스트 — `/보스` 선택 → `[보스]` 표지판 → MM 스폰 런타임 확인 | `season_bosses.yml` 로드 + bossId 매칭 검증 |
 | 중간 | HUD 행 X 정렬 패딩 (행별 advance 패딩으로 정확한 overlay) | 확인 후 필요 시 |
