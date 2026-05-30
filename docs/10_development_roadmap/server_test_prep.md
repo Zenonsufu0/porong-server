@@ -17,9 +17,18 @@
 
 ---
 
-## 1. 🔴 월드·맵·좌표 (config.yml)
+## 1. ✅ 월드·맵·좌표 — 완료 (2026-05-31, DL-099)
 
-정본 월드(`final_master_plan §5`): `world_main`(수도·필드5·훈련장) / `world_farm`(영지) / `world_boss`(보스 인스턴스) / `world_test`. 현재 `config.yml`은 **전부 `world` + 더미 좌표**.
+단일 평지 월드 `world`로 구성(§5 4월드 분리 간소화). server.properties flat(표면 y=64) + config.yml 배포(보스룸 30 슬롯·아레나 10 슬롯) + `/empire-genrooms world 10000 64 10000`·`/empire-genarenas world 20000 64 20000` 실행 완료. 보스룸 30·아레나 10 구조물 생성·슬롯 로드 검증됨. NPC 3명 스폰.
+
+- [x] 평지 월드 `world` 생성, config 배포(런타임 config.yml stub→src 256줄), genrooms/genarenas 실행.
+- [ ] (선택) 필드 5종 좌표 — 현재 더미값(평지 평면). 실제 필드 장식/구조는 필요 시 추가.
+- [ ] (선택) `season-start-epoch` 실제 시즌 시작값.
+
+<details><summary>구 내용 (4월드 분리 — 1차 미적용)</summary>
+
+정본 월드(`final_master_plan §5`): `world_main`(수도·필드5·훈련장) / `world_farm`(영지) / `world_boss`(보스 인스턴스) / `world_test`. → 1차는 단일 `world`로 간소화(DL-099).
+</details>
 
 - [ ] 월드 4종 생성 (`world_main`/`world_farm`/`world_boss`/`world_test`).
 - [ ] 맵 배치 (수도·필드5·보스 아레나).

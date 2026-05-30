@@ -4,6 +4,27 @@
 
 ---
 
+### DL-099 1차 시즌 단일 평지 월드 운영 (§5 4월드 분리 간소화)
+
+**결정:** 1차 시즌 테스트 운영은 `final_master_plan §5`의 4월드 분리(world_main/world_boss/world_farm/world_test) 대신 **단일 평지 월드 `world`** + IridiumSkyblock 자체 영지 월드로 간소화한다.
+
+**배경:** 필드·보스룸·PvP를 좌표로 분리(필드 스폰 근처 / 보스룸 X·Z 10000+ / PvP 20000+)하면 한 월드로 충분. 평지(superflat)는 무한 생성이라 크기 무관. 사용자 확정.
+
+**구현:**
+- `server.properties`: `level-type=minecraft:flat` + generator-settings(bedrock+stone124+dirt2+grass, **표면 y=64** → config 좌표 유지). 기존 `world` 재생성.
+- `npc_spawn_seed.csv`(src+런타임): `world_main` → `world`. config.yml은 이미 전부 `world`.
+- `/empire-genrooms world 10000 64 10000` → 보스룸 30개(6×5, 50³) 생성. `/empire-genarenas world 20000 64 20000` → PvP 아레나 10개 생성.
+
+**검증:** 평지 월드 부팅·플러그인 클린(disable 0)·NPC 3명 스폰·보스룸 30/아레나 10 슬롯 로드 및 구조물 생성 완료. 클린 종료.
+
+**한계/후속:** 필드 5종 좌표는 config 더미값(0/500/.../2000) 유지 — 평지 평면이라 텔레포트·몹 스폰은 동작하나 지형 장식 없음. season-start-epoch=0(주차 계산). 영지=IridiumSkyblock 월드 별도. 4월드 분리는 2차 시즌/확장 시 재검토 가능.
+
+**영향 범위:** `npc_spawn_seed.csv`(src). 런타임 server/(git 밖): server.properties·config.yml·world. 문서: final_master_plan §5 노트.
+
+**관련:** final_master_plan §5, server_test_prep.md §1, DL-098.
+
+---
+
 ### DL-098 깨끗한 배포 부팅 검증 — 검증 과엄격 4건 해소 (런타임 부팅 통과)
 
 **배경:** 신규 jar + src 정본 seed로 런타임을 배포(server/plugins)하니, 그간 stale 런타임 seed(`saveResource(replace=false)`로 미갱신)가 가려온 **검증 과엄격 버그 4건**이 연쇄로 표면화 — 플러그인이 부팅 중 disable. 실서버 띄워 부팅 로그로 1건씩 해소.

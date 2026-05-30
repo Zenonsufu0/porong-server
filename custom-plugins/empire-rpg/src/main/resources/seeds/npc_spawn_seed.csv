@@ -1,5 +1,5 @@
 npc_seed_id,npc_master_id,region_code,town_id,world_name,x,y,z,yaw,pitch,entity_type,display_name,skin_type,skin_value,role_type,interaction_profile_id,quest_start_id,beton_conversation_id,is_protected,lookclose,should_spawn
-npc_capital_leonid_main,npc_capital_leonid,capital,capital_main,world_main,120.0,65.0,-40.0,180.0,0.0,PLAYER,레오니드,name,LeonidSkin,main_story_npc,capital_main_hub,q_spawn_intro_01,conv_capital_intro,true,true,true
-npc_capital_estate_mgr,npc_capital_estate_mgr,capital,capital_main,world_main,128.0,65.0,-36.0,90.0,0.0,PLAYER,영지 관리관,name,EstateStewardSkin,estate_unlock_npc,estate_unlock_profile,q_estate_unlock_01,conv_estate_intro,true,true,true
-npc_south_gatekeeper,npc_south_gatekeeper,south,south_c_01,world_main,820.0,72.0,144.0,0.0,0.0,PLAYER,남부 결전 안내관,name,SouthGatekeeperSkin,boss_entry_npc,boss_entry_south,NONE,conv_south_boss_gate,true,true,true
+npc_capital_leonid_main,npc_capital_leonid,capital,capital_main,world,120.0,65.0,-40.0,180.0,0.0,PLAYER,레오니드,name,LeonidSkin,main_story_npc,capital_main_hub,q_spawn_intro_01,conv_capital_intro,true,true,true
+npc_capital_estate_mgr,npc_capital_estate_mgr,capital,capital_main,world,128.0,65.0,-36.0,90.0,0.0,PLAYER,영지 관리관,name,EstateStewardSkin,estate_unlock_npc,estate_unlock_profile,q_estate_unlock_01,conv_estate_intro,true,true,true
+npc_south_gatekeeper,npc_south_gatekeeper,south,south_c_01,world,820.0,72.0,144.0,0.0,0.0,PLAYER,남부 결전 안내관,name,SouthGatekeeperSkin,boss_entry_npc,boss_entry_south,NONE,conv_south_boss_gate,true,true,true
 
