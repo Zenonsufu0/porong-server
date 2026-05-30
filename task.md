@@ -12,16 +12,6 @@
 - **§6-15 코드(`ff46573`) + Step 2b 토글 hook(`58a38e0`) 커밋 완료**, `codex-review` 동기화 완료 (master == codex-review)
 - 다음: 관리자 Phase 2 Step 3 — 로그/감시 GUI + `/empire-log`
 
-### 미커밋 변경 파일 (§6-12)
-| 파일 | 변경 내용 |
-|---|---|
-| `src/.../gui/GuiTitles.java` | poro:gui 글리프 제거, 순수 텍스트 |
-| `src/.../util/HealthHudFormatter.java` | rewind() overlay 기법 |
-| `src/.../scoreboard/ScoreboardService.java` | PNG 아이콘 + Team.prefix |
-| `src/.../command/ClassAdminCommand.java` | 신규 — /직업 명령어 |
-| `src/.../EmpireRPGPlugin.java` | ClassAdminCommand 등록 |
-| `src/main/resources/plugin.yml` | /직업 선언 |
-
 ---
 
 ## §6 EmpireRPG 플러그인 코어 구현 — 완료
