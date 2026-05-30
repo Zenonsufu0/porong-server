@@ -468,6 +468,30 @@ public final class EmpireRPGPlugin extends JavaPlugin {
             Bukkit.getScheduler().runTaskAsynchronously(this,
                     () -> rows.forEach(row -> growthSnapshotRepo.upsert(row, now)));
         }, 36000L, 36000L);
+
+        // 보스 전투 타임아웃 (필드·시즌1~6: 15분 / 최종3종: 10분) — 경과 런 강제 종료 + 보스 디스폰 + 알림 (DL-093)
+        // endRun(false) → onRunEnded → releaseByRunId로 슬롯 회수. mob UUID는 endRun(finalizeShares) 전에 캡처.
+        Bukkit.getScheduler().runTaskTimer(this, () -> {
+            var runService = bossEngineRuntime.runService();
+            for (var run : runService.activeRunsSnapshot()) {
+                if (!runService.isTimedOut(run)) continue;
+                java.util.UUID mob = bossDamageTracker.mobForRun(run.runId());
+                java.util.List<String> participants = java.util.List.copyOf(run.participants());
+                runService.endRun(run.runId(), false, "timeout");
+                if (mob != null) {
+                    org.bukkit.entity.Entity e = Bukkit.getEntity(mob);
+                    if (e != null) e.remove();
+                }
+                for (String uid : participants) {
+                    try {
+                        org.bukkit.entity.Player p = Bukkit.getPlayer(java.util.UUID.fromString(uid));
+                        if (p != null) p.sendMessage("§c[보스] 전투 시간 초과(타임아웃) — 보상 없이 종료되었습니다. 보스룸에서 퇴장해 주세요.");
+                    } catch (IllegalArgumentException ignored) {
+                    }
+                }
+                getLogger().info("Boss run timed out. run_id=" + run.runId() + ", boss_id=" + run.bossId());
+            }
+        }, 200L, 200L);
     }
 
     @Override

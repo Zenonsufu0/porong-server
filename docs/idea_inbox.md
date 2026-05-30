@@ -163,7 +163,8 @@
 - 상태: 코드 블로커 수정 진행 중 (DL-091)
   - ✅ 완료(DL-091): #6 ATK flat 테이블, #3 보스 처치→보상 브리지, #5 최종보스 게이트, #4 원샷 85% 클램프
   - ✅ 완료(DL-092): #7 피해 공식 계층 — attack_percent(ATK)·general_damage_increase(스킬피해%)·치명 적용 + WeaponPowerCalculator flat합산 버그 교정. ※boss_damage_increase(보스판정)·DEF항(바닐라 armor 위임)은 후속/위임
-  - ⏳ 남음: #10 보스 타임아웃·페이즈 틱, boss_damage_increase 보스판정 배선
+  - ✅ 완료(DL-093): #10 보스 전투 타임아웃(15/10분) 스케줄러 — 경과 런 강제종료+슬롯회수+보스 디스폰+알림. ※페이즈/패턴 진행 틱·참가자 자동 텔레포트는 후속
+  - ⏳ 남음(코드): boss_damage_increase 보스판정 배선, 보스 클리어 기록 영속화(in-memory 소실), 페이즈/패턴 진행 틱
   - ⏳ 기획 확정 대기: 잠재(큐브) 등급 모델 3원 분기
   - ⏳ 선행조건(코드 밖): config 좌표·월드명, MM 셸 설치·ID 충돌
 

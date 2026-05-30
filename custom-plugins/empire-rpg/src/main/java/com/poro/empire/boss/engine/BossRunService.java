@@ -195,6 +195,26 @@ public final class BossRunService {
         return Result.success(summary);
     }
 
+    /** 시즌 최종보스 3종 — 타임아웃 10분(그 외 15분, 07_boss_pattern_modules §타임아웃 / DL-093). */
+    private static final java.util.Set<String> FINAL_BOSSES =
+            java.util.Set.of("rift_king", "corrupted_dyad", "spirit_watcher");
+
+    /** 현재 활성 런 스냅샷 (타임아웃 스케줄러용). */
+    public java.util.List<BossRun> activeRunsSnapshot() {
+        return new java.util.ArrayList<>(activeRuns.values());
+    }
+
+    /** 보스 분류별 전투 타임아웃(초): 최종 600 / 그 외 900. */
+    public long timeoutSecondsFor(String bossId) {
+        return FINAL_BOSSES.contains(bossId) ? 600L : 900L;
+    }
+
+    /** enteredAt 기준 타임아웃 경과 여부. */
+    public boolean isTimedOut(BossRun run) {
+        return java.time.Duration.between(run.enteredAt(), timeProvider.nowInstant()).getSeconds()
+                >= timeoutSecondsFor(run.bossId());
+    }
+
     public boolean isUserInActiveRun(String userId) {
         if (userId == null || userId.isBlank()) {
             return false;

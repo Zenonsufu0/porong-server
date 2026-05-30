@@ -4,6 +4,23 @@
 
 ---
 
+### DL-093 보스 전투 타임아웃 구동 (#10)
+
+**결정:** 보스 런이 영영 끝나지 않아 슬롯·DB 세션이 영구 점유되던 문제(INBOX-005 2차 #10) 해소. `07_boss_pattern_modules §타임아웃`(필드·시즌1~6: 15분 / 최종3종: 10분)을 실제 구동하는 주기 스케줄러를 추가한다.
+
+**구현:**
+- `BossRunService`: `activeRunsSnapshot()` + `timeoutSecondsFor(bossId)`(최종3=600/그외=900) + `isTimedOut(run)`(enteredAt 기준). 최종보스 집합 = rift_king/corrupted_dyad/spirit_watcher.
+- `BossDamageTracker.mobForRun(runId)`: 디스폰용 mob UUID 역조회(`endRun`의 finalizeShares가 매핑을 지우므로 종료 전에 캡처).
+- `EmpireRPGPlugin`: 10초(200틱) 주기 sync 스케줄러 — 경과 런마다 mob UUID 캡처 → `endRun(false,"timeout")`(→onRunEnded→releaseByRunId로 슬롯 회수) → 보스 mob `remove()` → 참가자 알림.
+
+**한계:** 타임아웃 시 참가자 자동 텔레포트는 미구현(알림만 — 보스 디스폰으로 위험 제거, 수동 퇴장). 페이즈/패턴 진행 틱(`selectNextPattern`·`updateBossHp` 주기 호출)은 본 범위 밖(MM 패턴 실행과 연동 필요) — 별도. 정밀도 ±10초(스케줄러 주기).
+
+**영향 범위:** `BossRunService`, `BossDamageTracker`, `EmpireRPGPlugin`.
+
+**관련:** INBOX-005 2차 #10, `07_boss_pattern_modules §타임아웃`, DL-091(#3 endRun 체인 선행).
+
+---
+
 ### DL-092 전투 피해 공식 계층 배선 (#7, 경량 중앙 적용부)
 
 **결정:** 스킬 피해가 `ATK × 계수`까지만 계산하고 잠재·치명을 무시하던 문제(INBOX-005 2차 #7)를 해소. `combat_balance_v2 §2` 공식 중 1차 시즌이 실제 쓰는 계층을 **경량 중앙 적용부**(`BaseWeaponSkill.dealDamage`)에 배선한다. 엔진(`CombatFormulaResolver`) literal 배선은 1차엔 과해(SkillMaster/스냅샷/태그·조건부 리졸버 조립 필요, 라이브 빌더 부재) 공식만 재사용.

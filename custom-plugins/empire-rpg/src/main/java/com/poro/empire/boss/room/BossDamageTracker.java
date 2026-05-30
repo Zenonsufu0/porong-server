@@ -36,6 +36,11 @@ public final class BossDamageTracker {
         return mobUuid == null ? null : mobToRun.get(mobUuid);
     }
 
+    /** runId → 보스 mob UUID (없으면 null). 타임아웃 디스폰용 — endRun 전에 캡처 (DL-093). */
+    public UUID mobForRun(String runId) {
+        return runId == null ? null : runToMob.get(runId);
+    }
+
     /** 추적 대상 보스에 대한 데미지 누적 (추적 대상이 아니면 무시). */
     public void recordDamage(UUID mobUuid, UUID playerUuid, double damage) {
         if (mobToRun.containsKey(mobUuid)) {
