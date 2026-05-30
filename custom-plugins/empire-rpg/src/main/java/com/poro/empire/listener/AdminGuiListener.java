@@ -2,11 +2,13 @@ package com.poro.empire.listener;
 
 import com.poro.empire.admin.AdminTogglesService;
 import com.poro.empire.admin.AdminTogglesService.Toggle;
+import com.poro.empire.boss.engine.BossRunService;
 import com.poro.empire.boss.room.BossRoomManager;
 import com.poro.empire.boss.room.BossRoomSlot;
 import com.poro.empire.growth.GrowthStateStore;
 import com.poro.empire.growth.island.IslandTerritoryStateStore;
 import com.poro.empire.growth.engine.InMemoryEnhancementLogHook;
+import com.poro.empire.gui.AdminBossGui;
 import com.poro.empire.gui.AdminHubGui;
 import com.poro.empire.gui.AdminInspectGui;
 import com.poro.empire.gui.AdminLogGui;
@@ -57,6 +59,7 @@ public final class AdminGuiListener implements Listener {
     private final InMemoryEnhancementLogHook enhanceLog;
     private final AuctionStore               auctionStore;
     private final PvpMatchLogRepository       pvpLog;
+    private final BossRunService             bossRunService;
     private final long                       seasonStartEpoch;
 
     /** Anvil 인스펙트 닉네임 입력 대기. */
@@ -67,6 +70,8 @@ public final class AdminGuiListener implements Listener {
     private final Map<UUID, Toggle[]> toggleSlotMapping = new ConcurrentHashMap<>();
     /** 로그 GUI 현재 보기 상태 (탭 + 페이지). */
     private final Map<UUID, LogView> logView = new ConcurrentHashMap<>();
+    /** 보스 디버그 GUI에서 슬롯 인덱스 → runId. */
+    private final Map<UUID, List<String>> bossRunMapping = new ConcurrentHashMap<>();
 
     private record LogView(AdminLogGui.LogTab tab, int page) {}
 
@@ -81,6 +86,7 @@ public final class AdminGuiListener implements Listener {
                             InMemoryEnhancementLogHook enhanceLog,
                             AuctionStore auctionStore,
                             PvpMatchLogRepository pvpLog,
+                            BossRunService bossRunService,
                             long seasonStartEpoch) {
         this.playerDataManager  = playerDataManager;
         this.growthStateStore   = growthStateStore;
@@ -93,6 +99,7 @@ public final class AdminGuiListener implements Listener {
         this.enhanceLog         = enhanceLog;
         this.auctionStore       = auctionStore;
         this.pvpLog             = pvpLog;
+        this.bossRunService     = bossRunService;
         this.seasonStartEpoch   = seasonStartEpoch;
     }
 
@@ -132,6 +139,10 @@ public final class AdminGuiListener implements Listener {
         } else if (GuiTitles.ADMIN_LOGS.equals(event.getView().title())) {
             event.setCancelled(true);
             handleLogClick(player, event.getRawSlot());
+
+        } else if (GuiTitles.ADMIN_BOSS.equals(event.getView().title())) {
+            event.setCancelled(true);
+            handleBossClick(player, event.getRawSlot(), event.getClick());
 
         } else if (pendingInspectAnvil.contains(uid)
                 && event.getInventory() instanceof AnvilInventory anvil
@@ -188,6 +199,8 @@ public final class AdminGuiListener implements Listener {
             case AdminHubGui.SLOT_TOGGLES -> toggleSlotMapping.put(admin.getUniqueId(),
                     AdminTogglesGui.open(admin, togglesService));
             case AdminHubGui.SLOT_LOGS    -> openLog(admin, AdminLogGui.LogTab.ENHANCE, 0);
+            case AdminHubGui.SLOT_BOSS    -> bossRunMapping.put(admin.getUniqueId(),
+                    AdminBossGui.open(admin, bossRunService));
             case AdminHubGui.SLOT_RELEASE -> {
                 if (click.isShiftClick()) {
                     forceReleaseAllSlots(admin);
@@ -245,6 +258,25 @@ public final class AdminGuiListener implements Listener {
         admin.sendMessage("§a[관리자] 매치 강제 종료 (무승부 처리).");
         // GUI 갱신
         matchSlotMapping.put(admin.getUniqueId(), AdminMatchesGui.open(admin, pvpMatchService));
+    }
+
+    private void handleBossClick(Player admin, int slot, ClickType click) {
+        if (slot == AdminBossGui.SLOT_BACK)  { AdminHubGui.open(admin); return; }
+        if (slot == AdminBossGui.SLOT_CLOSE) { admin.closeInventory(); return; }
+        if (slot < 0 || slot > AdminBossGui.ITEM_AREA_END) return;
+        List<String> mapping = bossRunMapping.getOrDefault(admin.getUniqueId(), List.of());
+        if (slot >= mapping.size()) return;
+        if (!click.isLeftClick()) return;
+        String runId = mapping.get(slot);
+        var result = bossRunService.endRun(runId, false, "admin_force");
+        if (result.isFailure()) {
+            admin.sendMessage("§c[관리자] 보스 런 강제 종료 실패: " + result.errorCode().name());
+        } else {
+            admin.sendMessage("§a[관리자] 보스 런 강제 종료 — 슬롯 해제됨.");
+            Bukkit.getLogger().info("[empire-admin] " + admin.getName() + " force-ended boss run " + runId);
+        }
+        // GUI 갱신
+        bossRunMapping.put(admin.getUniqueId(), AdminBossGui.open(admin, bossRunService));
     }
 
     private void openInspectAnvil(Player admin) {

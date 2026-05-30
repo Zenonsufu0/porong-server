@@ -24,6 +24,7 @@ public final class GuiTitles {
     public static final Component ADMIN_STATS        = Component.text("§c[관리자] 서버 통계");
     public static final Component ADMIN_TOGGLES      = Component.text("§c[관리자] 운영 토글");
     public static final Component ADMIN_LOGS         = Component.text("§c[관리자] 로그/감시");
+    public static final Component ADMIN_BOSS         = Component.text("§c[관리자] 보스 디버그");
     public static final Component BOSS_HUB         = Component.text("보스 도전");
     public static final Component BOSS_INFO        = Component.text("보스 선택");
     public static final Component BOSS_CLEAR_RECORDS = Component.text("클리어 기록");

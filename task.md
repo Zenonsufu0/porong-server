@@ -9,9 +9,10 @@
 - 브랜치: `master`
 - 최근 기능 커밋: `ef31e9e` (§6-16 Step 3 — 로그/감시 GUI + /empire-log)
   - ※ "최근 기능 커밋"은 직후 task.md 정정 커밋과 무관하게 마지막 *기능* 커밋을 가리킨다 (상태 드리프트 방지)
+  - §6-17 Step 4(보스 디버그)는 **미커밋** — 다음 handoff에서 커밋 예정
 - 빌드: `./gradlew compileJava → BUILD SUCCESSFUL` (기존 deprecated AnvilInventory warning만 잔존)
-- **§6-15 Step 2(`ff46573`)·Step 2b(`58a38e0`)·§6-16 Step 3(`ef31e9e`) 모두 커밋·동기화 완료** (master == codex-review)
-- 다음: 관리자 Phase 2 Step 4 — 보스 디버그 GUI + `/empire-boss-list`·`/empire-boss-end`
+- **§6-15 Step 2·Step 2b·§6-16 Step 3 커밋·동기화 완료** + §6-17 Step 4 미커밋 (master == codex-review 기준 ef31e9e)
+- 다음: 관리자 Phase 2 Step 5 — 영지 관리 GUI (slot 29)
 
 ---
 
@@ -258,6 +259,28 @@
 | `docs/10_development_roadmap/admin_gui_phase2.md` — Step 2 완료/Step 2b hook 명시 | docs | ✅ |
 | `BUILD SUCCESSFUL` | — | ✅ |
 
+## §6-17 관리자 Phase 2 Step 4 — 보스 디버그 GUI + /empire-boss-list·/empire-boss-end — 완료 (2026-05-30, 미커밋)
+
+기준: `docs/10_development_roadmap/admin_gui_phase2.md` §보스 디버그 (slot 24)
+
+| 항목 | 파일 | 상태 |
+|---|---|---|
+| `AdminBossGui` — 54슬롯 진행 중 보스 런 목록, 좌클릭=강제 종료 | `gui/AdminBossGui.java` (신규) | ✅ |
+| `/empire-boss-list` + `/empire-boss-end <runId>` (접두어 매칭, 한 핸들러 라벨 분기) | `command/AdminBossCommand.java` (신규) | ✅ |
+| 강제 종료 = `BossRunService.endRun(runId, false, "admin_force")` → onRunEnded → `releaseByRunId` (슬롯 해제 검증됨, BossRewardService:115) | — | ✅ |
+| 조회 = `BossRunService.activeRuns()` (도메인 변경 없음, 기존 API 재사용) | — | ✅ |
+| `GuiTitles.ADMIN_BOSS` + `AdminHubGui` slot 24 활성 | `gui/*` | ✅ |
+| `AdminGuiListener` — `bossRunService` 주입 + `ADMIN_BOSS` 핸들러 + `bossRunMapping` | `listener/AdminGuiListener.java` | ✅ |
+| `EmpireRPGPlugin` — `bossEngineRuntime.runService()` 주입 + 두 명령 등록 | `EmpireRPGPlugin.java` | ✅ |
+| `plugin.yml` — `empire-boss-list`·`empire-boss-end` 등록 (`empire.admin`) | `plugin.yml` | ✅ |
+| `BUILD SUCCESSFUL` | — | ✅ |
+
+### §6-17 잔여
+- 강제 페이즈 트리거 (`BossPatternScheduler.enqueueForced`) — Step 4+ 보류
+- MM 보스 엔티티 잔존 — 강제 종료는 슬롯만 해제. 엔티티 despawn은 후속
+
+---
+
 ## §6-16 관리자 Phase 2 Step 3 — 로그/감시 GUI + /empire-log — 완료 (2026-05-30, 커밋 `ef31e9e`)
 
 기준: `docs/10_development_roadmap/admin_gui_phase2.md` §로그/감시 (slot 33)
@@ -295,8 +318,7 @@
 - `BUILD SUCCESSFUL` (기존 AnvilInventory deprecation 경고만 잔존)
 - **범위 주의:** EXP/DROP 부스트는 `FieldDropListener`(필드몹) 한정. 보스 보상(`BossRewardService`) 경로는 미적용 — 필요 시 확장 검토
 
-### Phase 2 Step 4+ 미진행
-- Step 4: 보스 디버그 GUI + `/empire-boss-list`·`/empire-boss-end`
+### Phase 2 Step 5+ 미진행
 - Step 5: 영지 관리 GUI (slot 29) — 목록/초기화/작위 강제 변경
 
 ---
@@ -325,8 +347,7 @@
 
 | 우선도 | 항목 | 비고 |
 |---|---|---|
-| 높음 | 관리자 Phase 2 Step 4 — 보스 디버그 GUI + 명령어 | 보스 런 stuck 처리, `/empire-boss-list`·`/empire-boss-end` |
-| 중간 | 관리자 Phase 2 Step 5 — 영지 관리 GUI (slot 29) | 1차 시즌 영지 분쟁 빈도 높을 가능성 |
+| 높음 | 관리자 Phase 2 Step 5 — 영지 관리 GUI (slot 29) | 목록/초기화/작위 강제 변경. 1차 시즌 영지 분쟁 빈도 높을 가능성 |
 | 높음 | JAR 재빌드 + 서버 배포 + in-game HUD/스코어보드 확인 | §6-12 수정 검증 — HUD 행 정렬, 아이콘 크기 확인 |
 | 높음 | 서버 통합 테스트 — `/보스` 선택 → `[보스]` 표지판 → MM 스폰 런타임 확인 | `season_bosses.yml` 로드 + bossId 매칭 검증 |
 | 중간 | HUD 행 X 정렬 패딩 (행별 advance 패딩으로 정확한 overlay) | 확인 후 필요 시 |

@@ -19,6 +19,7 @@ public final class AdminHubGui {
     public static final int SLOT_MATCHES  = 13;
     public static final int SLOT_STATS    = 15;
     public static final int SLOT_RELEASE  = 22;
+    public static final int SLOT_BOSS     = 24;
     // Phase 2 stub
     public static final int SLOT_TERRITORY = 29;
     public static final int SLOT_TOGGLES   = 31;
@@ -45,6 +46,9 @@ public final class AdminHubGui {
                 List.of("§7아레나/보스룸 모든 점유 슬롯 강제 해제",
                         "§c⚠ 진행 중 매치/보스 모두 종료됨",
                         "§e▶ Shift+클릭으로 확인")));
+        inv.setItem(SLOT_BOSS, MainHubGui.icon(Material.WITHER_SKELETON_SKULL, "§c보스 디버그",
+                List.of("§7진행 중 보스 런 목록 / 개별 강제 종료",
+                        "§a▶ 클릭하여 열기")));
 
         // Phase 2
         inv.setItem(SLOT_TERRITORY, stub("§8영지 관리"));

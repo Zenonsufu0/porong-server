@@ -652,6 +652,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                         pvpRatingService, pvpMatchService, pvpArenaManager, bossRoomManager,
                         adminTogglesService,
                         growthEngineRuntime.enhancementLogHook(), auctionStore, pvpMatchLogRepo,
+                        bossEngineRuntime.runService(),
                         foundationContext.config().seasonStartEpoch());
         getServer().getPluginManager().registerEvents(adminGuiListener, this);
         var adminCmd = getCommand("empire-admin");
@@ -689,6 +690,15 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                     growthEngineRuntime.enhancementLogHook(), auctionStore, pvpMatchLogRepo));
         } else {
             getLogger().warning("커맨드 /empire-log plugin.yml 미등록 — 건너뜀.");
+        }
+
+        // 보스 디버그 명령 (Phase 2 Step 4) — 두 명령 동일 핸들러 공유 (라벨 분기)
+        com.poro.empire.command.AdminBossCommand adminBossCmd =
+                new com.poro.empire.command.AdminBossCommand(bossEngineRuntime.runService());
+        for (String c : new String[]{"empire-boss-list", "empire-boss-end"}) {
+            var registered = getCommand(c);
+            if (registered != null) registered.setExecutor(adminBossCmd);
+            else getLogger().warning("커맨드 /" + c + " plugin.yml 미등록 — 건너뜀.");
         }
     }
 }

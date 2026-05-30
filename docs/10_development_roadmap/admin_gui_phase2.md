@@ -59,13 +59,17 @@
 - 명령어: `/empire-log [enhance|trade|pvp]` (콘솔 가능, 탭별 최근 10건 텍스트).
 - 영속성 주의: 강화 로그만 in-memory (휘발성) — GUI lore·명령어 헤더에 명시.
 
-### 보스 디버그 (별도 진입점 검토)
+### 보스 디버그 (slot 24) — **Step 4 구현 완료 (2026-05-30)**
 
-| 기능 | 비고 |
+| 기능 | 상태 |
 |---|---|
-| 진행 중 보스 런 목록 | PvP 매치와 통합 GUI 또는 분리 |
-| 강제 페이즈 트리거 | BossPatternScheduler.enqueueForced 활용 |
-| 강제 처치 / 강제 종료 | BossRunService 연결 |
+| 진행 중 보스 런 목록 | ✅ `AdminBossGui` (별도 GUI). `BossRunService.activeRuns()` — bossId·리더·파티·페이즈·HP·경과 표시 |
+| 강제 종료 | ✅ 좌클릭/`/empire-boss-end` → `endRun(runId, false, "admin_force")` → onRunEnded → `releaseByRunId` (슬롯+참가자 해제) |
+| 강제 페이즈 트리거 | ⏳ 보류 — `BossPatternScheduler.enqueueForced` 연동은 Step 4+ |
+
+- GUI: `AdminBossGui` (54슬롯, 진행 중 런 목록, 좌클릭=강제 종료). 진입: `/empire-admin` → slot 24.
+- 명령어: `/empire-boss-list` (목록), `/empire-boss-end <runId 앞 8자리>` (강제 종료, 접두어 매칭). 한 핸들러 `AdminBossCommand`가 라벨 분기.
+- 한계: MM 보스 엔티티는 잔존 가능 (슬롯 stuck 해소가 1차 목적). 강제 처치/페이즈 트리거는 후속.
 
 ### 플레이어 강제 변경 (인스펙트 확장)
 

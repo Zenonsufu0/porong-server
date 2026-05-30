@@ -197,6 +197,14 @@ commands:
     description: 로그/감시 (최근 강화·거래·PvP 로그)
     usage: /empire-log [enhance|trade|pvp]
     permission: empire.admin
+  empire-boss-list:
+    description: 진행 중 보스 런 목록
+    usage: /empire-boss-list
+    permission: empire.admin
+  empire-boss-end:
+    description: 보스 런 강제 종료 (runId 접두어)
+    usage: /empire-boss-end <runId>
+    permission: empire.admin
 
 permissions:
   empire.admin:
