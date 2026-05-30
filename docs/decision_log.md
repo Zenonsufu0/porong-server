@@ -4,6 +4,24 @@
 
 ---
 
+### DL-101 허브 월드 + 접속 스폰 이동 — 온보딩 코어 (INBOX-006)
+
+**결정:** 스폰을 **별도 평지 월드 `world_hub`**로 분리(사장님이 수도 건축). 접속 시 복귀 유저는 허브로 이동, 거기서 `/필드`·`/영지`로 분기. 단일 `world`(필드·보스·PvP)와 분리해 허브 전용 규칙(평화·세이프) 적용. 같은 월드 먼 좌표 대신 별도 월드 선택(허브가 필드 몹·규칙과 분리되도록).
+
+**구현:**
+- `HubWorldService`: 부팅 시 `world_hub` 보장(없으면 평지 생성, **표면 y=64**로 필드와 통일, PVP off·PEACEFUL·스톰 off). 스폰 (0,64,0). `EmpireRPGPlugin` onEnable에서 `ensureHubWorld()`.
+- `HubSpawnListener`: 접속 1틱 후(데이터 로드 완료) 무기 선택 완료(=복귀)면 허브 스폰 이동. 첫 접속(무기 NONE)은 온보딩 단계에서 분기.
+
+**검증:** 부팅 시 world_hub 생성(폴더 2.2M, WorldGuard 적용), disable 0, 클린 부팅.
+
+**남은 단계 (온보딩 2차):** 첫 접속 → 튜토리얼 맵(안내 스텝) → 무기선택 → 스타터 → **영지(IridiumSkyblock 섬) 자동 생성+이동**. `TutorialService`(현재 빈 스텁) 구현, IS 섬 생성 연동(현재 미연동), 첫접속 라우팅.
+
+**영향 범위:** `HubWorldService`(신규), `HubSpawnListener`(신규), `EmpireRPGPlugin`. 런타임 server/world_hub(git 밖).
+
+**관련:** INBOX-006, DL-099(단일 평지 world), `ClassInitService`(무기선택=첫접속 감지), `final_master_plan §5`(수도).
+
+---
+
 ### DL-100 동적 필드 스폰 시스템 — 코어 (INBOX-006, 1/2차)
 
 **결정:** 고정 MM 스폰 대신 **플레이어 주변 웨이브 스폰**으로 필드 사냥을 구동한다(INBOX-006 확정 설계). 본 커밋은 **코어**(경계 판정 + 스케줄러 + 2단 캡 + 소유자 추적 + 기본 정리).

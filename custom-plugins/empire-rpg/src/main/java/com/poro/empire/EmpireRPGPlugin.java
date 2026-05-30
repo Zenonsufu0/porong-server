@@ -654,6 +654,12 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         // 동적 필드 스폰 (INBOX-006) — 필드 내 플레이어 주변 웨이브 스폰. 일반/정예 토글은 2차에서 연결(현재 전원 일반).
         new com.poro.empire.field.FieldSpawnService(this, mythicSpawner, uuid -> false).start();
 
+        // 허브 월드(별도 평지) 보장 + 복귀 유저 접속 시 허브 이동 (INBOX-006 온보딩 코어)
+        com.poro.empire.hub.HubWorldService hubWorldService = new com.poro.empire.hub.HubWorldService(this);
+        hubWorldService.ensureHubWorld();
+        getServer().getPluginManager().registerEvents(
+                new com.poro.empire.listener.HubSpawnListener(this, hubWorldService, playerDataManager), this);
+
         BossRoomListener bossRoomListenerInstance =
                 new BossRoomListener(bossRoomManager, masterRegistryContext.bossMasters(), partyManager, bossEngineRuntime, mythicSpawner, adminTogglesService, bossDamageTracker);
         getServer().getPluginManager().registerEvents(shopGuiListener, this);
