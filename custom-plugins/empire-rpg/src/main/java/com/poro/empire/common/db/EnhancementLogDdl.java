@@ -23,9 +23,14 @@ public final class EnhancementLogDdl {
             gold_cost      INTEGER NOT NULL,
             stone_cost     INTEGER NOT NULL,
             forced_ceiling INTEGER NOT NULL,   -- 천장 강제 성공 1/0
-            attempted_at   INTEGER NOT NULL    -- epoch ms
+            attempted_at   INTEGER NOT NULL,   -- epoch ms
+            trace_id       TEXT               -- 사용한 강화 흔적 id (mat_trace_*), 미사용 시 NULL (DL-089)
         )
         """;
+
+    /** 기존 테이블에 강화 흔적 컬럼 추가 (DL-089). 멱등 적용은 EnhancementLogMigration에서 PRAGMA로 확인. */
+    public static final String ALTER_ADD_TRACE_ID =
+            "ALTER TABLE enhancement_log ADD COLUMN trace_id TEXT";
 
     public static final String CREATE_INDEX_ENH_TIER_TARGET =
             "CREATE INDEX IF NOT EXISTS idx_enh_tier_target ON enhancement_log (tier, target_level)";

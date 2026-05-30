@@ -14,6 +14,25 @@ public final class EnhancementService {
     public static final String CURRENCY_GOLD = "gold";
     public static final String MATERIAL_ENHANCE_STONE = "mat_stone_enhance";
 
+    // 강화 흔적 — 성공률 %p 보정 (선택, workshop_crafting_spec §9 / DL-089). 영지 customItems에서 소모.
+    public static final String TRACE_STAR = "mat_trace_star"; // 별의 흔적 +20%p
+    public static final String TRACE_MOON = "mat_trace_moon"; // 달의 흔적 +30%p
+    public static final String TRACE_SUN  = "mat_trace_sun";  // 태양의 흔적 +50%p
+
+    /** 강화 흔적 사용 최소 강화 단계 — 현재 +10강 이상에서만 적용 (equipment_growth_spec §3.4 / DL-089). */
+    public static final int TRACE_MIN_LEVEL = 10;
+
+    /** 강화 흔적 id → 성공률 보정(%p). 미지정/미인식이면 0. */
+    public static double traceBonusFor(String traceId) {
+        if (traceId == null) return 0.0;
+        return switch (traceId) {
+            case TRACE_STAR -> 20.0;
+            case TRACE_MOON -> 30.0;
+            case TRACE_SUN  -> 50.0;
+            default -> 0.0;
+        };
+    }
+
     private final ItemMasterRegistry itemMasterRegistry;
     private final EnhancementRuleRegistry enhancementRuleRegistry;
     private final EnhancementLogHook enhancementLogHook;
@@ -42,10 +61,23 @@ public final class EnhancementService {
     }
 
     public Result<EnhancementResult> attempt(PlayerGrowthState state, String itemInstanceId) {
-        return attempt(state, itemInstanceId, null);
+        return attempt(state, itemInstanceId, null, null, null);
     }
 
     public Result<EnhancementResult> attempt(PlayerGrowthState state, String itemInstanceId, Double fixedRoll) {
+        return attempt(state, itemInstanceId, null, null, fixedRoll);
+    }
+
+    /**
+     * 강화 시도 (강화 흔적 선택 가능). traceId가 주어지고 영지에 보유 시 롤 분기에서 1개 소모하고
+     * 성공률에 %p 보정(별 +20 / 달 +30 / 태양 +50). 천장 강제 성공 시에는 소모하지 않는다.
+     *
+     * @param island  강화 흔적 소비처 (영지 customItems). null이면 흔적 미사용.
+     * @param traceId mat_trace_star/moon/sun. null이면 흔적 미사용.
+     */
+    public Result<EnhancementResult> attempt(PlayerGrowthState state, String itemInstanceId,
+                                             com.poro.empire.growth.island.IslandTerritoryState island,
+                                             String traceId, Double fixedRoll) {
         Objects.requireNonNull(state, "state");
         PlayerEquipmentItem item = state.inventoryItem(itemInstanceId).orElse(null);
         if (item == null) {
@@ -113,6 +145,7 @@ public final class EnhancementService {
         boolean success;
         boolean forcedByCeiling = false;
         int finalLevel = currentLevel;
+        String consumedTrace = null; // 실제 소모된 강화 흔적 id (천장 강제 성공 시 null)
 
         if (counterKey != null && ceilingCount >= ceilingCap) {
             roll = -1.0; // 천장 강제 성공 마킹
@@ -125,6 +158,13 @@ public final class EnhancementService {
             int catalystBonus = state.drainCatalystBonus();
             if (catalystBonus > 0) {
                 threshold = Math.min(threshold + catalystBonus / 100.0, 1.0);
+            }
+            // 강화 흔적 — 현재 +10강 이상에서만, 보유 시 1개 소모하고 성공률 %p 보정 (선택, DL-089)
+            double traceBonus = traceBonusFor(traceId);
+            if (traceBonus > 0 && currentLevel >= TRACE_MIN_LEVEL
+                    && island != null && island.withdrawCustomItem(traceId, 1)) {
+                threshold = Math.min(threshold + traceBonus / 100.0, 1.0);
+                consumedTrace = traceId;
             }
             // 운영자 강화 부스트 토글 (ENHANCE_BOOST): 성공 임계값 ×2, 1.0 클램프.
             if (enhanceBoostSupplier.getAsBoolean()) {
@@ -159,7 +199,8 @@ public final class EnhancementService {
                 stoneCost,
                 ceilingCountAfter,
                 ceilingCap,
-                forcedByCeiling
+                forcedByCeiling,
+                consumedTrace
         );
         enhancementLogHook.onAttempt(result);
         return Result.success(result);
@@ -180,7 +221,8 @@ public final class EnhancementService {
             long stoneCost,
             int ceilingCount,
             int ceilingCap,
-            boolean forcedByCeiling
+            boolean forcedByCeiling,
+            String traceId
     ) {
     }
 }

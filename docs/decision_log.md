@@ -4,6 +4,27 @@
 
 ---
 
+### DL-089 강화 흔적 성공률 보정 연동 (INBOX-005 🟠 해소)
+
+**결정:** 공방 생산만 되고 소비처가 없던 **강화 흔적 3종(별/달/태양)**을 `EnhancementService` 강화 성공률 보정에 연동한다. 강화 GUI에서 선택 → 영지 customItems에서 1개 소모하며 성공률에 가산 %p 보정(별 +20 / 달 +30 / 태양 +50).
+
+**배경:** `workshop_crafting_spec §9`·`equipment_growth_spec §3.4`에 흔적 효과·레시피는 확정돼 있었으나 구현이 생산 측에만 존재 — `idea_inbox.md` 감사에서 "강화 흔적 미연동(소비처 0)"으로 🟠 부채 기록. 사용자 확정: GUI까지 풀스택 연동.
+
+**결과:**
+- `EnhancementService`: `traceBonusFor(id)` + 5-arg `attempt(state, id, island, traceId, fixedRoll)`. 일반 롤 분기에서만 1개 소모(`withdrawCustomItem`), **천장(가호) 강제 성공 시 미소모**. 소모분은 `EnhancementResult.traceId`로 노출.
+- **사용 조건 `현재 +10강 이상`**(`equipment_growth_spec §3.4` "10강 이상" = 아이템 현재 강화 단계 기준으로 해석). 미만에서는 선택·소모 모두 차단. → `EnhancementService.TRACE_MIN_LEVEL = 10`.
+- 보정 계산: 가산(threshold + bonus/100), 1.0 클램프. 예) 25강 기본 0.05% + 태양 +50% = 50.05%.
+- 강화 GUI(`GrowthGuiListener`): 흔적 선택 슬롯(38) 추가 — 미사용 → 별 → 달 → 태양 순환(영지 보유분만), 유효 성공률·소모 안내 표시. 보유 0/10강 미만 시 비활성.
+- DB: `enhancement_log.trace_id` 컬럼 추가(`EnhancementLogDdl` CREATE + 기존 DB 멱등 ALTER via `EnhancementLogMigration` PRAGMA 체크). 흔적 사용 누적 분석 가능(`db_event_log_spec`의 `trace_used` 의도 충족).
+
+**한계:** 흔적 소모는 in-memory island 상태 차감 → `PlayerPersistenceService` 다음 저장 시 영속화(SuccessionService 전승 흔적과 동일 패턴). 별도 `trace_used` 전용 이벤트 테이블은 미도입(enhancement_log에 통합 기록). 흔적 요구 수량의 강화 단계별 증가(`equipment_growth_spec §3.4` 비고)는 미반영 — 현재 단계 무관 1개 고정.
+
+**영향 범위:** `EnhancementService`, `EnhancementResult`, `DbEnhancementLogHook`, `EnhancementLogDdl`, `EnhancementLogMigration`, `GrowthGuiListener`. 문서: `gui_enhancement.md`.
+
+**관련:** `docs/idea_inbox.md` INBOX-005 #강화 흔적 미연동 해소. `workshop_crafting_spec §9`, `equipment_growth_spec §3.4`, DL-024(레시피).
+
+---
+
 ### DL-088 영지 시설 오프라인 누적 생산 + 광물 채굴기 시드 (INBOX-005 🟠 해소)
 
 **결정:** 영지 시설(약초 재배지·광물 채굴기) 생산을 온라인 전용 → **오프라인 누적**으로 전환한다. `storage_hours_cap`(Lv1 12h/Lv2 16h/Lv3 24h) 상한 적용.

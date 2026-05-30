@@ -31,8 +31,8 @@ public final class DbEnhancementLogHook implements EnhancementLogHook {
         String sql = """
             INSERT INTO enhancement_log
                 (player_uuid, item_id, tier, before_level, target_level, final_level,
-                 success, success_rate, roll, gold_cost, stone_cost, forced_ceiling, attempted_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 success, success_rate, roll, gold_cost, stone_cost, forced_ceiling, attempted_at, trace_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """;
         Result<Connection> conn = connectionProvider.getConnection();
         if (conn.isFailure()) return;
@@ -51,6 +51,7 @@ public final class DbEnhancementLogHook implements EnhancementLogHook {
             ps.setLong(11, r.stoneCost());
             ps.setInt(12, r.forcedByCeiling() ? 1 : 0);
             ps.setLong(13, System.currentTimeMillis());
+            ps.setString(14, r.traceId()); // 미사용 시 NULL
             ps.executeUpdate();
         } catch (Exception e) {
             logger.warn("DbEnhancementLogHook.onAttempt failed: " + e.getMessage());

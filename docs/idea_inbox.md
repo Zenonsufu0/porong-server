@@ -128,7 +128,7 @@
   | ~~🔴 높음 보스 시드 두 벌 모순~~ ✅ 해소 (2026-05-30, DL-087) | boss_master를 정본 시즌6+최종3으로 교체, 필드4 `fallen_knight`→`outpost_knight` 분리. **잔여: MM 셸 충돌**(`field_outpost.yml` Fallen_Knight vs `season_bosses.yml` fallen_knight, server-config 별도 수정 필요) |
   | ~~🟠 영지 생산 온라인 전용~~ ✅ 해소 (2026-05-30, DL-088) | 오프라인 누적 생산(storage_hours_cap 상한) 구현. lastProductionAt 영속화 |
   | ~~🟠 광물 채굴기 시드 누락~~ ✅ 해소 (2026-05-30, DL-088) | estate_facility_master에 extractor 행 추가(life_type=mining) |
-  | 🟠 중간 | 강화 흔적 미연동 | 별·달·태양 흔적 공방 생산만, `EnhancementService` 성공률 보정에 미사용(소비처 0) |
+  | ~~🟠 중간 강화 흔적 미연동~~ ✅ 해소 (2026-05-30, DL-089) | 강화 GUI 흔적 선택 슬롯 + `EnhancementService` 성공률 %p 보정(+10강 이상, 천장 시 미소모) + `enhancement_log.trace_id` 기록 |
   | 🟠 중간 | 필드보스 스폰 스케줄러 stub | `FieldBossRespawnScheduler` 항상 RESPAWNING/30분/0명 |
   | 🟡 낮음 | 금지 설계 시드 잔존 | `state_master.csv` DEBUFF_MARK, 방깎/받피증 각인, 공용각인 12종, T2 강화표 — 런타임 미적용이나 정리 대상 |
   | 🟡 낮음 | 장비 이름 변경권(10,000G) 미구현 | 기획 §7 |
