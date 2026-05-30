@@ -170,7 +170,7 @@ description: string
 
 1. **`BaseWeaponSkill` 헬퍼** (`spawnParticleArc`, `spawnParticleCircle`, `spawnParticleLine`, `playSound`) — 공통 인프라 확정
 2. **낫 2스킬** (사신베기·월영회전) — 완료
-3. **검 4스킬** — `pt:` 직접 구현
+3. **검 4스킬** — ✅ 완료 (2026-05-30): 섬광베기(흰빛 호+END_ROD)·연속참(강철 3중 호+CRIT)·수호반격(청색 방어 고리+방패음)·결전일섬(금빛 직선 빔+끝점 임팩트)
 4. **창 4스킬** — `pt:` 직접 구현
 5. **도끼 4스킬** — `pt:` 직접 구현
 6. **석궁·스태프** — `pt:` 직접 구현 (투사체는 Bukkit Particle 궤적)
