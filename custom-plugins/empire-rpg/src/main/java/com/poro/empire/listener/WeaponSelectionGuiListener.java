@@ -30,15 +30,8 @@ public final class WeaponSelectionGuiListener implements Listener {
 
         event.setCancelled(true);
 
-        WeaponType selected = switch (event.getRawSlot()) {
-            case 10 -> WeaponType.SWORD;
-            case 11 -> WeaponType.AXE;
-            case 12 -> WeaponType.SPEAR;
-            case 13 -> WeaponType.CROSSBOW;
-            case 14 -> WeaponType.SCYTHE;
-            case 15 -> WeaponType.STAFF;
-            default -> null;
-        };
+        // 공용 36칸 레이아웃(WeaponGui)과 같은 슬롯 매핑 — 무기 변경 GUI와 재사용.
+        WeaponType selected = com.poro.empire.gui.WeaponGui.slotToWeapon(event.getRawSlot());
         if (selected == null) return;
         if (playerDataManager.hasSelectedWeapon(player)) {
             player.sendMessage("§c이미 무기 클래스를 선택했습니다.");

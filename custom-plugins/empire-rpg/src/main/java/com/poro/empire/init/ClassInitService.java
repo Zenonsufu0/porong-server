@@ -8,9 +8,12 @@ import com.poro.empire.growth.engine.ItemGrade;
 import com.poro.empire.growth.engine.PlayerEquipmentItem;
 import com.poro.empire.growth.engine.PlayerGrowthState;
 import com.poro.empire.gui.GuiTitles;
+import com.poro.empire.gui.WeaponGui;
+import com.poro.empire.gui.WeaponItemFactory;
 import com.poro.empire.persistence.PlayerPersistenceService;
 import com.poro.empire.storage.PlayerDataManager;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -55,15 +58,15 @@ public final class ClassInitService {
     }
 
     private void openSelectionGui(Player player) {
-        Inventory gui = Bukkit.createInventory(null, 27, GuiTitles.WEAPON_SELECTION);
+        // 스펙 36칸 공용 레이아웃(WeaponGui) — 무기 변경 GUI와 같은 슬롯 배치를 재사용 (DL-104).
+        Inventory gui = Bukkit.createInventory(null, WeaponGui.SIZE, GuiTitles.WEAPON_SELECTION);
         ItemStack pane = glassPane();
-        for (int i = 0; i < 27; i++) gui.setItem(i, pane);
-        gui.setItem(10, weaponIcon(WeaponType.SWORD,    "검"));
-        gui.setItem(11, weaponIcon(WeaponType.AXE,      "도끼"));
-        gui.setItem(12, weaponIcon(WeaponType.SPEAR,    "창"));
-        gui.setItem(13, weaponIcon(WeaponType.CROSSBOW, "석궁"));
-        gui.setItem(14, weaponIcon(WeaponType.SCYTHE,   "낫"));
-        gui.setItem(15, weaponIcon(WeaponType.STAFF,    "스태프"));
+        for (int i = 0; i < WeaponGui.SIZE; i++) gui.setItem(i, pane);
+        for (int i = 0; i < WeaponGui.ORDER.length; i++) {
+            WeaponType wt = WeaponGui.ORDER[i];
+            gui.setItem(WeaponGui.SLOTS[i], weaponIcon(wt, WeaponGui.displayName(wt)));
+        }
+        // 첫 진입(튜토리얼) 컨텍스트 — 뒤로가기 버튼 없음.
         player.openInventory(gui);
     }
 
@@ -72,12 +75,14 @@ public final class ClassInitService {
     public void grantStarterEquipment(Player player, WeaponType weaponType) {
         String classId = weaponType.name().toLowerCase(Locale.ROOT);
         PlayerGrowthState state = growthStateStore.getOrCreate(player.getUniqueId(), classId);
-        addAndEquipIfMissing(state, EquipmentSlot.WEAPON,     "starter_" + classId,  "t1_" + classId + "_starter");
+        // 무기는 무기별 독립 인스턴스(weapon_<타입>) — 교체 시 각 무기의 강화/등급/잠재를 따로 가져간다 (DL-104).
+        addAndEquipIfMissing(state, EquipmentSlot.WEAPON,     WeaponGui.weaponInstanceId(weaponType), WeaponGui.starterItemId(weaponType));
         addAndEquipIfMissing(state, EquipmentSlot.HELMET,     "starter_helmet",      "t1_helmet_starter");
         addAndEquipIfMissing(state, EquipmentSlot.CHESTPLATE, "starter_chestplate",  "t1_chestplate_starter");
         addAndEquipIfMissing(state, EquipmentSlot.LEGGINGS,   "starter_leggings",    "t1_leggings_starter");
         addAndEquipIfMissing(state, EquipmentSlot.BOOTS,      "starter_boots",       "t1_boots_starter");
-        player.getInventory().setItem(0, taggedWeapon(weaponType));
+        // 손에 든 무기 — 무기 변경 GUI와 동일한 lore 형식(강화/등급/잠재/세부스탯/각인).
+        player.getInventory().setItem(0, WeaponItemFactory.build(state, weaponType));
         grantIslandTools(player);
         playerPersistenceService.save(player.getUniqueId());
         logger.info("[Class] " + player.getUniqueId() + " selected " + weaponType);
@@ -133,21 +138,8 @@ public final class ClassInitService {
     private ItemStack weaponIcon(WeaponType type, String displayName) {
         ItemStack item = new ItemStack(materialFor(type));
         ItemMeta meta = item.getItemMeta();
-        meta.displayName(Component.text("§f" + displayName));
-        item.setItemMeta(meta);
-        return item;
-    }
-
-    private ItemStack taggedWeapon(WeaponType weaponType) {
-        ItemStack item = new ItemStack(materialFor(weaponType));
-        ItemMeta meta = item.getItemMeta();
-        meta.displayName(Component.text("§f" + displayNameFor(weaponType)));
-        if (WeaponTypeResolver.WEAPON_TYPE_KEY != null) {
-            meta.getPersistentDataContainer().set(
-                    WeaponTypeResolver.WEAPON_TYPE_KEY,
-                    PersistentDataType.STRING,
-                    weaponType.name());
-        }
+        meta.displayName(legacy("§e" + displayName));
+        meta.lore(List.of(legacy("§7클릭하여 이 무기 클래스를 선택")));
         item.setItemMeta(meta);
         return item;
     }
@@ -160,9 +152,16 @@ public final class ClassInitService {
         return pane;
     }
 
+    /** §색상코드를 해석하고, 아이템 이름/lore의 기본 이탤릭을 끈다. */
+    private Component legacy(String text) {
+        return LegacyComponentSerializer.legacySection().deserialize(text)
+                .decoration(net.kyori.adventure.text.format.TextDecoration.ITALIC, false);
+    }
+
     private Material materialFor(WeaponType type) {
         return switch (type) {
-            case SWORD, SPEAR -> Material.NETHERITE_SWORD;
+            case SWORD        -> Material.NETHERITE_SWORD;
+            case SPEAR        -> Material.TRIDENT;
             case AXE          -> Material.NETHERITE_AXE;
             case CROSSBOW     -> Material.CROSSBOW;
             case SCYTHE       -> Material.NETHERITE_HOE;
@@ -171,15 +170,4 @@ public final class ClassInitService {
         };
     }
 
-    private String displayNameFor(WeaponType type) {
-        return switch (type) {
-            case SWORD    -> "검";
-            case AXE      -> "도끼";
-            case SPEAR    -> "창";
-            case CROSSBOW -> "석궁";
-            case SCYTHE   -> "낫";
-            case STAFF    -> "스태프";
-            case NONE     -> "무기";
-        };
-    }
 }

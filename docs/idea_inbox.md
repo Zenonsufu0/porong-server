@@ -199,4 +199,27 @@
 - 파라미터(시작값, 튜닝): 주기 15~20s / 배치 10~15 / 캡 ~40 / 반경 20~30 / 정예 1:3 수·×2.5.
 - 관련 문서: `docs/06_fields_bosses/`, DL-099(단일 월드), `FieldTeleportService`, `FieldDropListener`(필드 드랍), `MobTagHelper`(empire_field_N 태그).
 
+### INBOX-007 라이브 온보딩 테스트 1차 피드백 (7건)
+- 날짜: 2026-05-31
+- 출처: 사용자 인게임 테스트 (첫접속→허브→무기선택 흐름 검증)
+- 상태: **7건 처리 완료** (6건 수정·빌드·배포 + ④ 가상 전용 확정 → DL-103). ③ 인게임 재검증·⑦ rename 반영은 후속
+- 처리 내역:
+  - ① 무기 선택 GUI 3+3 배치 — ✅ 슬롯 11/13/15(검·도끼·창)·20/22/24(석궁·낫·스태프). 리스너 매핑 동기.
+  - ② 창 아이콘 네더라이트검→**삼지창(TRIDENT)** — ✅ `materialFor` 분리.
+  - ③ `is create` 시 "Select a Schematic" GUI 우회 — ✅ `schematics.yml`를 `poro` 1개만 남김(IS는 스키매틱 1개면 picker 생략). **인게임 재검증 필요**.
+  - ④ 스타터 방어구 — ✅ **가상 전용 확정 [PROMOTED → DL-103]**. 런타임 item_master에 `t1_*_starter` 4종 정상 등록, 캐릭터 메뉴 스탯 적용. 바닐라 물리 방어구 미지급(§2 DEF 이중 적용 방지), 재질/외형 컬럼 원래 없음 → 코드 변경 없음. **분기 리스크**: `server-config/.../item_master.csv`가 다른 스키마(`t1_armor_head`)로 갈라짐 — 정리 후속.
+  - ⑤ 스타터 무기 이름/lore 없음 — ✅ `taggedWeapon`에 "수련용 {무기}"명 + lore 3줄. `Component.text("§..")`가 §를 해석 안 해 이름이 깨지던 것 → **LegacyComponentSerializer**로 변환(+이탤릭 off). GUI 아이콘도 동일 적용.
+  - ⑥ 낫 우클릭(월영회전) 항상 우측 이동 — ✅ `dashInInputDirection`(getVelocity 서버측 ~0 버그)→**`dashForward`**(시선 방향).
+  - ⑦ 스코어보드 "world_hub" 표기 — ✅ world_hub→"수도", IridiumSkyblock→"[플레이어]의 영지". **영지명 변경 반영은 후속**(territory store 연동 필요).
+- 후속(미구현): ④ 설계 확정 / ⑦ 영지명 rename 반영 / HUD·리소스팩(HP·XP바 위치, 스코어보드 글자 깨짐·PNG 크기 — Phase 8) / 튜토리얼 맵(INBOX-006 ⏳).
+
+#### INBOX-007 2차 (라이브 재검증 피드백)
+- ⑥ 낫 우클릭 시선 방향 — ✅ 정상 확인 / ① 무기 GUI 3+3 — ✅ 확인.
+- **무기별 독립 성장** — ✅ **확정 [PROMOTED → DL-104]**. 기존 "공유" 구조를 무기별(`weapon_<타입>`) 독립으로 전환. 강화/큐브가 현재 장착 무기에만 적용.
+- **무기 선택/변경 GUI 통합** — ✅ **확정 [PROMOTED → DL-104]**. 스펙 36칸 공용 레이아웃(`WeaponGui`) 재사용.
+- 손에 든 무기 lore — ✅ 무기변경 형식(강화/등급/잠재/세부스탯/각인)으로 통일(`WeaponItemFactory`).
+- 창→검 — ✅ `weaponCosmeticMaterial` SPEAR→TRIDENT 정정.
+- 스코어보드 위치 미갱신 — ✅ 위치 변경 감시 태스크(1초 폴링, 변경 시에만 refresh) + 단일 `world` 좌표 기반 구역명(필드5/보스룸/PvP). **후속**: config 좌표와 `resolveWorldArea` 상수 결합 / 영지명 rename 반영.
+- 후속(DL-104): 손에 든 무기 lore 강화 직후 실시간 동기화 / 무기 변경 3분 쿨타임 / 무기별 각인.
+
 <!-- 새 항목은 이 주석 위에 추가한다 -->

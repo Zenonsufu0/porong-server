@@ -10,7 +10,9 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
@@ -20,7 +22,10 @@ import org.bukkit.scoreboard.Team;
 
 import java.text.NumberFormat;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class ScoreboardService {
 
@@ -36,10 +41,32 @@ public final class ScoreboardService {
     private static final char ENHANCE_ICON  = ''; // poro:hud enhance.png
     private static final char CUBE_ICON     = ''; // poro:hud cube.png
 
+    /** 위치명 변경 감지용 — UUID당 마지막으로 표시한 위치명. 변경 시에만 refresh해 깜빡임 방지. */
+    private final Map<UUID, String> lastLocation = new ConcurrentHashMap<>();
+
     public ScoreboardService(GrowthStateStore growthStore,
                               PlayerDataManager playerDataManager) {
         this.growthStore       = growthStore;
         this.playerDataManager = playerDataManager;
+    }
+
+    /**
+     * 위치 감시 태스크 시작 — 1초마다 각 플레이어의 현재 위치명을 계산해
+     * 직전과 달라진 경우에만 스코어보드를 갱신한다. (필드↔보스룸↔영지↔수도 이동 반영)
+     * refresh()가 새 스코어보드를 통째로 재생성하므로, 변경 시에만 호출해 깜빡임을 막는다.
+     */
+    public void startLocationWatcher(Plugin plugin) {
+        Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                String now  = resolveLocationName(player);
+                String prev = lastLocation.put(player.getUniqueId(), now);
+                if (!now.equals(prev)) {
+                    refresh(player);
+                }
+            }
+            // 오프라인 플레이어 캐시 정리 (누수 방지)
+            lastLocation.keySet().removeIf(id -> Bukkit.getPlayer(id) == null);
+        }, 40L, 20L);
     }
 
     /** 플레이어의 사이드바를 최신 데이터로 갱신한다. */
@@ -171,10 +198,32 @@ public final class ScoreboardService {
 
     private static String resolveLocationName(Player player) {
         return switch (player.getWorld().getName()) {
-            case "world"      -> "수도 외곽 평원";
-            case "world_boss" -> "보스 인스턴스";
-            case "island"     -> "영지";
-            default           -> player.getWorld().getName();
+            case "world"           -> resolveWorldArea(player.getLocation());
+            case "world_hub"       -> "수도";
+            case "world_boss"      -> "보스 인스턴스";
+            // IridiumSkyblock = 개인 섬(영지). 초기 표기는 "[플레이어]의 영지" (영지명 변경 반영은 후속: territory store 연동).
+            case "IridiumSkyblock" -> player.getName() + "의 영지";
+            case "island"          -> "영지";
+            default                -> player.getWorld().getName();
         };
+    }
+
+    /**
+     * 단일 평지 월드 "world" 안에서 좌표로 구역명을 구분한다.
+     * 필드 5종(X 0/1000/2000/3000/4000, 각 ±150) / 보스룸(X 10000~10400, Z 10000~10300) / PvP(X≥20000).
+     * config 좌표 변경 시 이 상수도 함께 조정해야 함.
+     */
+    private static String resolveWorldArea(Location loc) {
+        double x = loc.getX();
+        double z = loc.getZ();
+        if (x >= 20000) return "PvP 아레나";
+        if (x >= 10000 && x <= 10400 && z >= 9950 && z <= 10350) return "보스 인스턴스";
+        // 필드 5종 — 중심 ±175(경계 여유)
+        if (Math.abs(x - 0)    <= 175) return "평원 필드";
+        if (Math.abs(x - 1000) <= 175) return "광산 필드";
+        if (Math.abs(x - 2000) <= 175) return "하수도 필드";
+        if (Math.abs(x - 3000) <= 175) return "전초기지 필드";
+        if (Math.abs(x - 4000) <= 175) return "폐허 필드";
+        return "수도 외곽 평원";
     }
 }

@@ -22,7 +22,8 @@ public final class ScytheShadowSpinSkill extends PluginWeaponSkill {
 
     @Override
     public boolean execute(Player player, SkillContext ctx) {
-        dashInInputDirection(player, 2.5);
+        // 시선 방향 대시. (getVelocity는 서버측 플레이어 입력을 반영하지 않아 항상 우측으로 새던 버그)
+        dashForward(player, 2.5);
         double damage = scaledDamage(ctx, player, 0.60);
         boolean hitAny = false;
         for (int i = 0; i < 4; i++) {

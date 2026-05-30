@@ -12,6 +12,8 @@ import org.bukkit.attribute.Attribute;
 import com.poro.empire.common.registry.master.ItemMasterRegistry;
 import com.poro.empire.common.registry.master.model.ItemMaster;
 import com.poro.empire.growth.GrowthStateStore;
+import com.poro.empire.gui.WeaponGui;
+import com.poro.empire.gui.WeaponItemFactory;
 import com.poro.empire.growth.island.IslandTerritoryState;
 import com.poro.empire.growth.island.IslandTerritoryStateStore;
 import com.poro.empire.growth.engine.EnhancementRule;
@@ -1528,7 +1530,7 @@ public final class GrowthGuiListener implements Listener {
                 default        -> Material.NETHERITE_HOE;
             };
             case STAFF -> "stick".equals(tier) ? Material.STICK : Material.BLAZE_ROD;
-            case SPEAR -> Material.NETHERITE_SWORD;
+            case SPEAR -> Material.TRIDENT;
             case CROSSBOW -> Material.CROSSBOW;
             default -> Material.STICK;
         };
@@ -1968,22 +1970,16 @@ public final class GrowthGuiListener implements Listener {
         // GrowthStateStore는 UUID당 1개 — 모든 무기 타입이 같은 state 공유
         PlayerGrowthState sharedState = getState(player);
 
-        Inventory gui = Bukkit.createInventory(null, 45, GuiTitles.WEAPON_CHANGE);
-        for (int i = 0; i < 45; i++) gui.setItem(i, pane());
+        // 스펙 36칸 공용 레이아웃(WeaponGui) — 튜토리얼 최초 선택과 같은 배치 재사용 (DL-104).
+        Inventory gui = Bukkit.createInventory(null, WeaponGui.SIZE, GuiTitles.WEAPON_CHANGE);
+        for (int i = 0; i < WeaponGui.SIZE; i++) gui.setItem(i, pane());
 
-        // 슬롯 배치: 10=검, 13=도끼, 16=낫, 28=석궁, 31=창, 34=스태프
-        WeaponType[] wtOrder = {
-            WeaponType.SWORD, WeaponType.AXE, WeaponType.SCYTHE,
-            WeaponType.CROSSBOW, WeaponType.SPEAR, WeaponType.STAFF
-        };
-        int[] guiSlots = {10, 13, 16, 28, 31, 34};
-
-        for (int i = 0; i < wtOrder.length; i++) {
-            WeaponType wt = wtOrder[i];
-            gui.setItem(guiSlots[i], buildWeaponChangeIcon(wt, sharedState, wt == currentWt));
+        for (int i = 0; i < WeaponGui.ORDER.length; i++) {
+            WeaponType wt = WeaponGui.ORDER[i];
+            gui.setItem(WeaponGui.SLOTS[i], buildWeaponChangeIcon(wt, sharedState, wt == currentWt));
         }
 
-        gui.setItem(36, MainHubGui.icon(Material.ARROW, "§7뒤로", List.of("§7장비 세부")));
+        gui.setItem(WeaponGui.BACK_SLOT, MainHubGui.icon(Material.ARROW, "§7뒤로", List.of("§7장비 세부")));
         player.openInventory(gui);
     }
 
@@ -1991,27 +1987,26 @@ public final class GrowthGuiListener implements Listener {
         List<String> lore = new ArrayList<>();
         lore.add("§7──────────────────");
 
-        // 공유 장비 데이터 표시 (현재/비현재 모두)
-        String instanceId = sharedState.equippedItems().get(EquipmentSlot.WEAPON);
-        PlayerEquipmentItem item = instanceId != null ? sharedState.inventoryItem(instanceId).orElse(null) : null;
+        // 무기별 독립 데이터 — 각 무기 타입의 고유 인스턴스(weapon_<타입>)를 읽는다 (DL-104).
+        PlayerEquipmentItem item = sharedState.inventoryItem(WeaponGui.weaponInstanceId(wt)).orElse(null);
         if (item != null) {
-            String shared = isCurrent ? "" : " §8(공유)";
-            lore.add("§7강화   : §e+" + item.enhanceLevel() + "강" + shared);
-            lore.add("§7등급   : " + gradeColor(item.grade()) + item.grade().displayName() + shared);
+            lore.add("§7강화   : §e+" + item.enhanceLevel() + "강");
+            lore.add("§7등급   : " + gradeColor(item.grade()) + item.grade().displayName());
             PotentialProfile pp = item.potentialProfile();
             if (pp != null && !pp.lines().isEmpty()) {
                 lore.add("§7잠재   : " + gradeColor(pp.grade()) + pp.grade().name()
-                        + " §7(" + pp.lines().size() + "라인)" + shared);
+                        + " §7(" + pp.lines().size() + "라인)");
             } else {
-                lore.add("§7잠재   : §8없음" + shared);
+                lore.add("§7잠재   : §8없음");
             }
             List<PotentialLine> substats = item.substatLines();
-            lore.add("§7세부스탯: " + (substats.isEmpty() ? "§8없음" : "§f" + substats.size() + "줄") + shared);
+            lore.add("§7세부스탯: " + (substats.isEmpty() ? "§8없음" : "§f" + substats.size() + "줄"));
         } else {
-            lore.add("§8장착 장비 없음");
+            lore.add("§8미육성 §7(교체 시 +0강으로 생성)");
         }
+        // 각인은 직업(무기) 단위 — 무기별 각인은 후속. 현재는 클래스 각인 표시.
         String eid = sharedState.classEngravingId();
-        lore.add("§7각인   : " + (!eid.isEmpty() ? "§a" + eid : "§8없음") + (isCurrent ? "" : " §8(공유)"));
+        lore.add("§7각인   : " + (!eid.isEmpty() ? "§a" + eid : "§8없음"));
         lore.add("§7스킬   : §7" + weaponSkillSummary(wt));
         lore.add("§7──────────────────");
         if (isCurrent) {
@@ -2027,21 +2022,13 @@ public final class GrowthGuiListener implements Listener {
     }
 
     private void handleWeaponChangeClick(Player player, int slot) {
-        if (slot == 36) {
+        if (slot == WeaponGui.BACK_SLOT) {
             EquipmentSlot prevSlot = equipDetailSlot.getOrDefault(player.getUniqueId(), EquipmentSlot.WEAPON);
             openEquipDetail(player, prevSlot);
             return;
         }
 
-        WeaponType newWt = switch (slot) {
-            case 10 -> WeaponType.SWORD;
-            case 13 -> WeaponType.AXE;
-            case 16 -> WeaponType.SCYTHE;
-            case 28 -> WeaponType.CROSSBOW;
-            case 31 -> WeaponType.SPEAR;
-            case 34 -> WeaponType.STAFF;
-            default -> null;
-        };
+        WeaponType newWt = WeaponGui.slotToWeapon(slot);
         if (newWt == null) return;
 
         WeaponType currentWt = playerDataManager.getWeaponType(player.getUniqueId());
@@ -2057,26 +2044,30 @@ public final class GrowthGuiListener implements Listener {
 
         playerDataManager.setWeaponType(player.getUniqueId(), newWt);
 
-        // 새 무기 아이템 생성 (PDC 태그 포함)
-        PlayerGrowthState sharedState = getState(player);
-        String cosmeticMat = sharedState.getCosmeticMaterial(weaponCosmeticKey(newWt));
+        // 무기별 독립 성장 — 해당 무기의 고유 인스턴스를 보장하고 WEAPON 슬롯에 장착한다 (DL-104).
+        // 강화/큐브/잠재는 장착된 인스턴스를 대상으로 하므로, 교체 후 작업은 이 무기에만 적용된다.
+        PlayerGrowthState state = getState(player);
+        ensureWeaponInstance(state, newWt);
+        state.equipItem(EquipmentSlot.WEAPON, WeaponGui.weaponInstanceId(newWt));
+
+        // 손에 든 무기 — 치장 재질 반영 + 무기변경 형식 lore (강화/등급/잠재/세부스탯/각인)
+        String cosmeticMat = state.getCosmeticMaterial(weaponCosmeticKey(newWt));
         Material weapMat = weaponCosmeticMaterial(newWt, cosmeticMat);
-        ItemStack newWeapon = new ItemStack(weapMat, 1);
-        org.bukkit.inventory.meta.ItemMeta meta = newWeapon.getItemMeta();
-        meta.displayName(Component.text("§f" + weaponDisplayName(newWt)));
-        if (WeaponTypeResolver.WEAPON_TYPE_KEY != null) {
-            meta.getPersistentDataContainer().set(
-                    WeaponTypeResolver.WEAPON_TYPE_KEY,
-                    PersistentDataType.STRING,
-                    newWt.name());
-        }
-        newWeapon.setItemMeta(meta);
-        player.getInventory().setItem(0, newWeapon);
+        player.getInventory().setItem(0, WeaponItemFactory.build(state, newWt, weapMat));
 
         scoreboardService.refresh(player);
         player.sendMessage("§a[무기 교체] §e" + weaponDisplayName(newWt) + "§a 무기로 교체되었습니다.");
         player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_USE, 0.8f, 1.2f);
         openWeaponChange(player);
+    }
+
+    /** 무기 타입의 독립 성장 인스턴스(weapon_<타입>)가 없으면 +0강 기본으로 생성한다. */
+    private void ensureWeaponInstance(PlayerGrowthState state, WeaponType wt) {
+        String iid = WeaponGui.weaponInstanceId(wt);
+        if (state.inventoryItem(iid).isEmpty()) {
+            state.addInventoryItem(PlayerEquipmentItem.restore(
+                    iid, WeaponGui.starterItemId(wt), 0, ItemGrade.COMMON, null, List.of()));
+        }
     }
 
     // ═══════════════════════════════════════════════════════════════

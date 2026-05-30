@@ -1,17 +1,77 @@
 # 포로 서버 작업 현황
 
-> 마지막 갱신: 2026-05-30 (§6-15 Phase 2 Step 2 — 운영 토글 GUI + /empire-toggle)
+> 마지막 갱신: 2026-05-31 (§7 서버 테스트 준비 + 온보딩 + 무기 시스템 — INBOX-006/007, DL-099~104)
 
 ---
 
 ## 현재 브랜치 상태
 
 - 브랜치: `master`
-- **관리자 GUI Phase 2 Step 1~5 모두 구현 완료** — Phase 2 마감. 상세는 각 §6-NN 섹션
-- 빌드: `./gradlew compileJava → BUILD SUCCESSFUL` (기존 deprecated AnvilInventory warning만 잔존)
+- **§7 진행 중** — 서버 인게임 테스트 단계. 단일 평지 월드 + 동적 필드 스폰 + 허브 온보딩 + 무기별 독립 성장 구현, 라이브 검증 반복 중.
+- 빌드: `./gradlew build → BUILD SUCCESSFUL` / 서버 클린 부팅 확인(Done ~15s, EmpireRPG enable)
 - 동기화: 매 handoff 시 master == codex-review 유지
-- 다음: Phase 2 인게임 통합 테스트 / 또는 별도 지시
-- ※ **상태 드리프트 방지 정책**: task.md에 "최신 커밋 해시"·"미커밋/커밋" 상태를 박지 않는다. 최신 커밋 기준은 항상 `git log`. per-step 섹션은 완료 여부만 표기한다. (자기 자신을 포함한 커밋의 해시는 미리 알 수 없어 반드시 한 발 늦기 때문)
+- **다음 (재개 지점)**: 재접속 → §7 핵심 검증(무기별 독립 성장·GUI 36칸 통합·무기 lore·창 삼지창·스코어보드 위치) → 통과 시 잔여(튜토리얼 맵·필드 일반/정예 토글·HUD 리소스팩) 진행
+- ※ **상태 드리프트 방지 정책**: task.md에 "최신 커밋 해시"·"미커밋/커밋" 상태를 박지 않는다. 최신 커밋 기준은 항상 `git log`. per-step 섹션은 완료 여부만 표기한다.
+
+---
+
+## §7 서버 테스트 준비 + 온보딩 + 무기 시스템 (2026-05-30~31)
+
+기준: INBOX-006/007, DL-099~104. 라이브 인게임 테스트 기반 반복 수정.
+
+### §7-1 서버 가동 기반 — 완료
+| 항목 | 상태 |
+|---|---|
+| 배포 트랩 해소 — 런타임 시드/config가 `saveResource(replace=false)`로 안 덮이던 문제 인지, jar만 교체하는 배포 흐름 확립 | ✅ |
+| 단일 평지 월드 `world` (level-type=flat, surface y=64) + 보스룸 X10000대·PvP X20000대·필드 X0~4000 배치 (DL-099) | ✅ |
+| 부팅 블로커 해소 — skill_master class_id optional, NPC sync 비-fatal, life/facility validation 완화, 중복 jar·session.lock 정리 | ✅ |
+
+### §7-2 동적 필드 스폰 (INBOX-006, DL-100) — 코어 완료 / 2차 대기
+| 항목 | 상태 |
+|---|---|
+| `FieldSpawnService` — 플레이어 주변 웨이브(~15s, 10~15마리), 2단 캡(플레이어 40/필드 250), 소유자 추적, 오프라인·사망 정리, 1000간격 5필드 | ✅ |
+| 일반/정예 토글(명령어+GUI)·랜덤 진입(≥35블록)·디스폰 정밀화 | ⏳ 2차 |
+
+### §7-3 허브 온보딩 (INBOX-006, DL-101/102) — 코어 완료
+| 항목 | 상태 |
+|---|---|
+| `HubWorldService` — 별도 평지 월드 `world_hub`(수도) 생성, PVP off·PEACEFUL (DL-101) | ✅ |
+| `HubSpawnListener` — 접속 시 전원 허브 이동(1틱 지연) (DL-102) | ✅ |
+| 첫 접속 무기 선택 → IS 섬 자동 생성·이동 (`is create poro`) (DL-102) | ✅ |
+| IS 스키매틱 picker 우회 — `schematics.yml` poro 1개만 (백업 .bak.4schem) | ✅ (인게임 재검증 필요) |
+| 튜토리얼 맵(안내 스텝) — 첫 접속을 허브 대신 튜토리얼로 | ⏳ 후속 |
+
+### §7-4 온보딩 라이브 피드백 (INBOX-007) — 완료
+| 항목 | 상태 |
+|---|---|
+| 스타터 방어구 = 가상 전용 확정 (물리 미지급, §2 DEF 이중적용 방지) (DL-103) | ✅ |
+| 낫 우클릭(월영회전) 시선 방향 dashForward (getVelocity 서버측 ~0 버그) | ✅ |
+| 스코어보드 world_hub→"수도", IridiumSkyblock→"[플레이어]의 영지" | ✅ |
+
+### §7-5 무기 시스템 — 무기별 독립 성장 + GUI 통합 (INBOX-007 2차, DL-104) — 완료
+| 항목 | 파일 | 상태 |
+|---|---|---|
+| 무기별 독립 성장 — `weapon_<타입>` 인스턴스, 교체 시 장착 → 강화/큐브가 현재 무기에만 적용 | `GrowthGuiListener`, `ClassInitService` | ✅ |
+| 무기 선택/변경 GUI 스펙 36칸 통합 (검10·도끼13·창16/석궁19·낫22·스태프25/뒤로27) | `gui/WeaponGui.java`(신규) | ✅ |
+| 손에 든 무기 lore = 무기변경 형식(강화/등급/잠재/세부스탯/각인) | `gui/WeaponItemFactory.java`(신규) | ✅ |
+| 창 아이콘 NETHERITE_SWORD→TRIDENT (선택·변경·물리 무기) | `WeaponGui`, `GrowthGuiListener`, `ClassInitService` | ✅ |
+| 스코어보드 위치 변경 감시 태스크(1초 폴링·변경 시만 refresh) + 좌표 기반 구역명(필드5/보스룸/PvP) | `ScoreboardService`, `EmpireRPGPlugin` | ✅ |
+| `BUILD SUCCESSFUL` + 배포 + 서버 클린 부팅 | — | ✅ |
+
+### §7-5 잔여 (DL-104 후속)
+- 손에 든 무기 lore 실시간 동기화 — 강화 직후 슬롯0 갱신 안 됨(GUI엔 즉시 반영). 현재 지급/교체 시점에만 빌드
+- 무기 변경 3분 쿨타임(CANON §55) 미구현 — 전투 중 차단만
+- 무기별 각인 — 현재 각인은 클래스 단위 공유
+- 스코어보드 구역명이 config 좌표와 결합 — 좌표 변경 시 `resolveWorldArea` 상수도 수정 필요
+- 영지명 rename 반영 — 현재 "[플레이어]의 영지" 고정(territory store 연동 후속)
+- item_master.csv 스키마 분기 — `server-config`판(`t1_armor_head`) vs runtime판(`t1_helmet_starter`) 정리 필요
+
+### §7 인게임 재검증 포인트 (재개 시 우선)
+1. **무기별 독립** — 검 +N강 후 낫 교체 시 낫 +0강, 검 복귀 시 +N 유지 (핵심)
+2. GUI 36칸 통합 (첫 진입 = 무기 변경 동일 배치)
+3. 손에 든 무기 lore 형식 / 창 삼지창
+4. 스코어보드 위치 — 영지→필드(평원/광산/하수도/전초기지/폐허)·보스룸 전환
+5. IS 스키매틱 picker 미출현 (③)
 
 ---
 
