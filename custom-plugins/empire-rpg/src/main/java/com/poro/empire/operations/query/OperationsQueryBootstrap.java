@@ -102,6 +102,8 @@ public final class OperationsQueryBootstrap {
                     new EconomyApiHandler(
                             new com.poro.empire.growth.engine.DbEnhancementLogHook(
                                     foundationContext.connectionProvider(), httpLogger),
+                            new com.poro.empire.persistence.EconomyFlowRepository(
+                                    foundationContext.connectionProvider(), httpLogger),
                             apiSecretKey),
                     apiBind,
                     httpLogger

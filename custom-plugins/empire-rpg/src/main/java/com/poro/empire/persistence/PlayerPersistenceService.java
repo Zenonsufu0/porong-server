@@ -163,9 +163,9 @@ public final class PlayerPersistenceService {
         String classId = data.classId() != null ? data.classId() : "";
         PlayerGrowthState state = growthStore.getOrCreate(uuid, classId);
 
-        // 지갑
+        // 지갑 — 복원은 restoreCurrency로 경제 흐름 발생 제외 (DL-080)
         if (data.wallet() != null) {
-            data.wallet().forEach((code, amount) -> state.addCurrency(code, amount));
+            data.wallet().forEach((code, amount) -> state.restoreCurrency(code, amount));
         }
 
         // 각인

@@ -11,6 +11,7 @@ public final class PlayerGrowthState {
     private final Map<String, PlayerEquipmentItem> inventory = new LinkedHashMap<>();
     private final Map<EquipmentSlot, String> equippedItemBySlot = new LinkedHashMap<>();
     private final Map<String, Long> wallet = new LinkedHashMap<>();
+    private CurrencyFlowListener flowListener; // 경제 흐름(DL-080), nullable
     private final Map<Integer, String> equippedRunes = new LinkedHashMap<>();
     private final Map<Integer, EquippedCommonEngraving> commonEngravings = new LinkedHashMap<>();
 
@@ -86,7 +87,9 @@ public final class PlayerGrowthState {
         if (amount <= 0) {
             return;
         }
-        wallet.merge(normalize(code), amount, Long::sum);
+        String normalized = normalize(code);
+        wallet.merge(normalized, amount, Long::sum);
+        fireFlow(true, normalized, amount);
     }
 
     public boolean consumeCurrency(String code, long amount) {
@@ -99,7 +102,30 @@ public final class PlayerGrowthState {
             return false;
         }
         wallet.put(normalized, current - amount);
+        fireFlow(false, normalized, amount);
         return true;
+    }
+
+    /**
+     * 저장 데이터 복원용 통화 적립 — 경제 흐름(CurrencyFlowListener)을 발생시키지 않는다.
+     * 로그인 시 지갑 복원이 inflow로 오염되는 것을 방지 (DL-080).
+     */
+    public void restoreCurrency(String code, long amount) {
+        if (amount <= 0) {
+            return;
+        }
+        wallet.merge(normalize(code), amount, Long::sum);
+    }
+
+    private void fireFlow(boolean inflow, String normalizedCode, long amount) {
+        if (flowListener != null) {
+            flowListener.onFlow(userId, inflow, normalizedCode, amount);
+        }
+    }
+
+    /** 경제 흐름 리스너 주입 (GrowthStateStore가 상태 생성 시 설정). */
+    public void setFlowListener(CurrencyFlowListener flowListener) {
+        this.flowListener = flowListener;
     }
 
     public Map<String, Long> walletSnapshot() {

@@ -2,6 +2,7 @@ package com.poro.empire.operations.http;
 
 import com.google.gson.Gson;
 import com.poro.empire.growth.engine.DbEnhancementLogHook;
+import com.poro.empire.persistence.EconomyFlowRepository;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
@@ -12,20 +13,25 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * GET /api/v1/economy/* — 경제 판단 지표 (INBOX-004 #3).
+ * GET /api/v1/economy/* — 경제 판단 지표 (INBOX-004 #2·#3).
  * <pre>
  *   /api/v1/economy/enhancement   — 강화 요약(표기 vs 실제 성공률·총 소모) + 티어·단계별 성공률
+ *   /api/v1/economy/flow          — 통화별 발행량/소각량/net + 골드 최근 30일 일별 net
  * </pre>
  * Authorization: Bearer {api-secret-key} 헤더 필수. 미설정 시 503.
  */
 public final class EconomyApiHandler implements HttpHandler {
     private static final Gson GSON = new Gson();
+    private static final int FLOW_DAILY_DAYS = 30;
 
     private final DbEnhancementLogHook enhancementLog;
+    private final EconomyFlowRepository economyFlow;
     private final String secretKey;
 
-    public EconomyApiHandler(DbEnhancementLogHook enhancementLog, String secretKey) {
+    public EconomyApiHandler(DbEnhancementLogHook enhancementLog, EconomyFlowRepository economyFlow,
+                             String secretKey) {
         this.enhancementLog = Objects.requireNonNull(enhancementLog, "enhancementLog");
+        this.economyFlow = Objects.requireNonNull(economyFlow, "economyFlow");
         this.secretKey = secretKey == null ? "" : secretKey;
     }
 
@@ -52,6 +58,12 @@ public final class EconomyApiHandler implements HttpHandler {
                 respond(exchange, 200, GSON.toJson(Map.of(
                         "summary", enhancementLog.summary(),
                         "by_tier_level", enhancementLog.statsByTierLevel())));
+                return;
+            }
+            if (tail.equals("flow")) {
+                respond(exchange, 200, GSON.toJson(Map.of(
+                        "by_currency", economyFlow.netByCurrency(),
+                        "gold_daily", economyFlow.dailyNet("gold", FLOW_DAILY_DAYS))));
                 return;
             }
             respond(exchange, 404, "{\"error\":\"Not Found\"}");

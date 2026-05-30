@@ -377,6 +377,10 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         this.playerSessionRepo = new com.poro.empire.persistence.PlayerSessionRepository(
                 foundationContext.connectionProvider(),
                 foundationContext.logger().domain("db.session"));
+        // 통화 흐름 로그 (골드 인플레이션/싱크, INBOX-004 #2 / DL-080) — 모든 성장 상태에 흐름 리스너 부착
+        growthStateStore.attachFlowListener(new com.poro.empire.persistence.EconomyFlowRepository(
+                foundationContext.connectionProvider(),
+                foundationContext.logger().domain("db.economy")));
         pvpMatchService.attachGrowthState(growthStateStore);
 
         PvpFriendlyService pvpFriendlyService = new PvpFriendlyService(this, pvpMatchService);

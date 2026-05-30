@@ -4,6 +4,30 @@
 
 ---
 
+### DL-080 통화 흐름 로그 — 골드 인플레이션/싱크(발행량 vs 소각량) 수집
+
+**결정:** 지갑 변동을 `economy_flow` 테이블로 기록한다. `PlayerGrowthState.addCurrency`(inflow)/`consumeCurrency`(outflow)에 `CurrencyFlowListener`를 부착하고, 로드 복원만 신규 `restoreCurrency`로 우회하여 제외한다.
+
+**이유:**
+- 45일 시즌 경제에서 골드 인플레이션 감지가 핵심인데 `addEconomyFlow` 호출처가 0건이라 "발행량 vs 소각량"을 전혀 알 수 없었다 (INBOX-004 #2, 죽은 모델).
+- **계측 방식 결정 (scope):** 골드 변동 지점이 ~12곳(드랍·퀘스트·보스·강화·큐브·상점·경매·영지 등)이고 일부는 환불/롤백·플레이어간 이체가 섞여, 개별 site 계측은 침습적이고 엣지가 많다. **지갑 레벨 후킹 + 로드 우회** 방식은 환불이 inflow로 잡혀 직전 outflow와 net 상쇄, 경매 이체도 buyer/seller가 net 상쇄되어 **net(발행-소각)이 누락·중복 없이 정확**하다.
+
+**결과 (코드 구조):**
+- `economy_flow` (player_uuid, direction, currency, amount, occurred_at, flow_date) + 인덱스. `EconomyFlowMigration` 등록.
+- `PlayerGrowthState`: addCurrency/consumeCurrency가 `CurrencyFlowListener.onFlow` 발화. 신규 `restoreCurrency`(무발화)를 `PlayerPersistenceService.load`가 사용. `GrowthStateStore.attachFlowListener`로 모든 상태에 주입.
+- `EconomyFlowRepository`(CurrencyFlowListener 구현, write+read). 읽기 API: `GET /api/v1/economy/flow` — 통화별 발행/소각/net + 골드 30일 일별 net.
+
+**한계 / 트레이드오프:**
+- **source 미세분(어느 faucet/sink가 큰지)은 미제공.** 지갑 레벨이라 변동 원인을 모른다. net 추세(인플레이션 여부)는 정확. source별 분해는 후속(개별 site에 source 태그 주입) 시 확장.
+- **gross(총 inflow)는 경매 이체분만큼 부풀려짐** — net은 정확하나 "총 발행량"으로 해석 시 transfer 노이즈 포함. 분석은 net 기준 권장.
+- 전 통화(골드+재화) 기록. 드랍 등 고빈도 변동마다 INSERT — 부하 우려 시 시간버킷 집계로 배치화 가능(후속).
+
+**영향 범위:** `CurrencyFlowListener`(신규), `PlayerGrowthState`, `GrowthStateStore`, `PlayerPersistenceService`, `EconomyFlowDdl`/`EconomyFlowMigration`/`EconomyFlowRepository`(신규), `EmpireRPGPlugin`, `EconomyApiHandler`, `OperationsQueryBootstrap`, `CommonFoundationBootstrap`.
+
+**관련:** `docs/idea_inbox.md` INBOX-004 #2 (PROMOTED). 남은 공백 4종(#4~#7). 죽은 모델 `EconomyFlowRecord`(in-memory)는 본 DB 방식으로 대체 — 미사용 유지.
+
+---
+
 ### DL-079 강화 로그 DB 영속화 — in-memory 휘발 해소, 성공률 검증 가능
 
 **결정:** 강화 시도 로그를 `enhancement_log` 테이블로 DB 영속화한다. 기존 `InMemoryEnhancementLogHook`(관리자 GUI 최근 조회용)는 유지하고, `DbEnhancementLogHook`을 추가해 `CompositeEnhancementLogHook`으로 합성 — in-memory와 DB에 동시 기록.
