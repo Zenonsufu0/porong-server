@@ -8,6 +8,7 @@ import org.bukkit.plugin.Plugin;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public final class BossRoomManager {
@@ -19,9 +20,26 @@ public final class BossRoomManager {
     private final Map<Integer, String>   slotToRunId   = new ConcurrentHashMap<>();
     private final Map<UUID, String>      pendingBoss   = new ConcurrentHashMap<>();
     private final Map<UUID, Set<String>> clearedBosses = new ConcurrentHashMap<>();
+    // 영속 클리어 복원 (DL-097): boss_session에서 lazy 로드, 플레이어당 1회 캐시.
+    private Function<UUID, Set<String>> clearSource;
+    private final Set<UUID> clearsLoaded = ConcurrentHashMap.newKeySet();
 
     public BossRoomManager(List<BossRoomSlot> slots) {
         this.slots = Collections.unmodifiableList(new ArrayList<>(slots));
+    }
+
+    /** 클리어 영속 소스 주입 (uuid → 클리어한 boss_id 집합). EmpireRPGPlugin 와이어링. */
+    public void attachClearSource(Function<UUID, Set<String>> source) {
+        this.clearSource = source;
+    }
+
+    /** 게이트 첫 조회 시 boss_session에서 클리어 기록을 in-memory로 복원 (플레이어당 1회). */
+    private void ensureClearsLoaded(UUID uuid) {
+        if (clearSource == null || uuid == null || !clearsLoaded.add(uuid)) return;
+        Set<String> persisted = clearSource.apply(uuid);
+        if (persisted != null && !persisted.isEmpty()) {
+            clearedBosses.computeIfAbsent(uuid, k -> ConcurrentHashMap.newKeySet()).addAll(persisted);
+        }
     }
 
     /** config.yml boss-room-slots 섹션으로부터 슬롯 로드. */
@@ -120,5 +138,5 @@ public final class BossRoomManager {
     public void             clearPendingBoss(UUID uuid)              { pendingBoss.remove(uuid); }
 
     public void    markCleared(UUID uuid, String bossId) { clearedBosses.computeIfAbsent(uuid, k -> ConcurrentHashMap.newKeySet()).add(bossId); }
-    public boolean hasCleared(UUID uuid, String bossId)  { Set<String> s = clearedBosses.get(uuid); return s != null && s.contains(bossId); }
+    public boolean hasCleared(UUID uuid, String bossId)  { ensureClearsLoaded(uuid); Set<String> s = clearedBosses.get(uuid); return s != null && s.contains(bossId); }
 }

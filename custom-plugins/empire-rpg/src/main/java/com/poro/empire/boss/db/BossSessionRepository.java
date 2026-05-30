@@ -11,10 +11,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * boss_session_log / boss_session_player 테이블 read/write.
@@ -89,6 +91,31 @@ public final class BossSessionRepository {
             logger.warn("recordPlayerEntry failed [session=" + sessionId + ", uuid=" + uuid + "]: " + e.getMessage());
             return Result.failure(ErrorCode.DB_CONNECTION_FAILED, "recordPlayerEntry failed", e);
         }
+    }
+
+    /**
+     * 해당 플레이어가 클리어(result='clear')에 참여한 보스 id 집합 — 보스 입장 게이트 영속 조회 (DL-097).
+     * 재시작 후 {@code BossRoomManager}가 in-memory 클리어 기록을 복원하는 데 사용.
+     */
+    public Set<String> clearedBossIds(String playerUuid) {
+        String sql = """
+            SELECT DISTINCT s.boss_id
+            FROM boss_session_log s JOIN boss_session_player p ON p.session_id = s.id
+            WHERE p.player_uuid = ? AND s.result = 'clear'
+            """;
+        Result<Connection> connResult = connectionProvider.getConnection();
+        if (connResult.isFailure()) return Set.of();
+        Set<String> out = new HashSet<>();
+        try (Connection conn = connResult.value();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, playerUuid);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) out.add(rs.getString("boss_id"));
+            }
+        } catch (Exception e) {
+            logger.warn("clearedBossIds failed [" + playerUuid + "]: " + e.getMessage());
+        }
+        return out;
     }
 
     /** 참여자 데미지 기여 점유율(%) 기록 — 종료 시 boss_session_player UPDATE (DL-084). */

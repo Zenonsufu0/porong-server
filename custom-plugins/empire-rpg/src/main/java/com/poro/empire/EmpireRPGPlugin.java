@@ -250,6 +250,9 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         this.bossRewardService.setSeasonContext(
                 this.bossEngineRuntime.bossSessionRepository(),
                 foundationContext.config().seasonStartEpoch());
+        // 보스 클리어 게이트 영속 복원 — boss_session에서 lazy 로드 (DL-097, 재시작 후 #5 게이트 유지)
+        this.bossRoomManager.attachClearSource(
+                uuid -> this.bossEngineRuntime.bossSessionRepository().clearedBossIds(uuid.toString()));
         this.foundationContext.logger().domain("boss-engine").info("Boss engine bootstrap completed.");
 
         Result<GrowthEngineRuntime> growthEngineResult = GrowthEngineBootstrap.bootstrap(this, foundationContext, masterRegistryContext);

@@ -4,6 +4,23 @@
 
 ---
 
+### DL-097 보스 클리어 게이트 영속화 + 페이즈 틱 불요 확정 (INBOX-005 2차 후속 마무리)
+
+**결정:**
+- **클리어 영속화**: `BossRoomManager.clearedBosses`(in-memory, 재시작 소실 → #5 최종보스 게이트가 재시작 후 풀리던 문제)를 **boss_session에서 lazy 복원**으로 해소. 새 테이블 없이 기존 영속 데이터 재사용.
+- **페이즈/패턴 진행 틱은 구현하지 않음(의도)**: MM이 패턴을 전부 구동(season_bosses.yml onTimer/onHealthPercent 117개)하고, 플러그인 `selectNextPattern`/`updateBossHp`는 런타임 호출처 0(휴면 추상화, 비-MM 미래용). 1차 MM 보스엔 구현 시 중복·충돌 → 스킵.
+
+**구현 (클리어 영속화):**
+- `BossSessionRepository.clearedBossIds(uuid)`: `result='clear'` 세션 참여 보스 id 집합 조회(boss_session_log ⋈ boss_session_player). 클리어는 이미 endRun→DbBossRunRecordHook로 boss_session에 영속(별도 write 불필요).
+- `BossRoomManager`: `attachClearSource(Function)` + 게이트 첫 조회 시 `ensureClearsLoaded`로 1회 lazy 복원·캐시. `markCleared`(in-memory)는 세션 중 즉시 반영용으로 유지.
+- `EmpireRPGPlugin`: `bossRoomManager.attachClearSource(uuid → bossSessionRepository.clearedBossIds(...))`.
+
+**영향 범위:** `BossSessionRepository`, `BossRoomManager`, `EmpireRPGPlugin`. DDL/마이그레이션 추가 없음(기존 boss_session 재사용).
+
+**관련:** DL-091(#5 게이트), DL-084(boss_session), INBOX-005 2차.
+
+---
+
 ### DL-096 전투 공식 후속 — 보스 피해증가 + 치명 피해량 스탯 적용 (#7 잔여)
 
 **결정:** DL-092(#7)에서 후속으로 미뤘던 두 계층을 중앙 데미지 적용부에 마저 배선한다.
