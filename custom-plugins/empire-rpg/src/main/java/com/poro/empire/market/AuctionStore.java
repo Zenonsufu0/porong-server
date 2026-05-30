@@ -132,6 +132,12 @@ public final class AuctionStore {
         }
     }
 
+    /** 관리자 로그용 — 최근 판매 완료 거래 N건 (status='sold', sold_at DESC). */
+    public List<AuctionListing> recentSold(int limit) {
+        String sql = "SELECT * FROM auction_listings WHERE status='sold' ORDER BY sold_at DESC LIMIT " + limit;
+        return queryListings(sql);
+    }
+
     public Result<AuctionListing> findActive(long listingId) {
         String sql = "SELECT * FROM auction_listings WHERE id=? AND status='active'";
         try (Connection conn = connectionProvider.getConnection().value();

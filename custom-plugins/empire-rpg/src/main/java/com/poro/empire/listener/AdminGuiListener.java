@@ -6,16 +6,20 @@ import com.poro.empire.boss.room.BossRoomManager;
 import com.poro.empire.boss.room.BossRoomSlot;
 import com.poro.empire.growth.GrowthStateStore;
 import com.poro.empire.growth.island.IslandTerritoryStateStore;
+import com.poro.empire.growth.engine.InMemoryEnhancementLogHook;
 import com.poro.empire.gui.AdminHubGui;
 import com.poro.empire.gui.AdminInspectGui;
+import com.poro.empire.gui.AdminLogGui;
 import com.poro.empire.gui.AdminMatchesGui;
 import com.poro.empire.gui.AdminStatsGui;
 import com.poro.empire.gui.AdminTogglesGui;
 import com.poro.empire.gui.GuiTitles;
+import com.poro.empire.market.AuctionStore;
 import com.poro.empire.pvp.PvpArenaManager;
 import com.poro.empire.pvp.PvpArenaSlot;
 import com.poro.empire.pvp.PvpMatchService;
 import com.poro.empire.pvp.PvpRatingService;
+import com.poro.empire.pvp.db.PvpMatchLogRepository;
 import com.poro.empire.storage.PlayerDataManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -50,6 +54,9 @@ public final class AdminGuiListener implements Listener {
     private final PvpArenaManager            pvpArenaManager;
     private final BossRoomManager            bossRoomManager;
     private final AdminTogglesService        togglesService;
+    private final InMemoryEnhancementLogHook enhanceLog;
+    private final AuctionStore               auctionStore;
+    private final PvpMatchLogRepository       pvpLog;
     private final long                       seasonStartEpoch;
 
     /** Anvil 인스펙트 닉네임 입력 대기. */
@@ -58,6 +65,10 @@ public final class AdminGuiListener implements Listener {
     private final Map<UUID, List<UUID>> matchSlotMapping = new ConcurrentHashMap<>();
     /** 운영 토글 GUI에서 슬롯 인덱스 → Toggle (open 호출 시 갱신). */
     private final Map<UUID, Toggle[]> toggleSlotMapping = new ConcurrentHashMap<>();
+    /** 로그 GUI 현재 보기 상태 (탭 + 페이지). */
+    private final Map<UUID, LogView> logView = new ConcurrentHashMap<>();
+
+    private record LogView(AdminLogGui.LogTab tab, int page) {}
 
     public AdminGuiListener(PlayerDataManager playerDataManager,
                             GrowthStateStore growthStateStore,
@@ -67,6 +78,9 @@ public final class AdminGuiListener implements Listener {
                             PvpArenaManager pvpArenaManager,
                             BossRoomManager bossRoomManager,
                             AdminTogglesService togglesService,
+                            InMemoryEnhancementLogHook enhanceLog,
+                            AuctionStore auctionStore,
+                            PvpMatchLogRepository pvpLog,
                             long seasonStartEpoch) {
         this.playerDataManager  = playerDataManager;
         this.growthStateStore   = growthStateStore;
@@ -76,6 +90,9 @@ public final class AdminGuiListener implements Listener {
         this.pvpArenaManager    = pvpArenaManager;
         this.bossRoomManager    = bossRoomManager;
         this.togglesService     = togglesService;
+        this.enhanceLog         = enhanceLog;
+        this.auctionStore       = auctionStore;
+        this.pvpLog             = pvpLog;
         this.seasonStartEpoch   = seasonStartEpoch;
     }
 
@@ -111,6 +128,10 @@ public final class AdminGuiListener implements Listener {
         } else if (GuiTitles.ADMIN_TOGGLES.equals(event.getView().title())) {
             event.setCancelled(true);
             handleTogglesClick(player, event.getRawSlot());
+
+        } else if (GuiTitles.ADMIN_LOGS.equals(event.getView().title())) {
+            event.setCancelled(true);
+            handleLogClick(player, event.getRawSlot());
 
         } else if (pendingInspectAnvil.contains(uid)
                 && event.getInventory() instanceof AnvilInventory anvil
@@ -166,6 +187,7 @@ public final class AdminGuiListener implements Listener {
                     seasonStartEpoch, pvpArenaManager, bossRoomManager, pvpMatchService);
             case AdminHubGui.SLOT_TOGGLES -> toggleSlotMapping.put(admin.getUniqueId(),
                     AdminTogglesGui.open(admin, togglesService));
+            case AdminHubGui.SLOT_LOGS    -> openLog(admin, AdminLogGui.LogTab.ENHANCE, 0);
             case AdminHubGui.SLOT_RELEASE -> {
                 if (click.isShiftClick()) {
                     forceReleaseAllSlots(admin);
@@ -189,6 +211,26 @@ public final class AdminGuiListener implements Listener {
         Bukkit.getLogger().info("[empire-admin] " + admin.getName() + " toggled " + t.name() + " → " + next);
         // GUI refresh
         toggleSlotMapping.put(admin.getUniqueId(), AdminTogglesGui.open(admin, togglesService));
+    }
+
+    private void openLog(Player admin, AdminLogGui.LogTab tab, int page) {
+        int total = AdminLogGui.open(admin, tab, page, enhanceLog, auctionStore, pvpLog);
+        int safe  = Math.max(0, Math.min(page, total - 1));
+        logView.put(admin.getUniqueId(), new LogView(tab, safe));
+    }
+
+    private void handleLogClick(Player admin, int slot) {
+        LogView v = logView.getOrDefault(admin.getUniqueId(), new LogView(AdminLogGui.LogTab.ENHANCE, 0));
+        switch (slot) {
+            case AdminLogGui.SLOT_BACK        -> AdminHubGui.open(admin);
+            case AdminLogGui.SLOT_CLOSE       -> admin.closeInventory();
+            case AdminLogGui.SLOT_TAB_ENHANCE -> openLog(admin, AdminLogGui.LogTab.ENHANCE, 0);
+            case AdminLogGui.SLOT_TAB_TRADE   -> openLog(admin, AdminLogGui.LogTab.TRADE,   0);
+            case AdminLogGui.SLOT_TAB_PVP     -> openLog(admin, AdminLogGui.LogTab.PVP,     0);
+            case AdminLogGui.SLOT_PREV        -> openLog(admin, v.tab(), v.page() - 1);
+            case AdminLogGui.SLOT_NEXT        -> openLog(admin, v.tab(), v.page() + 1);
+            default -> { /* 로그 항목 클릭 — 읽기 전용, 무시 */ }
+        }
     }
 
     private void handleMatchesClick(Player admin, int slot, ClickType click) {

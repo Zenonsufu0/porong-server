@@ -51,7 +51,9 @@ public final class AdminHubGui {
         inv.setItem(SLOT_TOGGLES, MainHubGui.icon(Material.LEVER, "§e운영 토글",
                 List.of("§7보스 스폰·강화/EXP/드랍 부스트·PvP 큐",
                         "§a▶ 클릭하여 열기")));
-        inv.setItem(SLOT_LOGS,      stub("§8로그/감시"));
+        inv.setItem(SLOT_LOGS, MainHubGui.icon(Material.WRITABLE_BOOK, "§e로그/감시",
+                List.of("§7최근 강화·거래·PvP 로그 조회",
+                        "§a▶ 클릭하여 열기")));
 
         inv.setItem(SLOT_CLOSE, MainHubGui.icon(Material.BARRIER, "§c닫기", List.of()));
         admin.openInventory(inv);

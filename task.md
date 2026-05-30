@@ -10,7 +10,7 @@
 - 최근 커밋: `58a38e0` (§6-15 Step 2b — 운영 토글 5종 게임 로직 hook 적용)
 - 빌드: `./gradlew compileJava → BUILD SUCCESSFUL` (기존 deprecated AnvilInventory warning만 잔존)
 - **§6-15 코드(`ff46573`) + Step 2b 토글 hook(`58a38e0`) 커밋 완료**, `codex-review` 동기화 완료 (master == codex-review)
-- 다음: 관리자 Phase 2 Step 3 — 로그/감시 GUI + `/empire-log`
+- 다음: 관리자 Phase 2 Step 4 — 보스 디버그 GUI + `/empire-boss-list`·`/empire-boss-end`
 
 ---
 
@@ -257,6 +257,29 @@
 | `docs/10_development_roadmap/admin_gui_phase2.md` — Step 2 완료/Step 2b hook 명시 | docs | ✅ |
 | `BUILD SUCCESSFUL` | — | ✅ |
 
+## §6-16 관리자 Phase 2 Step 3 — 로그/감시 GUI + /empire-log — 완료 (2026-05-30, 미커밋)
+
+기준: `docs/10_development_roadmap/admin_gui_phase2.md` §로그/감시 (slot 33)
+
+| 항목 | 파일 | 상태 |
+|---|---|---|
+| `AdminLogGui` — 54슬롯 3탭(강화/거래/PvP) 페이지네이션 45/page, 읽기 전용 | `gui/AdminLogGui.java` (신규) | ✅ |
+| `/empire-log [enhance\|trade\|pvp]` 텍스트 출력 (콘솔 가능, 탭별 최근 10건) | `command/AdminLogCommand.java` (신규) | ✅ |
+| `AuctionStore.recentSold(limit)` — `status='sold' ORDER BY sold_at DESC` | `market/AuctionStore.java` | ✅ |
+| `PvpMatchLogRepository.recentMatches(limit)` + `PvpMatchLogRow` record | `pvp/db/PvpMatchLogRepository.java` | ✅ |
+| 강화 로그 소스 = `InMemoryEnhancementLogHook.logs()` (in-memory, 휘발성) | — | ✅ |
+| `GuiTitles.ADMIN_LOGS` + `AdminHubGui` slot 33 stub→활성 | `gui/*` | ✅ |
+| `AdminGuiListener` — 로그 소스 3종 주입 + `ADMIN_LOGS` 탭/페이지 핸들러 + `LogView` 상태 | `listener/AdminGuiListener.java` | ✅ |
+| `EmpireRPGPlugin` — `pvpMatchLogRepo` 필드 승격 + 주입 + `/empire-log` 등록 | `EmpireRPGPlugin.java` | ✅ |
+| `plugin.yml` — `empire-log` 등록 (`empire.admin`) | `plugin.yml` | ✅ |
+| `BUILD SUCCESSFUL` | — | ✅ |
+
+### §6-16 잔여
+- 의심 활동 알림(짧은 시간 다량 거래·반복 패배 등) — 집계/임계 로직 별도 설계 필요, Step 3+ 보류
+- 강화 로그 영속화 — 현재 in-memory. DB 테이블 필요 시 별도 작업
+
+---
+
 ### §6-15 Step 2b — 토글 hook 실제 적용 — 완료 (2026-05-30)
 
 | 플래그 | 적용 위치 | 상태 |
@@ -302,8 +325,7 @@
 
 | 우선도 | 항목 | 비고 |
 |---|---|---|
-| 높음 | 관리자 Phase 2 Step 3 — 로그/감시 GUI + `/empire-log` | DB에 이미 있는 로그(강화·거래·PvP) GUI 노출 |
-| 중간 | 관리자 Phase 2 Step 4 — 보스 디버그 GUI + 명령어 | 보스 런 stuck 처리, `/empire-boss-list`·`/empire-boss-end` |
+| 높음 | 관리자 Phase 2 Step 4 — 보스 디버그 GUI + 명령어 | 보스 런 stuck 처리, `/empire-boss-list`·`/empire-boss-end` |
 | 중간 | 관리자 Phase 2 Step 5 — 영지 관리 GUI (slot 29) | 1차 시즌 영지 분쟁 빈도 높을 가능성 |
 | 높음 | JAR 재빌드 + 서버 배포 + in-game HUD/스코어보드 확인 | §6-12 수정 검증 — HUD 행 정렬, 아이콘 크기 확인 |
 | 높음 | 서버 통합 테스트 — `/보스` 선택 → `[보스]` 표지판 → MM 스폰 런타임 확인 | `season_bosses.yml` 로드 + bossId 매칭 검증 |
@@ -333,3 +355,4 @@
 | questSnapshot 미적재 | `upsertQuestSnapshot` 호출 경로 없음 — `/player/by-nick` 응답의 `완료 퀘스트` 항목은 0 고정. 퀘스트 시스템 구현(§8+) 후 PlayerJoinListener에 연결 |
 | boss_pattern_seed.csv | 7개 보스 placeholder 패턴만 있음 — 실제 패턴 설계 필요 |
 | 스킬 자원 스택 최대값 | 각 스킬 파일에 max=3 또는 5 하드코딩 — CANON "유지형 자원 최대 6스택"은 각인(유지형/소모형 분기) 기반이며 1차 시즌 각인 제외로 해당 없음. 현재 값은 스킬 스펙(weapon_skills_v1.md) 기본값 |
+| 스킬 이펙트 22종 미구현 (DL-070) | 24개 무기 스킬 중 **낫 사신베기·월영회전 2종만** `BaseWeaponSkill` 헬퍼로 이펙트 구현. 검4·창4·도끼4·석궁4·스태프4 + 낫 그믐참·처형낫 = **22종 이펙트 전무** (데미지/히트박스는 완성, 시각/청각 연출만 비어 있음). DL-070 우선순위 3~6 미진행. effect_key 스펙은 weapon_skills_v1.md §무기별 effect_key 기준값. 감사일 2026-05-30 |

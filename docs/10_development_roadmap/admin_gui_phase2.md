@@ -46,14 +46,18 @@
 - GUI: `/empire-admin` → slot 31 (운영 토글)
 - 명령어: `/empire-toggle <flag> [on|off]`, `/empire-toggle list`
 
-### 로그/감시 (slot 33)
+### 로그/감시 (slot 33) — **Step 3 구현 완료 (2026-05-30)**
 
-| 기능 | 비고 |
+| 기능 | 상태 |
 |---|---|
-| 최근 강화 시도 로그 | 100건, 성공/실패/천장 보정 표시 |
-| 최근 거래 로그 | 경매장 거래 100건 |
-| 최근 PvP 매치 로그 | pvp_match_log 활용 |
-| 의심 활동 알림 | 짧은 시간 다량 거래·반복 패배 등 |
+| 최근 강화 시도 로그 | ✅ 100건, 성공/실패/천장 보정 표시 (`InMemoryEnhancementLogHook.logs()` — in-memory, 재시작 시 소실) |
+| 최근 거래 로그 | ✅ 경매장 판매 100건 (`AuctionStore.recentSold` — `auction_listings status='sold'`) |
+| 최근 PvP 매치 로그 | ✅ `PvpMatchLogRepository.recentMatches` — `pvp_match_log` DB |
+| 의심 활동 알림 | ⏳ Step 3+ 보류 (집계/임계 로직 별도 설계 필요) |
+
+- GUI: `AdminLogGui` (54슬롯, 3탭 강화/거래/PvP, 페이지네이션 45/page, 읽기 전용). 진입: `/empire-admin` → slot 33.
+- 명령어: `/empire-log [enhance|trade|pvp]` (콘솔 가능, 탭별 최근 10건 텍스트).
+- 영속성 주의: 강화 로그만 in-memory (휘발성) — GUI lore·명령어 헤더에 명시.
 
 ### 보스 디버그 (별도 진입점 검토)
 

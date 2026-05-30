@@ -163,6 +163,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
     private PvpRatingService    pvpRatingService;
     private PvpArenaManager     pvpArenaManager;
     private PvpMatchService     pvpMatchService;
+    private PvpMatchLogRepository pvpMatchLogRepo;
     private com.poro.empire.admin.AdminTogglesService adminTogglesService;
     private BossRoomManager     bossRoomManager;
     private BossRewardService   bossRewardService;
@@ -367,7 +368,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                 foundationContext.connectionProvider(),
                 foundationContext.logger().domain("pvp.rating"));
         pvpRatingService.attachRepository(pvpRatingRepo);
-        PvpMatchLogRepository pvpMatchLogRepo = new PvpMatchLogRepository(
+        this.pvpMatchLogRepo = new PvpMatchLogRepository(
                 foundationContext.connectionProvider(),
                 foundationContext.logger().domain("pvp.matchlog"));
         pvpMatchService.attachMatchLog(pvpMatchLogRepo);
@@ -650,6 +651,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                         playerDataManager, growthStateStore, islandTerritoryStateStore,
                         pvpRatingService, pvpMatchService, pvpArenaManager, bossRoomManager,
                         adminTogglesService,
+                        growthEngineRuntime.enhancementLogHook(), auctionStore, pvpMatchLogRepo,
                         foundationContext.config().seasonStartEpoch());
         getServer().getPluginManager().registerEvents(adminGuiListener, this);
         var adminCmd = getCommand("empire-admin");
@@ -678,6 +680,15 @@ public final class EmpireRPGPlugin extends JavaPlugin {
             toggleCmd.setExecutor(new com.poro.empire.command.AdminTogglesCommand(adminTogglesService));
         } else {
             getLogger().warning("커맨드 /empire-toggle plugin.yml 미등록 — 건너뜀.");
+        }
+
+        // 로그/감시 명령 (Phase 2 Step 3)
+        var logCmd = getCommand("empire-log");
+        if (logCmd != null) {
+            logCmd.setExecutor(new com.poro.empire.command.AdminLogCommand(
+                    growthEngineRuntime.enhancementLogHook(), auctionStore, pvpMatchLogRepo));
+        } else {
+            getLogger().warning("커맨드 /empire-log plugin.yml 미등록 — 건너뜀.");
         }
     }
 }
