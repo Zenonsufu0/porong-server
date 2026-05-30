@@ -19,6 +19,7 @@ import com.poro.empire.market.AuctionStore;
 import com.poro.empire.operations.query.model.PlayerProfileRecord;
 import com.poro.empire.operations.query.store.OperationsDataStore;
 import com.poro.empire.persistence.PlayerPersistenceService;
+import com.poro.empire.persistence.PlayerSessionRepository;
 import com.poro.empire.scoreboard.ScoreboardService;
 import com.poro.empire.storage.PlayerDataManager;
 import com.poro.empire.tutorial.TutorialService;
@@ -55,6 +56,7 @@ public final class PlayerJoinListener implements Listener {
     private final OperationsDataStore        operationsDataStore;
     private final PlayerGrowthSnapshotBuilder growthSnapshotBuilder;
     private final ResourceTracker             resourceTracker;
+    private final PlayerSessionRepository      playerSessionRepository;
 
     public PlayerJoinListener(
             Plugin plugin,
@@ -72,7 +74,8 @@ public final class PlayerJoinListener implements Listener {
             BossRoomManager bossRoomManager,
             OperationsDataStore operationsDataStore,
             PlayerGrowthSnapshotBuilder growthSnapshotBuilder,
-            ResourceTracker resourceTracker
+            ResourceTracker resourceTracker,
+            PlayerSessionRepository playerSessionRepository
     ) {
         this.plugin = plugin;
         this.playerDataManager = playerDataManager;
@@ -89,11 +92,13 @@ public final class PlayerJoinListener implements Listener {
         this.operationsDataStore = operationsDataStore;
         this.growthSnapshotBuilder = growthSnapshotBuilder;
         this.resourceTracker = resourceTracker;
+        this.playerSessionRepository = playerSessionRepository;
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
+        playerSessionRepository.recordJoin(player.getUniqueId(), player.getName(), System.currentTimeMillis());
         playerDataManager.onPlayerJoin(player);
         playerPersistenceService.load(player.getUniqueId(), player.getName());
         collectWorkshopResults(player);
@@ -219,6 +224,7 @@ public final class PlayerJoinListener implements Listener {
     public void onQuit(PlayerQuitEvent event) {
         UUID uuid = event.getPlayer().getUniqueId();
         String userId = uuid.toString();
+        playerSessionRepository.recordQuit(uuid, System.currentTimeMillis());
         // quit 전 최신 스냅샷 보존 (오프라인 조회용)
         growthStateStore.get(uuid).ifPresent(state ->
                 operationsDataStore.upsertGrowthSnapshot(userId, growthSnapshotBuilder.build(state)));

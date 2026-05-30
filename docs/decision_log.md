@@ -4,6 +4,26 @@
 
 ---
 
+### DL-078 접속 세션 로그 — 리텐션·DAU·플레이타임 수집 테이블 신규
+
+**결정:** `player_session_log` 테이블을 신규 추가해 플레이어 접속/종료 세션을 DB 영속 기록한다. 운영 판단용 활동 지표(DAU·플레이타임·리텐션)의 데이터 소스.
+
+**이유:**
+- 45일 시즌 서버에서 가장 치명적인 운영 지표는 **유저 잔존(리텐션)** 인데, 기존에는 접속 시각조차 기록하지 않아 측정 불가였다 (INBOX-004 #1 검토 결과).
+- 데이터 수집 충분성 검토(2026-05-30)에서 활동 추적이 "완전 미수집"으로 분류됨.
+
+**결과 (코드 구조):**
+- `player_session_log` (id, player_uuid, player_name, joined_at, quit_at, duration_s, session_date) + 인덱스 3종. `PlayerSessionMigration`을 마이그레이션 체인에 등록.
+- 쓰기: `PlayerJoinListener.onJoin` → `recordJoin`(quit_at NULL INSERT), `onQuit` → `recordQuit`(최근 열린 세션 UPDATE + duration 계산). `onDisable` → `closeOpenSessions`로 정상 종료 시 마감.
+- 읽기 API: `GET /api/v1/activity/summary`(총 세션·고유 플레이어·평균 세션 길이), `GET /api/v1/activity/dau?days=N`(날짜별 DAU).
+- 크래시로 quit 이벤트 누락 시 세션은 quit_at=NULL → 플레이타임 집계 제외, DAU에는 포함.
+
+**영향 범위:** `PlayerSessionDdl`, `PlayerSessionMigration`, `PlayerSessionRepository`(신규), `PlayerJoinListener`, `EmpireRPGPlugin`, `ActivityApiHandler`(신규), `EmpireHttpServer`, `OperationsQueryBootstrap`, `CommonFoundationBootstrap`.
+
+**관련:** `docs/idea_inbox.md` INBOX-004 #1 (PROMOTED). 나머지 공백 6종(#2~#7)은 미구현 잔존.
+
+---
+
 ### DL-070 스킬 이펙트 — 1차 시즌은 Bukkit Particle 직접 구현, MythicMobs 이펙트 키 사용 안 함
 
 **결정:** 모든 무기 스킬의 시각 이펙트(파티클·사운드)는 1차 시즌 동안 Bukkit API(`World.spawnParticle`, `World.playSound`)로 직접 구현한다. `weapon_skills_v1.md`의 `effect_key: mm:xxx / dp:xxx` 컬럼은 향후 참고용으로만 남기고 현재는 사용하지 않는다.

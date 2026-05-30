@@ -29,15 +29,18 @@ public final class EmpireHttpServer {
     public static EmpireHttpServer create(
             BossApiHandler bossApiHandler,
             PlayerApiHandler playerApiHandler,
+            ActivityApiHandler activityApiHandler,
             String bindHost,
             DomainLogger logger) throws Exception {
         Objects.requireNonNull(bossApiHandler, "bossApiHandler");
         Objects.requireNonNull(playerApiHandler, "playerApiHandler");
+        Objects.requireNonNull(activityApiHandler, "activityApiHandler");
         Objects.requireNonNull(logger, "logger");
         String host = (bindHost == null || bindHost.isBlank()) ? "127.0.0.1" : bindHost;
 
         HttpServer server = HttpServer.create(new InetSocketAddress(host, PORT), 0);
         server.createContext("/api/v1/boss", bossApiHandler);
+        server.createContext("/api/v1/activity", activityApiHandler);
         server.createContext("/player/by-nick", playerApiHandler);
         server.createContext("/island/by-nick", playerApiHandler);
         server.createContext("/boss-history/by-nick", playerApiHandler);

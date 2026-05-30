@@ -6,6 +6,7 @@ import com.poro.empire.common.db.BossSessionMigrationV2;
 import com.poro.empire.common.db.CompositeMigrationEntryPoint;
 import com.poro.empire.common.db.IslandSettingsMigration;
 import com.poro.empire.common.db.PvpMigration;
+import com.poro.empire.common.db.PlayerSessionMigration;
 import com.poro.empire.common.db.ConnectionProvider;
 import com.poro.empire.common.db.DatabaseBootstrapper;
 import com.poro.empire.common.db.JdbcTransactionHelper;
@@ -52,7 +53,8 @@ public final class CommonFoundationBootstrap {
                     new BossSessionMigrationV2(logger.domain("db.migration.boss-session-v2")),
                     new AuctionMigration(logger.domain("db.migration.auction")),
                     new PvpMigration(logger.domain("db.migration.pvp")),
-                    new IslandSettingsMigration(logger.domain("db.migration.island-settings"))
+                    new IslandSettingsMigration(logger.domain("db.migration.island-settings")),
+                    new PlayerSessionMigration(logger.domain("db.migration.player-session"))
             ));
             DatabaseBootstrapper databaseBootstrapper = new DatabaseBootstrapper(
                     connectionProvider,

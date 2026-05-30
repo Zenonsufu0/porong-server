@@ -8,6 +8,7 @@ import com.poro.empire.common.registry.master.MasterRegistryContext;
 import com.poro.empire.common.result.Result;
 import com.poro.empire.growth.engine.GrowthEngineRuntime;
 import com.poro.empire.life.engine.LifeEngineRuntime;
+import com.poro.empire.operations.http.ActivityApiHandler;
 import com.poro.empire.operations.http.BossApiHandler;
 import com.poro.empire.operations.http.EmpireHttpServer;
 import com.poro.empire.operations.http.PlayerApiHandler;
@@ -93,6 +94,10 @@ public final class OperationsQueryBootstrap {
             httpServer = EmpireHttpServer.create(
                     new BossApiHandler(bossSessionRepository, apiSecretKey),
                     new PlayerApiHandler(publicSnapshotQueryService, apiSecretKey),
+                    new ActivityApiHandler(
+                            new com.poro.empire.persistence.PlayerSessionRepository(
+                                    foundationContext.connectionProvider(), httpLogger),
+                            apiSecretKey),
                     apiBind,
                     httpLogger
             );

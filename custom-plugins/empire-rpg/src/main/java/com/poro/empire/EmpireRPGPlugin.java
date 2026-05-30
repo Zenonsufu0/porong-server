@@ -164,6 +164,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
     private PvpArenaManager     pvpArenaManager;
     private PvpMatchService     pvpMatchService;
     private PvpMatchLogRepository pvpMatchLogRepo;
+    private com.poro.empire.persistence.PlayerSessionRepository playerSessionRepo;
     private com.poro.empire.admin.AdminTogglesService adminTogglesService;
     private BossRoomManager     bossRoomManager;
     private BossRewardService   bossRewardService;
@@ -372,6 +373,10 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                 foundationContext.connectionProvider(),
                 foundationContext.logger().domain("pvp.matchlog"));
         pvpMatchService.attachMatchLog(pvpMatchLogRepo);
+        // 접속 세션 로그 (리텐션·DAU·플레이타임, INBOX-004 #1)
+        this.playerSessionRepo = new com.poro.empire.persistence.PlayerSessionRepository(
+                foundationContext.connectionProvider(),
+                foundationContext.logger().domain("db.session"));
         pvpMatchService.attachGrowthState(growthStateStore);
 
         PvpFriendlyService pvpFriendlyService = new PvpFriendlyService(this, pvpMatchService);
@@ -453,6 +458,11 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         if (operationsQueryRuntime != null && operationsQueryRuntime.httpServer() != null) {
             operationsQueryRuntime.httpServer().stop();
         }
+        // 정상 종료 시 남은 열린 세션 마감 (크래시 dangling 방지)
+        if (playerSessionRepo != null) {
+            int closed = playerSessionRepo.closeOpenSessions(System.currentTimeMillis());
+            if (closed > 0) getLogger().info("Closed " + closed + " open player session(s) on shutdown.");
+        }
         getLogger().info("EmpireRPG disabled.");
     }
 
@@ -504,7 +514,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                                    FieldBossRespawnScheduler fieldBossScheduler) {
 
         getServer().getPluginManager().registerEvents(
-                new PlayerJoinListener(this, playerDataManager, hotbarService, tutorialService, scoreboardService, playerPersistenceService, growthStateStore, islandTerritoryStateStore, islandStorageStore, auctionStore, classInitService, partyManager, bossRoomManager, operationsQueryRuntime.dataStore(), growthEngineRuntime.snapshotBuilder(), resourceTracker), this);
+                new PlayerJoinListener(this, playerDataManager, hotbarService, tutorialService, scoreboardService, playerPersistenceService, growthStateStore, islandTerritoryStateStore, islandStorageStore, auctionStore, classInitService, partyManager, bossRoomManager, operationsQueryRuntime.dataStore(), growthEngineRuntime.snapshotBuilder(), resourceTracker, playerSessionRepo), this);
         getServer().getPluginManager().registerEvents(
                 new WeaponSelectionGuiListener(playerDataManager, scoreboardService, classInitService), this);
         getServer().getPluginManager().registerEvents(
