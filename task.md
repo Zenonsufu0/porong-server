@@ -1,15 +1,16 @@
 # 포로 서버 작업 현황
 
-> 마지막 갱신: 2026-05-29 (§6-12 HUD overlay 수정 + 스코어보드 PNG 아이콘 + 메뉴 GUI 아이콘 대체 + /직업 명령어)
+> 마지막 갱신: 2026-05-30 (§6-15 Phase 2 Step 2 — 운영 토글 GUI + /empire-toggle)
 
 ---
 
 ## 현재 브랜치 상태
 
-- 브랜치: `master` (미커밋 변경 있음 — §6-12 작업분)
-- 최근 커밋: `cea6aeb AuctionMigration 구 스키마 안전 처리`
-- 빌드: `./gradlew compileJava → BUILD SUCCESSFUL`
-- **§6-12 작업 완료, 미커밋 상태** → `orc handoff-main "§6-12 HUD overlay + 스코어보드 PNG 아이콘 + 메뉴GUI 아이콘 대체 + /직업 명령어"` 로 커밋 예정
+- 브랜치: `master`
+- 최근 커밋: `ff46573` (§6-15 Phase 2 Step 2 — 운영 토글 GUI + /empire-toggle)
+- 빌드: `./gradlew compileJava → BUILD SUCCESSFUL` (10 warning은 기존 deprecated AnvilInventory)
+- **§6-15 코드 커밋 완료** (`ff46573`), `codex-review` worktree 동기화 완료 (master == codex-review)
+- 다음: §6-15 Step 2b — 토글 hook 실제 게임 로직 적용
 
 ### 미커밋 변경 파일 (§6-12)
 | 파일 | 변경 내용 |
@@ -220,6 +221,69 @@
 | 보스정보 상세 | stub 미구현 | §7+ 예정 |
 | 영지설정 | stub 미구현 | §7+ 예정 |
 
+## §6-13 PvP 시스템 (CANON §13) — 완료 (2026-05-29~30)
+
+기준 문서: `docs/04_combat_weapon_skills/CANON.md §13`, DL-077
+
+| 항목 | 파일 | 상태 |
+|---|---|---|
+| `PvpArenaSlot` / `PvpArenaManager` — 슬롯 풀 + `tryOccupy`/`releaseByMatchId`, `isInArena` | 신규 | ✅ |
+| `PvpMatch` / `PvpMatchService` — enqueue, 매치 시작·종료·AUTO_RETURN_TICKS·강제종료 | 신규 | ✅ |
+| `PvpRatingService` — Elo 유사 점수, repository 연결, `adminAdjustScore` | 신규 | ✅ |
+| `PvpRatingRepository` (DB 저장) + 통합 마이그레이션 | 신규 | ✅ |
+| RANKED IL 60 데미지 클램프 (scale 무조건 적용) | `PvpMatchService` | ✅ |
+| `PvpTeleportListener` — 매치 중 텔레포트/명령 차단 (`internalTeleport` 마커 + IS `home` 처리 순서) | 신규 | ✅ |
+| Codex 리뷰 P1/P2/P3 사이클 — `nextValidCandidate` 헬퍼, 슬롯 해제 타이밍, playerToMatch 정리 시점 | 다회 커밋 | ✅ |
+| `BUILD SUCCESSFUL` | — | ✅ |
+
+## §6-14 관리자 GUI Phase 1 + 운영자 명령어 (Step 1) — 완료 (2026-05-30)
+
+기준 문서: `docs/10_development_roadmap/admin_gui_phase2.md`, 커밋 `627e163`
+
+| 항목 | 파일 | 상태 |
+|---|---|---|
+| `/empire-admin` 허브 + Phase 1 GUI (인스펙트·진행매치·통계·슬롯해제) | `AdminHubGui`, `AdminInspectGui`, `AdminMatchesGui`, `AdminStatsGui`, `AdminGuiListener`, `AdminHubCommand` | ✅ |
+| Anvil 닉네임 → `AdminInspectGui` 27슬롯 (직업·레벨·영지·PvP·재화·장비 5슬롯·평균 IL) | `AdminInspectGui` | ✅ |
+| 운영자 단건 변경 8종 (`empire-give`, `empire-currency`, `empire-rank`, `empire-enhance`, `empire-level`, `empire-pvp-score`, `empire-cleanse`, `empire-island-reset`) | `AdminPlayerCommand` (신규) | ✅ |
+| `PlayerEquipmentItem.setEnhanceLevel` 가시성 public 승격 (관리자 명령 접근용) | `PlayerEquipmentItem` | ✅ |
+| `PvpMatchService.activeMatches()` / `adminForceEnd(matchId, reason)` 추가 | `PvpMatchService` | ✅ |
+| `PvpRatingService.adminAdjustScore(uuid, name, delta)` 추가 | `PvpRatingService` | ✅ |
+| 권한 분리 (sub-permissions) + 명령어 네이밍 일관화 | `plugin.yml` | ✅ |
+
+## §6-15 관리자 Phase 2 Step 2 — 운영 토글 — 완료 (2026-05-30, 미커밋)
+
+기준: 사용자 지시 "C 방식 — 모든 동작은 명령어로도 존재해야 하고 운영자용 편의성/기능성 명령어도 검토"
+
+| 항목 | 파일 | 상태 |
+|---|---|---|
+| `AdminTogglesService` — 5개 플래그 (`BOSS_SPAWN_PAUSE`/`ENHANCE_BOOST`/`EXP_BOOST`/`DROP_BOOST`/`PVP_QUEUE_PAUSE`), in-memory `LinkedHashMap`, isOn/setOn/setOff/toggle/all | `admin/AdminTogglesService.java` (신규) | ✅ |
+| `/empire-toggle <flag> [on|off]` / `/empire-toggle list` | `command/AdminTogglesCommand.java` (신규) | ✅ |
+| `AdminTogglesGui` — 27슬롯, Toggle 당 LIME/GRAY 다이 아이콘, `open()` 반환 `Toggle[]`로 슬롯 매핑 | `gui/AdminTogglesGui.java` (신규) | ✅ |
+| `GuiTitles.ADMIN_TOGGLES` 추가 | `gui/GuiTitles.java` | ✅ |
+| `AdminHubGui` slot 31 stub → 활성 LEVER 아이콘 | `gui/AdminHubGui.java` | ✅ |
+| `AdminGuiListener` — togglesService 주입, `ADMIN_TOGGLES` 클릭 핸들러, `toggleSlotMapping` | `listener/AdminGuiListener.java` | ✅ |
+| `EmpireRPGPlugin` — `AdminTogglesService` 생성 + `AdminTogglesCommand` 등록 | `EmpireRPGPlugin.java` | ✅ |
+| `plugin.yml` — `empire-toggle` 명령 등록 (`empire.admin`) | `plugin.yml` | ✅ |
+| `docs/10_development_roadmap/admin_gui_phase2.md` — Step 2 완료/Step 2b hook 명시 | docs | ✅ |
+| `BUILD SUCCESSFUL` | — | ✅ |
+
+### §6-15 잔여 (Step 2b — 토글 hook 실제 적용)
+
+| 플래그 | 적용 위치 | 상태 |
+|---|---|---|
+| `BOSS_SPAWN_PAUSE` | 표지판 `BossRoomListener.startRun` + MM 스폰 가드 | TODO |
+| `ENHANCE_BOOST` | `EnhanceService` 성공률 ×2 | TODO |
+| `EXP_BOOST` | EXP 지급 경로 (필드 EXP 등) ×2 | TODO |
+| `DROP_BOOST` | `FieldDropListener` 드랍 확률/수량 ×2 | TODO |
+| `PVP_QUEUE_PAUSE` | `PvpMatchService.enqueue` 진입 시 reject 메시지 | TODO |
+
+### Phase 2 Step 3+ 미진행
+- Step 3: 로그/감시 GUI + `/empire-log` (강화·거래·PvP 로그)
+- Step 4: 보스 디버그 GUI + `/empire-boss-list`·`/empire-boss-end`
+- Step 5: 영지 관리 GUI (slot 29) — 목록/초기화/작위 강제 변경
+
+---
+
 ## §6-12 HUD·스코어보드·GUI·명령어 개선 — 완료 (2026-05-29)
 
 | 항목 | 파일 | 상태 |
@@ -244,6 +308,11 @@
 
 | 우선도 | 항목 | 비고 |
 |---|---|---|
+| 높음 | §6-15 커밋 + `orc to-review` 동기화 | Step 2 미커밋 + 누적 sync 부채(`1cf2605` 이후) |
+| 높음 | §6-15 Step 2b — 토글 hook 실제 적용 | 5개 플래그를 게임 로직에 연결해야 효과 발생 |
+| 중간 | 관리자 Phase 2 Step 3 — 로그/감시 GUI + `/empire-log` | DB에 이미 있는 로그(강화·거래·PvP) GUI 노출 |
+| 중간 | 관리자 Phase 2 Step 4 — 보스 디버그 GUI + 명령어 | 보스 런 stuck 처리, `/empire-boss-list`·`/empire-boss-end` |
+| 중간 | 관리자 Phase 2 Step 5 — 영지 관리 GUI (slot 29) | 1차 시즌 영지 분쟁 빈도 높을 가능성 |
 | 높음 | JAR 재빌드 + 서버 배포 + in-game HUD/스코어보드 확인 | §6-12 수정 검증 — HUD 행 정렬, 아이콘 크기 확인 |
 | 높음 | 서버 통합 테스트 — `/보스` 선택 → `[보스]` 표지판 → MM 스폰 런타임 확인 | `season_bosses.yml` 로드 + bossId 매칭 검증 |
 | 중간 | HUD 행 X 정렬 패딩 (행별 advance 패딩으로 정확한 overlay) | 확인 후 필요 시 |
