@@ -63,11 +63,14 @@ public final class BossSessionRepository {
         }
     }
 
-    /** 파티원 입장 — boss_session_player INSERT. 참여자 스펙은 placeholder (§7+ 실수치 교체 예정). */
-    public Result<Void> recordPlayerEntry(long sessionId, String uuid) {
+    /**
+     * 파티원 입장 — boss_session_player INSERT. 참여자 스펙(무기 강화·평균 강화·IL)은 실측 (DL-081).
+     * defense_ignore_pct는 1차 시즌 방무 메커니즘 없음으로 0 고정.
+     */
+    public Result<Void> recordPlayerEntry(long sessionId, String uuid, BossParticipantSpec spec) {
         String sql = """
             INSERT INTO boss_session_player (session_id, player_uuid, weapon_enhance, avg_enhance, il, defense_ignore_pct)
-            VALUES (?, ?, 0, 0.0, 0.0, 0.0)
+            VALUES (?, ?, ?, ?, ?, 0.0)
             """;
         Result<Connection> connResult = connectionProvider.getConnection();
         if (connResult.isFailure()) {
@@ -77,11 +80,34 @@ public final class BossSessionRepository {
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, sessionId);
             ps.setString(2, uuid);
+            ps.setInt(3, spec.weaponEnhance());
+            ps.setDouble(4, spec.avgEnhance());
+            ps.setDouble(5, spec.il());
             ps.executeUpdate();
             return Result.success();
         } catch (Exception e) {
             logger.warn("recordPlayerEntry failed [session=" + sessionId + ", uuid=" + uuid + "]: " + e.getMessage());
             return Result.failure(ErrorCode.DB_CONNECTION_FAILED, "recordPlayerEntry failed", e);
+        }
+    }
+
+    /** 파티 평균 스펙 갱신 — 전 참여자 입장 기록 후 boss_session_log UPDATE (DL-081). */
+    public Result<Void> recordPartySpec(long sessionId, double avgEnhance, double avgIl) {
+        String sql = "UPDATE boss_session_log SET party_avg_enhance = ?, party_avg_il = ? WHERE id = ?";
+        Result<Connection> connResult = connectionProvider.getConnection();
+        if (connResult.isFailure()) {
+            return Result.failure(connResult.errorCode(), connResult.message(), connResult.cause());
+        }
+        try (Connection conn = connResult.value();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setDouble(1, avgEnhance);
+            ps.setDouble(2, avgIl);
+            ps.setLong(3, sessionId);
+            ps.executeUpdate();
+            return Result.success();
+        } catch (Exception e) {
+            logger.warn("recordPartySpec failed [session=" + sessionId + "]: " + e.getMessage());
+            return Result.failure(ErrorCode.DB_CONNECTION_FAILED, "recordPartySpec failed", e);
         }
     }
 

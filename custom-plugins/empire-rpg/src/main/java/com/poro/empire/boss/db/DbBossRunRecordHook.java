@@ -13,12 +13,15 @@ public final class DbBossRunRecordHook implements BossRunRecordHook {
     private final BossSessionRepository repository;
     private final long seasonStartEpoch;
     private final DomainLogger logger;
+    private final BossParticipantSpecResolver specResolver;
     private final ConcurrentHashMap<String, Long> runIdToSessionId = new ConcurrentHashMap<>();
 
-    public DbBossRunRecordHook(BossSessionRepository repository, long seasonStartEpoch, DomainLogger logger) {
+    public DbBossRunRecordHook(BossSessionRepository repository, long seasonStartEpoch,
+                               DomainLogger logger, BossParticipantSpecResolver specResolver) {
         this.repository = Objects.requireNonNull(repository, "repository");
         this.seasonStartEpoch = seasonStartEpoch;
         this.logger = Objects.requireNonNull(logger, "logger");
+        this.specResolver = specResolver != null ? specResolver : BossParticipantSpecResolver.ZERO;
     }
 
     @Override
@@ -33,11 +36,29 @@ public final class DbBossRunRecordHook implements BossRunRecordHook {
         }
         long sessionId = sessionResult.value();
         runIdToSessionId.put(run.runId(), sessionId);
+
+        // 참여자 실측 스펙 기록 + 파티 평균 집계 (DL-081)
+        double enhanceSum = 0.0;
+        double ilSum = 0.0;
+        int counted = 0;
         for (String uuid : run.participants()) {
-            Result<Void> playerResult = repository.recordPlayerEntry(sessionId, uuid);
+            BossParticipantSpec spec = specResolver.resolve(uuid);
+            Result<Void> playerResult = repository.recordPlayerEntry(sessionId, uuid, spec);
             if (playerResult.isFailure()) {
                 logger.warn("Failed to record player entry. session_id=" + sessionId
                         + ", uuid=" + uuid + ": " + playerResult.message());
+            }
+            enhanceSum += spec.avgEnhance();
+            ilSum += spec.il();
+            counted++;
+        }
+        if (counted > 0) {
+            double partyAvgEnhance = enhanceSum / counted;
+            double partyAvgIl = ilSum / counted;
+            Result<Void> partyResult = repository.recordPartySpec(sessionId, partyAvgEnhance, partyAvgIl);
+            if (partyResult.isFailure()) {
+                logger.warn("Failed to record party spec. session_id=" + sessionId
+                        + ": " + partyResult.message());
             }
         }
     }

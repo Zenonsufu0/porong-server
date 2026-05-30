@@ -23,7 +23,8 @@ public final class BossEngineBootstrap {
             JavaPlugin plugin,
             FoundationContext foundationContext,
             MasterRegistryContext masterRegistryContext,
-            BossRewardResolverHook rewardResolverHook
+            BossRewardResolverHook rewardResolverHook,
+            com.poro.empire.boss.db.BossParticipantSpecResolver participantSpecResolver
     ) {
         DomainLogger logger = foundationContext.logger().domain("boss-engine");
 
@@ -79,7 +80,8 @@ public final class BossEngineBootstrap {
         DbBossRunRecordHook dbRunRecordHook = new DbBossRunRecordHook(
                 bossSessionRepository,
                 foundationContext.config().seasonStartEpoch(),
-                foundationContext.logger().domain("boss-session-db")
+                foundationContext.logger().domain("boss-session-db"),
+                participantSpecResolver
         );
         CompositeBossRunRecordHook compositeRunRecordHook = new CompositeBossRunRecordHook(
                 List.of(runRecordHook, dbRunRecordHook)

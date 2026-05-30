@@ -231,7 +231,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         this.bossRewardService = new BossRewardService(
                 growthStateStore, islandTerritoryStateStore, playerDataManager, bossRoomManager, getLogger());
 
-        Result<BossEngineRuntime> bossEngineResult = BossEngineBootstrap.bootstrap(this, foundationContext, masterRegistryContext, this.bossRewardService);
+        Result<BossEngineRuntime> bossEngineResult = BossEngineBootstrap.bootstrap(this, foundationContext, masterRegistryContext, this.bossRewardService, this::resolveBossParticipantSpec);
         if (bossEngineResult.isFailure()) {
             getLogger().severe("Failed to initialize boss engine: " + bossEngineResult.message());
             if (bossEngineResult.cause() != null) {
@@ -484,6 +484,37 @@ public final class EmpireRPGPlugin extends JavaPlugin {
 
     public BossEngineRuntime getBossEngineRuntime() {
         return bossEngineRuntime;
+    }
+
+    /**
+     * 보스 입장 참여자 장비 스펙 해석 (DL-081) — DbBossRunRecordHook에 주입.
+     * 5슬롯 강화도로 무기 강화·평균 강화·IL(강화 1당 5) 계산. 상태 없으면 ZERO.
+     */
+    private com.poro.empire.boss.db.BossParticipantSpec resolveBossParticipantSpec(String uuid) {
+        com.poro.empire.growth.engine.PlayerGrowthState st;
+        try {
+            st = growthStateStore.get(java.util.UUID.fromString(uuid)).orElse(null);
+        } catch (IllegalArgumentException e) {
+            return com.poro.empire.boss.db.BossParticipantSpec.ZERO;
+        }
+        if (st == null) return com.poro.empire.boss.db.BossParticipantSpec.ZERO;
+        com.poro.empire.growth.engine.EquipmentSlot[] slots = {
+                com.poro.empire.growth.engine.EquipmentSlot.WEAPON,
+                com.poro.empire.growth.engine.EquipmentSlot.HELMET,
+                com.poro.empire.growth.engine.EquipmentSlot.CHESTPLATE,
+                com.poro.empire.growth.engine.EquipmentSlot.LEGGINGS,
+                com.poro.empire.growth.engine.EquipmentSlot.BOOTS
+        };
+        int total = 0, weapon = 0;
+        for (com.poro.empire.growth.engine.EquipmentSlot slot : slots) {
+            int enh = st.equippedItem(slot)
+                    .map(com.poro.empire.growth.engine.PlayerEquipmentItem::enhanceLevel).orElse(0);
+            total += enh;
+            if (slot == com.poro.empire.growth.engine.EquipmentSlot.WEAPON) weapon = enh;
+        }
+        double avgEnhance = total / 5.0;
+        double il = avgEnhance * 5.0;
+        return new com.poro.empire.boss.db.BossParticipantSpec(weapon, avgEnhance, il);
     }
 
     public GrowthEngineRuntime getGrowthEngineRuntime() {

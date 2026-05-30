@@ -92,7 +92,7 @@
   | 1 | 리텐션·활동(DAU·플레이타임·이탈) | **✅ 구현 완료 (2026-05-30) [PROMOTED → DL-078]** — `player_session_log` + `/api/v1/activity/*` | ~~`player_session_log`(join/quit 시각) 신규 + DAU/플레이타임 집계~~ |
   | 2 | 골드 인플레이션/싱크 | **✅ 구현 완료 (2026-05-30) [PROMOTED → DL-080]** — `economy_flow`(지갑 후킹+로드 우회) + `/api/v1/economy/flow`. net 정확, source 미세분은 후속 | ~~inflow/outflow를 재화 변동 지점에서 기록 + DB 영속~~ |
   | 3 | 강화 성공률·소모량 | **✅ 구현 완료 (2026-05-30) [PROMOTED → DL-079]** — `enhancement_log` + Composite hook + `/api/v1/economy/enhancement` | ~~`DbEnhancementLogHook` 추가~~ |
-  | 4 | 보스 파티 스펙 밸런스 | `party_avg_il/enhance`·참여자 `il/enhance` 전부 placeholder 0/NULL | 입장 시 실측 IL/강화 기록 (DL-064/§7+ 기존 부채) |
+  | 4 | 보스 파티 스펙 밸런스 | **✅ 구현 완료 (2026-05-30) [PROMOTED → DL-081]** — 입장 시 실측 IL/강화(`recordPlayerEntry`+`recordPartySpec`). defense_ignore는 1차 시즌 N/A로 0 | ~~입장 시 실측 IL/강화 기록~~ |
   | 5 | 무기·클래스 보스 DPS 밸런스 | `damage_share`/`damage_total` 테이블에 없음 | 참여자 데미지 집계 컬럼 추가 |
   | 6 | PvP 클래스 밸런스 | 매치 로그에 무기·IL·데미지 미저장 | `pvp_match_log`에 양측 무기/IL 컬럼 추가 |
   | 7 | 성장 시계열 곡선 | 플레이어 JSON 현재값 덮어쓰기(스냅샷 누적 X) | 일/주 단위 성장 스냅샷 누적 테이블 |

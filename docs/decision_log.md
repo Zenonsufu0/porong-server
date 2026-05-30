@@ -4,6 +4,29 @@
 
 ---
 
+### DL-081 보스 참여자 스펙 실측 — placeholder 0/NULL 해소
+
+**결정:** `boss_session_player`의 weapon_enhance·avg_enhance·il, `boss_session_log`의 party_avg_enhance·party_avg_il을 보스 입장 시점 실측값으로 기록한다. (기존 DL-064/§7+ 부채 해소.)
+
+**이유:**
+- "어느 강화도/IL에서 보스를 깨는가"는 보스 밸런스 판단의 핵심인데, 참여자 스펙·파티 평균이 전부 placeholder(0/NULL)라 `boss_stats_summary`의 avg_party_il/enhance가 무의미했다 (INBOX-004 #4).
+
+**결과 (코드 구조):**
+- `BossParticipantSpec`(weaponEnhance·avgEnhance·il) + `BossParticipantSpecResolver` 인터페이스(신규) — 보스 엔진을 growth에 직접 결합하지 않도록 분리. 구현(5슬롯 강화 → IL 계산, 강화 1당 IL 5)은 플러그인 와이어링(`EmpireRPGPlugin.resolveBossParticipantSpec`)이 제공.
+- `DbBossRunRecordHook.onRunStarted`: 참여자별 resolver로 스펙 계산 → `recordPlayerEntry(sessionId, uuid, spec)`, 누적 후 `recordPartySpec(sessionId, avgEnhance, avgIl)`로 파티 평균 UPDATE.
+- `BossSessionRepository.recordPlayerEntry` 시그니처에 spec 추가, `recordPartySpec` 신규.
+
+**한계:**
+- **defense_ignore_pct / has_defense_ignore는 0 유지** — 1차 시즌 방무 메커니즘 없음(CANON 방깎 제외). `boss_stats_summary.defense_ignore_rate_pct`도 0 고정(설계상 정상).
+- **damage_share / 데미지 기여는 별개(#5)** — 본 작업은 입장 시점 스펙만. 런타임 데미지 추적은 미구현.
+- 본 변경 이전 종료 세션은 party_avg가 NULL로 남음(AVG 집계에서 자동 제외).
+
+**영향 범위:** `BossParticipantSpec`/`BossParticipantSpecResolver`(신규), `BossSessionRepository`, `DbBossRunRecordHook`, `BossEngineBootstrap`, `EmpireRPGPlugin`.
+
+**관련:** `docs/idea_inbox.md` INBOX-004 #4 (PROMOTED). DL-064(damage_share placeholder)는 #5로 별도. 남은 공백 3종(#5·#6·#7).
+
+---
+
 ### DL-080 통화 흐름 로그 — 골드 인플레이션/싱크(발행량 vs 소각량) 수집
 
 **결정:** 지갑 변동을 `economy_flow` 테이블로 기록한다. `PlayerGrowthState.addCurrency`(inflow)/`consumeCurrency`(outflow)에 `CurrencyFlowListener`를 부착하고, 로드 복원만 신규 `restoreCurrency`로 우회하여 제외한다.
