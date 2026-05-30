@@ -58,9 +58,9 @@ Outpost_CaptainElite:
   - skill{s=Outpost_ShieldBash} ~onTimer:60
   - potion{type=WEAKNESS;duration=100;level=1} @target ~onAttack 0.35
 
-Fallen_Knight:
+Outpost_Knight:
   Type: EVOKER
-  Display: '&4&l타락 기사장'
+  Display: '&4&l초소 기사장'
   Health: 460000
   Damage: 90
   Options:
@@ -74,7 +74,7 @@ Fallen_Knight:
   - exp 11000
   BossBar:
     Enabled: true
-    Title: '&4&l타락 기사장'
+    Title: '&4&l초소 기사장'
     Range: 60
     Color: PURPLE
     Style: SOLID

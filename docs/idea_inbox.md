@@ -166,6 +166,10 @@
   - ✅ 완료(DL-093): #10 보스 전투 타임아웃(15/10분) 스케줄러 — 경과 런 강제종료+슬롯회수+보스 디스폰+알림. ※페이즈/패턴 진행 틱·참가자 자동 텔레포트는 후속
   - ⏳ 남음(코드): boss_damage_increase 보스판정 배선, 보스 클리어 기록 영속화(in-memory 소실), 페이즈/패턴 진행 틱
   - ⏳ 기획 확정 대기: 잠재(큐브) 등급 모델 3원 분기
-  - ⏳ 선행조건(코드 밖): config 좌표·월드명, MM 셸 설치·ID 충돌
+  - ⏳ 선행조건(코드 밖) → `docs/10_development_roadmap/server_test_prep.md` 체크리스트로 정리(2026-05-31):
+    - 🔴 **런타임 seed/jar stale** — `server/plugins/EmpireRPG/seeds/boss_master.csv`가 DL-087 이전(void_herald·최종보스 없음). `saveResource(replace=false)`라 jar 교체로도 갱신 안 됨 → 빌드+seeds폴더 비우고 재시작 필수. DL-086~090·이번 코드수정 전부 미배포 상태.
+    - 🔴 config 좌표·월드명(world_main/farm/boss/test), `/empire genrooms`·`genarenas`
+    - 🟠 MM 셸 배포(현재 Example만), 보스 armor 확인
+    - [x] MM ID 충돌 해소: `field_outpost.yml` Fallen_Knight→Outpost_Knight (2026-05-31)
 
 <!-- 새 항목은 이 주석 위에 추가한다 -->
