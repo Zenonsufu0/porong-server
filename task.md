@@ -7,11 +7,11 @@
 ## 현재 브랜치 상태
 
 - 브랜치: `master`
-- 최근 기능 커밋: `ef31e9e` (§6-16 Step 3 — 로그/감시 GUI + /empire-log)
+- 최근 기능 커밋: `7c02972` (§6-17 Step 4 — 보스 디버그 GUI + /empire-boss-list·/empire-boss-end)
   - ※ "최근 기능 커밋"은 직후 task.md 정정 커밋과 무관하게 마지막 *기능* 커밋을 가리킨다 (상태 드리프트 방지)
-  - §6-17 Step 4(보스 디버그)는 **미커밋** — 다음 handoff에서 커밋 예정
+  - ※ per-step 섹션에는 커밋/미커밋 상태를 적지 않는다 (커밋되는 순간 거짓이 되어 드리프트 유발). 완료 여부만 표기
 - 빌드: `./gradlew compileJava → BUILD SUCCESSFUL` (기존 deprecated AnvilInventory warning만 잔존)
-- **§6-15 Step 2·Step 2b·§6-16 Step 3 커밋·동기화 완료** + §6-17 Step 4 미커밋 (master == codex-review 기준 ef31e9e)
+- **관리자 Phase 2 Step 1~4 모두 커밋·동기화 완료** (master == codex-review, 최신 기능 `7c02972`)
 - 다음: 관리자 Phase 2 Step 5 — 영지 관리 GUI (slot 29)
 
 ---
@@ -259,7 +259,7 @@
 | `docs/10_development_roadmap/admin_gui_phase2.md` — Step 2 완료/Step 2b hook 명시 | docs | ✅ |
 | `BUILD SUCCESSFUL` | — | ✅ |
 
-## §6-17 관리자 Phase 2 Step 4 — 보스 디버그 GUI + /empire-boss-list·/empire-boss-end — 완료 (2026-05-30, 미커밋)
+## §6-17 관리자 Phase 2 Step 4 — 보스 디버그 GUI + /empire-boss-list·/empire-boss-end — 완료 (2026-05-30, 커밋 `7c02972`)
 
 기준: `docs/10_development_roadmap/admin_gui_phase2.md` §보스 디버그 (slot 24)
 
