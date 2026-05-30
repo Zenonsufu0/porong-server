@@ -234,7 +234,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         this.bossRewardService = new BossRewardService(
                 growthStateStore, islandTerritoryStateStore, playerDataManager, bossRoomManager, getLogger());
 
-        Result<BossEngineRuntime> bossEngineResult = BossEngineBootstrap.bootstrap(this, foundationContext, masterRegistryContext, this.bossRewardService, this::resolveBossParticipantSpec, this.bossDamageTracker);
+        Result<BossEngineRuntime> bossEngineResult = BossEngineBootstrap.bootstrap(this, foundationContext, masterRegistryContext, this.bossRewardService, this::resolveBossParticipantSpec, this.bossDamageTracker, this.bossRoomManager);
         if (bossEngineResult.isFailure()) {
             getLogger().severe("Failed to initialize boss engine: " + bossEngineResult.message());
             if (bossEngineResult.cause() != null) {
@@ -651,7 +651,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                             playerLevelingService, fieldBossScheduler, bossRewardService, new ContributionTracker(), scoreboardService, adminTogglesService), this);
             getServer().getPluginManager().registerEvents(new BossDefenseListener(), this);
             getServer().getPluginManager().registerEvents(
-                    new com.poro.empire.listener.BossInstanceDamageListener(bossDamageTracker), this);
+                    new com.poro.empire.listener.BossInstanceDamageListener(bossDamageTracker, bossEngineRuntime.runService()), this);
             getLogger().info("MythicMobs detected — FieldDropListener + BossDefenseListener + BossInstanceDamageListener registered.");
         } else {
             getLogger().warning("MythicMobs not found — field mob drops + boss DEF scaling disabled.");

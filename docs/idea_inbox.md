@@ -139,4 +139,31 @@
 - 관련 문서: `final_master_plan.md`, 각 CANON.md, decision_log DL-033/DL-076
 - 상태: DRAFT (🔴 2건 실제 시드 재확인 후 수정 착수 권장)
 
+#### 2026-05-31 서버 테스트 진입 전 2차 감사 (코드↔기획, 5도메인 병렬) — 신규 발견
+
+> 1차 감사(위) 이후 잔여/신규. 데이터·시드·경제·DB·마이그레이션·강화/흔적/EXP 곡선은 **정합 양호**. 전투 데미지 배선·보스 런타임 배선·서버 설정 선행조건에 블로커 집중. 사용자 결정(2026-05-31): 전투 파이프라인 #6·#7은 **미완 구현 → 수정**, 코드 블로커부터 착수.
+
+| 우선도 | 발견 | 근거(파일:라인) | 상태 |
+|---|---|---|---|
+| 🔴 차단 | config.yml 좌표·월드명 플레이스홀더(필드/보스룸/필드보스 = `world`, 더미좌표). 실맵+`world_main/boss`+방생성 선행 필요 | `config.yml:125-240`, `FieldTeleportService:39` | 선행조건(코드 밖) |
+| 🔴 차단 | MythicMobs 셸 의존 — 미감지 시 전투/보스/필드 리스너 통째 미등록 | `EmpireRPGPlugin:656`, `BossRoomListener:100` | 선행조건(server-config) |
+| 🔴 차단 | 보스 처치→`endRun`(보상) 브리지 부재 — death 이벤트→보상 발화 리스너 없음. 보상 0·슬롯 미회수 | `BossRunService:173`, `BossRoomListener` | 코드 수정 대상 |
+| 🔴 차단 | 원샷 방지 85% 클램프 미구현 — `BossDefenseListener` 빈 스텁 (combat+content 교차확인) | `BossDefenseListener:8-10` | 코드 수정 대상 |
+| 🔴 차단 | 최종보스 입장 게이트 무력화 — `AllowAllUnlockQuestChecker` 무조건 true | `BossEngineBootstrap:64` | 코드 수정 대상 |
+| 🟠 결정→수정 | **무기 ATK 환산 선형(+10%/강)** ↔ CANON flat 테이블(20강 240 vs 157) | `WeaponPowerCalculator:37` | 미완(수정 확정) |
+| 🟠 결정→수정 | **피해 공식 스킬%/태그%/조건부/치명/DEF경감 계층 전부 미적용** — 잠재·특화·만찬 무효 | `BaseWeaponSkill:39-47` | 미완(수정 확정) |
+| 🟠 | 직업각인 고유효과 미구현(스택 상한 토글만) | `BaseWeaponSkill:55-60` | 수정 대상 |
+| 🟠 | 잠재(큐브) 등급 확률 모델 코드·문서 3원 분기(코드 승급3% vs 경매 1%=100회 전제) | `PotentialService:100-106` | 기획 확정 필요 |
+| 🟠 | 보스 타임아웃·페이즈 틱 루프 미등록 / 시즌보스 인원배율 미적용 / 균열왕 심장·최종 트로피 지급 불일치 | `BossRunService`, `BossRewardService:155` | 수정/확정 |
+| 🟡 | SQLite busy_timeout/WAL 미설정 → 동시쓰기 버스트 시 통계 유실 | `SqliteConnectionProvider` | 정리 |
+| 🟡 | `/캐릭터`·`/작물` 라우팅 미연결, 온보딩에 영지 생성 트리거 부재, `season-start-epoch:0` | `PlayerCommandRouter:95-99`, `ClassInitService:72` | 정리 |
+| 🟡 | 잠재 옵션 풀 슬롯 차등 미구현(weapon/armor 2풀), `island_settings` PK 1줄 확인 권장 | `PotentialService:202`, `IslandSettingsDdl` | 확인/정리 |
+
+- 분류: [x] 기획 확정 필요(잠재 모델) + [x] 코드 수정 착수(전투 파이프라인·보스 배선) / 선행조건 2건은 맵·server-config 작업
+- 상태: 코드 블로커 수정 진행 중 (DL-091)
+  - ✅ 완료(DL-091): #6 ATK flat 테이블, #3 보스 처치→보상 브리지, #5 최종보스 게이트
+  - ⏳ 남음: #4 원샷 85% 클램프 + #7 피해 공식 계층(중앙 데미지 적용부에 수렴, `combat/engine` 배선), #10 보스 타임아웃·페이즈 틱
+  - ⏳ 기획 확정 대기: 잠재(큐브) 등급 모델 3원 분기
+  - ⏳ 선행조건(코드 밖): config 좌표·월드명, MM 셸 설치·ID 충돌
+
 <!-- 새 항목은 이 주석 위에 추가한다 -->

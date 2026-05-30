@@ -31,6 +31,11 @@ public final class BossDamageTracker {
         return mobToRun.containsKey(mobUuid);
     }
 
+    /** 보스 mob UUID → runId (미추적이면 null). 보스 사망→클리어 종료 브리지용 (DL-091). */
+    public String runIdForMob(UUID mobUuid) {
+        return mobUuid == null ? null : mobToRun.get(mobUuid);
+    }
+
     /** 추적 대상 보스에 대한 데미지 누적 (추적 대상이 아니면 무시). */
     public void recordDamage(UUID mobUuid, UUID playerUuid, double damage) {
         if (mobToRun.containsKey(mobUuid)) {

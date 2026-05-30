@@ -4,6 +4,25 @@
 
 ---
 
+### DL-091 서버 테스트 진입 전 코드 블로커 수정 (INBOX-005 2차 감사) — 진행 중
+
+**배경:** 서버 테스트 진입 전 5도메인 병렬 코드↔기획 감사(INBOX-005 2차, 2026-05-31)에서 "엔진 로직은 있으나 이벤트 배선이 비어 있는" 블로커 다수 발견. 데이터·경제·DB·강화/흔적/EXP는 정합 양호. 사용자 결정: 코드 블로커부터 순차 수정(작은 것부터).
+
+**완료 (이 커밋):**
+- **#6 무기 ATK 선형→flat 테이블.** `WeaponPowerCalculator`가 `×(1+0.1L)` 선형(20강 240)이라 CANON flat 테이블(`combat_balance_v2 §1`, 20강 157)과 +53% 괴리 → 누적 가산 배열로 교체. 검증: 10강 103·18강 144·20강 157·25강 192 일치. (잠재 ATK 합산·DEF/치명/스킬% 계층은 #7에서 처리.)
+- **#3 보스 처치→클리어 종료 브리지.** 보스 mob `EntityDeathEvent`→`endRun(true)` 리스너 부재로 잡아도 보상 0·슬롯 미회수였음. `BossInstanceDamageListener`에 사망 핸들러 추가(이미 보유한 `BossDamageTracker`의 신규 `runIdForMob`로 mob→runId 조회 후 `runService.endRun(runId,true,"")`). 보상·`markCleared`·`damage_share`는 기존 `endRun` 훅 체인(`BossRewardService.onRunEnded`, `DbBossRunRecordHook.finalizeShares`)에서 처리.
+- **#5 최종보스 입장 게이트.** `AllowAllUnlockQuestChecker`(무조건 true)로 보스6 미클리어도 최종보스 입장 가능했음 → `BossClearUnlockQuestChecker` 신설(`quest_boss6_clear`=`void_herald` 클리어 시 해금, `boss_entry_rule.csv`/DL-044 일치). `BossRoomManager.hasCleared` 조회. 부트스트랩에 `bossRoomManager` 주입.
+
+**한계:** #3의 보스 클리어 기록(`BossRoomManager.clearedBosses`)은 in-memory라 재시작 시 소실 → #5 게이트도 재시작 후 풀림. 영속화는 후속. #3은 단일 보스 엔티티 사망 기준이라 페이즈 전환으로 엔티티가 교체되는 보스는 조기 종료 가능(1차 시즌 바닐라 MM 셸은 동일 엔티티 HP 페이즈라 무해 추정).
+
+**남은 블로커 (후속 커밋):** #4 원샷 85% 클램프 + #7 피해 공식 계층(기존 `combat/engine/CombatFormulaResolver` 배선 — 두 개가 같은 중앙 데미지 적용부로 수렴) + #10 보스 타임아웃·페이즈 틱 루프. 선행조건(코드 밖): config 좌표·월드명 실값, MM 셸 설치·ID 충돌.
+
+**영향 범위:** `WeaponPowerCalculator`, `BossDamageTracker`, `BossInstanceDamageListener`, `BossClearUnlockQuestChecker`(신규), `BossEngineBootstrap`, `EmpireRPGPlugin`. 문서: `idea_inbox.md`(INBOX-005 2차 감사).
+
+**관련:** INBOX-005, DL-044(최종보스 게이트), DL-084(보스 데미지 추적), `combat_balance_v2 §1`.
+
+---
+
 ### DL-090 강화 흔적 곱연산 전환 + 3종 토글 + 수량 재산정 (DL-089 개정)
 
 **결정:** DL-089의 강화 흔적 보정 모델을 **가산(%p)·1종 선택 → 곱연산·3종 동시 토글**로 전환한다.

@@ -25,7 +25,8 @@ public final class BossEngineBootstrap {
             MasterRegistryContext masterRegistryContext,
             BossRewardResolverHook rewardResolverHook,
             com.poro.empire.boss.db.BossParticipantSpecResolver participantSpecResolver,
-            com.poro.empire.boss.room.BossDamageTracker bossDamageTracker
+            com.poro.empire.boss.room.BossDamageTracker bossDamageTracker,
+            com.poro.empire.boss.room.BossRoomManager bossRoomManager
     ) {
         DomainLogger logger = foundationContext.logger().domain("boss-engine");
 
@@ -64,7 +65,7 @@ public final class BossEngineBootstrap {
         BossEntryValidator entryValidator = new BossEntryValidator(
                 masterRegistryContext.bossMasters(),
                 entryRuleRegistry,
-                new AllowAllUnlockQuestChecker(),
+                new BossClearUnlockQuestChecker(bossRoomManager),
                 logger
         );
         BossPhaseController phaseController = new BossPhaseController(patternRegistry);
