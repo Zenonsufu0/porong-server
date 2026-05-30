@@ -4,6 +4,29 @@
 
 ---
 
+### DL-087 보스 시드 정합 — boss_master를 정본(시즌6+최종3)에 동기화 (INBOX-005 🔴 해소)
+
+**결정:** `boss_master.csv`를 정본 보스 로스터(필드5 + 시즌6 + 최종3)로 교체한다.
+
+**배경 (감사로 발견된 모순):**
+- 정본 보스 집합은 `BossRewardService.SEASON_REWARDS` + `season_bosses.yml`(MM 셸) + `boss_entry_rule.csv`가 일치: 시즌6(fallen_knight·corrupted_lord·stone_colossus·storm_sorcerer·abyss_guardian·void_herald) + 최종3(rift_king·corrupted_dyad·spirit_watcher). `final_master_plan §9`·DL-043과 일치.
+- 그러나 `boss_master.csv`만 구 ID(시즌3: earth_tyrant·steel_arbiter·abyss_overlord, 최종1: rift_king)를 유지 → `BossMasterRegistry` 기반 통계/조회/`/보스` 목록이 실제 보스와 어긋남. 실제 시즌보스(fallen_knight 등)는 boss_master에 없어 표시명 누락.
+- `fallen_knight`가 boss_master에서 필드보스(필드4)이자 정본 시즌보스1 → 동일 CSV 내 ID 충돌(중복 키).
+
+**결과:**
+- boss_master 시즌/최종을 정본 6+3으로 교체(표시명은 season_bosses.yml Display 기준). 구 ID 3종은 코드/설정 어디서도 참조 없음 확인 후 제거.
+- 필드4 보스 ID 충돌 회피: `fallen_knight`(field) → `outpost_knight`로 분리. 필드보스는 field index(MobTagHelper) 기반 스폰·보상이라 ID는 레지스트리 메타데이터 — 안전.
+
+**남은 서버 설정 이슈 (server-config, 본 수정 범위 밖):**
+- ⚠️ **MM 셸 레벨 ID 충돌**: `field_outpost.yml`의 `Fallen_Knight` mob vs `season_bosses.yml`의 `fallen_knight` mob — 동일 이름(대소문자만 차이). MM이 대소문자 무시 시 `/보스 fallen_knight` 스폰이 필드/시즌 보스를 혼동할 위험. server-config 수정 필요(별도).
+- 필드4 boss_master 표시명(초소 기사장) vs MM Display(타락 기사장) 경미한 불일치.
+
+**영향 범위:** `boss_master.csv`(src). 코드 변경 없음.
+
+**관련:** `docs/idea_inbox.md` INBOX-005 #보스 시드(🔴) 해소. DL-043, final_master_plan §9.
+
+---
+
 ### DL-086 강화 테이블 확정 수치 반영 + 방어구 강화석 보정 (INBOX-005 🔴 해소)
 
 **결정:** `growth_enhancement_table.csv` T1을 `economy_numbers_v2.md`/DL-033 확정 수치로 전면 교체하고, 미구현이던 방어구 강화석 보정(`ceil(무기÷1.5)`)을 코드에 추가한다.
