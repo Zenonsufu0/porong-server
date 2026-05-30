@@ -7,9 +7,9 @@
 ## 현재 브랜치 상태
 
 - 브랜치: `master`
-- 최근 커밋: `ff46573` (§6-15 Phase 2 Step 2 — 운영 토글 GUI + /empire-toggle)
-- 빌드: `./gradlew compileJava → BUILD SUCCESSFUL` (10 warning은 기존 deprecated AnvilInventory)
-- **§6-15 코드 커밋 완료** (`ff46573`) + Step 2b 토글 hook 적용 완료 (미커밋)
+- 최근 커밋: `58a38e0` (§6-15 Step 2b — 운영 토글 5종 게임 로직 hook 적용)
+- 빌드: `./gradlew compileJava → BUILD SUCCESSFUL` (기존 deprecated AnvilInventory warning만 잔존)
+- **§6-15 코드(`ff46573`) + Step 2b 토글 hook(`58a38e0`) 커밋 완료**, `codex-review` 동기화 완료 (master == codex-review)
 - 다음: 관리자 Phase 2 Step 3 — 로그/감시 GUI + `/empire-log`
 
 ### 미커밋 변경 파일 (§6-12)
@@ -250,7 +250,7 @@
 | `PvpRatingService.adminAdjustScore(uuid, name, delta)` 추가 | `PvpRatingService` | ✅ |
 | 권한 분리 (sub-permissions) + 명령어 네이밍 일관화 | `plugin.yml` | ✅ |
 
-## §6-15 관리자 Phase 2 Step 2 — 운영 토글 — 완료 (2026-05-30, 미커밋)
+## §6-15 관리자 Phase 2 Step 2 — 운영 토글 — 완료 (2026-05-30, 커밋 `ff46573`+`58a38e0`)
 
 기준: 사용자 지시 "C 방식 — 모든 동작은 명령어로도 존재해야 하고 운영자용 편의성/기능성 명령어도 검토"
 
@@ -312,8 +312,7 @@
 
 | 우선도 | 항목 | 비고 |
 |---|---|---|
-| 높음 | §6-15 Step 2b 커밋 + `orc to-review` 동기화 | 토글 hook 5종 미커밋 |
-| 중간 | 관리자 Phase 2 Step 3 — 로그/감시 GUI + `/empire-log` | DB에 이미 있는 로그(강화·거래·PvP) GUI 노출 |
+| 높음 | 관리자 Phase 2 Step 3 — 로그/감시 GUI + `/empire-log` | DB에 이미 있는 로그(강화·거래·PvP) GUI 노출 |
 | 중간 | 관리자 Phase 2 Step 4 — 보스 디버그 GUI + 명령어 | 보스 런 stuck 처리, `/empire-boss-list`·`/empire-boss-end` |
 | 중간 | 관리자 Phase 2 Step 5 — 영지 관리 GUI (slot 29) | 1차 시즌 영지 분쟁 빈도 높을 가능성 |
 | 높음 | JAR 재빌드 + 서버 배포 + in-game HUD/스코어보드 확인 | §6-12 수정 검증 — HUD 행 정렬, 아이콘 크기 확인 |
