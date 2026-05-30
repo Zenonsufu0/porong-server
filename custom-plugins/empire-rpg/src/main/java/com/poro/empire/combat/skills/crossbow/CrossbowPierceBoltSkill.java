@@ -23,7 +23,7 @@ public final class CrossbowPierceBoltSkill extends PluginWeaponSkill {
         double damage = scaledDamage(ctx, player, 2.20);
         boolean[] hit = {false};
         SkillHitboxHelper.projectilePierceRaycast(player, 30.0, 0.5)
-                .forEach(t -> { dealDamage(player, t, damage); hit[0] = true; });
+                .forEach(t -> { dealDamage(ctx, player, t, damage); hit[0] = true; });
         if (hit[0]) gainStack(ctx, player, 3);
 
         // 길고 굵은 관통 빔 + 전격 스파크

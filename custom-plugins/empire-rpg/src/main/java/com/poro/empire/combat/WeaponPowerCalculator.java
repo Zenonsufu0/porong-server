@@ -53,14 +53,18 @@ public final class WeaponPowerCalculator {
         double baseAtk = master.baseStatValue() > 0 ? master.baseStatValue() : DEFAULT_POWER;
         // flat 비선형 강화 가산 (CANON §1) — 선형 ×(1+0.1L) 대체 (DL-091)
         double enhancedAtk = baseAtk + enhanceAtkBonus(equipped.enhanceLevel());
-        double potentialBonus = potentialBonus(equipped.potentialProfile());
-        return enhancedAtk + potentialBonus;
+        // 잠재 attack_percent만 ATK에 승산 적용 (DL-092). general/boss 피해증가는 ATK가 아니라
+        // 피해 공식 단계에서 곱해지므로 여기서 합산하지 않는다(기존 flat 합산 버그 교정).
+        double attackPercent = attackPercentOf(equipped.potentialProfile());
+        return enhancedAtk * (1.0d + attackPercent / 100.0d);
     }
 
-    private static double potentialBonus(PotentialProfile profile) {
-        if (profile == null) {
-            return 0.0d;
-        }
-        return profile.lines().stream().mapToDouble(line -> Math.max(0.0d, line.value())).sum();
+    /** 무기 잠재의 attack_percent 합(%). */
+    private static double attackPercentOf(PotentialProfile profile) {
+        if (profile == null) return 0.0d;
+        return profile.lines().stream()
+                .filter(line -> "attack_percent".equals(line.optionCode()))
+                .mapToDouble(line -> Math.max(0.0d, line.value()))
+                .sum();
     }
 }

@@ -21,7 +21,7 @@ public final class SwordFlashSlashSkill extends BaseWeaponSkill {
     public boolean execute(Player player, SkillContext ctx) {
         dashForward(player, 2.0);
         double damage = scaledDamageWithStacks(ctx, player, 1.60, 0.08);
-        SkillHitboxHelper.arc(player, 2.5, 120).forEach(t -> dealDamage(player, t, damage));
+        SkillHitboxHelper.arc(player, 2.5, 120).forEach(t -> dealDamage(ctx, player, t, damage));
         gainStack(ctx, player, 3);
 
         // 흰빛 2겹 호 + sweep 마크 + 잔광(END_ROD)

@@ -28,7 +28,7 @@ public final class ScytheShadowSpinSkill extends PluginWeaponSkill {
         for (int i = 0; i < 4; i++) {
             List<LivingEntity> targets = SkillHitboxHelper.burst(player, 3.0);
             if (!targets.isEmpty()) {
-                targets.forEach(t -> dealDamage(player, t, damage));
+                targets.forEach(t -> dealDamage(ctx, player, t, damage));
                 hitAny = true;
             }
         }

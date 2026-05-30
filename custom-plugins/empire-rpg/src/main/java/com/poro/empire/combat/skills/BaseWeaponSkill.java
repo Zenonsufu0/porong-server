@@ -42,8 +42,20 @@ public abstract class BaseWeaponSkill implements WeaponSkill {
         return ctx.weaponPower(player) * (baseCoeff + stackBonusPct * stacks);
     }
 
-    protected void dealDamage(Player attacker, LivingEntity target, double damage) {
-        target.damage(Math.max(0.01, damage), attacker);
+    /** 치명 배율 (CANON §2 기본 1.5). 1차 시즌은 치명피해% 옵션이 없어 고정. */
+    private static final double CRIT_MULTIPLIER = 1.5d;
+
+    /**
+     * 스킬 피해 적용 (DL-092). rawDamage(=ATK×계수)에 스킬피해%(general_damage_increase)·치명을 곱해 적용.
+     * ATK의 attack_percent는 weaponPower에 이미 반영. DEF 경감은 1차 시즌 바닐라 armor에 위임
+     * (커스텀 보스 DEF 시드 없음). boss_damage_increase 조건부 증가는 보스 판정 배선과 함께 후속.
+     */
+    protected void dealDamage(SkillContext ctx, Player attacker, LivingEntity target, double rawDamage) {
+        double dmg = rawDamage * ctx.generalDamageMultiplier(attacker);
+        if (java.util.concurrent.ThreadLocalRandom.current().nextDouble() < ctx.critChance(attacker)) {
+            dmg *= CRIT_MULTIPLIER;
+        }
+        target.damage(Math.max(0.01d, dmg), attacker);
     }
 
     // --- stacks ---

@@ -21,7 +21,7 @@ public final class SpearChargeSkill extends BaseWeaponSkill {
     public boolean execute(Player player, SkillContext ctx) {
         dashForward(player, 5.0);
         double damage = scaledDamage(ctx, player, 2.60);
-        SkillHitboxHelper.line(player, 5.0, 1.0).forEach(t -> dealDamage(player, t, damage));
+        SkillHitboxHelper.line(player, 5.0, 1.0).forEach(t -> dealDamage(ctx, player, t, damage));
 
         // 돌파 궤적 직선 + 구름 잔류 + 추진음
         spawnParticleLine(player, Particle.DUST, TEAL, 5.0, 26);

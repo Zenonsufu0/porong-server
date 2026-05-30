@@ -24,7 +24,7 @@ public final class ScytheGrimStrikeSkill extends BaseWeaponSkill {
         double damage = scaledDamageWithStacks(ctx, player, 2.40, 0.08);
         double lifeStealAmount = damage * (0.06 * stacks);
         SkillHitboxHelper.cone(player, 4.0, 60).forEach(t -> {
-            dealDamage(player, t, damage);
+            dealDamage(ctx, player, t, damage);
             if (lifeStealAmount > 0) lifesteal(player, lifeStealAmount);
         });
 

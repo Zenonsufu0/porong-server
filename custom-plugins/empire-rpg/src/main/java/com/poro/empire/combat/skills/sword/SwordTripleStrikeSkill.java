@@ -22,7 +22,7 @@ public final class SwordTripleStrikeSkill extends PluginWeaponSkill {
     public boolean execute(Player player, SkillContext ctx) {
         double damage = scaledDamage(ctx, player, 0.70);
         for (int i = 0; i < 3; i++) {
-            SkillHitboxHelper.arc(player, 2.5, 120).forEach(t -> dealDamage(player, t, damage));
+            SkillHitboxHelper.arc(player, 2.5, 120).forEach(t -> dealDamage(ctx, player, t, damage));
         }
 
         // 3중 호 + sweep 마크 + 타격 스파크(CRIT)

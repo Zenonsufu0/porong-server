@@ -4,6 +4,30 @@
 
 ---
 
+### DL-092 전투 피해 공식 계층 배선 (#7, 경량 중앙 적용부)
+
+**결정:** 스킬 피해가 `ATK × 계수`까지만 계산하고 잠재·치명을 무시하던 문제(INBOX-005 2차 #7)를 해소. `combat_balance_v2 §2` 공식 중 1차 시즌이 실제 쓰는 계층을 **경량 중앙 적용부**(`BaseWeaponSkill.dealDamage`)에 배선한다. 엔진(`CombatFormulaResolver`) literal 배선은 1차엔 과해(SkillMaster/스냅샷/태그·조건부 리졸버 조립 필요, 라이브 빌더 부재) 공식만 재사용.
+
+**적용 (1차 시즌 옵션 범위):**
+- **attack_percent** → `WeaponPowerCalculator`에서 ATK에 승산(`enhancedAtk × (1+ap/100)`). 기존 "모든 잠재 라인을 flat ATK로 합산"하던 버그 교정(general/boss를 ATK에 잘못 더하던 것 분리).
+- **general_damage_increase(스킬피해%)** → `dealDamage`에서 `rawDamage × (1+Σgdi/100)`. 장착 5슬롯 잠재만 집계(`SkillContext.generalDamageMultiplier`, 여분 아이템 제외).
+- **치명** → `critPts × 0.3%`(스탯 배분 치명 트리) 확률로 ×1.5(`CRIT_MULTIPLIER`, CANON §2 기본). 매 타격 독립 롤.
+
+**의도적 미적용/위임:**
+- **DEF/(DEF+200) 경감**: 1차 시즌은 커스텀 보스 DEF 시드가 없고(보스 능력치 MM 소관), `target.damage()`가 이미 바닐라 armor 경감을 적용하므로 추가 시 이중 경감 → **바닐라 armor에 위임**. MM이 보스 armor를 설정하면 그 값이 반영됨.
+- **boss_damage_increase(조건부)**: 보스 타깃 판정 배선(인스턴스+필드보스)이 필요해 **후속**. 현재 무적용.
+- 태그피해%·치명피해%: T2 옵션이라 1차 제외(애초에 미발급).
+
+**구현:** 옛 `dealDamage(Player,LivingEntity,double)` 제거 → `dealDamage(SkillContext,Player,LivingEntity,double)`로 교체. 24개 호출부(23개 스킬)에 `ctx` 인자 일괄 추가(전부 execute 스코프라 안전). 전역 데미지-이벤트 리스너 방식은 `SkillInputListener`의 바닐라평타 취소·스킬 대체 재진입 흐름과 충돌해 배제.
+
+**한계:** general%/치명을 매 타격 stat 재집계(다타깃 시 N회) — 경미한 비용, 필요 시 캐시. boss% 미적용 동안 잠재 boss_damage_increase는 무효. DEF는 MM armor 정합성에 의존.
+
+**영향 범위:** `WeaponPowerCalculator`, `SkillContext`, `BaseWeaponSkill`, 23개 스킬(`combat/skills/**`).
+
+**관련:** INBOX-005 2차 #7, `combat_balance_v2 §2`, DL-091(#6 ATK flat 테이블 선행), `level_stat_system_v1 §3`(치명 0.3%/pt).
+
+---
+
 ### DL-091 서버 테스트 진입 전 코드 블로커 수정 (INBOX-005 2차 감사) — 진행 중
 
 **배경:** 서버 테스트 진입 전 5도메인 병렬 코드↔기획 감사(INBOX-005 2차, 2026-05-31)에서 "엔진 로직은 있으나 이벤트 배선이 비어 있는" 블로커 다수 발견. 데이터·경제·DB·강화/흔적/EXP는 정합 양호. 사용자 결정: 코드 블로커부터 순차 수정(작은 것부터).

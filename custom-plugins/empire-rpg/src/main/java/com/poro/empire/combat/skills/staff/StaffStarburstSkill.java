@@ -22,7 +22,7 @@ public final class StaffStarburstSkill extends PluginWeaponSkill {
     public boolean execute(Player player, SkillContext ctx) {
         double damage = scaledDamageWithStacks(ctx, player, 3.80, 0.10);
         SkillHitboxHelper.projectileRaycast(player, 22.0, 0.5)
-                .ifPresent(t -> dealDamage(player, t, damage));
+                .ifPresent(t -> dealDamage(ctx, player, t, damage));
         consumeStacks(ctx, player);
 
         // 별빛 빔 (연보라 + 흰 별가루) + 별빛 시전음

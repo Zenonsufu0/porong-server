@@ -23,7 +23,7 @@ public final class SwordFinalStrikeSkill extends BaseWeaponSkill {
     @Override
     public boolean execute(Player player, SkillContext ctx) {
         double damage = scaledDamageWithStacks(ctx, player, 3.20, 0.15);
-        SkillHitboxHelper.line(player, LENGTH, 0.6).forEach(t -> dealDamage(player, t, damage));
+        SkillHitboxHelper.line(player, LENGTH, 0.6).forEach(t -> dealDamage(ctx, player, t, damage));
         consumeStacks(ctx, player);
 
         // 금빛 직선 빔 + 잔광 + 끝점 임팩트

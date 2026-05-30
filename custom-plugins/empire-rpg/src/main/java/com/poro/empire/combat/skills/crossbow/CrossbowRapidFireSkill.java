@@ -24,7 +24,7 @@ public final class CrossbowRapidFireSkill extends PluginWeaponSkill {
         boolean[] hit = {false};
         for (int i = 0; i < 3; i++) {
             SkillHitboxHelper.projectileRaycast(player, 20.0, 0.5)
-                    .ifPresent(t -> { dealDamage(player, t, damage); hit[0] = true; });
+                    .ifPresent(t -> { dealDamage(ctx, player, t, damage); hit[0] = true; });
         }
         if (hit[0]) gainStack(ctx, player, 3);
 

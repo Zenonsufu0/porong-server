@@ -23,7 +23,7 @@ public final class CrossbowEvadeFireSkill extends PluginWeaponSkill {
         dashBackward(player, 2.5);
         double damage = scaledDamage(ctx, player, 1.70);
         SkillHitboxHelper.projectileRaycast(player, 25.0, 0.5)
-                .ifPresent(t -> { dealDamage(player, t, damage); gainStack(ctx, player, 3); });
+                .ifPresent(t -> { dealDamage(ctx, player, t, damage); gainStack(ctx, player, 3); });
 
         // 백스텝 휘익음 + 녹색 빔
         spawnBeam(player, Particle.DUST, BOLT, 25.0, 0.5);

@@ -26,7 +26,7 @@ public final class ScytheExecutionSkill extends BaseWeaponSkill {
             double hpRatio = (maxHpAttr != null && maxHpAttr.getValue() > 0)
                     ? t.getHealth() / maxHpAttr.getValue() : 1.0;
             double coeff = hpRatio < 0.30 ? 4.80 : 2.80;
-            dealDamage(player, t, scaledDamage(ctx, player, coeff));
+            dealDamage(ctx, player, t, scaledDamage(ctx, player, coeff));
         });
 
         // 처형 직선 + 영혼불 + sweep + 음산한 처형음

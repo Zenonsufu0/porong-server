@@ -20,7 +20,7 @@ public final class AxeColossalDropSkill extends BaseWeaponSkill {
     @Override
     public boolean execute(Player player, SkillContext ctx) {
         double damage = scaledDamageWithStacks(ctx, player, 4.20, 0.10);
-        SkillHitboxHelper.burst(player, 4.5).forEach(t -> dealDamage(player, t, damage));
+        SkillHitboxHelper.burst(player, 4.5).forEach(t -> dealDamage(ctx, player, t, damage));
         consumeStacks(ctx, player);
 
         // 지면 충격파 2중 고리 + 중앙 폭발 + 거대 타격음

@@ -26,7 +26,7 @@ public final class SwordGuardCounterSkill extends PluginWeaponSkill {
         player.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 40, 2, false, false, true));
         // Counter: immediate arc slash
         double damage = scaledDamage(ctx, player, 1.20);
-        SkillHitboxHelper.arc(player, 2.5, 120).forEach(t -> dealDamage(player, t, damage));
+        SkillHitboxHelper.arc(player, 2.5, 120).forEach(t -> dealDamage(ctx, player, t, damage));
 
         // 방어 고리(자기 중심 원) + 반격 호 + 방패음
         spawnParticleCircle(player, Particle.DUST, GUARD, 1.5, 24);

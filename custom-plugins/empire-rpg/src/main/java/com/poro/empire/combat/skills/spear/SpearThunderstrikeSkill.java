@@ -20,7 +20,7 @@ public final class SpearThunderstrikeSkill extends BaseWeaponSkill {
     @Override
     public boolean execute(Player player, SkillContext ctx) {
         double damage = scaledDamageWithStacks(ctx, player, 3.60, 0.08);
-        SkillHitboxHelper.line(player, 9.0, 0.8).forEach(t -> dealDamage(player, t, damage));
+        SkillHitboxHelper.line(player, 9.0, 0.8).forEach(t -> dealDamage(ctx, player, t, damage));
         consumeStacks(ctx, player);
 
         // 긴 전격 직선 + 스파크 + 천둥음

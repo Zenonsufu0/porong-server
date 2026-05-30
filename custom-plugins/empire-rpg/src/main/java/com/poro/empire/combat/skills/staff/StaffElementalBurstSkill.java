@@ -23,11 +23,11 @@ public final class StaffElementalBurstSkill extends PluginWeaponSkill {
     public boolean execute(Player player, SkillContext ctx) {
         double damage = scaledDamage(ctx, player, 2.40);
         SkillHitboxHelper.projectileRaycast(player, 18.0, 0.5).ifPresent(primary -> {
-            dealDamage(player, primary, damage);
+            dealDamage(ctx, player, primary, damage);
             // AoE burst at impact location
             primary.getWorld().getNearbyLivingEntities(primary.getLocation(), 2.5).stream()
                     .filter(e -> !e.equals(player) && !e.equals(primary))
-                    .forEach((LivingEntity splash) -> dealDamage(player, splash, damage));
+                    .forEach((LivingEntity splash) -> dealDamage(ctx, player, splash, damage));
             // 착탄 지점 폭발 연출
             spawnImpactEffect(primary.getLocation().add(0, 1.0, 0), Particle.DUST, ARCANE, 30);
             spawnImpactEffect(primary.getLocation().add(0, 1.0, 0), Particle.WITCH, null, 16);

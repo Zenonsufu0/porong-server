@@ -21,7 +21,7 @@ public final class SpearCrescentSkill extends BaseWeaponSkill {
     @Override
     public boolean execute(Player player, SkillContext ctx) {
         double damage = scaledDamage(ctx, player, 1.90);
-        SkillHitboxHelper.arc(player, 3.0, 150).forEach(t -> dealDamage(player, t, damage));
+        SkillHitboxHelper.arc(player, 3.0, 150).forEach(t -> dealDamage(ctx, player, t, damage));
 
         // 넓은 반월 2겹 호 + sweep 마크
         spawnParticleArc(player, Particle.DUST, TEAL, 3.0, 150, 14);

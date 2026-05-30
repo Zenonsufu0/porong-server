@@ -162,7 +162,8 @@
 - 분류: [x] 기획 확정 필요(잠재 모델) + [x] 코드 수정 착수(전투 파이프라인·보스 배선) / 선행조건 2건은 맵·server-config 작업
 - 상태: 코드 블로커 수정 진행 중 (DL-091)
   - ✅ 완료(DL-091): #6 ATK flat 테이블, #3 보스 처치→보상 브리지, #5 최종보스 게이트, #4 원샷 85% 클램프
-  - ⏳ 남음: #7 피해 공식 계층(경량 중앙 적용부 — BaseWeaponSkill, attack_percent/general/boss/치명 + WeaponPowerCalculator flat합산 버그 교정), #10 보스 타임아웃·페이즈 틱
+  - ✅ 완료(DL-092): #7 피해 공식 계층 — attack_percent(ATK)·general_damage_increase(스킬피해%)·치명 적용 + WeaponPowerCalculator flat합산 버그 교정. ※boss_damage_increase(보스판정)·DEF항(바닐라 armor 위임)은 후속/위임
+  - ⏳ 남음: #10 보스 타임아웃·페이즈 틱, boss_damage_increase 보스판정 배선
   - ⏳ 기획 확정 대기: 잠재(큐브) 등급 모델 3원 분기
   - ⏳ 선행조건(코드 밖): config 좌표·월드명, MM 셸 설치·ID 충돌
 
