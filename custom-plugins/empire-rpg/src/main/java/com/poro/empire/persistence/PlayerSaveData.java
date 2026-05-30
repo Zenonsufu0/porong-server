@@ -67,12 +67,19 @@ public record PlayerSaveData(
             int    convenienceUnlocks,
             int    reaperCount,
             int    storageCount,
-            int    minerCount
+            int    minerCount,
+            long   lastProductionAt
     ) {
+        /** legacy 6-arg 호환 (lastProductionAt 없음 → 0 = 최초로 취급, DL-088) */
+        public TerritorySaveData(String ownerName, String rankName, int convenienceUnlocks,
+                                 int reaperCount, int storageCount, int minerCount) {
+            this(ownerName, rankName, convenienceUnlocks, reaperCount, storageCount, minerCount, 0L);
+        }
+
         /** legacy 5-arg deserialization 호환 */
         public TerritorySaveData(String ownerName, String rankName, int convenienceUnlocks,
                                  int reaperCount, int storageCount) {
-            this(ownerName, rankName, convenienceUnlocks, reaperCount, storageCount, 0);
+            this(ownerName, rankName, convenienceUnlocks, reaperCount, storageCount, 0, 0L);
         }
     }
 

@@ -68,6 +68,8 @@ public final class IslandTerritoryState {
     private int reaperCount  = 0; // 자동 재배기 (약초)
     private int storageCount = 0; // 영지 저장고
     private int minerCount   = 0; // 광물 채굴기
+    /** 마지막 시설 생산 정산 시각(epoch ms). 오프라인 누적 생산 기준 (DL-088). 0=미설정(최초). */
+    private long lastProductionAt = 0L;
 
     /** 공방 대기열. 완료된 작업은 GUI 열 때 collect 처리. */
     private final List<WorkshopJob> workshopJobs = new ArrayList<>();
@@ -102,6 +104,8 @@ public final class IslandTerritoryState {
     public int storageCount() { return storageCount; }
     public int minerCount()   { return minerCount;   }
 
+    public long lastProductionAt() { return lastProductionAt; }
+    public void setLastProductionAt(long t) { this.lastProductionAt = t; }
     public void setReaperCount(int n)  { this.reaperCount  = Math.max(0, n); }
     public void setStorageCount(int n) { this.storageCount = Math.max(0, n); }
     public void setMinerCount(int n)   { this.minerCount   = Math.max(0, n); }

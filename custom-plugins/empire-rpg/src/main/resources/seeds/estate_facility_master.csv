@@ -1,3 +1,4 @@
 facility_id,facility_name,theme_type,life_type,base_item_id,rare_item_id,interval_minutes,max_level,required_blueprint_id
 estate_herb_plot,Imperial Herb Plot,capital,herb_gathering,res_herb_imperial,res_essence_imperial,60,3,-
+estate_resonance_extractor,Resonance Extractor,capital,mining,res_ore_resonance,res_silver_ore,60,3,-
 estate_workshop,Workshop,-,crafting,-,-,0,1,-

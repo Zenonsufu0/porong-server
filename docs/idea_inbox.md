@@ -126,8 +126,8 @@
   |---|---|---|
   | ~~🔴 높음 강화 테이블 수치 불일치~~ ✅ 해소 (2026-05-30, DL-086) | T1 1~25강 확정 표 반영 + 21~25강 추가 + 방어구 강화석 `ceil(÷1.5)` 구현 + validate 1~3강 완화. ※배포 사본 동기화 필요 |
   | ~~🔴 높음 보스 시드 두 벌 모순~~ ✅ 해소 (2026-05-30, DL-087) | boss_master를 정본 시즌6+최종3으로 교체, 필드4 `fallen_knight`→`outpost_knight` 분리. **잔여: MM 셸 충돌**(`field_outpost.yml` Fallen_Knight vs `season_bosses.yml` fallen_knight, server-config 별도 수정 필요) |
-  | 🟠 중간 | 영지 생산 온라인 전용 | 라이브=`MachineProductionScheduler`(20분 온라인 틱). 오프라인 타임스탬프 모델(EstateFacilityService) GUI 미연결 |
-  | 🟠 중간 | 광물 채굴기 시드 누락 | `estate_facility_master.csv`에 약초·공방만, `estate_resonance_extractor` 빠짐 |
+  | ~~🟠 영지 생산 온라인 전용~~ ✅ 해소 (2026-05-30, DL-088) | 오프라인 누적 생산(storage_hours_cap 상한) 구현. lastProductionAt 영속화 |
+  | ~~🟠 광물 채굴기 시드 누락~~ ✅ 해소 (2026-05-30, DL-088) | estate_facility_master에 extractor 행 추가(life_type=mining) |
   | 🟠 중간 | 강화 흔적 미연동 | 별·달·태양 흔적 공방 생산만, `EnhancementService` 성공률 보정에 미사용(소비처 0) |
   | 🟠 중간 | 필드보스 스폰 스케줄러 stub | `FieldBossRespawnScheduler` 항상 RESPAWNING/30분/0명 |
   | 🟡 낮음 | 금지 설계 시드 잔존 | `state_master.csv` DEBUFF_MARK, 방깎/받피증 각인, 공용각인 12종, T2 강화표 — 런타임 미적용이나 정리 대상 |

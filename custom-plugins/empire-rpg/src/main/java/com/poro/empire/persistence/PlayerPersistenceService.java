@@ -261,6 +261,7 @@ public final class PlayerPersistenceService {
         state.setReaperCount(t.reaperCount());
         state.setStorageCount(t.storageCount());
         state.setMinerCount(t.minerCount());
+        state.setLastProductionAt(t.lastProductionAt());
 
         // 커스텀 아이템 (큐브 파편, 흔적 등)
         if (data.customItems() != null) {
@@ -379,10 +380,11 @@ public final class PlayerPersistenceService {
     }
 
     private PlayerSaveData.TerritorySaveData toTerritoryDto(IslandTerritoryState t) {
-        if (t == null) return new PlayerSaveData.TerritorySaveData("", IslandRank.FRONTIER.name(), 0, 0, 0, 0);
+        if (t == null) return new PlayerSaveData.TerritorySaveData("", IslandRank.FRONTIER.name(), 0, 0, 0, 0, 0L);
         return new PlayerSaveData.TerritorySaveData(
                 t.islandName(), t.rank().name(),
-                t.convenienceUnlocks(), t.reaperCount(), t.storageCount(), t.minerCount()
+                t.convenienceUnlocks(), t.reaperCount(), t.storageCount(), t.minerCount(),
+                t.lastProductionAt()
         );
     }
 

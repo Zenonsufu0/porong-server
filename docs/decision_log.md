@@ -4,6 +4,25 @@
 
 ---
 
+### DL-088 영지 시설 오프라인 누적 생산 + 광물 채굴기 시드 (INBOX-005 🟠 해소)
+
+**결정:** 영지 시설(약초 재배지·광물 채굴기) 생산을 온라인 전용 → **오프라인 누적**으로 전환한다. `storage_hours_cap`(Lv1 12h/Lv2 16h/Lv3 24h) 상한 적용.
+
+**배경:** `MachineProductionScheduler`가 `Bukkit.getOnlinePlayers()`만 순회해 오프라인 생산이 없었다(INBOX-005 🟠). 그러나 `estate_facility_level_rule.csv`에 `storage_hours_cap`이 존재 — 기획 의도는 상한 있는 오프라인 누적. 사용자 확정: "오프라인 생산 구현".
+
+**결과:**
+- `IslandTerritoryState.lastProductionAt`(epoch ms) 추가 + 영속화(`PlayerSaveData.TerritorySaveData` 7번째 필드, 6-arg/5-arg legacy 호환).
+- `MachineProductionScheduler.accrue(state, now)`: lastProductionAt 이후 경과 20분 인터벌 수만큼 누적 생산, 기계 레벨별 cap 상한. 영속화 덕분에 로그아웃→재접속 사이 오프라인분이 다음 틱(≤20분)에 정산 — 별도 onJoin 훅 불필요. 최초(lastProductionAt=0)는 소급 없이 기준점만 설정(기존 플레이어 안전 롤아웃).
+- `estate_facility_master.csv`에 `estate_resonance_extractor`(광물 채굴기) 행 추가 — level_rule과 일관. life_type=`mining`(LifeType enum 유효값, "ore_mining"은 from() 예외).
+
+**한계:** cap 시간(12/16/24h)을 스케줄러에 하드코딩(level_rule의 storage_hours_cap과 동일하나 런타임에 읽지 않음). 산출량·아이템도 스케줄러 하드코딩(estate_facility_master 레지스트리는 미연동 평행 시스템 — 별도 정리 대상).
+
+**영향 범위:** `IslandTerritoryState`, `PlayerSaveData`, `PlayerPersistenceService`, `MachineProductionScheduler`, `estate_facility_master.csv`.
+
+**관련:** `docs/idea_inbox.md` INBOX-005 #영지 생산·#광물 채굴기 시드 해소. island_system_design.md §2.2.
+
+---
+
 ### DL-087 보스 시드 정합 — boss_master를 정본(시즌6+최종3)에 동기화 (INBOX-005 🔴 해소)
 
 **결정:** `boss_master.csv`를 정본 보스 로스터(필드5 + 시즌6 + 최종3)로 교체한다.
