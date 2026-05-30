@@ -122,6 +122,7 @@ shop:
 
 # 필드 텔레포트 좌표 — 맵 확정 후 실제 좌표로 교체.
 # world: 월드 이름 (보통 "world"). 설정 없으면 해당 필드 이동 불가 메시지 표시.
+# 필드 5종 — 각 300×300, 1000 간격(700블록 갭). 단일 평지 world (DL-099). 동적 스폰 경계 = 중심 ±150.
 fields:
   plain:
     world: "world"
@@ -132,28 +133,28 @@ fields:
     pitch: 0.0
   mine:
     world: "world"
-    x: 500.0
+    x: 1000.0
     y: 64.0
     z: 0.0
     yaw: 0.0
     pitch: 0.0
   sewer:
     world: "world"
-    x: 1000.0
+    x: 2000.0
     y: 64.0
     z: 0.0
     yaw: 0.0
     pitch: 0.0
   outpost:
     world: "world"
-    x: 1500.0
+    x: 3000.0
     y: 64.0
     z: 0.0
     yaw: 0.0
     pitch: 0.0
   ruins:
     world: "world"
-    x: 2000.0
+    x: 4000.0
     y: 64.0
     z: 0.0
     yaw: 0.0
@@ -164,27 +165,27 @@ fields:
 field-bosses:
   plain:
     world: "world"
-    x: 100.0
+    x: 0.0
     y: 64.0
     z: 100.0
   mine:
     world: "world"
-    x: 600.0
+    x: 1000.0
     y: 64.0
     z: 100.0
   sewer:
     world: "world"
-    x: 1100.0
+    x: 2000.0
     y: 64.0
     z: 100.0
   outpost:
     world: "world"
-    x: 1600.0
+    x: 3000.0
     y: 64.0
     z: 100.0
   ruins:
     world: "world"
-    x: 2100.0
+    x: 4000.0
     y: 64.0
     z: 100.0
 
