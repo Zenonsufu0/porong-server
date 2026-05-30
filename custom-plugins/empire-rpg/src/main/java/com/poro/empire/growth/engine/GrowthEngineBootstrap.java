@@ -77,11 +77,17 @@ public final class GrowthEngineBootstrap {
                 masterRegistryContext.itemMasters(),
                 new NoopStatRecalculationHook()
         );
+        // in-memory(관리자 GUI 최근 조회) + DB(누적 분석) 이중 로그 — 합성 hook으로 둘 다 기록 (DL-079)
         InMemoryEnhancementLogHook enhancementLogHook = new InMemoryEnhancementLogHook();
+        DbEnhancementLogHook dbEnhancementLogHook = new DbEnhancementLogHook(
+                foundationContext.connectionProvider(),
+                foundationContext.logger().domain("db.enhancement"));
+        EnhancementLogHook enhancementLogSink = new CompositeEnhancementLogHook(
+                List.of(enhancementLogHook, dbEnhancementLogHook));
         EnhancementService enhancementService = new EnhancementService(
                 masterRegistryContext.itemMasters(),
                 enhancementRuleRegistry,
-                enhancementLogHook,
+                enhancementLogSink,
                 new ThreadLocalRandomProvider()
         );
         PotentialService potentialService = new PotentialService(

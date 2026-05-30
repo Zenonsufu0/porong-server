@@ -4,6 +4,26 @@
 
 ---
 
+### DL-079 강화 로그 DB 영속화 — in-memory 휘발 해소, 성공률 검증 가능
+
+**결정:** 강화 시도 로그를 `enhancement_log` 테이블로 DB 영속화한다. 기존 `InMemoryEnhancementLogHook`(관리자 GUI 최근 조회용)는 유지하고, `DbEnhancementLogHook`을 추가해 `CompositeEnhancementLogHook`으로 합성 — in-memory와 DB에 동시 기록.
+
+**이유:**
+- 강화 로그는 이미 풍부한 데이터(성공/실패·roll·골드/강화석 비용·천장 발동)를 담고 있었으나 in-memory라 재시작 시 소실, 누적 판단 불가였다 (INBOX-004 #3).
+- 표기 성공률 vs 실제, 유저당 강화 부담(골드·강화석 총 소모), 천장 발동 빈도는 시즌 경제 밸런스 판단의 핵심.
+- 기존 로그가 충분해 DB hook 1개 + 테이블 1개만 추가하면 되는 가장 적은 작업의 공백 해소.
+
+**결과 (코드 구조):**
+- `enhancement_log` (player_uuid, item_id, tier, before/target/final_level, success, success_rate, roll, gold_cost, stone_cost, forced_ceiling, attempted_at) + 인덱스 2종. `EnhancementLogMigration` 등록.
+- `CompositeEnhancementLogHook([inMemory, db])`을 `EnhancementService`에 주입. runtime은 in-memory hook을 계속 노출(관리자 GUI `logs()` 호환).
+- 읽기 API: `GET /api/v1/economy/enhancement` — 요약(표기 vs 실제 성공률·총 소모) + 티어·단계별 성공률.
+
+**영향 범위:** `EnhancementLogDdl`, `EnhancementLogMigration`, `DbEnhancementLogHook`(신규, write+read), `CompositeEnhancementLogHook`(신규), `GrowthEngineBootstrap`, `EconomyApiHandler`(신규), `EmpireHttpServer`, `OperationsQueryBootstrap`, `CommonFoundationBootstrap`.
+
+**관련:** `docs/idea_inbox.md` INBOX-004 #3 (PROMOTED). 남은 공백 5종(#2·#4~#7).
+
+---
+
 ### DL-078 접속 세션 로그 — 리텐션·DAU·플레이타임 수집 테이블 신규
 
 **결정:** `player_session_log` 테이블을 신규 추가해 플레이어 접속/종료 세션을 DB 영속 기록한다. 운영 판단용 활동 지표(DAU·플레이타임·리텐션)의 데이터 소스.
