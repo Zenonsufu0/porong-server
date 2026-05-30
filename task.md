@@ -7,9 +7,10 @@
 ## 현재 브랜치 상태
 
 - 브랜치: `master`
-- 최근 커밋: `58a38e0` (§6-15 Step 2b — 운영 토글 5종 게임 로직 hook 적용)
+- 최근 기능 커밋: `ef31e9e` (§6-16 Step 3 — 로그/감시 GUI + /empire-log)
+  - ※ "최근 기능 커밋"은 직후 task.md 정정 커밋과 무관하게 마지막 *기능* 커밋을 가리킨다 (상태 드리프트 방지)
 - 빌드: `./gradlew compileJava → BUILD SUCCESSFUL` (기존 deprecated AnvilInventory warning만 잔존)
-- **§6-15 코드(`ff46573`) + Step 2b 토글 hook(`58a38e0`) 커밋 완료**, `codex-review` 동기화 완료 (master == codex-review)
+- **§6-15 Step 2(`ff46573`)·Step 2b(`58a38e0`)·§6-16 Step 3(`ef31e9e`) 모두 커밋·동기화 완료** (master == codex-review)
 - 다음: 관리자 Phase 2 Step 4 — 보스 디버그 GUI + `/empire-boss-list`·`/empire-boss-end`
 
 ---
@@ -257,7 +258,7 @@
 | `docs/10_development_roadmap/admin_gui_phase2.md` — Step 2 완료/Step 2b hook 명시 | docs | ✅ |
 | `BUILD SUCCESSFUL` | — | ✅ |
 
-## §6-16 관리자 Phase 2 Step 3 — 로그/감시 GUI + /empire-log — 완료 (2026-05-30, 미커밋)
+## §6-16 관리자 Phase 2 Step 3 — 로그/감시 GUI + /empire-log — 완료 (2026-05-30, 커밋 `ef31e9e`)
 
 기준: `docs/10_development_roadmap/admin_gui_phase2.md` §로그/감시 (slot 33)
 
@@ -294,8 +295,7 @@
 - `BUILD SUCCESSFUL` (기존 AnvilInventory deprecation 경고만 잔존)
 - **범위 주의:** EXP/DROP 부스트는 `FieldDropListener`(필드몹) 한정. 보스 보상(`BossRewardService`) 경로는 미적용 — 필요 시 확장 검토
 
-### Phase 2 Step 3+ 미진행
-- Step 3: 로그/감시 GUI + `/empire-log` (강화·거래·PvP 로그)
+### Phase 2 Step 4+ 미진행
 - Step 4: 보스 디버그 GUI + `/empire-boss-list`·`/empire-boss-end`
 - Step 5: 영지 관리 GUI (slot 29) — 목록/초기화/작위 강제 변경
 
