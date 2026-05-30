@@ -7,6 +7,7 @@ import com.poro.empire.common.result.Result;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.BooleanSupplier;
 
 public final class EnhancementService {
     public static final int MAX_ENHANCE_LEVEL = 25;
@@ -17,6 +18,11 @@ public final class EnhancementService {
     private final EnhancementRuleRegistry enhancementRuleRegistry;
     private final EnhancementLogHook enhancementLogHook;
     private final RandomProvider randomProvider;
+    /**
+     * 운영자 강화 부스트 토글 연동 (Step 2b). 도메인↔운영 역결합을 피하기 위해 BooleanSupplier로 주입.
+     * true면 성공 임계값 ×2 (1.0 클램프). 기본값은 항상 false.
+     */
+    private BooleanSupplier enhanceBoostSupplier = () -> false;
 
     public EnhancementService(
             ItemMasterRegistry itemMasterRegistry,
@@ -28,6 +34,11 @@ public final class EnhancementService {
         this.enhancementRuleRegistry = Objects.requireNonNull(enhancementRuleRegistry, "enhancementRuleRegistry");
         this.enhancementLogHook = Objects.requireNonNull(enhancementLogHook, "enhancementLogHook");
         this.randomProvider = Objects.requireNonNull(randomProvider, "randomProvider");
+    }
+
+    /** 운영자 강화 부스트 토글 공급자 주입 (EmpireRPGPlugin 와이어링). */
+    public void setEnhanceBoostSupplier(BooleanSupplier enhanceBoostSupplier) {
+        this.enhanceBoostSupplier = Objects.requireNonNull(enhanceBoostSupplier, "enhanceBoostSupplier");
     }
 
     public Result<EnhancementResult> attempt(PlayerGrowthState state, String itemInstanceId) {
@@ -108,6 +119,10 @@ public final class EnhancementService {
             int catalystBonus = state.drainCatalystBonus();
             if (catalystBonus > 0) {
                 threshold = Math.min(threshold + catalystBonus / 100.0, 1.0);
+            }
+            // 운영자 강화 부스트 토글 (ENHANCE_BOOST): 성공 임계값 ×2, 1.0 클램프.
+            if (enhanceBoostSupplier.getAsBoolean()) {
+                threshold = Math.min(threshold * 2.0, 1.0);
             }
             success = roll <= threshold;
             if (counterKey != null) {

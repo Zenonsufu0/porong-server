@@ -163,6 +163,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
     private PvpRatingService    pvpRatingService;
     private PvpArenaManager     pvpArenaManager;
     private PvpMatchService     pvpMatchService;
+    private com.poro.empire.admin.AdminTogglesService adminTogglesService;
     private BossRoomManager     bossRoomManager;
     private BossRewardService   bossRewardService;
 
@@ -529,7 +530,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
             };
         }
         BossRoomListener bossRoomListenerInstance =
-                new BossRoomListener(bossRoomManager, masterRegistryContext.bossMasters(), partyManager, bossEngineRuntime, mythicSpawner);
+                new BossRoomListener(bossRoomManager, masterRegistryContext.bossMasters(), partyManager, bossEngineRuntime, mythicSpawner, adminTogglesService);
         getServer().getPluginManager().registerEvents(shopGuiListener, this);
         getServer().getPluginManager().registerEvents(pvpHubListener, this);
         getServer().getPluginManager().registerEvents(
@@ -553,7 +554,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         if (getServer().getPluginManager().isPluginEnabled("MythicMobs")) {
             getServer().getPluginManager().registerEvents(
                     new FieldDropListener(growthStateStore, islandTerritoryStateStore, playerDataManager,
-                            playerLevelingService, fieldBossScheduler, bossRewardService, new ContributionTracker(), scoreboardService), this);
+                            playerLevelingService, fieldBossScheduler, bossRewardService, new ContributionTracker(), scoreboardService, adminTogglesService), this);
             getServer().getPluginManager().registerEvents(new BossDefenseListener(), this);
             getLogger().info("MythicMobs detected — FieldDropListener + BossDefenseListener registered.");
         } else {
@@ -639,8 +640,11 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         }
 
         // 관리자 GUI 허브 (Phase 1 + Phase 2 toggles)
-        com.poro.empire.admin.AdminTogglesService adminTogglesService =
-                new com.poro.empire.admin.AdminTogglesService();
+        this.adminTogglesService = new com.poro.empire.admin.AdminTogglesService();
+        // Step 2b — 운영 토글을 게임 로직에 연결
+        pvpMatchService.attachToggles(adminTogglesService);
+        growthEngineRuntime.enhancementService().setEnhanceBoostSupplier(
+                () -> adminTogglesService.isOn(com.poro.empire.admin.AdminTogglesService.Toggle.ENHANCE_BOOST));
         com.poro.empire.listener.AdminGuiListener adminGuiListener =
                 new com.poro.empire.listener.AdminGuiListener(
                         playerDataManager, growthStateStore, islandTerritoryStateStore,

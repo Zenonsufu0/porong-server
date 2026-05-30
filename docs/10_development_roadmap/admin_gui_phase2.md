@@ -30,15 +30,17 @@
 | 멤버 강제 제거 | 외부 플레이어가 가입한 영지에서 빼기 |
 | 자원 강제 지급/회수 | 골드·강화석·큐브·전장의 파편 |
 
-### 운영 토글 (slot 31) — **Step 2 GUI+명령어 완료, hook 적용은 Step 2b**
+### 운영 토글 (slot 31) — **Step 2 GUI+명령어 완료, Step 2b hook 적용 완료 (2026-05-30)**
 
 | 기능 | 플래그 | hook 상태 |
 |---|---|---|
-| 보스 스폰 일시정지 | `BOSS_SPAWN_PAUSE` | TODO — 표지판/MythicMobs 스폰 차단 미연결 |
-| 강화 확률 부스트(2배) | `ENHANCE_BOOST`   | TODO — EnhanceService 미연결 |
-| EXP 2배              | `EXP_BOOST`       | TODO — EXP 지급 경로 미연결 |
-| 필드 드랍 2배         | `DROP_BOOST`      | TODO — 드랍 테이블 미연결 |
-| PvP 큐 일시정지       | `PVP_QUEUE_PAUSE` | TODO — PvpMatchService.enqueue 가드 미연결 |
+| 보스 스폰 일시정지 | `BOSS_SPAWN_PAUSE` | ✅ `BossRoomListener.onInteract` — MM 가드 직후 `assignRoom` 전 차단 |
+| 강화 확률 부스트(2배) | `ENHANCE_BOOST`   | ✅ `EnhancementService` 성공 임계값 ×2 (1.0 클램프, `BooleanSupplier` 주입) |
+| EXP 2배              | `EXP_BOOST`       | ✅ `FieldDropListener` 필드몹 처치 EXP ×2 |
+| 필드 드랍 2배         | `DROP_BOOST`      | ✅ `FieldDropListener.grantFieldDrops` 드랍 수량 ×2 (확률 유지) |
+| PvP 큐 일시정지       | `PVP_QUEUE_PAUSE` | ✅ `PvpMatchService.enqueue` 진입 즉시 reject |
+
+> Step 2b 범위 주의: EXP/DROP 부스트는 `FieldDropListener`(필드몹) 한정. 보스 보상(`BossRewardService`) 경로는 미적용 — 필요 시 확장.
 
 진입 경로:
 - GUI: `/empire-admin` → slot 31 (운영 토글)

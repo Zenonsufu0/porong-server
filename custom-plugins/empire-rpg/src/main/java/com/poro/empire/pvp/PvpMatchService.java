@@ -1,5 +1,6 @@
 package com.poro.empire.pvp;
 
+import com.poro.empire.admin.AdminTogglesService;
 import com.poro.empire.growth.GrowthStateStore;
 import com.poro.empire.growth.engine.EquipmentSlot;
 import com.poro.empire.growth.engine.PlayerEquipmentItem;
@@ -36,6 +37,7 @@ public final class PvpMatchService {
     private final PvpRatingService    ratingService;
     private PvpMatchLogRepository     matchLogRepository; // optional
     private GrowthStateStore          growthStateStore;   // setter — 정규대전 IL 계산용
+    private AdminTogglesService       togglesService;     // setter — PVP_QUEUE_PAUSE 운영 토글 (optional)
 
     /** 자유대전 큐: FIFO. */
     private final Deque<UUID> freeQueue   = new ArrayDeque<>();
@@ -83,6 +85,10 @@ public final class PvpMatchService {
         this.growthStateStore = growthStateStore;
     }
 
+    public void attachToggles(AdminTogglesService togglesService) {
+        this.togglesService = togglesService;
+    }
+
     /** CANON §3: 정규대전 IL 산정은 5슬롯(무기·투구·갑옷·각반·신발)만 사용. 액세서리 제외. */
     private static final EquipmentSlot[] IL_SLOTS = {
             EquipmentSlot.WEAPON, EquipmentSlot.HELMET, EquipmentSlot.CHESTPLATE,
@@ -112,6 +118,10 @@ public final class PvpMatchService {
     // ─── 큐 진입 ─────────────────────────────────────────────────────
 
     public boolean enqueue(Player player, PvpMatchType type) {
+        if (togglesService != null && togglesService.isOn(AdminTogglesService.Toggle.PVP_QUEUE_PAUSE)) {
+            player.sendMessage("§c[PvP] 현재 운영자가 PvP 매칭을 일시 정지했습니다.");
+            return false;
+        }
         if (playerToMatch.containsKey(player.getUniqueId())) {
             player.sendMessage("§c[PvP] 이미 대전 중입니다.");
             return false;

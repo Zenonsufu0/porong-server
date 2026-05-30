@@ -9,8 +9,8 @@
 - 브랜치: `master`
 - 최근 커밋: `ff46573` (§6-15 Phase 2 Step 2 — 운영 토글 GUI + /empire-toggle)
 - 빌드: `./gradlew compileJava → BUILD SUCCESSFUL` (10 warning은 기존 deprecated AnvilInventory)
-- **§6-15 코드 커밋 완료** (`ff46573`), `codex-review` worktree 동기화 완료 (master == codex-review)
-- 다음: §6-15 Step 2b — 토글 hook 실제 게임 로직 적용
+- **§6-15 코드 커밋 완료** (`ff46573`) + Step 2b 토글 hook 적용 완료 (미커밋)
+- 다음: 관리자 Phase 2 Step 3 — 로그/감시 GUI + `/empire-log`
 
 ### 미커밋 변경 파일 (§6-12)
 | 파일 | 변경 내용 |
@@ -267,15 +267,19 @@
 | `docs/10_development_roadmap/admin_gui_phase2.md` — Step 2 완료/Step 2b hook 명시 | docs | ✅ |
 | `BUILD SUCCESSFUL` | — | ✅ |
 
-### §6-15 잔여 (Step 2b — 토글 hook 실제 적용)
+### §6-15 Step 2b — 토글 hook 실제 적용 — 완료 (2026-05-30)
 
 | 플래그 | 적용 위치 | 상태 |
 |---|---|---|
-| `BOSS_SPAWN_PAUSE` | 표지판 `BossRoomListener.startRun` + MM 스폰 가드 | TODO |
-| `ENHANCE_BOOST` | `EnhanceService` 성공률 ×2 | TODO |
-| `EXP_BOOST` | EXP 지급 경로 (필드 EXP 등) ×2 | TODO |
-| `DROP_BOOST` | `FieldDropListener` 드랍 확률/수량 ×2 | TODO |
-| `PVP_QUEUE_PAUSE` | `PvpMatchService.enqueue` 진입 시 reject 메시지 | TODO |
+| `BOSS_SPAWN_PAUSE` | `BossRoomListener.onInteract` — MM 가드 직후, `assignRoom` 전 차단 | ✅ |
+| `ENHANCE_BOOST` | `EnhancementService` 성공 임계값 ×2 (1.0 클램프). `BooleanSupplier` 주입으로 도메인↔운영 역결합 회피 | ✅ |
+| `EXP_BOOST` | `FieldDropListener` 필드몹 처치 EXP ×2 (`expMultiplier()`) | ✅ |
+| `DROP_BOOST` | `FieldDropListener.grantFieldDrops` 드랍 **수량** ×2 (`dropMultiplier()`, 확률 유지 → 기댓값 정확히 2배) | ✅ |
+| `PVP_QUEUE_PAUSE` | `PvpMatchService.enqueue` 진입 즉시 reject 메시지 | ✅ |
+
+- 와이어링: `EmpireRPGPlugin` — `adminTogglesService` 필드 승격, `pvpMatchService.attachToggles()` + `enhancementService().setEnhanceBoostSupplier()` + 두 리스너 생성자 주입
+- `BUILD SUCCESSFUL` (기존 AnvilInventory deprecation 경고만 잔존)
+- **범위 주의:** EXP/DROP 부스트는 `FieldDropListener`(필드몹) 한정. 보스 보상(`BossRewardService`) 경로는 미적용 — 필요 시 확장 검토
 
 ### Phase 2 Step 3+ 미진행
 - Step 3: 로그/감시 GUI + `/empire-log` (강화·거래·PvP 로그)
@@ -308,8 +312,7 @@
 
 | 우선도 | 항목 | 비고 |
 |---|---|---|
-| 높음 | §6-15 커밋 + `orc to-review` 동기화 | Step 2 미커밋 + 누적 sync 부채(`1cf2605` 이후) |
-| 높음 | §6-15 Step 2b — 토글 hook 실제 적용 | 5개 플래그를 게임 로직에 연결해야 효과 발생 |
+| 높음 | §6-15 Step 2b 커밋 + `orc to-review` 동기화 | 토글 hook 5종 미커밋 |
 | 중간 | 관리자 Phase 2 Step 3 — 로그/감시 GUI + `/empire-log` | DB에 이미 있는 로그(강화·거래·PvP) GUI 노출 |
 | 중간 | 관리자 Phase 2 Step 4 — 보스 디버그 GUI + 명령어 | 보스 런 stuck 처리, `/empire-boss-list`·`/empire-boss-end` |
 | 중간 | 관리자 Phase 2 Step 5 — 영지 관리 GUI (slot 29) | 1차 시즌 영지 분쟁 빈도 높을 가능성 |

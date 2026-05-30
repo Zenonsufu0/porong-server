@@ -1,5 +1,6 @@
 package com.poro.empire.listener;
 
+import com.poro.empire.admin.AdminTogglesService;
 import com.poro.empire.boss.engine.BossRewardService;
 import com.poro.empire.field.ContributionTracker;
 import com.poro.empire.field.FieldBossRespawnScheduler;
@@ -36,6 +37,8 @@ public final class FieldDropListener implements Listener {
     private final BossRewardService bossRewardService;
     private final ContributionTracker contributionTracker;
     private final ScoreboardService scoreboardService;
+    /** EXP_BOOST / DROP_BOOST 운영 토글 (optional — null이면 미적용). */
+    private final AdminTogglesService togglesService;
 
     public FieldDropListener(
             GrowthStateStore growthStateStore,
@@ -45,7 +48,8 @@ public final class FieldDropListener implements Listener {
             FieldBossRespawnScheduler fieldBossScheduler,
             BossRewardService bossRewardService,
             ContributionTracker contributionTracker,
-            ScoreboardService scoreboardService
+            ScoreboardService scoreboardService,
+            AdminTogglesService togglesService
     ) {
         this.growthStateStore = growthStateStore;
         this.islandTerritoryStateStore = islandTerritoryStateStore;
@@ -54,6 +58,17 @@ public final class FieldDropListener implements Listener {
         this.bossRewardService = bossRewardService;
         this.contributionTracker = contributionTracker;
         this.scoreboardService = scoreboardService;
+        this.togglesService = togglesService;
+    }
+
+    /** EXP_BOOST 토글 시 EXP ×2. */
+    private int expMultiplier() {
+        return (togglesService != null && togglesService.isOn(AdminTogglesService.Toggle.EXP_BOOST)) ? 2 : 1;
+    }
+
+    /** DROP_BOOST 토글 시 드랍 수량 ×2 (확률은 유지 — 기댓값 정확히 2배). */
+    private int dropMultiplier() {
+        return (togglesService != null && togglesService.isOn(AdminTogglesService.Toggle.DROP_BOOST)) ? 2 : 1;
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -100,7 +115,7 @@ public final class FieldDropListener implements Listener {
         if (profile == null) return;
         String classId = playerDataManager.getWeaponType(killer.getUniqueId()).name().toLowerCase(Locale.ROOT);
         PlayerGrowthState growth = growthStateStore.getOrCreate(killer.getUniqueId(), classId);
-        int levelsGained = playerLevelingService.addExp(growth, profile.expAmount());
+        int levelsGained = playerLevelingService.addExp(growth, profile.expAmount() * expMultiplier());
         if (levelsGained > 0) {
             killer.sendMessage("§6§l[레벨업!] §eLv " + growth.playerLevel()
                     + " §7달성! 스탯 포인트 §a+" + (levelsGained * 3));
@@ -110,16 +125,17 @@ public final class FieldDropListener implements Listener {
     }
 
     private void grantFieldDrops(Player player, FieldDropProfile profile, PlayerGrowthState growth) {
-        growth.addCurrency(GOLD, randomInclusive(profile.goldMin, profile.goldMax));
+        int mult = dropMultiplier();
+        growth.addCurrency(GOLD, randomInclusive(profile.goldMin, profile.goldMax) * mult);
         if (roll(profile.battleShardChancePct)) {
             islandTerritoryStateStore.getOrCreate(player.getUniqueId(), player.getName())
-                    .addCustomItem(BATTLE_SHARD, randomInclusive(profile.battleShardMin, profile.battleShardMax));
+                    .addCustomItem(BATTLE_SHARD, randomInclusive(profile.battleShardMin, profile.battleShardMax) * mult);
         }
         if (roll(profile.enhancementStoneChancePct)) {
-            growth.addCurrency(ENHANCEMENT_STONE, randomInclusive(profile.enhancementStoneMin, profile.enhancementStoneMax));
+            growth.addCurrency(ENHANCEMENT_STONE, randomInclusive(profile.enhancementStoneMin, profile.enhancementStoneMax) * mult);
         }
         if (roll(profile.cubeFragmentChancePct)) {
-            growth.addCurrency(CUBE_FRAGMENT, 1);
+            growth.addCurrency(CUBE_FRAGMENT, mult);
             if (growth.currency(CUBE_FRAGMENT) >= 10) {
                 growth.consumeCurrency(CUBE_FRAGMENT, 10);
                 growth.addCurrency(CUBE, 1);
@@ -129,7 +145,7 @@ public final class FieldDropListener implements Listener {
         }
         if (profile.elite && roll(profile.traceChancePct)) {
             islandTerritoryStateStore.getOrCreate(player.getUniqueId(), player.getName())
-                    .addCustomItem(randomTraceId(profile.field()), 1);
+                    .addCustomItem(randomTraceId(profile.field()), mult);
         }
     }
 

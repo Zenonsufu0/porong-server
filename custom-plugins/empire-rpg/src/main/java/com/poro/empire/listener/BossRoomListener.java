@@ -1,5 +1,6 @@
 package com.poro.empire.listener;
 
+import com.poro.empire.admin.AdminTogglesService;
 import com.poro.empire.boss.engine.BossEngineRuntime;
 import com.poro.empire.boss.engine.BossEntryRequest;
 import com.poro.empire.boss.engine.BossRun;
@@ -36,16 +37,20 @@ public final class BossRoomListener implements Listener {
      * reflection으로 구현되므로 이 클래스에 MythicMobs import 없음.
      */
     private final BiFunction<String, Location, Boolean> mythicSpawner;
+    /** BOSS_SPAWN_PAUSE 운영 토글 (optional — null이면 미적용). */
+    private final AdminTogglesService togglesService;
 
     public BossRoomListener(BossRoomManager bossRoomManager,
                             BossMasterRegistry bossMasters,
                             PartyManager partyManager,
                             BossEngineRuntime bossEngineRuntime,
-                            BiFunction<String, Location, Boolean> mythicSpawner) {
+                            BiFunction<String, Location, Boolean> mythicSpawner,
+                            AdminTogglesService togglesService) {
         this.bossRoomManager   = bossRoomManager;
         this.bossEngineRuntime = bossEngineRuntime;
         this.partyManager      = partyManager;
         this.mythicSpawner     = mythicSpawner;
+        this.togglesService    = togglesService;
     }
 
     /**
@@ -89,6 +94,12 @@ public final class BossRoomListener implements Listener {
         // MM 비활성화 시 슬롯 배정/run 생성 전에 차단 — 실패 통계 기록 방지
         if (mythicSpawner == null) {
             player.sendMessage("§c[보스] MythicMobs가 활성화되어 있지 않아 입장할 수 없습니다.");
+            return;
+        }
+
+        // 운영자 보스 스폰 일시정지 토글 (BOSS_SPAWN_PAUSE) — 슬롯 배정 전에 차단
+        if (togglesService != null && togglesService.isOn(AdminTogglesService.Toggle.BOSS_SPAWN_PAUSE)) {
+            player.sendMessage("§c[보스] 현재 운영자가 보스 입장을 일시 정지했습니다.");
             return;
         }
 
