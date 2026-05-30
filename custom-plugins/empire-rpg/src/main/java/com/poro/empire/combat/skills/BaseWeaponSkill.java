@@ -179,6 +179,23 @@ public abstract class BaseWeaponSkill implements WeaponSkill {
         spawnAt(world, particle, loc, data, count, 0.2, 0.2, 0.2, 0.05);
     }
 
+    /**
+     * 시선 방향(상하 포함) 빔 파티클 — 원거리 스킬 궤적용. 솔리드 블록에서 멈춘다.
+     * {@code projectileRaycast}와 동일하게 eyeLocation + 시선 벡터를 따라간다.
+     * @param range 빔 최대 길이
+     * @param step  파티클 간격 (작을수록 촘촘)
+     */
+    protected void spawnBeam(Player player, Particle particle, Object data, double range, double step) {
+        Vector dir = player.getEyeLocation().getDirection().normalize();
+        Location eye = player.getEyeLocation();
+        World world = player.getWorld();
+        for (double d = 0.5; d <= range; d += step) {
+            Location p = eye.clone().add(dir.clone().multiply(d));
+            if (p.getBlock().getType().isSolid()) break;
+            spawnAt(world, particle, p, data);
+        }
+    }
+
     private void spawnAt(World world, Particle particle, Location loc, Object data) {
         if (data != null) {
             world.spawnParticle(particle, loc, 1, 0, 0, 0, 0, data);
