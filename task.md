@@ -369,7 +369,9 @@
 
 | 우선도 | 항목 | 비고 |
 |---|---|---|
+| 🔴 높음 | 코드↔기획 불일치 수정 (INBOX-005) | 강화 테이블 수치(DL-033 미반영)·보스 시드 모순(boss_master vs boss_entry_rule) 2건 최우선. 실제 시드 재확인 후 |
 | 높음 | 관리자 GUI Phase 2 인게임 통합 테스트 | Step 1~5 GUI 클릭·명령·DB 표시 실서버 검증 |
+| 중간 | EXP — 바닐라 XP 억제 인게임 확인 (DL-085) | `VanillaExpSuppressListener` — 접속 시 바 0, 몹 처치 시 오브 미생성, 커스텀 레벨링 정상 확인 |
 | 높음 | JAR 재빌드 + 서버 배포 + in-game HUD/스코어보드 확인 | §6-12 수정 검증 — HUD 행 정렬, 아이콘 크기 확인 |
 | 높음 | 서버 통합 테스트 — `/보스` 선택 → `[보스]` 표지판 → MM 스폰 런타임 확인 | `season_bosses.yml` 로드 + bossId 매칭 검증 |
 | 중간 | HUD 행 X 정렬 패딩 (행별 advance 패딩으로 정확한 overlay) | 확인 후 필요 시 |

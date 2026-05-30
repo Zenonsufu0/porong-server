@@ -117,4 +117,26 @@
 
 - 상태: **[PROMOTED → DL-069]** (2026-05-28 핵심 설계 확정 → `docs/13_pvp_system/CANON.md` 생성)
 
+### INBOX-005 코드 ↔ 기획 정합성 감사 결과 — 시드/구현 불일치
+- 날짜: 2026-05-30
+- 출처: 사용자 요청 "코드 전수 조사하고 기획서랑 맞는지" 감사 결과 (에이전트 grep 기반, 수정 전 실제 시드 재확인 권장)
+- 내용 (운영·밸런스 영향순):
+
+  | 우선도 | 불일치 | 근거 |
+  |---|---|---|
+  | 🔴 높음 | 강화 테이블 수치 전면 불일치 | `growth_enhancement_table.csv` T1(11강 76%·20강 15%·1강 80G) vs 기획 DL-033(11강 25%·20강 1%·1강 2,000G). 가호 천장(`ceil(200/rate)`)도 전이 |
+  | 🔴 높음 | 보스 시드 두 벌 모순 | `boss_master.csv`(시즌3·구 ID) vs `boss_entry_rule.csv`+`BossRewardService`(시즌6+최종3·신 ID). `fallen_knight` 필드/시즌 충돌 |
+  | 🟠 중간 | 영지 생산 온라인 전용 | 라이브=`MachineProductionScheduler`(20분 온라인 틱). 오프라인 타임스탬프 모델(EstateFacilityService) GUI 미연결 |
+  | 🟠 중간 | 광물 채굴기 시드 누락 | `estate_facility_master.csv`에 약초·공방만, `estate_resonance_extractor` 빠짐 |
+  | 🟠 중간 | 강화 흔적 미연동 | 별·달·태양 흔적 공방 생산만, `EnhancementService` 성공률 보정에 미사용(소비처 0) |
+  | 🟠 중간 | 필드보스 스폰 스케줄러 stub | `FieldBossRespawnScheduler` 항상 RESPAWNING/30분/0명 |
+  | 🟡 낮음 | 금지 설계 시드 잔존 | `state_master.csv` DEBUFF_MARK, 방깎/받피증 각인, 공용각인 12종, T2 강화표 — 런타임 미적용이나 정리 대상 |
+  | 🟡 낮음 | 장비 이름 변경권(10,000G) 미구현 | 기획 §7 |
+
+  ※ EXP는 감사 결과 **기획 일치**(필드 몹 사냥 커스텀 XP). 바닐라 XP 바 병존 문제만 DL-085로 해소.
+
+- 분류: [ ] CANON 반영 후보 / [x] 기획 확정 필요 (수정 방향 결정) / [ ] 실험적 / [ ] 폐기 후보
+- 관련 문서: `final_master_plan.md`, 각 CANON.md, decision_log DL-033/DL-076
+- 상태: DRAFT (🔴 2건 실제 시드 재확인 후 수정 착수 권장)
+
 <!-- 새 항목은 이 주석 위에 추가한다 -->

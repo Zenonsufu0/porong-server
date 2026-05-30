@@ -4,6 +4,24 @@
 
 ---
 
+### DL-085 바닐라 경험치 바 억제 — 커스텀 레벨링만 노출
+
+**결정:** 바닐라 마인크래프트 경험치(초록 XP 바)를 전면 억제한다. EmpireRPG는 커스텀 레벨링(`PlayerLevelingService`, HUD 표시)을 쓰므로 바닐라 XP 바는 노출하지 않는다.
+
+**이유:**
+- 커스텀 XP 바(HUD)가 이미 있어 바닐라 XP 바와 병존하면 혼란(두 개의 XP 시스템처럼 보임). 사용자 확인: "커스텀 xp 바가 있으니 바닐라 xp 바는 안 보이는 게 맞다."
+- 커스텀 레벨링은 `level_stat_system_v1.md §5`대로 필드 몹 사냥에서 수급(이미 구현·일치). 바닐라 XP는 RPG에서 용도 없음(강화는 커스텀, 바닐라 인챈트 미사용).
+
+**결과 (코드):**
+- `VanillaExpSuppressListener`(신규): `PlayerExpChangeEvent`→0(모든 획득 차단), `EntityDeathEvent.setDroppedExp(0)`(오브 미생성), `PlayerJoinEvent`에서 바닐라 level/exp 0 리셋(기존 바 비우기). MM 게이트 밖 항상 등록.
+- 커스텀 레벨링(`FieldDropListener` → `addExp`)은 별개로 그대로 동작.
+
+**한계:** 바닐라 XP 바 트로프(빈 틀)는 API로 완전 숨김 불가 — 빈 상태로 표시됨(리소스팩으로 별도 숨김 가능). 바닐라 인챈트/모루 XP 비용 기능을 향후 쓰려면 재검토 필요.
+
+**영향 범위:** `VanillaExpSuppressListener`(신규), `EmpireRPGPlugin`(등록).
+
+---
+
 ### DL-084 보스 데미지 기여 추적 — damage_share 실측 (데이터 공백 7/7 완료)
 
 **결정:** 인스턴스 보스(보스룸) 처치 시 참여자별 데미지 점유율(%)을 `boss_session_player.damage_share`에 기록한다.

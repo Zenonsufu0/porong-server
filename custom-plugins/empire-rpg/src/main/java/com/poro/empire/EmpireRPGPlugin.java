@@ -643,6 +643,8 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                 new HeirloomGuiListener(islandTerritoryStateStore, growthStateStore, playerDataManager), this);
         getServer().getPluginManager().registerEvents(
                 new FarmGuiListener(islandTerritoryStateStore, islandStorageStore), this);
+        // 바닐라 XP 바 억제 — 커스텀 레벨링만 노출 (DL-085)
+        getServer().getPluginManager().registerEvents(new com.poro.empire.listener.VanillaExpSuppressListener(), this);
         if (getServer().getPluginManager().isPluginEnabled("MythicMobs")) {
             getServer().getPluginManager().registerEvents(
                     new FieldDropListener(growthStateStore, islandTerritoryStateStore, playerDataManager,
