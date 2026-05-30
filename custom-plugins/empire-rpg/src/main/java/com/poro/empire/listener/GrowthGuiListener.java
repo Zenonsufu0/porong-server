@@ -70,15 +70,19 @@ public final class GrowthGuiListener implements Listener {
     private static final int ENH_SLOT_PREVIEW        = 22;
     private static final int ENH_SLOT_GOLD           = 28;
     private static final int ENH_SLOT_STONE          = 33;
-    // 강화 흔적 선택 (성공률 %p 보정, +10강 이상 / DL-089)
-    private static final int ENH_SLOT_TRACE          = 38;
+    // 강화 흔적 토글 (성공률 곱연산 보정, +10강 이상, 3종 동시 / DL-090)
+    private static final int ENH_SLOT_TRACE_BULK     = 18; // 일괄 ON/OFF
+    private static final int ENH_SLOT_TRACE_STAR     = 19; // 별 토글
+    private static final int ENH_SLOT_TRACE_MOON     = 20; // 달 토글
+    private static final int ENH_SLOT_TRACE_SUN      = 21; // 태양 토글
     // 액션
     private static final int ENH_SLOT_BACK           = 36;
     private static final int ENH_SLOT_ACTION         = 40;
 
-    /** 강화 흔적 순환 순서 (별 → 달 → 태양). 보유분만 노출. */
-    private static final List<String> ENHANCE_TRACE_ORDER = List.of(
-            EnhancementService.TRACE_STAR, EnhancementService.TRACE_MOON, EnhancementService.TRACE_SUN);
+    private static final Map<Integer, String> ENH_SLOT_TO_TRACE = Map.of(
+            ENH_SLOT_TRACE_STAR, EnhancementService.TRACE_STAR,
+            ENH_SLOT_TRACE_MOON, EnhancementService.TRACE_MOON,
+            ENH_SLOT_TRACE_SUN,  EnhancementService.TRACE_SUN);
 
     private static final Map<Integer, EquipmentSlot> ENH_GUI_TO_EQUIP = Map.of(
         ENH_SLOT_SEL_WEAPON,     EquipmentSlot.WEAPON,
@@ -194,8 +198,8 @@ public final class GrowthGuiListener implements Listener {
     // 플레이어별 상태 (선택 + 대기 결과)
     // ═══════════════════════════════════════════════════════════════
     private final Map<UUID, String>                     selectedEnhanceId       = new ConcurrentHashMap<>();
-    // 강화 흔적 선택 (mat_trace_*). 없음 = 키 부재 (DL-089)
-    private final Map<UUID, String>                     selectedEnhanceTraceId  = new ConcurrentHashMap<>();
+    // 강화 흔적 토글 ON 집합 (mat_trace_*). 비어있으면 미사용 (DL-090)
+    private final Map<UUID, java.util.Set<String>>      enabledEnhanceTraces    = new ConcurrentHashMap<>();
     private final Map<UUID, String>                     selectedPotentialId     = new ConcurrentHashMap<>();
     private final Map<UUID, PotentialService.PotentialOperationResult> pendingPotentialResult = new ConcurrentHashMap<>();
     // 전승 상태 (traceId = "equip_trace_broken" 등 customItems 키)
@@ -356,7 +360,7 @@ public final class GrowthGuiListener implements Listener {
 
     private void openGrowthEnhance(Player player) {
         selectedEnhanceId.remove(player.getUniqueId());
-        selectedEnhanceTraceId.remove(player.getUniqueId());
+        enabledEnhanceTraces.remove(player.getUniqueId());
         PlayerGrowthState state = getState(player);
 
         Inventory gui = Bukkit.createInventory(null, 45, GuiTitles.GROWTH_ENHANCE);
@@ -378,7 +382,7 @@ public final class GrowthGuiListener implements Listener {
         gui.setItem(ENH_SLOT_STONE, MainHubGui.icon(Material.PAPER,      "§8강화석",    List.of("§7장비를 선택하세요")));
         gui.setItem(ENH_SLOT_ACTION, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§8강화 시도",
                 List.of("§7먼저 아이템을 선택하세요")));
-        gui.setItem(ENH_SLOT_TRACE, buildEnhanceTraceIcon(player, null));
+        refreshTraceToggles(player, gui, null);
         gui.setItem(ENH_SLOT_BACK, MainHubGui.icon(Material.ARROW, "§7뒤로", List.of("§7장비 관리")));
 
         player.openInventory(gui);
@@ -397,8 +401,13 @@ public final class GrowthGuiListener implements Listener {
             return;
         }
 
-        if (slot == ENH_SLOT_TRACE) {
-            cycleEnhanceTrace(player);
+        if (slot == ENH_SLOT_TRACE_BULK) {
+            toggleAllEnhanceTraces(player);
+            return;
+        }
+        String clickedTrace = ENH_SLOT_TO_TRACE.get(slot);
+        if (clickedTrace != null) {
+            toggleEnhanceTrace(player, clickedTrace);
             return;
         }
 
@@ -442,14 +451,14 @@ public final class GrowthGuiListener implements Listener {
         if (item == null) {
             inv.setItem(ENH_SLOT_PREVIEW, MainHubGui.icon(Material.BARRIER, "§c오류", List.of("§7아이템 없음")));
             inv.setItem(ENH_SLOT_ACTION,  MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§8강화 시도", List.of("§7오류")));
-            inv.setItem(ENH_SLOT_TRACE, buildEnhanceTraceIcon(player, null));
+            refreshTraceToggles(player, inv, null);
             return;
         }
         String itemName = itemDisplayName(item);
         int curLv = item.enhanceLevel();
 
-        // 강화 흔적 아이콘 갱신 (선택 상태 + 10강 게이트 반영)
-        inv.setItem(ENH_SLOT_TRACE, buildEnhanceTraceIcon(player, instanceId));
+        // 강화 흔적 토글 4슬롯 갱신 (선택 상태 + 10강 게이트 + 보유/요구 수량 반영)
+        refreshTraceToggles(player, inv, instanceId);
 
         // 미리보기 (중앙 고정)
         inv.setItem(ENH_SLOT_PREVIEW, MainHubGui.icon(Material.PAPER, "§f" + itemName + " §e+" + curLv,
@@ -488,20 +497,21 @@ public final class GrowthGuiListener implements Listener {
                 ? state.getCeilingCounter(equipSlot.name().toLowerCase() + "_" + (curLv + 1))
                 : 0;
 
-        // 강화 흔적 보정 (현재 +10강 이상 & 보유 시) — 유효 성공률 계산
+        // 강화 흔적 곱연산 보정 (현재 +10강 이상 & 토글 ON & 요구 수량 이상 보유) — 유효 성공률 계산
         double baseRate = rule.successRate();
-        String selTrace = activeEnhanceTrace(player, curLv);
-        double traceBonus = selTrace != null ? EnhancementService.traceBonusFor(selTrace) : 0.0;
-        double effRate = Math.min(baseRate + traceBonus, 100.0);
+        java.util.List<String> activeTraces = activeEnhanceTraces(player, curLv);
+        double traceMult = 1.0;
+        for (String t : activeTraces) traceMult += EnhancementService.traceMultiplierBonus(t);
+        double effRate = Math.min(baseRate * traceMult, 100.0);
 
         // 성공률
         List<String> rateLore = new ArrayList<>(List.of(
                 "§7──────────────",
                 "§7현재 단계: §e+" + curLv,
-                "§7기본 성공률: §e" + String.format("%.1f%%", baseRate)));
-        if (traceBonus > 0) {
-            rateLore.add("§d흔적 보정: §e+" + String.format("%.0f%%p", traceBonus)
-                    + " §7→ §a" + String.format("%.1f%%", effRate));
+                "§7기본 성공률: §e" + String.format("%.2f%%", baseRate)));
+        if (!activeTraces.isEmpty()) {
+            rateLore.add("§d흔적 보정: §e×" + String.format("%.2f", traceMult)
+                    + " §7→ §a" + String.format("%.2f%%", effRate));
         }
         rateLore.add("§7가호     : §e" + ceilingCount + " / " + ceilingCap + "회");
         inv.setItem(ENH_SLOT_SUCCESS_RATE, MainHubGui.icon(Material.PAPER, "§e강화 성공률", rateLore));
@@ -539,11 +549,12 @@ public final class GrowthGuiListener implements Listener {
             List<String> actionLore = new ArrayList<>(List.of(
                     "§7──────────────",
                     "§7" + itemName + " §e+" + curLv + " → +" + (curLv + 1),
-                    "§7성공률: §e" + String.format("%.1f", effRate) + "%"
-                            + (traceBonus > 0 ? " §d(흔적 +" + String.format("%.0f%%p", traceBonus) + ")" : ""),
+                    "§7성공률: §e" + String.format("%.2f", effRate) + "%"
+                            + (!activeTraces.isEmpty() ? " §d(흔적 ×" + String.format("%.2f", traceMult) + ")" : ""),
                     "§7비용: 골드 §e" + rule.goldCost() + " §7/ 강화석 §e" + rule.stoneCost()));
-            if (selTrace != null) {
-                actionLore.add("§d흔적: §f" + enhanceTraceName(selTrace) + " §71개 소모");
+            for (String t : activeTraces) {
+                actionLore.add("§d· " + enhanceTraceName(t)
+                        + " §7" + EnhancementService.traceCostForLevel(t, curLv) + "개 소모");
             }
             actionLore.add("§7──────────────");
             actionLore.add("§a클릭하여 강화 시도");
@@ -562,19 +573,19 @@ public final class GrowthGuiListener implements Listener {
         PlayerEquipmentItem cur = state.inventoryItem(instanceId).orElse(null);
         int curLv = cur != null ? cur.enhanceLevel() : 0;
         IslandTerritoryState island = islandTerritoryStateStore.getOrCreate(uid, player.getName());
-        // 강화 흔적: 현재 +10강 이상 & 보유 중일 때만 전달 (서비스가 1개 소모하며 보정)
-        String trace = activeEnhanceTrace(player, curLv);
-        var result = growthEngineRuntime.enhancementService().attempt(state, instanceId, island, trace, null);
+        // 강화 흔적: 현재 +10강 이상 & 토글 ON & 요구 수량 이상 보유한 흔적만 전달 (서비스가 전량 소모하며 곱연산 보정)
+        java.util.List<String> traces = activeEnhanceTraces(player, curLv);
+        var result = growthEngineRuntime.enhancementService().attempt(state, instanceId, island, traces, null);
         if (result.isFailure()) {
             player.sendMessage("§c강화 실패: " + result.message());
             refreshEnhanceInfo(player, player.getOpenInventory().getTopInventory(), state, instanceId);
             return;
         }
         var r = result.value();
-        if (r.traceId() != null) {
-            player.sendMessage("§d[강화 흔적] §f" + enhanceTraceName(r.traceId()) + " §71개 사용 — 성공률 보정 적용");
-            // 보유분 소진 시 선택 해제
-            if (island.getCustomItem(r.traceId()) <= 0) selectedEnhanceTraceId.remove(uid);
+        if (r.traceId() != null && !r.traceId().isBlank()) {
+            String names = java.util.Arrays.stream(r.traceId().split(","))
+                    .map(GrowthGuiListener::enhanceTraceName).collect(Collectors.joining(", "));
+            player.sendMessage("§d[강화 흔적] §f" + names + " §7사용 — 성공률 곱연산 보정 적용");
         }
         if (r.success()) {
             player.sendMessage("§6§l[강화 성공!] §e" + itemDisplayNameById(r.itemId())
@@ -1132,58 +1143,10 @@ public final class GrowthGuiListener implements Listener {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // 강화 흔적 (성공률 %p 보정 소모품, mat_trace_* / DL-089)
+    // 강화 흔적 (성공률 곱연산 보정 소모품, mat_trace_* / DL-090)
+    // 3종 독립 토글(별/달/태양) + 일괄 토글. 보너스 합산 후 곱: ×(1+Σ). 전부 ×1.70.
     // ※ 전승 흔적(equip_trace_*)과는 별개 개념
     // ═══════════════════════════════════════════════════════════════
-
-    /** 영지 보유 강화 흔적을 별→달→태양 순으로 (보유 > 0만). */
-    private List<String> enhanceTracePool(IslandTerritoryState island) {
-        return ENHANCE_TRACE_ORDER.stream()
-                .filter(id -> island.getCustomItem(id) > 0)
-                .collect(Collectors.toList());
-    }
-
-    /** 현재 적용 가능한 강화 흔적 (curLv >= 10 & 선택 & 보유 > 0). 아니면 null. */
-    private String activeEnhanceTrace(Player player, int curLv) {
-        if (curLv < EnhancementService.TRACE_MIN_LEVEL) return null;
-        String sel = selectedEnhanceTraceId.get(player.getUniqueId());
-        if (sel == null) return null;
-        IslandTerritoryState island = islandTerritoryStateStore.getOrCreate(player.getUniqueId(), player.getName());
-        return island.getCustomItem(sel) > 0 ? sel : null;
-    }
-
-    /** 흔적 슬롯 클릭 → 미사용 → 별 → 달 → 태양 → 미사용 순환 (보유분만). */
-    private void cycleEnhanceTrace(Player player) {
-        UUID uid = player.getUniqueId();
-        String instanceId = selectedEnhanceId.get(uid);
-        if (instanceId == null) { player.sendMessage("§c먼저 강화할 아이템을 선택하세요."); return; }
-        PlayerGrowthState state = getState(player);
-        PlayerEquipmentItem item = state.inventoryItem(instanceId).orElse(null);
-        int curLv = item != null ? item.enhanceLevel() : 0;
-        if (curLv < EnhancementService.TRACE_MIN_LEVEL) {
-            player.sendMessage("§7강화 흔적은 §e+" + EnhancementService.TRACE_MIN_LEVEL + "강 이상§7부터 사용할 수 있습니다.");
-            return;
-        }
-        IslandTerritoryState island = islandTerritoryStateStore.getOrCreate(uid, player.getName());
-        List<String> pool = enhanceTracePool(island);
-        if (pool.isEmpty()) {
-            player.sendMessage("§7보유한 강화 흔적이 없습니다. §8(공방 → 강화 흔적 탭에서 제작)");
-            selectedEnhanceTraceId.remove(uid);
-            refreshEnhanceInfo(player, player.getOpenInventory().getTopInventory(), state, instanceId);
-            return;
-        }
-        // 순환 시퀀스: [미사용(null)] + 보유 흔적
-        List<String> seq = new ArrayList<>();
-        seq.add(null);
-        seq.addAll(pool);
-        int idx = seq.indexOf(selectedEnhanceTraceId.get(uid));
-        if (idx < 0) idx = 0; // 보유분에서 빠진 선택 → 미사용부터 다시
-        String chosen = seq.get((idx + 1) % seq.size());
-        if (chosen == null) selectedEnhanceTraceId.remove(uid);
-        else                selectedEnhanceTraceId.put(uid, chosen);
-        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1.0f);
-        refreshEnhanceInfo(player, player.getOpenInventory().getTopInventory(), state, instanceId);
-    }
 
     /** 강화 흔적 표시 이름 (시드 의존 없이 고정). */
     private static String enhanceTraceName(String id) {
@@ -1196,54 +1159,135 @@ public final class GrowthGuiListener implements Listener {
         };
     }
 
-    /** 강화 흔적 선택 슬롯 아이콘. instanceId=null이면 장비 미선택 안내. */
-    private ItemStack buildEnhanceTraceIcon(Player player, String instanceId) {
-        UUID uid = player.getUniqueId();
-        IslandTerritoryState island = islandTerritoryStateStore.getOrCreate(uid, player.getName());
-        long star = island.getCustomItem(EnhancementService.TRACE_STAR);
-        long moon = island.getCustomItem(EnhancementService.TRACE_MOON);
-        long sun  = island.getCustomItem(EnhancementService.TRACE_SUN);
-        String stockLine = "§7별 §e" + star + " §7· 달 §e" + moon + " §7· 태양 §e" + sun;
+    /** 현재 토글 ON 집합 (비어있을 수 있음, 영속 안 함 — GUI 세션 한정). */
+    private java.util.Set<String> enabledTraces(UUID uid) {
+        return enabledEnhanceTraces.computeIfAbsent(uid, k -> new java.util.LinkedHashSet<>());
+    }
 
+    /**
+     * 실제 적용되는 흔적 목록 (별→달→태양 순): curLv >= 10 & 토글 ON & 요구 수량 이상 보유.
+     * GUI 표시·서비스 전달 양쪽에서 사용하는 단일 기준.
+     */
+    private java.util.List<String> activeEnhanceTraces(Player player, int curLv) {
+        if (curLv < EnhancementService.TRACE_MIN_LEVEL) return java.util.List.of();
+        java.util.Set<String> on = enabledEnhanceTraces.get(player.getUniqueId());
+        if (on == null || on.isEmpty()) return java.util.List.of();
+        IslandTerritoryState island = islandTerritoryStateStore.getOrCreate(player.getUniqueId(), player.getName());
+        java.util.List<String> out = new ArrayList<>();
+        for (String t : EnhancementService.TRACE_ORDER) {
+            if (on.contains(t) && island.getCustomItem(t) >= EnhancementService.traceCostForLevel(t, curLv)) out.add(t);
+        }
+        return out;
+    }
+
+    /** 선택된 장비의 현재 강화 단계 (미선택/없음 = -1). */
+    private int selectedEnhanceLevel(Player player) {
+        String instanceId = selectedEnhanceId.get(player.getUniqueId());
+        if (instanceId == null) return -1;
+        PlayerEquipmentItem item = getState(player).inventoryItem(instanceId).orElse(null);
+        return item != null ? item.enhanceLevel() : -1;
+    }
+
+    /** 개별 흔적 토글. 10강 이상 게이트 + 안내. */
+    private void toggleEnhanceTrace(Player player, String traceId) {
+        UUID uid = player.getUniqueId();
+        String instanceId = selectedEnhanceId.get(uid);
+        if (instanceId == null) { player.sendMessage("§c먼저 강화할 아이템을 선택하세요."); return; }
+        int curLv = selectedEnhanceLevel(player);
+        if (curLv < EnhancementService.TRACE_MIN_LEVEL) {
+            player.sendMessage("§7강화 흔적은 §e+" + EnhancementService.TRACE_MIN_LEVEL + "강 이상§7부터 사용할 수 있습니다.");
+            return;
+        }
+        java.util.Set<String> on = enabledTraces(uid);
+        if (!on.remove(traceId)) on.add(traceId);
+        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, on.contains(traceId) ? 1.2f : 0.8f);
+        refreshEnhanceInfo(player, player.getOpenInventory().getTopInventory(), getState(player), instanceId);
+    }
+
+    /** 일괄 토글: 3종 모두 ON이면 전부 OFF, 아니면 전부 ON. */
+    private void toggleAllEnhanceTraces(Player player) {
+        UUID uid = player.getUniqueId();
+        String instanceId = selectedEnhanceId.get(uid);
+        if (instanceId == null) { player.sendMessage("§c먼저 강화할 아이템을 선택하세요."); return; }
+        int curLv = selectedEnhanceLevel(player);
+        if (curLv < EnhancementService.TRACE_MIN_LEVEL) {
+            player.sendMessage("§7강화 흔적은 §e+" + EnhancementService.TRACE_MIN_LEVEL + "강 이상§7부터 사용할 수 있습니다.");
+            return;
+        }
+        java.util.Set<String> on = enabledTraces(uid);
+        boolean allOn = on.containsAll(EnhancementService.TRACE_ORDER);
+        on.clear();
+        if (!allOn) on.addAll(EnhancementService.TRACE_ORDER);
+        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, allOn ? 0.8f : 1.2f);
+        refreshEnhanceInfo(player, player.getOpenInventory().getTopInventory(), getState(player), instanceId);
+    }
+
+    /** 강화 흔적 4슬롯(일괄 + 별/달/태양) 갱신. */
+    private void refreshTraceToggles(Player player, Inventory inv, String instanceId) {
+        inv.setItem(ENH_SLOT_TRACE_BULK, buildTraceBulkIcon(player, instanceId));
+        inv.setItem(ENH_SLOT_TRACE_STAR, buildTraceToggleIcon(player, EnhancementService.TRACE_STAR, instanceId));
+        inv.setItem(ENH_SLOT_TRACE_MOON, buildTraceToggleIcon(player, EnhancementService.TRACE_MOON, instanceId));
+        inv.setItem(ENH_SLOT_TRACE_SUN,  buildTraceToggleIcon(player, EnhancementService.TRACE_SUN,  instanceId));
+    }
+
+    /** 일괄 토글 아이콘. */
+    private ItemStack buildTraceBulkIcon(Player player, String instanceId) {
+        int curLv = instanceId == null ? -1 : selectedEnhanceLevel(player);
+        java.util.Set<String> on = enabledEnhanceTraces.getOrDefault(player.getUniqueId(), java.util.Set.of());
         if (instanceId == null) {
-            return MainHubGui.icon(Material.GLOWSTONE_DUST, "§e강화 흔적 §7(선택)",
+            return MainHubGui.icon(Material.BOOK, "§e강화 흔적 §7(곱연산 보정)",
                     List.of("§7──────────────",
-                            "§7성공률 %p 보정 소모품",
-                            "§7별 +20 · 달 +30 · 태양 +50",
+                            "§7성공률 ×배수 소모품 (선택, 3종 동시)",
+                            "§7별 ×1.15 · 달 ×1.25 · 태양 ×1.30",
+                            "§7전부 = ×1.70",
                             "§7──────────────",
-                            stockLine,
                             "§7장비 선택 후 §e+10강 이상§7에서 사용"));
         }
-        PlayerGrowthState state = getState(player);
-        PlayerEquipmentItem item = state.inventoryItem(instanceId).orElse(null);
-        int curLv = item != null ? item.enhanceLevel() : 0;
-
         if (curLv < EnhancementService.TRACE_MIN_LEVEL) {
             return MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§8강화 흔적 §7(+10강 이상)",
-                    List.of("§7──────────────",
-                            "§7현재 §e+" + curLv + "강 §7— 사용 불가",
-                            "§7+" + EnhancementService.TRACE_MIN_LEVEL + "강 이상부터 적용",
-                            "§7──────────────",
-                            stockLine));
+                    List.of("§7현재 §e+" + curLv + "강 §7— +10강 이상부터 사용"));
         }
-        String sel = selectedEnhanceTraceId.get(uid);
-        if (sel != null && island.getCustomItem(sel) <= 0) sel = null; // 소진된 선택은 미사용으로 표기
-        if (sel == null) {
-            return MainHubGui.icon(Material.GLOWSTONE_DUST, "§f강화 흔적: §7미사용",
-                    List.of("§7──────────────",
-                            "§7별 +20%p · 달 +30%p · 태양 +50%p",
-                            "§7──────────────",
-                            stockLine,
-                            "§e클릭 → 흔적 선택"));
-        }
-        double bonus = EnhancementService.traceBonusFor(sel);
-        return MainHubGui.icon(Material.NETHER_STAR, "§a강화 흔적: §f" + enhanceTraceName(sel),
+        boolean allOn = on.containsAll(EnhancementService.TRACE_ORDER);
+        return MainHubGui.icon(allOn ? Material.LIME_DYE : Material.BOOK,
+                "§e일괄 " + (allOn ? "§a[전체 ON]" : "§7[전체 OFF로]"),
                 List.of("§7──────────────",
-                        "§7성공률 보정: §a+" + String.format("%.0f%%p", bonus),
-                        "§7강화 시 §e1개 소모 §7(천장 보정 시 미소모)",
+                        "§7클릭: 3종 " + (allOn ? "전부 OFF" : "전부 ON"),
+                        "§7개별 토글은 옆 칸(별/달/태양)",
                         "§7──────────────",
-                        stockLine,
-                        "§e클릭 → 다음 흔적 / 미사용"));
+                        "§d곱연산: 켠 흔적 보너스 합산 후 곱"));
+    }
+
+    /** 개별 흔적 토글 아이콘 (ON/OFF·요구 수량·보유 반영). */
+    private ItemStack buildTraceToggleIcon(Player player, String traceId, String instanceId) {
+        UUID uid = player.getUniqueId();
+        IslandTerritoryState island = islandTerritoryStateStore.getOrCreate(uid, player.getName());
+        long held = island.getCustomItem(traceId);
+        double bonus = EnhancementService.traceMultiplierBonus(traceId);
+        String name = enhanceTraceName(traceId);
+        String bonusStr = "×" + String.format("%.2f", 1.0 + bonus);
+
+        if (instanceId == null) {
+            return MainHubGui.icon(Material.GLOWSTONE_DUST, "§7" + name + " " + bonusStr,
+                    List.of("§7보유: §e" + held + "개", "§7장비 선택 후 사용"));
+        }
+        int curLv = selectedEnhanceLevel(player);
+        if (curLv < EnhancementService.TRACE_MIN_LEVEL) {
+            return MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§8" + name + " " + bonusStr,
+                    List.of("§7보유: §e" + held + "개", "§7+10강 이상부터 사용"));
+        }
+        int cost = EnhancementService.traceCostForLevel(traceId, curLv);
+        boolean on = enabledTraces(uid).contains(traceId);
+        boolean enough = held >= cost;
+        Material mat = on ? (enough ? Material.LIME_DYE : Material.RED_DYE) : Material.GRAY_DYE;
+        String state = on ? (enough ? "§a[ON]" : "§c[ON·부족]") : "§7[OFF]";
+        return MainHubGui.icon(mat, (on && enough ? "§a" : "§f") + name + " " + bonusStr + " " + state,
+                List.of("§7──────────────",
+                        "§7성공률 보정: §a" + bonusStr,
+                        "§7이 단계 요구: §e" + cost + "개 §7(전량 소모)",
+                        (enough ? "§7보유: §e" : "§c보유: §e") + held + "개",
+                        "§7천장 강제 성공 시 미소모",
+                        "§7──────────────",
+                        "§e클릭 → " + (on ? "OFF" : "ON")));
     }
 
     // ═══════════════════════════════════════════════════════════════
