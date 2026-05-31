@@ -618,6 +618,7 @@ public final class GrowthGuiListener implements Listener {
         fillEnhancementEquipSlots(inv, state, playerDataManager.getWeaponType(player.getUniqueId()));
         refreshEnhanceInfo(player, inv, state, instanceId);
         refreshHeldWeapon(player, state); // 강화 후 손무기 lore 실시간 반영
+        if (skillContext != null) skillContext.applyMaxHealth(player); // 방어구 강화 시 HP를 max health에 반영(DL-115)
     }
 
     // ═══════════════════════════════════════════════════════════════

@@ -1,6 +1,7 @@
 package com.poro.empire.listener;
 
 import com.poro.empire.combat.ResourceTracker;
+import com.poro.empire.combat.SkillContext;
 import com.poro.empire.growth.GrowthStateStore;
 import com.poro.empire.growth.engine.PlayerGrowthSnapshotBuilder;
 import com.poro.empire.growth.engine.PlayerGrowthState;
@@ -57,6 +58,7 @@ public final class PlayerJoinListener implements Listener {
     private final PlayerGrowthSnapshotBuilder growthSnapshotBuilder;
     private final ResourceTracker             resourceTracker;
     private final PlayerSessionRepository      playerSessionRepository;
+    private final SkillContext                skillContext;
 
     public PlayerJoinListener(
             Plugin plugin,
@@ -75,7 +77,8 @@ public final class PlayerJoinListener implements Listener {
             OperationsDataStore operationsDataStore,
             PlayerGrowthSnapshotBuilder growthSnapshotBuilder,
             ResourceTracker resourceTracker,
-            PlayerSessionRepository playerSessionRepository
+            PlayerSessionRepository playerSessionRepository,
+            SkillContext skillContext
     ) {
         this.plugin = plugin;
         this.playerDataManager = playerDataManager;
@@ -93,6 +96,7 @@ public final class PlayerJoinListener implements Listener {
         this.growthSnapshotBuilder = growthSnapshotBuilder;
         this.resourceTracker = resourceTracker;
         this.playerSessionRepository = playerSessionRepository;
+        this.skillContext = skillContext;
     }
 
     @EventHandler
@@ -103,6 +107,7 @@ public final class PlayerJoinListener implements Listener {
         playerPersistenceService.load(player.getUniqueId(), player.getName());
         collectWorkshopResults(player);
         hotbarService.updateHotbar(player);
+        skillContext.applyMaxHealth(player); // 방어구 HP를 max health에 반영(DL-115, combat_balance_v2 §1)
         scoreboardService.refresh(player);
         classInitService.openSelectionGuiIfNeeded(player);
         classInitService.ensureMenuCompass(player);

@@ -11,6 +11,8 @@ import com.poro.empire.growth.engine.PotentialLine;
 import com.poro.empire.growth.engine.PotentialService;
 import com.poro.empire.listener.MobTagHelper;
 import com.poro.empire.storage.PlayerDataManager;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
@@ -62,10 +64,47 @@ public class SkillContext {
             EquipmentSlot.BOOTS, 7.0d
     );
 
+    // 방어구 부위별 기본 HP (DL-115 하향: 정본 §1의 400/150/100=650이 바닐라 몹 데미지 대비 과해 0강 풀세트 100 목표로 스케일 다운).
+    // 비율(투구>상의>신발) 유지. 강화 HP = 기본 HP × 0.04 × 단계(DEF와 동일 선형). 0강 풀 80 + 기본 20 = 100.
+    private static final Map<EquipmentSlot, Double> BASE_HP = Map.of(
+            EquipmentSlot.HELMET, 50.0d,
+            EquipmentSlot.CHESTPLATE, 20.0d,
+            EquipmentSlot.LEGGINGS, 0.0d,
+            EquipmentSlot.BOOTS, 10.0d
+    );
+
+    /** 강화 스탯 선형 배율 — 기본 스탯 × (1 + 0.04 × 강화단계) (combat_balance_v2 §1). */
+    private static double enhanceMultiplier(int level) {
+        return 1.0d + 0.04d * Math.max(0, level);
+    }
+
+    /** 장착 방어구가 제공하는 최대 HP 보너스 — Σ 기본 HP × (1+0.04×강화). max health attribute에 가산한다. */
+    public double armorMaxHealth(Player player) {
+        PlayerGrowthState state = playerState(player);
+        double sum = 0.0d;
+        for (Map.Entry<EquipmentSlot, String> e : state.equippedItems().entrySet()) {
+            Double base = BASE_HP.get(e.getKey());
+            if (base == null || base <= 0) continue;
+            PlayerEquipmentItem item = state.inventoryItem(e.getValue()).orElse(null);
+            if (item == null) continue;
+            sum += base * enhanceMultiplier(item.enhanceLevel());
+        }
+        return sum;
+    }
+
+    /** 방어구 HP를 max health에 반영(기본 20 + 방어구 HP). 접속·강화·장착 변경 시 호출 (combat_balance_v2 §1). */
+    public void applyMaxHealth(Player player) {
+        AttributeInstance attr = player.getAttribute(Attribute.MAX_HEALTH);
+        if (attr == null) return;
+        double target = 20.0d + armorMaxHealth(player);
+        attr.setBaseValue(target);
+        if (player.getHealth() > target) player.setHealth(target);
+    }
+
     /**
-     * 플레이어 총 방어력(DEF) 정본 — 방어구 4부위 베이스 DEF(풀세트 0강 = 52) + 인내트리(0.4/pt).
+     * 플레이어 총 방어력(DEF) 정본 — 방어구 4부위 (베이스 DEF + 강화 보너스) + 인내트리(0.4/pt).
      * GUI 방어력 표시와 몹→플레이어 DEF/(DEF+200) 경감이 모두 이 값을 사용한다(표시=경감 일치).
-     * 강화 DEF 곡선·잠재 def%는 후속 단계(DL-113 2단계)에서 가산.
+     * 잠재 def%·곱산 상한은 후속 3단계(DL-116 예정).
      */
     public double defense(Player player) {
         PlayerGrowthState state = playerState(player);
@@ -73,7 +112,9 @@ public class SkillContext {
         for (Map.Entry<EquipmentSlot, String> e : state.equippedItems().entrySet()) {
             Double base = BASE_DEF.get(e.getKey());
             if (base == null) continue; // 방어구 슬롯만
-            if (state.inventoryItem(e.getValue()).isPresent()) sum += base;
+            PlayerEquipmentItem item = state.inventoryItem(e.getValue()).orElse(null);
+            if (item == null) continue;
+            sum += base * enhanceMultiplier(item.enhanceLevel()); // 정본 선형: 기본 DEF×(1+0.04×강화)
         }
         sum += Math.max(0, state.endurPts()) * 0.4d; // 인내 트리 방어력(코드 기존 계수)
         return sum;

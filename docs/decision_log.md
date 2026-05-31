@@ -4,6 +4,34 @@
 
 ---
 
+### DL-115 방어구 HP+DEF 정본 구현 + HP 0강 100 하향
+
+**배경:** DL-113 1단계는 DEF만, 그것도 combat-balance가 없는 문서(`potential_options_v1.md`)·가중배열로 추측 설계했다. 사용자 지적으로 정본(`combat_balance_v2 §1`)을 재확인 — 방어구는 **HP+DEF 둘 다**(투구 HP400·DEF0, 상의 HP150·DEF15, 하의 HP0·DEF30, 신발 HP100·DEF7), 강화는 **선형 `기본×0.04×단계`**. HP는 게임에 전혀 미반영이었고(max health 미설정), DEF 강화는 정본 선형이 아니었다.
+
+**변경 (custom-plugins/empire-rpg):**
+1. **DEF 강화 정본 선형화** — `SkillContext.defense()` = Σ 기본 DEF×(1+0.04×강화) + 인내(0.4/pt). combat-balance 가중배열 폐기.
+2. **방어구 HP 신규 구현** — `SkillContext.armorMaxHealth()` + `applyMaxHealth()`(max health = 20 + 방어구 HP). 접속(`PlayerJoinListener`)·강화(`GrowthGuiListener`) 시 갱신. (기존 미구현 해소)
+3. **HP 0강 100 하향(사용자 결정)** — 정본 670은 몹→플레이어 ATK 정본표 부재(바닐라 데미지) 대비 과함. 투구50/상의20/신발10 = 방어구 80 + 기본 20 = **0강 풀세트 100**, 25강 180. 비율 유지. DEF 52(20.6%)는 유지.
+4. **문서:** `combat_balance_v2 §1` HP 표 갱신(670→100, 강화 표 동반).
+
+**남은 작업:** 잠재 def%·곱산 상한(3단계), 몹→플레이어 ATK 정본표(HP 스케일과 동반 재조정). 방어구 부위별 주스탯 정합은 구현됨(투구=HP만, 하의=DEF만 — base 0 처리).
+
+**관련:** DL-113(1단계), `combat_balance_v2 §1`.
+
+---
+
+### DL-114 잠재 t1 옵션 풀 보스공 편중 완화 (임시)
+
+**배경:** 무기 잠재를 돌리면 EPIC+ 등급에서 3줄 전부 보스공만 나옴. 원인 — t1 풀의 RARE+ 등급에 `boss_damage_increase`만 정의(attack/general은 COMMON만). `buildLine`이 "라인 등급=옵션 등급 정확 일치"로 추첨해 다양성 0.
+
+**변경:** `growth_potential_option_pool.csv` t1_weapon/armor 풀의 RARE/EPIC/UNIQUE/LEGENDARY에 attack_percent·general·core/precision 태그(무기), max_hp·damage_reduction(방어구) 추가. EPIC+ 3줄 보스공 확률 100%→0.16%.
+
+**한계(중요):** 정본 `equipment_growth_spec §2.2`는 **슬롯별** 풀(투구=HP/받피감/쿨감, 하의=HP/방어/이속, 신발=이속/방어/방어무시)인데 현재 csv는 armor 통합. §2.1 라인 수(커먼1/레어2/에픽3)도 코드는 3줄 고정. **본 변경은 보스공 편중만 임시 완화**이며 정본 슬롯별 구조는 미준수. 추가 옵션 값은 근거 약함(combat-balance가 없는 문서 인용). 정본화는 후속.
+
+**관련:** `equipment_growth_spec §2`, `growth_potential_option_pool.csv`.
+
+---
+
 ### DL-113 방어구 DEF 1단계 + 전투 핵심 수정(평타·내구도·스킬 재진입)
 
 **배경:** 라이브 검증. (1) 방어구가 강화/표시는 되는데 실제 피해 감소에 전혀 반영 안 됨(몹→플레이어 바닐라 경로). (2) "현재 스탯" 방어력이 0으로 표시(인내 보너스만, 방어구 베이스 누락). (3) 공격력 93인데 철골렘이 안 죽음 — 디버그 결과 스킬 데미지(163)가 평타(37)로 덮어써지는 재진입 버그. (4) 무기 내구도 소모.
