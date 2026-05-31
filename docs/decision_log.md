@@ -4,6 +4,21 @@
 
 ---
 
+### DL-105 server-config/empire-rpg/seeds 화석 디렉토리 삭제 (DL-103 후속 리스크 해소)
+
+**결정:** `server-config/empire-rpg/seeds/` 디렉토리를 통째로 삭제한다(추적 파일 10개). `server-config/mythicmobs/`는 보존.
+
+**왜 (화석 확정 근거):**
+- EmpireRPG 시드 **정본은 jar 내장 `src/main/resources/seeds`** — 코드(`DefaultMasterSeedInstaller` 등)가 `plugin.saveResource(path, false)`로 런타임 datafolder에 추출하고 `getDataFolder()/seeds`에서 읽는다. server-config/seeds는 이 경로에 등장하지 않는다.
+- server-config/seeds를 **DB로 import하는 스크립트·파이프라인이 어디에도 없다**. DL-1874가 언급한 "slot-specific(head/chest/legs/boots) 풀은 server-config DB용"은 실재하지 않는 옛 가정 — 코드는 `slot_type=armor`(generic) + `EquipmentService` 슬롯 매칭만 사용.
+- server-config에서 실제 런타임으로 배포되는 건 **mythicmobs 셸뿐**(server_test_prep.md). seeds는 배포 대상이 아니다. 현재 런타임 `server/plugins/EmpireRPG/seeds`가 정본과 동일 = jar 추출 상태인 것이 증거.
+
+**해소한 리스크:** server-config/seeds는 옛 계보(item_master 등 4파일 스키마 분기 `t1_armor_head`/`t1_weapon_hammer` + 코드 미참조 분할표 4파일 + 정본 대비 21파일 누락). 누군가 이 화석을 런타임에 수동 복사하면 스타터 장비 붕괴(DL-103 경고) — 화석 제거로 함정 원천 차단.
+
+**근거:** jar 내장 정본(`src/main/resources/seeds`, 빌드/런타임 사본 동일) 무손상. git 추적이라 필요 시 복원 가능.
+
+---
+
 ### DL-104 무기별 독립 성장 + 무기 선택/변경 GUI 통합 (INBOX-007 2차)
 
 **결정:**
@@ -38,7 +53,7 @@
 
 **근거/현황:**
 - 런타임 `item_master.csv`(src/main/resources → server/plugins/EmpireRPG)에 `t1_helmet_starter`(방어 35)·`t1_chestplate_starter`(45)·`t1_leggings_starter`(40)·`t1_boots_starter`(30) 등록 확인. `ClassInitService.grantStarterEquipment`가 4슬롯 가상 장착. → ④는 설계대로 정상 동작이었고 코드 변경 없음.
-- **후속(리스크)**: `server-config/empire-rpg/seeds/item_master.csv`가 다른 스키마(`t1_armor_head`, 방어 12/20/15/5)로 분기 — 오배포 시 스타터 장비 붕괴 함정. 정리 필요.
+- **후속(리스크)**: `server-config/empire-rpg/seeds/item_master.csv`가 다른 스키마(`t1_armor_head`, 방어 12/20/15/5)로 분기 — 오배포 시 스타터 장비 붕괴 함정. 정리 필요. → **[해소 → DL-105]** (2026-05-31, server-config/empire-rpg/seeds 화석 디렉토리 통째 삭제)
 
 ---
 

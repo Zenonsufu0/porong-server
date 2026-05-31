@@ -1,5 +1,0 @@
-tier,grade_rank,grade_code,grade_name_ko,base_stat_multiplier,island_grade_required
-T1,1,normal,일반,1.00,0
-T1,2,quality,상급,1.05,1
-T1,3,fine,정품,1.10,2
-T1,4,masterwork,명품,1.20,3

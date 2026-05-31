@@ -1,9 +1,0 @@
-boss_id,boss_name,boss_tier,theme_type,is_party_content,is_extreme
-plains_predator,들판 포식자,field_1,capital_plains,true,false
-mine_golem,폐광 골렘,field_2,abandoned_mine,true,false
-waterway_lord,수로 군주,field_3,corrupted_waterway,true,false
-fallen_knight,타락 기사장,field_4,ruined_outpost,true,false
-rift_watcher,균열 파수꾼,field_5,ancient_wall,true,false
-Earth_Tyrant,대지의 폭군,season1,earth,true,false
-Steel_Arbiter,강철의 심판자,season2,steel,true,false
-Abyss_Overlord,심연의 군주,season3,abyss,true,false
