@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public final class PlayerGrowthState {
     private final String userId;
-    private final String classId;
+    private String classId; // 직업 변경(/직업) 시 갱신 — final 아님
     private final Map<String, PlayerEquipmentItem> inventory = new LinkedHashMap<>();
     private final Map<EquipmentSlot, String> equippedItemBySlot = new LinkedHashMap<>();
     private final Map<String, Long> wallet = new LinkedHashMap<>();
@@ -41,6 +41,11 @@ public final class PlayerGrowthState {
 
     public String classId() {
         return classId;
+    }
+
+    /** 직업 변경 시 클래스 ID 갱신 (각인 classFilter 검증이 새 직업 기준으로 동작하도록). */
+    public void setClassId(String classId) {
+        this.classId = normalize(classId);
     }
 
     public void addInventoryItem(PlayerEquipmentItem item) {

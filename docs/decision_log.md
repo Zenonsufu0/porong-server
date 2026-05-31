@@ -4,6 +4,22 @@
 
 ---
 
+### DL-109 성장 GUI 정본 통일 + 직업변경 각인 연동 + 손무기 실시간 lore
+
+**배경:** 라이브 검증으로 강화/잠재/각인/전승/캐릭터 GUI의 장비 표시가 제각각이고, 직업 변경이 각인과 연동 안 되던 문제 일괄 수정.
+
+**변경 (custom-plugins/empire-rpg):**
+1. **직업 변경 ↔ 각인 연동** — `PlayerGrowthState.classId` final 제거 + `setClassId()`. `ClassInitService.grantStarterEquipment`(/직업)와 `handleWeaponChangeClick`(무기 변경 GUI) 모두 classId 갱신.
+2. **장비 표시 정본 통일** — 공통 헬퍼 `equipDisplayName`(무기=검/도끼…, 방어구=투구/흉갑/레깅스/부츠) + `equipBaseLore`(구분선/강화/등급/잠재/세부스탯/각인). 강화·잠재·전승·캐릭터·상세 5개 GUI 재사용.
+3. **lore 한글화** — 등급/잠재 등급(커먼~전설), 잠재 옵션 한글(`potentialOptionKr` 19종), 각인 한글명(`engravingDisplayName`). 잠재 미부여 "없음", 부여 후 등급+옵션. "(N라인)" 제거.
+4. **[T1] 제거 / 캐릭터 일괄버튼 제거 / 방어구 재질 변경 제거(DL-103)**.
+5. **강화 미리보기 무기 연동** — PAPER·DB이름 → cosmetic 재질 + 정본 이름·lore.
+6. **손무기 lore 실시간 갱신** — `refreshHeldWeapon` 헬퍼, 강화/각인/잠재 5개 지점 호출(DL-104 후속 해소).
+
+**남은 작업(미완):** 스코어보드 각인 영어 ID(`ScoreboardService:98`) → 한글화 필요(engravingRegistry 주입).
+
+---
+
 ### DL-108 라이브 인게임 디버깅 종합 (INBOX-007 2차 라이브 세션)
 
 **배경:** 서버를 실제 기동하고 인게임 검증을 반복하며 발견한 버그·요청을 일괄 수정. 정적 분석으로는 못 잡는 Paper 버전 호환·플러그인 충돌·UX 문제 다수.

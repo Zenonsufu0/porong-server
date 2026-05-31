@@ -148,12 +148,13 @@ public final class GrowthGuiListener implements Listener {
         EquipmentSlot.BOOTS,      POT_SLOT_SEL_BOOTS
     );
 
+    // 방어구는 가상 장비(DL-103) — 재질 선택 없이 네더라이트로 고정 표시. 무기는 cosmetic 재질을 따로 조회.
     private static final Map<EquipmentSlot, Material> EQUIP_MATERIAL = Map.of(
-        EquipmentSlot.WEAPON,     Material.DIAMOND_SWORD,
-        EquipmentSlot.HELMET,     Material.DIAMOND_HELMET,
-        EquipmentSlot.CHESTPLATE, Material.DIAMOND_CHESTPLATE,
-        EquipmentSlot.LEGGINGS,   Material.DIAMOND_LEGGINGS,
-        EquipmentSlot.BOOTS,      Material.DIAMOND_BOOTS
+        EquipmentSlot.WEAPON,     Material.DIAMOND_SWORD, // 미장착 무기 슬롯 fallback(장착 시 cosmetic 재질 사용)
+        EquipmentSlot.HELMET,     Material.NETHERITE_HELMET,
+        EquipmentSlot.CHESTPLATE, Material.NETHERITE_CHESTPLATE,
+        EquipmentSlot.LEGGINGS,   Material.NETHERITE_LEGGINGS,
+        EquipmentSlot.BOOTS,      Material.NETHERITE_BOOTS
     );
 
     // ═══════════════════════════════════════════════════════════════
@@ -368,7 +369,7 @@ public final class GrowthGuiListener implements Listener {
         Inventory gui = Bukkit.createInventory(null, 45, GuiTitles.GROWTH_ENHANCE);
         for (int i = 0; i < 45; i++) gui.setItem(i, pane());
 
-        fillEnhancementEquipSlots(gui, state);
+        fillEnhancementEquipSlots(gui, state, playerDataManager.getWeaponType(player.getUniqueId()));
 
         // 초기 안내 아이콘 (장비 미선택)
         gui.setItem(ENH_SLOT_SUCCESS_RATE, MainHubGui.icon(Material.PAPER,      "§8성공률",    List.of("§7장비를 선택하세요")));
@@ -423,7 +424,7 @@ public final class GrowthGuiListener implements Listener {
         }
     }
 
-    private void fillEnhancementEquipSlots(Inventory inv, PlayerGrowthState state) {
+    private void fillEnhancementEquipSlots(Inventory inv, PlayerGrowthState state, WeaponType wt) {
         Map<EquipmentSlot, String> equipped = state.equippedItems();
         for (Map.Entry<EquipmentSlot, Integer> e : ENH_EQUIP_TO_GUI.entrySet()) {
             EquipmentSlot es  = e.getKey();
@@ -435,15 +436,12 @@ public final class GrowthGuiListener implements Listener {
                         "§8" + slotLabel(es) + " (미장착)", List.of()));
             } else {
                 PlayerEquipmentItem item = state.inventoryItem(instanceId).orElse(null);
-                String name = itemDisplayName(item);
-                String tier = masterFor(item).map(m -> " §7[" + m.tier() + "]").orElse("");
-                inv.setItem(guiSlot, MainHubGui.icon(
-                        EQUIP_MATERIAL.getOrDefault(es, Material.NETHER_STAR),
-                        "§f" + name + tier,
-                        List.of("§e+" + (item != null ? item.enhanceLevel() : 0) + "강",
-                                potentialOneLiner(item),
-                                "§7──────────────",
-                                "§7클릭하여 선택")));
+                Material mat = es == EquipmentSlot.WEAPON
+                        ? weaponCosmeticMaterial(wt, state.getCosmeticMaterial(weaponCosmeticKey(wt)))
+                        : EQUIP_MATERIAL.getOrDefault(es, Material.NETHER_STAR);
+                List<String> lore = equipBaseLore(item, es == EquipmentSlot.WEAPON, state.classEngravingId());
+                lore.add("§7클릭하여 선택");
+                inv.setItem(guiSlot, MainHubGui.icon(mat, "§f" + equipDisplayName(es, wt), lore));
             }
         }
     }
@@ -462,11 +460,15 @@ public final class GrowthGuiListener implements Listener {
         // 강화 흔적 토글 4슬롯 갱신 (선택 상태 + 10강 게이트 + 보유/요구 수량 반영)
         refreshTraceToggles(player, inv, instanceId);
 
-        // 미리보기 (중앙 고정)
-        inv.setItem(ENH_SLOT_PREVIEW, MainHubGui.icon(Material.PAPER, "§f" + itemName + " §e+" + curLv,
-                List.of("§7──────────────",
-                        "§7현재 강화: §e+" + curLv,
-                        "§7잠재: " + potentialOneLiner(item))));
+        // 미리보기 (중앙 고정) — 선택한 장비의 무기 타입/재질/정본 lore 반영
+        EquipmentSlot prevSlot = findEquipSlot(state, instanceId);
+        WeaponType prevWt = playerDataManager.getWeaponType(java.util.UUID.fromString(state.userId()));
+        Material prevMat = prevSlot == EquipmentSlot.WEAPON
+                ? weaponCosmeticMaterial(prevWt, state.getCosmeticMaterial(weaponCosmeticKey(prevWt)))
+                : EQUIP_MATERIAL.getOrDefault(prevSlot, Material.NETHER_STAR);
+        inv.setItem(ENH_SLOT_PREVIEW, MainHubGui.icon(prevMat,
+                "§f" + equipDisplayName(prevSlot, prevWt) + " §e+" + curLv,
+                equipBaseLore(item, prevSlot == EquipmentSlot.WEAPON, state.classEngravingId())));
 
         if (curLv >= EnhancementService.MAX_ENHANCE_LEVEL) {
             inv.setItem(ENH_SLOT_SUCCESS_RATE, MainHubGui.icon(Material.LIME_DYE, "§a성공률 §2[최대]", List.of()));
@@ -608,8 +610,9 @@ public final class GrowthGuiListener implements Listener {
         }
         scoreboardService.refresh(player);
         Inventory inv = player.getOpenInventory().getTopInventory();
-        fillEnhancementEquipSlots(inv, state);
+        fillEnhancementEquipSlots(inv, state, playerDataManager.getWeaponType(player.getUniqueId()));
         refreshEnhanceInfo(player, inv, state, instanceId);
+        refreshHeldWeapon(player, state); // 강화 후 손무기 lore 실시간 반영
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -693,6 +696,7 @@ public final class GrowthGuiListener implements Listener {
             player.sendMessage("§7[잠재] §f" + itemDisplayName(state.inventoryItem(instanceId).orElse(null)) + " §7기존 옵션 유지.");
             player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1.0f);
             scoreboardService.refresh(player);
+            refreshHeldWeapon(player, state); // 잠재 유지 후 손무기 lore 반영
             Inventory inv = player.getOpenInventory().getTopInventory();
             refreshPotentialCurrentPanel(inv, state, instanceId);
             clearPotentialNewPanel(inv);
@@ -709,6 +713,7 @@ public final class GrowthGuiListener implements Listener {
             player.sendMessage("§b[잠재] §f" + itemDisplayName(state.inventoryItem(instanceId).orElse(null)) + " §b새 옵션 확정!");
             player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.6f, 1.1f);
             scoreboardService.refresh(player);
+            refreshHeldWeapon(player, state); // 잠재 새 옵션 확정 후 손무기 lore 반영
             Inventory inv = player.getOpenInventory().getTopInventory();
             refreshPotentialCurrentPanel(inv, state, instanceId);
             clearPotentialNewPanel(inv);
@@ -777,15 +782,15 @@ public final class GrowthGuiListener implements Listener {
                         "§8" + slotLabel(es) + " (미장착)", List.of()));
             } else {
                 PlayerEquipmentItem item = state.inventoryItem(instanceId).orElse(null);
-                String name = itemDisplayName(item);
+                WeaponType wt = playerDataManager.getWeaponType(java.util.UUID.fromString(state.userId()));
+                Material mat = es == EquipmentSlot.WEAPON
+                        ? weaponCosmeticMaterial(wt, state.getCosmeticMaterial(weaponCosmeticKey(wt)))
+                        : EQUIP_MATERIAL.getOrDefault(es, Material.NETHER_STAR);
                 List<String> lore = new ArrayList<>();
                 lore.add(isSelected ? "§a▶ 선택됨" : "§7클릭하여 선택");
-                lore.add("§e+" + (item != null ? item.enhanceLevel() : 0) + "강");
-                lore.add(potentialOneLiner(item));
-                inv.setItem(guiSlot, MainHubGui.icon(
-                        EQUIP_MATERIAL.getOrDefault(es, Material.NETHER_STAR),
-                        (isSelected ? "§a§l" : "§f") + name,
-                        lore));
+                lore.addAll(equipBaseLore(item, es == EquipmentSlot.WEAPON, state.classEngravingId()));
+                inv.setItem(guiSlot, MainHubGui.icon(mat,
+                        (isSelected ? "§a§l" : "§f") + equipDisplayName(es, wt), lore));
             }
         }
     }
@@ -797,10 +802,20 @@ public final class GrowthGuiListener implements Listener {
                 POT_SLOT_CUR_LINE2, POT_SLOT_CUR_LINE3, "§7");
         inv.setItem(POT_SLOT_CUR_KEEP, pane());  // 선택 대기 중 아닐 때는 숨김
 
-        // 미리보기 슬롯 (선택된 장비 정보)
-        String itemName = item != null ? itemDisplayName(item) : instanceId;
+        // 미리보기 슬롯 (선택된 장비 정보) — 무기는 cosmetic 재질 + 정본 무기명
+        EquipmentSlot prevSlot = findEquipSlot(state, instanceId);
+        Material prevMat;
+        String itemName;
+        if (prevSlot == EquipmentSlot.WEAPON) {
+            WeaponType wt = playerDataManager.getWeaponType(java.util.UUID.fromString(state.userId()));
+            prevMat  = weaponCosmeticMaterial(wt, state.getCosmeticMaterial(weaponCosmeticKey(wt)));
+            itemName = WeaponGui.displayName(wt);
+        } else {
+            prevMat  = EQUIP_MATERIAL.getOrDefault(prevSlot, Material.NETHER_STAR);
+            itemName = item != null ? itemDisplayName(item) : instanceId;
+        }
         inv.setItem(POT_SLOT_PREVIEW, MainHubGui.icon(
-                EQUIP_MATERIAL.getOrDefault(findEquipSlot(state, instanceId), Material.NETHER_STAR),
+                prevMat,
                 "§f" + itemName + (item != null ? " §e+" + item.enhanceLevel() + "강" : ""),
                 List.of("§7──────────────",
                         "§7잠재 등급: " + (profile != null ? gradeColor(profile.grade()) + profile.grade().name() : "§8없음"))));
@@ -985,12 +1000,15 @@ public final class GrowthGuiListener implements Listener {
                         "§8" + slotLabel(es) + " (미장착)", List.of()));
             } else {
                 PlayerEquipmentItem item = state.inventoryItem(instanceId).orElse(null);
-                inv.setItem(guiSlot, MainHubGui.icon(
-                        EQUIP_MATERIAL.getOrDefault(es, Material.NETHER_STAR),
-                        (selected ? "§a§l" : "§f") + itemDisplayName(item),
-                        List.of(selected ? "§a▶ 대상 선택됨" : "§7클릭하여 대상 선택",
-                                "§7등급: " + gradeColor(item != null ? item.grade() : ItemGrade.COMMON) + (item != null ? item.grade().displayName() : "?"),
-                                "§7강화: §e+" + (item != null ? item.enhanceLevel() : 0))));
+                WeaponType wt = playerDataManager.getWeaponType(java.util.UUID.fromString(state.userId()));
+                Material mat = es == EquipmentSlot.WEAPON
+                        ? weaponCosmeticMaterial(wt, state.getCosmeticMaterial(weaponCosmeticKey(wt)))
+                        : EQUIP_MATERIAL.getOrDefault(es, Material.NETHER_STAR);
+                List<String> lore = new ArrayList<>();
+                lore.add(selected ? "§a▶ 대상 선택됨" : "§7클릭하여 대상 선택");
+                lore.addAll(equipBaseLore(item, es == EquipmentSlot.WEAPON, state.classEngravingId()));
+                inv.setItem(guiSlot, MainHubGui.icon(mat,
+                        (selected ? "§a§l" : "§f") + equipDisplayName(es, wt), lore));
             }
         }
     }
@@ -1336,18 +1354,17 @@ public final class GrowthGuiListener implements Listener {
         for (int i = 0; i < 54; i++) gui.setItem(i, pane());
 
         // 장착 슬롯 (읽기 전용 표시)
-        gui.setItem(13, equipHubSlotIcon(state, EquipmentSlot.HELMET,     "투구",  Material.NETHERITE_HELMET));
-        gui.setItem(20, equipHubSlotIcon(state, EquipmentSlot.WEAPON,     "무기",  weaponMaterial(wt)));
-        gui.setItem(22, equipHubSlotIcon(state, EquipmentSlot.CHESTPLATE, "상의",  Material.NETHERITE_CHESTPLATE));
-        gui.setItem(31, equipHubSlotIcon(state, EquipmentSlot.LEGGINGS,   "하의",  Material.NETHERITE_LEGGINGS));
-        gui.setItem(40, equipHubSlotIcon(state, EquipmentSlot.BOOTS,      "신발",  Material.NETHERITE_BOOTS));
+        gui.setItem(13, equipHubSlotIcon(state, EquipmentSlot.HELMET,     wt));
+        gui.setItem(20, equipHubSlotIcon(state, EquipmentSlot.WEAPON,     wt));
+        gui.setItem(22, equipHubSlotIcon(state, EquipmentSlot.CHESTPLATE, wt));
+        gui.setItem(31, equipHubSlotIcon(state, EquipmentSlot.LEGGINGS,   wt));
+        gui.setItem(40, equipHubSlotIcon(state, EquipmentSlot.BOOTS,      wt));
 
         // 치장 슬롯 (2차 확장 — 치장 시스템 미구현)
         for (int s : new int[]{14, 21, 23, 32, 41}) {
             gui.setItem(s, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§7치장 §8[2차 확장]", List.of()));
         }
-        // 재질 일괄선택 (2차 확장, slot 16)
-        gui.setItem(16, MainHubGui.icon(Material.COMPASS, "§7재질 일괄선택 §8[2차 확장]", List.of()));
+        gui.setItem(16, pane()); // 재질 일괄선택 제거(방어구 가상장비 — 재질 변경 없음, DL-103)
 
         // 스탯 요약 (slot 25, 읽기 전용)
         gui.setItem(25, buildStatSummaryIcon(player, state));
@@ -1358,9 +1375,8 @@ public final class GrowthGuiListener implements Listener {
                 unspent > 0 ? "§a스탯 배분 §e(+" + unspent + "pt)" : "§f스탯 배분",
                 List.of("§7클릭하여 스탯 투자")));
 
-        // 외형 토글 (2차 확장, slots 43/44)
-        gui.setItem(43, MainHubGui.icon(Material.LIME_STAINED_GLASS_PANE,  "§a일괄 보이기 §8[2차 확장]", List.of()));
-        gui.setItem(44, MainHubGui.icon(Material.RED_STAINED_GLASS_PANE,   "§c일괄 숨김 §8[2차 확장]",  List.of()));
+        gui.setItem(43, pane()); // 일괄 보이기/숨김 제거(외형 토글 — 방어구 가상장비라 불필요)
+        gui.setItem(44, pane());
 
         // 스킬 슬롯 lore (slots 46/48/50/52, 읽기 전용)
         gui.setItem(46, skillSlotIcon(wt, 1, "[LC]"));
@@ -1438,15 +1454,8 @@ public final class GrowthGuiListener implements Listener {
                 : state.getCosmeticMaterial(equipSlot);
         if (selected.isEmpty()) selected = defaultCosmeticMat(equipSlot, wt);
 
+        // 방어구는 가상 장비(DL-103) — 재질 선택 없음. 강화 정보만 표시하고 재질 row는 비운다.
         if (equipSlot != EquipmentSlot.WEAPON) {
-            for (int i = 0; i < 7; i++) {
-                boolean sel = ARMOR_MAT_KEYS[i].equals(selected);
-                gui.setItem(10 + i, MainHubGui.icon(
-                        sel ? Material.LIME_STAINED_GLASS_PANE : ARMOR_MAT_ICONS[i],
-                        (sel ? "§a§l" : "§7") + ARMOR_MAT_LABELS[i],
-                        sel ? List.of("§a▶ 현재 재질", "§8외형 반영: 2차 시즌 적용 예정")
-                            : List.of("§7클릭하여 선택", "§8외형 반영: 2차 시즌 적용 예정")));
-            }
             return;
         }
 
@@ -1548,7 +1557,7 @@ public final class GrowthGuiListener implements Listener {
     }
 
     private ItemStack buildEquipDetailIcon(PlayerGrowthState state, EquipmentSlot slot, WeaponType wt) {
-        String name = slotLabel(slot);
+        String name = equipDisplayName(slot, wt);
         String instanceId = state.equippedItems().get(slot);
         if (instanceId == null) {
             return MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§7" + name + " §8[미장착]", List.of());
@@ -1560,26 +1569,8 @@ public final class GrowthGuiListener implements Listener {
         Material mat = slot == EquipmentSlot.WEAPON
                 ? weaponCosmeticMaterial(wt, state.getCosmeticMaterial(weaponCosmeticKey(wt)))
                 : EQUIP_MATERIAL.getOrDefault(slot, Material.PAPER);
-        List<String> lore = new ArrayList<>();
-        lore.add("§7──────────────────");
-        lore.add("§7아이템: §f" + itemDisplayName(item));
-        lore.add("§7등급  : " + gradeColor(item.grade()) + item.grade().displayName());
-        lore.add("§7강화  : §a+" + item.enhanceLevel());
-        PotentialProfile pp = item.potentialProfile();
-        if (pp != null && !pp.lines().isEmpty()) {
-            lore.add("§7잠재  : " + gradeColor(pp.grade()) + pp.grade().name()
-                    + " §7(" + pp.lines().size() + "라인)");
-            for (PotentialLine pl : pp.lines()) {
-                lore.add("§8  " + pl.optionCode() + " §e+" + String.format("%.2f", pl.value()));
-            }
-        } else {
-            lore.add("§7잠재  : §8없음");
-        }
-        if (slot == EquipmentSlot.WEAPON) {
-            String eid = state.classEngravingId();
-            lore.add("§7각인  : " + (eid != null && !eid.isEmpty() ? "§a" + eid : "§8없음"));
-        }
-        return MainHubGui.icon(mat, "§f" + name, lore);
+        return MainHubGui.icon(mat, "§f" + equipDisplayName(slot, wt),
+                equipBaseLore(item, slot == EquipmentSlot.WEAPON, state.classEngravingId()));
     }
 
     private void handleEquipDetailClick(Player player, int slot) {
@@ -1598,16 +1589,13 @@ public final class GrowthGuiListener implements Listener {
         }
 
         if (slot >= 10 && slot <= 16) {
+            if (equipSlot != EquipmentSlot.WEAPON) return; // 방어구는 재질 변경 없음(DL-103)
             WeaponType wt = playerDataManager.getWeaponType(player.getUniqueId());
             PlayerGrowthState state = getState(player);
             String matKey = materialKeyAt(equipSlot, wt, slot - 10);
             if (!matKey.isEmpty() && !"default".equals(matKey)) {
-                if (equipSlot == EquipmentSlot.WEAPON) {
-                    state.setCosmeticMaterial(weaponCosmeticKey(wt), matKey);
-                    applyWeaponMaterial(player, wt, matKey);
-                } else {
-                    state.setCosmeticMaterial(equipSlot, matKey);
-                }
+                state.setCosmeticMaterial(weaponCosmeticKey(wt), matKey);
+                applyWeaponMaterial(player, wt, matKey);
                 player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1.0f);
                 openEquipDetail(player, equipSlot);
             }
@@ -1898,24 +1886,18 @@ public final class GrowthGuiListener implements Listener {
                 List.of("§7현재값: §e" + String.format("%.2f", value) + unit));
     }
 
-    private ItemStack equipHubSlotIcon(PlayerGrowthState state, EquipmentSlot slot,
-                                       String slotName, Material mat) {
+    private ItemStack equipHubSlotIcon(PlayerGrowthState state, EquipmentSlot slot, WeaponType wt) {
+        String label = equipDisplayName(slot, wt);
         String instanceId = state.equippedItems().get(slot);
-        if (instanceId == null) {
-            return MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE,
-                    "§7" + slotName + " §8[미장착]", List.of());
-        }
-        PlayerEquipmentItem item = state.inventoryItem(instanceId).orElse(null);
+        PlayerEquipmentItem item = instanceId == null ? null : state.inventoryItem(instanceId).orElse(null);
         if (item == null) {
-            return MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE,
-                    "§7" + slotName + " §8[미장착]", List.of());
+            return MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§7" + label + " §8[미장착]", List.of());
         }
-        return MainHubGui.icon(mat, "§f" + slotName, List.of(
-                "§7──────────────",
-                "§7ID: §f" + item.itemId(),
-                "§7등급: §e" + item.grade().displayName(),
-                "§7강화: §a+" + item.enhanceLevel()
-        ));
+        Material mat = slot == EquipmentSlot.WEAPON
+                ? weaponCosmeticMaterial(wt, state.getCosmeticMaterial(weaponCosmeticKey(wt)))
+                : EQUIP_MATERIAL.getOrDefault(slot, Material.NETHER_STAR);
+        return MainHubGui.icon(mat, "§f" + label,
+                equipBaseLore(item, slot == EquipmentSlot.WEAPON, state.classEngravingId()));
     }
 
     private Material weaponMaterial(WeaponType wt) {
@@ -2047,6 +2029,7 @@ public final class GrowthGuiListener implements Listener {
         // 무기별 독립 성장 — 해당 무기의 고유 인스턴스를 보장하고 WEAPON 슬롯에 장착한다 (DL-104).
         // 강화/큐브/잠재는 장착된 인스턴스를 대상으로 하므로, 교체 후 작업은 이 무기에만 적용된다.
         PlayerGrowthState state = getState(player);
+        state.setClassId(newWt.name().toLowerCase(java.util.Locale.ROOT)); // 직업 변경 — 각인 classFilter 검증이 새 무기 기준
         ensureWeaponInstance(state, newWt);
         state.equipItem(EquipmentSlot.WEAPON, WeaponGui.weaponInstanceId(newWt));
 
@@ -2136,11 +2119,104 @@ public final class GrowthGuiListener implements Listener {
         return switch (slot) {
             case WEAPON      -> "무기";
             case HELMET      -> "투구";
-            case CHESTPLATE  -> "상의";
-            case LEGGINGS    -> "하의";
-            case BOOTS       -> "신발";
+            case CHESTPLATE  -> "흉갑";
+            case LEGGINGS    -> "레깅스";
+            case BOOTS       -> "부츠";
             default          -> slot.name();
         };
+    }
+
+    /** 잠재 옵션 코드 → 한글명. 미정의 코드는 코드 원문 표시. */
+    private static String potentialOptionKr(String code) {
+        return switch (code) {
+            case "attack_percent"                -> "공격력";
+            case "general_damage_increase"       -> "일반 피해 증가";
+            case "boss_damage_increase"          -> "보스 피해 증가";
+            case "combo_tag_damage_increase"     -> "연계 피해 증가";
+            case "core_tag_damage_increase"      -> "코어 피해 증가";
+            case "precision_tag_damage_increase" -> "정밀 피해 증가";
+            case "mark_target_damage_increase"   -> "표식 대상 피해 증가";
+            case "conditional_damage_bonus"      -> "조건부 피해";
+            case "max_hp_percent"                -> "최대 체력";
+            case "damage_reduction"              -> "피해 감소";
+            case "move_speed_percent"            -> "이동 속도";
+            case "crack_efficiency"              -> "균열 효율";
+            case "recovery_efficiency"           -> "회복 효율";
+            case "shield_efficiency"             -> "보호막 효율";
+            case "resonance_effect_up"           -> "공명 효과";
+            case "resource_gain_percent"         -> "자원 획득";
+            case "status_resistance_percent"     -> "상태이상 저항";
+            case "survival_trigger_reduction"    -> "생존기 쿨감";
+            case "playstyle_completion_boost"    -> "플레이스타일 완성";
+            default                              -> code;
+        };
+    }
+
+    /** 잠재 등급 한글명. */
+    private static String potentialGradeKr(PotentialGrade g) {
+        return switch (g) {
+            case COMMON    -> "커먼";
+            case RARE      -> "레어";
+            case EPIC      -> "에픽";
+            case UNIQUE    -> "유니크";
+            case LEGENDARY -> "전설";
+        };
+    }
+
+    /** 각인 ID → 한글 표시명. 미부여/미발견 시 "§8없음". */
+    private String engravingDisplayName(String engravingId) {
+        if (engravingId == null || engravingId.isBlank()) return "§8없음";
+        return growthEngineRuntime.engravingRegistry().find(engravingId)
+                .map(em -> "§a" + em.engravingName())
+                .orElse("§a" + engravingId);
+    }
+
+    /** 손에 든 무기(slot 0) lore를 현재 성장 상태로 재빌드 — 강화/잠재/각인 후 실시간 반영(DL-104 후속). */
+    private void refreshHeldWeapon(Player player, PlayerGrowthState state) {
+        WeaponType wt = playerDataManager.getWeaponType(player.getUniqueId());
+        if (wt == WeaponType.NONE) return;
+        ItemStack held = player.getInventory().getItem(0);
+        if (held == null || !held.hasItemMeta()
+                || !held.getItemMeta().getPersistentDataContainer()
+                        .has(WeaponTypeResolver.WEAPON_TYPE_KEY, PersistentDataType.STRING)) return;
+        Material mat = weaponCosmeticMaterial(wt, state.getCosmeticMaterial(weaponCosmeticKey(wt)));
+        player.getInventory().setItem(0, WeaponItemFactory.build(state, wt, mat));
+    }
+
+    /** 장비 표시명 — 무기는 타입명(검/도끼…), 방어구는 슬롯명(투구/흉갑/레깅스/부츠). 모든 GUI 공용. */
+    private String equipDisplayName(EquipmentSlot slot, WeaponType wt) {
+        return slot == EquipmentSlot.WEAPON ? WeaponGui.displayName(wt) : slotLabel(slot);
+    }
+
+    /**
+     * 장비 아이콘 정본 lore (WeaponItemFactory.buildLore와 동일 형식) — 강화/잠재/전승/캐릭터/상세 GUI 공용.
+     * 구분선 / 강화 / 등급 / 잠재 / 세부스탯 / 각인(무기만) / 구분선.
+     */
+    private List<String> equipBaseLore(PlayerEquipmentItem item, boolean isWeapon, String engravingId) {
+        List<String> lore = new ArrayList<>();
+        lore.add("§7──────────────────");
+        if (item != null) {
+            lore.add("§7강화   : §e+" + item.enhanceLevel() + "강");
+            lore.add("§7등급   : " + gradeColor(item.grade()) + item.grade().displayName());
+            PotentialProfile pp = item.potentialProfile();
+            if (pp != null && !pp.lines().isEmpty()) {
+                lore.add("§7잠재   : " + gradeColor(pp.grade()) + potentialGradeKr(pp.grade()));
+                for (PotentialLine pl : pp.lines()) {
+                    lore.add("§8  " + potentialOptionKr(pl.optionCode()) + " §e+" + String.format("%.2f", pl.value()));
+                }
+            } else {
+                lore.add("§7잠재   : §8없음"); // 잠재 미부여(돌리기 전)
+            }
+            List<PotentialLine> sub = item.substatLines();
+            lore.add("§7세부스탯: " + (sub.isEmpty() ? "§8없음" : "§f" + sub.size() + "줄"));
+        } else {
+            lore.add("§8장착 장비 없음");
+        }
+        if (isWeapon) {
+            lore.add("§7각인   : " + engravingDisplayName(engravingId));
+        }
+        lore.add("§7──────────────────");
+        return lore;
     }
 
     private EquipmentSlot findEquipSlot(PlayerGrowthState state, String instanceId) {
@@ -2219,6 +2295,7 @@ public final class GrowthGuiListener implements Listener {
                 if (!state.classEngravingId().isEmpty()) {
                     state.setClassEngravingId("");
                     scoreboardService.refresh(player);
+                    refreshHeldWeapon(player, state); // 각인 해제 후 손무기 lore 반영
                     player.sendMessage("§7[각인] 각인을 해제했습니다.");
                     openGrowthEngraving(player);
                 }
@@ -2232,6 +2309,7 @@ public final class GrowthGuiListener implements Listener {
         var result = growthEngineRuntime.engravingService().equipClassEngraving(state, engravingId);
         if (result.isOk()) {
             scoreboardService.refresh(player);
+            refreshHeldWeapon(player, state); // 각인 후 손무기 lore 실시간 반영
             EngravingMaster em = growthEngineRuntime.engravingRegistry().find(engravingId).orElse(null);
             String name = em != null ? em.engravingName() : engravingId;
             player.sendMessage("§a[각인] §f" + name + " §a각인을 장착했습니다.");
