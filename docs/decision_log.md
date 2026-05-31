@@ -4,6 +4,24 @@
 
 ---
 
+### DL-106 스코어보드 영지명 rename 반영 + 스키매틱 picker 검증 (INBOX-007 ③⑦)
+
+**결정/구현:**
+1. **⑦ 영지명 rename 반영** — 스코어보드 위치 표기에서 IridiumSkyblock 월드 케이스를 `player.getName() + "의 영지"`(하드코딩) → `IslandTerritoryStateStore`의 `islandName()` 조회로 교체. `setIslandName()`(영지 설정 모루 rename)이 반영된다.
+   - `ScoreboardService`: 생성자에 `IslandTerritoryStateStore` 주입, `resolveLocationName`을 static→인스턴스 전환, `territoryName(player)` 헬퍼 추가(미생성·공백 시 `"{이름}의 영지"` 폴백). `EmpireRPGPlugin` 생성자 호출 배선.
+2. **③ 스키매틱 picker 우회 — 검증 완료(코드/설정 변경 없음)**: `server/plugins/IridiumSkyblock/schematics.yml`가 `poro` 단일 엔트리만 정의 → picker 생략 조건 충족. (schematics/ 폴더에 미등록 옛 .schem 9개 잔존하나 schematics.yml 미등록이라 무해.) 실제 picker 미표출은 인게임 재검증 몫.
+
+**왜:**
+- ⑦: 영지명 변경 기능(store·UI)은 이미 있었으나 스코어보드가 하드코딩이라 반영 안 됨 — 표시 경로만 store에 배선.
+- IS API JAR 미포함이라 "현재 발 딛은 섬의 소유자" 역조회는 불가. 기존도 본인 영지를 가정했으므로 **퇴보 없이 rename만 추가 반영**.
+
+**한계/후속:**
+- `islandName`은 `IslandSettingsRepository` 저장/복원 대상이 아님 → **재로그인 시 기본값으로 리셋**. DB 영속화는 별도 후속.
+- 남의 영지 방문 시 그 집 영지명 표시는 IS API 연동(§7+) 후속.
+- ③ 옛 .schem 9개(desert/jungle/mushroom 계열) 정리는 선택(무해).
+
+---
+
 ### DL-105 server-config/empire-rpg/seeds 화석 디렉토리 삭제 (DL-103 후속 리스크 해소)
 
 **결정:** `server-config/empire-rpg/seeds/` 디렉토리를 통째로 삭제한다(추적 파일 10개). `server-config/mythicmobs/`는 보존.

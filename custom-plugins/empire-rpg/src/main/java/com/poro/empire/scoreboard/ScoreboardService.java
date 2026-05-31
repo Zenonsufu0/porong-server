@@ -5,6 +5,7 @@ import com.poro.empire.growth.GrowthStateStore;
 import com.poro.empire.growth.engine.EquipmentSlot;
 import com.poro.empire.growth.engine.PlayerEquipmentItem;
 import com.poro.empire.growth.engine.PlayerGrowthState;
+import com.poro.empire.growth.island.IslandTerritoryStateStore;
 import com.poro.empire.storage.PlayerDataManager;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
@@ -29,8 +30,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class ScoreboardService {
 
-    private final GrowthStateStore   growthStore;
-    private final PlayerDataManager  playerDataManager;
+    private final GrowthStateStore          growthStore;
+    private final PlayerDataManager         playerDataManager;
+    private final IslandTerritoryStateStore territoryStore;
 
     private static final String OBJ_NAME = "poro_sidebar";
     private static final String LINE_SEP = "§7──────────";
@@ -45,9 +47,11 @@ public final class ScoreboardService {
     private final Map<UUID, String> lastLocation = new ConcurrentHashMap<>();
 
     public ScoreboardService(GrowthStateStore growthStore,
-                              PlayerDataManager playerDataManager) {
+                              PlayerDataManager playerDataManager,
+                              IslandTerritoryStateStore territoryStore) {
         this.growthStore       = growthStore;
         this.playerDataManager = playerDataManager;
+        this.territoryStore    = territoryStore;
     }
 
     /**
@@ -196,16 +200,29 @@ public final class ScoreboardService {
         };
     }
 
-    private static String resolveLocationName(Player player) {
+    private String resolveLocationName(Player player) {
         return switch (player.getWorld().getName()) {
             case "world"           -> resolveWorldArea(player.getLocation());
             case "world_hub"       -> "수도";
             case "world_boss"      -> "보스 인스턴스";
-            // IridiumSkyblock = 개인 섬(영지). 초기 표기는 "[플레이어]의 영지" (영지명 변경 반영은 후속: territory store 연동).
-            case "IridiumSkyblock" -> player.getName() + "의 영지";
+            // IridiumSkyblock = 개인 섬(영지). territory store의 영지명(rename 반영)을 표시.
+            // IS API JAR 미포함이라 "현재 발 딛은 섬의 소유자" 역조회는 불가 — 본인 영지명을 표시한다
+            // (기존 player.getName() 가정과 동일 범위, rename만 추가 반영). 미생성 시 기본 표기로 폴백.
+            case "IridiumSkyblock" -> territoryName(player);
             case "island"          -> "영지";
             default                -> player.getWorld().getName();
         };
+    }
+
+    /** territory store의 영지명을 조회한다. 미생성·공백이면 "{이름}의 영지" 기본 표기로 폴백. */
+    private String territoryName(Player player) {
+        String fallback = player.getName() + "의 영지";
+        return territoryStore.get(player.getUniqueId())
+                .map(state -> {
+                    String name = state.islandName();
+                    return (name == null || name.isBlank()) ? fallback : name;
+                })
+                .orElse(fallback);
     }
 
     /**

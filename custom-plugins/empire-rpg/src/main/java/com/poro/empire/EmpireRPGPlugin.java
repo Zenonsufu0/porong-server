@@ -313,7 +313,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
 
         this.reputationManager = new ReputationManager(playerDataManager);
         this.hotbarService = new HotbarService(this);
-        this.scoreboardService = new ScoreboardService(growthStateStore, playerDataManager);
+        this.scoreboardService = new ScoreboardService(growthStateStore, playerDataManager, islandTerritoryStateStore);
         this.scoreboardService.startLocationWatcher(this); // 위치(필드/보스룸/영지) 변경 시 스코어보드 갱신
 
         PlayerDataRepository playerDataRepository = new PlayerDataRepository(this);
