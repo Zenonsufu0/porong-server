@@ -249,6 +249,7 @@ public final class PlayerPersistenceService {
         if (data.territory() == null) return;
         PlayerSaveData.TerritorySaveData t = data.territory();
         IslandTerritoryState state = territoryStore.getOrCreate(uuid, playerName);
+        // ownerName 슬롯은 실제로 영지명(islandName)을 담는다(레거시 필드명) — 영지명 복원.
         if (t.ownerName() != null && !t.ownerName().isBlank()) {
             state.setIslandName(t.ownerName());
         }
@@ -382,7 +383,7 @@ public final class PlayerPersistenceService {
     private PlayerSaveData.TerritorySaveData toTerritoryDto(IslandTerritoryState t) {
         if (t == null) return new PlayerSaveData.TerritorySaveData("", IslandRank.FRONTIER.name(), 0, 0, 0, 0, 0L);
         return new PlayerSaveData.TerritorySaveData(
-                t.islandName(), t.rank().name(),
+                t.islandName(), t.rank().name(), // 첫 인자(ownerName 슬롯)에 영지명 저장 — applyTerritory가 setIslandName으로 복원
                 t.convenienceUnlocks(), t.reaperCount(), t.storageCount(), t.minerCount(),
                 t.lastProductionAt()
         );

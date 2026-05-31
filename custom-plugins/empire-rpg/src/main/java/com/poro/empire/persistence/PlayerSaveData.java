@@ -62,6 +62,9 @@ public record PlayerSaveData(
     ) {}
 
     public record TerritorySaveData(
+            // NOTE: 필드명은 ownerName이지만 실제로 담는 값은 영지명(islandName)이다.
+            // JSON 직렬화 키 호환을 위해 레거시 명칭 유지 — toTerritoryDto가 t.islandName()을 넣고
+            // applyTerritory가 setIslandName()으로 꺼낸다. 영지명은 이 경로로 영속화된다(별도 DB 컬럼 없음).
             String ownerName,
             String rankName,
             int    convenienceUnlocks,

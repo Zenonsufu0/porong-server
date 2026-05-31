@@ -210,7 +210,7 @@
   - ④ 스타터 방어구 — ✅ **가상 전용 확정 [PROMOTED → DL-103]**. 런타임 item_master에 `t1_*_starter` 4종 정상 등록, 캐릭터 메뉴 스탯 적용. 바닐라 물리 방어구 미지급(§2 DEF 이중 적용 방지), 재질/외형 컬럼 원래 없음 → 코드 변경 없음. ~~**분기 리스크**: `server-config/.../item_master.csv`가 다른 스키마(`t1_armor_head`)로 갈라짐~~ → ✅ **해소 [DL-105]** (2026-05-31): server-config/empire-rpg/seeds는 코드·DB·배포 어디서도 안 읽는 화석 확정 → 디렉토리 통째 삭제. EmpireRPG 시드 정본 = jar 내장 `src/main/resources/seeds` 단일 계보.
   - ⑤ 스타터 무기 이름/lore 없음 — ✅ `taggedWeapon`에 "수련용 {무기}"명 + lore 3줄. `Component.text("§..")`가 §를 해석 안 해 이름이 깨지던 것 → **LegacyComponentSerializer**로 변환(+이탤릭 off). GUI 아이콘도 동일 적용.
   - ⑥ 낫 우클릭(월영회전) 항상 우측 이동 — ✅ `dashInInputDirection`(getVelocity 서버측 ~0 버그)→**`dashForward`**(시선 방향).
-  - ⑦ 스코어보드 "world_hub" 표기 — ✅ world_hub→"수도", IridiumSkyblock→"[플레이어]의 영지". ~~영지명 변경 반영은 후속~~ → ✅ **해소 [DL-106]**: 스코어보드가 `IslandTerritoryStateStore.islandName()` 조회로 rename 반영. **잔여**: islandName DB 영속화(재로그인 시 리셋) / 남의 영지 방문 시 그 집 영지명(IS API §7+).
+  - ⑦ 스코어보드 "world_hub" 표기 — ✅ world_hub→"수도", IridiumSkyblock→"[플레이어]의 영지". ~~영지명 변경 반영은 후속~~ → ✅ **해소 [DL-106]**: 스코어보드가 `IslandTerritoryStateStore.islandName()` 조회로 rename 반영. **잔여**: ~~islandName DB 영속화(재로그인 시 리셋)~~ → 정정 [DL-107] 영지명은 PlayerSaveData로 이미 영속화됨(리셋 없음) / 남의 영지 방문 시 그 집 영지명(IS API §7+).
   - ③ 스키매틱 picker 우회 — ✅ **검증 완료 [DL-106]**: `schematics.yml` `poro` 단일 엔트리 = picker 생략 조건 충족. 인게임 재검증만 남음.
 - 후속(미구현): ④ 설계 확정 / ~~⑦ 영지명 rename 반영~~(DL-106) / HUD·리소스팩(HP·XP바 위치, 스코어보드 글자 깨짐·PNG 크기 — Phase 8) / 튜토리얼 맵(INBOX-006 ⏳).
 

@@ -16,9 +16,24 @@
 - IS API JAR 미포함이라 "현재 발 딛은 섬의 소유자" 역조회는 불가. 기존도 본인 영지를 가정했으므로 **퇴보 없이 rename만 추가 반영**.
 
 **한계/후속:**
-- `islandName`은 `IslandSettingsRepository` 저장/복원 대상이 아님 → **재로그인 시 기본값으로 리셋**. DB 영속화는 별도 후속.
+- ~~`islandName`은 `IslandSettingsRepository` 저장/복원 대상이 아님 → 재로그인 시 기본값으로 리셋. DB 영속화는 별도 후속.~~ → **정정 [DL-107]**: 영지명은 `PlayerSaveData.TerritorySaveData`(ownerName 슬롯)로 이미 영속화됨. 재로그인 리셋 없음 — 추가 작업 불필요.
 - 남의 영지 방문 시 그 집 영지명 표시는 IS API 연동(§7+) 후속.
 - ③ 옛 .schem 9개(desert/jungle/mushroom 계열) 정리는 선택(무해).
+
+---
+
+### DL-107 영지명 영속화 = 기존 PlayerSaveData 경로로 이미 완료 (DL-106 진단 정정)
+
+**검증 결과:** 영지명(`islandName`)은 `IslandSettingsRepository`(island_settings DB)엔 없지만, **`PlayerSaveData.TerritorySaveData`로 이미 저장/복원**되고 있다. DL-106이 적은 "재로그인 시 리셋"은 오진.
+
+**근거:**
+- 저장: `PlayerPersistenceService.toTerritoryDto`가 `TerritorySaveData`의 첫 인자(`ownerName` 슬롯)에 `t.islandName()`을 넣는다.
+- 복원: `applyTerritory`가 그 슬롯(`t.ownerName()`)을 `state.setIslandName()`으로 적용한다.
+- 즉 필드 *이름*만 `ownerName`(레거시 명칭)일 뿐, 값은 영지명으로 일관되게 왕복. rank·기계수와 같은 DTO라 동일 트리거(로그아웃 save / 로그인 load)로 보장.
+
+**조치:** 별도 DB 컬럼 추가 안 함(중복 영속화 방지). 혼란 방지로 `TerritorySaveData.ownerName` 필드 + save/load 양쪽에 "실제 islandName" 주석 추가. 필드명 리네이밍은 JSON 직렬화 키 변경 → 기존 저장 영지명 유실 위험이라 **보류**.
+
+**후속:** ownerName→islandName 안전 리네이밍은 `@SerializedName("ownerName")` 등 JSON 키 고정 동반 시에만 별도 검토.
 
 ---
 
