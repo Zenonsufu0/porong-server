@@ -4,6 +4,32 @@
 
 ---
 
+### DL-108 라이브 인게임 디버깅 종합 (INBOX-007 2차 라이브 세션)
+
+**배경:** 서버를 실제 기동하고 인게임 검증을 반복하며 발견한 버그·요청을 일괄 수정. 정적 분석으로는 못 잡는 Paper 버전 호환·플러그인 충돌·UX 문제 다수.
+
+**코드 변경 (custom-plugins/empire-rpg — 커밋 대상):**
+1. **영지명 변경 — 채팅 입력 방식 전환.** Paper 1.21.10 Anvil 3중 버그(① `createInventory(ANVIL)` ClassCastException → `MenuType.ANVIL`, ② 클릭 판정 `instanceof AnvilInventory` 실패 → `getView() AnvilView`, ③ repairCost>0로 결과슬롯 잠김 → `AnvilView.setRepairCost(0)`)를 거쳐 **최종 채팅 입력으로 전환**(버전 의존 제거). `AnvilGuiHelper`(신규) 잔존. **멤버 초대도 채팅 전환.**
+2. **사망 시 keepInventory** — `DeathKeepInventoryListener`(신규). 템·경험치 유지(1차 시즌 정책). gamerule 아닌 이벤트(동적 월드 대응).
+3. **영지 농작물 보호** — `IslandProtectionListener`(신규): 밟기(성장도 무관 전체)·손파괴(미성숙만, 다 자란 건 수확 허용)·물 흐름(작물 칸 유입 차단). 본인 영지 `CONV_CROP_PROTECT` 기준.
+4. **접속 빨간화면(간헐)** — `HubSpawnListener`에 `PlayerSpawnLocationEvent` 추가. 마지막 위치(IS 섬 border 밖) 경유 깜빡임 제거.
+5. **world_hub WorldBorder 정상화** — `HubWorldService`가 기존/신규 모두 center(0,0)·무제한 보장.
+6. **영지 스폰 설정** — `TerritorySettingsGui` slot 10에 버튼(`/is sethome`). slot 9 자동입금 충돌 정정.
+7. **영지 창고 입금** — `StorageGuiListener`: 인벤 아이템 좌클릭=1개/우클릭=종류 전부. **무기(PDC `empire_rpg:weapon_type`)·메뉴 나침반(COMPASS) 입금 차단**(인벤 클릭+전체입금 공통).
+
+**런타임 설정 변경 (server/ — .gitignore, 재배포 시 재적용 필요):**
+- `server.properties`: `spawn-monsters=false`
+- `Multiverse-Core/worlds.yml`: 전 월드 `spawning.monster.spawn=false` (바닐라 적대몹 차단 — server.properties를 Multiverse가 오버라이드하던 문제)
+- `WorldEdit/config.yml`: `navigation-wand.item: minecraft:recovery_compass` (compass 충돌 → 나침반 메뉴 "No free spot" 해소)
+- `IridiumSkyblock/settings.yml`: `weather.enabled=false`, `time.enabled=false` (IS Island Time이 영지 시간 설정을 덮어쓰던 문제)
+- `IridiumSkyblock/schematics.yml`: `yHome` 93→91 (새 섬 스폰 낙하 완화; 기존 섬은 `/is sethome`으로)
+
+**검증:** 인게임 전수 확인 — 영지명·초대·시간·작물보호(밟기/손파괴/물)·창고입금·무기나침반차단·몹스폰·빨간화면·사망유지 전부 통과.
+
+**후속/미해결:** "다른 곳에서 깨지는 것" 사용자 보고(미특정) — 별도 진단. server/ 설정 변경의 server-config 영속화 검토.
+
+---
+
 ### DL-106 스코어보드 영지명 rename 반영 + 스키매틱 picker 검증 (INBOX-007 ③⑦)
 
 **결정/구현:**

@@ -34,6 +34,7 @@ public final class TerritorySettingsGui {
     public static final int SLOT_CROP_PROTECT    = 6;
     public static final int SLOT_WATER_PROTECT   = 7;
     public static final int SLOT_PERMISSION      = 8;
+    public static final int SLOT_SPAWN           = 10; // slot 9는 자동입금이 점유
     public static final int SLOT_FACILITY        = 17;
     public static final int SLOT_MEMBER_START    = 18;
     public static final int SLOT_MEMBER_END      = 25;
@@ -75,6 +76,9 @@ public final class TerritorySettingsGui {
                 Material.WATER_BUCKET,  "물 파괴 보호", "방문자가 영지 내 물을 제거할 수 없습니다."));
         inv.setItem(SLOT_PERMISSION, MainHubGui.icon(Material.BOOK, "§f권한 설정",
                 List.of("§7부영주·영지민·방문자 등급별 권한 편집", "§8▶ 클릭하여 열기")));
+        inv.setItem(SLOT_SPAWN, MainHubGui.icon(Material.RESPAWN_ANCHOR, "§f영지 스폰 설정",
+                List.of("§7현재 서 있는 위치를 영지 스폰으로 지정합니다.",
+                        "§7(영지 이동 시 이 위치로 도착)", "§8▶ 클릭하여 설정")));
 
         // row1 — 자동입금 상태 표시 + 시설현황
         inv.setItem(9,  autoDepositIcon(territory));

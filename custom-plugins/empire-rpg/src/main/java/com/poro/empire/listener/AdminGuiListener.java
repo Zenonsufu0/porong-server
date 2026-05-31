@@ -340,15 +340,12 @@ public final class AdminGuiListener implements Listener {
     }
 
     private void openInspectAnvil(Player admin) {
-        AnvilInventory anvil = (AnvilInventory) admin.getServer()
-                .createInventory(null, InventoryType.ANVIL, Component.text("§c플레이어 인스펙트"));
         ItemStack tag = new ItemStack(Material.NAME_TAG);
         ItemMeta meta = tag.getItemMeta();
         meta.displayName(Component.text("닉네임 입력"));
         tag.setItemMeta(meta);
-        anvil.setItem(0, tag);
         pendingInspectAnvil.add(admin.getUniqueId());
-        admin.openInventory(anvil);
+        com.poro.empire.gui.AnvilGuiHelper.open(admin, Component.text("§c플레이어 인스펙트"), tag);
     }
 
     private void forceReleaseAllSlots(Player admin) {

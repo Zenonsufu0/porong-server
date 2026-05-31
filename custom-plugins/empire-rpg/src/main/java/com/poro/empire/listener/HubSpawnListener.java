@@ -25,6 +25,16 @@ public final class HubSpawnListener implements Listener {
         this.hubWorldService = Objects.requireNonNull(hubWorldService, "hubWorldService");
     }
 
+    /**
+     * 접속 스폰 위치를 미리 허브로 못 박는다 — 마지막 로그아웃 위치(영지/필드)에 잠깐 스폰됐다가
+     * 텔레포트되는 과정에서 그 위치가 IridiumSkyblock 섬 border 밖이면 빨간 비네팅이 깜빡이던 문제 방지.
+     */
+    @EventHandler
+    public void onSpawnLocation(org.spigotmc.event.player.PlayerSpawnLocationEvent event) {
+        org.bukkit.Location hub = hubWorldService.hubSpawn();
+        if (hub != null) event.setSpawnLocation(hub);
+    }
+
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();

@@ -1,11 +1,13 @@
 package com.poro.empire.listener;
 
+import com.poro.empire.combat.weapon.WeaponTypeResolver;
 import com.poro.empire.growth.island.IslandStorage;
 import com.poro.empire.growth.island.IslandStorageStore;
 import com.poro.empire.gui.StorageGui;
 import com.poro.empire.gui.TerritoryHubGui;
 import com.poro.empire.tutorial.TutorialService;
 import org.bukkit.Material;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -80,6 +82,38 @@ public class StorageGuiListener implements Listener {
             return;
         }
 
+        // ── 플레이어 인벤 아이템 클릭 — 입금 (좌클릭=1개 / 우클릭=그 종류 전부) ──
+        if (slot >= inv.getSize()) {
+            ItemStack clicked = event.getCurrentItem();
+            if (clicked == null || clicked.getType().isAir()) return;
+            if (isBlockedForStorage(clicked)) {
+                player.sendMessage(PREFIX + "§c무기·나침반은 창고에 넣을 수 없습니다.");
+                return;
+            }
+            Material mat = clicked.getType();
+            if (event.getClick() == ClickType.RIGHT) {
+                long total = 0;
+                org.bukkit.inventory.PlayerInventory pinv = player.getInventory();
+                for (int i = 0; i < pinv.getSize(); i++) {
+                    ItemStack it = pinv.getItem(i);
+                    if (it != null && it.getType() == mat && !isBlockedForStorage(it)) {
+                        total += it.getAmount();
+                        pinv.setItem(i, null);
+                    }
+                }
+                if (total > 0) {
+                    storage.add(mat, total);
+                    player.sendMessage(PREFIX + "§a입금: §f" + titleCase(mat.name()) + " ×" + FMT.format(total));
+                }
+            } else { // 좌클릭 — 1개
+                storage.add(mat, 1);
+                clicked.setAmount(clicked.getAmount() - 1);
+                if (clicked.getAmount() <= 0) event.setCurrentItem(null);
+            }
+            StorageGui.render(inv, storage, page);
+            return;
+        }
+
         // ── 아이템 슬롯 (0~44) — 출금 ─────────────────────────
         if (slot >= 0 && slot < StorageGui.ITEMS_PER_PAGE) {
             List<Material> materials = storage.materialList();
@@ -117,8 +151,9 @@ public class StorageGuiListener implements Listener {
         for (int i = 0; i < inv.getSize(); i++) {
             ItemStack item = inv.getItem(i);
             if (item == null || item.getType().isAir()) continue;
-            // CMD가 있는 커스텀 아이템(무기·장비·소비재 등) 제외
+            // CMD가 있는 커스텀 아이템(무기·장비·소비재 등) + 무기·나침반 제외
             if (item.hasItemMeta() && item.getItemMeta().hasCustomModelData()) continue;
+            if (isBlockedForStorage(item)) continue;
             Material mat = item.getType();
             long amount = item.getAmount();
             storage.add(mat, amount);
@@ -135,6 +170,14 @@ public class StorageGuiListener implements Listener {
             sb.append(titleCase(mat.name())).append(" ×").append(FMT.format(qty));
         });
         player.sendMessage(PREFIX + "§a창고에 입금했습니다: §f" + sb);
+    }
+
+    /** 창고 입금 금지 아이템 — 메뉴 나침반 + 무기(PDC 태그). */
+    private static boolean isBlockedForStorage(ItemStack item) {
+        if (item.getType() == Material.COMPASS) return true; // 메뉴 나침반
+        if (item.hasItemMeta() && item.getItemMeta().getPersistentDataContainer()
+                .has(WeaponTypeResolver.WEAPON_TYPE_KEY, PersistentDataType.STRING)) return true; // 무기
+        return false;
     }
 
     private static String titleCase(String name) {

@@ -122,15 +122,12 @@ public final class PvpHubListener implements Listener {
     }
 
     private void openFriendlyAnvil(Player player) {
-        AnvilInventory anvil = (AnvilInventory) player.getServer()
-                .createInventory(null, InventoryType.ANVIL, Component.text("친선대전 신청"));
         ItemStack tag = new ItemStack(Material.PAPER);
         ItemMeta meta = tag.getItemMeta();
         meta.displayName(Component.text("상대 닉네임"));
         tag.setItemMeta(meta);
-        anvil.setItem(0, tag);
         pendingFriendlyAnvil.add(player.getUniqueId());
-        player.openInventory(anvil);
+        com.poro.empire.gui.AnvilGuiHelper.open(player, Component.text("친선대전 신청"), tag);
     }
 
     @EventHandler

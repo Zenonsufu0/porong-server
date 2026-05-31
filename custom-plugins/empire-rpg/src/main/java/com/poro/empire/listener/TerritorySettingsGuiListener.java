@@ -93,47 +93,7 @@ public final class TerritorySettingsGuiListener implements Listener {
                         weatherStates.getOrDefault(uid, 0), timeStates.getOrDefault(uid, 0));
             }
 
-        } else if (pendingNameChange.contains(uid)
-                && event.getInventory() instanceof AnvilInventory anvil
-                && event.getRawSlot() == 2) {
-            event.setCancelled(true);
-            handleNameChangeResult(player, uid, anvil);
-
-        } else if (pendingInviteAnvil.contains(uid)
-                && event.getInventory() instanceof AnvilInventory anvil
-                && event.getRawSlot() == 2) {
-            event.setCancelled(true);
-            String targetName = anvil.getRenameText();
-            handleInviteAnvilResult(player, targetName);
         }
-    }
-
-    @EventHandler
-    public void onPrepareAnvil(PrepareAnvilEvent event) {
-        if (!(event.getView().getPlayer() instanceof Player player)) return;
-        UUID uid = player.getUniqueId();
-        if (!pendingNameChange.contains(uid) && !pendingInviteAnvil.contains(uid)) return;
-
-        String newName = event.getInventory().getRenameText();
-        if (newName == null || newName.isBlank()) return;
-
-        // 비용 0 설정
-        event.getInventory().setRepairCost(0);
-
-        // 결과 아이템 세팅
-        ItemStack result = new ItemStack(Material.NAME_TAG);
-        ItemMeta meta = result.getItemMeta();
-        meta.displayName(Component.text("§e" + newName));
-        result.setItemMeta(meta);
-        event.setResult(result);
-    }
-
-    @EventHandler
-    public void onClose(InventoryCloseEvent event) {
-        if (!(event.getPlayer() instanceof Player player)) return;
-        // 모루 GUI 닫힐 때 pending 정리 (결과 없이 닫은 경우)
-        pendingNameChange.remove(player.getUniqueId());
-        pendingInviteAnvil.remove(player.getUniqueId());
     }
 
     // ─── 설정 클릭 핸들러 ────────────────────────────────────────────
@@ -141,7 +101,7 @@ public final class TerritorySettingsGuiListener implements Listener {
     private void handleSettings(Player player, int slot) {
         UUID uid = player.getUniqueId();
         switch (slot) {
-            case TerritorySettingsGui.SLOT_NAME -> openNameChangeAnvil(player);
+            case TerritorySettingsGui.SLOT_NAME -> promptNameChangeChat(player);
             case TerritorySettingsGui.SLOT_VISIT -> cycleVisitMode(player);
             case TerritorySettingsGui.SLOT_VISITOR_MINE  -> toggleBit(player, IslandTerritoryState.CONV_VISITOR_MINE,
                     "방문자 채굴", TerritorySettingsGui.SLOT_VISITOR_MINE, Material.IRON_PICKAXE,
@@ -157,6 +117,15 @@ public final class TerritorySettingsGuiListener implements Listener {
                     "방문자가 영지 내 물을 제거할 수 없습니다.");
             case TerritorySettingsGui.SLOT_WEATHER -> toggleWeather(player, uid);
             case TerritorySettingsGui.SLOT_TIME    -> toggleTime(player, uid);
+            case TerritorySettingsGui.SLOT_SPAWN -> {
+                player.closeInventory();
+                // IS home을 현재 위치로 설정 — 영지 이동(/is home) 도착 지점이 갱신된다.
+                if (player.performCommand("is sethome")) {
+                    player.sendMessage("§a[영지] 현재 위치를 영지 스폰으로 설정했습니다.");
+                } else {
+                    player.sendMessage("§c[영지] 스폰 설정에 실패했습니다. 영지 안에서 시도하세요.");
+                }
+            }
             case TerritorySettingsGui.SLOT_FACILITY -> {
                 if (combatStateService.isInCombat(uid)) {
                     player.sendMessage("§c[영지] 전투 중에는 시설 현황을 열 수 없습니다.");
@@ -212,17 +181,12 @@ public final class TerritorySettingsGuiListener implements Listener {
 
     // ─── 초대 Anvil ──────────────────────────────────────────────────
 
+    /** 멤버 초대 — 모루 대신 채팅 입력 방식. */
     private void openInviteAnvil(Player player) {
-        org.bukkit.inventory.AnvilInventory anvil = (org.bukkit.inventory.AnvilInventory) player.getServer()
-                .createInventory(null, org.bukkit.event.inventory.InventoryType.ANVIL,
-                        net.kyori.adventure.text.Component.text("멤버 초대"));
-        org.bukkit.inventory.ItemStack tag = new org.bukkit.inventory.ItemStack(org.bukkit.Material.PAPER);
-        org.bukkit.inventory.meta.ItemMeta meta = tag.getItemMeta();
-        meta.displayName(net.kyori.adventure.text.Component.text("초대할 닉네임"));
-        tag.setItemMeta(meta);
-        anvil.setItem(0, tag);
         pendingInviteAnvil.add(player.getUniqueId());
-        player.openInventory(anvil);
+        player.closeInventory();
+        player.sendMessage(net.kyori.adventure.text.Component.text(
+                "§e[영지] 채팅에 초대할 플레이어 닉네임을 입력하세요. §7(취소: '취소')"));
     }
 
     public void handleInviteAnvilResult(Player inviter, String targetName) {
@@ -448,26 +412,21 @@ public final class TerritorySettingsGuiListener implements Listener {
 
     // ─── 영지명 변경 (Anvil GUI) ─────────────────────────────────────
 
-    private void openNameChangeAnvil(Player player) {
-        AnvilInventory anvil = (AnvilInventory) player.getServer()
-                .createInventory(null, org.bukkit.event.inventory.InventoryType.ANVIL,
-                        Component.text("영지명 변경"));
-
-        ItemStack nameTag = new ItemStack(Material.NAME_TAG);
-        ItemMeta meta = nameTag.getItemMeta();
-        meta.displayName(Component.text(territory(player).islandName()));
-        nameTag.setItemMeta(meta);
-        anvil.setItem(0, nameTag);
-
+    /** 영지명 변경 — 모루 대신 채팅 입력 방식(Paper Anvil API 버전 의존 회피). */
+    private void promptNameChangeChat(Player player) {
         pendingNameChange.add(player.getUniqueId());
-        player.openInventory(anvil);
+        player.closeInventory();
+        player.sendMessage(Component.text(
+                "§e[영지] 채팅에 새 영지명을 입력하세요. §7(한글·영문·숫자 16자 이내, 취소: '취소')"));
     }
 
-    private void handleNameChangeResult(Player player, UUID uid, AnvilInventory anvil) {
-        String newName = anvil.getRenameText();
-        pendingNameChange.remove(uid);
-
-        if (newName == null || newName.isBlank()) {
+    /** 채팅으로 입력된 영지명 적용 (메인 스레드에서 호출). */
+    private void applyIslandName(Player player, String newName) {
+        if (newName.equalsIgnoreCase("취소")) {
+            player.sendMessage("§7[영지] 영지명 변경을 취소했습니다.");
+            return;
+        }
+        if (newName.isBlank()) {
             player.sendMessage("§c[영지] 영지명을 입력하세요.");
             return;
         }
@@ -479,11 +438,33 @@ public final class TerritorySettingsGuiListener implements Listener {
             player.sendMessage("§c[영지] 영지명에 특수문자를 사용할 수 없습니다.");
             return;
         }
-
-        IslandTerritoryState territory = territory(player);
-        territory.setIslandName(newName);
-        player.closeInventory();
+        territory(player).setIslandName(newName);
         player.sendMessage("§a[영지] 영지명이 §e" + newName + "§a으로 변경되었습니다.");
+    }
+
+    @EventHandler
+    public void onTerritoryChat(io.papermc.paper.event.player.AsyncChatEvent event) {
+        Player player = event.getPlayer();
+        UUID uid = player.getUniqueId();
+        boolean isName   = pendingNameChange.contains(uid);
+        boolean isInvite = pendingInviteAnvil.contains(uid);
+        if (!isName && !isInvite) return;
+        event.setCancelled(true); // 입력 메시지는 채팅에 노출하지 않음
+        String msg = net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText()
+                .serialize(event.message()).trim();
+        if (isName) {
+            pendingNameChange.remove(uid);
+            Bukkit.getScheduler().runTask(plugin, () -> applyIslandName(player, msg)); // Bukkit API는 메인 스레드
+        } else {
+            pendingInviteAnvil.remove(uid);
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                if (msg.equalsIgnoreCase("취소")) {
+                    player.sendMessage("§7[영지] 멤버 초대를 취소했습니다.");
+                    return;
+                }
+                handleInviteAnvilResult(player, msg);
+            });
+        }
     }
 
     // ─── 헬퍼 ────────────────────────────────────────────────────────

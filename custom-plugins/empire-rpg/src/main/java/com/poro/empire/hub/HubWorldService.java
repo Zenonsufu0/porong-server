@@ -32,20 +32,31 @@ public final class HubWorldService {
         this.plugin = Objects.requireNonNull(plugin, "plugin");
     }
 
-    /** 부팅 시 호출 — world_hub가 없으면 평지로 생성. */
+    /** 부팅 시 호출 — world_hub가 없으면 평지로 생성하고, 기존/신규 모두 WorldBorder를 정상화. */
     public World ensureHubWorld() {
-        World existing = Bukkit.getWorld(HUB_WORLD);
-        if (existing != null) return existing;
-        plugin.getLogger().info("[Hub] " + HUB_WORLD + " 생성 (평지, 표면 y=64)...");
-        World w = new WorldCreator(HUB_WORLD)
-                .type(WorldType.FLAT)
-                .generatorSettings(FLAT_PRESET)
-                .createWorld();
+        World w = Bukkit.getWorld(HUB_WORLD);
+        if (w == null) {
+            plugin.getLogger().info("[Hub] " + HUB_WORLD + " 생성 (평지, 표면 y=64)...");
+            w = new WorldCreator(HUB_WORLD)
+                    .type(WorldType.FLAT)
+                    .generatorSettings(FLAT_PRESET)
+                    .createWorld();
+            if (w != null) {
+                w.setSpawnLocation(0, 64, 0);
+                w.setPVP(false);
+                w.setStorm(false);
+                w.setDifficulty(org.bukkit.Difficulty.PEACEFUL); // 허브 = 안전지대(적대몹 없음)
+            }
+        }
         if (w != null) {
-            w.setSpawnLocation(0, 64, 0);
-            w.setPVP(false);
-            w.setStorm(false);
-            w.setDifficulty(org.bukkit.Difficulty.PEACEFUL); // 허브 = 안전지대(적대몹 없음)
+            // WorldBorder 정상화 — 스폰(0,0)이 경계 밖이라 빨간 비네팅이 뜨던 문제 방지.
+            // 기존 world_hub에 잘못 설정된 border가 남아있어도 매 부팅 시 중심(0,0)·무제한으로 되돌린다.
+            org.bukkit.WorldBorder border = w.getWorldBorder();
+            border.setCenter(0, 0);
+            border.setSize(60_000_000); // 사실상 무제한
+            plugin.getLogger().info("[Hub] WorldBorder 정상화 — center=("
+                    + border.getCenter().getX() + "," + border.getCenter().getZ()
+                    + ") size=" + border.getSize());
         }
         return w;
     }

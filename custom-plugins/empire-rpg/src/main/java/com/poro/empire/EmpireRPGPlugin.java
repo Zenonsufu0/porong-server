@@ -29,6 +29,8 @@ import com.poro.empire.field.WorldGuardSafeZoneService;
 import com.poro.empire.leveling.PlayerLevelingService;
 import com.poro.empire.boss.room.BossRoomManager;
 import com.poro.empire.listener.AfkMonitorListener;
+import com.poro.empire.listener.DeathKeepInventoryListener;
+import com.poro.empire.listener.IslandProtectionListener;
 import com.poro.empire.listener.BossDefenseListener;
 import com.poro.empire.listener.AuctionGuiListener;
 import com.poro.empire.listener.BossRoomListener;
@@ -665,6 +667,8 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                 new BossRoomListener(bossRoomManager, masterRegistryContext.bossMasters(), partyManager, bossEngineRuntime, mythicSpawner, adminTogglesService, bossDamageTracker);
         getServer().getPluginManager().registerEvents(shopGuiListener, this);
         getServer().getPluginManager().registerEvents(pvpHubListener, this);
+        getServer().getPluginManager().registerEvents(new DeathKeepInventoryListener(), this); // 1차 시즌 사망 시 템·경험치 유지
+        getServer().getPluginManager().registerEvents(new IslandProtectionListener(islandTerritoryStateStore), this); // 영지 농작물 보호(trample)
         getServer().getPluginManager().registerEvents(
                 new MainHubListener(growthGuiListener, islandStorageStore, islandTerritoryStateStore,
                         auctionGuiListener, fieldHubListener, bossHubListener, shopGuiListener,
