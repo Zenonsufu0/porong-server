@@ -20,6 +20,7 @@ import org.bukkit.Material;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -74,7 +75,7 @@ public final class PlayerPersistenceService {
         if (version < 2) {
             Map<String, Long> wallet = migrateWalletV1(current.wallet());
             current = new PlayerSaveData(2,
-                    current.weaponType(), current.classId(), current.classEngravingId(),
+                    current.weaponType(), current.classId(), current.classEngravingId(), current.classEngravingByClass(),
                     wallet, current.equippedSlots(), current.inventory(), current.equippedRunes(),
                     current.commonEngravings(), current.territory(), current.storage(), current.customItems(),
                     current.workshopJobs(),
@@ -88,7 +89,7 @@ public final class PlayerPersistenceService {
         if (current.schemaVersion() < 3) {
             Map<String, String> slots = migrateEquippedSlotsV2(current.equippedSlots());
             current = new PlayerSaveData(3,
-                    current.weaponType(), current.classId(), current.classEngravingId(),
+                    current.weaponType(), current.classId(), current.classEngravingId(), current.classEngravingByClass(),
                     current.wallet(), slots, current.inventory(), current.equippedRunes(),
                     current.commonEngravings(), current.territory(), current.storage(), current.customItems(),
                     current.workshopJobs(),
@@ -101,7 +102,7 @@ public final class PlayerPersistenceService {
 
         if (current.schemaVersion() < 4) {
             current = new PlayerSaveData(4,
-                    current.weaponType(), current.classId(), current.classEngravingId(),
+                    current.weaponType(), current.classId(), current.classEngravingId(), current.classEngravingByClass(),
                     current.wallet(), current.equippedSlots(), current.inventory(), current.equippedRunes(),
                     current.commonEngravings(), current.territory(), current.storage(), current.customItems(),
                     current.workshopJobs() != null ? current.workshopJobs() : List.of(),
@@ -114,7 +115,7 @@ public final class PlayerPersistenceService {
 
         if (current.schemaVersion() < 5) {
             current = new PlayerSaveData(5,
-                    current.weaponType(), current.classId(), current.classEngravingId(),
+                    current.weaponType(), current.classId(), current.classEngravingId(), current.classEngravingByClass(),
                     current.wallet(), current.equippedSlots(), current.inventory(), current.equippedRunes(),
                     current.commonEngravings(), current.territory(), current.storage(), current.customItems(),
                     current.workshopJobs() != null ? current.workshopJobs() : List.of(),
@@ -123,6 +124,26 @@ public final class PlayerPersistenceService {
                     current.ilWarningCount(), current.mobIlHitCount(), current.catalystBonusPct(),
                     Map.of());
             logger.info("[Migration] " + uuid + " v4 → v5");
+        }
+
+        if (current.schemaVersion() < 6) {
+            // 무기별 독립 각인(DL-110) — 기존 단일 classEngravingId를 현재 classId(무기) 키로 이관.
+            Map<String, String> byClass = new LinkedHashMap<>();
+            String legacyId = current.classEngravingId();
+            String classKey = current.classId();
+            if (legacyId != null && !legacyId.isBlank() && classKey != null && !classKey.isBlank()) {
+                byClass.put(classKey.trim().toLowerCase(Locale.ROOT), legacyId.trim().toLowerCase(Locale.ROOT));
+            }
+            current = new PlayerSaveData(6,
+                    current.weaponType(), current.classId(), current.classEngravingId(), byClass,
+                    current.wallet(), current.equippedSlots(), current.inventory(), current.equippedRunes(),
+                    current.commonEngravings(), current.territory(), current.storage(), current.customItems(),
+                    current.workshopJobs() != null ? current.workshopJobs() : List.of(),
+                    current.playerLevel(), current.unspentPts(), current.critPts(), current.specPts(),
+                    current.endurPts(), current.currentExp(), current.ceilingCounters(),
+                    current.ilWarningCount(), current.mobIlHitCount(), current.catalystBonusPct(),
+                    current.cosmeticMaterials() != null ? current.cosmeticMaterials() : Map.of());
+            logger.info("[Migration] " + uuid + " v5 → v6 (classEngraving → byClass)");
         }
 
         return current;
@@ -168,8 +189,12 @@ public final class PlayerPersistenceService {
             data.wallet().forEach((code, amount) -> state.restoreCurrency(code, amount));
         }
 
-        // 각인
-        if (data.classEngravingId() != null) state.setClassEngravingId(data.classEngravingId());
+        // 각인 — 무기별 독립(DL-110). migrate()가 v6로 byClass를 채우지만, 안전망으로 legacy 단일값도 폴백.
+        if (data.classEngravingByClass() != null && !data.classEngravingByClass().isEmpty()) {
+            data.classEngravingByClass().forEach(state::restoreClassEngraving);
+        } else if (data.classEngravingId() != null && !data.classEngravingId().isBlank()) {
+            state.setClassEngravingId(data.classEngravingId());
+        }
         if (data.commonEngravings() != null) {
             data.commonEngravings().forEach((slotStr, eg) -> {
                 try {
@@ -302,7 +327,8 @@ public final class PlayerPersistenceService {
                 PlayerSaveData.CURRENT_VERSION,
                 wt != null ? wt.name() : WeaponType.NONE.name(),
                 classId,
-                growth != null ? growth.classEngravingId() : "",
+                growth != null ? growth.classEngravingId() : "", // legacy 단일(현재 무기) — 하위호환 표시용
+                growth != null ? new LinkedHashMap<>(growth.classEngravingByClassSnapshot()) : Map.of(),
                 growth != null ? new LinkedHashMap<>(growth.walletSnapshot()) : Map.of(),
                 toEquippedSlotsDto(growth),
                 toInventoryDto(growth),

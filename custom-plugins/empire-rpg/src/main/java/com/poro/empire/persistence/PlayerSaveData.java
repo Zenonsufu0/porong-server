@@ -11,7 +11,10 @@ public record PlayerSaveData(
         int schemaVersion,
         String weaponType,
         String classId,
+        // legacy(v5 이하) 단일 클래스 각인 — v6부터 classEngravingByClass로 이관, 마이그레이션 소스로만 유지.
         String classEngravingId,
+        // 무기별 독립 클래스 각인 (v6, DL-110) — key = classId(무기 타입), value = engravingId.
+        Map<String, String> classEngravingByClass,
         Map<String, Long>   wallet,
         Map<String, String> equippedSlots,
         List<ItemSaveData>  inventory,
@@ -33,7 +36,7 @@ public record PlayerSaveData(
         int catalystBonusPct,
         Map<String, String> cosmeticMaterials
 ) {
-    public static final int CURRENT_VERSION = 5;
+    public static final int CURRENT_VERSION = 6;
 
     public record ItemSaveData(
             String instanceId,

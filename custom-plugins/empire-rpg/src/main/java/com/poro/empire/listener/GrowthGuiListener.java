@@ -30,6 +30,7 @@ import com.poro.empire.growth.engine.PotentialLine;
 import com.poro.empire.growth.engine.PotentialProfile;
 import com.poro.empire.growth.engine.PotentialService;
 import com.poro.empire.growth.engine.SuccessionService;
+import com.poro.empire.gui.EquipmentLoreRenderer;
 import com.poro.empire.gui.GuiTitles;
 import com.poro.empire.gui.MainHubGui;
 import com.poro.empire.scoreboard.ScoreboardService;
@@ -454,7 +455,6 @@ public final class GrowthGuiListener implements Listener {
             refreshTraceToggles(player, inv, null);
             return;
         }
-        String itemName = itemDisplayName(item);
         int curLv = item.enhanceLevel();
 
         // 강화 흔적 토글 4슬롯 갱신 (선택 상태 + 10강 게이트 + 보유/요구 수량 반영)
@@ -469,6 +469,8 @@ public final class GrowthGuiListener implements Listener {
         inv.setItem(ENH_SLOT_PREVIEW, MainHubGui.icon(prevMat,
                 "§f" + equipDisplayName(prevSlot, prevWt) + " §e+" + curLv,
                 equipBaseLore(item, prevSlot == EquipmentSlot.WEAPON, state.classEngravingId())));
+        // 강화 시도 버튼 등에 쓸 표시명 — 정본 한글명(무기=검/도끼…, 방어구=투구…) 사용(영어 itemName 대체).
+        String itemName = equipDisplayName(prevSlot, prevWt);
 
         if (curLv >= EnhancementService.MAX_ENHANCE_LEVEL) {
             inv.setItem(ENH_SLOT_SUCCESS_RATE, MainHubGui.icon(Material.LIME_DYE, "§a성공률 §2[최대]", List.of()));
@@ -818,7 +820,7 @@ public final class GrowthGuiListener implements Listener {
                 prevMat,
                 "§f" + itemName + (item != null ? " §e+" + item.enhanceLevel() + "강" : ""),
                 List.of("§7──────────────",
-                        "§7잠재 등급: " + (profile != null ? gradeColor(profile.grade()) + profile.grade().name() : "§8없음"))));
+                        "§7잠재 등급: " + (profile != null ? gradeColor(profile.grade()) + EquipmentLoreRenderer.potentialGradeKr(profile.grade()) : "§8없음"))));
         // 자원 표시
         inv.setItem(POT_SLOT_RESOURCE, MainHubGui.icon(Material.NETHER_STAR, "§7보유 자원",
                 List.of("§7큐브: §e" + state.currency("mat_cube"),
@@ -869,7 +871,7 @@ public final class GrowthGuiListener implements Listener {
             return;
         }
         inv.setItem(gradeSlot, MainHubGui.icon(Material.PAPER,
-                colorPrefix + "등급: " + gradeColor(profile.grade()) + profile.grade().name(), List.of()));
+                colorPrefix + "등급: " + gradeColor(profile.grade()) + EquipmentLoreRenderer.potentialGradeKr(profile.grade()), List.of()));
         List<PotentialLine> lines = profile.lines();
         inv.setItem(line1Slot, lines.size() > 0 ? potentialLineIcon(lines.get(0), colorPrefix) : pane());
         inv.setItem(line2Slot, lines.size() > 1 ? potentialLineIcon(lines.get(1), colorPrefix) : pane());
@@ -878,8 +880,8 @@ public final class GrowthGuiListener implements Listener {
 
     private ItemStack potentialLineIcon(PotentialLine line, String colorPrefix) {
         return MainHubGui.icon(Material.PAPER,
-                colorPrefix + line.optionCode() + " §e+" + String.format("%.2f", line.value()),
-                List.of("§7라인 " + line.lineNo() + " / " + gradeColor(line.grade()) + line.grade().name()));
+                colorPrefix + EquipmentLoreRenderer.potentialOptionKr(line.optionCode()) + " §e+" + String.format("%.2f", line.value()),
+                List.of("§7라인 " + line.lineNo() + " / " + gradeColor(line.grade()) + EquipmentLoreRenderer.potentialGradeKr(line.grade())));
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -1966,29 +1968,15 @@ public final class GrowthGuiListener implements Listener {
     }
 
     private ItemStack buildWeaponChangeIcon(WeaponType wt, PlayerGrowthState sharedState, boolean isCurrent) {
-        List<String> lore = new ArrayList<>();
-        lore.add("§7──────────────────");
-
         // 무기별 독립 데이터 — 각 무기 타입의 고유 인스턴스(weapon_<타입>)를 읽는다 (DL-104).
+        // 장비 lore는 정본 렌더러에 위임(강화/등급/잠재/세부스탯/각인) — 손무기/상세 GUI와 형식 통일.
         PlayerEquipmentItem item = sharedState.inventoryItem(WeaponGui.weaponInstanceId(wt)).orElse(null);
-        if (item != null) {
-            lore.add("§7강화   : §e+" + item.enhanceLevel() + "강");
-            lore.add("§7등급   : " + gradeColor(item.grade()) + item.grade().displayName());
-            PotentialProfile pp = item.potentialProfile();
-            if (pp != null && !pp.lines().isEmpty()) {
-                lore.add("§7잠재   : " + gradeColor(pp.grade()) + pp.grade().name()
-                        + " §7(" + pp.lines().size() + "라인)");
-            } else {
-                lore.add("§7잠재   : §8없음");
-            }
-            List<PotentialLine> substats = item.substatLines();
-            lore.add("§7세부스탯: " + (substats.isEmpty() ? "§8없음" : "§f" + substats.size() + "줄"));
-        } else {
-            lore.add("§8미육성 §7(교체 시 +0강으로 생성)");
-        }
-        // 각인은 직업(무기) 단위 — 무기별 각인은 후속. 현재는 클래스 각인 표시.
-        String eid = sharedState.classEngravingId();
-        lore.add("§7각인   : " + (!eid.isEmpty() ? "§a" + eid : "§8없음"));
+        // 무기별 독립 각인(DL-110) — 각 무기 아이콘은 자기 무기 타입(classId)의 각인을 표시.
+        String engravingId = sharedState.classEngravingId(wt.name().toLowerCase(Locale.ROOT));
+        List<String> lore = new ArrayList<>(EquipmentLoreRenderer.baseLore(
+                item, true, engravingId, "§8미육성 §7(교체 시 +0강으로 생성)"));
+        // 마지막 구분선 앞에 스킬 줄 삽입(무기 변경 GUI 전용)
+        lore.remove(lore.size() - 1);
         lore.add("§7스킬   : §7" + weaponSkillSummary(wt));
         lore.add("§7──────────────────");
         if (isCurrent) {
@@ -2029,7 +2017,9 @@ public final class GrowthGuiListener implements Listener {
         // 무기별 독립 성장 — 해당 무기의 고유 인스턴스를 보장하고 WEAPON 슬롯에 장착한다 (DL-104).
         // 강화/큐브/잠재는 장착된 인스턴스를 대상으로 하므로, 교체 후 작업은 이 무기에만 적용된다.
         PlayerGrowthState state = getState(player);
-        state.setClassId(newWt.name().toLowerCase(java.util.Locale.ROOT)); // 직업 변경 — 각인 classFilter 검증이 새 무기 기준
+        // 무기별 독립 각인(DL-110) — classId만 새 무기로 갱신하면 각인/스킬이 자동으로 새 무기 기준이 된다.
+        // 각 무기가 자기 각인을 보유하므로 이전 각인 해제 불필요(단일 필드 시절의 잔존 버그 해소).
+        state.setClassId(newWt.name().toLowerCase(java.util.Locale.ROOT));
         ensureWeaponInstance(state, newWt);
         state.equipItem(EquipmentSlot.WEAPON, WeaponGui.weaponInstanceId(newWt));
 
@@ -2092,7 +2082,7 @@ public final class GrowthGuiListener implements Listener {
         if (item == null) return "§8잠재: 없음";
         PotentialProfile p = item.potentialProfile();
         if (p == null) return "§8잠재: 없음";
-        return gradeColor(p.grade()) + p.grade().name() + " §7(" + p.lines().size() + "라인)";
+        return gradeColor(p.grade()) + EquipmentLoreRenderer.potentialGradeKr(p.grade()) + " §7(" + p.lines().size() + "라인)";
     }
 
     private String gradeColor(PotentialGrade grade) {
@@ -2126,50 +2116,6 @@ public final class GrowthGuiListener implements Listener {
         };
     }
 
-    /** 잠재 옵션 코드 → 한글명. 미정의 코드는 코드 원문 표시. */
-    private static String potentialOptionKr(String code) {
-        return switch (code) {
-            case "attack_percent"                -> "공격력";
-            case "general_damage_increase"       -> "일반 피해 증가";
-            case "boss_damage_increase"          -> "보스 피해 증가";
-            case "combo_tag_damage_increase"     -> "연계 피해 증가";
-            case "core_tag_damage_increase"      -> "코어 피해 증가";
-            case "precision_tag_damage_increase" -> "정밀 피해 증가";
-            case "mark_target_damage_increase"   -> "표식 대상 피해 증가";
-            case "conditional_damage_bonus"      -> "조건부 피해";
-            case "max_hp_percent"                -> "최대 체력";
-            case "damage_reduction"              -> "피해 감소";
-            case "move_speed_percent"            -> "이동 속도";
-            case "crack_efficiency"              -> "균열 효율";
-            case "recovery_efficiency"           -> "회복 효율";
-            case "shield_efficiency"             -> "보호막 효율";
-            case "resonance_effect_up"           -> "공명 효과";
-            case "resource_gain_percent"         -> "자원 획득";
-            case "status_resistance_percent"     -> "상태이상 저항";
-            case "survival_trigger_reduction"    -> "생존기 쿨감";
-            case "playstyle_completion_boost"    -> "플레이스타일 완성";
-            default                              -> code;
-        };
-    }
-
-    /** 잠재 등급 한글명. */
-    private static String potentialGradeKr(PotentialGrade g) {
-        return switch (g) {
-            case COMMON    -> "커먼";
-            case RARE      -> "레어";
-            case EPIC      -> "에픽";
-            case UNIQUE    -> "유니크";
-            case LEGENDARY -> "전설";
-        };
-    }
-
-    /** 각인 ID → 한글 표시명. 미부여/미발견 시 "§8없음". */
-    private String engravingDisplayName(String engravingId) {
-        if (engravingId == null || engravingId.isBlank()) return "§8없음";
-        return growthEngineRuntime.engravingRegistry().find(engravingId)
-                .map(em -> "§a" + em.engravingName())
-                .orElse("§a" + engravingId);
-    }
 
     /** 손에 든 무기(slot 0) lore를 현재 성장 상태로 재빌드 — 강화/잠재/각인 후 실시간 반영(DL-104 후속). */
     private void refreshHeldWeapon(Player player, PlayerGrowthState state) {
@@ -2193,30 +2139,7 @@ public final class GrowthGuiListener implements Listener {
      * 구분선 / 강화 / 등급 / 잠재 / 세부스탯 / 각인(무기만) / 구분선.
      */
     private List<String> equipBaseLore(PlayerEquipmentItem item, boolean isWeapon, String engravingId) {
-        List<String> lore = new ArrayList<>();
-        lore.add("§7──────────────────");
-        if (item != null) {
-            lore.add("§7강화   : §e+" + item.enhanceLevel() + "강");
-            lore.add("§7등급   : " + gradeColor(item.grade()) + item.grade().displayName());
-            PotentialProfile pp = item.potentialProfile();
-            if (pp != null && !pp.lines().isEmpty()) {
-                lore.add("§7잠재   : " + gradeColor(pp.grade()) + potentialGradeKr(pp.grade()));
-                for (PotentialLine pl : pp.lines()) {
-                    lore.add("§8  " + potentialOptionKr(pl.optionCode()) + " §e+" + String.format("%.2f", pl.value()));
-                }
-            } else {
-                lore.add("§7잠재   : §8없음"); // 잠재 미부여(돌리기 전)
-            }
-            List<PotentialLine> sub = item.substatLines();
-            lore.add("§7세부스탯: " + (sub.isEmpty() ? "§8없음" : "§f" + sub.size() + "줄"));
-        } else {
-            lore.add("§8장착 장비 없음");
-        }
-        if (isWeapon) {
-            lore.add("§7각인   : " + engravingDisplayName(engravingId));
-        }
-        lore.add("§7──────────────────");
-        return lore;
+        return EquipmentLoreRenderer.baseLore(item, isWeapon, engravingId);
     }
 
     private EquipmentSlot findEquipSlot(PlayerGrowthState state, String instanceId) {

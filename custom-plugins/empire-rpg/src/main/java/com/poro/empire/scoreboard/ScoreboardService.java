@@ -95,8 +95,10 @@ public final class ScoreboardService {
         if (stateOpt.isPresent() && wt != WeaponType.NONE) {
             PlayerGrowthState state = stateOpt.get();
             String className = weaponClassName(wt);
-            String engraving = state.classEngravingId().isBlank()
-                    ? "" : "  §7" + state.classEngravingId();
+            // 무기별 각인(DL-110)의 한글명 표시 — 정본 렌더러 위임(영어 ID 노출 해소).
+            // 직업명(§e)과 시각 구분 위해 각인은 청록(§b)으로 강조.
+            String engravingName = com.poro.empire.gui.EquipmentLoreRenderer.engravingNameOrEmpty(state.classEngravingId());
+            String engraving = engravingName.isBlank() ? "" : "  §b" + engravingName;
             row = setRow(obj, "§e" + className + engraving, row);
         } else {
             row = setRow(obj, "§7직업 미선택", row);

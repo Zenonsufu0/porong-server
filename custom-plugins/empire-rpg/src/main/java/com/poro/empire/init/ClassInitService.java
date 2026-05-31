@@ -75,8 +75,9 @@ public final class ClassInitService {
     public void grantStarterEquipment(Player player, WeaponType weaponType) {
         String classId = weaponType.name().toLowerCase(Locale.ROOT);
         PlayerGrowthState state = growthStateStore.getOrCreate(player.getUniqueId(), classId);
-        // 직업 변경(/직업) 시 기존 state의 classId를 갱신 — 각인 classFilter 검증이 새 직업 기준으로 동작.
+        // 직업 변경(/직업) 시 기존 state의 classId를 갱신 — 각인/스킬이 새 직업(무기) 기준으로 동작.
         // (getOrCreate는 기존 state가 있으면 classId 인자를 무시하므로 명시 갱신 필요.)
+        // 무기별 독립 각인(DL-110)이므로 이전 각인 해제 불필요 — 각 무기가 자기 각인을 보유.
         state.setClassId(classId);
         // 무기는 무기별 독립 인스턴스(weapon_<타입>) — 교체 시 각 무기의 강화/등급/잠재를 따로 가져간다 (DL-104).
         addAndEquipIfMissing(state, EquipmentSlot.WEAPON,     WeaponGui.weaponInstanceId(weaponType), WeaponGui.starterItemId(weaponType));

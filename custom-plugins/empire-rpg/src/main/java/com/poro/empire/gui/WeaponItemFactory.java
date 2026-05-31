@@ -2,12 +2,8 @@ package com.poro.empire.gui;
 
 import com.poro.empire.combat.weapon.WeaponType;
 import com.poro.empire.combat.weapon.WeaponTypeResolver;
-import com.poro.empire.growth.engine.ItemGrade;
 import com.poro.empire.growth.engine.PlayerEquipmentItem;
 import com.poro.empire.growth.engine.PlayerGrowthState;
-import com.poro.empire.growth.engine.PotentialGrade;
-import com.poro.empire.growth.engine.PotentialLine;
-import com.poro.empire.growth.engine.PotentialProfile;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -46,52 +42,19 @@ public final class WeaponItemFactory {
         return item;
     }
 
-    /** 무기 변경 GUI와 동일 형식의 lore (강화/등급/잠재/세부스탯/각인). */
+    /**
+     * 장비 lore — 정본 렌더러({@link EquipmentLoreRenderer})에 위임하여 GUI 아이콘/무기 변경 GUI와
+     * 완전히 동일한 형식·한글 표기(잠재 등급·각인명)를 사용한다. 무기별 독립 인스턴스 기준.
+     */
     public static List<Component> buildLore(PlayerGrowthState state, WeaponType wt) {
-        List<Component> lore = new ArrayList<>();
-        lore.add(legacy("§7──────────────────"));
-
         PlayerEquipmentItem eq = state.inventoryItem(WeaponGui.weaponInstanceId(wt)).orElse(null);
-        if (eq != null) {
-            lore.add(legacy("§7강화   : §e+" + eq.enhanceLevel() + "강"));
-            lore.add(legacy("§7등급   : " + gradeColor(eq.grade()) + eq.grade().displayName()));
-            PotentialProfile pp = eq.potentialProfile();
-            if (pp != null && !pp.lines().isEmpty()) {
-                lore.add(legacy("§7잠재   : " + gradeColor(pp.grade()) + pp.grade().name()
-                        + " §7(" + pp.lines().size() + "라인)"));
-            } else {
-                lore.add(legacy("§7잠재   : §8없음"));
-            }
-            List<PotentialLine> sub = eq.substatLines();
-            lore.add(legacy("§7세부스탯: " + (sub.isEmpty() ? "§8없음" : "§f" + sub.size() + "줄")));
-        } else {
-            lore.add(legacy("§8장착 장비 없음"));
+        // 무기별 독립 각인(DL-110) — 해당 무기 타입(classId)의 각인을 표시.
+        String engravingId = state.classEngravingId(wt.name().toLowerCase(java.util.Locale.ROOT));
+        List<Component> lore = new ArrayList<>();
+        for (String line : EquipmentLoreRenderer.baseLore(eq, true, engravingId)) {
+            lore.add(legacy(line));
         }
-
-        String eid = state.classEngravingId();
-        lore.add(legacy("§7각인   : " + (eid != null && !eid.isBlank() ? "§a" + eid : "§8없음")));
-        lore.add(legacy("§7──────────────────"));
         return lore;
-    }
-
-    private static String gradeColor(ItemGrade g) {
-        return switch (g) {
-            case COMMON -> "§7";
-            case RARE   -> "§9";
-            case EPIC   -> "§5";
-            case UNIQUE -> "§6";
-            case LEGENDARY -> "§c";
-        };
-    }
-
-    private static String gradeColor(PotentialGrade g) {
-        return switch (g) {
-            case COMMON -> "§7";
-            case RARE   -> "§9";
-            case EPIC   -> "§5";
-            case UNIQUE -> "§6";
-            case LEGENDARY -> "§c";
-        };
     }
 
     private static Component legacy(String s) {

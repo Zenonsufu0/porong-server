@@ -17,12 +17,14 @@ public final class PotentialService {
     private static final String MATERIAL_GOLD = "gold";
     private static final long CUBE_USE_GOLD_COST = 500L;
 
-    // 메모리얼 승급 확률 (단조 상승, COMMON 시작 / DL-094). 레전더리 기대 ~96큐브(~48k골드).
+    // 메모리얼 승급 확률 (단조 상승, COMMON 시작 / DL-094 → DL-111 재조정).
+    // 수급량 역산(economy-reviewer): 일반~200·선발대~1300큐브/45일 대비 "전설=상위 0.5~1%"가
+    // 성립하려면 전설 기댓값을 ~1,040큐브로 격리해야 함. 유니크까지(~40큐브)는 큐브 후함 철학 유지.
     private static final Map<PotentialGrade, Double> UPGRADE_CHANCE_BY_GRADE = Map.of(
-            PotentialGrade.COMMON, 0.25d,   // → RARE
-            PotentialGrade.RARE, 0.12d,     // → EPIC
-            PotentialGrade.EPIC, 0.06d,     // → UNIQUE
-            PotentialGrade.UNIQUE, 0.015d   // → LEGENDARY
+            PotentialGrade.COMMON, 0.22d,   // → RARE   (누적 ~4.5)
+            PotentialGrade.RARE, 0.10d,     // → EPIC   (누적 ~14.5)
+            PotentialGrade.EPIC, 0.04d,     // → UNIQUE (누적 ~39.5)
+            PotentialGrade.UNIQUE, 0.001d   // → LEGENDARY (누적 ~1,040)
     );
 
     private final ItemMasterRegistry itemMasterRegistry;

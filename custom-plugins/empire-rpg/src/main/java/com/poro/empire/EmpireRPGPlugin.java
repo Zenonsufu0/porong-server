@@ -267,6 +267,8 @@ public final class EmpireRPGPlugin extends JavaPlugin {
             return;
         }
         this.growthEngineRuntime = growthEngineResult.value();
+        // 장비 lore 정본 렌더러에 각인 레지스트리 주입 — 손무기/무기변경/GUI 아이콘 각인 한글화 (DL-109 후속).
+        com.poro.empire.gui.EquipmentLoreRenderer.init(growthEngineRuntime.engravingRegistry());
         this.foundationContext.logger().domain("growth-engine").info("Growth engine bootstrap completed.");
 
         Result<LifeEngineRuntime> lifeEngineResult = LifeEngineBootstrap.bootstrap(this, foundationContext, masterRegistryContext);

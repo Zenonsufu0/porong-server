@@ -100,9 +100,14 @@ public final class AdminPlayerCommand implements CommandExecutor {
     }
 
     // ─── /empire-currency <player> <code> <±N> ───────────────────────
+    // code는 내부 코드(gold/mat_stone_enhance/mat_cube/mat_cube_fragment) 또는 한글/약어 별칭 허용.
     private boolean handleCurrency(CommandSender s, UUID uuid, String name, String[] args) {
-        if (args.length < 3) { s.sendMessage("§c사용법: /empire-currency <플레이어> <code> <±N>"); return true; }
-        String code = args[1];
+        if (args.length < 3) {
+            s.sendMessage("§c사용법: /empire-currency <플레이어> <재화> <±N>");
+            s.sendMessage("§7재화: §f골드(gold) §7| §f강화석(stone) §7| §f큐브(cube) §7| §f큐브조각(frag)");
+            return true;
+        }
+        String code = resolveCurrencyCode(args[1]);
         long delta = parseLong(args[2], 0);
         PlayerGrowthState st = ensureGrowthState(uuid);
         if (st == null) { s.sendMessage("§c성장 데이터 없음"); return true; }
@@ -187,6 +192,17 @@ public final class AdminPlayerCommand implements CommandExecutor {
 
     private long parseLong(String s, long def) {
         try { return Long.parseLong(s); } catch (Exception e) { return def; }
+    }
+
+    /** 재화 입력(한글/약어/내부코드) → 내부 통화 코드. 알 수 없으면 원본 그대로(임의 통화 직접 지정 허용). */
+    private String resolveCurrencyCode(String input) {
+        return switch (input.trim().toLowerCase(Locale.ROOT)) {
+            case "골드", "gold", "g"                  -> "gold";
+            case "강화석", "stone", "s"                -> "mat_stone_enhance";
+            case "큐브", "cube", "c"                  -> "mat_cube";
+            case "큐브조각", "fragment", "frag", "f"    -> "mat_cube_fragment";
+            default -> input;
+        };
     }
 
     private PlayerGrowthState ensureGrowthState(UUID uuid) {

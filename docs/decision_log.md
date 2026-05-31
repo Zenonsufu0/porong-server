@@ -4,6 +4,42 @@
 
 ---
 
+### DL-111 잠재(큐브) 승급 확률 재조정 — 전설 극희귀 격리 (DL-094 후속)
+
+**배경:** 라이브 검증 중 "큐브 24개로 전설 달성" 발생. economy-reviewer 수급량 역산 결과, 실제 원인은 확률이 아니라 **수급량 대비 목표 미스매치**로 확인. 일반 유저 45일 ~200큐브 / 선발대 ~1,300큐브 수급인데 전설 기댓값이 96큐브(DL-094)라 일반 유저도 전설 2회분 확보 → "전설=상위 0.5~1% 희귀" 의도와 정반대.
+
+**결정 (사용자 선택 A안):** 유니크까지는 큐브 후함 철학 유지, **전설(유니크→전설)만 대폭 격리**.
+- 확률: 0.25/0.12/0.06/0.015 → **0.22/0.10/0.04/0.001**
+- 누적 기댓값: 레어 ~4.5 / 에픽 ~14.5 / 유니크 ~39.5 / **전설 ~1,040큐브**
+- 선발대 가용(~1,300) 대비 전설 1회분 미만 도달 = 상위 0.5~1% 성립. 일반 유저 전설 도달률 사실상 0.
+- 골드(큐브당 500G)·단조 상승 구조는 유지 (병목은 큐브, 단조 상승은 후함 원인 아님 — economy-reviewer 의견).
+
+**결과:**
+- 코드: `PotentialService.UPGRADE_CHANCE_BY_GRADE` 4값 교체(1곳).
+- 문서: `equipment_growth_spec §1.3` 메모리얼 확률표 갱신 필요(후속).
+
+**운영 체크포인트:** 오픈 30일 전설 도달 인원이 활성 1% 초과 시 UNIQUE 0.001→0.0007 추가 하향. 큐브 경매 시세 폭락 시 = 수급(정예몹 조각률 필드5 15%) 손볼 신호. "24개 전설"이 다수면 배포 jar 확률값/조각 중복적립 버그 점검.
+
+**관련:** DL-094(메모리얼 승급 확정), `economy_numbers_v2 §0·§12`, `drop_tables_v1 §5·§6`.
+
+---
+
+### DL-110 무기별 독립 각인 전환 + 장비 lore 정본 통일 + 표시 한글화
+
+**배경:** DL-109 후속 라이브 검증. "도끼로 바꿨는데 석궁 각인이 뜨고 영어로 표시" 버그. 근본 원인 2가지 — (1) 각인이 `classEngravingId` 단일 필드라 무기 변경 시 잔존, (2) 장비 lore가 3곳(`equipBaseLore`·`WeaponItemFactory`·`buildWeaponChangeIcon`)에 복제돼 한글화가 일부만 적용. DL-109의 "정본 통일"이 GUI 5종만 고치고 손무기/무기변경 아이콘은 누락했던 것.
+
+**변경 (custom-plugins/empire-rpg):**
+1. **무기별 독립 각인 (영속화 스키마 v5→v6)** — `PlayerGrowthState.classEngravingId`(단일 String) → `Map<classId, engravingId>`. `classEngravingId()`=현재 무기 각인, `classEngravingId(classKey)` 오버로드 추가. 강화/잠재가 무기별 인스턴스(`weapon_<타입>`)인 것과 대칭. `PlayerSaveData`에 `classEngravingByClass` 필드 + `CURRENT_VERSION 6`. `PlayerPersistenceService` v5→v6 마이그레이션(단일값→현재 classId 키 이관). 무기를 왕복해도 각 무기가 자기 각인 보유.
+2. **lore 정본 통일** — `EquipmentLoreRenderer`(신규, static + enable 시 registry 주입). `equipBaseLore`·`WeaponItemFactory.buildLore`·`buildWeaponChangeIcon` 3곳이 모두 이 단일 정본에 위임. 각인 한글명(`engravingDisplayName`)·잠재 등급/옵션 한글 헬퍼를 렌더러로 이관.
+3. **표시 한글화/정합** — 스코어보드 각인 한글명 + 청록(§b) 강조(DL-109 미완 해소, `ScoreboardService`). 강화 GUI 강화시도 버튼 무기명 영어(`Training Sword`) → 정본 한글(`equipDisplayName`). 잠재 GUI 등급/옵션 영어 → 한글(`potentialGradeKr`/`potentialOptionKr` 재사용).
+4. **운영자 지급 명령 별칭** — `/empire-currency`에 한글/약어(골드·강화석·큐브·큐브조각) 매핑 추가(`AdminPlayerCommand.resolveCurrencyCode`).
+
+**남은 작업(묶음 B 예정):** 강화단계별 고정스탯 lore 표시(무기 ATK 반영됨/방어구 DEF 보너스 미구현), 큐브 결과 미선택 시 연속 재롤, 잠재 GUI 현재 옵션 안내.
+
+**관련:** DL-109(정본 통일 1차), DL-104(무기별 독립 인스턴스), DL-103(방어구 재질 변경 제거).
+
+---
+
 ### DL-109 성장 GUI 정본 통일 + 직업변경 각인 연동 + 손무기 실시간 lore
 
 **배경:** 라이브 검증으로 강화/잠재/각인/전승/캐릭터 GUI의 장비 표시가 제각각이고, 직업 변경이 각인과 연동 안 되던 문제 일괄 수정.

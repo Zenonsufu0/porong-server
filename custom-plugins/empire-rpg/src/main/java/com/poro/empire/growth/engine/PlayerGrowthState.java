@@ -21,7 +21,9 @@ public final class PlayerGrowthState {
     private int mobIlHitCount   = 0;
     private int catalystBonusPct = 0;
 
-    private String classEngravingId = "";
+    // 무기별 독립 클래스 각인 (DL-110) — key = classId(무기 타입 lowercase), value = engravingId.
+    // 강화/잠재가 무기별 인스턴스(weapon_<타입>)인 것과 대칭. 단일 필드 시절 "무기 변경 후 이전 각인 잔존" 버그 해소.
+    private final Map<String, String> classEngravingByClass = new LinkedHashMap<>();
 
     private int  playerLevel = 1;
     private int  unspentPts  = 0;
@@ -199,12 +201,33 @@ public final class PlayerGrowthState {
         return Map.copyOf(new LinkedHashMap<>(equippedRunes));
     }
 
+    /** 현재 직업(무기)의 클래스 각인 ID. 무기별 독립 저장(DL-110) — classId 키로 조회. */
     public String classEngravingId() {
-        return classEngravingId;
+        return classEngravingByClass.getOrDefault(classId, "");
     }
 
+    /** 특정 직업(무기 classId)의 클래스 각인 ID — 무기 변경 GUI 등 '다른 무기' 표시용. */
+    public String classEngravingId(String classKey) {
+        return classEngravingByClass.getOrDefault(normalize(classKey), "");
+    }
+
+    /** 현재 직업(무기)에 클래스 각인 설정/해제. 빈값이면 해당 무기의 각인을 제거한다. */
     public void setClassEngravingId(String classEngravingId) {
-        this.classEngravingId = normalize(classEngravingId);
+        String norm = normalize(classEngravingId);
+        if (norm.isBlank()) classEngravingByClass.remove(classId);
+        else classEngravingByClass.put(classId, norm);
+    }
+
+    /** 영속화 복원용 — 특정 직업(무기)에 각인을 직접 적재. */
+    public void restoreClassEngraving(String classKey, String engravingId) {
+        String k = normalize(classKey);
+        String v = normalize(engravingId);
+        if (k.isBlank() || v.isBlank()) return;
+        classEngravingByClass.put(k, v);
+    }
+
+    public Map<String, String> classEngravingByClassSnapshot() {
+        return Map.copyOf(new LinkedHashMap<>(classEngravingByClass));
     }
 
     public void equipCommonEngraving(int slotNo, EquippedCommonEngraving value) {
