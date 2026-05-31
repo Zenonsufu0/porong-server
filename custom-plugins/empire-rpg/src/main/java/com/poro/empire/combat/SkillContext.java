@@ -4,6 +4,7 @@ import com.poro.empire.boss.room.BossDamageTracker;
 import com.poro.empire.combat.weapon.WeaponType;
 import com.poro.empire.common.registry.master.ItemMasterRegistry;
 import com.poro.empire.growth.GrowthStateStore;
+import com.poro.empire.growth.engine.EquipmentSlot;
 import com.poro.empire.growth.engine.PlayerEquipmentItem;
 import com.poro.empire.growth.engine.PlayerGrowthState;
 import com.poro.empire.growth.engine.PotentialLine;
@@ -12,6 +13,8 @@ import com.poro.empire.listener.MobTagHelper;
 import com.poro.empire.storage.PlayerDataManager;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+
+import java.util.Map;
 
 public class SkillContext {
     private final PlayerDataManager playerDataManager;
@@ -48,6 +51,32 @@ public class SkillContext {
 
     public ResourceTracker getResourceTracker() {
         return resourceTracker;
+    }
+
+    // 방어구 부위별 베이스 DEF 정본 (combat_balance_v2 §1, 합 52 → 0강 20.6% 경감).
+    // ItemMaster에 DEF 전용 필드가 없어(투구 baseStatType=HP) 상수맵으로 보유 — 강화/잠재/인내는 2~3단계(DL-113).
+    private static final Map<EquipmentSlot, Double> BASE_DEF = Map.of(
+            EquipmentSlot.HELMET, 0.0d,
+            EquipmentSlot.CHESTPLATE, 15.0d,
+            EquipmentSlot.LEGGINGS, 30.0d,
+            EquipmentSlot.BOOTS, 7.0d
+    );
+
+    /**
+     * 플레이어 총 방어력(DEF) 정본 — 방어구 4부위 베이스 DEF(풀세트 0강 = 52) + 인내트리(0.4/pt).
+     * GUI 방어력 표시와 몹→플레이어 DEF/(DEF+200) 경감이 모두 이 값을 사용한다(표시=경감 일치).
+     * 강화 DEF 곡선·잠재 def%는 후속 단계(DL-113 2단계)에서 가산.
+     */
+    public double defense(Player player) {
+        PlayerGrowthState state = playerState(player);
+        double sum = 0.0d;
+        for (Map.Entry<EquipmentSlot, String> e : state.equippedItems().entrySet()) {
+            Double base = BASE_DEF.get(e.getKey());
+            if (base == null) continue; // 방어구 슬롯만
+            if (state.inventoryItem(e.getValue()).isPresent()) sum += base;
+        }
+        sum += Math.max(0, state.endurPts()) * 0.4d; // 인내 트리 방어력(코드 기존 계수)
+        return sum;
     }
 
     /** 플레이어의 현재 성장 상태를 반환한다. */

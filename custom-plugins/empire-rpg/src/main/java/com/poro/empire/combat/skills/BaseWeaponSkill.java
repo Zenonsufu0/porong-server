@@ -54,7 +54,9 @@ public abstract class BaseWeaponSkill implements WeaponSkill {
         if (java.util.concurrent.ThreadLocalRandom.current().nextDouble() < ctx.critChance(attacker)) {
             dmg *= ctx.critDamageMultiplier(attacker);
         }
-        target.damage(Math.max(0.01d, dmg), attacker);
+        double finalDmg = Math.max(0.01d, dmg);
+        // 스킬 데미지가 재발생시키는 EntityDamageByEntityEvent를 평타 리스너가 덮어쓰지 않도록 가드.
+        com.poro.empire.combat.SkillDamageGuard.run(() -> target.damage(finalDmg, attacker));
     }
 
     // --- stacks ---

@@ -1,5 +1,6 @@
 package com.poro.empire.listener;
 
+import com.poro.empire.combat.SkillContext;
 import com.poro.empire.combat.SkillService;
 import com.poro.empire.combat.weapon.WeaponType;
 import com.poro.empire.combat.weapon.WeaponTypeResolver;
@@ -24,12 +25,16 @@ public final class SkillInputListener implements Listener {
 
     private final SkillService skillService;
     private final SafeZoneService safeZoneService;
+    private final SkillContext skillContext;
+    /** 기본기 쿨다운 중 좌클릭 평타 계수 — weaponPower × 0.4 (무기 ATK·강화·잠재 반영, 바닐라 재질 데미지 대체). */
+    private static final double BASIC_ATTACK_COEFF = 0.4d;
     /** 이번 스윙에서 이미 스킬을 발동한 플레이어 UUID → 발동 시각(ms). */
     private final Map<UUID, Long> swingFiredAt = new ConcurrentHashMap<>();
 
-    public SkillInputListener(SkillService skillService, SafeZoneService safeZoneService) {
+    public SkillInputListener(SkillService skillService, SafeZoneService safeZoneService, SkillContext skillContext) {
         this.skillService = skillService;
         this.safeZoneService = safeZoneService;
+        this.skillContext = skillContext;
     }
 
     /** LMB 허공 스윙 → slot1 기본기 (논타겟). 엔티티 타격 시 onAttack과 중복 방지. */
@@ -51,6 +56,7 @@ public final class SkillInputListener implements Listener {
      */
     @EventHandler
     public void onAttack(EntityDamageByEntityEvent event) {
+        if (com.poro.empire.combat.SkillDamageGuard.isApplying()) return; // 스킬 데미지 재귀 — 평타 덮어쓰기 방지
         if (!(event.getDamager() instanceof Player player)) return;
         if (safeZoneService.isSafeZone(player.getLocation())) return;
 
@@ -62,9 +68,13 @@ public final class SkillInputListener implements Listener {
         }
 
         String key = slot1Key(WeaponTypeResolver.resolve(player));
-        if (key != null && skillService.useSkill(player, key)) {
-            event.setCancelled(true);
+        if (key == null) return; // 무기 미장착 — 바닐라 유지
+        if (skillService.useSkill(player, key)) {
+            event.setCancelled(true); // 기본기 발동
+            return;
         }
+        // 기본기 쿨다운 중 — 바닐라(재질 기본) 대신 ATK 기반 평타로 데미지 교체(무기 ATK·강화·잠재 반영).
+        event.setDamage(skillContext.weaponPower(player) * BASIC_ATTACK_COEFF);
     }
 
     /** RMB → slot2 이동기 / Shift+RMB → slot3 특수기 */

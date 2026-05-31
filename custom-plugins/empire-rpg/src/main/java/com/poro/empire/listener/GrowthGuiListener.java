@@ -2,6 +2,7 @@ package com.poro.empire.listener;
 
 import com.poro.empire.combat.CombatStateService;
 import com.poro.empire.combat.SkillService;
+import com.poro.empire.combat.SkillContext;
 import com.poro.empire.combat.WeaponPowerCalculator;
 import com.poro.empire.combat.WeaponSkill;
 import com.poro.empire.combat.weapon.WeaponType;
@@ -228,6 +229,7 @@ public final class GrowthGuiListener implements Listener {
     @SuppressWarnings("unused")
     private final Plugin                     plugin;
     private SkillService                     skillService;       // setter injection (초기화 순서상)
+    private SkillContext                     skillContext;       // 방어력 정본 조회용(setter injection)
     private HealthHudListener                healthHudListener;  // setter injection (HUD 알림 오버라이드)
 
     public GrowthGuiListener(
@@ -255,6 +257,7 @@ public final class GrowthGuiListener implements Listener {
     // ═══════════════════════════════════════════════════════════════
 
     public void setSkillService(SkillService svc) { this.skillService = svc; }
+    public void setSkillContext(SkillContext ctx) { this.skillContext = ctx; }
     public void setHealthHudListener(HealthHudListener listener) { this.healthHudListener = listener; }
 
     public void openEquipHub(Player player)   { openEquipmentHub(player); }
@@ -1627,7 +1630,7 @@ public final class GrowthGuiListener implements Listener {
         int endurPts    = state.endurPts();
         double critRate    = 5.0   + critPts  * 0.30;
         double critDmgPct  = 150.0 + critPts  * 0.15;
-        double defBonus    = endurPts * 0.4;
+        double defBonus    = skillContext != null ? skillContext.defense(player) : endurPts * 0.4; // 방어구 베이스 DEF + 인내(정본)
         double dmgRedPct   = endurPts * 0.15;
         double bossDmgPct  = sumOptionFromEquipped(state, "boss_damage_increase");
         List<String> lore = List.of(

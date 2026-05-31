@@ -38,6 +38,8 @@ public final class WeaponItemFactory {
             meta.getPersistentDataContainer().set(
                     WeaponTypeResolver.WEAPON_TYPE_KEY, PersistentDataType.STRING, wt.name());
         }
+        meta.setUnbreakable(true); // 성장 무기는 내구도 소모 없음(데미지는 스킬/평타 ATK 기반)
+        meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE, org.bukkit.inventory.ItemFlag.HIDE_ATTRIBUTES);
         item.setItemMeta(meta);
         return item;
     }

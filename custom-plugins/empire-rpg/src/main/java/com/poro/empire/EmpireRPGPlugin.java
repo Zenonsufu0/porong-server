@@ -140,6 +140,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
     private OperationsQueryRuntime operationsQueryRuntime;
     private PlayerDataManager playerDataManager;
     private SkillService skillService;
+    private SkillContext skillContext;
     private ReputationManager reputationManager;
     private ResourceTracker resourceTracker;
     private HotbarService hotbarService;
@@ -401,7 +402,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         PvpFriendlyService pvpFriendlyService = new PvpFriendlyService(this, pvpMatchService);
         this.pvpHubListener     = new PvpHubListener(pvpRatingService, pvpMatchService, pvpFriendlyService);
         this.resourceTracker = new ResourceTracker();
-        SkillContext skillContext = new SkillContext(
+        this.skillContext = new SkillContext(
                 playerDataManager, this.cooldownManager, this.resourceTracker,
                 growthStateStore,
                 masterRegistryContext.itemMasters(),
@@ -434,6 +435,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         skillService.registerSkill(new StaffArcaneRushSkill());
         skillService.registerSkill(new StaffStarburstSkill(this));
         growthGuiListener.setSkillService(skillService);
+        growthGuiListener.setSkillContext(this.skillContext);
 
         registerCommands();
         registerListeners(fieldStateProvider, fieldBossScheduler);
@@ -691,6 +693,8 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                 new FarmGuiListener(islandTerritoryStateStore, islandStorageStore), this);
         // 바닐라 XP 바 억제 — 커스텀 레벨링만 노출 (DL-085)
         getServer().getPluginManager().registerEvents(new com.poro.empire.listener.VanillaExpSuppressListener(), this);
+        // 몹→플레이어 방어구 DEF 경감 — 몹 종류(MythicMobs/바닐라) 무관 항상 등록(DL-113 1단계)
+        getServer().getPluginManager().registerEvents(new com.poro.empire.listener.PlayerDefenseListener(this.skillContext), this);
         if (getServer().getPluginManager().isPluginEnabled("MythicMobs")) {
             getServer().getPluginManager().registerEvents(
                     new FieldDropListener(growthStateStore, islandTerritoryStateStore, playerDataManager,
@@ -716,7 +720,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         SafeZoneService safeZoneService = worldGuardEnabled
                 ? new WorldGuardSafeZoneService()
                 : new NoopSafeZoneService();
-        getServer().getPluginManager().registerEvents(new SkillInputListener(skillService, safeZoneService), this);
+        getServer().getPluginManager().registerEvents(new SkillInputListener(skillService, safeZoneService, this.skillContext), this);
         getServer().getPluginManager().registerEvents(auctionGuiListener, this);
         getServer().getPluginManager().registerEvents(fieldHubListener, this);
         getServer().getPluginManager().registerEvents(bossHubListener, this);

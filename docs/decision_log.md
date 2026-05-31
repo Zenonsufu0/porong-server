@@ -4,6 +4,26 @@
 
 ---
 
+### DL-113 방어구 DEF 1단계 + 전투 핵심 수정(평타·내구도·스킬 재진입)
+
+**배경:** 라이브 검증. (1) 방어구가 강화/표시는 되는데 실제 피해 감소에 전혀 반영 안 됨(몹→플레이어 바닐라 경로). (2) "현재 스탯" 방어력이 0으로 표시(인내 보너스만, 방어구 베이스 누락). (3) 공격력 93인데 철골렘이 안 죽음 — 디버그 결과 스킬 데미지(163)가 평타(37)로 덮어써지는 재진입 버그. (4) 무기 내구도 소모.
+
+**전투 구조 확정(조사):** 좌클릭=스킬(바닐라 취소). 스킬 데미지는 `CombatFormulaResolver`로 무기 ATK(`WeaponPowerCalculator`) 반영. 단 몹→플레이어 피격은 바닐라라 방어구 DEF 미적용. `combat_balance_v2 §1` 정본 베이스 DEF = 투구0/상의15/하의30/신발7 = **52**(item_master.csv 150은 고립값, 폐기).
+
+**변경 (custom-plugins/empire-rpg):**
+1. **방어구 DEF 1단계 (피격 경감 파이프라인)** — `SkillContext.defense()` 신규(방어구 베이스 DEF 상수맵 52 + 인내 0.4/pt). `PlayerDefenseListener`(신규) — 몹→플레이어 `EntityDamageByEntityEvent`에 `DEF/(DEF+200)` 경감(0강 20.6%). PvP·환경피해 제외. 강화 DEF 곡선·잠재 def%는 2~3단계로 분리.
+2. **방어력 정본 통일** — "현재 스탯" GUI(`GrowthGuiListener:1630`)가 `skillContext.defense()` 호출 → 표시=경감 일치(방어구 베이스 포함). 단일 정본화.
+3. **ATK 기반 평타** — 기본기 쿨다운(3~4초) 중 좌클릭이 바닐라 재질 데미지로 새던 것을 `weaponPower × 0.4`로 교체(`SkillInputListener`). 무기 ATK·강화·잠재 반영.
+4. **무기 내구도 보호** — `WeaponItemFactory`에 `setUnbreakable(true)` + ItemFlag 숨김. (기존 손무기는 재생성 시 적용)
+5. **검 기본기 적중** — `SwordFlashSlashSkill` 타격 판정을 돌진(`dashForward`) 전으로 — 붙어서 쳐도 arc(전방 120°) 빗나감 해소. (돌진 있는 건 검만)
+6. **스킬 데미지 재진입 가드(핵심)** — `SkillDamageGuard`(신규, ThreadLocal). 스킬 `target.damage()`가 재발생시키는 `EntityDamageByEntityEvent`를 평타 리스너가 `setDamage`로 덮어쓰던 버그(163→37) 차단. `BaseWeaponSkill.dealDamage` 한 곳에 적용돼 전 무기 스킬 공통.
+
+**남은 작업:** 방어구 강화 DEF 곡선(2단계, `ARMOR_DEF_COEF`), 잠재 def%·곱산 상한(3단계), 몹→플레이어 ATK 정본표 신규. 평타 계수 0.4 라이브 튜닝.
+
+**관련:** DL-104(무기별 인스턴스), `combat_balance_v2 §1·§2`, `level_stat_system_v1 §7`.
+
+---
+
 ### DL-112 잠재 큐브 연속 재롤 + 잠재 GUI 현재 옵션 안내 + 무기 강화스탯 lore
 
 **배경:** 라이브 검증 요청. (1) 큐브 굴린 후 [현재 유지]/[새 옵션 선택]을 강제로 눌러야 다음 큐브 가능 → "선택 없이 계속 돌리고 싶다". (2) 잠재 GUI에서 선택한 장비의 현재 잠재 옵션이 안 보임. (3) 무기 lore에 강화 단계만 있고 그로 인한 스탯 증가가 안 보여 "강화 체감 불가".
