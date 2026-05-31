@@ -1,5 +1,6 @@
 package com.poro.empire.gui;
 
+import com.poro.empire.combat.WeaponPowerCalculator;
 import com.poro.empire.growth.engine.EngravingRegistry;
 import com.poro.empire.growth.engine.ItemGrade;
 import com.poro.empire.growth.engine.PlayerEquipmentItem;
@@ -48,7 +49,15 @@ public final class EquipmentLoreRenderer {
         List<String> lore = new ArrayList<>();
         lore.add("§7──────────────────");
         if (item != null) {
-            lore.add("§7강화   : §e+" + item.enhanceLevel() + "강");
+            // 무기는 강화 단계별 고정 ATK 보너스(WeaponPowerCalculator) 병기 — 강화 체감 가시화(DL-112).
+            // 방어구 DEF 보너스는 정본/계산 미구현이라 별도 작업으로 분리.
+            if (isWeapon) {
+                int atkBonus = WeaponPowerCalculator.enhanceAtkBonus(item.enhanceLevel());
+                lore.add("§7강화   : §e+" + item.enhanceLevel() + "강"
+                        + (atkBonus > 0 ? " §7(공격력 §c+" + atkBonus + "§7)" : ""));
+            } else {
+                lore.add("§7강화   : §e+" + item.enhanceLevel() + "강");
+            }
             lore.add("§7등급   : " + gradeColor(item.grade()) + item.grade().displayName());
             PotentialProfile pp = item.potentialProfile();
             if (pp != null && !pp.lines().isEmpty()) {

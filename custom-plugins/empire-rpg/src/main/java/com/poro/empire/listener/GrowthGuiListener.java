@@ -646,9 +646,9 @@ public final class GrowthGuiListener implements Listener {
     }
 
     private void handlePotentialClick(Player player, int slot) {
-        // 대기 결과 강제 선택: CUR_KEEP·NEW_SELECT 외 모든 클릭 차단
+        // 대기 결과 중에도 큐브 재클릭은 허용(선택 없이 연속 재롤, DL-112) — CUR_KEEP·NEW_SELECT·USE_CUBE 외만 차단.
         if (pendingPotentialResult.containsKey(player.getUniqueId())
-                && slot != POT_SLOT_CUR_KEEP && slot != POT_SLOT_NEW_SELECT) {
+                && slot != POT_SLOT_CUR_KEEP && slot != POT_SLOT_NEW_SELECT && slot != POT_SLOT_USE_CUBE) {
             player.sendMessage("§c먼저 결과를 선택하세요: §e[현재 유지] §cor §b[새 옵션 선택]");
             return;
         }
@@ -674,11 +674,13 @@ public final class GrowthGuiListener implements Listener {
         if (slot == POT_SLOT_USE_CUBE) {
             String instanceId = selectedPotentialId.get(player.getUniqueId());
             if (instanceId == null) { player.sendMessage("§c먼저 장비를 선택하세요."); return; }
-            if (pendingPotentialResult.containsKey(player.getUniqueId())) {
-                player.sendMessage("§c먼저 현재 결과를 선택(확정/유지)하세요."); return;
-            }
             if (combatStateService.isInCombat(player.getUniqueId())) {
                 player.sendMessage("§c전투 중에는 잠재능력을 변경할 수 없습니다."); return;
+            }
+            // 미확정 결과가 있으면 자동으로 기존 유지(before 복원) 후 재굴림 — 선택 없이 연속 재롤(DL-112).
+            PotentialService.PotentialOperationResult prev = pendingPotentialResult.remove(player.getUniqueId());
+            if (prev != null && prev.before() != null) {
+                getState(player).updatePotentialProfile(instanceId, prev.before());
             }
             rollPotential(player, instanceId);
             return;
@@ -766,9 +768,8 @@ public final class GrowthGuiListener implements Listener {
         inv.setItem(POT_SLOT_RESOURCE, MainHubGui.icon(Material.NETHER_STAR, "§7보유 자원",
                 List.of("§7큐브: §e" + state.currency("mat_cube"),
                         "§7골드: §e" + state.currency("gold"))));
-        // 큐브 버튼 비활성화 (선택 전까지)
-        inv.setItem(POT_SLOT_USE_CUBE, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§8큐브 사용",
-                List.of("§7선택 확정 후 다시 사용 가능")));
+        // 큐브 버튼 활성 유지 — 선택 없이 큐브를 다시 눌러 연속 재굴림(직전 후보는 자동 폐기, DL-112).
+        refreshPotentialCubeButton(inv, state, instanceId, false);
     }
 
     private void fillPotentialEquipSelector(Inventory inv, PlayerGrowthState state, String selectedInstanceId) {
@@ -816,11 +817,24 @@ public final class GrowthGuiListener implements Listener {
             prevMat  = EQUIP_MATERIAL.getOrDefault(prevSlot, Material.NETHER_STAR);
             itemName = item != null ? itemDisplayName(item) : instanceId;
         }
+        // 선택한 장비의 현재 잠재능력 안내 — 등급 + 옵션 라인 전체 나열(DL-112).
+        List<String> previewLore = new ArrayList<>();
+        previewLore.add("§7──────────────");
+        if (profile != null && !profile.lines().isEmpty()) {
+            previewLore.add("§7잠재 등급: " + gradeColor(profile.grade()) + EquipmentLoreRenderer.potentialGradeKr(profile.grade()));
+            previewLore.add("§7현재 옵션:");
+            for (PotentialLine pl : profile.lines()) {
+                previewLore.add("§8 · " + EquipmentLoreRenderer.potentialOptionKr(pl.optionCode())
+                        + " §e+" + String.format("%.2f", pl.value()));
+            }
+        } else {
+            previewLore.add("§7잠재 등급: §8없음");
+            previewLore.add("§7큐브를 돌려 잠재능력을 부여하세요");
+        }
         inv.setItem(POT_SLOT_PREVIEW, MainHubGui.icon(
                 prevMat,
                 "§f" + itemName + (item != null ? " §e+" + item.enhanceLevel() + "강" : ""),
-                List.of("§7──────────────",
-                        "§7잠재 등급: " + (profile != null ? gradeColor(profile.grade()) + EquipmentLoreRenderer.potentialGradeKr(profile.grade()) : "§8없음"))));
+                previewLore));
         // 자원 표시
         inv.setItem(POT_SLOT_RESOURCE, MainHubGui.icon(Material.NETHER_STAR, "§7보유 자원",
                 List.of("§7큐브: §e" + state.currency("mat_cube"),
