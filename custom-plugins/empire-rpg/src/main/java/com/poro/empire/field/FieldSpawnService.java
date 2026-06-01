@@ -32,6 +32,7 @@ public final class FieldSpawnService {
 
     // 튜닝 상수 (INBOX-006 시작값)
     private static final long   INTERVAL_TICKS = 300L; // 15초
+    private static final long   STRAY_INTERVAL_TICKS = 20L; // 1초 — 경계 이탈 몹 정리
     private static final int    BATCH          = 12;   // 웨이브당 스폰 수(일반)
     private static final int    PLAYER_CAP     = 40;   // 플레이어당 standing 상한
     private static final int    FIELD_CAP      = 250;  // 필드 전체 상한
@@ -88,8 +89,10 @@ public final class FieldSpawnService {
             return;
         }
         Bukkit.getScheduler().runTaskTimer(plugin, this::tick, INTERVAL_TICKS, INTERVAL_TICKS);
+        Bukkit.getScheduler().runTaskTimer(plugin, this::removeStrayMobs, STRAY_INTERVAL_TICKS, STRAY_INTERVAL_TICKS);
         plugin.getLogger().info("[FieldSpawn] 동적 필드 스폰 활성 — " + fields.size()
-                + "개 필드, 주기 " + (INTERVAL_TICKS / 20) + "s, 플레이어캡 " + PLAYER_CAP + "/필드캡 " + FIELD_CAP + ".");
+                + "개 필드, 주기 " + (INTERVAL_TICKS / 20) + "s, 플레이어캡 " + PLAYER_CAP + "/필드캡 " + FIELD_CAP
+                + ", 경계 이탈 정리 " + (STRAY_INTERVAL_TICKS / 20) + "s.");
     }
 
     private void loadFields() {
@@ -133,6 +136,7 @@ public final class FieldSpawnService {
                 if (mobId == null) break;
                 Location loc = randomGroundAround(player);
                 if (loc == null) continue;
+                if (fieldAt(loc) != field) continue; // 경계(±150) 밖이면 스폰하지 않음
                 UUID mob = mythicSpawner.apply(mobId, loc);
                 if (mob == null) continue;
                 owned.add(mob);
@@ -161,6 +165,26 @@ public final class FieldSpawnService {
                 }
             }
             if (ownerOffline && mobs.isEmpty()) it.remove();
+        }
+    }
+
+    /**
+     * 경계(±150) 밖으로 벗어난 추적 몹 제거 — 스폰 존 = WorldBorder와 일치. 1초 주기로 빠르게.
+     * (스폰 자체는 경계 안에서만 — tick의 fieldAt(loc) 검증. 이 메서드는 AI로 배회해 벗어난 개체 정리.)
+     */
+    private void removeStrayMobs() {
+        for (Set<UUID> mobs : ownedMobs.values()) {
+            for (var mit = mobs.iterator(); mit.hasNext(); ) {
+                UUID mobUuid = mit.next();
+                Entity ent = Bukkit.getEntity(mobUuid);
+                if (ent == null || ent.isDead()) continue; // 사망/제거는 prune이 처리
+                Integer fIdx = mobField.get(mobUuid);
+                if (fIdx != null && fieldAt(ent.getLocation()) != fIdx) {
+                    ent.remove();
+                    mit.remove();
+                    mobField.remove(mobUuid);
+                }
+            }
         }
     }
 

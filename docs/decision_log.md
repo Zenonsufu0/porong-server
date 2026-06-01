@@ -4,6 +4,22 @@
 
 ---
 
+### DL-120 동적 스폰 경계 정합 — 경계 밖 스폰 금지 + 이탈 몹 제거 (INBOX-012 후속)
+
+**배경:** DL-119 WorldBorder(±150) 적용 후 사용자 보고 — 경계 밖에도 몹이 스폰됨. 원인: `FieldSpawnService.randomGroundAround`가 플레이어 주변 20~30블록 랜덤 스폰 시 **필드 경계(±150) 미검사** → 가장자리 플레이어 기준 스폰이 경계 밖으로 튐. 또 AI 배회로 경계를 벗어난 몹이 잔존.
+
+**변경 (custom-plugins/empire-rpg):**
+- **스폰 경계 검증** — `tick()` 스폰 루프에 `if (fieldAt(loc) != field) continue` 추가. 경계 안에서만 생성.
+- **이탈 몹 제거** — `removeStrayMobs()` 신규 + 1초 주기 타이머. 추적 몹 중 `fieldAt(위치) != 배정필드`면 `remove()`. 스폰 존=WorldBorder(±150) 동일 판정.
+
+**범위/한계:** FieldSpawnService가 추적하는 **동적 스폰 몹**만 대상. 필드보스(제자리 고정·경계 내 스폰)·수동 /mm 소환(미추적)은 무관. tick 15s는 스폰, 이탈 정리는 1s로 분리.
+
+**검증:** 빌드 통과. 기동 로그 `경계 이탈 정리 1s`. 동적 스폰 실효는 플레이어 필드 진입 시 — 사용자 인게임 확인.
+
+**관련:** DL-119(WorldBorder), DL-100(±150 스폰 존), INBOX-012.
+
+---
+
 ### DL-119 필드 진입 WorldBorder 경계 (INBOX-012)
 
 **배경:** 필드는 단일 `world`의 좌표 기반 300×300 스폰 존(`FieldSpawnService.BOUND_RADIUS=150`)일 뿐 물리·시각 경계가 전무. 맵 설계의 포탈/울타리 경계는 미구현. 사용자가 "필드 진입 시 WorldBorder로 경계 표시" 요청.
