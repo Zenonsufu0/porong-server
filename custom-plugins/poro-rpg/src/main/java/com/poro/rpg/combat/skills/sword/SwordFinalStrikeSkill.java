@@ -26,6 +26,9 @@ public final class SwordFinalStrikeSkill extends BaseWeaponSkill {
         SkillHitboxHelper.line(player, LENGTH, 0.6).forEach(t -> dealDamage(ctx, player, t, damage));
         consumeStacks(ctx, player);
 
+        // 2D 이펙트 디스플레이 (PoC, skill_effect_2d_integration_v1 — cmd 400101)
+        ctx.effectDisplay().spawnFront(400101, player, 2.5, 3.0f, 12);
+
         // 금빛 직선 빔 + 잔광 + 끝점 임팩트
         spawnParticleLine(player, Particle.DUST, FINAL, LENGTH, 30);
         spawnParticleLine(player, Particle.END_ROD, null, LENGTH, 20);

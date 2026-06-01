@@ -422,7 +422,8 @@ public final class PoroRPGPlugin extends JavaPlugin {
                 growthStateStore,
                 masterRegistryContext.itemMasters(),
                 growthEngineRuntime.potentialService(),
-                this.bossDamageTracker);
+                this.bossDamageTracker,
+                new com.poro.rpg.combat.effect.EffectDisplayService(this));
 
         this.skillService = new SkillService(skillContext);
         skillService.registerSkill(new SwordFlashSlashSkill());

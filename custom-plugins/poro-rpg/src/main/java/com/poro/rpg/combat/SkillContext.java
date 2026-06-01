@@ -1,6 +1,7 @@
 package com.poro.rpg.combat;
 
 import com.poro.rpg.boss.room.BossDamageTracker;
+import com.poro.rpg.combat.effect.EffectDisplayService;
 import com.poro.rpg.combat.weapon.WeaponType;
 import com.poro.rpg.common.registry.master.ItemMasterRegistry;
 import com.poro.rpg.growth.GrowthStateStore;
@@ -26,6 +27,7 @@ public class SkillContext {
     private final ItemMasterRegistry itemMasterRegistry;
     private final PotentialService potentialService;
     private final BossDamageTracker bossDamageTracker;
+    private final EffectDisplayService effectDisplayService;
 
     public SkillContext(PlayerDataManager playerDataManager,
                         CooldownManager cooldownManager,
@@ -33,7 +35,8 @@ public class SkillContext {
                         GrowthStateStore growthStateStore,
                         ItemMasterRegistry itemMasterRegistry,
                         PotentialService potentialService,
-                        BossDamageTracker bossDamageTracker) {
+                        BossDamageTracker bossDamageTracker,
+                        EffectDisplayService effectDisplayService) {
         this.playerDataManager   = playerDataManager;
         this.cooldownManager     = cooldownManager;
         this.resourceTracker     = resourceTracker;
@@ -41,6 +44,12 @@ public class SkillContext {
         this.itemMasterRegistry  = itemMasterRegistry;
         this.potentialService    = potentialService;
         this.bossDamageTracker   = bossDamageTracker;
+        this.effectDisplayService = effectDisplayService;
+    }
+
+    /** 2D 스킬 이펙트 디스플레이 서비스 (skill_effect_2d_integration_v1). */
+    public EffectDisplayService effectDisplay() {
+        return effectDisplayService;
     }
 
     public PlayerDataManager getPlayerDataManager() {
