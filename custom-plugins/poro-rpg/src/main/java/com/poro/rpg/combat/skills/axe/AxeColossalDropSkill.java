@@ -22,6 +22,8 @@ public final class AxeColossalDropSkill extends BaseWeaponSkill {
         double damage = scaledDamageWithStacks(ctx, player, 4.55, 0.10);
         SkillHitboxHelper.burst(player, 4.5).forEach(t -> dealDamage(ctx, player, t, damage));
         consumeStacks(ctx, player);
+        // 2D 이펙트: 착탄 균열 (바닥 장판). 공용 임팩트링(400901)은 흰 코어 과다라 보류.
+        ctx.effectDisplay().spawnDecal(400106, player.getLocation(), 11.0f, 14);
 
         // 지면 충격파 2중 고리 + 중앙 폭발 + 거대 타격음
         spawnParticleCircle(player, Particle.DUST, AMBER, 4.5, 40);

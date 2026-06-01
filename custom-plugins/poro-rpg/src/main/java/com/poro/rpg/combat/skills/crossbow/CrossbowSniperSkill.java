@@ -24,7 +24,7 @@ public final class CrossbowSniperSkill extends PluginWeaponSkill {
         SkillHitboxHelper.projectileRaycast(player, 50.0, 0.5)
                 .ifPresent(t -> dealDamage(ctx, player, t, damage));
         consumeStacks(ctx, player);
-        ctx.effectDisplay().spawnGround(400103, player, 50.0, 2.0, 8, 1.2);   // 2D 이펙트 (저격태세 빔, 바닥 전방빔)
+        ctx.effectDisplay().spawnGroundTravel(400103, player, 24.0, 4.0f, 9, 0.6, true);   // 저격태세 (창처럼 평면 + 조준 추종)
 
         // 50블록 정밀 빔 (녹색 + 흰 잔광) + 묵직한 저격음
         spawnBeam(player, Particle.DUST, BOLT, 50.0, 0.4);

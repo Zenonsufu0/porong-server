@@ -21,6 +21,8 @@ public final class ScytheExecutionSkill extends BaseWeaponSkill {
     @Override
     public boolean execute(Player player, SkillContext ctx) {
         consumeStacks(ctx, player);
+        // 2D 이펙트: 전방 2.5블록 처형 표식 (바닥 평면, 발 높이)
+        ctx.effectDisplay().spawnDecal(400108, player.getLocation(), 7.5f, 12);   // 처형 표식 (발 밑, 크게)
         SkillHitboxHelper.line(player, 4.0, 1.0).forEach(t -> {
             var maxHpAttr = t.getAttribute(Attribute.MAX_HEALTH);
             double hpRatio = (maxHpAttr != null && maxHpAttr.getValue() > 0)

@@ -232,6 +232,112 @@ public final class EffectDisplayService {
         return display;
     }
 
+    /**
+     * 바닥 평면 비행 — 수평으로 깔린 스프라이트(법선=위)가 시선 전방으로 {@code range}블록까지 날아간다.
+     * 늘리지 않고 균일 스케일로 활공. {@code heightOffset}: 발 기준 높이.
+     */
+    public ItemDisplay spawnGroundTravel(int cmd, Player player, double range, float scale, int lifeTicks, double heightOffset) {
+        return spawnGroundTravel(cmd, player, range, scale, lifeTicks, heightOffset, false);
+    }
+
+    /**
+     * {@code followPitch}: true면 시선 상하(pitch)까지 따라 3D 조준 방향으로 날아간다(석궁 등 공중 저격).
+     * false면 수평 바닥 평면 비행. 스프라이트 법선은 "전방에 수직인 위"라 수평일 땐 바닥과 동일.
+     */
+    public ItemDisplay spawnGroundTravel(int cmd, Player player, double range, float scale, int lifeTicks,
+                                         double heightOffset, boolean followPitch) {
+        org.bukkit.util.Vector dir = player.getEyeLocation().getDirection().clone();
+        if (!followPitch) dir.setY(0);
+        if (dir.lengthSquared() < 1e-4) dir = new org.bukkit.util.Vector(1, 0, 0);
+        dir.normalize();
+        // followPitch 여부와 무관하게 발 높이 기준 — 수평 조준 시 평면이 눈 아래라 잘 보임(창처럼).
+        Location base = player.getLocation().clone().add(0, heightOffset, 0);
+        Location start = base.clone().add(dir.clone().multiply(1.0));
+        start.setYaw(0f);
+        start.setPitch(0f);
+        Location end = base.clone().add(dir.clone().multiply(range));
+        end.setYaw(0f);     // start와 동일 회전 — 활공 중 yaw 보간(회전) 방지
+        end.setPitch(0f);
+
+        Vector3f fwd = new Vector3f((float) dir.getX(), (float) dir.getY(), (float) dir.getZ()).normalize();
+        Vector3f up0 = Math.abs(fwd.y()) > 0.98f ? new Vector3f(0f, 0f, 1f) : new Vector3f(0f, 1f, 0f);
+        Vector3f nrm = new Vector3f(up0).sub(new Vector3f(fwd).mul(up0.dot(fwd))).normalize(); // 전방에 수직인 위
+        Vector3f side = new Vector3f(nrm).cross(fwd).normalize();
+        Quaternionf q = new Matrix3f().setColumn(0, fwd).setColumn(1, side).setColumn(2, nrm)
+                .getNormalizedRotation(new Quaternionf());
+
+        int glide = Math.max(1, lifeTicks - 2);
+        ItemDisplay display = player.getWorld().spawn(start, ItemDisplay.class, e -> {
+            e.setItemStack(carrier(cmd));
+            e.setBillboard(Display.Billboard.FIXED);
+            e.setBrightness(new Display.Brightness(15, 15));
+            e.setShadowRadius(0f);
+            e.setShadowStrength(0f);
+            e.setPersistent(false);
+            e.setViewRange(1.5f);
+            e.setTeleportDuration(glide);
+            e.setTransformation(new Transformation(
+                    new Vector3f(0f, 0f, 0f), q,
+                    new Vector3f(scale * 0.6f, scale * 0.6f, scale * 0.6f), new Quaternionf()));
+        });
+
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            if (!display.isValid()) return;
+            display.setInterpolationDelay(0);
+            display.setInterpolationDuration(glide);
+            display.setTransformation(new Transformation(
+                    new Vector3f(0f, 0f, 0f), q,
+                    new Vector3f(scale, scale, scale), new Quaternionf()));
+            display.teleport(end);
+        }, 1L);
+
+        plugin.getServer().getScheduler().runTaskLater(plugin,
+                () -> { if (display.isValid()) display.remove(); }, Math.max(1, lifeTicks));
+        return display;
+    }
+
+    /**
+     * 바닥 평면 장판/표식 — 위치 {@code loc}에 수평으로 깔리는 원형/마크 스프라이트(법선=위), 균일 스케일 + 스케일-팝.
+     * 도끼 착탄 균열·스태프 광역 원·낫 처형 표식·공용 임팩트 등.
+     */
+    public ItemDisplay spawnDecal(int cmd, Location loc, float scale, int lifeTicks) {
+        Location at = loc.clone();
+        at.setYaw(0f);
+        at.setPitch(0f);
+
+        Vector3f fwd = new Vector3f(1f, 0f, 0f);
+        Vector3f up = new Vector3f(0f, 1f, 0f);
+        Vector3f side = new Vector3f(up).cross(fwd).normalize();
+        Quaternionf q = new Matrix3f().setColumn(0, fwd).setColumn(1, side).setColumn(2, up)
+                .getNormalizedRotation(new Quaternionf());
+
+        ItemDisplay display = at.getWorld().spawn(at, ItemDisplay.class, e -> {
+            e.setItemStack(carrier(cmd));
+            e.setBillboard(Display.Billboard.FIXED);
+            e.setBrightness(new Display.Brightness(15, 15));
+            e.setShadowRadius(0f);
+            e.setShadowStrength(0f);
+            e.setPersistent(false);
+            e.setViewRange(1.5f);
+            e.setTransformation(new Transformation(
+                    new Vector3f(0f, 0f, 0f), q,
+                    new Vector3f(scale * 0.4f, scale * 0.4f, scale * 0.4f), new Quaternionf()));
+        });
+
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            if (!display.isValid()) return;
+            display.setInterpolationDelay(0);
+            display.setInterpolationDuration(3);
+            display.setTransformation(new Transformation(
+                    new Vector3f(0f, 0f, 0f), q,
+                    new Vector3f(scale, scale, scale), new Quaternionf()));
+        }, 1L);
+
+        plugin.getServer().getScheduler().runTaskLater(plugin,
+                () -> { if (display.isValid()) display.remove(); }, Math.max(1, lifeTicks));
+        return display;
+    }
+
     private static Transformation transform(float scale) {
         return transform(scale, 0f, 0f);
     }

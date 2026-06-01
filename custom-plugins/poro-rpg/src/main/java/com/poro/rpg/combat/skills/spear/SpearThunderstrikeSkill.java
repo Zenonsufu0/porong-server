@@ -22,7 +22,7 @@ public final class SpearThunderstrikeSkill extends BaseWeaponSkill {
         double damage = scaledDamageFullChargeSpike(ctx, player, 2.96, 0.04, 1.20);
         SkillHitboxHelper.line(player, 9.0, 0.8).forEach(t -> dealDamage(ctx, player, t, damage));
         consumeStacks(ctx, player);
-        ctx.effectDisplay().spawnGround(400102, player, 9.0, 2.5, 8, 1.2);   // 2D 이펙트 (천뢰일창, 바닥 전방빔)
+        ctx.effectDisplay().spawnGroundTravel(400102, player, 9.0, 4.0f, 9, 0.6);   // 천뢰일창 (바닥 비행)
 
         // 긴 전격 직선 + 스파크 + 천둥음
         spawnParticleLine(player, Particle.DUST, ELECTRIC, 9.0, 40);
