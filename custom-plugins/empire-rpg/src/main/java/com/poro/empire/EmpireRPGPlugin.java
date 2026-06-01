@@ -677,6 +677,24 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         // 동적 필드 스폰 (INBOX-006) — 필드 내 플레이어 주변 웨이브 스폰. 일반/정예 토글은 2차에서 연결(현재 전원 일반).
         new com.poro.empire.field.FieldSpawnService(this, mythicSpawner, uuid -> false).start();
 
+        // 바닐라 콘텐츠 제거 (INBOX-011) — 필드·영지에서 바닐라 몹/동물 자연 스폰 차단 + 바닐라 드랍 제거
+        java.util.Set<String> controlWorlds = new java.util.HashSet<>();
+        org.bukkit.configuration.ConfigurationSection fieldsCfg = getConfig().getConfigurationSection("fields");
+        if (fieldsCfg != null) {
+            for (String key : fieldsCfg.getKeys(false)) {
+                controlWorlds.add(fieldsCfg.getString(key + ".world", "world"));
+            }
+        }
+        controlWorlds.add("world");      // 필드 오버월드(기본)
+        controlWorlds.add("world_hub");  // 허브
+        // 영지(IridiumSkyblock) — 섬에서도 몹·동물 차단
+        controlWorlds.add("IridiumSkyblock");
+        controlWorlds.add("IridiumSkyblock_nether");
+        controlWorlds.add("IridiumSkyblock_the_end");
+        getServer().getPluginManager().registerEvents(
+                new com.poro.empire.listener.VanillaContentControlListener(controlWorlds), this);
+        getLogger().info("[VanillaContentControl] 바닐라 몹/동물 스폰 차단 + 드랍 제거 활성 — 월드: " + controlWorlds);
+
         // 허브 월드(별도 평지) 보장 + 복귀 유저 접속 시 허브 이동 (INBOX-006 온보딩 코어)
         com.poro.empire.hub.HubWorldService hubWorldService = new com.poro.empire.hub.HubWorldService(this);
         hubWorldService.ensureHubWorld();

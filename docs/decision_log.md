@@ -4,6 +4,22 @@
 
 ---
 
+### DL-118 바닐라 콘텐츠 제거 — 몹/동물 자연 스폰 차단 + 바닐라 드랍 제거 (INBOX-011)
+
+**배경:** 라이브 검증 중 사용자 보고 — (1) 필드에 커스텀 필드몹과 바닐라 몹이 섞여 혼란, (2) 동물도 막아야 함, (3) 영지(섬)에서도 몹·동물 차단, (4) 좀비 처치 시 철·썩은고기 등 바닐라 드랍. 조사: 필드=단일 오버월드 `world` 리전(자연 스폰 제어 전무). 커스텀 몹은 `PreventOtherDrops:true`+드랍테이블 EXP만이라 바닐라 드랍 없음 → (4)는 섞인 바닐라 몹의 드랍.
+
+**결정 (사용자 선택):** 커스텀 RPG 월드에서 **바닐라 생물(몹+동물) 자연 스폰 전면 차단 + 바닐라 아이템 드랍 제거**. 대상 월드 = `world`(필드) + `world_hub`(허브) + `IridiumSkyblock`(+nether/end, 영지).
+
+**구현 (custom-plugins/empire-rpg):**
+- `VanillaContentControlListener`(신규) — ① `CreatureSpawnEvent`: 대상 월드에서 스폰 이유가 **허용셋(CUSTOM·COMMAND·SPAWNER_EGG)** 밖인 모든 생물 취소(몹+동물). Citizens NPC(메타 `NPC`) 보호. ② `EntityDeathEvent`: 비-플레이어·비-NPC 몹 드랍 `getDrops().clear()`(전역). EmpireRPG 보상은 전부 DB(`addCurrency`)라 무영향(코드 전역 `getDrops().add` 부재 확인).
+- `EmpireRPGPlugin` — 대상 월드셋 주입 + 등록.
+
+**검증:** 빌드 통과. 인게임 라이브 — `world`에 Plains_Soldier(CUSTOM) 스폰 **정상 생존 + 오버라이드 atk 4.0**(커스텀 미차단). `/summon zombie`(COMMAND) 정상 소환→처치 시 **아이템 0개**(드랍 제거 실증). NATURAL 자연 스폰 차단은 플레이어 근접 시 발동이라 로직 검증(allowlist 밖)+사용자 필드 최종 확인.
+
+**관련:** INBOX-011, DL-100(필드 리전), DL-117(몹스탯 — 동일 스폰 경로 공존), `FieldDropListener`(DB 보상), `VanillaExpSuppressListener`(바닐라 XP 억제 — 동일 철학).
+
+---
+
 ### DL-117 런타임 몹 스탯 오버라이드 시스템 MVP (INBOX-010 축 A)
 
 **배경:** 몹 HP/DEF/ATK·상점을 플러그인 재배포 없이 인게임 명령으로 핫에딧하려는 운영 요구(INBOX-010). 기획안 `01_plugin_architecture/runtime_admin_config_plan_v1.md` 작성 후 축 A(몹 스탯 ATK·HP) MVP 구현.
@@ -20,7 +36,7 @@
 - **보스 스킬 패턴 데미지(강타/폭발)는 적용 불가** — MythicMobs YAML 상수(기획안 §4.1-C, C-2). 패턴 데미지는 별도 YAML 배포 영역.
 - 변경은 **신규 스폰부터** 반영(기존 개체 미소급).
 
-**검증:** `gradlew build` 통과(exit 0, empire-rpg-0.1.0.jar). 인게임 실측 미실시.
+**검증:** `gradlew build` 통과 + **인게임 라이브 검증 통과**(2026-06-01). MythicMobs 5.11.2 jar로 reflection 시그니처 확인(`getMobType().getInternalName()`/`getEntity()`). 서버 기동 로그: 마이그레이션·시드 21건·리스너 등록 정상. 콘솔 실측: `set Plains_Soldier atk 77`→스폰 후 attack_damage **77.0** 확인 / `reset`→**4.0**(DL-116 시드) 복원 확인. 1틱 오버라이드가 MythicMobs `Damage:` 적용을 확실히 덮음(race 없음).
 
 **남은 작업:** 축 B(상점 명령), 축 C(패치노트 디스코드/웹 피드), DEF 연동(2단계), 보스 패턴 배율 placeholder(C-1, 수요 시), 인게임 검증.
 
