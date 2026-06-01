@@ -229,7 +229,7 @@
 - 내용 (남은 task):
   - **잠재 슬롯별 풀 정본화** — `equipment_growth_spec §2.2`는 슬롯별(투구=HP/받피감/쿨감, 상의=HP/방어/받피감, 하의=HP/방어/이속, **신발=이속/방어/방어무시**)인데 현재 csv는 weapon/armor 통합. DL-114는 보스공 편중만 임시 완화. csv `slot_type`→`slot_filter` 세분화 + 옵션 값 정본화 필요.
   - **잠재 라인 수 정본화** — `§2.1` 커먼1/레어2/에픽·유니크·레전 3줄. 현재 `generateProfile`은 항상 3줄 고정. 등급별 라인 수 반영.
-  - **몹→플레이어 ATK 정본표 신규** — 현재 몹 데미지가 바닐라/임의. HP 0강 100(DL-115)·DEF/(DEF+200) 경감과 균형 맞춘 몹/필드보스/시즌보스 피격 데미지 정본표 작성. 작성 후 HP·평타 재조정.
+  - **몹→플레이어 ATK 정본표 신규** — ✅ **[PROMOTED → DL-116]** (2026-06-01). `docs/06_fields_bosses/mob_attack_stats_v1.md` 신규. 티어별 "추천 강화 풀세트 최대 HP 대비 % 유효피해" 룰. **필드 가볍게(일반2.5/정예6/필드보스8·16·24%) / 시즌보스 무겁게(12·24·40%)** 분리. **잔여(후속)**: ① server/plugins/MythicMobs 실제 적용(`Damage:`·스킬 `damage{a}`) — §6 매핑 / ② 시즌보스 §5 정합(패턴 문서 P-03 140% 등 % 오버라이드 기준 통일, 잠정→확정).
   - **방어구 부위별 주스탯 확인** — 강화는 부위별 주스탯만 증가(투구=HP만/하의=DEF만, base 0 처리로 구현됨). 신발 이속은 §2.2 잠재 옵션 영역(강화 스탯 아님). 검증 필요.
   - **방어구 DEF 3단계** — 잠재 def%·받피감% 가산 + "실질 감소 70% 하드캡"(combat-balance 권고). 곱산 폭주 방지.
   - **평타 계수 튜닝** — 현재 `weaponPower×0.4`. 라이브 체감 따라 조정.
@@ -237,5 +237,34 @@
 - 분류: [x] 기획 확정 필요 / [x] CANON 반영 후보 (정본 정합)
 - 관련 문서: `equipment_growth_spec §2`, `combat_balance_v2 §1·§2`, `growth_potential_option_pool.csv`, DL-110~115
 - 상태: DRAFT
+
+### INBOX-009 웹/디스코드 봇 서버 실시간 상태(핑·온라인 등) 표시
+- 날짜: 2026-06-01
+- 출처: 사용자 아이디어 (DL-116 작업 중 발상)
+- 내용: 웹 대시보드와 디스코드 봇에서 **서버 실시간 상태**를 볼 수 있게 한다. 예: 서버 핑/지연, 온라인 인원, 가동 여부(up/down), TPS 등.
+- 검토 메모:
+  - 도메인: `docs/02_database_api_stats`(API/통계) + `docs/03_discord_onboarding_bot`(봇 표시).
+  - 구현 후보: (a) EmpireRPG가 주기적으로 상태(온라인 수/TPS/하트비트)를 DB·HTTP 엔드포인트로 push → 웹/봇이 polling. (b) 봇이 서버 status ping(Minecraft SLP) 직접 조회 — 핑/온라인 수는 SLP로 즉시 가능, TPS 등 상세는 (a) 필요.
+  - MVP: 봇 `/status` 명령 + 웹 헤더 배지(온라인/핑/up-down). 상세 통계는 기존 stats 파이프라인 확장.
+  - 오픈 게이팅(디스코드 공식 오픈) 모델과 잘 맞음 — 봇이 이미 온보딩 게이트라 status 명령 자연스러움.
+- 분류: [ ] 기획 확정 필요 / [x] DRAFT 보관 (범위·우선순위 미정)
+- 관련 문서: `02_database_api_stats/CANON.md`, `03_discord_onboarding_bot/index.md`
+- 상태: DRAFT
+
+### INBOX-010 런타임 명령어 기반 설정 변경 (상점 물품/가격·몬스터 HP/DEF/ATK)
+- 날짜: 2026-06-01
+- 출처: 사용자 아이디어 (DL-116 작업 중 발상 — "플러그인 교체 없이 바꾸고 싶다")
+- 내용: 상점 물품 추가/가격 변동, 몬스터 체력·방어력·공격력 설정을 **인게임 운영자 명령어로 핫에딧**. 플러그인 jar 재배포·재컴파일 없이 운영 중 조정.
+- 검토 메모 (가능성 평가):
+  - **가능. EmpireRPG가 이미 DB+시드 CSV 기반**이라 자연스러운 확장. 두 방향:
+    - **몬스터 스탯**: 현재 MythicMobs YAML(`Damage:`/Health). 후보 (a) 명령어가 MythicMobs config edit+reload, (b) **EmpireRPG 측 스탯 오버라이드 레이어** — `FieldSpawnService` 스폰 시 DB 테이블(`mob_stat_override`)에서 HP/DEF/ATK 적용. (b)가 EmpireRPG 오너십·핫에딧에 더 적합(MythicMobs reload 불필요). DL-116 ATK 정본값을 이 레이어에 시드하면 정본↔런타임 일원화.
+    - **상점**: 상점이 EmpireRPG-owned + DB/CSV 백킹이면 `/empire-shop add|setprice` 류 명령 → DB write, 재배포 불필요.
+  - **트레이드오프(사용자 인지)**: 일괄 배포 = 패치노트 작성 편함. 런타임 명령 = 편의성↑이나 변경 추적 필요 → **변경 감사 로그(audit log) + 패치노트 피드** 동반 권장(명령으로 바꾸면 자동으로 변경 이력 기록).
+  - **권한/안전**: 운영자 전용 권한 게이트 + 되돌리기(롤백) 고려. 시즌 서버라 "실측→즉시 너프/버프"와 직결(DL-116 실측 보정 루프 가속).
+  - 도메인: `docs/01_plugin_architecture`(명령·런타임 구조) + `docs/02_database_api_stats`(오버라이드 테이블 스키마).
+- 분류: [x] 기획 확정 필요 (구조 설계) / [x] DRAFT 보관
+- 관련 문서: `01_plugin_architecture/CANON.md`, `02_database_api_stats/CANON.md`, `06_fields_bosses/mob_attack_stats_v1.md`(§6 적용), `economy_numbers_v2`(상점/가격)
+- 진행: 📋 **기획안 작성 완료** → `docs/01_plugin_architecture/runtime_admin_config_plan_v1.md` (2026-06-01). 코드 조사 반영 — 스폰 주입 지점·DB/명령 패턴 확인. **핵심 제약 발견**: 몹 HP·평타·일반/정예 ATK는 런타임 어트리뷰트로 즉시 변경 가능하나, **보스 스킬 패턴 데미지(강타/폭발)는 MythicMobs YAML 상수라 런타임 불가** → placeholder 배율(C-1) 또는 YAML 유지(C-2). 오픈 질문 5건 확정 필요(mob_key 입도, 상점 config vs DB 등).
+- 상태: DRAFT (기획안 → 오픈 질문 확정 후 구현)
 
 <!-- 새 항목은 이 주석 위에 추가한다 -->
