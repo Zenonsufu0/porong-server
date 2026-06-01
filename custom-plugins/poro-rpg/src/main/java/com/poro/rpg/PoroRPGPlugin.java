@@ -828,6 +828,8 @@ public final class PoroRPGPlugin extends JavaPlugin {
         this.adminTogglesService = new com.poro.rpg.admin.AdminTogglesService();
         // Step 2b — 운영 토글을 게임 로직에 연결
         pvpMatchService.attachToggles(adminTogglesService);
+        skillService.attachToggles(adminTogglesService);   // 스킬 쿨 0초 토글
+
         growthEngineRuntime.enhancementService().setEnhanceBoostSupplier(
                 () -> adminTogglesService.isOn(com.poro.rpg.admin.AdminTogglesService.Toggle.ENHANCE_BOOST));
         com.poro.rpg.listener.AdminGuiListener adminGuiListener =

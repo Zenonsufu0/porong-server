@@ -14,9 +14,15 @@ import java.util.Map;
 public class SkillService {
     private final Map<String, WeaponSkill> skillsByKey = new LinkedHashMap<>();
     private final SkillContext context;
+    private com.poro.rpg.admin.AdminTogglesService toggles;   // 테스트용 쿨 우회 토글(나중 주입)
 
     public SkillService(SkillContext context) {
         this.context = context;
+    }
+
+    /** 관리자 토글 서비스 주입 — NO_SKILL_COOLDOWN ON 시 쿨다운 우회(테스트). */
+    public void attachToggles(com.poro.rpg.admin.AdminTogglesService toggles) {
+        this.toggles = toggles;
     }
 
     public void registerSkill(WeaponSkill skill) {
@@ -40,17 +46,25 @@ public class SkillService {
             return true;
         }
 
-        long remaining = context.getCooldownManager().getRemainingMillis(player.getUniqueId(), skill.key());
-        if (remaining > 0) {
-            return false; // 쿨다운 중 — HUD가 쿨타임 표시, 바닐라 공격 허용
+        boolean noCooldown = toggles != null
+                && toggles.isOn(com.poro.rpg.admin.AdminTogglesService.Toggle.NO_SKILL_COOLDOWN);
+
+        if (!noCooldown) {
+            long remaining = context.getCooldownManager().getRemainingMillis(player.getUniqueId(), skill.key());
+            if (remaining > 0) {
+                return false; // 쿨다운 중 — HUD가 쿨타임 표시, 바닐라 공격 허용
+            }
         }
 
         // 재진입 방지: execute() → dealDamage() → EntityDamageByEntityEvent 재발화 시
-        // 쿨다운 체크(line 43)에서 차단된다. execute() 실패 시 cancelCooldown()으로 롤백.
-        context.getCooldownManager().applyCooldown(player.getUniqueId(), skill.key(), Duration.ofMillis(skill.cooldown()));
+        // 쿨다운 체크에서 차단된다. execute() 실패 시 cancelCooldown()으로 롤백.
+        // (NO_SKILL_COOLDOWN ON 시 쿨 미적용 — 단 재진입 방지 위해 0틱이라도 적용 후 즉시 해제)
+        if (!noCooldown) {
+            context.getCooldownManager().applyCooldown(player.getUniqueId(), skill.key(), Duration.ofMillis(skill.cooldown()));
+        }
         boolean used = skill.execute(player, context);
         if (!used) {
-            context.getCooldownManager().cancelCooldown(player.getUniqueId(), skill.key());
+            if (!noCooldown) context.getCooldownManager().cancelCooldown(player.getUniqueId(), skill.key());
             return false;
         }
         return true; // 스킬 실제 발동 — 바닐라 공격 취소

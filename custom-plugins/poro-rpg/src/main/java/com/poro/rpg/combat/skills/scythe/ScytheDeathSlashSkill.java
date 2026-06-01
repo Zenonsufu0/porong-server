@@ -22,6 +22,7 @@ public final class ScytheDeathSlashSkill extends BaseWeaponSkill {
         double damage = scaledDamageWithStacks(ctx, player, 1.90, 0.05);
         var targets = SkillHitboxHelper.arc(player, 3.0, 150);
         targets.forEach(t -> dealDamage(ctx, player, t, damage));
+        ctx.effectDisplay().spawnGround(400107, player, 3.0, 3.5, 7, 1.2);   // 2D 이펙트 (사신베기 호, 바닥 전방)
 
         // 월영회전 2초 윈도우 내 명중 시 1스택 충전
         if (!targets.isEmpty() && ctx.getResourceTracker().consumeShadowSpinWindow(player.getUniqueId())) {

@@ -14,7 +14,8 @@ public final class AdminTogglesService {
         ENHANCE_BOOST   ("강화 확률 2배",       false),
         EXP_BOOST       ("EXP 2배",            false),
         DROP_BOOST      ("필드 드랍 2배",       false),
-        PVP_QUEUE_PAUSE ("PvP 큐 일시정지",     false);
+        PVP_QUEUE_PAUSE ("PvP 큐 일시정지",     false),
+        NO_SKILL_COOLDOWN("스킬 쿨타임 0초(테스트)", false);
 
         public final String displayName;
         public final boolean defaultValue;

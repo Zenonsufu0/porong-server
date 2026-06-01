@@ -24,6 +24,7 @@ public final class StaffStarburstSkill extends PluginWeaponSkill {
         SkillHitboxHelper.projectileRaycast(player, 22.0, 0.5)
                 .ifPresent(t -> dealDamage(ctx, player, t, damage));
         consumeStacks(ctx, player);
+        ctx.effectDisplay().spawnSlash(400104, player, 12.0, 5.0f, 9);   // 2D 이펙트 (별빛쇄도 빔)
 
         // 별빛 빔 (연보라 + 흰 별가루) + 별빛 시전음
         spawnBeam(player, Particle.DUST, STAR, 22.0, 0.4);
