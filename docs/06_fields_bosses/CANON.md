@@ -27,7 +27,8 @@
 |---|---|
 | `../final_master_plan.md` §9-§13 | 필드, 보스, 드랍, 패턴 요약 |
 | `drop_tables_v1.md` | 드랍 테이블 상세 |
-| `field_boss_stats_v1.md` | 필드보스 스탯 상세 |
+| `field_boss_stats_v1.md` | 필드보스 스탯 상세 (HP/DEF — 방어 측) |
+| `mob_attack_stats_v1.md` | 몹/보스 → 플레이어 ATK 정본 (공격 측, DL-116) |
 | `../04_combat_weapon_skills/season_boss_stats_v1.md` | 시즌보스 스탯 산정 |
 | `../07_boss_pattern_modules/index.md` | 패턴 모듈 진입점 |
 
