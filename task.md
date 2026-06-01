@@ -1,17 +1,51 @@
 # 포로 서버 작업 현황
 
-> 마지막 갱신: 2026-05-31 (§7 서버 테스트 준비 + 온보딩 + 무기 시스템 — INBOX-006/007, DL-099~104)
+> 마지막 갱신: 2026-06-02 (§8 전투밸런스·리브랜드·라이선스·2D 이펙트 — DL-124/125)
 
 ---
 
 ## 현재 브랜치 상태
 
-- 브랜치: `master`
-- **§7 진행 중** — 서버 인게임 테스트 단계. 단일 평지 월드 + 동적 필드 스폰 + 허브 온보딩 + 무기별 독립 성장 구현, 라이브 검증 반복 중.
+- 브랜치: `master` (origin 동기화 완료, GitHub 푸시됨)
+- **플러그인 리브랜드: `EmpireRPG`/`empire-rpg` → `PoroRPG`/`poro-rpg` 전체 완료** (DL 없음, 커밋 메시지 참조). 패키지 `com.poro.rpg`, 명령어 `/poro`·`poro-*`, 권한 `poro.*`, 봇 `PORO_API_*`, 데이터 식별자(NBT·스코어보드 태그)까지. 재배포 시 `server/plugins/EmpireRPG→PoroRPG` 폴더 이전 필요.
+- **§8 진행 중** — 전투 밸런스(DL-124/125) + 2D 스킬 이펙트(무기 9종) 구현. 서버 인게임 테스트 단계.
 - 빌드: `./gradlew build → BUILD SUCCESSFUL` / 서버 클린 부팅 확인(Done ~15s, PoroRPG enable)
 - 동기화: 매 handoff 시 master == codex-review 유지
 - **다음 (재개 지점)**: 재접속 → §7 핵심 검증(무기별 독립 성장·GUI 36칸 통합·무기 lore·창 삼지창·스코어보드 위치) → 통과 시 잔여(튜토리얼 맵·필드 일반/정예 토글·HUD 리소스팩) 진행
 - ※ **상태 드리프트 방지 정책**: task.md에 "최신 커밋 해시"·"미커밋/커밋" 상태를 박지 않는다. 최신 커밋 기준은 항상 `git log`. per-step 섹션은 완료 여부만 표기한다.
+
+---
+
+## §8 전투밸런스·리브랜드·라이선스·2D 이펙트 (2026-06-01~02)
+
+### §8-1 전투 밸런스 — 만충 스파이크 하이브리드 (DL-124) — 완료
+- 조사: 정본 §4 "임계/만충" 배율이 코드에 **미구현**이었음 확인(per-stack 누진만). v1 DPS 모델(스프레드 19.3%) 허구 → 실측 37.6%(석궁 쿨14s 1위·스태프 20s 바닥).
+- 임계 폐기 + **만충 ×1.20 디스크리트 스파이크**(검·창·석궁·스태프 핵심기, 소모형 만충 한정·유지형 게이팅). per-stack 절반 재배분. `scaledDamageFullChargeSpike`.
+- C-2 비핵심 슬롯 보정(석궁 속사↓·스태프 마력탄↑ 등). 예측 스프레드 18.4%.
+- Java + skill_master.csv + GrowthGuiListener 3중 동기. 정본 `combat_balance_v2 §4·§5`, `dps_balance_pass_v2.md`(v1 폐기), `skill_effects_reference_v1`.
+
+### §8-2 자원 충전 명중 조건 정합 (DL-125) — 완료
+- 빌더 6종이 명중 무관 발동만으로 스택 충전하던 버그 → 명중 판정 통일.
+- 스태프 충전 LMB(마력탄) 한정(속성폭발·마력쇄도 gainStack 제거). 정본 §4 일치.
+
+### §8-3 라이선스/보안 정리 — 완료
+- 외부 제3자 에셋(asset.zip·Carnivoret·Vanquisher·Wuthering refs 등) **전 git 히스토리 제거**(git filter-repo + force push). `.gitignore` 강화.
+- **assets/ 전체 비배포**(외부 유래 텍스처 혼재) — filter-repo + force push, 로컬 디스크 유지. `.git` 121M→3.5M.
+- 비밀정보 스캔 클린(노출 0). **사유 라이선스 `LICENSE`**(2차배포·수정 금지) + README 전면 보강.
+- 백업: `~/poro-backup-20260601-220033/`, `~/poro-assets-backup-20260601-222103/`.
+
+### §8-4 2D 스킬 이펙트 — 무기 9종 (skill_effect_2d_integration_v1) — 완료
+- 배경 제거 도구 `assets/source/effect_bg_remove.py`(13종 RGBA 변환).
+- ItemDisplay 통합, 오리엔테이션 3패턴: `spawnSlash`(빌보드+3D비행), `spawnGroundTravel`(바닥평면+조준추종), `spawnDecal`(바닥장판).
+- 무기 9개 효과(검·창·석궁·스태프×2·낫×2·도끼) 인게임 확정. carrier `paper` cmd 400101~108, 텍스처 `poro:item/effect/`, 코너 0-16 모델.
+- 운영 토글 `NO_SKILL_COOLDOWN`(테스트 쿨0초). 스태프 마력쇄도 넉백 제거.
+- 함정 기록: 중앙정렬 모델 스케일 오프셋·텍스처 경로 캐시·firework_star 특수렌더(메모리 `project_2d_effect_system`).
+
+### §8 잔여
+- **보스 텔레그래프 4종(400201~204)**: `BossPatternScheduler` 런타임 미배선이라 보류 — 보스 패턴 시스템 배선과 묶어 진행.
+- **공용 임팩트링(400901)**: 흰 코어 40% 과다 → 텍스처 재작업 필요.
+- 리소스팩 자산은 `assets/`(gitignored) 로컬+HTTP 서버 — 새 환경 클론 시 별도 배포 필요.
+- 보스 50블록 빔 등 일부 수치 미세조정 여지.
 
 ---
 
