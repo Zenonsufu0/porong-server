@@ -20,7 +20,7 @@ public final class StaffStarburstSkill extends PluginWeaponSkill {
 
     @Override
     public boolean execute(Player player, SkillContext ctx) {
-        double damage = scaledDamageWithStacks(ctx, player, 3.80, 0.10);
+        double damage = scaledDamageWithStacks(ctx, player, 4.05, 0.10);
         SkillHitboxHelper.projectileRaycast(player, 22.0, 0.5)
                 .ifPresent(t -> dealDamage(ctx, player, t, damage));
         consumeStacks(ctx, player);

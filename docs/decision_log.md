@@ -4,6 +4,62 @@
 
 ---
 
+### DL-123 무기 DPS 균형 계수 패스 (DL-122 후속, combat-balance 분석)
+
+**배경:** DL-122 캡 3 통일 후 `combat-balance` 서브에이전트가 6무기 풀로테이션 DPS 모델링(`dps_balance_pass_v1.md`). 결과 스프레드 19.3% — **창 1위(10,167)·스태프 6위(8,520)**. 핵심: 창·스태프 동일 "임계+만충 2단" 구조인데, 창은 관통찌르기 2단계 임계 +15%가 캡3에서 상시 ON되어 손실 자력 보전(1위), 스태프는 수치가 한 단계 낮아 못 메워 최하위. → **사용자 직관("창·스태프 둘 다 ↓")과 반대로 스태프는 과너프 상태**라 미세 상향이 정답.
+
+**결정 (사용자 — 1차+2차 전부 적용):** DPS ±10% 수렴 목표로 계수 조정. 실제 데미지 계수(Java `scaledDamage`) + 시드 `base_coefficient`(CombatFormulaResolver 참조) + GUI 표시 문자열 3곳 동기화.
+
+**적용 계수 (현재→제안):**
+- 검 결전일섬 `3.20,0.15`→`3.45,0.12` / 도끼 거신추락 `4.20`→`4.55` · 파쇄돌진 `2.80`→`3.05` / 창 관통찌르기 `1.70`→`1.60`(창만 ↓) / 석궁 저격태세 `4.00,0.12`→`4.20,0.10` / 낫 사신베기 `1.80`→`1.90` / 스태프 별빛쇄도 `3.80`→`4.05`·속성폭발 `2.40`→`2.55`·마력쇄도 `2.00`→`2.20`(스태프 ↑).
+- 캡6(유지형) per-stack 폭주 차단 위해 검 0.15→0.12·석궁 0.12→0.10 동반.
+- 창 천뢰일창은 유지(이중 너프 금지).
+
+**변경 파일:** 9개 스킬 Java + `skill_master.csv`(base_coefficient 9 + jar/외부 동반 배포) + `GrowthGuiListener` SkillInfo 표시 9.
+
+**검증:** 빌드·기동 무에러, 24엔트리 로드. 예측 스프레드 19.3%→±10% 근접. 실측 DPS는 인게임/로그 후속.
+
+**미해결(후속):** 창·스태프 임계(2단계)·만충(3단계) 2단 구조가 캡3에서 1스택 차로 붕괴 — 임계 단계 재설계 필요(최우선). 유지형 각인 별도 +%(질풍창 등) 합산 시 캡6 폭주 재검증. 보스 DEF 적용 절대 DPS.
+
+**관련:** `dps_balance_pass_v1.md`, `skill_effects_reference_v1.md`, DL-122, `combat_balance_v2 §2·§3`.
+
+---
+
+### DL-122 자원 단계 통일 — 전 무기 기본 3 / 유지형 6 (INBOX-013)
+
+**배경:** 사용자 — "유지형이 base 5인데 6이면 어색. 전 무기 기본 3으로 통일." 기존: 창·스태프 기본 5, 나머지 3 / 유지형은 코드상 무기 공통 flat 6(`BaseWeaponSkill.gainStack` `_retained_01 ? 6`). 정본 §5는 "유지형 +1"이었으나 코드는 flat 6 — 불일치였음.
+
+**결정:** **전 무기 기본 자원 3단계 / 유지형 6단계**로 통일. (창·스태프 5→3. 유지형 6 유지 = 사용자 결정. 정본 §5 "+1" 폐기→"flat 6".)
+
+**변경 (custom-plugins/empire-rpg):**
+- `gainStack` 5→3: StaffArcaneOrb/ArcaneRush/ElementalBurst, SpearThrust (4파일).
+- finisher 소모량 5→3: `skill_master.csv` 천뢰일창·별빛쇄도 (cap 3에서 발동 가능하도록 — **필수 연동**).
+- 표시 3: `HealthHudFormatter`·`GrowthGuiListener` `(SPEAR||STAFF)?5:3`→`3`. 유지형 표시는 flat 6 유지.
+- 정본: `combat_balance_v2 §4`(창·스태프 5→3, 중간 임계 3단계→2단계)·`§5`(유지형 flat 6).
+- 배포: jar + **외부 시드** `server/plugins/EmpireRPG/seeds/skill_master.csv` 동반(외부 우선 로드).
+
+**미완(후속 — 사용자 계수 결정 대기):** ① 창·스태프 per-stack 계수(thrust 0.05·thunder 0.08·starburst 0.10)가 5스택 기준이라 3캡에서 최대 보너스 축소(starburst +50%→+30%) — "계수 좀 내리고"는 캡으로 일부 자동 반영. ② 다른 4무기 계수 상향 "고려"(미적용). ③ 창·스태프 중간 임계(2단계)·만충(3단계) 효과 2단 구조 재설계. → `skill_effects_reference_v1.md` 기준 별도 패스.
+
+**관련:** INBOX-013, `combat_balance_v2 §4·§5`, `skill_effects_reference_v1.md`(현행 스냅샷), DL-121.
+
+---
+
+### DL-121 원거리 무기 투사체 평타 (스태프·석궁) (INBOX-013)
+
+**배경:** 라이브 검증 — 마법사(스태프)·석궁 평타가 원거리로 안 나감. 조사: 평타는 `onAttack`(`EntityDamageByEntityEvent`, 멜리 접촉)에서만 `weaponPower×0.4` 적용 → 전 무기 근접. `onSwing`(LMB 허공)은 slot1 스킬만 발동, 쿨다운 중이면 무동작.
+
+**변경 (custom-plugins/empire-rpg, `SkillInputListener`):**
+- `onSwing`에서 slot1 쿨다운 중 + **원거리 무기(STAFF·CROSSBOW)**면 `rangedBasicAttack` 발사 — `SkillHitboxHelper.projectileRaycast(player, 20, 0.6)`로 시선 첫 대상에 `weaponPower×0.4` 피해. `SkillDamageGuard.run(() -> target.damage(dmg, player))`로 killer 귀속 + onAttack 재처리 차단(BaseWeaponSkill 패턴 재사용). 발사 시 `swingFiredAt` 기록으로 근접 시 멜리 평타 중복 방지.
+- 시각: 시선 파티클 빔(석궁 CRIT / 스태프 WITCH) + 사운드(ARROW_SHOOT / BLAZE_SHOOT).
+
+**근접 무기(검·도끼·창·낫)는 기존 멜리 평타 유지.** 계수는 동일(0.4)이라 밸런스 일관.
+
+**검증:** 빌드 통과·기동 무에러. 실제 투사체 발사·원거리 피해는 사용자 인게임 확인(스태프/석궁 장착, slot1 쿨다운 중 LMB).
+
+**관련:** DL-113(평타 도입 0.4), INBOX-013.
+
+---
+
 ### DL-120 동적 스폰 경계 정합 — 경계 밖 스폰 금지 + 이탈 몹 제거 (INBOX-012 후속)
 
 **배경:** DL-119 WorldBorder(±150) 적용 후 사용자 보고 — 경계 밖에도 몹이 스폰됨. 원인: `FieldSpawnService.randomGroundAround`가 플레이어 주변 20~30블록 랜덤 스폰 시 **필드 경계(±150) 미검사** → 가장자리 플레이어 기준 스폰이 경계 밖으로 튐. 또 AI 배회로 경계를 벗어난 몹이 잔존.

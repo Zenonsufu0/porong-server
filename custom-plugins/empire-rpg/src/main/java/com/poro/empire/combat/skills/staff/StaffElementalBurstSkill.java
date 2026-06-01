@@ -21,7 +21,7 @@ public final class StaffElementalBurstSkill extends PluginWeaponSkill {
 
     @Override
     public boolean execute(Player player, SkillContext ctx) {
-        double damage = scaledDamage(ctx, player, 2.40);
+        double damage = scaledDamage(ctx, player, 2.55);
         SkillHitboxHelper.projectileRaycast(player, 18.0, 0.5).ifPresent(primary -> {
             dealDamage(ctx, player, primary, damage);
             // AoE burst at impact location
@@ -32,7 +32,7 @@ public final class StaffElementalBurstSkill extends PluginWeaponSkill {
             spawnImpactEffect(primary.getLocation().add(0, 1.0, 0), Particle.DUST, ARCANE, 30);
             spawnImpactEffect(primary.getLocation().add(0, 1.0, 0), Particle.WITCH, null, 16);
         });
-        gainStack(ctx, player, 5);
+        gainStack(ctx, player, 3);
 
         // 비전 빔 + 시전음
         spawnBeam(player, Particle.DUST, ARCANE, 18.0, 0.5);

@@ -19,7 +19,7 @@ public final class ScytheDeathSlashSkill extends BaseWeaponSkill {
 
     @Override
     public boolean execute(Player player, SkillContext ctx) {
-        double damage = scaledDamageWithStacks(ctx, player, 1.80, 0.05);
+        double damage = scaledDamageWithStacks(ctx, player, 1.90, 0.05);
         var targets = SkillHitboxHelper.arc(player, 3.0, 150);
         targets.forEach(t -> dealDamage(ctx, player, t, damage));
 

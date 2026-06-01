@@ -19,10 +19,10 @@ public final class StaffArcaneRushSkill extends BaseWeaponSkill {
 
     @Override
     public boolean execute(Player player, SkillContext ctx) {
-        double damage = scaledDamage(ctx, player, 2.00);
+        double damage = scaledDamage(ctx, player, 2.20);
         SkillHitboxHelper.burst(player, 4.0).forEach(t -> dealDamage(ctx, player, t, damage));
         dashBackward(player, 1.5);
-        gainStack(ctx, player, 5);
+        gainStack(ctx, player, 3);
 
         // 자기 중심 비전 노바 2중 고리 + 시전음
         spawnParticleCircle(player, Particle.DUST, ARCANE, 4.0, 40);

@@ -207,8 +207,8 @@ public final class HealthHudFormatter {
     private static int weaponDefaultStackMax(WeaponType wt, PlayerGrowthState state) {
         // 유지형 각인(*_retained_01): 무기 공통 최대 6스택
         if (state != null && state.classEngravingId().endsWith("_retained_01")) return 6;
-        // 소모형 default: 창·지팡이 5, 나머지 3
-        return (wt == WeaponType.SPEAR || wt == WeaponType.STAFF) ? 5 : 3;
+        // 소모형 default: 전 무기 3 통일 (구: 창·지팡이 5)
+        return 3;
     }
 
     // 스킬 슬롯 키 — SkillInputListener와 동일하게 유지

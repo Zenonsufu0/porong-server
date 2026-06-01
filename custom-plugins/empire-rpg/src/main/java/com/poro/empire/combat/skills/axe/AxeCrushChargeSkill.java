@@ -20,7 +20,7 @@ public final class AxeCrushChargeSkill extends BaseWeaponSkill {
     @Override
     public boolean execute(Player player, SkillContext ctx) {
         dashForward(player, 3.0);
-        double damage = scaledDamage(ctx, player, 2.80);
+        double damage = scaledDamage(ctx, player, 3.05);
         SkillHitboxHelper.line(player, 4.0, 0.8).forEach(t -> dealDamage(ctx, player, t, damage));
 
         // 파쇄 궤적 직선 + 분진 구름 + 추진음

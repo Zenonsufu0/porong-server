@@ -2,10 +2,15 @@ package com.poro.empire.listener;
 
 import com.poro.empire.combat.SkillContext;
 import com.poro.empire.combat.SkillService;
+import com.poro.empire.combat.hitbox.SkillHitboxHelper;
 import com.poro.empire.combat.weapon.WeaponType;
 import com.poro.empire.combat.weapon.WeaponTypeResolver;
 import com.poro.empire.field.SafeZoneService;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -43,11 +48,44 @@ public final class SkillInputListener implements Listener {
         if (event.getAnimationType() != PlayerAnimationType.ARM_SWING) return;
         Player player = event.getPlayer();
         if (safeZoneService.isSafeZone(player.getLocation())) return;
-        String key = slot1Key(WeaponTypeResolver.resolve(player));
+        WeaponType type = WeaponTypeResolver.resolve(player);
+        String key = slot1Key(type);
         if (key == null) return;
         if (skillService.useSkill(player, key)) {
             swingFiredAt.put(player.getUniqueId(), System.currentTimeMillis());
+        } else if (isRanged(type)) {
+            // 원거리 무기(스태프·석궁)는 slot1 쿨다운 중 좌클릭 시 투사체 평타 발사 (근접 무기는 onAttack 멜리 평타).
+            rangedBasicAttack(player, type);
+            swingFiredAt.put(player.getUniqueId(), System.currentTimeMillis()); // 근접 시 onAttack 중복 방지
         }
+    }
+
+    private static boolean isRanged(WeaponType t) {
+        return t == WeaponType.STAFF || t == WeaponType.CROSSBOW;
+    }
+
+    /** 원거리 평타 — 시선 방향 레이캐스트 투사체, weaponPower × 0.4 피해(killer 귀속). */
+    private void rangedBasicAttack(Player player, WeaponType type) {
+        double dmg = skillContext.weaponPower(player) * BASIC_ATTACK_COEFF;
+        spawnBasicBeam(player, type);
+        playBasicSound(player, type);
+        SkillHitboxHelper.projectileRaycast(player, 20.0, 0.6).ifPresent(target ->
+                com.poro.empire.combat.SkillDamageGuard.run(() -> target.damage(dmg, player)));
+    }
+
+    private void spawnBasicBeam(Player player, WeaponType type) {
+        Vector dir = player.getLocation().getDirection().normalize();
+        var eye = player.getEyeLocation();
+        var world = player.getWorld();
+        Particle particle = (type == WeaponType.CROSSBOW) ? Particle.CRIT : Particle.WITCH;
+        for (double d = 1.0; d <= 20.0; d += 1.0) {
+            world.spawnParticle(particle, eye.clone().add(dir.clone().multiply(d)), 1, 0, 0, 0, 0);
+        }
+    }
+
+    private void playBasicSound(Player player, WeaponType type) {
+        Sound sound = (type == WeaponType.CROSSBOW) ? Sound.ENTITY_ARROW_SHOOT : Sound.ENTITY_BLAZE_SHOOT;
+        player.getWorld().playSound(player.getLocation(), sound, 0.7f, 1.4f);
     }
 
     /**
