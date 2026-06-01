@@ -22,8 +22,7 @@ public final class StaffArcaneOrbSkill extends PluginWeaponSkill {
     public boolean execute(Player player, SkillContext ctx) {
         double damage = scaledDamage(ctx, player, 1.70);
         SkillHitboxHelper.projectileRaycast(player, 20.0, 0.5)
-                .ifPresent(t -> dealDamage(ctx, player, t, damage));
-        gainStack(ctx, player, 3);
+                .ifPresent(t -> { dealDamage(ctx, player, t, damage); gainStack(ctx, player, 3); });   // 명중 시에만 충전 (정본 §4)
 
         // 보라 마력 빔 + 마법 입자 + 시전음
         spawnBeam(player, Particle.DUST, ARCANE, 20.0, 0.5);

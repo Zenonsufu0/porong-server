@@ -20,8 +20,9 @@ public final class AxeSmashSkill extends BaseWeaponSkill {
     @Override
     public boolean execute(Player player, SkillContext ctx) {
         double damage = scaledDamageWithStacks(ctx, player, 2.10, 0.08);
-        SkillHitboxHelper.arc(player, 2.5, 100).forEach(t -> dealDamage(ctx, player, t, damage));
-        gainStack(ctx, player, 3);
+        var targets = SkillHitboxHelper.arc(player, 2.5, 100);
+        targets.forEach(t -> dealDamage(ctx, player, t, damage));
+        if (!targets.isEmpty()) gainStack(ctx, player, 3);   // 명중 시에만 충전 (정본 §4)
 
         // 묵직한 호박빛 호 + 타격 스파크 + 둔중한 타격음
         spawnParticleArc(player, Particle.DUST, AMBER, 2.5, 100, 12);

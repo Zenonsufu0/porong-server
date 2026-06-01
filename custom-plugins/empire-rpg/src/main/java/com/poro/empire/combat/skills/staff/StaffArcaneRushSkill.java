@@ -22,7 +22,7 @@ public final class StaffArcaneRushSkill extends BaseWeaponSkill {
         double damage = scaledDamage(ctx, player, 2.40);
         SkillHitboxHelper.burst(player, 4.0).forEach(t -> dealDamage(ctx, player, t, damage));
         dashBackward(player, 1.5);
-        gainStack(ctx, player, 3);
+        // 충전 없음 — 스태프 마력 충전은 LMB 마력탄 명중만 (정본 §4, DL-125)
 
         // 자기 중심 비전 노바 2중 고리 + 시전음
         spawnParticleCircle(player, Particle.DUST, ARCANE, 4.0, 40);

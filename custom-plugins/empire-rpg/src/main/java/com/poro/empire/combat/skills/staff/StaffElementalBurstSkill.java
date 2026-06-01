@@ -32,7 +32,7 @@ public final class StaffElementalBurstSkill extends PluginWeaponSkill {
             spawnImpactEffect(primary.getLocation().add(0, 1.0, 0), Particle.DUST, ARCANE, 30);
             spawnImpactEffect(primary.getLocation().add(0, 1.0, 0), Particle.WITCH, null, 16);
         });
-        gainStack(ctx, player, 3);
+        // 충전 없음 — 스태프 마력 충전은 LMB 마력탄 명중만 (정본 §4, DL-125)
 
         // 비전 빔 + 시전음
         spawnBeam(player, Particle.DUST, ARCANE, 18.0, 0.5);

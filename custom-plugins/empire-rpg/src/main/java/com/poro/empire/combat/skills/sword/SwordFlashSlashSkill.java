@@ -21,8 +21,9 @@ public final class SwordFlashSlashSkill extends BaseWeaponSkill {
     public boolean execute(Player player, SkillContext ctx) {
         // 타격 판정을 돌진 전에 — 붙어서 치면 돌진이 적을 지나쳐 arc(전방 120°)가 빗나가는 문제 해소.
         double damage = scaledDamageWithStacks(ctx, player, 1.70, 0.08);
-        SkillHitboxHelper.arc(player, 2.5, 120).forEach(t -> dealDamage(ctx, player, t, damage));
-        gainStack(ctx, player, 3);
+        var targets = SkillHitboxHelper.arc(player, 2.5, 120);
+        targets.forEach(t -> dealDamage(ctx, player, t, damage));
+        if (!targets.isEmpty()) gainStack(ctx, player, 3);   // 명중 시에만 충전 (정본 §4)
         dashForward(player, 2.0);
 
         // 흰빛 2겹 호 + sweep 마크 + 잔광(END_ROD)

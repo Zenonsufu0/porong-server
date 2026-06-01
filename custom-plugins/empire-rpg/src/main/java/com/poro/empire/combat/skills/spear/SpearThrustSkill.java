@@ -20,8 +20,9 @@ public final class SpearThrustSkill extends BaseWeaponSkill {
     @Override
     public boolean execute(Player player, SkillContext ctx) {
         double damage = scaledDamageWithStacks(ctx, player, 1.60, 0.05);
-        SkillHitboxHelper.line(player, 5.0, 0.5).forEach(t -> dealDamage(ctx, player, t, damage));
-        gainStack(ctx, player, 3);
+        var targets = SkillHitboxHelper.line(player, 5.0, 0.5);
+        targets.forEach(t -> dealDamage(ctx, player, t, damage));
+        if (!targets.isEmpty()) gainStack(ctx, player, 3);   // 명중 시에만 충전 (정본 §4)
 
         // 날카로운 청록 직선 + 관통 스파크
         spawnParticleLine(player, Particle.DUST, TEAL, 5.0, 24);
