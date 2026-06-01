@@ -1,6 +1,13 @@
 # 2D 스킬/보스 이펙트 — 리소스팩 통합 설계 v1
 
-> **[STATUS: DRAFT 설계]** — `assets/source/effect_bg_remove.py`로 배경 제거된 13개 RGBA 이펙트 PNG를 인게임 스킬/보스 연출에 넣는 방식 설계. 구현(팩 파일 + 플러그인 코드)은 후속.
+> **[STATUS: 부분 구현 — 무기 9종 완료 / 보스·임팩트 보류]** — 배경 제거된 RGBA 이펙트 PNG를 인게임에 ItemDisplay로 통합. 무기 9개 효과 인게임 확정(커밋 d939a41→7e9f0f1). 보스 텔레그래프 4종은 보스 패턴 런타임 미배선으로 보류. 공용 임팩트링은 흰 코어 과다로 보류.
+
+> **구현 결과 (인게임 확정):**
+> - **오리엔테이션 3패턴** (`EffectDisplayService`): `spawnSlash`(빌보드 정면+3D비행, 검), `spawnGroundTravel`(바닥 평면 비행, `followPitch`로 조준 상하 추종 — 창·낫좌클릭·석궁), `spawnDecal`(바닥 고정 장판 — 도끼균열·스태프원·낫처형표식).
+> - **모델 = 코너 0-16 quad** (중앙정렬은 ItemDisplay 센터링과 충돌해 스케일배수 오프셋 발생 → 코너로 확정). 텍스처 `poro:item/effect/` 경로(`textures/effect/`는 클라 캐시 함정), 256px 패딩, carrier=`paper` cmd 400101~108.
+> - **운영 토글** `NO_SKILL_COOLDOWN`(테스트 쿨 0초) 추가.
+> - **보류**: 보스 텔레그래프 400201~204(런타임 미배선), 공용 임팩트링 400901(흰색 40%).
+> - 리소스팩 자산은 `assets/`(gitignored) 로컬+HTTP 서버. 플러그인 cmd 참조만 git 추적.
 
 > 기준일: 2026-06-01 | 서버 Paper 1.21.10 / pack_format 34 (1.21.4+ 아이템 정의)
 
