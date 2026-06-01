@@ -170,6 +170,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
     private com.poro.empire.persistence.PlayerSessionRepository playerSessionRepo;
     private com.poro.empire.persistence.GrowthSnapshotRepository growthSnapshotRepo;
     private com.poro.empire.admin.AdminTogglesService adminTogglesService;
+    private com.poro.empire.admin.config.MobStatOverrideService mobStatOverrideService;
     private BossRoomManager     bossRoomManager;
     private com.poro.empire.boss.room.BossDamageTracker bossDamageTracker;
     private BossRewardService   bossRewardService;
@@ -397,6 +398,20 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         this.growthSnapshotRepo = new com.poro.empire.persistence.GrowthSnapshotRepository(
                 foundationContext.connectionProvider(),
                 foundationContext.logger().domain("db.growth-snapshot"));
+        // 몹 스탯 런타임 오버라이드 (INBOX-010 축 A MVP / DL-116 시드) — 스폰 람다·명령에서 참조
+        var configChangeLogRepo = new com.poro.empire.admin.config.ConfigChangeLogRepository(
+                foundationContext.connectionProvider(),
+                foundationContext.logger().domain("db.config-change-log"));
+        this.mobStatOverrideService = new com.poro.empire.admin.config.MobStatOverrideService(
+                new com.poro.empire.admin.config.MobStatOverrideRepository(
+                        foundationContext.connectionProvider(),
+                        foundationContext.logger().domain("db.mob-stat-override")),
+                configChangeLogRepo,
+                foundationContext.logger().domain("mob-stat-override"));
+        this.mobStatOverrideService.loadAndSeed();
+        // 전 스폰 경로 커버 — MythicMobSpawnEvent 리스너 (필드보스 네이티브 스폰 포함)
+        com.poro.empire.admin.config.MobStatOverrideSpawnListener.register(
+                this, this.mobStatOverrideService, getLogger());
         pvpMatchService.attachGrowthState(growthStateStore);
 
         PvpFriendlyService pvpFriendlyService = new PvpFriendlyService(this, pvpMatchService);
@@ -650,6 +665,7 @@ public final class EmpireRPGPlugin extends JavaPlugin {
                             .getMethod("spawnMythicMob", String.class, org.bukkit.Location.class)
                             .invoke(helper, mobId, loc);
                     // spawnMythicMob은 org.bukkit.entity.Entity를 반환 — UUID 추출
+                    // (몹 스탯 오버라이드는 MythicMobSpawnEvent 리스너가 전 스폰 경로를 커버 — 여기서 미적용)
                     if (result instanceof org.bukkit.entity.Entity ent) return ent.getUniqueId();
                     return null;
                 } catch (Exception e) {
@@ -826,6 +842,14 @@ public final class EmpireRPGPlugin extends JavaPlugin {
             toggleCmd.setExecutor(new com.poro.empire.command.AdminTogglesCommand(adminTogglesService));
         } else {
             getLogger().warning("커맨드 /empire-toggle plugin.yml 미등록 — 건너뜀.");
+        }
+
+        // 몹 스탯 런타임 오버라이드 명령 (INBOX-010 축 A MVP / DL-116)
+        var mobStatCmd = getCommand("empire-mobstat");
+        if (mobStatCmd != null && mobStatOverrideService != null) {
+            mobStatCmd.setExecutor(new com.poro.empire.command.AdminMobStatCommand(mobStatOverrideService));
+        } else if (mobStatCmd == null) {
+            getLogger().warning("커맨드 /empire-mobstat plugin.yml 미등록 — 건너뜀.");
         }
 
         // 로그/감시 명령 (Phase 2 Step 3)

@@ -264,7 +264,8 @@
   - 도메인: `docs/01_plugin_architecture`(명령·런타임 구조) + `docs/02_database_api_stats`(오버라이드 테이블 스키마).
 - 분류: [x] 기획 확정 필요 (구조 설계) / [x] DRAFT 보관
 - 관련 문서: `01_plugin_architecture/CANON.md`, `02_database_api_stats/CANON.md`, `06_fields_bosses/mob_attack_stats_v1.md`(§6 적용), `economy_numbers_v2`(상점/가격)
-- 진행: 📋 **기획안 작성 완료** → `docs/01_plugin_architecture/runtime_admin_config_plan_v1.md` (2026-06-01). 코드 조사 반영 — 스폰 주입 지점·DB/명령 패턴 확인. **핵심 제약 발견**: 몹 HP·평타·일반/정예 ATK는 런타임 어트리뷰트로 즉시 변경 가능하나, **보스 스킬 패턴 데미지(강타/폭발)는 MythicMobs YAML 상수라 런타임 불가** → placeholder 배율(C-1) 또는 YAML 유지(C-2). 오픈 질문 5건 확정 필요(mob_key 입도, 상점 config vs DB 등).
-- 상태: DRAFT (기획안 → 오픈 질문 확정 후 구현)
+- 진행: 📋 기획안 → `docs/01_plugin_architecture/runtime_admin_config_plan_v1.md`. ✅ **축 A MVP 구현 [PARTIAL → DL-117]** (2026-06-01): `mob_stat_override`+`config_change_log` DB, `MobStatOverrideService`(DL-116 ATK 시드), `MythicMobSpawnEvent` 리스너(전 스폰 경로), `/empire-mobstat` 명령. 빌드 통과. **핵심 제약 확인**: HP·평타·일반/정예 ATK는 런타임 즉시 변경 가능하나 **보스 스킬 패턴 데미지는 MythicMobs YAML 상수라 런타임 불가**(C-2 유지).
+- 잔여: 축 B(상점 명령) / 축 C(패치노트 디스코드·웹 피드) / DEF 연동(2단계) / 보스 패턴 배율 placeholder(C-1) / 인게임 검증.
+- 상태: DRAFT (축 A MVP 구현 완료, 축 B·C 미착수)
 
 <!-- 새 항목은 이 주석 위에 추가한다 -->

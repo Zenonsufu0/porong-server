@@ -4,6 +4,30 @@
 
 ---
 
+### DL-117 런타임 몹 스탯 오버라이드 시스템 MVP (INBOX-010 축 A)
+
+**배경:** 몹 HP/DEF/ATK·상점을 플러그인 재배포 없이 인게임 명령으로 핫에딧하려는 운영 요구(INBOX-010). 기획안 `01_plugin_architecture/runtime_admin_config_plan_v1.md` 작성 후 축 A(몹 스탯 ATK·HP) MVP 구현.
+
+**구현 (custom-plugins/empire-rpg):**
+1. **DB** — `mob_stat_override`(mob_key PK, max_hp/def/atk nullable) + `config_change_log`(감사 로그=패치노트 원천). `RuntimeConfigMigration`을 `CommonFoundationBootstrap` 마이그레이션 리스트에 등록.
+2. **서비스** — `MobStatOverrideService`: 부팅 시 DB 캐시 로드 + **DL-116 정본값 시드(ATK만, 없는 키만 삽입 → 운영자 편집 보존)**. set/reset이 DB·감사로그·캐시 동기. `MobStatOverrideRepository`/`ConfigChangeLogRepository` CRUD.
+3. **스폰 적용** — `MobStatOverrideSpawnListener`가 `MythicMobSpawnEvent`(reflection 격리)를 리스닝해 **전 스폰 경로 커버**(동적 필드/보스룸/MythicMobs 네이티브 — 필드보스 포함). 1틱 지연으로 MythicMobs 적용 후 어트리뷰트(`MAX_HEALTH`/`ATTACK_DAMAGE`) 덮어씀. (mythicSpawner 람다 주입 대신 채택 — 필드보스가 람다를 안 거치는 문제 해결.)
+4. **명령** — `/empire-mobstat list|get|set|reset` (`empire.admin` 권한, 값 0~100000 클램프). plugin.yml 등록.
+
+**적용 범위/제약:**
+- 적용: 몹 **HP·평타 ATK**(=바닐라 `Damage:` 속성). DL-116 일반/정예/필드보스 기본공격값 시드.
+- **DEF는 저장만, 미적용** — `PlayerDefenseListener` 몹별 DEF 연동은 2단계.
+- **보스 스킬 패턴 데미지(강타/폭발)는 적용 불가** — MythicMobs YAML 상수(기획안 §4.1-C, C-2). 패턴 데미지는 별도 YAML 배포 영역.
+- 변경은 **신규 스폰부터** 반영(기존 개체 미소급).
+
+**검증:** `gradlew build` 통과(exit 0, empire-rpg-0.1.0.jar). 인게임 실측 미실시.
+
+**남은 작업:** 축 B(상점 명령), 축 C(패치노트 디스코드/웹 피드), DEF 연동(2단계), 보스 패턴 배율 placeholder(C-1, 수요 시), 인게임 검증.
+
+**관련:** INBOX-010, `runtime_admin_config_plan_v1.md`, DL-116(시드 원천), `combat_balance_v2 §1.5`.
+
+---
+
 ### DL-116 몹 → 플레이어 ATK 정본표 신규 (HP 100 스케일 동반 재조정)
 
 **배경:** DL-115에서 0강 풀세트 HP를 670→100으로 낮췄으나, 몹→플레이어 피격은 바닐라 데미지 경로(`PlayerDefenseListener`가 DEF 경감만 적용)라 몹 공격력이 HP 670 시절 임의값 그대로였다. 조사 결과 현행 MythicMobs 설정에 **내부 모순** 확인 — 보스 바닐라 평타(`Damage:` 35~120)는 신규 HP 기준 거의 즉사(F5 120 → 18강 158HP의 52%), 반면 같은 보스 스킬 패턴(`damage{a=8~22}`)은 과소(원형폭발 22 → 10%). 둘 다 HP 670 시절 따로 튜닝된 결과.

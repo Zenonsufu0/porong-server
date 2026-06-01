@@ -193,6 +193,10 @@ commands:
     description: 운영 토글 (보스 스폰 일시정지·강화/EXP/드랍 부스트·PvP 큐)
     usage: /empire-toggle <flag> [on|off]  또는  /empire-toggle list
     permission: empire.admin
+  empire-mobstat:
+    description: 몹 스탯 런타임 오버라이드 (HP·평타 ATK 핫에딧, DL-116 시드)
+    usage: /empire-mobstat <list|get|set|reset> ...
+    permission: empire.admin
   empire-log:
     description: 로그/감시 (최근 강화·거래·PvP 로그)
     usage: /empire-log [enhance|trade|pvp]

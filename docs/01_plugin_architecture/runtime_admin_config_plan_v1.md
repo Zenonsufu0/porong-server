@@ -50,14 +50,15 @@
 **구조:** EmpireRPG가 스폰 시 DB 오버라이드를 적용(MythicMobs reload 불필요).
 
 ```
-[DB] mob_stat_override         [스폰] mythicSpawner 람다
-  mob_key  PK                    → MythicMobs 스폰(Entity)
-  max_hp                         → override 조회(mob_key)
-  def                            → Entity 어트리뷰트 적용:
-  atk_basic                         · GENERIC_MAX_HEALTH = max_hp
-  (updated_by, updated_at)          · GENERIC_ATTACK_DAMAGE = atk_basic
-                                  → def는 PlayerDefenseListener가 피격 시 참조(몹별 def 맵)
+[DB] mob_stat_override         [스폰] MythicMobSpawnEvent 리스너 (전 경로 커버)
+  mob_key  PK                    → 스폰 mobId(internalName)로 override 조회
+  max_hp                         → 1틱 지연 후 Entity 어트리뷰트 적용:
+  def                                · MAX_HEALTH = max_hp
+  atk  (= 평타)                       · ATTACK_DAMAGE = atk
+  (updated_by, updated_at)        → def는 PlayerDefenseListener가 피격 시 참조(2단계)
 ```
+
+> **구현 메모(DL-117):** 주입 지점은 `mythicSpawner` 람다가 아니라 **`MythicMobSpawnEvent` 리스너**(reflection 격리). 필드보스가 람다를 거치지 않고 MythicMobs 네이티브로 스폰되기 때문 — 리스너는 동적 스폰·보스룸·네이티브 명령/스포너 등 **모든 경로**를 커버한다.
 
 - **mob_key**: `field1_normal` / `field1_elite` / `field1_boss` … 또는 MythicMobs mobId 직접.
 - **시드**: `mob_stat_override` 시드 CSV에 **DL-116 정본값**을 초기 적재 → 정본 = 런타임 초기상태.
@@ -115,7 +116,7 @@
 
 | 단계 | 내용 | 의존 |
 |---|---|---|
-| **1 (MVP)** | `mob_stat_override` 테이블+시드(DL-116) + 스폰 주입(HP·평타) + `/empire-mobstat` + `config_change_log` | DB 패턴, FieldSpawnService |
+| **1 (MVP)** ✅ **완료 [DL-117]** | `mob_stat_override`+`config_change_log` 테이블 + DL-116 ATK 시드 + `MythicMobSpawnEvent` 리스너(전 스폰 경로, HP·평타 적용) + `/empire-mobstat` | DB 패턴 |
 | 2 | `PlayerDefenseListener` 몹별 DEF override 연동 | 1 |
 | 3 | 상점 DB 이전(B-2) + `/empire-shop` + 감사 로그 | DB 패턴 |
 | 4 | 패치노트 디스코드/웹 피드(축 C 파이프라인) | operations/query |

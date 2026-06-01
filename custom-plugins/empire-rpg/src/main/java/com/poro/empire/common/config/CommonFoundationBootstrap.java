@@ -17,6 +17,7 @@ import com.poro.empire.common.db.DatabaseBootstrapper;
 import com.poro.empire.common.db.JdbcTransactionHelper;
 import com.poro.empire.common.db.MigrationEntryPoint;
 import com.poro.empire.common.db.PlayerFlagTableStubMigration;
+import com.poro.empire.common.db.RuntimeConfigMigration;
 import com.poro.empire.common.db.SqliteConnectionProvider;
 import com.poro.empire.common.db.TransactionHelper;
 
@@ -64,7 +65,8 @@ public final class CommonFoundationBootstrap {
                     new PlayerSessionMigration(logger.domain("db.migration.player-session")),
                     new EnhancementLogMigration(logger.domain("db.migration.enhancement-log")),
                     new EconomyFlowMigration(logger.domain("db.migration.economy-flow")),
-                    new GrowthSnapshotMigration(logger.domain("db.migration.growth-snapshot"))
+                    new GrowthSnapshotMigration(logger.domain("db.migration.growth-snapshot")),
+                    new RuntimeConfigMigration(logger.domain("db.migration.runtime-config"))
             ));
             DatabaseBootstrapper databaseBootstrapper = new DatabaseBootstrapper(
                     connectionProvider,
