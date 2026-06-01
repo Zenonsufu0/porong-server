@@ -27,10 +27,10 @@
 **결정 (사용자 선택):** 커스텀 RPG 월드에서 **바닐라 생물(몹+동물) 자연 스폰 전면 차단 + 바닐라 아이템 드랍 제거**. 대상 월드 = `world`(필드) + `world_hub`(허브) + `IridiumSkyblock`(+nether/end, 영지).
 
 **구현 (custom-plugins/empire-rpg):**
-- `VanillaContentControlListener`(신규) — ① `CreatureSpawnEvent`: 대상 월드에서 스폰 이유가 **허용셋(CUSTOM·COMMAND·SPAWNER_EGG)** 밖인 모든 생물 취소(몹+동물). Citizens NPC(메타 `NPC`) 보호. ② `EntityDeathEvent`: 비-플레이어·비-NPC 몹 드랍 `getDrops().clear()`(전역). EmpireRPG 보상은 전부 DB(`addCurrency`)라 무영향(코드 전역 `getDrops().add` 부재 확인).
-- `EmpireRPGPlugin` — 대상 월드셋 주입 + 등록.
+- `VanillaContentControlListener`(신규, 4기능) — ① `CreatureSpawnEvent`: 대상 월드에서 스폰 이유가 **허용셋(CUSTOM·COMMAND·SPAWNER_EGG)** 밖인 모든 생물 취소(몹+동물). Citizens NPC(메타 `NPC`) 보호. ② `EntityDeathEvent`: 비-플레이어·비-NPC 몹 드랍 `getDrops().clear()`(전역). EmpireRPG 보상은 전부 DB(`addCurrency`)라 무영향(코드 전역 `getDrops().add` 부재 확인). ③ `EntityCombustEvent`: 일광 화상만 취소(ByBlock 용암·ByEntity 화염 유지) — 커스텀 좀비/스켈레톤 일광 사망 방지. ④ 60초 주기 sweep: 패치 전 잔존 바닐라 동물 제거(passive는 디스폰 안 됨 — `Animals`/`WaterMob`/`Ambient` 타입 판정, 커스텀 몹=Monster라 안전).
+- `EmpireRPGPlugin` — 대상 월드셋 주입 + 등록 + sweep 시작.
 
-**검증:** 빌드 통과. 인게임 라이브 — `world`에 Plains_Soldier(CUSTOM) 스폰 **정상 생존 + 오버라이드 atk 4.0**(커스텀 미차단). `/summon zombie`(COMMAND) 정상 소환→처치 시 **아이템 0개**(드랍 제거 실증). NATURAL 자연 스폰 차단은 플레이어 근접 시 발동이라 로직 검증(allowlist 밖)+사용자 필드 최종 확인.
+**검증:** 빌드 통과. 인게임 라이브 — `world`에 Plains_Soldier(CUSTOM) **생존 + 오버라이드 atk 4.0**(커스텀 미차단). `/summon zombie`→처치 시 **아이템 0개**(드랍 제거). `/summon cow`→60초 sweep이 **테스트 소 + 기존 잔존 동물 4마리 = 5마리 정리** 실증. 일광 화상 방지·NATURAL 차단은 사용자 인게임 최종 확인.
 
 **관련:** INBOX-011, DL-100(필드 리전), DL-117(몹스탯 — 동일 스폰 경로 공존), `FieldDropListener`(DB 보상), `VanillaExpSuppressListener`(바닐라 XP 억제 — 동일 철학).
 

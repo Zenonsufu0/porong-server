@@ -694,9 +694,10 @@ public final class EmpireRPGPlugin extends JavaPlugin {
         controlWorlds.add("IridiumSkyblock");
         controlWorlds.add("IridiumSkyblock_nether");
         controlWorlds.add("IridiumSkyblock_the_end");
-        getServer().getPluginManager().registerEvents(
-                new com.poro.empire.listener.VanillaContentControlListener(controlWorlds), this);
-        getLogger().info("[VanillaContentControl] 바닐라 몹/동물 스폰 차단 + 드랍 제거 활성 — 월드: " + controlWorlds);
+        var vanillaContentControl = new com.poro.empire.listener.VanillaContentControlListener(controlWorlds);
+        getServer().getPluginManager().registerEvents(vanillaContentControl, this);
+        vanillaContentControl.startSweep(this); // 잔존 동물 주기 정리
+        getLogger().info("[VanillaContentControl] 바닐라 몹/동물 스폰 차단 + 드랍 제거 + 일광화상 방지 활성 — 월드: " + controlWorlds);
 
         // 허브 월드(별도 평지) 보장 + 복귀 유저 접속 시 허브 이동 (INBOX-006 온보딩 코어)
         com.poro.empire.hub.HubWorldService hubWorldService = new com.poro.empire.hub.HubWorldService(this);
