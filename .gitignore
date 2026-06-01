@@ -52,5 +52,34 @@ assets/source/items/weapons/**/_legacy/failed_auto_attempts/
 # Obsidian local workspace/settings
 docs/.obsidian/
 
-# Obsidian local settings
-docs/.obsidian/
+# ─────────────────────────────────────────────────────────────
+# 보안/라이선스 정리 (외부 에셋 재배포 금지, WSL 찌꺼기, 비밀정보)
+# ─────────────────────────────────────────────────────────────
+
+# 외부 에셋 / 아카이브 — 재배포 금지(license). 자체 산출물 zip이 필요하면
+# `git add -f <파일>` 로 예외 추적.
+*.zip
+*.rar
+asset.zip
+docs.zip
+
+# WSL/Windows Alternate Data Stream 찌꺼기
+*:Zone.Identifier
+*:RVContext
+
+# OS 찌꺼기
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 비밀정보 (실제 env/키는 절대 커밋 금지, example 템플릿만 허용)
+.env
+*.env
+!*.example.env
+!.env.example
+*.pem
+*.key
+*.keystore
+*.p12
+secrets.*
+credentials.*
