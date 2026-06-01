@@ -275,4 +275,11 @@
 - ✅ **[PROMOTED → DL-118]** (2026-06-01): `VanillaContentControlListener` — 대상 월드(world+world_hub+IridiumSkyblock*)에서 ① 모든 생물(몹+동물) 비-의도 스폰 차단(CUSTOM·COMMAND·SPAWNER_EGG만 허용, Citizens NPC 보호), ② 바닐라 아이템 드랍 전역 제거(EmpireRPG 보상은 DB라 무영향). 라이브 검증: 커스텀 몹 생존 + /summon 좀비 처치 시 드랍 0개 확인. (바닐라 드랍은 섞인 바닐라 몹이 원인 — 스폰+드랍 이중 차단으로 해소.)
 - 상태: DRAFT → 구현 완료(NATURAL 자연 스폰 차단 최종 확인은 사용자 필드 방문 시)
 
+### INBOX-012 필드 진입 WorldBorder 경계 표시
+- 날짜: 2026-06-01
+- 출처: 사용자 요청 ("WorldBorder 방식으로 필드 진입 시 경계 띄워줘")
+- 배경: 필드는 단일 `world`의 좌표 기반 300×300 스폰 존(`FieldSpawnService.BOUND_RADIUS=150`)일 뿐 물리·시각 경계가 없어 플레이어가 필드 범위를 알 수 없음. 맵 설계(`12_map_design`)의 입출구 포탈·울타리 경계는 미구현.
+- ✅ **[PROMOTED → DL-119]** (2026-06-01): `FieldBorderService` — 플레이어가 필드 ±150 영역 진입 시 개인 WorldBorder(중심=필드 좌표, 300×300, 데미지 0) 적용, 이탈 시 해제. per-player라 같은 월드에서도 각자 자기 필드 경계만 봄. 스폰 존과 정확히 일치. 0.5초 폴링, 상태 변화 시에만 패킷.
+- 상태: DRAFT → 구현 완료(빌드·기동 확인 / 빨간 경계 시각 확인은 사용자 필드 진입 시)
+
 <!-- 새 항목은 이 주석 위에 추가한다 -->

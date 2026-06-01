@@ -4,6 +4,22 @@
 
 ---
 
+### DL-119 필드 진입 WorldBorder 경계 (INBOX-012)
+
+**배경:** 필드는 단일 `world`의 좌표 기반 300×300 스폰 존(`FieldSpawnService.BOUND_RADIUS=150`)일 뿐 물리·시각 경계가 전무. 맵 설계의 포탈/울타리 경계는 미구현. 사용자가 "필드 진입 시 WorldBorder로 경계 표시" 요청.
+
+**결정:** 필드 진입 시 **개인(per-player) WorldBorder**를 띄워 빨간 경계 표시. 스폰 존(300×300)과 정확히 일치. 데미지 0(이동 통제·시각만, 이탈은 GUI 이동).
+
+**구현 (custom-plugins/empire-rpg):**
+- `FieldBorderService`(신규) — 0.5초 폴링. 플레이어가 필드 영역(중심 ±150) 진입 시 `player.setWorldBorder`(중심=필드 좌표, size 300, warningDistance 8, damage 0). 이탈 시 `setWorldBorder(null)`(월드 기본 복귀). 상태 변화 시에만 패킷(플리커 방지). per-player라 같은 월드에서도 각자 자기 필드 경계만 봄. config `fields`에서 5필드 로드.
+- `EmpireRPGPlugin` — FieldSpawnService 옆에서 start.
+
+**검증:** 빌드 통과. 기동 로그 `[FieldBorder] 필드 진입 경계 활성 — 필드 5개, 크기 300×300`. per-player WorldBorder 시각(빨간 경계)은 플레이어 필드 진입 시 발현 — 사용자 인게임 확인.
+
+**관련:** INBOX-012, DL-100(필드 ±150 스폰 존), `12_map_design/field_map_concepts`(포탈/울타리 경계 — 향후 빌드).
+
+---
+
 ### DL-118 바닐라 콘텐츠 제거 — 몹/동물 자연 스폰 차단 + 바닐라 드랍 제거 (INBOX-011)
 
 **배경:** 라이브 검증 중 사용자 보고 — (1) 필드에 커스텀 필드몹과 바닐라 몹이 섞여 혼란, (2) 동물도 막아야 함, (3) 영지(섬)에서도 몹·동물 차단, (4) 좀비 처치 시 철·썩은고기 등 바닐라 드랍. 조사: 필드=단일 오버월드 `world` 리전(자연 스폰 제어 전무). 커스텀 몹은 `PreventOtherDrops:true`+드랍테이블 EXP만이라 바닐라 드랍 없음 → (4)는 섞인 바닐라 몹의 드랍.
