@@ -7,7 +7,7 @@ import discord
 from discord.ext import commands
 
 import config
-from api_client import EmpireApiClient
+from api_client import PoroApiClient
 
 
 # ─── 닉네임 입력 모달 ────────────────────────────────────────────
@@ -20,7 +20,7 @@ class NicknameModal(discord.ui.Modal, title="마인크래프트 닉네임 입력
         max_length=16,
     )
 
-    def __init__(self, api: EmpireApiClient) -> None:
+    def __init__(self, api: PoroApiClient) -> None:
         super().__init__()
         self.api = api
 
@@ -73,7 +73,7 @@ class NicknameModal(discord.ui.Modal, title="마인크래프트 닉네임 입력
 # ─── 약관 동의 버튼 뷰 ───────────────────────────────────────────
 
 class TermsView(discord.ui.View):
-    def __init__(self, api: EmpireApiClient) -> None:
+    def __init__(self, api: PoroApiClient) -> None:
         super().__init__(timeout=None)  # 영구 뷰
         self.api = api
 
@@ -91,7 +91,7 @@ class TermsView(discord.ui.View):
 class AuthCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
-        self.api = EmpireApiClient()
+        self.api = PoroApiClient()
 
     @commands.Cog.listener()
     async def on_ready(self) -> None:

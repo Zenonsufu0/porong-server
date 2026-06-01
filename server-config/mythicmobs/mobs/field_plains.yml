@@ -1,6 +1,6 @@
 # 필드 1: 수도 외곽 평원 (capital_plains)
 # 권장 강화: 0강~5강 / 필드 레벨: 1
-# EmpireRPG drop hook: plains_normal_drop / plains_elite_drop / plains_predator_drop
+# PoroRPG drop hook: plains_normal_drop / plains_elite_drop / plains_predator_drop
 # scoreboard tag 전략: addScoreboardTag ~onSpawn (MythicMobs YAML, Java 코드 무의존)
 
 Plains_Soldier:
@@ -21,7 +21,7 @@ Plains_Soldier:
   - randomstroll 0.7
   - randomlookaround
   Skills:
-  - addScoreboardTag{t=empire_field_1} @self ~onSpawn
+  - addScoreboardTag{t=poro_field_1} @self ~onSpawn
 
 Plains_Wildling:
   Type: SKELETON
@@ -40,7 +40,7 @@ Plains_Wildling:
   - meleeattack
   - randomstroll 0.7
   Skills:
-  - addScoreboardTag{t=empire_field_1} @self ~onSpawn
+  - addScoreboardTag{t=poro_field_1} @self ~onSpawn
 
 Plains_StalkerElite:
   Type: ZOMBIE
@@ -56,8 +56,8 @@ Plains_StalkerElite:
   Drops:
   - exp 80
   Skills:
-  - addScoreboardTag{t=empire_field_1} @self ~onSpawn
-  - addScoreboardTag{t=empire_rank_elite} @self ~onSpawn
+  - addScoreboardTag{t=poro_field_1} @self ~onSpawn
+  - addScoreboardTag{t=poro_rank_elite} @self ~onSpawn
   - skill{s=Plains_StalkerCharge} ~onTimer:80
 
 Plains_Predator:
@@ -81,8 +81,8 @@ Plains_Predator:
     Color: RED
     Style: SOLID
   Skills:
-  - addScoreboardTag{t=empire_field_1} @self ~onSpawn
-  - addScoreboardTag{t=empire_type_field_boss} @self ~onSpawn
+  - addScoreboardTag{t=poro_field_1} @self ~onSpawn
+  - addScoreboardTag{t=poro_type_field_boss} @self ~onSpawn
   # Phase 1·2 공통: P-00 기본 공격 (2.0s)
   - skill{s=P_00_BasicAttack} ~onTimer:40
   # Phase 1 (100%~50%): P-01 전방 강타 (5s), P-02 직선 돌진 (8s), P-04 부채꼴 휩쓸기 (6s)

@@ -106,7 +106,7 @@ P_09_Invincible:
 
 # P-09 딜타임 개방 — 무적 해제 + 기절 + 취약 창 알림
 # 필드보스: DAMAGE_RESISTANCE 만료(30s 후) 후 보스 일반 상태 복귀
-# 시즌보스: EmpireRPG가 조건 달성 시 이 스킬 강제 실행
+# 시즌보스: PoroRPG가 조건 달성 시 이 스킬 강제 실행
 P_09_DealWindow:
   Skills:
   - removepotion{type=DAMAGE_RESISTANCE} @self

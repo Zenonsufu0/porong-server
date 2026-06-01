@@ -4,13 +4,13 @@
 
 ## 핵심 원칙
 
-EmpireRPG가 서버의 핵심 데이터와 로직을 소유한다. 다른 플러그인은 껍데기, 보조, 표시, 월드 관리만 담당한다.
+PoroRPG가 서버의 핵심 데이터와 로직을 소유한다. 다른 플러그인은 껍데기, 보조, 표시, 월드 관리만 담당한다.
 
 ## 유지/추가 플러그인
 
 | 플러그인 | 역할 |
 |---|---|
-| EmpireRPG | 전투, 장비, 영지, 보스, 보상, DB, API |
+| PoroRPG | 전투, 장비, 영지, 보스, 보상, DB, API |
 | MythicMobs | 몹/보스 스폰, 바닐라 강화형 외형, 기본 연출 |
 | IridiumSkyblock | 개인 영지 생성/멤버/보호/방문 |
 | Vault | 경제/권한 연동 보조 |
@@ -30,7 +30,7 @@ EmpireRPG가 서버의 핵심 데이터와 로직을 소유한다. 다른 플러
 - ModelEngine/BetterModel/FMM은 2차 확장 후보
 - MMOCore/AuraSkills/RPGItems/Quests 보류
 
-## EmpireRPG 모듈
+## PoroRPG 모듈
 
 ```text
 core, player, combat, item, field, boss, island, collection, gui, integration
@@ -38,4 +38,4 @@ core, player, combat, item, field, boss, island, collection, gui, integration
 
 ## 데이터 소유권
 
-DB 원본은 EmpireRPG가 가진다. 웹/디코봇은 API를 통해 조회한다.
+DB 원본은 PoroRPG가 가진다. 웹/디코봇은 API를 통해 조회한다.

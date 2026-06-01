@@ -1,0 +1,255 @@
+name: PoroRPG
+version: 0.1.0
+main: com.poro.rpg.PoroRPGPlugin
+api-version: '1.21'
+author: Hyeondo
+description: Core RPG plugin for Poro Server
+softdepend:
+  - LuckPerms
+  - PlaceholderAPI
+  - Citizens
+  - BetonQuest
+  - MythicMobs
+  - IridiumSkyblock
+  - WorldGuard
+
+commands:
+  poro:
+    description: PoroRPG 관리자 커맨드
+    usage: /poro <subcommand>
+    permission: poro.use
+
+  poro-genrooms:
+    description: 보스룸 30개 월드 자동 생성 (관리자 전용, 서버 오픈 전 1회 실행)
+    usage: /poro-genrooms [world] [x] [y] [z]
+    permission: poro.admin.genrooms
+
+  poro-genarenas:
+    description: PvP 아레나 10개 월드 자동 생성 (관리자 전용, 서버 오픈 전 1회 실행)
+    usage: /poro-genarenas [world] [x] [y] [z]
+    permission: poro.admin.genarenas
+
+  # 메인
+  메뉴:
+    description: 메인 GUI 열기
+    usage: /메뉴
+    permission: poro.use
+
+  # 장비 계열
+  장비:
+    description: 장비 GUI 열기
+    usage: /장비
+    permission: poro.use
+  강화:
+    description: 강화 GUI 바로 열기
+    usage: /강화
+    permission: poro.use
+  잠재:
+    description: 잠재(큐브) GUI 열기
+    usage: /잠재
+    permission: poro.use
+  각인:
+    description: 각인 GUI 열기
+    usage: /각인
+    permission: poro.use
+  캐릭터:
+    description: 캐릭터 GUI 열기
+    usage: /캐릭터
+    permission: poro.use
+  전승:
+    description: 전승 GUI 열기
+    usage: /전승
+    permission: poro.use
+
+  # 영지 계열
+  영지:
+    description: 영지 GUI 열기
+    usage: /영지
+    permission: poro.use
+  영지이동:
+    description: 영지이동 서브GUI 열기
+    usage: /영지이동
+    permission: poro.use
+  영지상태:
+    description: 영지상태 GUI 열기
+    usage: /영지상태
+    permission: poro.use
+  영지초대:
+    description: 영지 초대 수락/거절
+    usage: /영지초대 <수락|거절>
+    permission: poro.use
+  대전:
+    description: PvP 대전 허브 열기
+    usage: /대전
+    permission: poro.use
+  대전랭킹:
+    description: 정규대전 랭킹 조회
+    usage: /대전랭킹
+    permission: poro.use
+  친선:
+    description: 친선대전 요청 수락/거절
+    usage: /친선 <수락|거절>
+    permission: poro.use
+  창고:
+    description: 창고 GUI 열기
+    usage: /창고
+    permission: poro.use
+  공방:
+    description: 공방 GUI 열기
+    usage: /공방
+    permission: poro.use
+  작물:
+    description: 작물관리 GUI 열기
+    usage: /작물
+    permission: poro.use
+  상점:
+    description: 상점 GUI 열기
+    usage: /상점
+    permission: poro.use
+  경매장:
+    description: 경매장 GUI 열기
+    usage: /경매장
+    permission: poro.use
+  영지설정:
+    description: 영지설정 GUI 열기
+    usage: /영지설정
+    permission: poro.use
+
+  # 보스 계열
+  보스:
+    description: 보스 GUI 열기
+    usage: /보스
+    permission: poro.use
+  파티:
+    description: 파티생성 GUI 열기
+    usage: /파티
+    permission: poro.use
+  파티목록:
+    description: 파티목록 GUI 열기
+    usage: /파티목록
+    permission: poro.use
+  보스정보:
+    description: 보스정보 GUI 열기
+    usage: /보스정보
+    permission: poro.use
+  클리어:
+    description: 클리어기록 GUI 열기
+    usage: /클리어
+    permission: poro.use
+
+  # 필드
+  필드:
+    description: 필드 GUI 열기
+    usage: /필드
+    permission: poro.use
+
+  # 운용자 전용
+  poro-setclass:
+    description: 플레이어 직업 변경 및 초기 장비 지급 (관리자 전용)
+    aliases: [직업]
+    usage: /poro-setclass <플레이어> <검|도끼|창|석궁|낫|스태프>
+    permission: poro.admin.setclass
+
+  poro-admin:
+    description: 관리자 메인 허브 GUI (인스펙트·매치·통계)
+    aliases: [관리자]
+    usage: /poro-admin
+    permission: poro.admin
+
+  # 운영자 단건 변경 — Phase 2 명령어
+  poro-give:
+    description: 영지 창고에 아이템 강제 지급
+    usage: /poro-give <플레이어> <itemId> [수량]
+    permission: poro.admin
+  poro-currency:
+    description: 재화 ± 조정 (gold/mat_stone_enhance/mat_cube 등)
+    usage: /poro-currency <플레이어> <code> <±N>
+    permission: poro.admin
+  poro-rank:
+    description: 영지 작위 강제 변경
+    usage: /poro-rank <플레이어> <FRONTIER|KNIGHT|BARONET|BARON|VISCOUNT|COUNT|MARQUESS|DUKE>
+    permission: poro.admin
+  poro-enhance:
+    description: 강화 단계 강제 설정 (5슬롯)
+    usage: /poro-enhance <플레이어> <WEAPON|HELMET|CHESTPLATE|LEGGINGS|BOOTS> <강화레벨>
+    permission: poro.admin
+  poro-level:
+    description: 플레이어 레벨 설정
+    usage: /poro-level <플레이어> <레벨>
+    permission: poro.admin
+  poro-pvp-score:
+    description: 정규대전 점수 ± 조정 (승패 카운터 영향 없음)
+    usage: /poro-pvp-score <플레이어> <±N>
+    permission: poro.admin
+  poro-cleanse:
+    description: 플레이어 매치/큐/대기 상태 일괄 정리
+    usage: /poro-cleanse <플레이어>
+    permission: poro.admin
+  poro-island-reset:
+    description: 영지 멤버/권한/방문설정 초기화 (창고·작위 미포함)
+    usage: /poro-island-reset <플레이어>
+    permission: poro.admin
+  poro-toggle:
+    description: 운영 토글 (보스 스폰 일시정지·강화/EXP/드랍 부스트·PvP 큐)
+    usage: /poro-toggle <flag> [on|off]  또는  /poro-toggle list
+    permission: poro.admin
+  poro-mobstat:
+    description: 몹 스탯 런타임 오버라이드 (HP·평타 ATK 핫에딧, DL-116 시드)
+    usage: /poro-mobstat <list|get|set|reset> ...
+    permission: poro.admin
+  poro-log:
+    description: 로그/감시 (최근 강화·거래·PvP 로그)
+    usage: /poro-log [enhance|trade|pvp]
+    permission: poro.admin
+  poro-boss-list:
+    description: 진행 중 보스 런 목록
+    usage: /poro-boss-list
+    permission: poro.admin
+  poro-boss-end:
+    description: 보스 런 강제 종료 (runId 접두어)
+    usage: /poro-boss-end <runId>
+    permission: poro.admin
+
+permissions:
+  poro.admin:
+    description: PoroRPG 관리자 전체 권한
+    default: op
+    children:
+      poro.admin.setclass: true
+      poro.admin.reputation: true
+      poro.admin.reload: true
+      poro.admin.genrooms: true
+      poro.admin.genarenas: true
+  poro.admin.setclass:
+    description: 타 플레이어 클래스 강제 설정 (/poro-setclass, /직업)
+    default: op
+  poro.admin.reputation:
+    description: 타 플레이어 명성치 조작
+    default: op
+  poro.admin.reload:
+    description: 설정 리로드
+    default: op
+  poro.admin.genrooms:
+    description: 보스룸 자동 생성 (/poro-genrooms)
+    default: op
+  poro.admin.genarenas:
+    description: PvP 아레나 자동 생성 (/poro-genarenas)
+    default: op
+  poro.use:
+    description: PoroRPG 기본 사용 권한
+    default: true
+  poro.class:
+    description: 무기 클래스 선택
+    default: true
+  poro.skill:
+    description: 스킬 사용
+    default: true
+  poro.info:
+    description: 디버그 정보 조회
+    default: true
+  poro.hud:
+    description: HUD 테스트 메시지
+    default: true
+  poro.reputation:
+    description: 자신의 명성치 조회
+    default: true

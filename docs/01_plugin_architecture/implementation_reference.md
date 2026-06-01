@@ -1,4 +1,4 @@
-# EmpireRPG 구현 레퍼런스
+# PoroRPG 구현 레퍼런스
 
 > **[STATUS: REFERENCE]** — 현재 CANON 기준의 구현 진입점. 구버전 장문 구현 메모는 `docs/_archive/implementation_reference_legacy.md`로 이동됨.
 
@@ -9,14 +9,14 @@
 | 우선순위 | 문서 | 역할 |
 |---|---|---|
 | 1 | `../final_master_plan.md` | 1차 시즌 범위, 시스템 경계, 폐기 기준 |
-| 2 | `CANON.md` | 플러그인 경계, EmpireRPG 책임, 부트스트랩 순서 |
+| 2 | `CANON.md` | 플러그인 경계, PoroRPG 책임, 부트스트랩 순서 |
 | 3 | 각 도메인 `CANON.md` | 성장/전투/영지/필드/GUI 도메인별 공식 기준 |
 | 4 | 활성 상세 문서 | 구현 상세. CANON과 충돌 시 상세 문서를 정리한다 |
 | 5 | `../_archive/` | 과거 맥락 전용. 현재 구현 기준으로 사용하지 않는다 |
 
-## EmpireRPG 책임
+## PoroRPG 책임
 
-EmpireRPG는 전투, 장비, 영지, 보스, 보상, DB, API, Discord/web 연동 데이터를 소유한다.
+PoroRPG는 전투, 장비, 영지, 보스, 보상, DB, API, Discord/web 연동 데이터를 소유한다.
 
 외부 플러그인은 껍데기 또는 보조 역할만 담당한다.
 

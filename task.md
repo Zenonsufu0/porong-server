@@ -8,7 +8,7 @@
 
 - 브랜치: `master`
 - **§7 진행 중** — 서버 인게임 테스트 단계. 단일 평지 월드 + 동적 필드 스폰 + 허브 온보딩 + 무기별 독립 성장 구현, 라이브 검증 반복 중.
-- 빌드: `./gradlew build → BUILD SUCCESSFUL` / 서버 클린 부팅 확인(Done ~15s, EmpireRPG enable)
+- 빌드: `./gradlew build → BUILD SUCCESSFUL` / 서버 클린 부팅 확인(Done ~15s, PoroRPG enable)
 - 동기화: 매 handoff 시 master == codex-review 유지
 - **다음 (재개 지점)**: 재접속 → §7 핵심 검증(무기별 독립 성장·GUI 36칸 통합·무기 lore·창 삼지창·스코어보드 위치) → 통과 시 잔여(튜토리얼 맵·필드 일반/정예 토글·HUD 리소스팩) 진행
 - ※ **상태 드리프트 방지 정책**: task.md에 "최신 커밋 해시"·"미커밋/커밋" 상태를 박지 않는다. 최신 커밋 기준은 항상 `git log`. per-step 섹션은 완료 여부만 표기한다.
@@ -55,7 +55,7 @@
 | 무기 선택/변경 GUI 스펙 36칸 통합 (검10·도끼13·창16/석궁19·낫22·스태프25/뒤로27) | `gui/WeaponGui.java`(신규) | ✅ |
 | 손에 든 무기 lore = 무기변경 형식(강화/등급/잠재/세부스탯/각인) | `gui/WeaponItemFactory.java`(신규) | ✅ |
 | 창 아이콘 NETHERITE_SWORD→TRIDENT (선택·변경·물리 무기) | `WeaponGui`, `GrowthGuiListener`, `ClassInitService` | ✅ |
-| 스코어보드 위치 변경 감시 태스크(1초 폴링·변경 시만 refresh) + 좌표 기반 구역명(필드5/보스룸/PvP) | `ScoreboardService`, `EmpireRPGPlugin` | ✅ |
+| 스코어보드 위치 변경 감시 태스크(1초 폴링·변경 시만 refresh) + 좌표 기반 구역명(필드5/보스룸/PvP) | `ScoreboardService`, `PoroRPGPlugin` | ✅ |
 | `BUILD SUCCESSFUL` + 배포 + 서버 클린 부팅 | — | ✅ |
 
 ### §7-5 잔여 (DL-104 후속)
@@ -75,7 +75,7 @@
 
 ---
 
-## §6 EmpireRPG 플러그인 코어 구현 — 완료
+## §6 PoroRPG 플러그인 코어 구현 — 완료
 
 기준 문서: `docs/10_development_roadmap/implementation_design_plan.md`
 
@@ -121,7 +121,7 @@
 |---|---|---|
 | `BossRoomSlot` (synchronized tryOccupy/release) | `7be9897` | ✅ |
 | `BossRoomManager` — `assignRoom`, `registerRun`, `releaseByRunId`, `exitRoom` 자동해제 | `9a899a4` | ✅ |
-| `BossRoomGenerationService` + `/empire-genrooms` 커맨드 | `7be9897` | ✅ |
+| `BossRoomGenerationService` + `/poro-genrooms` 커맨드 | `7be9897` | ✅ |
 | `config.yml` boss-room-slots 30슬롯 + fields 5종 좌표 | `7be9897` | ✅ |
 | `BossRoomListener` — 표지판 입장 / `startRun()` / 슬롯 실패 cleanup | `342954f` | ✅ |
 | MythicMobs reflection 격리 (`build.gradle.kts` compileOnly 제거) | `eee0548` | ✅ |
@@ -140,7 +140,7 @@
 | `boss_stats_summary` VIEW | ✅ |
 | `CommonFoundationBootstrap` migration chain 활성화 (Noop 교체 + `initialize()` 호출) | ✅ |
 | `BossSessionRepository` (read/write) | ✅ |
-| `EmpireHttpServer` (포트 8765, JDK 내장 HttpServer) | ✅ |
+| `PoroHttpServer` (포트 8765, JDK 내장 HttpServer) | ✅ |
 | `/api/v1/boss/stats` `/boss/{id}/stats` `/boss/{id}/weekly` `/boss/{id}/party-spec` | ✅ |
 | `onDisable` HTTP 서버 stop 연결 | ✅ |
 | `DbBossRunRecordHook` + `CompositeBossRunRecordHook` (세션 시작/종료 DB 기록) | ✅ |
@@ -201,7 +201,7 @@
 |---|---|
 | `AuctionGuiListener.handleDirectRegister(player, price, qty)` — 손에 든 아이템 PDC/displayName 매칭 → territory 수량 검증 → confirmRegister 위임 | ✅ |
 | `confirmRegister` qty 파라미터 추가 (GUI 경로는 qty=1 고정, 커맨드 경로는 사용자 지정) | ✅ |
-| `NamespacedKey "empire_item_id"` 추가 — PDC 태그 우선 조회, 없으면 displayName→ItemMaster.itemName() fallback | ✅ |
+| `NamespacedKey "poro_item_id"` 추가 — PDC 태그 우선 조회, 없으면 displayName→ItemMaster.itemName() fallback | ✅ |
 | `PlayerCommandRouter` — `/경매장 등록 <가격> [수량]` args 파싱 추가 | ✅ |
 | `BUILD SUCCESSFUL` | ✅ |
 
@@ -228,7 +228,7 @@
 | Phase C-1: BaseWeaponSkill.dashInInputDirection() 추가 | `BaseWeaponSkill.java` | ✅ |
 | Phase C-1: 낫 월영회전 dashSideways → dashInInputDirection (키 입력 방향) | `ScytheShadowSpinSkill.java` | ✅ |
 | Phase D-1: /메뉴 → MainHubGui.open(player) 연결 | `PlayerCommandRouter.java` | ✅ |
-| `BUILD SUCCESSFUL` + `server/plugins/EmpireRPG.jar` 재배포 | — | ✅ |
+| `BUILD SUCCESSFUL` + `server/plugins/PoroRPG.jar` 재배포 | — | ✅ |
 
 ### 잔여 미구현 (구현 계획서 v2 기준)
 | 항목 | 비고 |
@@ -252,7 +252,7 @@
 | `GrowthGuiListener.openGrowthPotential()` — slot 53 닫기 버튼 추가 | `a897c5f` | ✅ |
 | `GrowthGuiListener.openGrowthHeirloom()` — 45→54 슬롯 확장, HEIR_SLOT_BACK=45·HEIR_SLOT_CLOSE=53 추가 | `a897c5f` | ✅ |
 | `AuctionMigration` — 구 스키마(`item_data` 컬럼) 감지 → 비어 있으면 DROP·재생성, 데이터 있으면 abort+안내 | `cea6aeb` | ✅ |
-| JAR 재빌드 + `server/plugins/EmpireRPG.jar` 재배포 | — | ✅ |
+| JAR 재빌드 + `server/plugins/PoroRPG.jar` 재배포 | — | ✅ |
 
 ### 재배포 후 재확인 필요 항목
 | 증상 | 판단 |
@@ -293,9 +293,9 @@
 
 | 항목 | 파일 | 상태 |
 |---|---|---|
-| `/empire-admin` 허브 + Phase 1 GUI (인스펙트·진행매치·통계·슬롯해제) | `AdminHubGui`, `AdminInspectGui`, `AdminMatchesGui`, `AdminStatsGui`, `AdminGuiListener`, `AdminHubCommand` | ✅ |
+| `/poro-admin` 허브 + Phase 1 GUI (인스펙트·진행매치·통계·슬롯해제) | `AdminHubGui`, `AdminInspectGui`, `AdminMatchesGui`, `AdminStatsGui`, `AdminGuiListener`, `AdminHubCommand` | ✅ |
 | Anvil 닉네임 → `AdminInspectGui` 27슬롯 (직업·레벨·영지·PvP·재화·장비 5슬롯·평균 IL) | `AdminInspectGui` | ✅ |
-| 운영자 단건 변경 8종 (`empire-give`, `empire-currency`, `empire-rank`, `empire-enhance`, `empire-level`, `empire-pvp-score`, `empire-cleanse`, `empire-island-reset`) | `AdminPlayerCommand` (신규) | ✅ |
+| 운영자 단건 변경 8종 (`poro-give`, `poro-currency`, `poro-rank`, `poro-enhance`, `poro-level`, `poro-pvp-score`, `poro-cleanse`, `poro-island-reset`) | `AdminPlayerCommand` (신규) | ✅ |
 | `PlayerEquipmentItem.setEnhanceLevel` 가시성 public 승격 (관리자 명령 접근용) | `PlayerEquipmentItem` | ✅ |
 | `PvpMatchService.activeMatches()` / `adminForceEnd(matchId, reason)` 추가 | `PvpMatchService` | ✅ |
 | `PvpRatingService.adminAdjustScore(uuid, name, delta)` 추가 | `PvpRatingService` | ✅ |
@@ -308,13 +308,13 @@
 | 항목 | 파일 | 상태 |
 |---|---|---|
 | `AdminTogglesService` — 5개 플래그 (`BOSS_SPAWN_PAUSE`/`ENHANCE_BOOST`/`EXP_BOOST`/`DROP_BOOST`/`PVP_QUEUE_PAUSE`), in-memory `LinkedHashMap`, isOn/setOn/setOff/toggle/all | `admin/AdminTogglesService.java` (신규) | ✅ |
-| `/empire-toggle <flag> [on|off]` / `/empire-toggle list` | `command/AdminTogglesCommand.java` (신규) | ✅ |
+| `/poro-toggle <flag> [on|off]` / `/poro-toggle list` | `command/AdminTogglesCommand.java` (신규) | ✅ |
 | `AdminTogglesGui` — 27슬롯, Toggle 당 LIME/GRAY 다이 아이콘, `open()` 반환 `Toggle[]`로 슬롯 매핑 | `gui/AdminTogglesGui.java` (신규) | ✅ |
 | `GuiTitles.ADMIN_TOGGLES` 추가 | `gui/GuiTitles.java` | ✅ |
 | `AdminHubGui` slot 31 stub → 활성 LEVER 아이콘 | `gui/AdminHubGui.java` | ✅ |
 | `AdminGuiListener` — togglesService 주입, `ADMIN_TOGGLES` 클릭 핸들러, `toggleSlotMapping` | `listener/AdminGuiListener.java` | ✅ |
-| `EmpireRPGPlugin` — `AdminTogglesService` 생성 + `AdminTogglesCommand` 등록 | `EmpireRPGPlugin.java` | ✅ |
-| `plugin.yml` — `empire-toggle` 명령 등록 (`empire.admin`) | `plugin.yml` | ✅ |
+| `PoroRPGPlugin` — `AdminTogglesService` 생성 + `AdminTogglesCommand` 등록 | `PoroRPGPlugin.java` | ✅ |
+| `plugin.yml` — `poro-toggle` 명령 등록 (`poro.admin`) | `plugin.yml` | ✅ |
 | `docs/10_development_roadmap/admin_gui_phase2.md` — Step 2 완료/Step 2b hook 명시 | docs | ✅ |
 | `BUILD SUCCESSFUL` | — | ✅ |
 
@@ -331,30 +331,30 @@
 | `AdminPlayerCommand.handleIslandReset` → 공통 헬퍼 호출로 리팩터 (중복 제거) | `command/AdminPlayerCommand.java` | ✅ |
 | `GuiTitles.ADMIN_TERRITORY` + `AdminHubGui` slot 29 stub→활성 | `gui/*` | ✅ |
 | `AdminGuiListener` — `ADMIN_TERRITORY` 핸들러 + `territoryView` 상태 + `shiftRank` | `listener/AdminGuiListener.java` | ✅ |
-| 신규 명령 없음 — 액션은 기존 `/empire-rank`·`/empire-island-reset`와 동등 (C 방식) | — | ✅ |
+| 신규 명령 없음 — 액션은 기존 `/poro-rank`·`/poro-island-reset`와 동등 (C 방식) | — | ✅ |
 | `BUILD SUCCESSFUL` | — | ✅ |
 
 ### §6-18 잔여
 - 멤버 개별 강제 제거 GUI — 현재는 전체 초기화만. 후속
-- 영지 customItem(자원) 직접 지급/회수 GUI — `/empire-currency`·`/empire-give` 명령 존재, GUI는 후속
-- 작위 변경 즉시 영속화 — `/empire-rank`와 동일하게 `setRank`만 (기존 저장 경로 위임). 별도 persist 미호출
+- 영지 customItem(자원) 직접 지급/회수 GUI — `/poro-currency`·`/poro-give` 명령 존재, GUI는 후속
+- 작위 변경 즉시 영속화 — `/poro-rank`와 동일하게 `setRank`만 (기존 저장 경로 위임). 별도 persist 미호출
 
 ---
 
-## §6-17 관리자 Phase 2 Step 4 — 보스 디버그 GUI + /empire-boss-list·/empire-boss-end — 완료 (2026-05-30, 커밋 `7c02972`)
+## §6-17 관리자 Phase 2 Step 4 — 보스 디버그 GUI + /poro-boss-list·/poro-boss-end — 완료 (2026-05-30, 커밋 `7c02972`)
 
 기준: `docs/10_development_roadmap/admin_gui_phase2.md` §보스 디버그 (slot 24)
 
 | 항목 | 파일 | 상태 |
 |---|---|---|
 | `AdminBossGui` — 54슬롯 진행 중 보스 런 목록, 좌클릭=강제 종료 | `gui/AdminBossGui.java` (신규) | ✅ |
-| `/empire-boss-list` + `/empire-boss-end <runId>` (접두어 매칭, 한 핸들러 라벨 분기) | `command/AdminBossCommand.java` (신규) | ✅ |
+| `/poro-boss-list` + `/poro-boss-end <runId>` (접두어 매칭, 한 핸들러 라벨 분기) | `command/AdminBossCommand.java` (신규) | ✅ |
 | 강제 종료 = `BossRunService.endRun(runId, false, "admin_force")` → onRunEnded → `releaseByRunId` (슬롯 해제 검증됨, BossRewardService:115) | — | ✅ |
 | 조회 = `BossRunService.activeRuns()` (도메인 변경 없음, 기존 API 재사용) | — | ✅ |
 | `GuiTitles.ADMIN_BOSS` + `AdminHubGui` slot 24 활성 | `gui/*` | ✅ |
 | `AdminGuiListener` — `bossRunService` 주입 + `ADMIN_BOSS` 핸들러 + `bossRunMapping` | `listener/AdminGuiListener.java` | ✅ |
-| `EmpireRPGPlugin` — `bossEngineRuntime.runService()` 주입 + 두 명령 등록 | `EmpireRPGPlugin.java` | ✅ |
-| `plugin.yml` — `empire-boss-list`·`empire-boss-end` 등록 (`empire.admin`) | `plugin.yml` | ✅ |
+| `PoroRPGPlugin` — `bossEngineRuntime.runService()` 주입 + 두 명령 등록 | `PoroRPGPlugin.java` | ✅ |
+| `plugin.yml` — `poro-boss-list`·`poro-boss-end` 등록 (`poro.admin`) | `plugin.yml` | ✅ |
 | `BUILD SUCCESSFUL` | — | ✅ |
 
 ### §6-17 잔여
@@ -363,21 +363,21 @@
 
 ---
 
-## §6-16 관리자 Phase 2 Step 3 — 로그/감시 GUI + /empire-log — 완료 (2026-05-30, 커밋 `ef31e9e`)
+## §6-16 관리자 Phase 2 Step 3 — 로그/감시 GUI + /poro-log — 완료 (2026-05-30, 커밋 `ef31e9e`)
 
 기준: `docs/10_development_roadmap/admin_gui_phase2.md` §로그/감시 (slot 33)
 
 | 항목 | 파일 | 상태 |
 |---|---|---|
 | `AdminLogGui` — 54슬롯 3탭(강화/거래/PvP) 페이지네이션 45/page, 읽기 전용 | `gui/AdminLogGui.java` (신규) | ✅ |
-| `/empire-log [enhance\|trade\|pvp]` 텍스트 출력 (콘솔 가능, 탭별 최근 10건) | `command/AdminLogCommand.java` (신규) | ✅ |
+| `/poro-log [enhance\|trade\|pvp]` 텍스트 출력 (콘솔 가능, 탭별 최근 10건) | `command/AdminLogCommand.java` (신규) | ✅ |
 | `AuctionStore.recentSold(limit)` — `status='sold' ORDER BY sold_at DESC` | `market/AuctionStore.java` | ✅ |
 | `PvpMatchLogRepository.recentMatches(limit)` + `PvpMatchLogRow` record | `pvp/db/PvpMatchLogRepository.java` | ✅ |
 | 강화 로그 소스 = `InMemoryEnhancementLogHook.logs()` (in-memory, 휘발성) | — | ✅ |
 | `GuiTitles.ADMIN_LOGS` + `AdminHubGui` slot 33 stub→활성 | `gui/*` | ✅ |
 | `AdminGuiListener` — 로그 소스 3종 주입 + `ADMIN_LOGS` 탭/페이지 핸들러 + `LogView` 상태 | `listener/AdminGuiListener.java` | ✅ |
-| `EmpireRPGPlugin` — `pvpMatchLogRepo` 필드 승격 + 주입 + `/empire-log` 등록 | `EmpireRPGPlugin.java` | ✅ |
-| `plugin.yml` — `empire-log` 등록 (`empire.admin`) | `plugin.yml` | ✅ |
+| `PoroRPGPlugin` — `pvpMatchLogRepo` 필드 승격 + 주입 + `/poro-log` 등록 | `PoroRPGPlugin.java` | ✅ |
+| `plugin.yml` — `poro-log` 등록 (`poro.admin`) | `plugin.yml` | ✅ |
 | `BUILD SUCCESSFUL` | — | ✅ |
 
 ### §6-16 잔여
@@ -396,7 +396,7 @@
 | `DROP_BOOST` | `FieldDropListener.grantFieldDrops` 드랍 **수량** ×2 (`dropMultiplier()`, 확률 유지 → 기댓값 정확히 2배) | ✅ |
 | `PVP_QUEUE_PAUSE` | `PvpMatchService.enqueue` 진입 즉시 reject 메시지 | ✅ |
 
-- 와이어링: `EmpireRPGPlugin` — `adminTogglesService` 필드 승격, `pvpMatchService.attachToggles()` + `enhancementService().setEnhanceBoostSupplier()` + 두 리스너 생성자 주입
+- 와이어링: `PoroRPGPlugin` — `adminTogglesService` 필드 승격, `pvpMatchService.attachToggles()` + `enhancementService().setEnhanceBoostSupplier()` + 두 리스너 생성자 주입
 - `BUILD SUCCESSFUL` (기존 AnvilInventory deprecation 경고만 잔존)
 - **범위 주의:** EXP/DROP 부스트는 `FieldDropListener`(필드몹) 한정. 보스 보상(`BossRewardService`) 경로는 미적용 — 필요 시 확장 검토
 
@@ -412,8 +412,8 @@
 | `GuiTitles` — MAIN/EQUIPMENT/TERRITORY/BOSS_HUB 4종 `poro:gui` 글리프 제거, 순수 텍스트로 대체 | `GuiTitles.java` | ✅ |
 | `HealthHudFormatter.build()` — 5레이어 HUD를 수평 나열 → `` (-176px) rewind overlay 기법으로 수직 적층 (좌우 퍼짐 수정) | `HealthHudFormatter.java` | ✅ |
 | `ScoreboardService` — 골드/강화석/큐브 행에 `poro:hud` PNG 아이콘 (U+E034~E036) 추가 (`Team.prefix(Component)` 방식) | `ScoreboardService.java` | ✅ |
-| `/직업 <플레이어> <검\|도끼\|창\|석궁\|낫\|스태프>` 운용자 명령어 (`empire.admin`) — `ClassInitService.grantStarterEquipment()` 호출 | `ClassAdminCommand.java` (신규) | ✅ |
-| `plugin.yml` — `/직업` 명령어 등록 (`empire.admin` 권한) | `plugin.yml` | ✅ |
+| `/직업 <플레이어> <검\|도끼\|창\|석궁\|낫\|스태프>` 운용자 명령어 (`poro.admin`) — `ClassInitService.grantStarterEquipment()` 호출 | `ClassAdminCommand.java` (신규) | ✅ |
+| `plugin.yml` — `/직업` 명령어 등록 (`poro.admin` 권한) | `plugin.yml` | ✅ |
 | `BUILD SUCCESSFUL` | — | ✅ |
 
 ### §6-12 남은 확인 항목

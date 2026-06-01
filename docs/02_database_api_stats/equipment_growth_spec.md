@@ -3,7 +3,7 @@
 > **[STATUS: REFERENCE]** — 장비 성장 상세 참조. 공식 성장/경제 기준은 `CANON.md`와 `economy_numbers_v2.md`가 우선.
 
 > 작성 기준: final_master_plan.md §7.1~§7.3 (2026-05-21 확정 반영)  
-> 대상: EmpireRPG — GrowthEngineBootstrap / GrowthEngineRuntime
+> 대상: PoroRPG — GrowthEngineBootstrap / GrowthEngineRuntime
 
 ---
 

@@ -29,8 +29,8 @@ docs/
 │
 ├── 01_plugin_architecture/
 │   ├── CANON.md                      ← 신규 생성
-│   ├── empire_rpg_module_design.md   ← 유지
-│   ├── empire_rpg_design_intent.md   ← 유지
+│   ├── poro_rpg_module_design.md   ← 유지
+│   ├── poro_rpg_design_intent.md   ← 유지
 │   ├── admin_command_spec.md         ← 유지
 │   └── index.md                      ← 유지 (Citizens 표기 수정 필요)
 │
@@ -160,7 +160,7 @@ docs/
 
 **포함 내용:**
 - 플러그인 역할 분담표 (Citizens 제거 확정 반영)
-- EmpireRPG 부트스트랩 순서 8단계
+- PoroRPG 부트스트랩 순서 8단계
 - 월드 4개 구조 (`world_main`, `world_farm`, `world_boss`, `world_test`)
 - 플레이어 데이터 관리 방식 (5분 캐시 + 퇴장 저장)
 - 제거/보류 플러그인 목록

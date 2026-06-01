@@ -1,9 +1,9 @@
-# 포로 서버 1차 시즌 — EmpireRPG 구현 레퍼런스
+# 포로 서버 1차 시즌 — PoroRPG 구현 레퍼런스
 
-> **[STATUS: REFERENCE]** — EmpireRPG 구현 상세 참조. 공식 방향성은 `../final_master_plan.md`, 플러그인 경계는 `CANON.md`가 우선.
+> **[STATUS: REFERENCE]** — PoroRPG 구현 상세 참조. 공식 방향성은 `../final_master_plan.md`, 플러그인 경계는 `CANON.md`가 우선.
 
 > 소스: `../final_master_plan.md` (2026-05-21 기준)  
-> 용도: EmpireRPG 플러그인 구현 레퍼런스. 클래스 배정 / DB 스키마 / 이벤트 훅 / 알고리즘 정의.  
+> 용도: PoroRPG 플러그인 구현 레퍼런스. 클래스 배정 / DB 스키마 / 이벤트 훅 / 알고리즘 정의.  
 > **충돌 시 `final_master_plan.md`가 우선.**
 
 ---
@@ -32,7 +32,7 @@
 
 | 플러그인 | 역할 |
 |---|---|
-| **EmpireRPG** | 전투 / 장비 / 영지 / 보스 / 보상 / DB / API (코어 전부) |
+| **PoroRPG** | 전투 / 장비 / 영지 / 보스 / 보상 / DB / API (코어 전부) |
 | MythicMobs | 몹/보스 스폰, 바닐라 강화형 외형, 간단한 스킬 시각 이펙트 |
 | IridiumSkyblock | 개인 영지 생성/보호/방문 껍데기만 |
 | LuckPerms / Vault | 권한 / 경제 인터페이스 |
@@ -40,13 +40,13 @@
 | WorldEdit / WorldGuard | 지역 보호 |
 | Multiverse-Core | 월드 분리 |
 
-### 1.2 EmpireRPG 모듈 구조
+### 1.2 PoroRPG 모듈 구조
 
 ```
-EmpireRPGPlugin (onEnable 진입점)
+PoroRPGPlugin (onEnable 진입점)
 │
 ├── 1. CommonFoundationBootstrap  → FoundationContext
-│       SqliteConnectionProvider  (empire.db)
+│       SqliteConnectionProvider  (poro.db)
 │       CommonPluginLoggerFactory
 │       CommonConfigLoader        (config.yml)
 │
@@ -111,7 +111,7 @@ EmpireRPGPlugin (onEnable 진입점)
 
 ## 2. DB 스키마
 
-> SQLite (`empire.db`). 모든 PK는 `player_uuid TEXT`.
+> SQLite (`poro.db`). 모든 PK는 `player_uuid TEXT`.
 
 ### 2.1 플레이어 기본
 
@@ -656,11 +656,11 @@ Map<UUID, Integer> maxStack;  // 각인 타입별 최대 (소모형=3~5 / 유지
                     대상 채팅 전송:
                     §e[{요청자}]님이 영지 방문을 요청했습니다. §a[수락] §c[거절]
 
-대상: [수락] 클릭 → /empire visit accept <요청자UUID>
+대상: [수락] 클릭 → /poro visit accept <요청자UUID>
   → 요청자를 대상 영지 spawn으로 텔포
   → 요청자에게 §a{name}님의 영지로 이동합니다.
 
-대상: [거절] 클릭 → /empire visit deny <요청자UUID>
+대상: [거절] 클릭 → /poro visit deny <요청자UUID>
   → 요청자에게 §c{name}님이 방문 요청을 거절했습니다.
 
 30초 초과 → 양측에 §7요청 시간이 초과되었습니다.
@@ -675,19 +675,19 @@ Map<UUID, Integer> maxStack;  // 각인 타입별 최대 (소모형=3~5 / 유지
     대상 채팅 전송:
     §e[{초대자}]님한테서 영지 초대가 도착했습니다. §a[수락] §c[거절]
 
-[수락] → /empire island invite accept <초대자UUID>
+[수락] → /poro island invite accept <초대자UUID>
   → 초대자 영지 spawn 텔포
-[거절] → /empire island invite deny <초대자UUID>
+[거절] → /poro island invite deny <초대자UUID>
   → 초대자에게 §c{name}님이 영지 초대를 거절했습니다.
 ```
 
 #### 내부 커맨드 (플레이어 비노출, ClickEvent 전용)
 
 ```
-/empire visit accept <uuid>
-/empire visit deny <uuid>
-/empire island invite accept <uuid>
-/empire island invite deny <uuid>
+/poro visit accept <uuid>
+/poro visit deny <uuid>
+/poro island invite accept <uuid>
+/poro island invite deny <uuid>
 ```
 
 #### 영지 세부설정
@@ -1413,79 +1413,79 @@ row5: [뒤로][유리×8]
 
 ---
 
-## 12. 관리자 커맨드 (`/empire`)
+## 12. 관리자 커맨드 (`/poro`)
 
-권한: `empire.admin`. 형식: `/empire <category> <subcommand> [args]`
+권한: `poro.admin`. 형식: `/poro <category> <subcommand> [args]`
 
 ### GUI 강제 오픈
 
-`/empire gui <player> <main|equipment|territory|boss|storage|workshop|enhance|potential|succession|estate-setting|shop>`
+`/poro gui <player> <main|equipment|territory|boss|storage|workshop|enhance|potential|succession|estate-setting|shop>`
 
 ### 경제
 
 | 커맨드 | 동작 |
 |---|---|
-| `/empire gold give|take|set|check <player> [amount]` | 골드 조작/확인 |
-| `/empire item give <player> <item-id> [amount]` | 커스텀 아이템 지급 |
-| `/empire item storage give <player> <item-id> <amount>` | 창고에 아이템 추가 |
+| `/poro gold give|take|set|check <player> [amount]` | 골드 조작/확인 |
+| `/poro item give <player> <item-id> [amount]` | 커스텀 아이템 지급 |
+| `/poro item storage give <player> <item-id> <amount>` | 창고에 아이템 추가 |
 
 ### 영지
 
 | 커맨드 | 동작 |
 |---|---|
-| `/empire estate rank set <player> <rank>` | 작위 설정 |
-| `/empire estate slot set <player> <num> <herb|ore|workshop>` | 시설 슬롯 배정 |
-| `/empire estate slot reset <player>` | 슬롯 전체 초기화 |
-| `/empire estate slot list <player>` | 슬롯 현황 |
-| `/empire estate produce <player>` | 즉시 생산 1사이클 (테스트) |
-| `/empire estate public set <player> <true|false>` | 영지 공개 여부 강제 설정 |
-| `/empire estate setting set <player> <key> <value>` | 세부설정 강제 변경 (key: seed_protect/time_mode/weather_mode/crop_protect/water_protect) |
-| `/empire estate member add <owner> <member> <RESIDENT\|VICE_LORD>` | 영지민 강제 추가 |
-| `/empire estate member remove <owner> <member>` | 영지민 강제 제거 |
-| `/empire estate member list <owner>` | 영지민 목록 출력 |
-| `/empire estate permission set <owner> <VISITOR\|RESIDENT\|VICE_LORD> <permission> <true\|false>` | 권한 강제 변경 |
-| `/empire estate permission reset <owner>` | 전체 권한 기본값으로 초기화 |
+| `/poro estate rank set <player> <rank>` | 작위 설정 |
+| `/poro estate slot set <player> <num> <herb|ore|workshop>` | 시설 슬롯 배정 |
+| `/poro estate slot reset <player>` | 슬롯 전체 초기화 |
+| `/poro estate slot list <player>` | 슬롯 현황 |
+| `/poro estate produce <player>` | 즉시 생산 1사이클 (테스트) |
+| `/poro estate public set <player> <true|false>` | 영지 공개 여부 강제 설정 |
+| `/poro estate setting set <player> <key> <value>` | 세부설정 강제 변경 (key: seed_protect/time_mode/weather_mode/crop_protect/water_protect) |
+| `/poro estate member add <owner> <member> <RESIDENT\|VICE_LORD>` | 영지민 강제 추가 |
+| `/poro estate member remove <owner> <member>` | 영지민 강제 제거 |
+| `/poro estate member list <owner>` | 영지민 목록 출력 |
+| `/poro estate permission set <owner> <VISITOR\|RESIDENT\|VICE_LORD> <permission> <true\|false>` | 권한 강제 변경 |
+| `/poro estate permission reset <owner>` | 전체 권한 기본값으로 초기화 |
 
 **내부 커맨드 (ClickEvent 전용, 플레이어 직접 입력 불가):**
 
 | 커맨드 | 동작 |
 |---|---|
-| `/empire visit accept <requesterUUID>` | 방문 요청 수락 |
-| `/empire visit deny <requesterUUID>` | 방문 요청 거절 |
-| `/empire island invite accept <inviterUUID>` | 영지 초대 수락 |
-| `/empire island invite deny <inviterUUID>` | 영지 초대 거절 |
+| `/poro visit accept <requesterUUID>` | 방문 요청 수락 |
+| `/poro visit deny <requesterUUID>` | 방문 요청 거절 |
+| `/poro island invite accept <inviterUUID>` | 영지 초대 수락 |
+| `/poro island invite deny <inviterUUID>` | 영지 초대 거절 |
 
 ### 장비 성장
 
 | 커맨드 | 동작 |
 |---|---|
-| `/empire enhance set <player> <slot> <level>` | 강화 수치 강제 설정 |
-| `/empire potential reroll <player> <slot>` | 잠재 강제 재롤 |
-| `/empire potential set <player> <slot> <grade>` | 잠재 등급 강제 설정 |
-| `/empire succession give <player> <equip-trace-id>` | 장비의 흔적 지급 |
+| `/poro enhance set <player> <slot> <level>` | 강화 수치 강제 설정 |
+| `/poro potential reroll <player> <slot>` | 잠재 강제 재롤 |
+| `/poro potential set <player> <slot> <grade>` | 잠재 등급 강제 설정 |
+| `/poro succession give <player> <equip-trace-id>` | 장비의 흔적 지급 |
 
 ### 포션·버프
 
 | 커맨드 | 동작 |
 |---|---|
-| `/empire potion reset <player>` | 보스전 포션 횟수 초기화 |
-| `/empire buff clear|check <player>` | 버프 제거/확인 |
+| `/poro potion reset <player>` | 보스전 포션 횟수 초기화 |
+| `/poro buff clear|check <player>` | 버프 제거/확인 |
 
 ### 보스
 
 | 커맨드 | 동작 |
 |---|---|
-| `/empire boss spawn <boss-id> [location]` | 보스 강제 소환 |
-| `/empire boss kill <boss-id>` | 보스 즉시 처치 |
-| `/empire boss clearrecord set|reset <player> <boss-id>` | 클리어 기록 조작 |
-| `/empire boss drop simulate <boss-id>` | 드랍 테이블 시뮬레이션 |
+| `/poro boss spawn <boss-id> [location]` | 보스 강제 소환 |
+| `/poro boss kill <boss-id>` | 보스 즉시 처치 |
+| `/poro boss clearrecord set|reset <player> <boss-id>` | 클리어 기록 조작 |
+| `/poro boss drop simulate <boss-id>` | 드랍 테이블 시뮬레이션 |
 
 ### 상태 조회 / 시스템
 
 | 커맨드 | 동작 |
 |---|---|
-| `/empire check <player> [estate|equipment]` | 플레이어 상태 요약 |
-| `/empire reload [drops|recipes]` | 설정·레지스트리 리로드 |
+| `/poro check <player> [estate|equipment]` | 플레이어 상태 요약 |
+| `/poro reload [drops|recipes]` | 설정·레지스트리 리로드 |
 
 ---
 

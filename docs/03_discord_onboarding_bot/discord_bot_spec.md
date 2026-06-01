@@ -5,7 +5,7 @@
 > 기준일: 2026-05-23
 >
 > 봇 이름(가칭): 포로봇 / PoroBOT
-> 구현 위치: EmpireRPG HTTP API(포트 8765) 연동. DB 직접 접근 없음.
+> 구현 위치: PoroRPG HTTP API(포트 8765) 연동. DB 직접 접근 없음.
 
 ---
 
@@ -13,7 +13,7 @@
 
 | 원칙 | 내용 |
 |---|---|
-| API 단일 경로 | 모든 데이터 조회는 EmpireRPG HTTP API 경유 |
+| API 단일 경로 | 모든 데이터 조회는 PoroRPG HTTP API 경유 |
 | 역할 분리 | 권한 역할(시스템 제어)과 편의 역할(플레이어 선택)은 로직 분리 |
 | 모달 우선 | 입력이 필요한 기능은 모달 팝업. 채팅 입력 금지 |
 | 채널 보호 | 서버 IP·접속 정보는 역할 인증 후에만 열람 가능 |
@@ -264,7 +264,7 @@ embed 포함 항목:
   ④ 심각도 선택: [크래시] [기능오류] [표시버그] [기타]
     │
     ▼
-EmpireRPG API가 empire.db bug_report 테이블에 INSERT
+PoroRPG API가 poro.db bug_report 테이블에 INSERT
 (id AUTOINCREMENT → 접수번호로 사용)
     │
     ▼
@@ -320,7 +320,7 @@ EmpireRPG API가 empire.db bug_report 테이블에 INSERT
 
 ### 5-1. 필드보스 알림
 
-EmpireRPG 스케줄러가 API를 통해 트리거. 봇이 `#필드보스-알림` 채널에 embed 전송.
+PoroRPG 스케줄러가 API를 통해 트리거. 봇이 `#필드보스-알림` 채널에 embed 전송.
 
 | 이벤트 | 트리거 | 멘션 |
 |---|---|---|
@@ -340,7 +340,7 @@ EmpireRPG 스케줄러가 API를 통해 트리거. 봇이 `#필드보스-알림`
 
 ### 5-2. 시즌보스 알림
 
-운영진이 `/보스알림` 명령어로 수동 전송 또는 EmpireRPG 자동 트리거.
+운영진이 `/보스알림` 명령어로 수동 전송 또는 PoroRPG 자동 트리거.
 
 ```
 [시즌보스 모집] @시즌보스알림
@@ -382,7 +382,7 @@ EmpireRPG 스케줄러가 API를 통해 트리거. 봇이 `#필드보스-알림`
 
 ## 7. API 연동 범위
 
-봇이 호출하는 EmpireRPG API 엔드포인트 목록.
+봇이 호출하는 PoroRPG API 엔드포인트 목록.
 
 | 기능 | 메서드 | 엔드포인트 |
 |---|---|---|

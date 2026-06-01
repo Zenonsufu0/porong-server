@@ -8,8 +8,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DISCORD_TOKEN: str = os.environ["DISCORD_TOKEN"]
-EMPIRE_API_URL: str = os.getenv("EMPIRE_API_URL", "http://localhost:8765")
-EMPIRE_API_KEY: str = os.environ["EMPIRE_API_KEY"]
+PORO_API_URL: str = os.getenv("PORO_API_URL", "http://localhost:8765")
+PORO_API_KEY: str = os.environ["PORO_API_KEY"]
 GUILD_ID: int = int(os.environ["GUILD_ID"])
 CHANNEL_AUTH_ID: int = int(os.environ["CHANNEL_AUTH_ID"])
 CHANNEL_FIELD_BOSS_ID: int = int(os.environ["CHANNEL_FIELD_BOSS_ID"])

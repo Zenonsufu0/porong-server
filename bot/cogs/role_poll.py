@@ -8,13 +8,13 @@ import discord
 from discord.ext import commands, tasks
 
 import config
-from api_client import EmpireApiClient
+from api_client import PoroApiClient
 
 
 class RolePollCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
-        self.api = EmpireApiClient()
+        self.api = PoroApiClient()
 
     @commands.Cog.listener()
     async def on_ready(self) -> None:

@@ -1,10 +1,10 @@
 # 경제·전투 이벤트 로그 DB 테이블 설계
 
-> **[STATUS: DRAFT]** — `empire.db`에 추가할 이벤트 로그 테이블 설계.
+> **[STATUS: DRAFT]** — `poro.db`에 추가할 이벤트 로그 테이블 설계.
 >
 > 기준일: 2026-05-23
 >
-> 전제: 기존 `empire.db` 구조와 충돌하지 않도록 신규 테이블만 추가한다.
+> 전제: 기존 `poro.db` 구조와 충돌하지 않도록 신규 테이블만 추가한다.
 
 ---
 
@@ -305,16 +305,16 @@ CREATE TABLE daily_economy_snapshot (
 
 | 테이블 | 역할 | INSERT 주체 |
 |---|---|---|
-| `gold_event_log` | 골드 생성·소모 원시 로그 | EmpireRPG 이벤트 발생 시 |
-| `enhancement_stone_log` | 강화석 적립·소모 원시 로그 | EmpireRPG 이벤트 발생 시 |
-| `cube_event_log` | 큐브 조각·큐브 흐름 원시 로그 | EmpireRPG 이벤트 발생 시 |
-| `item_issue_log` | 잠재 확정·전승권 원시 로그 | EmpireRPG 이벤트 발생 시 |
-| `boss_clear_log` | 보스 전투 결과 | EmpireRPG 보스 종료 시 |
-| `boss_combat_log` | 보스 전투 개인 DPS | EmpireRPG 보스 종료 시 |
-| `server_perf_log` | TPS·핑·동접 수 시간별 스냅샷 | EmpireRPG 1분 주기 스케줄러 |
-| `field_activity_log` | 필드별 처치 수·자원 생산 원시 로그 | EmpireRPG 몹 처치 이벤트 발생 시 |
-| `daily_economy_snapshot` | 일별 집계 스냅샷 | EmpireRPG 메모리 누적 + 10분 플러시 (DL-060) |
-| `bug_report` | 디스코드 버그 제보 원시 로그 | EmpireRPG API 접수 시 |
+| `gold_event_log` | 골드 생성·소모 원시 로그 | PoroRPG 이벤트 발생 시 |
+| `enhancement_stone_log` | 강화석 적립·소모 원시 로그 | PoroRPG 이벤트 발생 시 |
+| `cube_event_log` | 큐브 조각·큐브 흐름 원시 로그 | PoroRPG 이벤트 발생 시 |
+| `item_issue_log` | 잠재 확정·전승권 원시 로그 | PoroRPG 이벤트 발생 시 |
+| `boss_clear_log` | 보스 전투 결과 | PoroRPG 보스 종료 시 |
+| `boss_combat_log` | 보스 전투 개인 DPS | PoroRPG 보스 종료 시 |
+| `server_perf_log` | TPS·핑·동접 수 시간별 스냅샷 | PoroRPG 1분 주기 스케줄러 |
+| `field_activity_log` | 필드별 처치 수·자원 생산 원시 로그 | PoroRPG 몹 처치 이벤트 발생 시 |
+| `daily_economy_snapshot` | 일별 집계 스냅샷 | PoroRPG 메모리 누적 + 10분 플러시 (DL-060) |
+| `bug_report` | 디스코드 버그 제보 원시 로그 | PoroRPG API 접수 시 |
 
 ---
 
@@ -379,7 +379,7 @@ CREATE INDEX idx_field_activity_player     ON field_activity_log(player_uuid);
 
 ## 11. 버그 제보 로그 — `bug_report`
 
-디스코드 봇 `/버그제보` 명령어를 EmpireRPG API가 접수할 때 INSERT된다. `id` AUTOINCREMENT가 공개 접수번호(`BUG-{id}`)로 사용된다.
+디스코드 봇 `/버그제보` 명령어를 PoroRPG API가 접수할 때 INSERT된다. `id` AUTOINCREMENT가 공개 접수번호(`BUG-{id}`)로 사용된다.
 
 ```sql
 CREATE TABLE bug_report (
@@ -429,7 +429,7 @@ CREATE INDEX idx_bug_report_status     ON bug_report(status);
 ## 12. 로그 보존 정책
 
 - `gold_event_log`를 포함한 원시 이벤트 로그는 운영 중 INSERT 전용으로 기록한다.
-- 라이브 `empire.db`에는 **현재 시즌 + 시즌 종료 후 14일** 원시 로그만 유지한다.
+- 라이브 `poro.db`에는 **현재 시즌 + 시즌 종료 후 14일** 원시 로그만 유지한다.
 - 시즌 종료 14일 후 운영 점검 시간에 해당 시즌 원시 로그를 시즌별 아카이브 DB/CSV로 export하고, 라이브 DB에서는 보존 기간이 지난 원시 로그를 정리한다.
 - `daily_economy_snapshot`은 시즌 종료 후에도 2차 시즌 밸런싱 근거로 계속 보존한다.
 - `daily_economy_snapshot` 집계 방식: **메모리 누적 + 10분 플러시** 확정 (DL-060).

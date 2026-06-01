@@ -146,7 +146,7 @@
 | 우선도 | 발견 | 근거(파일:라인) | 상태 |
 |---|---|---|---|
 | 🔴 차단 | config.yml 좌표·월드명 플레이스홀더(필드/보스룸/필드보스 = `world`, 더미좌표). 실맵+`world_main/boss`+방생성 선행 필요 | `config.yml:125-240`, `FieldTeleportService:39` | 선행조건(코드 밖) |
-| 🔴 차단 | MythicMobs 셸 의존 — 미감지 시 전투/보스/필드 리스너 통째 미등록 | `EmpireRPGPlugin:656`, `BossRoomListener:100` | 선행조건(server-config) |
+| 🔴 차단 | MythicMobs 셸 의존 — 미감지 시 전투/보스/필드 리스너 통째 미등록 | `PoroRPGPlugin:656`, `BossRoomListener:100` | 선행조건(server-config) |
 | 🔴 차단 | 보스 처치→`endRun`(보상) 브리지 부재 — death 이벤트→보상 발화 리스너 없음. 보상 0·슬롯 미회수 | `BossRunService:173`, `BossRoomListener` | 코드 수정 대상 |
 | 🔴 차단 | 원샷 방지 85% 클램프 미구현 — `BossDefenseListener` 빈 스텁 (combat+content 교차확인) | `BossDefenseListener:8-10` | 코드 수정 대상 |
 | 🔴 차단 | 최종보스 입장 게이트 무력화 — `AllowAllUnlockQuestChecker` 무조건 true | `BossEngineBootstrap:64` | 코드 수정 대상 |
@@ -173,8 +173,8 @@
   - ✅ 완료(DL-099): 단일 평지 월드 `world` 생성 + config 배포(보스룸30/아레나10 슬롯) + genrooms/genarenas 실행. NPC 3명 스폰, 구조물 생성 검증.
   - → **🎉 서버 테스트 진입 준비 완료.** 남은 건 첫날 스모크 테스트 10단계(server_test_prep.md §5) + 선택사항(필드 장식·season-start-epoch)
   - ⏳ 선행조건(코드 밖) → `docs/10_development_roadmap/server_test_prep.md` 체크리스트로 정리(2026-05-31):
-    - 🔴 **런타임 seed/jar stale** — `server/plugins/EmpireRPG/seeds/boss_master.csv`가 DL-087 이전(void_herald·최종보스 없음). `saveResource(replace=false)`라 jar 교체로도 갱신 안 됨 → 빌드+seeds폴더 비우고 재시작 필수. DL-086~090·이번 코드수정 전부 미배포 상태.
-    - 🔴 config 좌표·월드명(world_main/farm/boss/test), `/empire genrooms`·`genarenas`
+    - 🔴 **런타임 seed/jar stale** — `server/plugins/PoroRPG/seeds/boss_master.csv`가 DL-087 이전(void_herald·최종보스 없음). `saveResource(replace=false)`라 jar 교체로도 갱신 안 됨 → 빌드+seeds폴더 비우고 재시작 필수. DL-086~090·이번 코드수정 전부 미배포 상태.
+    - 🔴 config 좌표·월드명(world_main/farm/boss/test), `/poro genrooms`·`genarenas`
     - 🟠 MM 셸 배포(현재 Example만), 보스 armor 확인
     - [x] MM ID 충돌 해소: `field_outpost.yml` Fallen_Knight→Outpost_Knight (2026-05-31)
 
@@ -197,7 +197,7 @@
   - ✅ 첫접속 라우팅 + IS 섬 자동생성+이동 (DL-102, 무기선택→is create poro). 실흐름 인게임 검증 대기
   - ⏳ 튜토리얼 맵(안내 스텝) — 첫접속을 허브 대신 튜토리얼로, TutorialService 구현
 - 파라미터(시작값, 튜닝): 주기 15~20s / 배치 10~15 / 캡 ~40 / 반경 20~30 / 정예 1:3 수·×2.5.
-- 관련 문서: `docs/06_fields_bosses/`, DL-099(단일 월드), `FieldTeleportService`, `FieldDropListener`(필드 드랍), `MobTagHelper`(empire_field_N 태그).
+- 관련 문서: `docs/06_fields_bosses/`, DL-099(단일 월드), `FieldTeleportService`, `FieldDropListener`(필드 드랍), `MobTagHelper`(poro_field_N 태그).
 
 ### INBOX-007 라이브 온보딩 테스트 1차 피드백 (7건)
 - 날짜: 2026-05-31
@@ -207,7 +207,7 @@
   - ① 무기 선택 GUI 3+3 배치 — ✅ 슬롯 11/13/15(검·도끼·창)·20/22/24(석궁·낫·스태프). 리스너 매핑 동기.
   - ② 창 아이콘 네더라이트검→**삼지창(TRIDENT)** — ✅ `materialFor` 분리.
   - ③ `is create` 시 "Select a Schematic" GUI 우회 — ✅ `schematics.yml`를 `poro` 1개만 남김(IS는 스키매틱 1개면 picker 생략). **인게임 재검증 필요**.
-  - ④ 스타터 방어구 — ✅ **가상 전용 확정 [PROMOTED → DL-103]**. 런타임 item_master에 `t1_*_starter` 4종 정상 등록, 캐릭터 메뉴 스탯 적용. 바닐라 물리 방어구 미지급(§2 DEF 이중 적용 방지), 재질/외형 컬럼 원래 없음 → 코드 변경 없음. ~~**분기 리스크**: `server-config/.../item_master.csv`가 다른 스키마(`t1_armor_head`)로 갈라짐~~ → ✅ **해소 [DL-105]** (2026-05-31): server-config/empire-rpg/seeds는 코드·DB·배포 어디서도 안 읽는 화석 확정 → 디렉토리 통째 삭제. EmpireRPG 시드 정본 = jar 내장 `src/main/resources/seeds` 단일 계보.
+  - ④ 스타터 방어구 — ✅ **가상 전용 확정 [PROMOTED → DL-103]**. 런타임 item_master에 `t1_*_starter` 4종 정상 등록, 캐릭터 메뉴 스탯 적용. 바닐라 물리 방어구 미지급(§2 DEF 이중 적용 방지), 재질/외형 컬럼 원래 없음 → 코드 변경 없음. ~~**분기 리스크**: `server-config/.../item_master.csv`가 다른 스키마(`t1_armor_head`)로 갈라짐~~ → ✅ **해소 [DL-105]** (2026-05-31): server-config/poro-rpg/seeds는 코드·DB·배포 어디서도 안 읽는 화석 확정 → 디렉토리 통째 삭제. PoroRPG 시드 정본 = jar 내장 `src/main/resources/seeds` 단일 계보.
   - ⑤ 스타터 무기 이름/lore 없음 — ✅ `taggedWeapon`에 "수련용 {무기}"명 + lore 3줄. `Component.text("§..")`가 §를 해석 안 해 이름이 깨지던 것 → **LegacyComponentSerializer**로 변환(+이탤릭 off). GUI 아이콘도 동일 적용.
   - ⑥ 낫 우클릭(월영회전) 항상 우측 이동 — ✅ `dashInInputDirection`(getVelocity 서버측 ~0 버그)→**`dashForward`**(시선 방향).
   - ⑦ 스코어보드 "world_hub" 표기 — ✅ world_hub→"수도", IridiumSkyblock→"[플레이어]의 영지". ~~영지명 변경 반영은 후속~~ → ✅ **해소 [DL-106]**: 스코어보드가 `IslandTerritoryStateStore.islandName()` 조회로 rename 반영. **잔여**: ~~islandName DB 영속화(재로그인 시 리셋)~~ → 정정 [DL-107] 영지명은 PlayerSaveData로 이미 영속화됨(리셋 없음) / 남의 영지 방문 시 그 집 영지명(IS API §7+).
@@ -244,7 +244,7 @@
 - 내용: 웹 대시보드와 디스코드 봇에서 **서버 실시간 상태**를 볼 수 있게 한다. 예: 서버 핑/지연, 온라인 인원, 가동 여부(up/down), TPS 등.
 - 검토 메모:
   - 도메인: `docs/02_database_api_stats`(API/통계) + `docs/03_discord_onboarding_bot`(봇 표시).
-  - 구현 후보: (a) EmpireRPG가 주기적으로 상태(온라인 수/TPS/하트비트)를 DB·HTTP 엔드포인트로 push → 웹/봇이 polling. (b) 봇이 서버 status ping(Minecraft SLP) 직접 조회 — 핑/온라인 수는 SLP로 즉시 가능, TPS 등 상세는 (a) 필요.
+  - 구현 후보: (a) PoroRPG가 주기적으로 상태(온라인 수/TPS/하트비트)를 DB·HTTP 엔드포인트로 push → 웹/봇이 polling. (b) 봇이 서버 status ping(Minecraft SLP) 직접 조회 — 핑/온라인 수는 SLP로 즉시 가능, TPS 등 상세는 (a) 필요.
   - MVP: 봇 `/status` 명령 + 웹 헤더 배지(온라인/핑/up-down). 상세 통계는 기존 stats 파이프라인 확장.
   - 오픈 게이팅(디스코드 공식 오픈) 모델과 잘 맞음 — 봇이 이미 온보딩 게이트라 status 명령 자연스러움.
 - 분류: [ ] 기획 확정 필요 / [x] DRAFT 보관 (범위·우선순위 미정)
@@ -256,15 +256,15 @@
 - 출처: 사용자 아이디어 (DL-116 작업 중 발상 — "플러그인 교체 없이 바꾸고 싶다")
 - 내용: 상점 물품 추가/가격 변동, 몬스터 체력·방어력·공격력 설정을 **인게임 운영자 명령어로 핫에딧**. 플러그인 jar 재배포·재컴파일 없이 운영 중 조정.
 - 검토 메모 (가능성 평가):
-  - **가능. EmpireRPG가 이미 DB+시드 CSV 기반**이라 자연스러운 확장. 두 방향:
-    - **몬스터 스탯**: 현재 MythicMobs YAML(`Damage:`/Health). 후보 (a) 명령어가 MythicMobs config edit+reload, (b) **EmpireRPG 측 스탯 오버라이드 레이어** — `FieldSpawnService` 스폰 시 DB 테이블(`mob_stat_override`)에서 HP/DEF/ATK 적용. (b)가 EmpireRPG 오너십·핫에딧에 더 적합(MythicMobs reload 불필요). DL-116 ATK 정본값을 이 레이어에 시드하면 정본↔런타임 일원화.
-    - **상점**: 상점이 EmpireRPG-owned + DB/CSV 백킹이면 `/empire-shop add|setprice` 류 명령 → DB write, 재배포 불필요.
+  - **가능. PoroRPG가 이미 DB+시드 CSV 기반**이라 자연스러운 확장. 두 방향:
+    - **몬스터 스탯**: 현재 MythicMobs YAML(`Damage:`/Health). 후보 (a) 명령어가 MythicMobs config edit+reload, (b) **PoroRPG 측 스탯 오버라이드 레이어** — `FieldSpawnService` 스폰 시 DB 테이블(`mob_stat_override`)에서 HP/DEF/ATK 적용. (b)가 PoroRPG 오너십·핫에딧에 더 적합(MythicMobs reload 불필요). DL-116 ATK 정본값을 이 레이어에 시드하면 정본↔런타임 일원화.
+    - **상점**: 상점이 PoroRPG-owned + DB/CSV 백킹이면 `/poro-shop add|setprice` 류 명령 → DB write, 재배포 불필요.
   - **트레이드오프(사용자 인지)**: 일괄 배포 = 패치노트 작성 편함. 런타임 명령 = 편의성↑이나 변경 추적 필요 → **변경 감사 로그(audit log) + 패치노트 피드** 동반 권장(명령으로 바꾸면 자동으로 변경 이력 기록).
   - **권한/안전**: 운영자 전용 권한 게이트 + 되돌리기(롤백) 고려. 시즌 서버라 "실측→즉시 너프/버프"와 직결(DL-116 실측 보정 루프 가속).
   - 도메인: `docs/01_plugin_architecture`(명령·런타임 구조) + `docs/02_database_api_stats`(오버라이드 테이블 스키마).
 - 분류: [x] 기획 확정 필요 (구조 설계) / [x] DRAFT 보관
 - 관련 문서: `01_plugin_architecture/CANON.md`, `02_database_api_stats/CANON.md`, `06_fields_bosses/mob_attack_stats_v1.md`(§6 적용), `economy_numbers_v2`(상점/가격)
-- 진행: 📋 기획안 → `docs/01_plugin_architecture/runtime_admin_config_plan_v1.md`. ✅ **축 A MVP 구현 [PARTIAL → DL-117]** (2026-06-01): `mob_stat_override`+`config_change_log` DB, `MobStatOverrideService`(DL-116 ATK 시드), `MythicMobSpawnEvent` 리스너(전 스폰 경로), `/empire-mobstat` 명령. 빌드 통과. **핵심 제약 확인**: HP·평타·일반/정예 ATK는 런타임 즉시 변경 가능하나 **보스 스킬 패턴 데미지는 MythicMobs YAML 상수라 런타임 불가**(C-2 유지).
+- 진행: 📋 기획안 → `docs/01_plugin_architecture/runtime_admin_config_plan_v1.md`. ✅ **축 A MVP 구현 [PARTIAL → DL-117]** (2026-06-01): `mob_stat_override`+`config_change_log` DB, `MobStatOverrideService`(DL-116 ATK 시드), `MythicMobSpawnEvent` 리스너(전 스폰 경로), `/poro-mobstat` 명령. 빌드 통과. **핵심 제약 확인**: HP·평타·일반/정예 ATK는 런타임 즉시 변경 가능하나 **보스 스킬 패턴 데미지는 MythicMobs YAML 상수라 런타임 불가**(C-2 유지).
 - 잔여: 축 B(상점 명령) / 축 C(패치노트 디스코드·웹 피드) / DEF 연동(2단계) / 보스 패턴 배율 placeholder(C-1) / 인게임 검증.
 - 상태: DRAFT (축 A MVP 구현 완료, 축 B·C 미착수)
 
@@ -272,7 +272,7 @@
 - 날짜: 2026-06-01
 - 출처: 사용자 인게임 피드백 ("필드에 들판 야수·왕국 수비병 나오는데 바닐라 몹도 같이 나와서 헷갈림")
 - 내용: 커스텀 RPG라 필드몹은 MythicMobs로만 등장해야 하는데, 필드가 단일 오버월드 `world`의 리전이고 바닐라 자연 스폰이 켜져 있어 일반 좀비/거미가 섞임. 후속 요청: 동물도 차단 / 영지(섬)에서도 몹·동물 차단 / 바닐라 드랍(좀비→철·썩은고기) 제거.
-- ✅ **[PROMOTED → DL-118]** (2026-06-01): `VanillaContentControlListener` — 대상 월드(world+world_hub+IridiumSkyblock*)에서 ① 모든 생물(몹+동물) 비-의도 스폰 차단(CUSTOM·COMMAND·SPAWNER_EGG만 허용, Citizens NPC 보호), ② 바닐라 아이템 드랍 전역 제거(EmpireRPG 보상은 DB라 무영향). 라이브 검증: 커스텀 몹 생존 + /summon 좀비 처치 시 드랍 0개 확인. (바닐라 드랍은 섞인 바닐라 몹이 원인 — 스폰+드랍 이중 차단으로 해소.)
+- ✅ **[PROMOTED → DL-118]** (2026-06-01): `VanillaContentControlListener` — 대상 월드(world+world_hub+IridiumSkyblock*)에서 ① 모든 생물(몹+동물) 비-의도 스폰 차단(CUSTOM·COMMAND·SPAWNER_EGG만 허용, Citizens NPC 보호), ② 바닐라 아이템 드랍 전역 제거(PoroRPG 보상은 DB라 무영향). 라이브 검증: 커스텀 몹 생존 + /summon 좀비 처치 시 드랍 0개 확인. (바닐라 드랍은 섞인 바닐라 몹이 원인 — 스폰+드랍 이중 차단으로 해소.)
 - 상태: DRAFT → 구현 완료(NATURAL 자연 스폰 차단 최종 확인은 사용자 필드 방문 시)
 
 ### INBOX-012 필드 진입 WorldBorder 경계 표시

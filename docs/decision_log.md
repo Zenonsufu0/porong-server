@@ -10,7 +10,7 @@
 
 **조사:** `gainStack` 호출 10곳 중 **명중 판정 있음**(석궁 속사/회피사격/관통볼트 `if(hit[0])`, 낫 사신베기 `if(!targets.isEmpty())`)과 **무조건 호출**(검 섬광베기·도끼 철퇴강타·창 관통찌르기·스태프 마력탄/속성폭발/마력쇄도)이 혼재. 후자 6종이 헛스윙에도 충전 → "충전" 의미 상실.
 
-**수정 (custom-plugins/empire-rpg, 6개 빌더):** 크로스보우·낫이 이미 쓰던 명중 판정 패턴으로 통일.
+**수정 (custom-plugins/poro-rpg, 6개 빌더):** 크로스보우·낫이 이미 쓰던 명중 판정 패턴으로 통일.
 - 컬렉션 히트박스(arc/line/burst): `var targets = ...; targets.forEach(deal); if (!targets.isEmpty()) gainStack(...)`. (검 섬광베기·도끼 철퇴강타·창 관통찌르기·스태프 마력쇄도)
 - Optional 히트박스(projectileRaycast): `gainStack`을 `.ifPresent` 내부로 이동. (스태프 마력탄·속성폭발)
 - 돌진·이동(dashForward/dashBackward)은 명중과 무관하게 유지(이동기 기능). 충전만 명중 조건.
@@ -36,7 +36,7 @@
 
 **핵심기 만충 재배분 (base/perStack → base'/perStack'·×1.20):** 결전 `3.45,0.12`→`3.32,0.06` / 천뢰 `3.60,0.08`→`2.96,0.04` / 저격 `4.20,0.10`→`3.35,0.05` / 별빛 `4.05,0.10`→`3.89,0.05`. 도끼 거신추락(4.55,0.10)·낫 처형낫은 유틸 유지(배율 없음).
 
-**구현 (custom-plugins/empire-rpg):**
+**구현 (custom-plugins/poro-rpg):**
 - `BaseWeaponSkill.scaledDamageFullChargeSpike(ctx,player,base,perStack,mult)` 신규 — `!retained && stacks>=3`에서만 `×mult`. retained 판정은 기존 `gainStack`과 동일(`classEngravingId().endsWith("_retained_01")`).
 - 핵심기 4종 호출 교체 + C-2 5종 계수 교체(Java).
 - **CSV `skill_master.csv` base_coefficient 동기** + finisher 쿨 오기 정정(천뢰 18→15·저격 20→14) + secondary_effect_value(구 per-stack) 갱신. (CSV→CombatFormulaResolver는 부팅만, 데미지 미적용 참조 경로. 만충 ×1.20은 CSV 스키마에 컬럼 없어 미표현 — Java가 권위.)
@@ -79,12 +79,12 @@
 
 **결정:** **전 무기 기본 자원 3단계 / 유지형 6단계**로 통일. (창·스태프 5→3. 유지형 6 유지 = 사용자 결정. 정본 §5 "+1" 폐기→"flat 6".)
 
-**변경 (custom-plugins/empire-rpg):**
+**변경 (custom-plugins/poro-rpg):**
 - `gainStack` 5→3: StaffArcaneOrb/ArcaneRush/ElementalBurst, SpearThrust (4파일).
 - finisher 소모량 5→3: `skill_master.csv` 천뢰일창·별빛쇄도 (cap 3에서 발동 가능하도록 — **필수 연동**).
 - 표시 3: `HealthHudFormatter`·`GrowthGuiListener` `(SPEAR||STAFF)?5:3`→`3`. 유지형 표시는 flat 6 유지.
 - 정본: `combat_balance_v2 §4`(창·스태프 5→3, 중간 임계 3단계→2단계)·`§5`(유지형 flat 6).
-- 배포: jar + **외부 시드** `server/plugins/EmpireRPG/seeds/skill_master.csv` 동반(외부 우선 로드).
+- 배포: jar + **외부 시드** `server/plugins/PoroRPG/seeds/skill_master.csv` 동반(외부 우선 로드).
 
 **미완(후속 — 사용자 계수 결정 대기):** ① 창·스태프 per-stack 계수(thrust 0.05·thunder 0.08·starburst 0.10)가 5스택 기준이라 3캡에서 최대 보너스 축소(starburst +50%→+30%) — "계수 좀 내리고"는 캡으로 일부 자동 반영. ② 다른 4무기 계수 상향 "고려"(미적용). ③ 창·스태프 중간 임계(2단계)·만충(3단계) 효과 2단 구조 재설계. → `skill_effects_reference_v1.md` 기준 별도 패스.
 
@@ -96,7 +96,7 @@
 
 **배경:** 라이브 검증 — 마법사(스태프)·석궁 평타가 원거리로 안 나감. 조사: 평타는 `onAttack`(`EntityDamageByEntityEvent`, 멜리 접촉)에서만 `weaponPower×0.4` 적용 → 전 무기 근접. `onSwing`(LMB 허공)은 slot1 스킬만 발동, 쿨다운 중이면 무동작.
 
-**변경 (custom-plugins/empire-rpg, `SkillInputListener`):**
+**변경 (custom-plugins/poro-rpg, `SkillInputListener`):**
 - `onSwing`에서 slot1 쿨다운 중 + **원거리 무기(STAFF·CROSSBOW)**면 `rangedBasicAttack` 발사 — `SkillHitboxHelper.projectileRaycast(player, 20, 0.6)`로 시선 첫 대상에 `weaponPower×0.4` 피해. `SkillDamageGuard.run(() -> target.damage(dmg, player))`로 killer 귀속 + onAttack 재처리 차단(BaseWeaponSkill 패턴 재사용). 발사 시 `swingFiredAt` 기록으로 근접 시 멜리 평타 중복 방지.
 - 시각: 시선 파티클 빔(석궁 CRIT / 스태프 WITCH) + 사운드(ARROW_SHOOT / BLAZE_SHOOT).
 
@@ -112,7 +112,7 @@
 
 **배경:** DL-119 WorldBorder(±150) 적용 후 사용자 보고 — 경계 밖에도 몹이 스폰됨. 원인: `FieldSpawnService.randomGroundAround`가 플레이어 주변 20~30블록 랜덤 스폰 시 **필드 경계(±150) 미검사** → 가장자리 플레이어 기준 스폰이 경계 밖으로 튐. 또 AI 배회로 경계를 벗어난 몹이 잔존.
 
-**변경 (custom-plugins/empire-rpg):**
+**변경 (custom-plugins/poro-rpg):**
 - **스폰 경계 검증** — `tick()` 스폰 루프에 `if (fieldAt(loc) != field) continue` 추가. 경계 안에서만 생성.
 - **이탈 몹 제거** — `removeStrayMobs()` 신규 + 1초 주기 타이머. 추적 몹 중 `fieldAt(위치) != 배정필드`면 `remove()`. 스폰 존=WorldBorder(±150) 동일 판정.
 
@@ -130,9 +130,9 @@
 
 **결정:** 필드 진입 시 **개인(per-player) WorldBorder**를 띄워 빨간 경계 표시. 스폰 존(300×300)과 정확히 일치. 데미지 0(이동 통제·시각만, 이탈은 GUI 이동).
 
-**구현 (custom-plugins/empire-rpg):**
+**구현 (custom-plugins/poro-rpg):**
 - `FieldBorderService`(신규) — 0.5초 폴링. 플레이어가 필드 영역(중심 ±150) 진입 시 `player.setWorldBorder`(중심=필드 좌표, size 300, warningDistance 8, damage 0). 이탈 시 `setWorldBorder(null)`(월드 기본 복귀). 상태 변화 시에만 패킷(플리커 방지). per-player라 같은 월드에서도 각자 자기 필드 경계만 봄. config `fields`에서 5필드 로드.
-- `EmpireRPGPlugin` — FieldSpawnService 옆에서 start.
+- `PoroRPGPlugin` — FieldSpawnService 옆에서 start.
 
 **검증:** 빌드 통과. 기동 로그 `[FieldBorder] 필드 진입 경계 활성 — 필드 5개, 크기 300×300`. per-player WorldBorder 시각(빨간 경계)은 플레이어 필드 진입 시 발현 — 사용자 인게임 확인.
 
@@ -146,9 +146,9 @@
 
 **결정 (사용자 선택):** 커스텀 RPG 월드에서 **바닐라 생물(몹+동물) 자연 스폰 전면 차단 + 바닐라 아이템 드랍 제거**. 대상 월드 = `world`(필드) + `world_hub`(허브) + `IridiumSkyblock`(+nether/end, 영지).
 
-**구현 (custom-plugins/empire-rpg):**
-- `VanillaContentControlListener`(신규, 4기능) — ① `CreatureSpawnEvent`: 대상 월드에서 스폰 이유가 **허용셋(CUSTOM·COMMAND·SPAWNER_EGG)** 밖인 모든 생물 취소(몹+동물). Citizens NPC(메타 `NPC`) 보호. ② `EntityDeathEvent`: 비-플레이어·비-NPC 몹 드랍 `getDrops().clear()`(전역). EmpireRPG 보상은 전부 DB(`addCurrency`)라 무영향(코드 전역 `getDrops().add` 부재 확인). ③ `EntityCombustEvent`: 일광 화상만 취소(ByBlock 용암·ByEntity 화염 유지) — 커스텀 좀비/스켈레톤 일광 사망 방지. ④ 60초 주기 sweep: 패치 전 잔존 바닐라 동물 제거(passive는 디스폰 안 됨 — `Animals`/`WaterMob`/`Ambient` 타입 판정, 커스텀 몹=Monster라 안전).
-- `EmpireRPGPlugin` — 대상 월드셋 주입 + 등록 + sweep 시작.
+**구현 (custom-plugins/poro-rpg):**
+- `VanillaContentControlListener`(신규, 4기능) — ① `CreatureSpawnEvent`: 대상 월드에서 스폰 이유가 **허용셋(CUSTOM·COMMAND·SPAWNER_EGG)** 밖인 모든 생물 취소(몹+동물). Citizens NPC(메타 `NPC`) 보호. ② `EntityDeathEvent`: 비-플레이어·비-NPC 몹 드랍 `getDrops().clear()`(전역). PoroRPG 보상은 전부 DB(`addCurrency`)라 무영향(코드 전역 `getDrops().add` 부재 확인). ③ `EntityCombustEvent`: 일광 화상만 취소(ByBlock 용암·ByEntity 화염 유지) — 커스텀 좀비/스켈레톤 일광 사망 방지. ④ 60초 주기 sweep: 패치 전 잔존 바닐라 동물 제거(passive는 디스폰 안 됨 — `Animals`/`WaterMob`/`Ambient` 타입 판정, 커스텀 몹=Monster라 안전).
+- `PoroRPGPlugin` — 대상 월드셋 주입 + 등록 + sweep 시작.
 
 **검증:** 빌드 통과. 인게임 라이브 — `world`에 Plains_Soldier(CUSTOM) **생존 + 오버라이드 atk 4.0**(커스텀 미차단). `/summon zombie`→처치 시 **아이템 0개**(드랍 제거). `/summon cow`→60초 sweep이 **테스트 소 + 기존 잔존 동물 4마리 = 5마리 정리** 실증. 일광 화상 방지·NATURAL 차단은 사용자 인게임 최종 확인.
 
@@ -160,11 +160,11 @@
 
 **배경:** 몹 HP/DEF/ATK·상점을 플러그인 재배포 없이 인게임 명령으로 핫에딧하려는 운영 요구(INBOX-010). 기획안 `01_plugin_architecture/runtime_admin_config_plan_v1.md` 작성 후 축 A(몹 스탯 ATK·HP) MVP 구현.
 
-**구현 (custom-plugins/empire-rpg):**
+**구현 (custom-plugins/poro-rpg):**
 1. **DB** — `mob_stat_override`(mob_key PK, max_hp/def/atk nullable) + `config_change_log`(감사 로그=패치노트 원천). `RuntimeConfigMigration`을 `CommonFoundationBootstrap` 마이그레이션 리스트에 등록.
 2. **서비스** — `MobStatOverrideService`: 부팅 시 DB 캐시 로드 + **DL-116 정본값 시드(ATK만, 없는 키만 삽입 → 운영자 편집 보존)**. set/reset이 DB·감사로그·캐시 동기. `MobStatOverrideRepository`/`ConfigChangeLogRepository` CRUD.
 3. **스폰 적용** — `MobStatOverrideSpawnListener`가 `MythicMobSpawnEvent`(reflection 격리)를 리스닝해 **전 스폰 경로 커버**(동적 필드/보스룸/MythicMobs 네이티브 — 필드보스 포함). 1틱 지연으로 MythicMobs 적용 후 어트리뷰트(`MAX_HEALTH`/`ATTACK_DAMAGE`) 덮어씀. (mythicSpawner 람다 주입 대신 채택 — 필드보스가 람다를 안 거치는 문제 해결.)
-4. **명령** — `/empire-mobstat list|get|set|reset` (`empire.admin` 권한, 값 0~100000 클램프). plugin.yml 등록.
+4. **명령** — `/poro-mobstat list|get|set|reset` (`poro.admin` 권한, 값 0~100000 클램프). plugin.yml 등록.
 
 **적용 범위/제약:**
 - 적용: 몹 **HP·평타 ATK**(=바닐라 `Damage:` 속성). DL-116 일반/정예/필드보스 기본공격값 시드.
@@ -210,7 +210,7 @@
 
 **배경:** DL-113 1단계는 DEF만, 그것도 combat-balance가 없는 문서(`potential_options_v1.md`)·가중배열로 추측 설계했다. 사용자 지적으로 정본(`combat_balance_v2 §1`)을 재확인 — 방어구는 **HP+DEF 둘 다**(투구 HP400·DEF0, 상의 HP150·DEF15, 하의 HP0·DEF30, 신발 HP100·DEF7), 강화는 **선형 `기본×0.04×단계`**. HP는 게임에 전혀 미반영이었고(max health 미설정), DEF 강화는 정본 선형이 아니었다.
 
-**변경 (custom-plugins/empire-rpg):**
+**변경 (custom-plugins/poro-rpg):**
 1. **DEF 강화 정본 선형화** — `SkillContext.defense()` = Σ 기본 DEF×(1+0.04×강화) + 인내(0.4/pt). combat-balance 가중배열 폐기.
 2. **방어구 HP 신규 구현** — `SkillContext.armorMaxHealth()` + `applyMaxHealth()`(max health = 20 + 방어구 HP). 접속(`PlayerJoinListener`)·강화(`GrowthGuiListener`) 시 갱신. (기존 미구현 해소)
 3. **HP 0강 100 하향(사용자 결정)** — 정본 670은 몹→플레이어 ATK 정본표 부재(바닐라 데미지) 대비 과함. 투구50/상의20/신발10 = 방어구 80 + 기본 20 = **0강 풀세트 100**, 25강 180. 비율 유지. DEF 52(20.6%)는 유지.
@@ -240,7 +240,7 @@
 
 **전투 구조 확정(조사):** 좌클릭=스킬(바닐라 취소). 스킬 데미지는 `CombatFormulaResolver`로 무기 ATK(`WeaponPowerCalculator`) 반영. 단 몹→플레이어 피격은 바닐라라 방어구 DEF 미적용. `combat_balance_v2 §1` 정본 베이스 DEF = 투구0/상의15/하의30/신발7 = **52**(item_master.csv 150은 고립값, 폐기).
 
-**변경 (custom-plugins/empire-rpg):**
+**변경 (custom-plugins/poro-rpg):**
 1. **방어구 DEF 1단계 (피격 경감 파이프라인)** — `SkillContext.defense()` 신규(방어구 베이스 DEF 상수맵 52 + 인내 0.4/pt). `PlayerDefenseListener`(신규) — 몹→플레이어 `EntityDamageByEntityEvent`에 `DEF/(DEF+200)` 경감(0강 20.6%). PvP·환경피해 제외. 강화 DEF 곡선·잠재 def%는 2~3단계로 분리.
 2. **방어력 정본 통일** — "현재 스탯" GUI(`GrowthGuiListener:1630`)가 `skillContext.defense()` 호출 → 표시=경감 일치(방어구 베이스 포함). 단일 정본화.
 3. **ATK 기반 평타** — 기본기 쿨다운(3~4초) 중 좌클릭이 바닐라 재질 데미지로 새던 것을 `weaponPower × 0.4`로 교체(`SkillInputListener`). 무기 ATK·강화·잠재 반영.
@@ -258,7 +258,7 @@
 
 **배경:** 라이브 검증 요청. (1) 큐브 굴린 후 [현재 유지]/[새 옵션 선택]을 강제로 눌러야 다음 큐브 가능 → "선택 없이 계속 돌리고 싶다". (2) 잠재 GUI에서 선택한 장비의 현재 잠재 옵션이 안 보임. (3) 무기 lore에 강화 단계만 있고 그로 인한 스탯 증가가 안 보여 "강화 체감 불가".
 
-**변경 (custom-plugins/empire-rpg):**
+**변경 (custom-plugins/poro-rpg):**
 1. **큐브 연속 재롤** — `handlePotentialClick`에서 미확정 결과 중 `USE_CUBE` 클릭 허용. 큐브 재클릭 시 직전 후보를 `before`로 자동 복원(기존 유지 효과) 후 재굴림. [새 옵션 선택]을 눌러야만 등급/옵션 확정. `rollPotential` 종료 시 큐브 버튼 비활성→활성 유지.
 2. **잠재 GUI 현재 옵션 안내** — `refreshPotentialCurrentPanel` preview에 등급 + 옵션 라인 전체 한글 나열. 미부여 시 "큐브를 돌려 부여" 안내.
 3. **무기 강화스탯 lore** — `EquipmentLoreRenderer.baseLore` 무기 강화 줄에 `WeaponPowerCalculator.enhanceAtkBonus` 병기(`+N강 (공격력 +M)`). 방어구 DEF 보너스는 정본 충돌·계산 미구현으로 별도 작업(DL-113 예정)으로 분리.
@@ -293,11 +293,11 @@
 
 **배경:** DL-109 후속 라이브 검증. "도끼로 바꿨는데 석궁 각인이 뜨고 영어로 표시" 버그. 근본 원인 2가지 — (1) 각인이 `classEngravingId` 단일 필드라 무기 변경 시 잔존, (2) 장비 lore가 3곳(`equipBaseLore`·`WeaponItemFactory`·`buildWeaponChangeIcon`)에 복제돼 한글화가 일부만 적용. DL-109의 "정본 통일"이 GUI 5종만 고치고 손무기/무기변경 아이콘은 누락했던 것.
 
-**변경 (custom-plugins/empire-rpg):**
+**변경 (custom-plugins/poro-rpg):**
 1. **무기별 독립 각인 (영속화 스키마 v5→v6)** — `PlayerGrowthState.classEngravingId`(단일 String) → `Map<classId, engravingId>`. `classEngravingId()`=현재 무기 각인, `classEngravingId(classKey)` 오버로드 추가. 강화/잠재가 무기별 인스턴스(`weapon_<타입>`)인 것과 대칭. `PlayerSaveData`에 `classEngravingByClass` 필드 + `CURRENT_VERSION 6`. `PlayerPersistenceService` v5→v6 마이그레이션(단일값→현재 classId 키 이관). 무기를 왕복해도 각 무기가 자기 각인 보유.
 2. **lore 정본 통일** — `EquipmentLoreRenderer`(신규, static + enable 시 registry 주입). `equipBaseLore`·`WeaponItemFactory.buildLore`·`buildWeaponChangeIcon` 3곳이 모두 이 단일 정본에 위임. 각인 한글명(`engravingDisplayName`)·잠재 등급/옵션 한글 헬퍼를 렌더러로 이관.
 3. **표시 한글화/정합** — 스코어보드 각인 한글명 + 청록(§b) 강조(DL-109 미완 해소, `ScoreboardService`). 강화 GUI 강화시도 버튼 무기명 영어(`Training Sword`) → 정본 한글(`equipDisplayName`). 잠재 GUI 등급/옵션 영어 → 한글(`potentialGradeKr`/`potentialOptionKr` 재사용).
-4. **운영자 지급 명령 별칭** — `/empire-currency`에 한글/약어(골드·강화석·큐브·큐브조각) 매핑 추가(`AdminPlayerCommand.resolveCurrencyCode`).
+4. **운영자 지급 명령 별칭** — `/poro-currency`에 한글/약어(골드·강화석·큐브·큐브조각) 매핑 추가(`AdminPlayerCommand.resolveCurrencyCode`).
 
 **남은 작업(묶음 B 예정):** 강화단계별 고정스탯 lore 표시(무기 ATK 반영됨/방어구 DEF 보너스 미구현), 큐브 결과 미선택 시 연속 재롤, 잠재 GUI 현재 옵션 안내.
 
@@ -309,7 +309,7 @@
 
 **배경:** 라이브 검증으로 강화/잠재/각인/전승/캐릭터 GUI의 장비 표시가 제각각이고, 직업 변경이 각인과 연동 안 되던 문제 일괄 수정.
 
-**변경 (custom-plugins/empire-rpg):**
+**변경 (custom-plugins/poro-rpg):**
 1. **직업 변경 ↔ 각인 연동** — `PlayerGrowthState.classId` final 제거 + `setClassId()`. `ClassInitService.grantStarterEquipment`(/직업)와 `handleWeaponChangeClick`(무기 변경 GUI) 모두 classId 갱신.
 2. **장비 표시 정본 통일** — 공통 헬퍼 `equipDisplayName`(무기=검/도끼…, 방어구=투구/흉갑/레깅스/부츠) + `equipBaseLore`(구분선/강화/등급/잠재/세부스탯/각인). 강화·잠재·전승·캐릭터·상세 5개 GUI 재사용.
 3. **lore 한글화** — 등급/잠재 등급(커먼~전설), 잠재 옵션 한글(`potentialOptionKr` 19종), 각인 한글명(`engravingDisplayName`). 잠재 미부여 "없음", 부여 후 등급+옵션. "(N라인)" 제거.
@@ -325,14 +325,14 @@
 
 **배경:** 서버를 실제 기동하고 인게임 검증을 반복하며 발견한 버그·요청을 일괄 수정. 정적 분석으로는 못 잡는 Paper 버전 호환·플러그인 충돌·UX 문제 다수.
 
-**코드 변경 (custom-plugins/empire-rpg — 커밋 대상):**
+**코드 변경 (custom-plugins/poro-rpg — 커밋 대상):**
 1. **영지명 변경 — 채팅 입력 방식 전환.** Paper 1.21.10 Anvil 3중 버그(① `createInventory(ANVIL)` ClassCastException → `MenuType.ANVIL`, ② 클릭 판정 `instanceof AnvilInventory` 실패 → `getView() AnvilView`, ③ repairCost>0로 결과슬롯 잠김 → `AnvilView.setRepairCost(0)`)를 거쳐 **최종 채팅 입력으로 전환**(버전 의존 제거). `AnvilGuiHelper`(신규) 잔존. **멤버 초대도 채팅 전환.**
 2. **사망 시 keepInventory** — `DeathKeepInventoryListener`(신규). 템·경험치 유지(1차 시즌 정책). gamerule 아닌 이벤트(동적 월드 대응).
 3. **영지 농작물 보호** — `IslandProtectionListener`(신규): 밟기(성장도 무관 전체)·손파괴(미성숙만, 다 자란 건 수확 허용)·물 흐름(작물 칸 유입 차단). 본인 영지 `CONV_CROP_PROTECT` 기준.
 4. **접속 빨간화면(간헐)** — `HubSpawnListener`에 `PlayerSpawnLocationEvent` 추가. 마지막 위치(IS 섬 border 밖) 경유 깜빡임 제거.
 5. **world_hub WorldBorder 정상화** — `HubWorldService`가 기존/신규 모두 center(0,0)·무제한 보장.
 6. **영지 스폰 설정** — `TerritorySettingsGui` slot 10에 버튼(`/is sethome`). slot 9 자동입금 충돌 정정.
-7. **영지 창고 입금** — `StorageGuiListener`: 인벤 아이템 좌클릭=1개/우클릭=종류 전부. **무기(PDC `empire_rpg:weapon_type`)·메뉴 나침반(COMPASS) 입금 차단**(인벤 클릭+전체입금 공통).
+7. **영지 창고 입금** — `StorageGuiListener`: 인벤 아이템 좌클릭=1개/우클릭=종류 전부. **무기(PDC `poro_rpg:weapon_type`)·메뉴 나침반(COMPASS) 입금 차단**(인벤 클릭+전체입금 공통).
 
 **런타임 설정 변경 (server/ — .gitignore, 재배포 시 재적용 필요):**
 - `server.properties`: `spawn-monsters=false`
@@ -351,7 +351,7 @@
 
 **결정/구현:**
 1. **⑦ 영지명 rename 반영** — 스코어보드 위치 표기에서 IridiumSkyblock 월드 케이스를 `player.getName() + "의 영지"`(하드코딩) → `IslandTerritoryStateStore`의 `islandName()` 조회로 교체. `setIslandName()`(영지 설정 모루 rename)이 반영된다.
-   - `ScoreboardService`: 생성자에 `IslandTerritoryStateStore` 주입, `resolveLocationName`을 static→인스턴스 전환, `territoryName(player)` 헬퍼 추가(미생성·공백 시 `"{이름}의 영지"` 폴백). `EmpireRPGPlugin` 생성자 호출 배선.
+   - `ScoreboardService`: 생성자에 `IslandTerritoryStateStore` 주입, `resolveLocationName`을 static→인스턴스 전환, `territoryName(player)` 헬퍼 추가(미생성·공백 시 `"{이름}의 영지"` 폴백). `PoroRPGPlugin` 생성자 호출 배선.
 2. **③ 스키매틱 picker 우회 — 검증 완료(코드/설정 변경 없음)**: `server/plugins/IridiumSkyblock/schematics.yml`가 `poro` 단일 엔트리만 정의 → picker 생략 조건 충족. (schematics/ 폴더에 미등록 옛 .schem 9개 잔존하나 schematics.yml 미등록이라 무해.) 실제 picker 미표출은 인게임 재검증 몫.
 
 **왜:**
@@ -380,14 +380,14 @@
 
 ---
 
-### DL-105 server-config/empire-rpg/seeds 화석 디렉토리 삭제 (DL-103 후속 리스크 해소)
+### DL-105 server-config/poro-rpg/seeds 화석 디렉토리 삭제 (DL-103 후속 리스크 해소)
 
-**결정:** `server-config/empire-rpg/seeds/` 디렉토리를 통째로 삭제한다(추적 파일 10개). `server-config/mythicmobs/`는 보존.
+**결정:** `server-config/poro-rpg/seeds/` 디렉토리를 통째로 삭제한다(추적 파일 10개). `server-config/mythicmobs/`는 보존.
 
 **왜 (화석 확정 근거):**
-- EmpireRPG 시드 **정본은 jar 내장 `src/main/resources/seeds`** — 코드(`DefaultMasterSeedInstaller` 등)가 `plugin.saveResource(path, false)`로 런타임 datafolder에 추출하고 `getDataFolder()/seeds`에서 읽는다. server-config/seeds는 이 경로에 등장하지 않는다.
+- PoroRPG 시드 **정본은 jar 내장 `src/main/resources/seeds`** — 코드(`DefaultMasterSeedInstaller` 등)가 `plugin.saveResource(path, false)`로 런타임 datafolder에 추출하고 `getDataFolder()/seeds`에서 읽는다. server-config/seeds는 이 경로에 등장하지 않는다.
 - server-config/seeds를 **DB로 import하는 스크립트·파이프라인이 어디에도 없다**. DL-1874가 언급한 "slot-specific(head/chest/legs/boots) 풀은 server-config DB용"은 실재하지 않는 옛 가정 — 코드는 `slot_type=armor`(generic) + `EquipmentService` 슬롯 매칭만 사용.
-- server-config에서 실제 런타임으로 배포되는 건 **mythicmobs 셸뿐**(server_test_prep.md). seeds는 배포 대상이 아니다. 현재 런타임 `server/plugins/EmpireRPG/seeds`가 정본과 동일 = jar 추출 상태인 것이 증거.
+- server-config에서 실제 런타임으로 배포되는 건 **mythicmobs 셸뿐**(server_test_prep.md). seeds는 배포 대상이 아니다. 현재 런타임 `server/plugins/PoroRPG/seeds`가 정본과 동일 = jar 추출 상태인 것이 증거.
 
 **해소한 리스크:** server-config/seeds는 옛 계보(item_master 등 4파일 스키마 분기 `t1_armor_head`/`t1_weapon_hammer` + 코드 미참조 분할표 4파일 + 정본 대비 21파일 누락). 누군가 이 화석을 런타임에 수동 복사하면 스타터 장비 붕괴(DL-103 경고) — 화석 제거로 함정 원천 차단.
 
@@ -428,8 +428,8 @@
 - 가상 장비는 표현을 GUI 아이콘으로 추상화하므로 material/외형 컬럼이 불필요 — item_master 스키마에 애초에 없다(slot_type+tier로 아이콘 결정).
 
 **근거/현황:**
-- 런타임 `item_master.csv`(src/main/resources → server/plugins/EmpireRPG)에 `t1_helmet_starter`(방어 35)·`t1_chestplate_starter`(45)·`t1_leggings_starter`(40)·`t1_boots_starter`(30) 등록 확인. `ClassInitService.grantStarterEquipment`가 4슬롯 가상 장착. → ④는 설계대로 정상 동작이었고 코드 변경 없음.
-- **후속(리스크)**: `server-config/empire-rpg/seeds/item_master.csv`가 다른 스키마(`t1_armor_head`, 방어 12/20/15/5)로 분기 — 오배포 시 스타터 장비 붕괴 함정. 정리 필요. → **[해소 → DL-105]** (2026-05-31, server-config/empire-rpg/seeds 화석 디렉토리 통째 삭제)
+- 런타임 `item_master.csv`(src/main/resources → server/plugins/PoroRPG)에 `t1_helmet_starter`(방어 35)·`t1_chestplate_starter`(45)·`t1_leggings_starter`(40)·`t1_boots_starter`(30) 등록 확인. `ClassInitService.grantStarterEquipment`가 4슬롯 가상 장착. → ④는 설계대로 정상 동작이었고 코드 변경 없음.
+- **후속(리스크)**: `server-config/poro-rpg/seeds/item_master.csv`가 다른 스키마(`t1_armor_head`, 방어 12/20/15/5)로 분기 — 오배포 시 스타터 장비 붕괴 함정. 정리 필요. → **[해소 → DL-105]** (2026-05-31, server-config/poro-rpg/seeds 화석 디렉토리 통째 삭제)
 
 ---
 
@@ -446,7 +446,7 @@
 
 **남은 단계 (온보딩 ②):** 첫 접속을 허브가 아닌 **튜토리얼 맵**으로 → 안내 스텝(이동·공격·메뉴) → 무기 선택 → 영지. `TutorialService`(빈 스텁) 구현. IS create 인자(`poro`)가 GUI를 여는 경우 대비(스키매틱명 직접 지정으로 회피 의도).
 
-**영향 범위:** `HubSpawnListener`, `WeaponSelectionGuiListener`, `EmpireRPGPlugin`. IS 스키매틱 키 `poro`(schematics.yml) 의존.
+**영향 범위:** `HubSpawnListener`, `WeaponSelectionGuiListener`, `PoroRPGPlugin`. IS 스키매틱 키 `poro`(schematics.yml) 의존.
 
 **관련:** INBOX-006, DL-101(허브 월드), `ClassInitService`(무기선택), IridiumSkyblock(`is create`).
 
@@ -457,14 +457,14 @@
 **결정:** 스폰을 **별도 평지 월드 `world_hub`**로 분리(사장님이 수도 건축). 접속 시 복귀 유저는 허브로 이동, 거기서 `/필드`·`/영지`로 분기. 단일 `world`(필드·보스·PvP)와 분리해 허브 전용 규칙(평화·세이프) 적용. 같은 월드 먼 좌표 대신 별도 월드 선택(허브가 필드 몹·규칙과 분리되도록).
 
 **구현:**
-- `HubWorldService`: 부팅 시 `world_hub` 보장(없으면 평지 생성, **표면 y=64**로 필드와 통일, PVP off·PEACEFUL·스톰 off). 스폰 (0,64,0). `EmpireRPGPlugin` onEnable에서 `ensureHubWorld()`.
+- `HubWorldService`: 부팅 시 `world_hub` 보장(없으면 평지 생성, **표면 y=64**로 필드와 통일, PVP off·PEACEFUL·스톰 off). 스폰 (0,64,0). `PoroRPGPlugin` onEnable에서 `ensureHubWorld()`.
 - `HubSpawnListener`: 접속 1틱 후(데이터 로드 완료) 무기 선택 완료(=복귀)면 허브 스폰 이동. 첫 접속(무기 NONE)은 온보딩 단계에서 분기.
 
 **검증:** 부팅 시 world_hub 생성(폴더 2.2M, WorldGuard 적용), disable 0, 클린 부팅.
 
 **남은 단계 (온보딩 2차):** 첫 접속 → 튜토리얼 맵(안내 스텝) → 무기선택 → 스타터 → **영지(IridiumSkyblock 섬) 자동 생성+이동**. `TutorialService`(현재 빈 스텁) 구현, IS 섬 생성 연동(현재 미연동), 첫접속 라우팅.
 
-**영향 범위:** `HubWorldService`(신규), `HubSpawnListener`(신규), `EmpireRPGPlugin`. 런타임 server/world_hub(git 밖).
+**영향 범위:** `HubWorldService`(신규), `HubSpawnListener`(신규), `PoroRPGPlugin`. 런타임 server/world_hub(git 밖).
 
 **관련:** INBOX-006, DL-099(단일 평지 world), `ClassInitService`(무기선택=첫접속 감지), `final_master_plan §5`(수도).
 
@@ -485,9 +485,9 @@
 
 **남은 단계 (2차):** 일반/정예 모드 상태+명령어(`/필드 일반|정예`)+필드 GUI 토글, 랜덤 진입(타 플레이어 ≥35블록), 디스폰 정밀화(필드 이탈/원거리), 캡·웨이브 튜닝. PvP 친선사격은 이미 `PvpDamageListener`로 차단(추가 없음).
 
-**영향 범위:** `FieldSpawnService`(신규), `EmpireRPGPlugin`(등록), `config.yml`(필드 1000간격). 문서: INBOX-006.
+**영향 범위:** `FieldSpawnService`(신규), `PoroRPGPlugin`(등록), `config.yml`(필드 1000간격). 문서: INBOX-006.
 
-**관련:** INBOX-006, DL-099(단일 평지 월드), `MobTagHelper`(empire_field_N), 필드 MM 셸(field_*.yml).
+**관련:** INBOX-006, DL-099(단일 평지 월드), `MobTagHelper`(poro_field_N), 필드 MM 셸(field_*.yml).
 
 ---
 
@@ -500,7 +500,7 @@
 **구현:**
 - `server.properties`: `level-type=minecraft:flat` + generator-settings(bedrock+stone124+dirt2+grass, **표면 y=64** → config 좌표 유지). 기존 `world` 재생성.
 - `npc_spawn_seed.csv`(src+런타임): `world_main` → `world`. config.yml은 이미 전부 `world`.
-- `/empire-genrooms world 10000 64 10000` → 보스룸 30개(6×5, 50³) 생성. `/empire-genarenas world 20000 64 20000` → PvP 아레나 10개 생성.
+- `/poro-genrooms world 10000 64 10000` → 보스룸 30개(6×5, 50³) 생성. `/poro-genarenas world 20000 64 20000` → PvP 아레나 10개 생성.
 
 **검증:** 평지 월드 부팅·플러그인 클린(disable 0)·NPC 3명 스폰·보스룸 30/아레나 10 슬롯 로드 및 구조물 생성 완료. 클린 종료.
 
@@ -518,15 +518,15 @@
 
 **해소 (전부 src 수정):**
 1. **skill_master class_id required→optional** (`MasterCsvMappers.skill`): 1차 시즌은 클래스 미사용(무기 기반)이라 class_id가 빈 값인데 `required`라 파싱 실패. → `optional`.
-2. **NPC sync 비fatal** (`EmpireRPGPlugin`): `npc_spawn_seed.csv`가 정본 월드 `world_main` 참조 → 월드 미생성 시 fatal로 플러그인 disable. NPC는 비핵심이므로 실패해도 warn+continue(코어 정상 가동). `getNpcSyncRuntime()` 외부 호출처 0이라 null 안전.
-3. **onDisable null 가드** (`EmpireRPGPlugin`): 부팅 초기 실패 disable 시 `playerPersistenceService`가 null이라 onDisable이 2차 NPE로 진짜 원인 가림 → 가드.
+2. **NPC sync 비fatal** (`PoroRPGPlugin`): `npc_spawn_seed.csv`가 정본 월드 `world_main` 참조 → 월드 미생성 시 fatal로 플러그인 disable. NPC는 비핵심이므로 실패해도 warn+continue(코어 정상 가동). `getNpcSyncRuntime()` 외부 호출처 0이라 null 안전.
+3. **onDisable null 가드** (`PoroRPGPlugin`): 부팅 초기 실패 disable 시 `playerPersistenceService`가 null이라 onDisable이 2차 NPE로 진짜 원인 가림 → 가드.
 4. **life/estate 검증 정합** (`LifeEngineBootstrap`): ①레시피·시설이 **바닐라 재료**(iron_block·diamond_block·carrot 등)를 쓰는데 커스텀 item_master로만 확인 → `Material.matchMaterial`로 바닐라 인식. ②공방 life_type(`crafting`/`workshop`)은 생활 스킬 레벨링이 없어 exp table 면제. ③`base_item_id="-"`(추상 시설=공방) 면제.
 
 **검증 결과 (실부팅):** 8개 부트스트랩 전부 completed, disable 0, MythicMobs 감지 → 전투/보스 리스너 등록, Done. seed 로스터 정합(시즌6+최종3·강화표·잠재풀).
 
-**남은 선행조건(코드 아님, 맵 작업):** 0개 보스룸 슬롯 로드·NPC sync 비활성 = 월드(world_main/boss) 미생성·`/empire genrooms` 미실행 때문. config 좌표·월드 + genrooms로 해소(server_test_prep.md). 운영 팁: 종료 시 `stop`으로 클린 셧다운(timeout kill은 session.lock 잔존→다음 부팅 크래시).
+**남은 선행조건(코드 아님, 맵 작업):** 0개 보스룸 슬롯 로드·NPC sync 비활성 = 월드(world_main/boss) 미생성·`/poro genrooms` 미실행 때문. config 좌표·월드 + genrooms로 해소(server_test_prep.md). 운영 팁: 종료 시 `stop`으로 클린 셧다운(timeout kill은 session.lock 잔존→다음 부팅 크래시).
 
-**영향 범위:** `MasterCsvMappers`, `EmpireRPGPlugin`, `LifeEngineBootstrap`. (배포물 server/는 git 밖.)
+**영향 범위:** `MasterCsvMappers`, `PoroRPGPlugin`, `LifeEngineBootstrap`. (배포물 server/는 git 밖.)
 
 **관련:** INBOX-005 2차, server_test_prep.md, DL-086~088(seed 정본).
 
@@ -541,9 +541,9 @@
 **구현 (클리어 영속화):**
 - `BossSessionRepository.clearedBossIds(uuid)`: `result='clear'` 세션 참여 보스 id 집합 조회(boss_session_log ⋈ boss_session_player). 클리어는 이미 endRun→DbBossRunRecordHook로 boss_session에 영속(별도 write 불필요).
 - `BossRoomManager`: `attachClearSource(Function)` + 게이트 첫 조회 시 `ensureClearsLoaded`로 1회 lazy 복원·캐시. `markCleared`(in-memory)는 세션 중 즉시 반영용으로 유지.
-- `EmpireRPGPlugin`: `bossRoomManager.attachClearSource(uuid → bossSessionRepository.clearedBossIds(...))`.
+- `PoroRPGPlugin`: `bossRoomManager.attachClearSource(uuid → bossSessionRepository.clearedBossIds(...))`.
 
-**영향 범위:** `BossSessionRepository`, `BossRoomManager`, `EmpireRPGPlugin`. DDL/마이그레이션 추가 없음(기존 boss_session 재사용).
+**영향 범위:** `BossSessionRepository`, `BossRoomManager`, `PoroRPGPlugin`. DDL/마이그레이션 추가 없음(기존 boss_session 재사용).
 
 **관련:** DL-091(#5 게이트), DL-084(boss_session), INBOX-005 2차.
 
@@ -554,13 +554,13 @@
 **결정:** DL-092(#7)에서 후속으로 미뤘던 두 계층을 중앙 데미지 적용부에 마저 배선한다.
 
 **구현:**
-- **boss_damage_increase(보스 피해증가) 적용**: 타깃이 보스일 때만 `× (1 + Σboss_damage_increase%/100)`. 보스 판정 = `MobTagHelper.isFieldBoss`(필드보스 태그 `empire_type_field_boss`) **또는** `BossDamageTracker.isTracked`(인스턴스 보스). `SkillContext`에 `BossDamageTracker` 주입.
+- **boss_damage_increase(보스 피해증가) 적용**: 타깃이 보스일 때만 `× (1 + Σboss_damage_increase%/100)`. 보스 판정 = `MobTagHelper.isFieldBoss`(필드보스 태그 `poro_type_field_boss`) **또는** `BossDamageTracker.isTracked`(인스턴스 보스). `SkillContext`에 `BossDamageTracker` 주입.
 - **치명 피해량 스탯 적용**: 고정 ×1.5 → **1.5 + critPts × 0.15%/pt**(치명 트리 부효과, `level_stat_system §2`, DL-061). 150pt 시 ×1.725. `potential_options_v1`의 stale 0.2%/pt도 0.15로 정정.
 
 **최종 1차 피해 공식 (중앙 `BaseWeaponSkill.dealDamage`):**
 `피해 = ATK(attack_percent 반영) × 계수 × (1+general%) × (보스면 1+boss%) × 치명배율(발동 시)`. DEF는 바닐라 armor 위임(커스텀 보스 DEF 시드 없음).
 
-**영향 범위:** `SkillContext`, `BaseWeaponSkill`, `EmpireRPGPlugin`(생성자), 문서 `potential_options_v1`.
+**영향 범위:** `SkillContext`, `BaseWeaponSkill`, `PoroRPGPlugin`(생성자), 문서 `potential_options_v1`.
 
 **관련:** DL-092(#7 본체), DL-095(치명 확률), `level_stat_system §2`(치명 부효과 0.15%/pt), `growth_potential_option_pool.csv`(boss_damage_increase).
 
@@ -617,11 +617,11 @@
 **구현:**
 - `BossRunService`: `activeRunsSnapshot()` + `timeoutSecondsFor(bossId)`(최종3=600/그외=900) + `isTimedOut(run)`(enteredAt 기준). 최종보스 집합 = rift_king/corrupted_dyad/spirit_watcher.
 - `BossDamageTracker.mobForRun(runId)`: 디스폰용 mob UUID 역조회(`endRun`의 finalizeShares가 매핑을 지우므로 종료 전에 캡처).
-- `EmpireRPGPlugin`: 10초(200틱) 주기 sync 스케줄러 — 경과 런마다 mob UUID 캡처 → `endRun(false,"timeout")`(→onRunEnded→releaseByRunId로 슬롯 회수) → 보스 mob `remove()` → 참가자 알림.
+- `PoroRPGPlugin`: 10초(200틱) 주기 sync 스케줄러 — 경과 런마다 mob UUID 캡처 → `endRun(false,"timeout")`(→onRunEnded→releaseByRunId로 슬롯 회수) → 보스 mob `remove()` → 참가자 알림.
 
 **한계:** 타임아웃 시 참가자 자동 텔레포트는 미구현(알림만 — 보스 디스폰으로 위험 제거, 수동 퇴장). 페이즈/패턴 진행 틱(`selectNextPattern`·`updateBossHp` 주기 호출)은 본 범위 밖(MM 패턴 실행과 연동 필요) — 별도. 정밀도 ±10초(스케줄러 주기).
 
-**영향 범위:** `BossRunService`, `BossDamageTracker`, `EmpireRPGPlugin`.
+**영향 범위:** `BossRunService`, `BossDamageTracker`, `PoroRPGPlugin`.
 
 **관련:** INBOX-005 2차 #10, `07_boss_pattern_modules §타임아웃`, DL-091(#3 endRun 체인 선행).
 
@@ -667,7 +667,7 @@
 
 **남은 블로커 (후속 커밋):** #7 피해 공식 계층(경량 중앙 적용부, 위 설계대로) + #10 보스 타임아웃·페이즈 틱 루프. 선행조건(코드 밖): config 좌표·월드명 실값, MM 셸 설치·ID 충돌.
 
-**영향 범위:** `WeaponPowerCalculator`, `BossDamageTracker`, `BossInstanceDamageListener`, `BossClearUnlockQuestChecker`(신규), `BossEngineBootstrap`, `EmpireRPGPlugin`. 문서: `idea_inbox.md`(INBOX-005 2차 감사).
+**영향 범위:** `WeaponPowerCalculator`, `BossDamageTracker`, `BossInstanceDamageListener`, `BossClearUnlockQuestChecker`(신규), `BossEngineBootstrap`, `PoroRPGPlugin`. 문서: `idea_inbox.md`(INBOX-005 2차 감사).
 
 **관련:** INBOX-005, DL-044(최종보스 게이트), DL-084(보스 데미지 추적), `combat_balance_v2 §1`.
 
@@ -784,7 +784,7 @@
 - `GrowthEngineBootstrap.validate`: "1~5강 100% 필수" → **"1~3강 100%"로 완화** (확정 표가 4강 95%·5강 90%이므로 기존 검증과 충돌, 스펙 우선).
 - T2(1차 시즌 미사용)는 **유지** — validate가 전 tier 1~25강 룰을 강제하므로 제거 시 부트스트랩 실패. inert 데이터로 보존.
 
-**한계/후속:** 배포 사본(`server-config/`, `server/plugins/EmpireRPG/seeds/`)은 미수정 — 다음 배포 시 동기화 필요. T2 완전 제거는 validate를 T1 한정으로 바꿔야 하는 별도 작업.
+**한계/후속:** 배포 사본(`server-config/`, `server/plugins/PoroRPG/seeds/`)은 미수정 — 다음 배포 시 동기화 필요. T2 완전 제거는 validate를 T1 한정으로 바꿔야 하는 별도 작업.
 
 **영향 범위:** `growth_enhancement_table.csv`(src), `EnhancementService`, `GrowthEngineBootstrap`.
 
@@ -794,7 +794,7 @@
 
 ### DL-085 바닐라 경험치 바 억제 — 커스텀 레벨링만 노출
 
-**결정:** 바닐라 마인크래프트 경험치(초록 XP 바)를 전면 억제한다. EmpireRPG는 커스텀 레벨링(`PlayerLevelingService`, HUD 표시)을 쓰므로 바닐라 XP 바는 노출하지 않는다.
+**결정:** 바닐라 마인크래프트 경험치(초록 XP 바)를 전면 억제한다. PoroRPG는 커스텀 레벨링(`PlayerLevelingService`, HUD 표시)을 쓰므로 바닐라 XP 바는 노출하지 않는다.
 
 **이유:**
 - 커스텀 XP 바(HUD)가 이미 있어 바닐라 XP 바와 병존하면 혼란(두 개의 XP 시스템처럼 보임). 사용자 확인: "커스텀 xp 바가 있으니 바닐라 xp 바는 안 보이는 게 맞다."
@@ -806,7 +806,7 @@
 
 **한계:** 바닐라 XP 바 트로프(빈 틀)는 API로 완전 숨김 불가 — 빈 상태로 표시됨(리소스팩으로 별도 숨김 가능). 바닐라 인챈트/모루 XP 비용 기능을 향후 쓰려면 재검토 필요.
 
-**영향 범위:** `VanillaExpSuppressListener`(신규), `EmpireRPGPlugin`(등록).
+**영향 범위:** `VanillaExpSuppressListener`(신규), `PoroRPGPlugin`(등록).
 
 ---
 
@@ -827,7 +827,7 @@
 
 **한계:** 보스가 소환한 add(소환수)는 다른 UUID라 미집계(메인 보스 데미지만). 페이즈 전환으로 엔티티 교체 시 추적 끊김(1차 시즌 단일 엔티티 전제). reflection `spawnMythicMob` 반환 타입(Entity) 런타임 의존 — MM 버전 통합 테스트 필요. damage_total(원시값)은 미저장(share만).
 
-**영향 범위:** `BossDamageTracker`/`BossInstanceDamageListener`/`BossSessionPlayerMigrationV3`(신규), `mythicSpawner`(plugin), `BossRoomListener`, `BossSessionDdl`, `BossSessionRepository`, `DbBossRunRecordHook`, `BossEngineBootstrap`, `EmpireRPGPlugin`, `CommonFoundationBootstrap`.
+**영향 범위:** `BossDamageTracker`/`BossInstanceDamageListener`/`BossSessionPlayerMigrationV3`(신규), `mythicSpawner`(plugin), `BossRoomListener`, `BossSessionDdl`, `BossSessionRepository`, `DbBossRunRecordHook`, `BossEngineBootstrap`, `PoroRPGPlugin`, `CommonFoundationBootstrap`.
 
 **관련:** `docs/idea_inbox.md` INBOX-004 #5 (PROMOTED). **데이터 수집 공백 7종 전부 해소 — INBOX-004 완료.**
 
@@ -847,7 +847,7 @@
 
 **한계:** 30분 주기 스냅샷이라 그 사이 변동은 미포착(일별 평균엔 무관). 오프라인 기간은 행 없음(그날 미접속). 개별 성장 추적이 아닌 모집단 평균 곡선용.
 
-**영향 범위:** `GrowthSnapshotDdl`/`GrowthSnapshotMigration`/`GrowthSnapshotRepository`(신규), `EmpireRPGPlugin`(스케줄러+행 구성), `GrowthApiHandler`(신규), `EmpireHttpServer`, `OperationsQueryBootstrap`, `CommonFoundationBootstrap`.
+**영향 범위:** `GrowthSnapshotDdl`/`GrowthSnapshotMigration`/`GrowthSnapshotRepository`(신규), `PoroRPGPlugin`(스케줄러+행 구성), `GrowthApiHandler`(신규), `PoroHttpServer`, `OperationsQueryBootstrap`, `CommonFoundationBootstrap`.
 
 **관련:** `docs/idea_inbox.md` INBOX-004 #7 (PROMOTED). 남은 공백 1종(#5 보스 데미지 기여 — 런타임 데미지 추적).
 
@@ -869,7 +869,7 @@
 
 **한계:** 무승부·플레이어 상태 소실(quit) 시 해당 측 무기/IL은 null. 데미지량(누가 얼마 때렸는지)은 미수집(별도).
 
-**영향 범위:** `PvpDdl`, `PvpMatchLogMigrationV2`(신규), `PvpMatchLogRepository`, `PvpMatchService`, `PvpApiHandler`(신규), `EmpireHttpServer`, `OperationsQueryBootstrap`, `CommonFoundationBootstrap`.
+**영향 범위:** `PvpDdl`, `PvpMatchLogMigrationV2`(신규), `PvpMatchLogRepository`, `PvpMatchService`, `PvpApiHandler`(신규), `PoroHttpServer`, `OperationsQueryBootstrap`, `CommonFoundationBootstrap`.
 
 **관련:** `docs/idea_inbox.md` INBOX-004 #6 (PROMOTED). 남은 공백 2종(#5 보스 데미지 기여·#7 성장 시계열).
 
@@ -883,7 +883,7 @@
 - "어느 강화도/IL에서 보스를 깨는가"는 보스 밸런스 판단의 핵심인데, 참여자 스펙·파티 평균이 전부 placeholder(0/NULL)라 `boss_stats_summary`의 avg_party_il/enhance가 무의미했다 (INBOX-004 #4).
 
 **결과 (코드 구조):**
-- `BossParticipantSpec`(weaponEnhance·avgEnhance·il) + `BossParticipantSpecResolver` 인터페이스(신규) — 보스 엔진을 growth에 직접 결합하지 않도록 분리. 구현(5슬롯 강화 → IL 계산, 강화 1당 IL 5)은 플러그인 와이어링(`EmpireRPGPlugin.resolveBossParticipantSpec`)이 제공.
+- `BossParticipantSpec`(weaponEnhance·avgEnhance·il) + `BossParticipantSpecResolver` 인터페이스(신규) — 보스 엔진을 growth에 직접 결합하지 않도록 분리. 구현(5슬롯 강화 → IL 계산, 강화 1당 IL 5)은 플러그인 와이어링(`PoroRPGPlugin.resolveBossParticipantSpec`)이 제공.
 - `DbBossRunRecordHook.onRunStarted`: 참여자별 resolver로 스펙 계산 → `recordPlayerEntry(sessionId, uuid, spec)`, 누적 후 `recordPartySpec(sessionId, avgEnhance, avgIl)`로 파티 평균 UPDATE.
 - `BossSessionRepository.recordPlayerEntry` 시그니처에 spec 추가, `recordPartySpec` 신규.
 
@@ -892,7 +892,7 @@
 - **damage_share / 데미지 기여는 별개(#5)** — 본 작업은 입장 시점 스펙만. 런타임 데미지 추적은 미구현.
 - 본 변경 이전 종료 세션은 party_avg가 NULL로 남음(AVG 집계에서 자동 제외).
 
-**영향 범위:** `BossParticipantSpec`/`BossParticipantSpecResolver`(신규), `BossSessionRepository`, `DbBossRunRecordHook`, `BossEngineBootstrap`, `EmpireRPGPlugin`.
+**영향 범위:** `BossParticipantSpec`/`BossParticipantSpecResolver`(신규), `BossSessionRepository`, `DbBossRunRecordHook`, `BossEngineBootstrap`, `PoroRPGPlugin`.
 
 **관련:** `docs/idea_inbox.md` INBOX-004 #4 (PROMOTED). DL-064(damage_share placeholder)는 #5로 별도. 남은 공백 3종(#5·#6·#7).
 
@@ -916,7 +916,7 @@
 - **gross(총 inflow)는 경매 이체분만큼 부풀려짐** — net은 정확하나 "총 발행량"으로 해석 시 transfer 노이즈 포함. 분석은 net 기준 권장.
 - 전 통화(골드+재화) 기록. 드랍 등 고빈도 변동마다 INSERT — 부하 우려 시 시간버킷 집계로 배치화 가능(후속).
 
-**영향 범위:** `CurrencyFlowListener`(신규), `PlayerGrowthState`, `GrowthStateStore`, `PlayerPersistenceService`, `EconomyFlowDdl`/`EconomyFlowMigration`/`EconomyFlowRepository`(신규), `EmpireRPGPlugin`, `EconomyApiHandler`, `OperationsQueryBootstrap`, `CommonFoundationBootstrap`.
+**영향 범위:** `CurrencyFlowListener`(신규), `PlayerGrowthState`, `GrowthStateStore`, `PlayerPersistenceService`, `EconomyFlowDdl`/`EconomyFlowMigration`/`EconomyFlowRepository`(신규), `PoroRPGPlugin`, `EconomyApiHandler`, `OperationsQueryBootstrap`, `CommonFoundationBootstrap`.
 
 **관련:** `docs/idea_inbox.md` INBOX-004 #2 (PROMOTED). 남은 공백 4종(#4~#7). 죽은 모델 `EconomyFlowRecord`(in-memory)는 본 DB 방식으로 대체 — 미사용 유지.
 
@@ -936,7 +936,7 @@
 - `CompositeEnhancementLogHook([inMemory, db])`을 `EnhancementService`에 주입. runtime은 in-memory hook을 계속 노출(관리자 GUI `logs()` 호환).
 - 읽기 API: `GET /api/v1/economy/enhancement` — 요약(표기 vs 실제 성공률·총 소모) + 티어·단계별 성공률.
 
-**영향 범위:** `EnhancementLogDdl`, `EnhancementLogMigration`, `DbEnhancementLogHook`(신규, write+read), `CompositeEnhancementLogHook`(신규), `GrowthEngineBootstrap`, `EconomyApiHandler`(신규), `EmpireHttpServer`, `OperationsQueryBootstrap`, `CommonFoundationBootstrap`.
+**영향 범위:** `EnhancementLogDdl`, `EnhancementLogMigration`, `DbEnhancementLogHook`(신규, write+read), `CompositeEnhancementLogHook`(신규), `GrowthEngineBootstrap`, `EconomyApiHandler`(신규), `PoroHttpServer`, `OperationsQueryBootstrap`, `CommonFoundationBootstrap`.
 
 **관련:** `docs/idea_inbox.md` INBOX-004 #3 (PROMOTED). 남은 공백 5종(#2·#4~#7).
 
@@ -956,7 +956,7 @@
 - 읽기 API: `GET /api/v1/activity/summary`(총 세션·고유 플레이어·평균 세션 길이), `GET /api/v1/activity/dau?days=N`(날짜별 DAU).
 - 크래시로 quit 이벤트 누락 시 세션은 quit_at=NULL → 플레이타임 집계 제외, DAU에는 포함.
 
-**영향 범위:** `PlayerSessionDdl`, `PlayerSessionMigration`, `PlayerSessionRepository`(신규), `PlayerJoinListener`, `EmpireRPGPlugin`, `ActivityApiHandler`(신규), `EmpireHttpServer`, `OperationsQueryBootstrap`, `CommonFoundationBootstrap`.
+**영향 범위:** `PlayerSessionDdl`, `PlayerSessionMigration`, `PlayerSessionRepository`(신규), `PlayerJoinListener`, `PoroRPGPlugin`, `ActivityApiHandler`(신규), `PoroHttpServer`, `OperationsQueryBootstrap`, `CommonFoundationBootstrap`.
 
 **관련:** `docs/idea_inbox.md` INBOX-004 #1 (PROMOTED). 나머지 공백 6종(#2~#7)은 미구현 잔존.
 
@@ -1669,7 +1669,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 **결정:** 방안 4 혼합 구조 — MythicMobs(파티클·사운드) + Display Entity(투사체·검기) + Bukkit Particle(fallback) 조합.
 
 **원칙:**
-1. 스킬 판정·피해·쿨타임·상태는 EmpireRPG 단독 책임
+1. 스킬 판정·피해·쿨타임·상태는 PoroRPG 단독 책임
 2. MythicMobs는 이펙트 위임 전용, 판정 위임 없음
 3. Display Entity는 0.5초 이상 보이는 투사체·검기·마법탄에만 사용
 4. MythicMobs 없어도 전투 로직 정상 작동 (graceful degradation)
@@ -1681,7 +1681,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 - `pt:xxx` — Bukkit Particle 직접
 - 빈 값 — 이펙트 없음
 
-**구현 격리 원칙:** MythicMobs API 직접 호출은 `MythicMobsEffectHandler` 안에만 격리. EmpireRPG core는 인터페이스(`EffectDispatcher`)만 참조.
+**구현 격리 원칙:** MythicMobs API 직접 호출은 `MythicMobsEffectHandler` 안에만 격리. PoroRPG core는 인터페이스(`EffectDispatcher`)만 참조.
 
 **파일:**
 - `docs/04_combat_weapon_skills/weapon_skills_v1.md` — 이펙트 시스템 섹션 + 24개 스킬 effect_key 기준값 추가
@@ -1696,7 +1696,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 **결정:**
 1. `/강화계산` — 봇 내부 계산 (강화 비용 표 하드코딩). API 호출 없음.
 2. `/프로필` 타인 조회 — 전체 공개. 본인과 동일 형식 출력.
-3. 봇 구현 언어 — **Node.js (Discord.js)**, EmpireRPG와 독립 프로세스.
+3. 봇 구현 언어 — **Node.js (Discord.js)**, PoroRPG와 독립 프로세스.
 
 **파일:**
 - `docs/03_discord_onboarding_bot/discord_bot_spec.md`
@@ -1737,10 +1737,10 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 
 **핵심 결정 내용:**
 - 접근: 운영자 전용, Bearer 토큰 인증
-- 데이터 원본: EmpireRPG HTTP API(포트 8765) 단일 경로. DB 직접 접근 없음
+- 데이터 원본: PoroRPG HTTP API(포트 8765) 단일 경로. DB 직접 접근 없음
 - 갱신: 일별 집계(자정 스냅샷). 실시간은 현재 접속자·최근 보스 클리어만
 - 1차 범위: 경제 관제, 보스 기록, 서버 현황, 아이템 발행 수
-- 기존 `empire.db` 테이블 수정 없음. 이벤트 로그 테이블 10종 신규 추가만
+- 기존 `poro.db` 테이블 수정 없음. 이벤트 로그 테이블 10종 신규 추가만
 
 **근거:** 사용자 요구사항 (2026-05-23)
 
@@ -1768,7 +1768,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 
 **파일:** `docs/01_plugin_architecture/index.md`  
 **변경:** 플러그인 목록 테이블에서 `Citizens | NPC 껍데기` 행 제거  
-**이유:** `final_master_plan.md`의 "플러그인 구조"에서 Citizens 제거가 확정됨. NPC 역할은 EmpireRPG 자체 처리로 전환.  
+**이유:** `final_master_plan.md`의 "플러그인 구조"에서 Citizens 제거가 확정됨. NPC 역할은 PoroRPG 자체 처리로 전환.  
 **근거:** `final_master_plan.md`의 "플러그인 구조" (2026-05-20 기준)
 
 ---
@@ -2126,8 +2126,8 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 **파일:**
 - `docs/03_discord_onboarding_bot/index.md`
 - `docs/07_boss_pattern_modules/season_boss_patterns.md`
-- `docs/01_plugin_architecture/empire_rpg_design_intent.md`
-- `docs/01_plugin_architecture/empire_rpg_module_design.md`
+- `docs/01_plugin_architecture/poro_rpg_design_intent.md`
+- `docs/01_plugin_architecture/poro_rpg_module_design.md`
 - `docs/04_combat_weapon_skills/combat_balance_v2.md`
 - `docs/08_resourcepack_pipeline/gui_hud_spec.md`
 - `docs/02_database_api_stats/index.md`
@@ -2198,8 +2198,8 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 
 **파일:**
 - `docs/04_combat_weapon_skills/level_stat_system_v1.md` (§5 전체 대체)
-- `custom-plugins/empire-rpg/src/main/java/com/poro/empire/leveling/PlayerLevelingService.java` (신규)
-- `custom-plugins/empire-rpg/src/main/java/com/poro/empire/listener/FieldDropListener.java` (EXP 연동)
+- `custom-plugins/poro-rpg/src/main/java/com/poro/poro/leveling/PlayerLevelingService.java` (신규)
+- `custom-plugins/poro-rpg/src/main/java/com/poro/poro/listener/FieldDropListener.java` (EXP 연동)
 
 **변경:**
 - 경험치 곡선: `550 × n^1.5` (2026-05-16 초안) → `round(800 × 1.1^(n-1))` (기하급수, 2026-05-26 확정)
@@ -2220,8 +2220,8 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 ### DL-068 장비의 흔적 드랍 등급 5종 확장
 
 **파일:**
-- `custom-plugins/empire-rpg/src/main/java/com/poro/empire/listener/FieldDropListener.java`
-- `custom-plugins/empire-rpg/src/main/java/com/poro/empire/boss/engine/BossRewardService.java`
+- `custom-plugins/poro-rpg/src/main/java/com/poro/poro/listener/FieldDropListener.java`
+- `custom-plugins/poro-rpg/src/main/java/com/poro/poro/boss/engine/BossRewardService.java`
 - `docs/06_fields_bosses/drop_tables_v1.md`
 - `docs/04_combat_weapon_skills/item_grade_substat_v1.md` (§2 표 "시즌보스 1~3" → "1~6")
 
@@ -2380,7 +2380,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 - 정규대전 점수 (in-memory + pvp_rating DB 영속화, 초기 100점/승+15/패-10)
 - 자유/정규 매칭 큐 (FIFO, 2명 모이면 즉시 텔레포트)
 - 친선대전 (Anvil 닉네임 입력 + 30초 응답)
-- 아레나 방 풀 (5×2 = 10개, /empire-genarenas 명령으로 생성)
+- 아레나 방 풀 (5×2 = 10개, /poro-genarenas 명령으로 생성)
 - 매치 진행 (3분 타임아웃, 사망=패배, 서버이탈=자동 패배, HP 비율 비교)
 - 매치 로그 (pvp_match_log DDL, FREE/RANKED/FRIENDLY 구분)
 - 정규대전 가상 컨텍스트 (PvpContext: 12강 IL60 보관)

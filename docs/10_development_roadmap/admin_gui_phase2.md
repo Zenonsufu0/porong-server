@@ -1,6 +1,6 @@
 # 관리자 GUI — Phase 2 잔여 작업
 
-> **[STATUS: DRAFT]** — Phase 1은 `/empire-admin` 명령으로 구현 완료. Phase 2 항목은 1차 시즌 운영 피드백 후 우선순위 재조정.
+> **[STATUS: DRAFT]** — Phase 1은 `/poro-admin` 명령으로 구현 완료. Phase 2 항목은 1차 시즌 운영 피드백 후 우선순위 재조정.
 
 > 작성일: 2026-05-30  
 > Phase 1 커밋: (이번 세션) — 인스펙트·진행 매치·통계·슬롯 해제
@@ -26,12 +26,12 @@
 |---|---|
 | 영지 목록 GUI | ✅ `AdminTerritoryGui` — `snapshot()` 작위 내림차순 페이지네이션(45/page), 작위·시설 표시 |
 | 영지 초기화 | ✅ Shift+우클릭 → `IslandTerritoryStateStore.resetSocialSettings` (멤버·권한·방문모드 reset, 작위·시설 보존) |
-| 작위 강제 승급/강등 | ✅ 좌클릭=▲ / 우클릭=▼ (ordinal ±1 clamp). 명령 `/empire-rank`도 존재 |
+| 작위 강제 승급/강등 | ✅ 좌클릭=▲ / 우클릭=▼ (ordinal ±1 clamp). 명령 `/poro-rank`도 존재 |
 | 멤버 강제 제거 | ⏳ 보류 — 초기화로 전체 멤버 제거는 가능, 개별 제거 GUI는 후속 |
-| 자원 강제 지급/회수 | ⏳ 보류 — `/empire-currency`·`/empire-give` 명령 존재 (영지 customItem 직접 조작 GUI는 후속) |
+| 자원 강제 지급/회수 | ⏳ 보류 — `/poro-currency`·`/poro-give` 명령 존재 (영지 customItem 직접 조작 GUI는 후속) |
 
-- GUI: `AdminTerritoryGui` (54슬롯, 목록+클릭 액션). 진입: `/empire-admin` → slot 29.
-- 명령어: 신규 없음 — 액션은 기존 `/empire-rank`(작위)·`/empire-island-reset`(소셜 초기화)와 동일 (C 방식: GUI 액션 ↔ 명령 동등). 초기화 로직은 `resetSocialSettings`로 공통화(DRY).
+- GUI: `AdminTerritoryGui` (54슬롯, 목록+클릭 액션). 진입: `/poro-admin` → slot 29.
+- 명령어: 신규 없음 — 액션은 기존 `/poro-rank`(작위)·`/poro-island-reset`(소셜 초기화)와 동일 (C 방식: GUI 액션 ↔ 명령 동등). 초기화 로직은 `resetSocialSettings`로 공통화(DRY).
 - 확인 단계: 초기화는 Shift+우클릭(오클릭 방지). 별도 확인 GUI 없음.
 
 ### 운영 토글 (slot 31) — **Step 2 GUI+명령어 완료, Step 2b hook 적용 완료 (2026-05-30)**
@@ -47,8 +47,8 @@
 > Step 2b 범위 주의: EXP/DROP 부스트는 `FieldDropListener`(필드몹) 한정. 보스 보상(`BossRewardService`) 경로는 미적용 — 필요 시 확장.
 
 진입 경로:
-- GUI: `/empire-admin` → slot 31 (운영 토글)
-- 명령어: `/empire-toggle <flag> [on|off]`, `/empire-toggle list`
+- GUI: `/poro-admin` → slot 31 (운영 토글)
+- 명령어: `/poro-toggle <flag> [on|off]`, `/poro-toggle list`
 
 ### 로그/감시 (slot 33) — **Step 3 구현 완료 (2026-05-30)**
 
@@ -59,8 +59,8 @@
 | 최근 PvP 매치 로그 | ✅ `PvpMatchLogRepository.recentMatches` — `pvp_match_log` DB |
 | 의심 활동 알림 | ⏳ Step 3+ 보류 (집계/임계 로직 별도 설계 필요) |
 
-- GUI: `AdminLogGui` (54슬롯, 3탭 강화/거래/PvP, 페이지네이션 45/page, 읽기 전용). 진입: `/empire-admin` → slot 33.
-- 명령어: `/empire-log [enhance|trade|pvp]` (콘솔 가능, 탭별 최근 10건 텍스트).
+- GUI: `AdminLogGui` (54슬롯, 3탭 강화/거래/PvP, 페이지네이션 45/page, 읽기 전용). 진입: `/poro-admin` → slot 33.
+- 명령어: `/poro-log [enhance|trade|pvp]` (콘솔 가능, 탭별 최근 10건 텍스트).
 - 영속성 주의: 강화 로그만 in-memory (휘발성) — GUI lore·명령어 헤더에 명시.
 
 ### 보스 디버그 (slot 24) — **Step 4 구현 완료 (2026-05-30)**
@@ -68,18 +68,18 @@
 | 기능 | 상태 |
 |---|---|
 | 진행 중 보스 런 목록 | ✅ `AdminBossGui` (별도 GUI). `BossRunService.activeRuns()` — bossId·리더·파티·페이즈·HP·경과 표시 |
-| 강제 종료 | ✅ 좌클릭/`/empire-boss-end` → `endRun(runId, false, "admin_force")` → onRunEnded → `releaseByRunId` (슬롯+참가자 해제) |
+| 강제 종료 | ✅ 좌클릭/`/poro-boss-end` → `endRun(runId, false, "admin_force")` → onRunEnded → `releaseByRunId` (슬롯+참가자 해제) |
 | 강제 페이즈 트리거 | ⏳ 보류 — `BossPatternScheduler.enqueueForced` 연동은 Step 4+ |
 
-- GUI: `AdminBossGui` (54슬롯, 진행 중 런 목록, 좌클릭=강제 종료). 진입: `/empire-admin` → slot 24.
-- 명령어: `/empire-boss-list` (목록), `/empire-boss-end <runId 앞 8자리>` (강제 종료, 접두어 매칭). 한 핸들러 `AdminBossCommand`가 라벨 분기.
+- GUI: `AdminBossGui` (54슬롯, 진행 중 런 목록, 좌클릭=강제 종료). 진입: `/poro-admin` → slot 24.
+- 명령어: `/poro-boss-list` (목록), `/poro-boss-end <runId 앞 8자리>` (강제 종료, 접두어 매칭). 한 핸들러 `AdminBossCommand`가 라벨 분기.
 - 한계: MM 보스 엔티티는 잔존 가능 (슬롯 stuck 해소가 1차 목적). 강제 처치/페이즈 트리거는 후속.
 
 ### 플레이어 강제 변경 (인스펙트 확장)
 
 | 기능 | 비고 |
 |---|---|
-| 직업 변경 | `/empire-setclass` 이미 있음 — GUI 통합 검토 |
+| 직업 변경 | `/poro-setclass` 이미 있음 — GUI 통합 검토 |
 | 강화 단계 강제 변경 | 슬롯별 enhance 값 ± |
 | 재화 지급/회수 | 골드/강화석/큐브 직접 조작 |
 | 영지 작위 변경 | 영지 관리 섹션과 중복 가능 |
@@ -99,5 +99,5 @@
 ## 비고
 
 - Phase 1 GUI는 PlayerCommandRouter 패턴 외부에서 직접 등록 (`AdminHubCommand` + `AdminGuiListener`)
-- `/empire-admin` 권한: `empire.admin` (모든 하위 권한 포함)
+- `/poro-admin` 권한: `poro.admin` (모든 하위 권한 포함)
 - 통계 GUI는 in-memory 카운터만 사용. 실시간 정확도 보장. DB join은 별도 비동기 작업으로 처리

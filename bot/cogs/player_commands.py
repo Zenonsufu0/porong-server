@@ -8,7 +8,7 @@ from discord import app_commands
 from discord.ext import commands
 
 import config
-from api_client import EmpireApiClient
+from api_client import PoroApiClient
 
 
 def _embed_from_card(data: dict, color: discord.Color = discord.Color.blurple()) -> discord.Embed:
@@ -25,7 +25,7 @@ def _embed_from_card(data: dict, color: discord.Color = discord.Color.blurple())
 class PlayerCommandsCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
-        self.api = EmpireApiClient()
+        self.api = PoroApiClient()
 
     @app_commands.command(name="프로필", description="마인크래프트 플레이어 프로필을 조회합니다.")
     @app_commands.describe(닉네임="조회할 마인크래프트 닉네임")

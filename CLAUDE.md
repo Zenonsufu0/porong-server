@@ -23,7 +23,7 @@
 - Do not modify unrelated project areas.
 - Do not touch `server/`, `security/`, `ops/`, `tests/`, `scripts/`, `custom-plugins/`, `.github/` unless the user explicitly asks for implementation, server configuration, tests, scripts, plugin code, or CI work.
 - When asked for planning or documentation, edit only `docs/` unless explicitly told otherwise.
-- When asked for plugin implementation, prefer `custom-plugins/EmpireRPG` or the existing EmpireRPG plugin path.
+- When asked for plugin implementation, prefer `custom-plugins/PoroRPG` or the existing PoroRPG plugin path.
 - When asked for live server plugin files, only edit `server/plugins` or `server-config` if explicitly requested.
 - Never commit secrets, tokens, IPs, passwords, Discord bot tokens, API keys, or database credentials.
 
@@ -31,7 +31,7 @@
 
 - 1st season is a 45-day seasonal project server, not a long-term permanent server.
 - Opening model: Discord-gated official opening, no public test.
-- Core plugin: EmpireRPG owns combat, equipment, island/farm, boss rewards, DB, API, Discord/web integration data. (도감/컬렉션은 1차 시즌 제외)
+- Core plugin: PoroRPG owns combat, equipment, island/farm, boss rewards, DB, API, Discord/web integration data. (도감/컬렉션은 1차 시즌 제외)
 - MythicMobs is for vanilla-based mobs/boss shells and simple visual skills.
 - IridiumSkyblock is only the personal island shell.
 - 1st season bosses are vanilla-enhanced; ModelEngine/BetterModel/FMM are deferred to a later expansion.

@@ -1,0 +1,6 @@
+quest_id,quest_type,quest_name,region_code,giver_npc_id,unlock_condition_type,unlock_condition_value,objective_type,objective_target_id,objective_amount,reward_type,reward_target_id,reward_amount,next_quest_id
+q_spawn_intro_01,MAIN,Call of Poro,capital,npc_capital_leonid,NONE,-,talk,npc_capital_leonid,1,gold,gold,300,q_spawn_intro_02
+q_spawn_intro_02,MAIN,First Steps,capital,npc_capital_leonid,QUEST_CLEAR,q_spawn_intro_01,kill,training_dummy,3,item,con_basic_healing_potion,2,NONE
+q_life_intro_01,LIFE,Herb Adaptation,capital,npc_capital_leonid,QUEST_CLEAR,q_spawn_intro_02,gather,res_herb_imperial,3,life_exp,herb_gathering,120,NONE
+q_estate_unlock_01,ESTATE,Estate Permit,capital,npc_capital_leonid,QUEST_CLEAR,q_spawn_intro_02,collect,res_herb_imperial,5,unlock,estate_access,1,NONE
+q_daily_capital_01,DAILY,Capital Patrol Drill,capital,npc_capital_leonid,QUEST_CLEAR,q_spawn_intro_02,kill,training_dummy,5,gold,gold,700,NONE

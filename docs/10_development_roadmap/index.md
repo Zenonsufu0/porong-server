@@ -40,13 +40,13 @@ Phase 3, 4, 5는 순서에 관계없이 병렬 착수 가능. Phase 6은 3·4·5
 ### 작업 목록
 
 **1-1. 플러그인 설치 및 정리**
-- EmpireRPG 초기 빌드 (빈 플러그인 뼈대)
+- PoroRPG 초기 빌드 (빈 플러그인 뼈대)
 - MythicMobs — 몹/보스 껍데기 전용 (데이터 소유 금지)
 - IridiumSkyblock — 영지 생성/보호/방문 껍데기 전용
 - 제거: BetonQuest, Citizens
 
 **1-2. DB 스키마 초기화**
-- SQLite `empire.db` 생성
+- SQLite `poro.db` 생성
 - 플레이어 기본 테이블 (uuid, nickname, discord_id, join_ts)
 - 강화석 재화 테이블 (player_resource)
 - 레퍼런스: `docs/01_plugin_architecture/implementation_reference.md`
@@ -59,7 +59,7 @@ Phase 3, 4, 5는 순서에 관계없이 병렬 착수 가능. Phase 6은 3·4·5
 - 수도(제국 수도) 스폰 영역 설정
 
 **1-4. 권한 시스템**
-- 관리자 권한 노드: `empire.admin`
+- 관리자 권한 노드: `poro.admin`
 - 플레이어 기본 노드 정의
 - LuckPerms 연동
 
@@ -76,14 +76,14 @@ Phase 3, 4, 5는 순서에 관계없이 병렬 착수 가능. Phase 6은 3·4·5
 8. OperationsQueryBootstrap
 ```
 
-**1-6. `/empire` 관리자 명령어 뼈대**
-- `/empire <category> <subcommand> [args]` 구조
+**1-6. `/poro` 관리자 명령어 뼈대**
+- `/poro <category> <subcommand> [args]` 구조
 - 레퍼런스: `docs/01_plugin_architecture/admin_command_spec.md`
 
 ### 완료 기준
-- 서버 기동 시 오류 없이 EmpireRPG 로드
-- `empire.db` 생성 및 기본 테이블 확인
-- `/empire` 명령어 파싱 정상 동작
+- 서버 기동 시 오류 없이 PoroRPG 로드
+- `poro.db` 생성 및 기본 테이블 확인
+- `/poro` 명령어 파싱 정상 동작
 
 ---
 
@@ -116,7 +116,7 @@ Phase 3, 4, 5는 순서에 관계없이 병렬 착수 가능. Phase 6은 3·4·5
 - 클래스 역할 (선택): 검사 / 도끼전사 / 창기사 / 석궁사 / 낫사냥꾼 / 지팡이술사
 - 알림 구독 역할 (선택): 필드보스알림 / 시즌보스알림 / 업데이트알림
 
-**2-4. EmpireRPG 연동 처리**
+**2-4. PoroRPG 연동 처리**
 - 인게임 코드 생성 → Discord 봇 검증 → DB 연동 확정
 
 ### 완료 기준
@@ -236,7 +236,7 @@ Phase 3, 4, 5는 순서에 관계없이 병렬 착수 가능. Phase 6은 3·4·5
 
 **5-1. 영지 기반 연동**
 - IridiumSkyblock: 섬 생성/보호/방문 껍데기만 담당
-- EmpireRPG: 저장고, 시설, 가공, 생산 로직 전담
+- PoroRPG: 저장고, 시설, 가공, 생산 로직 전담
 - 호퍼/케이블 없음. 전 조작은 GUI 기반
 
 **5-2. 영지 저장고**
@@ -339,7 +339,7 @@ Phase 3, 4, 5는 순서에 관계없이 병렬 착수 가능. Phase 6은 3·4·5
 **6-6. 보스 패턴 모듈 구현**
 - 공용 패턴 P-00~P-09, P-11~P-13 (P-10 폐기)
 - 고유 패턴 SP-1X~SP-9X
-- MythicMobs 몹 껍데기 + EmpireRPG 패턴 로직 분리
+- MythicMobs 몹 껍데기 + PoroRPG 패턴 로직 분리
 
 **6-7. 보스 클리어 통계 수집**
 - `boss_session_log`, `boss_session_player` 테이블
@@ -382,7 +382,7 @@ Phase 3, 4, 5는 순서에 관계없이 병렬 착수 가능. Phase 6은 3·4·5
 - 시즌보스: 모집 공지 알림
 - 점검·업데이트 공지
 
-**7-3. EmpireRPG HTTP API**
+**7-3. PoroRPG HTTP API**
 - 포트 8765
 - 엔드포인트: 유저 조회, 강화 현황, 보스 클리어 통계, 경제 로그
 - 레퍼런스: `docs/01_plugin_architecture/implementation_reference.md`

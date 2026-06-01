@@ -1,8 +1,8 @@
 # 시즌보스 + 시즌최종보스 MythicMobs 셸
 # HP/DEF 기준: docs/04_combat_weapon_skills/season_boss_stats_v1.md §3.4
 # 패턴 설계 기준: docs/07_boss_pattern_modules/season_boss_patterns.md
-# SP-XX 고유 패턴 메카닉은 EmpireRPG 구현 완료 후 연결 예정 (Phase 7+)
-# 보스별 DEF는 EmpireRPG BossMaster 레지스트리에서 관리 (이 YAML에 없음)
+# SP-XX 고유 패턴 메카닉은 PoroRPG 구현 완료 후 연결 예정 (Phase 7+)
+# 보스별 DEF는 PoroRPG BossMaster 레지스트리에서 관리 (이 YAML에 없음)
 
 # ============================================================
 # 시즌보스 1 — 타락 기사장  (입장 기준: 5일차, 6~10강)
@@ -51,8 +51,8 @@ fallen_knight:
   # P-08 페이즈 전환 (60%, 30% HP)
   - skill{s=P_08_PhaseTransition} ~onHealthPercent:60
   - skill{s=P_08_PhaseTransition} ~onHealthPercent:30
-  # P-09 무적 진입 — SP-11/SP-12 메카닉으로 해제 (EmpireRPG 미구현 구간: 120s 자동 해제)
-  # TODO: EmpireRPG BossEngineRuntime에서 SP-11/12 처리 후 P_09_DealWindow 강제 실행
+  # P-09 무적 진입 — SP-11/SP-12 메카닉으로 해제 (PoroRPG 미구현 구간: 120s 자동 해제)
+  # TODO: PoroRPG BossEngineRuntime에서 SP-11/12 처리 후 P_09_DealWindow 강제 실행
   - skill{s=P_09_Invincible} ~onHealthPercent:60
   - skill{s=P_09_Invincible} ~onHealthPercent:30
   - particles{p=SPELL_WITCH;amount=10;hs=0.8;vs=0.3} @self ~onTimer:20
@@ -95,7 +95,7 @@ corrupted_lord:
   # P-08 페이즈 전환 (55%, 20% HP)
   - skill{s=P_08_PhaseTransition} ~onHealthPercent:55
   - skill{s=P_08_PhaseTransition} ~onHealthPercent:20
-  # P-09 무적 진입 — SP-21/22 메카닉으로 해제 (TODO: EmpireRPG 연결)
+  # P-09 무적 진입 — SP-21/22 메카닉으로 해제 (TODO: PoroRPG 연결)
   - skill{s=P_09_Invincible} ~onHealthPercent:55
   - skill{s=P_09_Invincible} ~onHealthPercent:20
   - particles{p=WATER_SPLASH;amount=15;hs=1;vs=0.5} @self ~onTimer:20
@@ -143,7 +143,7 @@ stone_colossus:
   # P-08 페이즈 전환 (60%, 25% HP)
   - skill{s=P_08_PhaseTransition} ~onHealthPercent:60
   - skill{s=P_08_PhaseTransition} ~onHealthPercent:25
-  # P-09 무적 진입 — SP-31/32 메카닉으로 해제 (TODO: EmpireRPG 연결)
+  # P-09 무적 진입 — SP-31/32 메카닉으로 해제 (TODO: PoroRPG 연결)
   - skill{s=P_09_Invincible} ~onHealthPercent:60
   - skill{s=P_09_Invincible} ~onHealthPercent:25
   - particles{p=BLOCK_CRACK;material=STONE;amount=20;hs=1;vs=0.5} @self ~onTimer:25
@@ -186,11 +186,11 @@ storm_sorcerer:
   - summon{type=Vex;amount=2;duration=400} ~onTimer:400 ?hpabove{p=25}
   # Phase 2·3 (60%~0%): P-06 번개 산개탄 (12s)
   - skill{s=P_06_ScatterShot} ~onTimer:240 ?hpbelow{p=60}
-  # SP-43 번개 집중포화 Phase 3 (TODO: EmpireRPG 어그로 타겟 선정 연결)
+  # SP-43 번개 집중포화 Phase 3 (TODO: PoroRPG 어그로 타겟 선정 연결)
   # P-08 페이즈 전환 (60%, 25% HP)
   - skill{s=P_08_PhaseTransition} ~onHealthPercent:60
   - skill{s=P_08_PhaseTransition} ~onHealthPercent:25
-  # P-09 무적 진입 — SP-41/42 메카닉으로 해제 (TODO: EmpireRPG 연결)
+  # P-09 무적 진입 — SP-41/42 메카닉으로 해제 (TODO: PoroRPG 연결)
   - skill{s=P_09_Invincible} ~onHealthPercent:60
   - skill{s=P_09_Invincible} ~onHealthPercent:25
   - particles{p=FLASH;amount=1;hs=0;vs=0} @self ~onTimer:60
@@ -239,7 +239,7 @@ abyss_guardian:
   # P-08 페이즈 전환 (60%, 25% HP)
   - skill{s=P_08_PhaseTransition} ~onHealthPercent:60
   - skill{s=P_08_PhaseTransition} ~onHealthPercent:25
-  # P-09 무적 진입 — SP-51 어둠 결정 파괴로 해제 (TODO: EmpireRPG 연결)
+  # P-09 무적 진입 — SP-51 어둠 결정 파괴로 해제 (TODO: PoroRPG 연결)
   - skill{s=P_09_Invincible} ~onHealthPercent:60
   - skill{s=P_09_Invincible} ~onHealthPercent:25
   - particles{p=SMOKE_LARGE;amount=8;hs=1;vs=0.5} @self ~onTimer:20
@@ -283,7 +283,7 @@ void_herald:
   # P-08 페이즈 전환 (55%, 20% HP)
   - skill{s=P_08_PhaseTransition} ~onHealthPercent:55
   - skill{s=P_08_PhaseTransition} ~onHealthPercent:20
-  # P-09 무적 진입 — SP-61/62 메카닉으로 해제 (TODO: EmpireRPG 연결)
+  # P-09 무적 진입 — SP-61/62 메카닉으로 해제 (TODO: PoroRPG 연결)
   - skill{s=P_09_Invincible} ~onHealthPercent:55
   - skill{s=P_09_Invincible} ~onHealthPercent:20
   - particles{p=PORTAL;amount=10;hs=1;vs=0.5} @self ~onTimer:20
@@ -338,7 +338,7 @@ rift_king:
   - skill{s=P_08_PhaseTransition} ~onHealthPercent:50
   - skill{s=P_08_PhaseTransition} ~onHealthPercent:25
   - skill{s=P_08_PhaseTransition} ~onHealthPercent:10
-  # P-09 무적 진입 4회 — SP-71~74 메카닉으로 해제 (TODO: EmpireRPG 연결)
+  # P-09 무적 진입 4회 — SP-71~74 메카닉으로 해제 (TODO: PoroRPG 연결)
   - skill{s=P_09_Invincible} ~onHealthPercent:75
   - skill{s=P_09_Invincible} ~onHealthPercent:50
   - skill{s=P_09_Invincible} ~onHealthPercent:25
@@ -349,7 +349,7 @@ rift_king:
 # 시즌최종보스 2 — 타락한 이중체 (두 개체 동시 전투)
 # HP: 445,000×2 / DEF: 270 / 타이머: 10분
 # 고유 패턴: SP-81 광폭화, SP-82 쌍 합동 공격, SP-83 결속 차단, SP-84 합체 저지
-# 주의: SP-81 광폭화(HP% 차이 25%) 조건은 EmpireRPG에서 주기적으로 체크해야 함
+# 주의: SP-81 광폭화(HP% 차이 25%) 조건은 PoroRPG에서 주기적으로 체크해야 함
 # ============================================================
 
 # 이중체-Z (좀비, 근접 담당) — bossId 진입점. 스폰 즉시 corrupted_dyad_s 소환.
@@ -382,16 +382,16 @@ corrupted_dyad:
   # Z 전용 근접 패턴: P-01 강타 (5s), P-02 돌진 (8s)
   - skill{s=P_01_FrontStrike} ~onTimer:100 ?hpabove{p=30}
   - skill{s=P_02_LinearDash} ~onTimer:160 ?hpabove{p=30}
-  # Phase 3 (30%~0%): SP-82 합동 공격 (TODO: EmpireRPG S-개체와 동기화)
+  # Phase 3 (30%~0%): SP-82 합동 공격 (TODO: PoroRPG S-개체와 동기화)
   - skill{s=P_01_FrontStrike} ~onTimer:80 ?hpbelow{p=30}
   - skill{s=P_02_LinearDash} ~onTimer:120 ?hpbelow{p=30}
   # S 개체 즉시 소환 (Z가 진입점, S는 Z 스폰 시 자동 생성)
   - summon{type=corrupted_dyad_s;amount=1;duration=-1} ~onSpawn
-  # SP-81 광폭화 상태 진입/해제는 EmpireRPG가 HP% 차이 감시 후 potion 적용
+  # SP-81 광폭화 상태 진입/해제는 PoroRPG가 HP% 차이 감시 후 potion 적용
   # P-08 페이즈 전환 (60%, 30% HP — 두 개체 동시 도달 시 발동)
   - skill{s=P_08_PhaseTransition} ~onHealthPercent:60
   - skill{s=P_08_PhaseTransition} ~onHealthPercent:30
-  # P-09 무적 진입 — SP-83/84 메카닉으로 해제 (TODO: EmpireRPG 연결)
+  # P-09 무적 진입 — SP-83/84 메카닉으로 해제 (TODO: PoroRPG 연결)
   - skill{s=P_09_Invincible} ~onHealthPercent:60
   - skill{s=P_09_Invincible} ~onHealthPercent:30
   - particles{p=FLAME;amount=5;hs=0.5;vs=0.3} @self ~onTimer:20
@@ -432,7 +432,7 @@ corrupted_dyad_s:
   # P-08 페이즈 전환 (60%, 30% HP — 두 개체 동시 도달 시 발동)
   - skill{s=P_08_PhaseTransition} ~onHealthPercent:60
   - skill{s=P_08_PhaseTransition} ~onHealthPercent:30
-  # P-09 무적 진입 — SP-83/84 메카닉으로 해제 (TODO: EmpireRPG 연결)
+  # P-09 무적 진입 — SP-83/84 메카닉으로 해제 (TODO: PoroRPG 연결)
   - skill{s=P_09_Invincible} ~onHealthPercent:60
   - skill{s=P_09_Invincible} ~onHealthPercent:30
   - particles{p=END_ROD;amount=5;hs=0.5;vs=0.3} @self ~onTimer:20
@@ -442,7 +442,7 @@ corrupted_dyad_s:
 # HP: 890,000 / 타이머: 10분
 # 베이스: 위더 본체 + 별빛 마법사(SpiritWatcher_Mage) 주기 소환
 # 고유 패턴: SP-91 별빛 마법사 소환, SP-92 별빛 대마법 (5명 스택 시)
-# 위더 받피감: 마법사 존재 수에 따라 증가 (EmpireRPG 연동 필요)
+# 위더 받피감: 마법사 존재 수에 따라 증가 (PoroRPG 연동 필요)
 # ============================================================
 spirit_watcher:
   Type: WITHER
@@ -487,8 +487,8 @@ spirit_watcher:
   - particles{p=END_ROD;amount=10;hs=2;vs=1} @self ~onTimer:20
 
 # SP-91 별빛 마법사 — 에보커 기반 소환체
-# 마법사 5마리 동시 존재 → SP-92 별빛 대마법 발동 (EmpireRPG 체크)
-# 위더 받피감: 마법사 1명=15%, 2명=30%, 3명=50%, 4명=70%, 5명=SP-92 (EmpireRPG 관리)
+# 마법사 5마리 동시 존재 → SP-92 별빛 대마법 발동 (PoroRPG 체크)
+# 위더 받피감: 마법사 1명=15%, 2명=30%, 3명=50%, 4명=70%, 5명=SP-92 (PoroRPG 관리)
 SpiritWatcher_Mage:
   Type: EVOKER
   Display: '&d별빛 마법사'

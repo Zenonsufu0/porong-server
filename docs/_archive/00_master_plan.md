@@ -28,11 +28,11 @@
 - 무기별 스킬은 4개, 무기별 직업각인은 2개다.
 - 입력 방식은 무기 장착 상태에서 **좌클릭 / 우클릭 / Shift+우클릭 / F**를 사용한다.
 - 플레이어 스킬에서 **지속 장판, 표식, 받는 피해 증가, 방어 감소**는 제외한다.
-- 보스는 1차에서 **바닐라 강화형 + MythicMobs + EmpireRPG 보상/패턴 관리**로 간다.
+- 보스는 1차에서 **바닐라 강화형 + MythicMobs + PoroRPG 보상/패턴 관리**로 간다.
 - 외부 보스 모델, ModelEngine, BetterModel, FMM은 2차 확장 후보로 둔다.
-- 마인팜은 **IridiumSkyblock 기반 개인 영지 + EmpireRPG 영지 저장고/마력/가공** 구조다.
+- 마인팜은 **IridiumSkyblock 기반 개인 영지 + PoroRPG 영지 저장고/마력/가공** 구조다.
 - 마인팜 물류는 호퍼/상자 자동화가 아니라 **DB 기반 영지 저장고**로 처리한다.
-- 웹/디스코드 봇/통계는 **EmpireRPG DB와 API**를 기준으로 조회한다.
+- 웹/디스코드 봇/통계는 **PoroRPG DB와 API**를 기준으로 조회한다.
 - 경제가 정상적인 시장 흐름에서 벗어나면 운영진이 개입할 수 있다.
 - 후원/유료 상품은 완전히 보류한다. 단, 성장 보상 없는 자발적 커피값 후원 정도는 가능하다.
 - 리소스팩 스타일은 **깔끔한 RPG풍**이며, 다크판타지·고어·공포 톤은 지양한다.
@@ -247,7 +247,7 @@ MVP 기능:
 원칙:
 
 ```text
-EmpireRPG가 데이터와 핵심 로직을 소유한다.
+PoroRPG가 데이터와 핵심 로직을 소유한다.
 다른 플러그인은 껍데기/보조/표시/월드 관리만 담당한다.
 ```
 
@@ -255,7 +255,7 @@ EmpireRPG가 데이터와 핵심 로직을 소유한다.
 
 | 플러그인 | 역할 |
 |---|---|
-| EmpireRPG | 서버 코어 |
+| PoroRPG | 서버 코어 |
 | MythicMobs | 몹/보스 스폰, 기본 연출 |
 | IridiumSkyblock | 개인 영지 생성, 멤버, 보호 |
 | Vault | 경제/권한 연동 보조 |
@@ -280,10 +280,10 @@ EmpireRPG가 데이터와 핵심 로직을 소유한다.
 | MMOCore/AuraSkills/RPGItems | 보류 |
 | Quests류 대형 퀘스트 플러그인 | 보류 |
 
-### 3.3 EmpireRPG 내부 모듈
+### 3.3 PoroRPG 내부 모듈
 
 ```text
-EmpireRPG
+PoroRPG
 ├─ core
 ├─ player
 ├─ combat
@@ -522,7 +522,7 @@ EmpireRPG
 
 ```text
 IridiumSkyblock = 영지 생성/보호 껍데기
-EmpireRPG = 영지 성장/저장고/마력/기계/가공
+PoroRPG = 영지 성장/저장고/마력/기계/가공
 ```
 
 유저에게는 Skyblock이라는 표현을 노출하지 않고 **개인 영지**로 표현한다.
@@ -609,8 +609,8 @@ GUI 탭:
 ### 9.1 기본 구조
 
 ```text
-EmpireRPG DB = 원본 데이터
-EmpireRPG API = 조회/연동 통로
+PoroRPG DB = 원본 데이터
+PoroRPG API = 조회/연동 통로
 Web Dashboard = 관리자/유저 조회
 Discord Bot = 알림/명령어/계정 연동
 ```
@@ -745,7 +745,7 @@ Codex는 텍스처 제작 담당이 아니라 병합/연결 담당이다.
 - 월드 구조
 - 권한/역할
 - DB 기본 구조
-- EmpireRPG 기본 명령어
+- PoroRPG 기본 명령어
 
 ### Phase 2. 디스코드 인증
 
