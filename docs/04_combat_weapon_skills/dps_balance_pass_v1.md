@@ -1,6 +1,8 @@
 # DPS 밸런스 패스 v1 — 6무기 풀로테이션 균형 조정
 
-> **[STATUS: DRAFT]** — DL-122(자원 단계 전 무기 기본 3 / 유지형 6 통일) 이후 6무기 풀로테이션 DPS를 모델링하고, 무기 간 DPS를 ±10% 이내로 모으는 base_coefficient(+ 필요시 per-stack) 조정안.
+> **[STATUS: 폐기 — `dps_balance_pass_v2.md`로 대체 (DL-124, 2026-06-01)]** — 본 v1 모델은 코드에 **존재하지 않는** 임계 배율(×1.15/×1.10)·만충 배율(×1.30~1.45)을 가정해 산출한 허구였다(실코드는 per-stack 누진만). 또 천뢰일창 쿨 18s·저격태세 20s로 오기(실코드 15s/14s). 따라서 v1의 "창 1위·19.3% 스프레드" 진단은 무효. 실측 스프레드·만충 스파이크 설계는 **v2** 참조. 본 문서는 이력 보존용.
+
+> **[원본 STATUS: DRAFT]** — DL-122(자원 단계 전 무기 기본 3 / 유지형 6 통일) 이후 6무기 풀로테이션 DPS를 모델링하고, 무기 간 DPS를 ±10% 이내로 모으는 base_coefficient(+ 필요시 per-stack) 조정안.
 
 > 기준일: 2026-06-01
 > 입력 문서: `skill_effects_reference_v1.md`(계수·쿨·자원·per-stack), `combat_balance_v2.md` §1~§5, `BaseWeaponSkill.java`(`scaledDamage`/`scaledDamageWithStacks`/`gainStack`)

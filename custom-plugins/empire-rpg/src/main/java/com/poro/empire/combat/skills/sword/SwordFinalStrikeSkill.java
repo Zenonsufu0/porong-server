@@ -22,7 +22,7 @@ public final class SwordFinalStrikeSkill extends BaseWeaponSkill {
 
     @Override
     public boolean execute(Player player, SkillContext ctx) {
-        double damage = scaledDamageWithStacks(ctx, player, 3.45, 0.12);
+        double damage = scaledDamageFullChargeSpike(ctx, player, 3.32, 0.06, 1.20);
         SkillHitboxHelper.line(player, LENGTH, 0.6).forEach(t -> dealDamage(ctx, player, t, damage));
         consumeStacks(ctx, player);
 

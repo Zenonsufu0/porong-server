@@ -20,7 +20,7 @@ public final class CrossbowRapidFireSkill extends PluginWeaponSkill {
 
     @Override
     public boolean execute(Player player, SkillContext ctx) {
-        double damage = scaledDamage(ctx, player, 0.75);
+        double damage = scaledDamage(ctx, player, 0.65);
         boolean[] hit = {false};
         for (int i = 0; i < 3; i++) {
             SkillHitboxHelper.projectileRaycast(player, 20.0, 0.5)

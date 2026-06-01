@@ -36,10 +36,10 @@
 
 | 슬롯 | 스킬 | 계수 | 쿨 | 자원 | 파티클 | 사운드 |
 |---|---|---:|---:|---|---|---|
-| 1 기본기 | 섬광베기 | 160%(+8%/스택) | 3s | +1 (DASH 전진2) | DUST FLASH 호2.5/1.3·SWEEP_ATTACK·END_ROD | ATTACK_SWEEP(0.9,1.5) |
+| 1 기본기 | 섬광베기 | 170%(+8%/스택) | 3s | +1 (DASH 전진2) | DUST FLASH 호2.5/1.3·SWEEP_ATTACK·END_ROD | ATTACK_SWEEP(0.9,1.5) |
 | 2 이동기 | 연속참 | 70%×3타 | 6s | — (MULTI_HIT3) | DUST STEEL 호2.5/1.8/1.1·SWEEP·CRIT | ATTACK_SWEEP(1.0,1.1) |
 | 3 특수기 | 수호반격 | 120% | 10s | BUFF_RESIST3 | DUST GUARD 원1.5·ENCHANTED_HIT·SWEEP | SHIELD_BLOCK·ATTACK_SWEEP |
-| 4 핵심기 | 결전일섬 | 345%(+12%/스택) | 16s | 소모3 | DUST FINAL 선·END_ROD·착탄 FINAL+CRIT | ATTACK_CRIT(0.8)·TRIDENT_THROW |
+| 4 핵심기 | 결전일섬 | 332%(+6%/스택)·만충×1.20 | 16s | 소모3 | DUST FINAL 선·END_ROD·착탄 FINAL+CRIT | ATTACK_CRIT(0.8)·TRIDENT_THROW |
 
 ## 2. 도끼 (Axe) — 충격 / 호박·금색
 
@@ -57,16 +57,16 @@
 | 1 기본기 | 관통찌르기 | 160%(+5%/스택) | 4s | +1 | DUST TEAL 선5·CRIT | ATTACK_STRONG(0.9,1.3) |
 | 2 이동기 | 반월창 | 190% | 6s | — | DUST TEAL/WHITE 호3.0/1.8·SWEEP | ATTACK_SWEEP(1.0) |
 | 3 특수기 | 돌파창 | 260% | 8s | DASH 전진5 | DUST TEAL 선5·CLOUD | ATTACK_KNOCKBACK(0.9) |
-| 4 핵심기 | 천뢰일창 | 360%(+8%/스택) | 18s | 소모3 | DUST ELECTRIC 선9·ELECTRIC_SPARK | TRIDENT_THUNDER·LIGHTNING_IMPACT |
+| 4 핵심기 | 천뢰일창 | 296%(+4%/스택)·만충×1.20 | 15s | 소모3 | DUST ELECTRIC 선9·ELECTRIC_SPARK | TRIDENT_THUNDER·LIGHTNING_IMPACT |
 
 ## 4. 석궁 (Crossbow) — 명중 / 녹색 볼트 (전 스킬 원거리 빔)
 
 | 슬롯 | 스킬 | 계수 | 쿨 | 자원 | 파티클 | 사운드 |
 |---|---|---:|---:|---|---|---|
-| 1 기본기 | 속사 | 75%×3발 | 3s | +1 (MULTI_SHOT3) | beam BOLT 20·CRIT | CROSSBOW_SHOOT(1.5) |
+| 1 기본기 | 속사 | 65%×3발 | 3s | +1 (MULTI_SHOT3) | beam BOLT 20·CRIT | CROSSBOW_SHOOT(1.5) |
 | 2 이동기 | 회피사격 | 170% | 6s | +1 (DASH 후방2) | beam BOLT 25 | ATTACK_SWEEP·CROSSBOW_SHOOT |
-| 3 특수기 | 관통볼트 | 220% | 10s | +1 | beam BOLT 30·ELECTRIC_SPARK | CROSSBOW_SHOOT(0.9) |
-| 4 핵심기 | 저격태세 | 420%(+10%/스택) | 20s | 소모3 | beam BOLT 50·END_ROD | CROSSBOW_SHOOT(0.7)·ARROW_HIT |
+| 3 특수기 | 관통볼트 | 200% | 10s | +1 | beam BOLT 30·ELECTRIC_SPARK | CROSSBOW_SHOOT(0.9) |
+| 4 핵심기 | 저격태세 | 335%(+5%/스택)·만충×1.20 | 14s | 소모3 | beam BOLT 50·END_ROD | CROSSBOW_SHOOT(0.7)·ARROW_HIT |
 
 ## 5. 낫 (Scythe) — 그림자 흐름 / 보라·진홍
 
@@ -81,17 +81,18 @@
 
 | 슬롯 | 스킬 | 계수 | 쿨 | 자원 | 파티클 | 사운드 |
 |---|---|---:|---:|---|---|---|
-| 1 기본기 | 마력탄 | 150% | 3s | +1 | beam ARCANE 20·WITCH | EVOKER_CAST(1.4) |
+| 1 기본기 | 마력탄 | 170% | 3s | +1 | beam ARCANE 20·WITCH | EVOKER_CAST(1.4) |
 | 2 이동기 | 속성폭발 | 255% | 8s | +1 (BURST_ON_HIT25, AoE2.5) | beam ARCANE 18·착탄 ARCANE+WITCH | EVOKER_CAST(1.0) |
-| 3 특수기 | 마력쇄도 | 220% | 10s | +1 (DASH 후방, 원4) | 원 ARCANE 4.0·WITCH | EVOKER_CAST(0.8)·AMETHYST_CHIME |
-| 4 핵심기 | 별빛쇄도 | 405%(+10%/스택) | 20s | 소모3 | beam STAR 22·END_ROD | EVOKER_CAST(1.2)·AMETHYST_CHIME |
+| 3 특수기 | 마력쇄도 | 240% | 10s | +1 (DASH 후방, 원4) | 원 ARCANE 4.0·WITCH | EVOKER_CAST(0.8)·AMETHYST_CHIME |
+| 4 핵심기 | 별빛쇄도 | 389%(+5%/스택)·만충×1.20 | 20s | 소모3 | beam STAR 22·END_ROD | EVOKER_CAST(1.2)·AMETHYST_CHIME |
 
 ---
 
 ## 7. 관찰 / 정합 메모
 
-- **자원 단계 (DL-122 적용):** 전 무기 기본 **3단계** / 유지형 각인(`_retained_01`) **6단계**. (구: 창·스태프 5 → 3 통일.) finisher 소모 천뢰일창·별빛쇄도 5→3 동반. 계수는 DL-123 균형 패스 반영. **잔여:** 창·스태프 임계(2단계)·만충(3단계) 2단 구조가 캡3에서 1스택 차로 붕괴 — 재설계 필요(`dps_balance_pass_v1.md`).
-- **스택 스케일 계수(`scaledDamageWithStacks`):** 검 0.08 / 도끼 0.08·0.10 / 창 0.05·0.08 / 석궁 0.12 / 낫 0.05·0.08 / 스태프 0.10(별빛쇄도). 검 결전일섬·석궁 저격태세는 캡6 폭주 차단 위해 0.15→0.12·0.12→0.10 하향(DL-123).
+- **자원 단계 (DL-122 적용):** 전 무기 기본 **3단계** / 유지형 각인(`_retained_01`) **6단계**. (구: 창·스태프 5 → 3 통일.) finisher 소모 천뢰일창·별빛쇄도 5→3 동반.
+- **임계/만충 구조 (DL-124):** 구 "임계(2단계)·만충(3단계) 2단 구조 붕괴"는 **임계 효과가 애초에 미구현**이었음이 코드 직독으로 확인됨(창 관통찌르기·스태프 마력탄에 +15%/+10% 지속 버프 없음). → **임계 폐기 + 만충=디스크리트 ×1.20 도입.** 데미지 핵심기 4종(결전일섬·천뢰일창·저격태세·별빛쇄도)은 소모형 만충(3스택) 소모 시에만 ×1.20(유지형 cap6 미적용). 헬퍼 `BaseWeaponSkill.scaledDamageFullChargeSpike`. 도끼·낫은 유틸 유지. 상세 모델 `dps_balance_pass_v2.md`(v1은 미구현 배율 가정으로 폐기).
+- **스택 스케일 계수(`scaledDamageWithStacks`/`...FullChargeSpike`, DL-124 재배분):** 검 결전 0.06 / 도끼 강타 0.08·거신 0.10 / 창 찌르기 0.05·천뢰 0.04 / 석궁 저격 0.05 / 낫 0.05·0.08 / 스태프 별빛 0.05. 핵심기 per-stack은 만충 배율 도입과 함께 절반으로 재배분(검 0.12→0.06·창 0.08→0.04·석궁 0.10→0.05·스태프 0.10→0.05)되어 캡6 누진 폭주도 구조적으로 둔화.
 - **원거리/근접:** 석궁·스태프는 전 스킬 원거리(beam/projectile). 평타는 별도(DL-121 — 원거리 무기 투사체 평타 추가). 검·도끼·창·낫은 근접 호/선.
 - **연출 일관성:** 무기별 시그니처 색 통일됨(검=백청, 도끼=호박, 창=청록, 석궁=녹색, 낫=보라, 스태프=비전보라). 핵심기는 공통적으로 END_ROD/EXPLOSION/SOUL_FIRE 등 강조 파티클 + 2중 사운드.
 

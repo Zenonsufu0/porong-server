@@ -1670,10 +1670,10 @@ public final class GrowthGuiListener implements Listener {
 
     private static final Map<String, SkillInfo> SKILL_INFO = Map.ofEntries(
         // ── 검 ─────────────────────────────────────────────────────
-        Map.entry("sword:flash_slash",    new SkillInfo("전진하며 전방을 빠르게 베어낸다. 명중 시 검세 1충전.", "160% (+8%/스택)", "호형 2.5블럭·120° / 전방 2블럭", "근접·자원생성")),
+        Map.entry("sword:flash_slash",    new SkillInfo("전진하며 전방을 빠르게 베어낸다. 명중 시 검세 1충전.", "170% (+8%/스택)", "호형 2.5블럭·120° / 전방 2블럭", "근접·자원생성")),
         Map.entry("sword:triple_strike",  new SkillInfo("전방에 3연속 베기를 가한다.", "70% × 3", "호형 2.5블럭·120° ×3", "근접·다타")),
         Map.entry("sword:guard_counter",  new SkillInfo("짧은 방어 자세. 피격 시 반격, 미피격 시 약한 참격.", "반격 220% / 일반 120%", "자신 기준", "방어·반격")),
-        Map.entry("sword:final_strike",   new SkillInfo("검세 소모/유지. 전방 직선 강한 참격.", "345% (+12%/스택)", "직선 6블럭", "핵심기·자원소모")),
+        Map.entry("sword:final_strike",   new SkillInfo("검세 소모/유지. 전방 직선 강한 참격. 만충 소모 시 폭발 강화.", "332% (+6%/스택, 만충 ×1.20)", "직선 6블럭", "핵심기·자원소모")),
         // ── 도끼 ────────────────────────────────────────────────────
         Map.entry("axe:smash",            new SkillInfo("전방의 적을 강하게 내려친다. 명중 시 충격 1충전.", "210% (+8%/스택)", "호형 2.5블럭·100°", "근접·자원생성")),
         Map.entry("axe:crush_charge",     new SkillInfo("짧게 전진한 뒤 강하게 내려찍는다.", "305%", "hitbox 직선 4블럭 (이동 3블럭)", "근접·돌진")),
@@ -1683,22 +1683,22 @@ public final class GrowthGuiListener implements Listener {
         Map.entry("spear:thrust",         new SkillInfo("전방 긴 직선을 찌른다. 명중 시 압박 1충전.", "160% (+5%/스택)", "직선 5블럭", "근접·자원생성")),
         Map.entry("spear:crescent",       new SkillInfo("짧은 부채꼴 범위 휘두르기.", "190%", "호형 3블럭·150°", "근접·광역")),
         Map.entry("spear:charge",         new SkillInfo("전방 돌진하며 경로상 적을 찌른다.", "260%", "직선 5블럭 돌진", "이동기·관통")),
-        Map.entry("spear:thunderstrike",  new SkillInfo("압박 소모/유지. 긴 직선 강력한 창격.", "360% (+8%/스택)", "직선 9블럭", "핵심기·관통")),
+        Map.entry("spear:thunderstrike",  new SkillInfo("압박 소모/유지. 긴 직선 강력한 창격. 만충 소모 시 폭발 강화.", "296% (+4%/스택, 만충 ×1.20)", "직선 9블럭", "핵심기·관통")),
         // ── 석궁 ────────────────────────────────────────────────────
-        Map.entry("crossbow:rapid_fire",  new SkillInfo("화살 3발을 빠르게 발사한다. 명중 시 명중 스택 +1.", "75% × 3", "투사체 20블럭·3발", "원거리·다발")),
+        Map.entry("crossbow:rapid_fire",  new SkillInfo("화살 3발을 빠르게 발사한다. 명중 시 명중 스택 +1.", "65% × 3", "투사체 20블럭·3발", "원거리·다발")),
         Map.entry("crossbow:evade_fire",  new SkillInfo("뒤로 물러나며 사격한다. 명중 시 명중 스택 +1.", "170%", "투사체 25블럭·후방 2.5블럭", "원거리·이동기")),
-        Map.entry("crossbow:pierce_bolt", new SkillInfo("직선으로 관통하는 강한 볼트를 발사한다.", "220%", "투사체 30블럭·관통", "원거리·관통")),
-        Map.entry("crossbow:sniper",      new SkillInfo("명중 스택 소모/유지. 강력한 단일 사격.", "420% (+10%/스택)", "투사체 50블럭·시전시간", "핵심기·단일")),
+        Map.entry("crossbow:pierce_bolt", new SkillInfo("직선으로 관통하는 강한 볼트를 발사한다.", "200%", "투사체 30블럭·관통", "원거리·관통")),
+        Map.entry("crossbow:sniper",      new SkillInfo("명중 스택 소모/유지. 강력한 단일 사격. 만충 소모 시 폭발 강화.", "335% (+5%/스택, 만충 ×1.20)", "투사체 50블럭·시전시간", "핵심기·단일")),
         // ── 낫 ──────────────────────────────────────────────────────
         Map.entry("scythe:death_slash",   new SkillInfo("넓은 전방 범위를 베어낸다.", "190% (+5%/스택)", "호형 3블럭·150°", "근접·광역")),
         Map.entry("scythe:shadow_spin",   new SkillInfo("측면 이동하며 주변 적을 회전 베기로 타격한다.", "60% × 4", "원형 3블럭·측면 2.5블럭", "이동기·광역")),
         Map.entry("scythe:grim_strike",   new SkillInfo("전방 부채꼴 강타. 흐름 스택에 따라 흡혈 발동.", "240% (+8%/스택)", "원뿔 4블럭·60°", "근접·흡혈")),
         Map.entry("scythe:execution",     new SkillInfo("흐름 소모/유지. 잔여 체력 비례 추가 피해.", "280~480% (+10%/스택)", "직선 4블럭", "핵심기·처형")),
         // ── 스태프 ──────────────────────────────────────────────────
-        Map.entry("staff:arcane_orb",      new SkillInfo("마력 투사체를 발사한다. 명중 시 마력 1충전.", "150%", "투사체 20블럭", "원거리·자원생성")),
+        Map.entry("staff:arcane_orb",      new SkillInfo("마력 투사체를 발사한다. 명중 시 마력 1충전.", "170%", "투사체 20블럭", "원거리·자원생성")),
         Map.entry("staff:elemental_burst", new SkillInfo("착탄 지점에 즉발 폭발을 일으킨다.", "255%", "투사체 18블럭·AoE 2.5블럭", "원거리·광역")),
-        Map.entry("staff:arcane_rush",     new SkillInfo("전방 즉발 광역 폭발. 발동 시 미세 후방 이동.", "220%", "원형 4블럭·후방 1.5블럭", "이동기·광역")),
-        Map.entry("staff:starburst",       new SkillInfo("마력 소모/유지. 전방 강력한 마법 탄환.", "405% (+10%/스택)", "투사체 22블럭·시전시간", "핵심기·단일"))
+        Map.entry("staff:arcane_rush",     new SkillInfo("전방 즉발 광역 폭발. 발동 시 미세 후방 이동.", "240%", "원형 4블럭·후방 1.5블럭", "이동기·광역")),
+        Map.entry("staff:starburst",       new SkillInfo("마력 소모/유지. 전방 강력한 마법 탄환. 만충 소모 시 폭발 강화.", "389% (+5%/스택, 만충 ×1.20)", "투사체 22블럭·시전시간", "핵심기·단일"))
     );
 
     private ItemStack skillSlotIcon(WeaponType wt, int skillNo, String label) {

@@ -43,6 +43,23 @@ public abstract class BaseWeaponSkill implements WeaponSkill {
     }
 
     /**
+     * 만충 스파이크 데미지 (DL-124). 핵심기 전용.
+     * 누진(base + perStack×stacks)에 더해, <b>소모형이 만충(stacks ≥ 3)일 때만</b> 디스크리트 배율 fullChargeMult를 곱한다.
+     * 비만충(부분 스택)이면 배율 미적용 → "끝까지 채워야 터지는" 충전형 폭발 질감.
+     * 유지형 각인(*_retained_01)은 cap 6 + F 소모 없음으로 만충이 상시이므로 <b>배율을 적용하지 않는다</b>
+     * (누진만 받음. 소모형=폭발 / 유지형=지속 정체성 분리, dps_balance_pass_v2 §D-3).
+     * per-stack은 누진 절반으로 재배분돼 있어 cap6 누진 폭주도 구조적으로 둔화된다.
+     */
+    protected double scaledDamageFullChargeSpike(SkillContext ctx, Player player,
+                                                  double baseCoeff, double perStack, double fullChargeMult) {
+        int stacks = getStacks(ctx, player);
+        boolean retained = ctx.playerState(player).classEngravingId().endsWith("_retained_01");
+        double coeff = baseCoeff + perStack * stacks;
+        if (!retained && stacks >= 3) coeff *= fullChargeMult;   // 유지형 제외, 소모형 만충(3)에서만 폭발
+        return ctx.weaponPower(player) * coeff;
+    }
+
+    /**
      * 스킬 피해 적용 (DL-092/096). rawDamage(=ATK×계수)에 스킬피해%·보스피해%·치명(확률·피해배율)을 곱해 적용.
      * ATK의 attack_percent는 weaponPower에 이미 반영. boss_damage_increase는 보스 대상일 때만.
      * DEF 경감은 1차 시즌 바닐라 armor에 위임(커스텀 보스 DEF 시드 없음).
