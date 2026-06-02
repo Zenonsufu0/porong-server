@@ -109,22 +109,7 @@ public final class BossHubListener implements Listener {
     // ── 보스 선택 (54슬롯) ────────────────────────────────────────
 
     private void handleBossInfo(Player player, int slot) {
-        String bossId = BossHubGui.bossIdAt(slot);
-        if (bossId != null) {
-            if (BossHubGui.bossNeedsUnlockAt(slot)
-                    && !bossRoomManager.hasCleared(player.getUniqueId(), "void_herald")) {
-                player.sendMessage("§c[보스] §7공허 사자(시즌6)를 클리어해야 최종보스에 도전할 수 있습니다.");
-                return;
-            }
-            Optional<PartyManager.Party> party = partyManager.findParty(player.getUniqueId());
-            int size = party.map(PartyManager.Party::size).orElse(1);
-            bossRoomManager.setPendingBoss(player.getUniqueId(), bossId);
-            player.closeInventory();
-            player.sendMessage("§6[보스] §f" + BossHubGui.bossNameAt(slot)
-                    + " §7선택됨. 파티: §e" + size + "인§7."
-                    + " §7보스룸 앞 §e[보스] §7표지판을 우클릭하여 입장하세요.");
-            return;
-        }
+        // 보스 클릭 = 정보 전용(lore에 체력·공격력·패턴 표시). 입장은 파티 생성 플로우로.
         if (slot == 45) openBossHub(player);
     }
 

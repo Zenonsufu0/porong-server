@@ -112,6 +112,10 @@ public class PlayerCommandRouter implements CommandExecutor {
             case "클리어"   -> bossHubListener.openClearRecords(player);
             // ── 필드 ──────────────────────────────────────────────
             case "필드"     -> fieldHubListener.openFieldHub(player);
+            case "알람"     -> {
+                boolean on = com.poro.rpg.listener.RewardNotify.toggle(player.getUniqueId());
+                player.sendMessage(on ? "§a[알람] 획득 알림을 켰습니다." : "§7[알람] 획득 알림을 껐습니다.");
+            }
             default          -> stub(player, label);
         }
         return true;

@@ -42,6 +42,8 @@ public final class BossRewardService implements BossRewardResolverHook {
     // setter injection (BossEngineRuntime 이후 초기화)
     private BossSessionRepository            bossSessionRepository;
     private long                             seasonStartEpoch;
+    private com.poro.rpg.boss.party.PartyManager partyManager; // 클리어 시 파티 해산
+    private org.bukkit.plugin.Plugin             plugin;       // 10초 지연 텔레포트
 
     public BossRewardService(GrowthStateStore growthStateStore,
                              IslandTerritoryStateStore islandTerritoryStateStore,
@@ -59,6 +61,12 @@ public final class BossRewardService implements BossRewardResolverHook {
     public void setSeasonContext(BossSessionRepository repository, long seasonStartEpoch) {
         this.bossSessionRepository = repository;
         this.seasonStartEpoch      = seasonStartEpoch;
+    }
+
+    /** 클리어 UX(파티 해산·지연 텔레포트) 주입. */
+    public void attachClearFlow(org.bukkit.plugin.Plugin plugin, com.poro.rpg.boss.party.PartyManager partyManager) {
+        this.plugin = plugin;
+        this.partyManager = partyManager;
     }
 
     private int computeSeasonWeek(long startedAtSeconds) {
@@ -111,86 +119,131 @@ public final class BossRewardService implements BossRewardResolverHook {
 
     @Override
     public void onRunEnded(BossResultSummary summary) {
-        // 슬롯 해제는 클리어 여부와 무관하게 항상 실행
-        bossRoomManager.releaseByRunId(summary.runId());
-
-        if (!summary.clearSuccess()) return;
-
-        BossSeasonRewards rewards = SEASON_REWARDS.get(summary.bossId().toLowerCase(Locale.ROOT));
-        if (rewards == null) {
-            logger.warning("[BossReward] No reward table for boss_id=" + summary.bossId());
-            return;
-        }
-
-        int seasonWeek = computeSeasonWeek(summary.startedAt());
-        int rewarded = 0;
+        // 참가자 UUID 수집
+        java.util.List<UUID> ids = new java.util.ArrayList<>();
         for (Map<String, Object> participant : summary.participantSummaryPlaceholder()) {
             String userId = (String) participant.get("user_id");
             if (userId == null || userId.isBlank()) continue;
-            UUID uuid;
-            try { uuid = UUID.fromString(userId); }
+            try { ids.add(UUID.fromString(userId)); }
             catch (IllegalArgumentException e) {
                 logger.warning("[BossReward] Invalid UUID in participant user_id=" + userId);
-                continue;
             }
+        }
+        // 슬롯 해제는 클리어 여부와 무관하게 항상
+        bossRoomManager.releaseByRunId(summary.runId());
 
-            // 주차 클리어 카운트 — DB 카운트는 이번 클리어 직전까지(이번 건은 아직 미기록 가능)
-            int clearsBeforeThis = bossSessionRepository != null
-                    ? bossSessionRepository.countClearsThisWeekAcrossBosses(uuid.toString(), seasonWeek)
-                    : 0;
-            boolean weeklyBonus = clearsBeforeThis < WEEKLY_BONUS_THRESHOLD;
-            BossWeeklyReward table = weeklyBonus ? rewards.firstTen() : rewards.beyondTen();
-
-            grantSeasonReward(uuid, table, weeklyBonus, summary.bossId());
-            bossRoomManager.markCleared(uuid, summary.bossId());
-            rewarded++;
+        if (!summary.clearSuccess()) {
+            handleRunExit(ids, false, summary.bossId(), java.util.Map.of());
+            return;
         }
 
-        logger.info("[BossReward] run_id=" + summary.runId()
-                + " boss_id=" + summary.bossId()
-                + " week=" + seasonWeek
-                + " rewarded=" + rewarded + "/" + summary.participantSummaryPlaceholder().size());
+        BossSeasonRewards rewards = SEASON_REWARDS.get(summary.bossId().toLowerCase(Locale.ROOT));
+        java.util.Map<UUID, String> rewardSummary = new java.util.HashMap<>();
+        if (rewards == null) {
+            logger.warning("[BossReward] No reward table for boss_id=" + summary.bossId());
+        } else {
+            int seasonWeek = computeSeasonWeek(summary.startedAt());
+            int rewarded = 0;
+            for (UUID uuid : ids) {
+                int clearsBeforeThis = bossSessionRepository != null
+                        ? bossSessionRepository.countClearsThisWeekAcrossBosses(uuid.toString(), seasonWeek)
+                        : 0;
+                boolean weeklyBonus = clearsBeforeThis < WEEKLY_BONUS_THRESHOLD;
+                BossWeeklyReward table = weeklyBonus ? rewards.firstTen() : rewards.beyondTen();
+                rewardSummary.put(uuid, grantSeasonReward(uuid, table, weeklyBonus, summary.bossId()));
+                bossRoomManager.markCleared(uuid, summary.bossId());
+                rewarded++;
+            }
+            logger.info("[BossReward] run_id=" + summary.runId()
+                    + " boss_id=" + summary.bossId()
+                    + " week=" + seasonWeek
+                    + " rewarded=" + rewarded + "/" + ids.size());
+        }
+        handleRunExit(ids, true, summary.bossId(), rewardSummary);
     }
 
-    private void grantSeasonReward(UUID uuid, BossWeeklyReward table, boolean bonusActive, String bossId) {
+    /** 런 종료 UX — 클리어/실패 메시지 + (클리어 시) 파티 해산 + 지연 영지 텔레포트. */
+    private void handleRunExit(java.util.List<UUID> ids, boolean clear, String bossId,
+                               java.util.Map<UUID, String> rewards) {
+        String bossName = com.poro.rpg.gui.BossHubGui.bossNameById(bossId);
+        for (UUID id : ids) {
+            org.bukkit.entity.Player p = org.bukkit.Bukkit.getPlayer(id);
+            if (p == null) continue;
+            if (clear) {
+                p.sendMessage("§6§l[보스 클리어!] §f" + bossName + " §7처치!");
+                String rw = rewards.get(id);
+                if (rw != null && !rw.isBlank()) p.sendMessage("§7[보상]" + rw);
+                p.sendMessage("§e10초 후 영지로 귀환합니다.");
+            } else {
+                p.sendMessage("§c[보스 실패] §f" + bossName + " §c도전 실패 — 영지로 귀환합니다.");
+            }
+        }
+        if (clear && partyManager != null && !ids.isEmpty()) {
+            partyManager.findParty(ids.get(0)).ifPresent(pt -> partyManager.leaveParty(pt.leaderId()));
+        }
+        Runnable tp = () -> {
+            for (UUID id : ids) {
+                org.bukkit.entity.Player p = org.bukkit.Bukkit.getPlayer(id);
+                if (p != null) p.performCommand("is home");
+            }
+        };
+        if (clear && plugin != null) {
+            org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, tp, 200L); // 10초 후
+        } else {
+            tp.run(); // 실패 시 즉시
+        }
+    }
+
+    /** 시즌 보스 보상 지급 + 획득 요약 문자열 반환(클리어 채팅용). */
+    private String grantSeasonReward(UUID uuid, BossWeeklyReward table, boolean bonusActive, String bossId) {
         String classId = playerDataManager.getWeaponType(uuid).name().toLowerCase(Locale.ROOT);
         PlayerGrowthState growth = growthStateStore.getOrCreate(uuid, classId);
         var territory = islandTerritoryStateStore.getOrCreate(uuid);
+        StringBuilder sb = new StringBuilder();
 
         // 강화석
-        growth.addCurrency(ENHANCEMENT_STONE, randomInclusive(table.stoneMin(), table.stoneMax()));
+        long stone = randomInclusive(table.stoneMin(), table.stoneMax());
+        growth.addCurrency(ENHANCEMENT_STONE, stone);
+        sb.append(" §b+").append(stone).append(" 강화석");
 
         // 큐브 조각 → 큐브 자동 전환 (10조각=1큐브)
         if (table.cubeFragments() > 0) {
             growth.addCurrency(CUBE_FRAGMENT, table.cubeFragments());
+            sb.append(" §d+").append(table.cubeFragments()).append(" 큐브조각");
             long frags = growth.currency(CUBE_FRAGMENT);
             if (frags >= 10) {
                 long newCubes = frags / 10;
                 growth.consumeCurrency(CUBE_FRAGMENT, newCubes * 10);
                 growth.addCurrency(CUBE, newCubes);
+                sb.append(" §5(큐브 ").append(newCubes).append("개 완성!)");
                 logger.info("[Cube] " + uuid + " season_boss frags→cubes=" + newCubes);
             }
         }
 
-        if (!bonusActive) return; // 11회+ 부터는 강화석/큐브만
+        if (!bonusActive) return sb.toString(); // 11회+ 부터는 강화석/큐브만
 
         // 1~10회 보너스: 장비 흔적 확정 N개
         for (int i = 0; i < table.guaranteedTraces(); i++) {
             territory.addCustomItem(pickSeasonTrace(), 1);
         }
+        if (table.guaranteedTraces() > 0) sb.append(" §3+").append(table.guaranteedTraces()).append(" 장비흔적");
         // 1~10회 보너스: 고대흔적 확정 (보스별 종류)
         if (table.ancientTraceId() != null) {
             territory.addCustomItem(table.ancientTraceId(), 1);
+            sb.append(" §6+1 고대흔적");
         }
         // 1~10회 보너스: 치장 제작 파편
         if (table.cosmeticFragMin() > 0) {
-            territory.addCustomItem(COSMETIC_FRAGMENT,
-                    randomInclusive(table.cosmeticFragMin(), table.cosmeticFragMax()));
+            long cf = randomInclusive(table.cosmeticFragMin(), table.cosmeticFragMax());
+            territory.addCustomItem(COSMETIC_FRAGMENT, cf);
+            sb.append(" §d+").append(cf).append(" 치장파편");
         }
         // 균열왕 심장 (rift_king 1-10회 확정, 11회+ 0% — beyondTen에는 없음)
         if (table.heartGuaranteed()) {
             territory.addCustomItem(RIFT_KING_HEART, 1);
+            sb.append(" §c+1 균열왕 심장");
         }
+        return sb.toString();
     }
 
     /** 시즌보스 흔적 등급 분포 (커먼 5%, 레어 25%, 에픽 45%, 유니크 23%, 레전더리 2%). */

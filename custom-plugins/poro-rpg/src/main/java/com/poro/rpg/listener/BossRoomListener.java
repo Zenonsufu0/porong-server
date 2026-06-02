@@ -149,6 +149,12 @@ public final class BossRoomListener implements Listener {
         // MythicMob 스폰 — 텔레포트 전에 먼저 수행하여 "보스 없는 방" 방지
         // 이 시점에서 mythicSpawner는 항상 non-null (위에서 사전 차단함). 반환=보스 mob UUID(실패 시 null)
         UUID bossMobUuid = mythicSpawner.apply(bossId, slot.bossSpawn());
+        // 디스폰 방지(보강) — MM config Despawn:false가 1차, Bukkit 플래그가 2차.
+        if (bossMobUuid != null
+                && org.bukkit.Bukkit.getEntity(bossMobUuid) instanceof org.bukkit.entity.LivingEntity le) {
+            le.setRemoveWhenFarAway(false);
+            le.setPersistent(true);
+        }
         if (bossMobUuid == null) {
             // endRun이 onRunEnded → releaseByRunId 체인을 자동 처리
             bossEngineRuntime.runService().endRun(run.runId(), false, "spawn_failed");

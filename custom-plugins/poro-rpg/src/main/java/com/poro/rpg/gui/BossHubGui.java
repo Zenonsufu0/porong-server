@@ -14,22 +14,22 @@ public final class BossHubGui {
     private BossHubGui() {}
 
     public record BossDef(String id, String name, String tier, Material icon,
-                          String recLevel, boolean needsUnlock) {}
+                          String recLevel, boolean needsUnlock, long hp, int atk) {}
 
     private static final Map<Integer, BossDef> SLOT_MAP = new HashMap<>();
 
     static {
         // 시즌보스 6종 — row1·2, 컬럼 2·4·6 (여백 2·1·1·2 가운데 정렬)
-        SLOT_MAP.put(11, new BossDef("fallen_knight",  "타락 기사장",   "시즌1", Material.NETHERITE_SWORD,   "6~10강",  false));
-        SLOT_MAP.put(13, new BossDef("corrupted_lord", "오염된 군주",   "시즌2", Material.POISONOUS_POTATO,  "10~13강", false));
-        SLOT_MAP.put(15, new BossDef("stone_colossus", "석조 거상",     "시즌3", Material.STONE,              "13~16강", false));
-        SLOT_MAP.put(20, new BossDef("storm_sorcerer", "폭풍 술사",     "시즌4", Material.LIGHTNING_ROD,      "16~18강", false));
-        SLOT_MAP.put(22, new BossDef("abyss_guardian", "심연 수호자",   "시즌5", Material.CRYING_OBSIDIAN,    "18~20강", false));
-        SLOT_MAP.put(24, new BossDef("void_herald",    "공허 사자",     "시즌6", Material.CHORUS_FRUIT,       "20~22강", false));
+        SLOT_MAP.put(11, new BossDef("fallen_knight",  "타락 기사장",   "시즌1", Material.NETHERITE_SWORD,   "6~10강",  false, 150000,  85));
+        SLOT_MAP.put(13, new BossDef("corrupted_lord", "오염된 군주",   "시즌2", Material.POISONOUS_POTATO,  "10~13강", false, 155000, 105));
+        SLOT_MAP.put(15, new BossDef("stone_colossus", "석조 거상",     "시즌3", Material.STONE,              "13~16강", false, 158000, 120));
+        SLOT_MAP.put(20, new BossDef("storm_sorcerer", "폭풍 술사",     "시즌4", Material.LIGHTNING_ROD,      "16~18강", false, 160000, 130));
+        SLOT_MAP.put(22, new BossDef("abyss_guardian", "심연 수호자",   "시즌5", Material.CRYING_OBSIDIAN,    "18~20강", false, 165000, 155));
+        SLOT_MAP.put(24, new BossDef("void_herald",    "공허 사자",     "시즌6", Material.CHORUS_FRUIT,       "20~22강", false, 170000, 185));
         // 최종보스 3종 — row3, 컬럼 2·4·6 (시즌과 세로 정렬)
-        SLOT_MAP.put(29, new BossDef("rift_king",      "균열왕",        "최종",  Material.NETHER_STAR,        "22강+",   true));
-        SLOT_MAP.put(31, new BossDef("corrupted_dyad", "타락한 이중체", "최종",  Material.WITHER_ROSE,        "22강+",   true));
-        SLOT_MAP.put(33, new BossDef("spirit_watcher", "진혼의 주시자", "최종",  Material.SOUL_LANTERN,       "22강+",   true));
+        SLOT_MAP.put(29, new BossDef("rift_king",      "균열왕",        "최종",  Material.NETHER_STAR,        "22강+",   true,  890000, 220));
+        SLOT_MAP.put(31, new BossDef("corrupted_dyad", "타락한 이중체", "최종",  Material.WITHER_ROSE,        "22강+",   true,  445000, 175));
+        SLOT_MAP.put(33, new BossDef("spirit_watcher", "진혼의 주시자", "최종",  Material.SOUL_LANTERN,       "22강+",   true,  890000, 200));
     }
 
     // 27슬롯 중간 허브 — 파티생성/관리·목록·보스정보·클리어기록
@@ -61,7 +61,7 @@ public final class BossHubGui {
 
     /** 보스 정보/선택 — 시즌 6(좌측 세로 컬럼) + 최종 3(우측 세로 컬럼). */
     public static void openBossInfo(Player player) {
-        renderBossGrid(player, GuiTitles.BOSS_INFO, "§a클릭하여 입장 준비");
+        renderBossGrid(player, GuiTitles.BOSS_INFO, "§8— 정보 전용 (입장은 파티 생성) —");
     }
 
     private static void renderBossGrid(Player player, net.kyori.adventure.text.Component title, String action) {
@@ -79,8 +79,11 @@ public final class BossHubGui {
             BossDef b = e.getValue();
             java.util.List<String> lore = new java.util.ArrayList<>();
             lore.add("§7──────────────");
-            lore.add("§7권장: §e" + b.recLevel());
-            lore.add("§7파티: §f1~3인");
+            lore.add("§7체력: §c" + String.format("%,d", b.hp()));
+            lore.add("§7공격력: §c" + b.atk());
+            lore.add("§7방어: §f—");
+            lore.add("§7패턴: §f3페이즈 §8(HP 60%·30% 전환)");
+            lore.add("§7권장: §e" + b.recLevel() + "  §7파티: §f1~3인");
             if (b.needsUnlock()) lore.add("§c공허 사자 클리어 필요");
             lore.add("");
             lore.add(action);

@@ -115,30 +115,45 @@ public final class FieldDropListener implements Listener {
         if (profile == null) return;
         String classId = playerDataManager.getWeaponType(killer.getUniqueId()).name().toLowerCase(Locale.ROOT);
         PlayerGrowthState growth = growthStateStore.getOrCreate(killer.getUniqueId(), classId);
-        int levelsGained = playerLevelingService.addExp(growth, profile.expAmount() * expMultiplier());
+        int exp = profile.expAmount() * expMultiplier();
+        int levelsGained = playerLevelingService.addExp(growth, exp);
+        String drops = grantFieldDrops(killer, profile, growth);
+        // 처치당 획득 요약 1줄 (경험치 + 재화) — /알람 OFF면 생략
+        if (RewardNotify.isEnabled(killer.getUniqueId())) {
+            killer.sendMessage("§8[처치] §a+" + exp + " §7경험치" + drops);
+        }
         if (levelsGained > 0) {
             killer.sendMessage("§6§l[레벨업!] §eLv " + growth.playerLevel()
                     + " §7달성! 스탯 포인트 §a+" + (levelsGained * 3));
         }
-        grantFieldDrops(killer, profile, growth);
         scoreboardService.refresh(killer);
     }
 
-    private void grantFieldDrops(Player player, FieldDropProfile profile, PlayerGrowthState growth) {
+    /** 필드 드랍 지급 + 획득 요약 문자열 반환(채팅 알림용). */
+    private String grantFieldDrops(Player player, FieldDropProfile profile, PlayerGrowthState growth) {
         int mult = dropMultiplier();
-        growth.addCurrency(GOLD, randomInclusive(profile.goldMin, profile.goldMax) * mult);
+        StringBuilder sb = new StringBuilder();
+        long gold = randomInclusive(profile.goldMin, profile.goldMax) * mult;
+        growth.addCurrency(GOLD, gold);
+        sb.append(" §6+").append(gold).append("G");
         if (roll(profile.battleShardChancePct)) {
+            long shard = randomInclusive(profile.battleShardMin, profile.battleShardMax) * mult;
             islandTerritoryStateStore.getOrCreate(player.getUniqueId(), player.getName())
-                    .addCustomItem(BATTLE_SHARD, randomInclusive(profile.battleShardMin, profile.battleShardMax) * mult);
+                    .addCustomItem(BATTLE_SHARD, shard);
+            sb.append(" §e+").append(shard).append(" 전투파편");
         }
         if (roll(profile.enhancementStoneChancePct)) {
-            growth.addCurrency(ENHANCEMENT_STONE, randomInclusive(profile.enhancementStoneMin, profile.enhancementStoneMax) * mult);
+            long stone = randomInclusive(profile.enhancementStoneMin, profile.enhancementStoneMax) * mult;
+            growth.addCurrency(ENHANCEMENT_STONE, stone);
+            sb.append(" §b+").append(stone).append(" 강화석");
         }
         if (roll(profile.cubeFragmentChancePct)) {
             growth.addCurrency(CUBE_FRAGMENT, mult);
+            sb.append(" §d+").append(mult).append(" 큐브조각");
             if (growth.currency(CUBE_FRAGMENT) >= 10) {
                 growth.consumeCurrency(CUBE_FRAGMENT, 10);
                 growth.addCurrency(CUBE, 1);
+                sb.append(" §5(큐브 1개 완성!)");
                 player.getServer().getLogger().info(
                         "[Cube] " + player.getUniqueId() + " 10 fragments -> 1 cube (wallet)");
             }
@@ -146,7 +161,9 @@ public final class FieldDropListener implements Listener {
         if (profile.elite && roll(profile.traceChancePct)) {
             islandTerritoryStateStore.getOrCreate(player.getUniqueId(), player.getName())
                     .addCustomItem(randomTraceId(profile.field()), mult);
+            sb.append(" §3+").append(mult).append(" 흔적");
         }
+        return sb.toString();
     }
 
     private Player resolvePlayer(Entity damager) {

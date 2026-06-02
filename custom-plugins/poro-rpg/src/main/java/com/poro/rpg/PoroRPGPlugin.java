@@ -355,6 +355,7 @@ public final class PoroRPGPlugin extends JavaPlugin {
                 playerDataManager, scoreboardService,
                 masterRegistryContext.itemMasters(), combatStateService, this);
         this.partyManager = new PartyManager();
+        this.bossRewardService.attachClearFlow(this, partyManager); // 클리어 시 파티 해산·10초 후 영지
         FieldBossRespawnScheduler fieldBossScheduler = getServer().getPluginManager().isPluginEnabled("MythicMobs")
                 ? new FieldBossRespawnScheduler(this) : null;
         ExploreHubGui.FieldStateProvider fieldStateProvider = fieldBossScheduler != null
@@ -807,7 +808,7 @@ public final class PoroRPGPlugin extends JavaPlugin {
             "메뉴", "장비", "강화", "잠재", "각인", "캐릭터", "전승",
             "영지", "영지이동", "영지상태", "영지초대", "창고", "공방", "작물", "상점", "경매장", "영지설정",
             "보스", "파티", "파티목록", "보스정보", "클리어", "필드",
-            "대전", "대전랭킹", "친선"
+            "대전", "대전랭킹", "친선", "알람"
         };
         for (String cmd : koreanCommands) {
             var registered = getCommand(cmd);

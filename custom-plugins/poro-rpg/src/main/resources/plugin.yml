@@ -128,6 +128,10 @@ commands:
     description: 파티목록 GUI 열기
     usage: /파티목록
     permission: poro.use
+  알람:
+    description: 획득 알림(경험치·재화) ON/OFF 토글
+    usage: /알람
+    permission: poro.use
   보스정보:
     description: 보스정보 GUI 열기
     usage: /보스정보
