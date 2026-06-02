@@ -33,8 +33,11 @@
 - `hud.json`: HUD 행 ascent +3(위로), cd바 height 8·ascent 조정, 아이콘(E034~36) height 10·ascent 8, chars provider 5개에 C 코드포인트.
 - 현재 sha1: `9bdcdbb…`(server.properties와 동기). 새 환경에선 이 폰트 델타 재적용 + zip 재패키징 필요.
 
-### 잔여
-- **아이템 이름 가림**: 블럭/도구 들 때 바닐라 아이템명이 액션바 HUD(XP바)에 가려 안 보임 — 슬롯 변경 시 HUD 일시 억제 검토 중.
+### 아이템 이름 가림 — 해소 (2026-06-02)
+- 블럭/도구로 슬롯 변경 시 바닐라 아이템명이 액션바 HUD(XP바)에 가려 안 보이던 문제.
+- `HealthHudListener.onItemHeld`: 새 아이템이 비무기(`WeaponTypeResolver.resolve==NONE`)면 2초간 HUD 억제 → 그 동안 **빈 액션바 송신**(`Component.empty()`)으로 HUD 레이어만 비움 → 클라 native 아이템 이름(toolHighlight, 별개 레이어)만 단독 노출.
+- **제약 기록**: 클라 native 아이템명은 서버에서 못 끈다. 우리가 이름을 직접 보내면 native와 겹쳐 "두번" 보임 → 빈 액션바 방식 채택(사용자 확정).
+- 무기/빈손 전환 시 즉시 억제 해제(cd/스택 HUD 우선).
 
 ---
 
