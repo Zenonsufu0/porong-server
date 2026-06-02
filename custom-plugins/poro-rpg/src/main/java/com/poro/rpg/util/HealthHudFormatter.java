@@ -4,6 +4,7 @@ import com.poro.rpg.combat.CooldownManager;
 import com.poro.rpg.combat.ResourceTracker;
 import com.poro.rpg.combat.weapon.WeaponType;
 import com.poro.rpg.growth.engine.PlayerGrowthState;
+import com.poro.rpg.leveling.PlayerLevelingService;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -30,74 +31,132 @@ public final class HealthHudFormatter {
     private static final int CD2_TEXT = 0xE2A0; // ascent=-17
     private static final int SK_TEXT  = 0xE2C0; // ascent=+3
 
+    // ─── 픽셀 advance 테이블 (poro:hud 폰트 실측, advance=round(trimmed*height/imgH)+1) ──
+    private static final int W_BAR   = 107; // hp/xp 바 (136×9 → height7)
+    private static final int W_CDBAR = 45;  // cd 바 (49×9 → height8)
+    private static final int W_STACK = 10;  // 스택 아이콘 (9×9)
+    private static final int W_SPACE = 4;   // minecraft:default 공백 " " advance
+    // 좌측 앵커: 전체 advance를 -ANCHOR로 고정 → 무기 유무 무관 + content 좌단을 화면중앙-(ANCHOR/2)에 둔다.
+    // 핫바 폭=182px. 작을수록 오른쪽으로 이동(좌단=중앙-ANCHOR/2). 인게임 튜닝값.
+    private static final int LEFT_ANCHOR = 174;
+
+    // 쿨타임 두 열의 2열 시작 X(고정) — 라벨+바를 담아 2x2를 spread. (LC↔RC 간격)
+    private static final int CD_COL2_X = 91;
+    // 바↔초 간격(px) — "RC와 초 사이" 좁힘.
+    private static final int BAR_TIME_GAP = 2;
+    // 라벨 칸 고정 폭 — 가장 긴 "SRC"(18px) 기준. 라벨 길이와 무관하게 바 시작 X를 통일한다.
+    private static final int LABEL_W = 18;
+    // 시간 칸 고정 폭 — 최대 "18s"(18px) 기준. "-"/숫자 모두 동일 폭 → 바·열 위치 불변.
+    private static final int TIME_W = 18;
+    // 쿨타임 행만 좌측으로 미세 이동(px) — HP/XP·스택은 그대로. 인게임 시각 튜닝값.
+    private static final int CD_SHIFT = 3;
+
     private HealthHudFormatter() {}
+
+    /** 한 행의 컴포넌트와 그 행의 픽셀 폭(되감기에 사용). */
+    private record Row(Component comp, int width) {}
 
     /**
      * 5레이어 HUD Component를 빌드한다.
      * HP/XP는 항상 포함, 쿨타임·스택은 무기 착용 시만.
+     *
+     * 정렬: 맨 앞 negSpace(-ANCHOR)로 전체 advance를 -ANCHOR에 고정한다.
+     * 각 행은 [content][negSpace(-content폭)]이라 net 0 → 다음 행이 같은 X에서 시작(좌우 정렬),
+     * 전체 폭이 무기 유무와 무관하게 -ANCHOR로 일정 → 액션바 중앙정렬이 흔들리지 않는다.
      */
     public static Component build(Player player,
                                    CooldownManager cdm,
                                    ResourceTracker rt,
                                    PlayerGrowthState state,
                                    WeaponType wt) {
-        // 각 행을 overlay: rewind() (-176px)로 커서를 되감아 다음 행이 같은 X에서 시작
-        Component out = buildHp(player)
-                .append(rewind())
-                .append(buildXp(player, state));
+        Component out = negSpace(LEFT_ANCHOR)
+                .append(appendRow(buildHp(player), 0))
+                .append(appendRow(buildXp(player, state), 0));
 
         if (wt != WeaponType.NONE) {
             out = out
-                    .append(rewind())
-                    .append(buildCdRow1(player, cdm, wt))
-                    .append(rewind())
-                    .append(buildCdRow2(player, cdm, wt))
-                    .append(rewind())
-                    .append(buildStack(player, rt, wt, state));
+                    .append(appendRow(buildCdRow1(player, cdm, wt), CD_SHIFT))
+                    .append(appendRow(buildCdRow2(player, cdm, wt), CD_SHIFT))
+                    .append(appendRow(buildStack(player, rt, wt, state), 0));
         }
         return out;
     }
 
+    /**
+     * 행 content + 그 폭만큼 되감기(net 0). {@code shiftLeft}>0이면 그 행만 좌측으로 이동(net 0 유지).
+     * 구조: [neg(shift)][content][neg(폭)][pos(shift)] → 합 0, 내용은 shift만큼 왼쪽.
+     */
+    private static Component appendRow(Row row, int shiftLeft) {
+        return Component.empty()
+                .append(negSpace(shiftLeft))
+                .append(row.comp())
+                .append(negSpace(row.width()))
+                .append(posSpace(shiftLeft));
+    }
+
     // ─── row builders ─────────────────────────────────────────────────────
 
-    private static Component buildHp(Player player) {
+    private static Row buildHp(Player player) {
         double cur = Math.max(0, player.getHealth());
         double max = resolveMax(player);
         int step = Math.min(20, (int) (cur / max * 100) / 5);
-        return Component.empty()
+        String t = fmt(cur) + "/" + fmt(max);
+        Component c = Component.empty()
                 .append(glyph(HP_BASE + step))
                 .append(txt(" "))
-                .append(rowText(HP_TEXT, fmt(cur) + "/" + fmt(max)));
+                .append(rowText(HP_TEXT, t));
+        return new Row(c, W_BAR + W_SPACE + textW(t));
     }
 
-    private static Component buildXp(Player player, PlayerGrowthState state) {
-        float prog = player.getExp();
+    private static Row buildXp(Player player, PlayerGrowthState state) {
+        int level  = state != null ? state.playerLevel() : player.getLevel();
+        long cexp  = state != null ? state.currentExp() : 0L;
+        long need  = state != null ? PlayerLevelingService.expToNextLevel(level) : 0L;
+        // 바 채움 = 커스텀 레벨링 진행도. 바닐라 XP(player.getExp())는 억제되어 0이라 못 씀.
+        float prog = need > 0 ? Math.min(1f, (float) cexp / need) : 0f;
         int step = Math.min(20, (int) (prog * 20));
-        int level = state != null ? state.playerLevel() : player.getLevel();
-        return Component.empty()
+
+        String lv = "Lv." + level;
+        Component c = Component.empty()
                 .append(glyph(XP_BASE + step))
                 .append(txt(" "))
-                .append(rowText(XP_TEXT, "Lv." + level));
+                .append(rowText(XP_TEXT, lv));
+        int w = W_BAR + W_SPACE + textW(lv);
+
+        // 경험치 수치 (현재/다음레벨) — chars 폰트 지원 문자(숫자·/)만 사용
+        if (state != null) {
+            String exp = cexp + "/" + need;
+            c = c.append(txt(" ")).append(rowText(XP_TEXT, exp));
+            w += W_SPACE + textW(exp);
+        }
+        return new Row(c, w);
     }
 
-    private static Component buildCdRow1(Player player, CooldownManager cdm, WeaponType wt) {
-        return Component.empty()
-                .append(cdEntry(player, cdm, slot1Key(wt), CD1_BASE, CD1_TEXT))
-                .append(txt("  "))
-                .append(cdEntry(player, cdm, slot2Key(wt), CD1_BASE, CD1_TEXT));
+    // 슬롯별 입력 라벨 — slot1=LMB, slot2=RMB, slot3=Shift+RMB, slot4=F (SkillInputListener와 일치)
+    private static final String LBL_SLOT1 = "LC", LBL_SLOT2 = "RC", LBL_SLOT3 = "SRC", LBL_SLOT4 = "F";
+
+    private static Row buildCdRow1(Player player, CooldownManager cdm, WeaponType wt) {
+        return cdRow(player, cdm, slot1Key(wt), LBL_SLOT1, slot2Key(wt), LBL_SLOT2, CD1_BASE, CD1_TEXT);
     }
 
-    private static Component buildCdRow2(Player player, CooldownManager cdm, WeaponType wt) {
-        return Component.empty()
-                .append(cdEntry(player, cdm, slot3Key(wt), CD2_BASE, CD2_TEXT))
-                .append(txt("  "))
-                .append(cdEntry(player, cdm, slot4Key(wt), CD2_BASE, CD2_TEXT));
+    private static Row buildCdRow2(Player player, CooldownManager cdm, WeaponType wt) {
+        return cdRow(player, cdm, slot3Key(wt), LBL_SLOT3, slot4Key(wt), LBL_SLOT4, CD2_BASE, CD2_TEXT);
     }
 
-    private static Component buildStack(Player player, ResourceTracker rt, WeaponType wt,
-                                         PlayerGrowthState state) {
+    /** 쿨타임 한 행 = [라벨 열1 엔트리][고정 X까지 pad][라벨 열2 엔트리] — 2x2를 넓게 spread. */
+    private static Row cdRow(Player player, CooldownManager cdm,
+                             String k1, String l1, String k2, String l2, int glyphBase, int textBase) {
+        Row a = cdEntry(player, cdm, k1, l1, glyphBase, textBase);
+        Row b = cdEntry(player, cdm, k2, l2, glyphBase, textBase);
+        int pad = Math.max(W_SPACE, CD_COL2_X - a.width());   // 2열을 고정 X에서 시작(최소 간격 보장)
+        Component c = Component.empty().append(a.comp()).append(posSpace(pad)).append(b.comp());
+        return new Row(c, a.width() + pad + b.width());
+    }
+
+    private static Row buildStack(Player player, ResourceTracker rt, WeaponType wt,
+                                   PlayerGrowthState state) {
         int idx = weaponIdx(wt);
-        if (idx < 0) return Component.empty();
+        if (idx < 0) return new Row(Component.empty(), 0);
         char filled = (char) (0xE140 + idx * 2);
         char empty  = (char) (0xE141 + idx * 2);
         int stacks = rt.getStack(player.getUniqueId());
@@ -105,15 +164,17 @@ public final class HealthHudFormatter {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < Math.min(stacks, max); i++) sb.append(filled);
         for (int i = stacks; i < max; i++) sb.append(empty);
-        return Component.empty()
+        String num = stacks + "/" + max;
+        Component c = Component.empty()
                 .append(Component.text(sb.toString()).font(HUD_FONT))
                 .append(txt(" "))
-                .append(rowText(SK_TEXT, stacks + "/" + max));
+                .append(rowText(SK_TEXT, num));
+        return new Row(c, max * W_STACK + W_SPACE + textW(num));
     }
 
-    private static Component cdEntry(Player player, CooldownManager cdm,
-                                      String key, int glyphBase, int textBase) {
-        if (key == null) return Component.empty();
+    private static Row cdEntry(Player player, CooldownManager cdm,
+                               String key, String label, int glyphBase, int textBase) {
+        if (key == null) return new Row(Component.empty(), 0);
         long remaining = cdm.getRemainingMillis(player.getUniqueId(), key);
         long total     = cdm.getTotalMillis(player.getUniqueId(), key);
 
@@ -125,27 +186,61 @@ public final class HealthHudFormatter {
             step = Math.min(8, (int) (elapsed * 9 / total));
         }
 
+        String timeStr;
         Component timeComp;
         if (remaining <= 0) {
-            timeComp = rowText(textBase, "-").color(NamedTextColor.GREEN);
-        } else if (remaining <= 5000) {
-            timeComp = rowText(textBase, CooldownManager.formatSeconds(remaining) + "s")
-                    .color(NamedTextColor.RED);
+            timeStr = "-";
+            timeComp = rowText(textBase, timeStr).color(NamedTextColor.GREEN);
         } else {
-            timeComp = rowText(textBase, CooldownManager.formatSeconds(remaining) + "s")
-                    .color(NamedTextColor.YELLOW);
+            long secs = (long) Math.ceil(remaining / 1000.0);   // 정수 초(올림) — HUD 가독성·고정폭
+            timeStr = secs + "s";
+            timeComp = rowText(textBase, timeStr)
+                    .color(remaining <= 5000 ? NamedTextColor.RED : NamedTextColor.YELLOW);
         }
-        return Component.empty()
+        // [라벨(고정폭)][바][시간(고정폭)] — 라벨·시간 칸을 모두 고정폭으로 잡아
+        // 라벨 길이/쿨타임 상태("-"↔숫자)와 무관하게 바·열 위치를 통일(정렬·밀림 방지).
+        Component c = Component.empty()
+                .append(rowText(textBase, label).color(NamedTextColor.GRAY))
+                .append(posSpace(LABEL_W - textW(label) + W_SPACE))
                 .append(glyph(glyphBase + step))
-                .append(txt(" "))
-                .append(timeComp);
+                .append(posSpace(BAR_TIME_GAP))
+                .append(timeComp)
+                .append(posSpace(TIME_W - textW(timeStr)));
+        return new Row(c, LABEL_W + W_SPACE + W_CDBAR + BAR_TIME_GAP + TIME_W);
     }
 
     // ─── helpers ──────────────────────────────────────────────────────────
 
-    /** poro:hud 폰트의  = -176px advance로 커서를 행 시작으로 되감는다. */
-    private static Component rewind() {
-        return Component.text("").font(HUD_FONT);
+    /**
+     * 좌측으로 {@code px}만큼 커서를 되감는 negative-space 글리프 조합.
+     * poro:hud 폰트의 음수 스페이스(-1,-2,-4,…,-128)를 비트 분해로 합성한다.
+     */
+    private static Component negSpace(int px) {
+        if (px <= 0) return Component.empty();
+        int[] v  = {128, 64, 32, 16, 8, 4, 2, 1};
+        char[] g = {'', '', '', '', '', '', '', ''};
+        StringBuilder sb = new StringBuilder();
+        int rem = px;
+        for (int i = 0; i < v.length; i++) {
+            while (rem >= v[i]) { sb.append(g[i]); rem -= v[i]; }
+        }
+        return Component.text(sb.toString()).font(HUD_FONT);
+    }
+
+    /**
+     * 우측으로 {@code px}만큼 커서를 전진시키는 positive-space 글리프 조합.
+     * poro:hud 폰트의 양수 스페이스(+15,+6,+3,+2,+1)를 그리디 분해로 합성한다.
+     */
+    private static Component posSpace(int px) {
+        if (px <= 0) return Component.empty();
+        int[] v  = {15, 6, 3, 2, 1};
+        int[] cp = {0xEF00, 0xEF06, 0xEF03, 0xEF02, 0xEF01};
+        StringBuilder sb = new StringBuilder();
+        int rem = px;
+        for (int i = 0; i < v.length; i++) {
+            while (rem >= v[i]) { sb.append((char) cp[i]); rem -= v[i]; }
+        }
+        return Component.text(sb.toString()).font(HUD_FONT);
     }
 
     /**
@@ -162,6 +257,23 @@ public final class HealthHudFormatter {
                 : Component.text(sb.toString()).font(HUD_FONT);
     }
 
+    /** rowText가 실제로 렌더하는 문자들의 픽셀 폭 합(advance 테이블 기준). */
+    private static int textW(String s) {
+        int w = 0;
+        for (char c : s.toCharArray()) {
+            if (charIdx(c) >= 0) w += charW(c);
+        }
+        return w;
+    }
+
+    private static int charW(char c) {
+        return switch (c) {
+            case ',' -> 3;
+            case '.' -> 2;
+            default  -> 6;   // 숫자·/·L·v·s·- 등 chars.png 6px advance
+        };
+    }
+
     private static int charIdx(char c) {
         return switch (c) {
             case '0' -> 0;  case '1' -> 1;  case '2' -> 2;  case '3' -> 3;  case '4' -> 4;
@@ -171,6 +283,7 @@ public final class HealthHudFormatter {
             case 'R' -> 15; case 'S' -> 16; case 'F' -> 17;
             case 's' -> 18; case '-' -> 19;
             case 'E' -> 20; case 'A' -> 21; case 'D' -> 22; case 'Y' -> 23;
+            case 'C' -> 24; // 스킬 입력 라벨(LC/RC/SRC)용 — chars.png 25번째 칸
             default  -> -1;
         };
     }

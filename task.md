@@ -16,6 +16,28 @@
 
 ---
 
+## §9 HUD·스코어보드 정리 (2026-06-02) — 진행 중
+
+액션바 HUD(`HealthHudFormatter`) + 사이드바(`ScoreboardService`) 인게임 반복 튜닝.
+
+### 완료
+- **정렬 근본 해결**: 액션바 중앙정렬 문제 → 맨 앞 `negSpace(LEFT_ANCHOR)`로 전체 advance 고정(무기 유무 무관) + 행마다 정확한 폭 되감기(net 0). 픽셀 advance 테이블(바107·cd바·문자6 등) + 음수/양수 스페이스 글리프 합성.
+- **HP/XP 좌측 정렬**(핫바 좌단 기준), 무기 들/안 들 때 위치 불변.
+- **XP 행**: 경험치 수치(`현재/다음레벨`) 추가. **바 채움 = 커스텀 진행도**(currentExp/expToNextLevel) — 바닐라 XP 억제로 `player.getExp()`=0이라 바가 안 차던 버그 수정. 스코어보드 % 동일 수정.
+- **쿨타임 2x2**: 입력 라벨 **LC/RC/SRC/F**(SkillInputListener 매핑), 라벨/시간 칸 **고정폭**(`-`↔숫자 전환 시 밀림 방지), 정수 초 표기, cd바 크기·간격 튜닝.
+- **스코어보드**: invisible entry(평문 `poro_eN` 노출 제거) + **텍스트 폰트 상속 버그 수정**(HUD_FONT 상속→두부 깨짐 → empty 형제로 기본폰트 렌더) + 아이콘 height 16→10 축소 + **골드/강화석/큐브 라벨** 추가.
+
+### ⚠ 리소스팩 폰트 변경 = 로컬 전용(gitignored, §8-3 정책)
+`assets/export/resourcepack`의 `font/hud.json`·`textures/hud/chars.png`는 비추적. 재클론·재배포 시 **유실됨 — 별도 보관 필요**:
+- `chars.png`: 24→25칸 확장, **'C' 글리프 추가**(라벨 LC/RC/SRC용).
+- `hud.json`: HUD 행 ascent +3(위로), cd바 height 8·ascent 조정, 아이콘(E034~36) height 10·ascent 8, chars provider 5개에 C 코드포인트.
+- 현재 sha1: `9bdcdbb…`(server.properties와 동기). 새 환경에선 이 폰트 델타 재적용 + zip 재패키징 필요.
+
+### 잔여
+- **아이템 이름 가림**: 블럭/도구 들 때 바닐라 아이템명이 액션바 HUD(XP바)에 가려 안 보임 — 슬롯 변경 시 HUD 일시 억제 검토 중.
+
+---
+
 ## §8 전투밸런스·리브랜드·라이선스·2D 이펙트 (2026-06-01~02)
 
 ### §8-1 전투 밸런스 — 만충 스파이크 하이브리드 (DL-124) — 완료

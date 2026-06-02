@@ -113,17 +113,19 @@ public final class ScoreboardService {
             long gold   = state.currency("gold");
             long stone  = state.currency("mat_stone_enhance");
             long cube   = state.currency("mat_cube");
-            row = setIconRow(board, obj, GOLD_ICON,    fmtNum(gold)  + "G",  NamedTextColor.YELLOW,      row);
-            row = setIconRow(board, obj, ENHANCE_ICON, fmtNum(stone) + "개", NamedTextColor.AQUA,         row);
-            row = setIconRow(board, obj, CUBE_ICON,    fmtNum(cube)  + "개", NamedTextColor.DARK_PURPLE,  row);
+            row = setIconRow(board, obj, GOLD_ICON,    "골드: "   + fmtNum(gold),  NamedTextColor.YELLOW,      row);
+            row = setIconRow(board, obj, ENHANCE_ICON, "강화석: " + fmtNum(stone), NamedTextColor.AQUA,         row);
+            row = setIconRow(board, obj, CUBE_ICON,    "큐브: "   + fmtNum(cube),  NamedTextColor.DARK_PURPLE,  row);
 
             row = setRow(obj, LINE_SEP + "§0..", row);
 
             // 레벨·경험치·스탯 포인트
             int level   = state.playerLevel();
             int pts     = state.unspentPts();
-            String xpPct = String.format("%.0f%%", (double) Math.round(player.getExp() * 100));
-            String lvLine = "§7Lv.§f" + level + "  §e" + xpPct;
+            // 진행도 = 커스텀 레벨링(currentExp/다음레벨). 바닐라 XP는 억제되어 0이라 못 씀.
+            long xpNeed = com.poro.rpg.leveling.PlayerLevelingService.expToNextLevel(level);
+            int xpPctVal = xpNeed > 0 ? (int) Math.min(100, state.currentExp() * 100 / xpNeed) : 0;
+            String lvLine = "§7Lv.§f" + level + "  §e" + xpPctVal + "%";
             if (pts > 0) lvLine += "  §a+" + pts + "§7포인트";
             row = setRow(obj, lvLine, row);
 
@@ -156,14 +158,18 @@ public final class ScoreboardService {
     private static int setIconRow(Scoreboard board, Objective obj,
                                    char icon, String text,
                                    net.kyori.adventure.text.format.TextColor color, int score) {
-        String entryKey = "poro_e" + score;
+        // 사이드바 라인 = prefix + entry + suffix 가 그대로 출력된다.
+        // entry를 평문("poro_eN")으로 두면 그 글자가 라인에 노출돼 깨져 보이므로,
+        // 색코드만으로 된 보이지 않는 고유 entry를 쓴다(아이콘·수치는 전부 prefix).
+        String entryKey = "§" + Integer.toHexString((score >> 4) & 0xF)
+                        + "§" + Integer.toHexString(score & 0xF);
         Team team = board.getTeam("poro_t" + score);
         if (team == null) team = board.registerNewTeam("poro_t" + score);
         if (!team.hasEntry(entryKey)) team.addEntry(entryKey);
-        team.prefix(
-                Component.text(String.valueOf(icon)).font(HUD_FONT)
-                        .append(Component.text(" " + text).color(color))
-        );
+        // 아이콘과 텍스트를 empty 아래 형제로 — 텍스트가 HUD_FONT를 상속해 깨지는 것 방지(기본 폰트 렌더).
+        team.prefix(Component.empty()
+                .append(Component.text(String.valueOf(icon)).font(HUD_FONT))
+                .append(Component.text(" " + text).color(color)));
         team.suffix(Component.empty());
         obj.getScore(entryKey).setScore(score);
         return score - 1;
