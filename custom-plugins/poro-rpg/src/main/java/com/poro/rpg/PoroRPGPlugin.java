@@ -754,6 +754,7 @@ public final class PoroRPGPlugin extends JavaPlugin {
         growthGuiListener.setHealthHudListener(healthHudListener);
         getServer().getPluginManager().registerEvents(new SwordParryListener(), this);
         getServer().getPluginManager().registerEvents(new PoroItemGuardListener(), this);
+        getServer().getPluginManager().registerEvents(new com.poro.rpg.listener.MenuItemLockListener(), this);
         getServer().getPluginManager().registerEvents(new StaffProjectileListener(resourceTracker), this);
         boolean worldGuardEnabled = getServer().getPluginManager().isPluginEnabled("WorldGuard");
         SafeZoneService safeZoneService = worldGuardEnabled

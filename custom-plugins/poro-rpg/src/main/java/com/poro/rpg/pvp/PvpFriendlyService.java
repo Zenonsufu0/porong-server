@@ -117,8 +117,14 @@ public final class PvpFriendlyService {
         return result == PvpMatchService.StartResult.SUCCESS;
     }
 
-    /** 영지(SafeZone) 검사. WorldGuard 미설치 환경(enforceIsland=false)이면 항상 true. */
+    /**
+     * 영지 검사. 개인 섬 월드(IridiumSkyblock/island)에 있으면 영지로 인정한다
+     * — WG 세이프존 미설정 환경에서도 영지에서 친선이 가능하도록.
+     * 그 외 월드는 WorldGuard 세이프존으로 판정(미설치=enforceIsland false면 항상 true).
+     */
     private boolean isInIsland(Player player) {
+        String world = player.getWorld().getName();
+        if (world.equals("IridiumSkyblock") || world.equals("island")) return true;
         if (!enforceIsland || safeZoneService == null) return true;
         return safeZoneService.isSafeZone(player.getLocation());
     }

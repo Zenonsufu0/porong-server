@@ -87,7 +87,7 @@ public class StorageGuiListener implements Listener {
             ItemStack clicked = event.getCurrentItem();
             if (clicked == null || clicked.getType().isAir()) return;
             if (isBlockedForStorage(clicked)) {
-                player.sendMessage(PREFIX + "§c무기·나침반은 창고에 넣을 수 없습니다.");
+                player.sendMessage(PREFIX + "§c무기·메뉴 아이템은 창고에 넣을 수 없습니다.");
                 return;
             }
             Material mat = clicked.getType();
@@ -172,9 +172,9 @@ public class StorageGuiListener implements Listener {
         player.sendMessage(PREFIX + "§a창고에 입금했습니다: §f" + sb);
     }
 
-    /** 창고 입금 금지 아이템 — 메뉴 나침반 + 무기(PDC 태그). */
+    /** 창고 입금 금지 아이템 — 메뉴 아이템 + 무기(PDC 태그). */
     private static boolean isBlockedForStorage(ItemStack item) {
-        if (item.getType() == Material.COMPASS) return true; // 메뉴 나침반
+        if (com.poro.rpg.init.ClassInitService.isMenuItem(item)) return true; // 메뉴 아이템
         if (item.hasItemMeta() && item.getItemMeta().getPersistentDataContainer()
                 .has(WeaponTypeResolver.WEAPON_TYPE_KEY, PersistentDataType.STRING)) return true; // 무기
         return false;

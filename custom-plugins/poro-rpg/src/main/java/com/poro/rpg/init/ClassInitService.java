@@ -16,6 +16,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -98,22 +99,35 @@ public final class ClassInitService {
         player.getInventory().setItem(2, islandTool(Material.NETHERITE_SHOVEL));
         player.getInventory().setItem(3, islandTool(Material.NETHERITE_HOE));
         player.getInventory().setItem(4, islandTool(Material.NETHERITE_AXE));
-        player.getInventory().setItem(8, menuCompass());
+        player.getInventory().setItem(MENU_ITEM_SLOT, createMenuItem());
     }
 
-    /** 재접속 시 slot 8의 메뉴 컴퍼스가 없으면 복구한다. */
+    /** 메뉴 아이템 슬롯 — 핫바 9번(index 8). 항상 이 슬롯에 고정한다. */
+    public static final int MENU_ITEM_SLOT = 8;
+    /** 메뉴 아이템 식별 PDC 태그 — 재질과 무관하게 판별(나침반 등과 혼동 방지). */
+    public static final NamespacedKey MENU_ITEM_KEY = NamespacedKey.fromString("poro_rpg:menu_item");
+
+    /** 재접속 시 slot 8의 메뉴 아이템이 없으면 복구한다. */
     public void ensureMenuCompass(Player player) {
-        ItemStack current = player.getInventory().getItem(8);
-        if (current != null && current.getType() == Material.COMPASS) return;
-        player.getInventory().setItem(8, menuCompass());
+        if (isMenuItem(player.getInventory().getItem(MENU_ITEM_SLOT))) return;
+        player.getInventory().setItem(MENU_ITEM_SLOT, createMenuItem());
     }
 
-    private ItemStack menuCompass() {
-        ItemStack item = new ItemStack(Material.COMPASS);
+    /** 메뉴 아이템 생성 — 나침반과 구분되는 별도 재질(NETHER_STAR) + PDC 태그. */
+    public static ItemStack createMenuItem() {
+        ItemStack item = new ItemStack(Material.NETHER_STAR);
         ItemMeta meta = item.getItemMeta();
         meta.displayName(Component.text("§e메뉴"));
+        meta.getPersistentDataContainer().set(MENU_ITEM_KEY, PersistentDataType.BYTE, (byte) 1);
         item.setItemMeta(meta);
         return item;
+    }
+
+    /** PDC 태그 기반 메뉴 아이템 판별(재질 무관). */
+    public static boolean isMenuItem(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) return false;
+        return item.getItemMeta().getPersistentDataContainer()
+                .has(MENU_ITEM_KEY, PersistentDataType.BYTE);
     }
 
     private ItemStack islandTool(Material material) {

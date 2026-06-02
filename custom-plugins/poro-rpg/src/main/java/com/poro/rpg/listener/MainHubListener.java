@@ -67,9 +67,8 @@ public final class MainHubListener implements Listener {
         Action action = event.getAction();
         if (action != Action.RIGHT_CLICK_AIR && action != Action.RIGHT_CLICK_BLOCK) return;
         Player player = event.getPlayer();
-        if (player.getInventory().getHeldItemSlot() != 8) return;
-        ItemStack held = player.getInventory().getItem(8);
-        if (held == null || held.getType() != Material.COMPASS) return;
+        if (player.getInventory().getHeldItemSlot() != com.poro.rpg.init.ClassInitService.MENU_ITEM_SLOT) return;
+        if (!com.poro.rpg.init.ClassInitService.isMenuItem(player.getInventory().getItemInMainHand())) return;
         event.setCancelled(true);
         MainHubGui.open(player);
     }
@@ -146,10 +145,7 @@ public final class MainHubListener implements Listener {
 
         switch (slot) {
             case TerritoryMoveGui.SLOT_MY_ISLAND -> {
-                if (combatStateService.isInCombat(uid)) {
-                    player.sendMessage("§c[영지] 전투 중에는 이동할 수 없습니다.");
-                    return;
-                }
+                // 영지 이동은 전투 중에도 허용 (필드 이탈 수단)
                 player.closeInventory();
                 if (!player.performCommand("is home")) {
                     player.sendMessage("§c[영지] 이동에 실패했습니다.");
@@ -180,10 +176,7 @@ public final class MainHubListener implements Listener {
         // 공개 영지 슬롯
         UUID targetOwner = TerritoryMoveGui.publicOwnerAt(islandTerritoryStateStore, uid, slot, page);
         if (targetOwner == null) return;
-        if (combatStateService.isInCombat(uid)) {
-            player.sendMessage("§c[영지] 전투 중에는 이동할 수 없습니다.");
-            return;
-        }
+        // 영지 이동은 전투 중에도 허용 (필드 이탈 수단)
         // 방문 설정 재확인
         var targetTerritory = islandTerritoryStateStore.get(targetOwner).orElse(null);
         if (targetTerritory == null || targetTerritory.visitMode() != IslandTerritoryState.VisitMode.PUBLIC) {

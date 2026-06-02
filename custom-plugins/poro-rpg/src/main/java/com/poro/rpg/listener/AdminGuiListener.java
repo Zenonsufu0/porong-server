@@ -28,18 +28,12 @@ import com.poro.rpg.pvp.db.PvpMatchLogRepository;
 import com.poro.rpg.storage.PlayerDataManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.inventory.PrepareAnvilEvent;
-import org.bukkit.inventory.AnvilInventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -65,8 +59,8 @@ public final class AdminGuiListener implements Listener {
     private final BossRunService             bossRunService;
     private final long                       seasonStartEpoch;
 
-    /** Anvil 인스펙트 닉네임 입력 대기. */
-    private final Set<UUID> pendingInspectAnvil = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    /** 인스펙트 닉네임 채팅 입력 대기. */
+    private final Set<UUID> pendingInspectChat = Collections.newSetFromMap(new ConcurrentHashMap<>());
     /** 진행 중 매치 GUI에서 슬롯 인덱스 → matchId. */
     private final Map<UUID, List<UUID>> matchSlotMapping = new ConcurrentHashMap<>();
     /** 운영 토글 GUI에서 슬롯 인덱스 → Toggle (open 호출 시 갱신). */
@@ -153,54 +147,41 @@ public final class AdminGuiListener implements Listener {
             event.setCancelled(true);
             handleTerritoryClick(player, event.getRawSlot(), event.getClick());
 
-        } else if (pendingInspectAnvil.contains(uid)
-                && event.getInventory() instanceof AnvilInventory anvil
-                && event.getRawSlot() == 2) {
-            event.setCancelled(true);
-            String name = anvil.getRenameText();
-            pendingInspectAnvil.remove(uid);
-            if (name == null || name.isBlank()) {
-                player.sendMessage("§c[관리자] 닉네임을 입력하세요.");
+        }
+    }
+
+    /** 인스펙트 닉네임 채팅 입력 처리. */
+    @EventHandler
+    public void onChat(io.papermc.paper.event.player.AsyncChatEvent event) {
+        Player admin = event.getPlayer();
+        UUID uid = admin.getUniqueId();
+        if (!pendingInspectChat.contains(uid)) return;
+        event.setCancelled(true); // 입력 메시지는 채팅에 노출하지 않음
+        pendingInspectChat.remove(uid);
+        String name = net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
+                .plainText().serialize(event.message()).trim();
+        Bukkit.getScheduler().runTask(
+                org.bukkit.plugin.java.JavaPlugin.getProvidingPlugin(getClass()), () -> {
+            if (name.isBlank() || name.equalsIgnoreCase("취소")) {
+                admin.sendMessage("§7[관리자] 인스펙트를 취소했습니다.");
                 return;
             }
             org.bukkit.OfflinePlayer target = Bukkit.getOfflinePlayerIfCached(name);
             if (target == null) target = Bukkit.getOfflinePlayer(name);
             if (target.getUniqueId() == null) {
-                player.sendMessage("§c[관리자] 플레이어를 찾을 수 없습니다.");
+                admin.sendMessage("§c[관리자] 플레이어를 찾을 수 없습니다.");
                 return;
             }
-            player.closeInventory();
-            AdminInspectGui.open(player, target.getUniqueId(),
+            AdminInspectGui.open(admin, target.getUniqueId(),
                     playerDataManager, growthStateStore, islandStore, pvpRatingService);
-        }
-    }
-
-    @EventHandler
-    public void onPrepareAnvil(PrepareAnvilEvent event) {
-        if (!(event.getView().getPlayer() instanceof Player player)) return;
-        if (!pendingInspectAnvil.contains(player.getUniqueId())) return;
-        String text = event.getInventory().getRenameText();
-        if (text == null || text.isBlank()) return;
-        event.getInventory().setRepairCost(0);
-        ItemStack result = new ItemStack(Material.PAPER);
-        ItemMeta meta = result.getItemMeta();
-        meta.displayName(Component.text("§e인스펙트: " + text));
-        result.setItemMeta(meta);
-        event.setResult(result);
-    }
-
-    @EventHandler
-    public void onClose(InventoryCloseEvent event) {
-        if (event.getPlayer() instanceof Player p) {
-            pendingInspectAnvil.remove(p.getUniqueId());
-        }
+        });
     }
 
     // ─── 핸들러 ──────────────────────────────────────────────────────
 
     private void handleHub(Player admin, int slot, ClickType click) {
         switch (slot) {
-            case AdminHubGui.SLOT_INSPECT -> openInspectAnvil(admin);
+            case AdminHubGui.SLOT_INSPECT -> openInspectChat(admin);
             case AdminHubGui.SLOT_MATCHES -> matchSlotMapping.put(admin.getUniqueId(),
                     AdminMatchesGui.open(admin, pvpMatchService));
             case AdminHubGui.SLOT_STATS   -> AdminStatsGui.open(admin,
@@ -339,13 +320,10 @@ public final class AdminGuiListener implements Listener {
         bossRunMapping.put(admin.getUniqueId(), AdminBossGui.open(admin, bossRunService));
     }
 
-    private void openInspectAnvil(Player admin) {
-        ItemStack tag = new ItemStack(Material.NAME_TAG);
-        ItemMeta meta = tag.getItemMeta();
-        meta.displayName(Component.text("닉네임 입력"));
-        tag.setItemMeta(meta);
-        pendingInspectAnvil.add(admin.getUniqueId());
-        com.poro.rpg.gui.AnvilGuiHelper.open(admin, Component.text("§c플레이어 인스펙트"), tag);
+    private void openInspectChat(Player admin) {
+        pendingInspectChat.add(admin.getUniqueId());
+        admin.closeInventory();
+        admin.sendMessage(Component.text("§c[관리자] 채팅에 인스펙트할 플레이어 닉네임을 입력하세요. §7(취소: '취소')"));
     }
 
     private void forceReleaseAllSlots(Player admin) {
