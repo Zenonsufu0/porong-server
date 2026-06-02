@@ -710,6 +710,7 @@ public final class PoroRPGPlugin extends JavaPlugin {
 
         BossRoomListener bossRoomListenerInstance =
                 new BossRoomListener(bossRoomManager, masterRegistryContext.bossMasters(), partyManager, bossEngineRuntime, mythicSpawner, adminTogglesService, bossDamageTracker);
+        this.bossHubListener.setBossRoomEntry(bossRoomListenerInstance); // 파티 GUI 입장 버튼 → 보스룸 텔레포트
         getServer().getPluginManager().registerEvents(shopGuiListener, this);
         getServer().getPluginManager().registerEvents(pvpHubListener, this);
         getServer().getPluginManager().registerEvents(new DeathKeepInventoryListener(), this); // 1차 시즌 사망 시 템·경험치 유지

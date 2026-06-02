@@ -87,14 +87,8 @@ public final class PvpHubListener implements Listener {
 
     private void handleHub(Player player, int slot) {
         switch (slot) {
-            case PvpHubGui.SLOT_FREE -> {
-                player.closeInventory();
-                matchService.enqueue(player, PvpMatchType.FREE);
-            }
-            case PvpHubGui.SLOT_RANKED -> {
-                player.closeInventory();
-                matchService.enqueue(player, PvpMatchType.RANKED);
-            }
+            case PvpHubGui.SLOT_FREE   -> toggleQueue(player, PvpMatchType.FREE);
+            case PvpHubGui.SLOT_RANKED -> toggleQueue(player, PvpMatchType.RANKED);
             case PvpHubGui.SLOT_FRIENDLY -> openFriendlyChat(player);
             case PvpHubGui.SLOT_RANKING  -> PvpRankingGui.open(player, ratingService);
             case PvpHubGui.SLOT_BACK     -> MainHubGui.open(player);
@@ -105,6 +99,15 @@ public final class PvpHubListener implements Listener {
         pendingFriendlyChat.add(player.getUniqueId());
         player.closeInventory();
         player.sendMessage(Component.text("§e[친선] 채팅에 상대 닉네임을 입력하세요. §7(취소: '취소')"));
+    }
+
+    /** 대기열 토글 — 이미 대기열이면 취소, 아니면 진입. (GUI 유지 → 재클릭으로 취소 가능) */
+    private void toggleQueue(Player player, PvpMatchType type) {
+        if (matchService.isQueued(player.getUniqueId())) {
+            matchService.dequeue(player);
+        } else {
+            matchService.enqueue(player, type);
+        }
     }
 
     @EventHandler

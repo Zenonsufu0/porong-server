@@ -170,6 +170,13 @@ public final class PvpMatchService {
         return removed;
     }
 
+    /** 자유/정규 대기열 중 하나라도 들어가 있으면 true. */
+    public boolean isQueued(java.util.UUID uuid) {
+        synchronized (freeQueue)   { if (freeQueue.contains(uuid)) return true; }
+        synchronized (rankedQueue) { if (rankedQueue.contains(uuid)) return true; }
+        return false;
+    }
+
     private Deque<UUID> queueFor(PvpMatchType type) {
         return switch (type) {
             case FREE   -> freeQueue;

@@ -78,21 +78,7 @@ public final class BossRoomGenerationService {
                 for (int z = rz + 1; z < rz + SIZE - 1; z++)
                     world.getBlockAt(x, y, z).setType(Material.AIR, false);
 
-        // 3단계: 남쪽 벽(z = rz+SIZE-1)에 8×4 출입문 개방
-        // 중앙 x=rx+21~rx+28, y=ry+1~ry+4
-        for (int y = ry + 1; y <= ry + 4; y++)
-            for (int x = rx + 21; x <= rx + 28; x++)
-                world.getBlockAt(x, y, rz + SIZE - 1).setType(Material.AIR, false);
-
-        // 4단계: 출입문 바깥(z = rz+SIZE)에 "[보스]" 표지판
-        // 남쪽 벽에 부착 (facing=SOUTH: 표지판 앞면이 남쪽, 즉 플레이어 쪽을 향함)
-        Block signBlock = world.getBlockAt(rx + 24, ry + 5, rz + SIZE);
-        signBlock.setType(Material.OAK_WALL_SIGN, false);
-        WallSign signData = (WallSign) signBlock.getBlockData();
-        signData.setFacing(BlockFace.SOUTH);
-        signBlock.setBlockData(signData, false);
-        Sign sign = (Sign) signBlock.getState();
-        sign.getSide(Side.FRONT).line(0, Component.text("[보스]"));
-        sign.update(true, false);
+        // 출입문·표지판 제거 — GUI 입장 버튼으로 텔레포트하므로 완전 밀폐 석재벽돌 방.
+        // (남쪽 벽은 1단계에서 채운 STONE_BRICKS 그대로 유지)
     }
 }

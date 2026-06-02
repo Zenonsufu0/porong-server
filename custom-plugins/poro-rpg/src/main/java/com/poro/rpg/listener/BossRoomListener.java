@@ -74,7 +74,11 @@ public final class BossRoomListener implements Listener {
         if (!line0.equals("[보스]")) return;
 
         event.setCancelled(true);
-        Player player = event.getPlayer();
+        enterBossRoom(event.getPlayer());
+    }
+
+    /** 보스룸 입장(공용) — pendingBoss 기반 방 배정·런 시작·MM 스폰·파티 텔레포트. 표지판/파티 GUI에서 호출. */
+    public void enterBossRoom(Player player) {
         UUID   uuid   = player.getUniqueId();
 
         // 비리더 파티원: 리더 안내 메시지
@@ -162,6 +166,7 @@ public final class BossRoomListener implements Listener {
         // 리더 입장 + 텔레포트
         bossRoomManager.enterRoom(uuid, slot.id());
         player.teleport(slot.playerSpawn());
+        applyBossVision(player);
 
         // 온라인 파티원 동반 입장
         for (Player member : onlineMembers) {
@@ -169,16 +174,24 @@ public final class BossRoomListener implements Listener {
             bossRoomManager.enterRoom(member.getUniqueId(), slot.id());
             bossRoomManager.clearPendingBoss(member.getUniqueId());
             member.teleport(slot.playerSpawn());
+            applyBossVision(member);
             member.sendMessage("§6[보스] §7파티 리더 §f" + player.getName()
-                    + "§7의 입장으로 §f" + bossId + " §7보스룸 §e" + slot.id() + "§7번에 입장합니다!");
+                    + "§7의 입장으로 §f" + com.poro.rpg.gui.BossHubGui.bossNameById(bossId) + " §7보스룸 §e" + slot.id() + "§7번에 입장합니다!");
         }
 
         int coCount = onlineMembers.size();
         if (coCount > 0) {
-            player.sendMessage("§6[보스] §f" + bossId + " §7룸 §e" + slot.id()
+            player.sendMessage("§6[보스] §f" + com.poro.rpg.gui.BossHubGui.bossNameById(bossId) + " §7룸 §e" + slot.id()
                     + "§7번 입장. 파티원 §e" + coCount + "명 §7함께 입장.");
         } else {
-            player.sendMessage("§6[보스] §f" + bossId + " §7룸 §e" + slot.id() + "§7번 입장. 준비하세요!");
+            player.sendMessage("§6[보스] §f" + com.poro.rpg.gui.BossHubGui.bossNameById(bossId) + " §7룸 §e" + slot.id() + "§7번 입장. 준비하세요!");
         }
+    }
+
+    /** 밀폐 보스룸 시야 확보 — 야간투시(입자 없음, 보스전 동안 충분히 길게). */
+    private void applyBossVision(Player player) {
+        player.addPotionEffect(new org.bukkit.potion.PotionEffect(
+                org.bukkit.potion.PotionEffectType.NIGHT_VISION,
+                20 * 60 * 20, 0, true, false, false)); // 20분, ambient, 입자/아이콘 숨김
     }
 }

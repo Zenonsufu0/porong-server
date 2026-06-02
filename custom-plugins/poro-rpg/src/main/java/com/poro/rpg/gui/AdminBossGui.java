@@ -59,7 +59,7 @@ public final class AdminBossGui {
         long elapsed = r.enteredAt() != null
                 ? Duration.between(r.enteredAt(), Instant.now()).toSeconds() : 0;
         return MainHubGui.icon(Material.WITHER_SKELETON_SKULL,
-                "§c" + r.bossId() + " §7- §f" + nameOf(r.leaderUserId()),
+                "§c" + BossHubGui.bossNameById(r.bossId()) + " §7- §f" + nameOf(r.leaderUserId()),
                 List.of("§7──────────────",
                         "§7런 ID: §8" + shortId(r.runId()),
                         "§7파티: §f" + r.partySize() + "명 §7| 페이즈: §e" + r.currentPhase() + "§7/" + r.phaseReached(),

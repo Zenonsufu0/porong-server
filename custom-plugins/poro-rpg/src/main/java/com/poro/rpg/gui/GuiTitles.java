@@ -40,6 +40,8 @@ public final class GuiTitles {
     public static final Component FIELD_HUB        = Component.text("필드 이동");
     public static final Component PARTY_HUB        = Component.text("파티 관리");
     public static final Component PARTY_LIST       = Component.text("파티 목록");
+    public static final Component PARTY_CREATE_BOSS = Component.text("파티 생성 — 보스 선택");
+    public static final Component PARTY_CREATE_SIZE = Component.text("파티 생성 — 인원 선택");
     public static final Component AUCTION          = Component.text("경매장");
     public static final Component AUCTION_REGISTER = Component.text("경매 등록");
     public static final Component AUCTION_MY       = Component.text("내 등록 목록");
