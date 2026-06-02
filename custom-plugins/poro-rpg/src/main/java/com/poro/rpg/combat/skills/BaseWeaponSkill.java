@@ -1,5 +1,6 @@
 package com.poro.rpg.combat.skills;
 
+import com.poro.rpg.combat.DamageNumberService;
 import com.poro.rpg.combat.SkillContext;
 import com.poro.rpg.combat.WeaponSkill;
 import com.poro.rpg.combat.weapon.WeaponType;
@@ -68,12 +69,15 @@ public abstract class BaseWeaponSkill implements WeaponSkill {
         double dmg = rawDamage
                 * ctx.generalDamageMultiplier(attacker)
                 * ctx.bossDamageMultiplier(attacker, target);
-        if (java.util.concurrent.ThreadLocalRandom.current().nextDouble() < ctx.critChance(attacker)) {
-            dmg *= ctx.critDamageMultiplier(attacker);
-        }
+        boolean crit = java.util.concurrent.ThreadLocalRandom.current().nextDouble() < ctx.critChance(attacker);
+        if (crit) dmg *= ctx.critDamageMultiplier(attacker);
         double finalDmg = Math.max(0.01d, dmg);
         // 스킬 데미지가 재발생시키는 EntityDamageByEntityEvent를 평타 리스너가 덮어쓰지 않도록 가드.
         com.poro.rpg.combat.SkillDamageGuard.run(() -> target.damage(finalDmg, attacker));
+        if (ctx.damageNumber() != null) {
+            ctx.damageNumber().addDamage(attacker, target, finalDmg,
+                    crit ? DamageNumberService.Type.CRITICAL_DAMAGE : DamageNumberService.Type.SKILL_DAMAGE);
+        }
     }
 
     // --- stacks ---
@@ -245,9 +249,14 @@ public abstract class BaseWeaponSkill implements WeaponSkill {
 
     // --- utility ---
 
-    protected void lifesteal(Player player, double amount) {
+    protected void lifesteal(SkillContext ctx, Player player, double amount) {
         var maxHpAttr = player.getAttribute(Attribute.MAX_HEALTH);
         if (maxHpAttr == null) return;
-        player.setHealth(Math.min(maxHpAttr.getValue(), player.getHealth() + amount));
+        double before = player.getHealth();
+        player.setHealth(Math.min(maxHpAttr.getValue(), before + amount));
+        double healed = player.getHealth() - before; // 실제 회복량(최대 HP 캡 반영)
+        if (healed > 0 && ctx.damageNumber() != null) {
+            ctx.damageNumber().addHeal(player, healed, DamageNumberService.Type.LIFESTEAL);
+        }
     }
 }

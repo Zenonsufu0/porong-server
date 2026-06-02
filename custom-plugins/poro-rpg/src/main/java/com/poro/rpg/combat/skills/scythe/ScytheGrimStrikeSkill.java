@@ -25,7 +25,7 @@ public final class ScytheGrimStrikeSkill extends BaseWeaponSkill {
         double lifeStealAmount = damage * (0.06 * stacks);
         SkillHitboxHelper.cone(player, 4.0, 60).forEach(t -> {
             dealDamage(ctx, player, t, damage);
-            if (lifeStealAmount > 0) lifesteal(player, lifeStealAmount);
+            if (lifeStealAmount > 0) lifesteal(ctx, player, lifeStealAmount);
         });
 
         // 좁은 부채꼴(cone 60) 보라+검붉은 + 마녀 입자 + 흡혈 음

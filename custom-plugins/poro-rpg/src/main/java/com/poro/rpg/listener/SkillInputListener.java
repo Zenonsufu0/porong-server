@@ -69,8 +69,13 @@ public final class SkillInputListener implements Listener {
         double dmg = skillContext.weaponPower(player) * BASIC_ATTACK_COEFF;
         spawnBasicBeam(player, type);
         playBasicSound(player, type);
-        SkillHitboxHelper.projectileRaycast(player, 20.0, 0.6).ifPresent(target ->
-                com.poro.rpg.combat.SkillDamageGuard.run(() -> target.damage(dmg, player)));
+        SkillHitboxHelper.projectileRaycast(player, 20.0, 0.6).ifPresent(target -> {
+            com.poro.rpg.combat.SkillDamageGuard.run(() -> target.damage(dmg, player));
+            if (skillContext.damageNumber() != null) {
+                skillContext.damageNumber().addDamage(player, target, dmg,
+                        com.poro.rpg.combat.DamageNumberService.Type.NORMAL_DAMAGE);
+            }
+        });
     }
 
     private void spawnBasicBeam(Player player, WeaponType type) {
@@ -112,7 +117,12 @@ public final class SkillInputListener implements Listener {
             return;
         }
         // 기본기 쿨다운 중 — 바닐라(재질 기본) 대신 ATK 기반 평타로 데미지 교체(무기 ATK·강화·잠재 반영).
-        event.setDamage(skillContext.weaponPower(player) * BASIC_ATTACK_COEFF);
+        double basicDmg = skillContext.weaponPower(player) * BASIC_ATTACK_COEFF;
+        event.setDamage(basicDmg);
+        if (skillContext.damageNumber() != null) {
+            skillContext.damageNumber().addDamage(player, event.getEntity(), basicDmg,
+                    com.poro.rpg.combat.DamageNumberService.Type.NORMAL_DAMAGE);
+        }
     }
 
     /** RMB → slot2 이동기 / Shift+RMB → slot3 특수기 */

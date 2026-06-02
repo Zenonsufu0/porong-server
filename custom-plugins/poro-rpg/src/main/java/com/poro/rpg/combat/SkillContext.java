@@ -28,6 +28,7 @@ public class SkillContext {
     private final PotentialService potentialService;
     private final BossDamageTracker bossDamageTracker;
     private final EffectDisplayService effectDisplayService;
+    private final DamageNumberService damageNumberService;
 
     public SkillContext(PlayerDataManager playerDataManager,
                         CooldownManager cooldownManager,
@@ -36,7 +37,8 @@ public class SkillContext {
                         ItemMasterRegistry itemMasterRegistry,
                         PotentialService potentialService,
                         BossDamageTracker bossDamageTracker,
-                        EffectDisplayService effectDisplayService) {
+                        EffectDisplayService effectDisplayService,
+                        DamageNumberService damageNumberService) {
         this.playerDataManager   = playerDataManager;
         this.cooldownManager     = cooldownManager;
         this.resourceTracker     = resourceTracker;
@@ -45,11 +47,17 @@ public class SkillContext {
         this.potentialService    = potentialService;
         this.bossDamageTracker   = bossDamageTracker;
         this.effectDisplayService = effectDisplayService;
+        this.damageNumberService = damageNumberService;
     }
 
     /** 2D 스킬 이펙트 디스플레이 서비스 (skill_effect_2d_integration_v1). */
     public EffectDisplayService effectDisplay() {
         return effectDisplayService;
+    }
+
+    /** 데미지 숫자 표시 서비스. */
+    public DamageNumberService damageNumber() {
+        return damageNumberService;
     }
 
     public PlayerDataManager getPlayerDataManager() {

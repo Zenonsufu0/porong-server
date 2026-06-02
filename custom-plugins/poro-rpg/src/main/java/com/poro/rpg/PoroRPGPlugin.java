@@ -417,13 +417,15 @@ public final class PoroRPGPlugin extends JavaPlugin {
         PvpFriendlyService pvpFriendlyService = new PvpFriendlyService(this, pvpMatchService);
         this.pvpHubListener     = new PvpHubListener(pvpRatingService, pvpMatchService, pvpFriendlyService);
         this.resourceTracker = new ResourceTracker();
+        com.poro.rpg.combat.DamageNumberService damageNumberService = new com.poro.rpg.combat.DamageNumberService(this);
         this.skillContext = new SkillContext(
                 playerDataManager, this.cooldownManager, this.resourceTracker,
                 growthStateStore,
                 masterRegistryContext.itemMasters(),
                 growthEngineRuntime.potentialService(),
                 this.bossDamageTracker,
-                new com.poro.rpg.combat.effect.EffectDisplayService(this));
+                new com.poro.rpg.combat.effect.EffectDisplayService(this),
+                damageNumberService);
 
         this.skillService = new SkillService(skillContext);
         skillService.registerSkill(new SwordFlashSlashSkill());
