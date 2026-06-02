@@ -2,6 +2,7 @@ package com.poro.rpg.listener;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerExpChangeEvent;
@@ -24,7 +25,8 @@ public final class VanillaExpSuppressListener implements Listener {
         event.setAmount(0);
     }
 
-    @EventHandler
+    // HIGHEST — MythicMobs 등이 설정한 드랍 XP를 마지막에 0으로 덮어 오브 생성 차단
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityDeath(EntityDeathEvent event) {
         event.setDroppedExp(0);
     }

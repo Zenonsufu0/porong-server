@@ -37,8 +37,8 @@ public final class FieldSpawnService {
     private static final int    PLAYER_CAP     = 40;   // 플레이어당 standing 상한
     private static final int    FIELD_CAP      = 250;  // 필드 전체 상한
     private static final double BOUND_RADIUS   = 150.0; // 300×300 → ±150
-    private static final double SPAWN_MIN      = 20.0;
-    private static final double SPAWN_MAX      = 30.0;
+    private static final double SPAWN_MIN      = 5.0;
+    private static final double SPAWN_MAX      = 10.0;
 
     /** config 필드 id → 필드 인덱스(1~5). */
     private static final Map<String, Integer> FIELD_INDEX = Map.of(
@@ -139,6 +139,9 @@ public final class FieldSpawnService {
                 if (fieldAt(loc) != field) continue; // 경계(±150) 밖이면 스폰하지 않음
                 UUID mob = mythicSpawner.apply(mobId, loc);
                 if (mob == null) continue;
+                // 필드 태그 부여 — 처치 시 EntityDeathEvent에서 필드 식별(경험치·드랍·바닐라억제)
+                Entity ent = Bukkit.getEntity(mob);
+                if (ent != null) com.poro.rpg.listener.MobTagHelper.tagFieldMob(ent, field, elite);
                 owned.add(mob);
                 mobField.put(mob, field);
                 fieldCount.merge(field, 1, Integer::sum);
