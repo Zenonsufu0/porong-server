@@ -48,7 +48,16 @@ public enum IslandRank {
         return tier < vals.length - 1 ? vals[tier + 1] : null;
     }
 
-    /** 작위별 공방 대기열 최대 슬롯 (5~12). */
+    /** 작위별 최대 시설 슬롯 (island_system_design.md §2.1 — 개척지 4 → 공작령 18). tier 인덱스. */
+    private static final int[] FACILITY_SLOTS = {4, 6, 7, 9, 11, 13, 15, 18};
+
+    /** 작위별 최대 시설 슬롯 (약초 재배지 + 광물 채굴기 + 공방 가공기 합산 한계). */
+    public int maxFacilitySlots() {
+        return FACILITY_SLOTS[Math.min(Math.max(0, tier), FACILITY_SLOTS.length - 1)];
+    }
+
+    /** @deprecated 공방 슬롯은 가공기 수×3 기준으로 이전(DL-129 추가#7). IslandTerritoryState.workshopQueueMax() 사용. */
+    @Deprecated
     public int workshopQueueMax() {
         return Math.min(5 + tier, 12);
     }

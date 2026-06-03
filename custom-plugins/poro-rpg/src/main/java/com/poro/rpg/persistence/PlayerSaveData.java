@@ -44,7 +44,8 @@ public record PlayerSaveData(
             int    enhanceLevel,
             String grade,
             PotentialSaveData         potential,
-            List<PotentialLineSaveData> substats
+            List<PotentialLineSaveData> substats,
+            int    pityCount  // 잠재 천장 카운터 (DL-129 추가#4). 구 세이브엔 없음 → 역직렬화 시 0.
     ) {}
 
     public record PotentialSaveData(
@@ -71,21 +72,36 @@ public record PlayerSaveData(
             String ownerName,
             String rankName,
             int    convenienceUnlocks,
-            int    reaperCount,
+            int    reaperCount,   // DL-129 추가#11부터 마이그레이션 전용(읽기) — 신 세이브는 herbProducedAt 사용
             int    storageCount,
-            int    minerCount,
-            long   lastProductionAt
+            int    minerCount,    // 〃 마이그레이션 전용 — 신 세이브는 oreProducedAt 사용
+            long   lastProductionAt,
+            int    workshopMachineCount, // 공방 가공기 대수 (DL-129 추가#7)
+            java.util.List<Long> herbProducedAt, // 약초 재배지별 마지막 생산시각 (DL-129 추가#11). 구 세이브 null → reaperCount로 마이그레이션.
+            java.util.List<Long> oreProducedAt   // 광물 채굴기별 마지막 생산시각
     ) {
+        /** legacy 8-arg 호환 (시설 타임스탬프 리스트 없음 → null = 마이그레이션) */
+        public TerritorySaveData(String ownerName, String rankName, int convenienceUnlocks,
+                                 int reaperCount, int storageCount, int minerCount, long lastProductionAt, int workshopMachineCount) {
+            this(ownerName, rankName, convenienceUnlocks, reaperCount, storageCount, minerCount, lastProductionAt, workshopMachineCount, null, null);
+        }
+
+        /** legacy 7-arg 호환 (workshopMachineCount 없음 → 0) */
+        public TerritorySaveData(String ownerName, String rankName, int convenienceUnlocks,
+                                 int reaperCount, int storageCount, int minerCount, long lastProductionAt) {
+            this(ownerName, rankName, convenienceUnlocks, reaperCount, storageCount, minerCount, lastProductionAt, 0, null, null);
+        }
+
         /** legacy 6-arg 호환 (lastProductionAt 없음 → 0 = 최초로 취급, DL-088) */
         public TerritorySaveData(String ownerName, String rankName, int convenienceUnlocks,
                                  int reaperCount, int storageCount, int minerCount) {
-            this(ownerName, rankName, convenienceUnlocks, reaperCount, storageCount, minerCount, 0L);
+            this(ownerName, rankName, convenienceUnlocks, reaperCount, storageCount, minerCount, 0L, 0, null, null);
         }
 
         /** legacy 5-arg deserialization 호환 */
         public TerritorySaveData(String ownerName, String rankName, int convenienceUnlocks,
                                  int reaperCount, int storageCount) {
-            this(ownerName, rankName, convenienceUnlocks, reaperCount, storageCount, 0, 0L);
+            this(ownerName, rankName, convenienceUnlocks, reaperCount, storageCount, 0, 0L, 0, null, null);
         }
     }
 

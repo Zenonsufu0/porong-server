@@ -10,12 +10,23 @@ public class PlayerData {
     private WeaponType weaponType;
     private int reputation;
     private boolean tutorialComplete;
+    /** 필드 정예 모드 — ON이면 이 플레이어 주변 웨이브가 정예 몹으로 스폰(수 적게·강함). 세션 메모리(재접속 시 OFF). */
+    private boolean fieldEliteMode;
 
     public PlayerData(UUID uuid) {
         this.uuid = Objects.requireNonNull(uuid, "uuid");
         this.weaponType = WeaponType.NONE;
         this.reputation = 0;
         this.tutorialComplete = false;
+        this.fieldEliteMode = false;
+    }
+
+    public boolean isFieldEliteMode() {
+        return fieldEliteMode;
+    }
+
+    public void setFieldEliteMode(boolean fieldEliteMode) {
+        this.fieldEliteMode = fieldEliteMode;
     }
 
     public UUID getUuid() {

@@ -14,8 +14,8 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public final class MachineProductionScheduler {
 
-    private static final long   TICK_INTERVAL_TICKS  = 20L * 60 * 20;   // 20분(틱 스케줄)
-    private static final long   INTERVAL_MS          = 20L * 60 * 1000; // 생산 인터벌 20분
+    private static final long   TICK_INTERVAL_TICKS  = 60L * 20;        // 1분마다 점검(시설별 20분 마크 제때 포착)
+    private static final long   INTERVAL_MS          = 20L * 60 * 1000; // 생산 인터벌 20분(시설별)
     private static final String MAT_HERB_IMPERIAL     = "mat_herb_imperial";
     private static final String MAT_ESSENCE_IMPERIAL  = "mat_essence_imperial";
     private static final String MAT_ORE_RESONANCE     = "res_ore_resonance"; // 마도철 원석
@@ -23,6 +23,9 @@ public final class MachineProductionScheduler {
 
     private final JavaPlugin                plugin;
     private final IslandTerritoryStateStore stateStore;
+
+    /** 생산 인터벌(ms) — GUI 시설별 카운트다운 표시용 공개. */
+    public static long intervalMs() { return INTERVAL_MS; }
 
     public MachineProductionScheduler(JavaPlugin plugin, IslandTerritoryStateStore stateStore) {
         this.plugin     = plugin;
@@ -41,30 +44,47 @@ public final class MachineProductionScheduler {
     }
 
     /**
-     * lastProductionAt 이후 경과 인터벌만큼(상한 적용) 누적 생산. 오프라인 시간 포함.
-     * 최초(lastProductionAt=0)에는 소급 생산 없이 기준점만 설정한다.
+     * 시설별 설치시각 기준 누적 생산 (DL-129 추가#11). 각 약초/광물 시설이 자기 마지막 생산시각+20분마다 독립 생산.
+     * 오프라인 시간 포함(상한 cap). 전역 틱 익스플로잇(생산 직전 슬롯 교체)을 구조적으로 차단.
      */
     public void accrue(IslandTerritoryState state, long now) {
-        long last = state.lastProductionAt();
-        if (last <= 0L) {
-            state.setLastProductionAt(now);
-            return;
+        int lv  = machineLevel(state);
+        int cap = capIntervals(lv);
+        ThreadLocalRandom rng = ThreadLocalRandom.current();
+
+        long herbs = accrueProducers(state.herbProducedAt(), now, cap, lv, rng);
+        if (herbs > 0) state.addCustomItem(MAT_HERB_IMPERIAL, herbs & 0xFFFFFFFFL);
+        long herbEssence = herbs >>> 32;
+        if (herbEssence > 0) state.addCustomItem(MAT_ESSENCE_IMPERIAL, herbEssence);
+
+        long ores = accrueProducers(state.oreProducedAt(), now, cap, lv, rng);
+        if ((ores & 0xFFFFFFFFL) > 0) state.addCustomItem(MAT_ORE_RESONANCE, ores & 0xFFFFFFFFL);
+        long oreRare = ores >>> 32;
+        if (oreRare > 0) state.addCustomItem(MAT_SILVER_ORE, oreRare);
+    }
+
+    /**
+     * 생산기 리스트를 시설별로 누적 처리하고 각 시설의 마지막 생산시각을 갱신.
+     * 반환: 하위32비트=기본 산출물 총량, 상위32비트=레어 보너스 총량 (약초=정수 / 광물=은원석).
+     */
+    private long accrueProducers(java.util.List<Long> producedAt, long now, int cap, int lv, ThreadLocalRandom rng) {
+        long base = 0, rare = 0;
+        for (int i = 0; i < producedAt.size(); i++) {
+            long last = producedAt.get(i);
+            if (last <= 0L) { producedAt.set(i, now); continue; } // 설치 직후 기준점만
+            int intervals = (int) ((now - last) / INTERVAL_MS);
+            if (intervals <= 0) continue;
+            int cycles = Math.min(intervals, cap);
+            for (int c = 0; c < cycles; c++) {
+                switch (lv) {
+                    case 3 -> { base += rng.nextInt(4, 7); if (rng.nextInt(100) < 30) rare++; }
+                    case 2 -> { base += rng.nextInt(3, 5); if (rng.nextInt(100) < 10) rare++; }
+                    default -> base += rng.nextInt(2, 4);
+                }
+            }
+            producedAt.set(i, intervals > cap ? now : last + (long) intervals * INTERVAL_MS);
         }
-        int intervals = (int) ((now - last) / INTERVAL_MS);
-        if (intervals <= 0) return;
-
-        int machineLevel = machineLevel(state);
-        int cap = capIntervals(machineLevel);
-        int cycles = Math.min(intervals, cap);
-
-        produceHerbs(state, machineLevel, cycles);
-        produceOres(state, machineLevel, cycles);
-
-        if (intervals > cap) {
-            state.setLastProductionAt(now);                          // 상한 초과분 폐기
-        } else {
-            state.setLastProductionAt(last + (long) intervals * INTERVAL_MS); // 잔여 인터벌 보존
-        }
+        return (rare << 32) | (base & 0xFFFFFFFFL);
     }
 
     /** 작위 티어 기반 기계 레벨 (island_system_design.md §2.2): BARON(3)+ → Lv2, COUNT(5)+ → Lv3. */
@@ -79,53 +99,4 @@ public final class MachineProductionScheduler {
         return capHours * 60 / 20;
     }
 
-    private void produceHerbs(IslandTerritoryState state, int machineLevel, int cycles) {
-        int reapers = state.reaperCount();
-        if (reapers <= 0) return;
-        ThreadLocalRandom rng = ThreadLocalRandom.current();
-        long totalHerbs = 0;
-        long totalEssence = 0;
-        for (int c = 0; c < cycles; c++) {
-            for (int i = 0; i < reapers; i++) {
-                switch (machineLevel) {
-                    case 3 -> { // Lv3: 4~6 약초 + 30% 정수
-                        totalHerbs += rng.nextInt(4, 7);
-                        if (rng.nextInt(100) < 30) totalEssence++;
-                    }
-                    case 2 -> { // Lv2: 3~4 약초 + 10% 정수
-                        totalHerbs += rng.nextInt(3, 5);
-                        if (rng.nextInt(100) < 10) totalEssence++;
-                    }
-                    default -> totalHerbs += rng.nextInt(2, 4); // Lv1: 2~3 약초
-                }
-            }
-        }
-        state.addCustomItem(MAT_HERB_IMPERIAL, totalHerbs);
-        if (totalEssence > 0) state.addCustomItem(MAT_ESSENCE_IMPERIAL, totalEssence);
-    }
-
-    private void produceOres(IslandTerritoryState state, int machineLevel, int cycles) {
-        int miners = state.minerCount();
-        if (miners <= 0) return;
-        ThreadLocalRandom rng = ThreadLocalRandom.current();
-        long totalOre = 0;
-        long totalSilver = 0;
-        for (int c = 0; c < cycles; c++) {
-            for (int i = 0; i < miners; i++) {
-                switch (machineLevel) {
-                    case 3 -> {
-                        totalOre += rng.nextInt(4, 7);
-                        if (rng.nextInt(100) < 30) totalSilver++;
-                    }
-                    case 2 -> {
-                        totalOre += rng.nextInt(3, 5);
-                        if (rng.nextInt(100) < 10) totalSilver++;
-                    }
-                    default -> totalOre += rng.nextInt(2, 4);
-                }
-            }
-        }
-        state.addCustomItem(MAT_ORE_RESONANCE, totalOre);
-        if (totalSilver > 0) state.addCustomItem(MAT_SILVER_ORE, totalSilver);
-    }
 }

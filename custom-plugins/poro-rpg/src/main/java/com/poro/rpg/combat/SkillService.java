@@ -60,7 +60,10 @@ public class SkillService {
         // 쿨다운 체크에서 차단된다. execute() 실패 시 cancelCooldown()으로 롤백.
         // (NO_SKILL_COOLDOWN ON 시 쿨 미적용 — 단 재진입 방지 위해 0틱이라도 적용 후 즉시 해제)
         if (!noCooldown) {
-            context.getCooldownManager().applyCooldown(player.getUniqueId(), skill.key(), Duration.ofMillis(skill.cooldown()));
+            // 잠재 쿨타임 감소% 적용 (DL-129 2단계). applyCooldown이 totalMs를 저장하므로 HUD 진행바도 감소분 반영.
+            double cdr = context.cooldownReductionPercent(player) / 100.0d;
+            long effectiveCd = Math.max(0L, Math.round(skill.cooldown() * (1.0d - cdr)));
+            context.getCooldownManager().applyCooldown(player.getUniqueId(), skill.key(), Duration.ofMillis(effectiveCd));
         }
         boolean used = skill.execute(player, context);
         if (!used) {

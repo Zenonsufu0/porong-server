@@ -2433,3 +2433,455 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 **미확정/대체:** 머리 "캐릭터 스펙" 정확 항목(캐릭터 GUI stub) → 보유 스탯으로 대체. 채팅 [네][아니요] = Adventure clickEvent(runCommand) 방식.
 
 **상태:** 설계 확정. P1부터 구현.
+
+---
+
+## DL-127 — 보스룸 공유 부활 토큰(데스카운트) + 수도 부활 + 파티 스코어보드 패널 (2026-06-02)
+
+**배경:** 사용자 요청 — ① 죽으면 필드에서 부활하는데 수도에서 부활하게 ② 파티 생성 시 스코어보드에 데스카운트·보스명·파티원·HP(90/100) 표시 ③ 1/2/3인 파티에 데스카운트 3/4/5 부여, 소진 전까지 보스룸에서 부활.
+
+**확정 설계:**
+- **부활 라우팅(`BossRespawnListener`, PlayerRespawnEvent)**:
+  - 보스룸 사망 + 공유 부활 토큰 잔여 → 보스룸 player-spawn에 부활(토큰 1 소모, 야간투시 재적용), 같은 슬롯 파티원에게 "남은 부활 N/M" 알림.
+  - 보스룸 사망 + 토큰 소진 → 파티 전멸: `endRun(false, "party_wipe")` → 기존 실패 UX(메시지·영지 귀환).
+  - 그 외(필드·영지 등) 일반 사망 → 수도(`world_hub`) 스폰에서 부활.
+  - 인벤토리·경험치 유지는 기존 `DeathKeepInventoryListener`(PlayerDeathEvent)가 그대로 담당(역할 분리).
+- **공유 부활 토큰(데스카운트)**: `BossRoomManager`가 slotId별로 보관. 입장 시 `initDeathPool(slotId, partySize)` = `partySize + 2` (1/2/3인 → 3/4/5). 슬롯 해제 시 정리.
+- **파티 스코어보드 패널(`ScoreboardService`)**: 보스룸 입장 중에만 사이드바 하단에 `보스 {이름}` / `남은 부활 N/M` / `파티원` + 멤버별 `{이름} {현재HP}/{최대HP}`(HP 비율 색상) 표시. 보스룸 안에서는 위치워처가 매 초 강제 refresh(HP·토큰 실시간 반영).
+
+**구현 파일:** `BossRoomManager`(데스풀·runIdOf·slotById), `BossRespawnListener`(신규), `BossRoomListener`(initDeathPool·applyBossVision public), `ScoreboardService`(attachBossContext·appendBossPanel·hpLine), `PoroRPGPlugin`(와이어링).
+
+**상태:** 구현·배포 완료. 인게임 검증 대기.
+
+---
+
+## DL-128 — MythicMobs 5.11 스킬 구문 마이그레이션 (보스 패턴 실동작 복구) (2026-06-02)
+
+**배경:** 사용자 "붙었을 때 데미지 말고 패턴을 쓴다고 느껴지지 않는다." 원인 진단 결과 보스/필드 스킬이 **현 MM 5.11에 존재하지 않는 구문**을 다수 사용해 패턴의 데미지·넉백·텔레그래프가 한 번도 실행되지 않았음(리로드 시 다량 경고).
+
+**수정 매핑(reload 무경고까지 검증):**
+- **AoE 관용구**: `aoe{r=N} @EntitiesInRadius{r=M,mobs=false} =MECH` (무효) → `MECH @PlayersInRadius{r=M}` (메커닉을 타게터에 직접 적용, 플레이어만 타격).
+- **메커닉명**: `mdamage`→`damage`, `thrust{v;y}`→`throw{velocity;velocityY}`, `spawn{m=}`→`summon{mob=}`, `removepotion`→`potionclear`.
+- **반복 블록**: `repeat{t;i}`…`endrepeat`(무효) → 서브스킬 추출 + `skill{s=Sub} @Self repeat=N repeatInterval=M`.
+- **delay**: bare `- delay N` 형식이 정식(`delay{t=N}` 아님).
+- **파티클(1.21 enum)**: CRIT_MAGIC→ENCHANTED_HIT, EXPLOSION_NORMAL→POOF, EXPLOSION_LARGE→EXPLOSION, EXPLOSION_HUGE→EXPLOSION_EMITTER, SMOKE_NORMAL→SMOKE, SMOKE_LARGE→LARGE_SMOKE, SPELL_WITCH/SPELL→WITCH, FIREWORKS_SPARK→FIREWORK, WATER_SPLASH→SPLASH, WATER_BUBBLE→BUBBLE, WATER_WAKE→FISHING, TOTEM→TOTEM_OF_UNDYING, BARRIER→END_ROD, SPARK→ELECTRIC_SPARK, REDSTONE→DUST(color), BLOCK_CRACK→BLOCK(material).
+
+**대상 파일(런타임, gitignore):** `server/plugins/MythicMobs/skills/{boss_patterns,SeasonBossSkills,FieldBossSkills,field_skills}.yml`. `.bak.particle` 백업 생성. **재배포 시 재적용 필요**(server/ 전체 gitignored).
+
+**잔여 미해결(별개 콘텐츠 공백):** 미정의 MythicMob 소환수 4건 — `F2_CaveZombie`(Elite_Summon·MG_SummonFragments), `F4_FallenSoldier`(FC_SummonKnights), `Abyss_Tentacle`(AO_SummonTentacles)는 mobs/에 정의가 없어 summon 실패. 해당 보스의 "쫄 소환" 패턴만 미작동(메인 패턴은 정상). 사용자 테스트 보스 타락 기사장(fallen_knight)은 영향 없음.
+
+**상태:** 스킬 구문 수정·MM reload 무경고(소환수 4건 제외) 검증 완료. 인게임 패턴 발동 검증 대기.
+
+### DL-128 추가 (2026-06-02) — 패턴 발동 검증 + 텔레그래프 가시성 보강 + 후속 코드 수정
+
+**패턴 발동 검증:** `mm debug 3`로 fallen_knight 스폰 시 `P_00_BasicAttack ~onTimer:40`이 실제 실행되고 damage·particles가 도는 것을 콘솔 로그로 확정. **스킬 시스템은 정상**. 사용자가 "평타만" 느낀 원인은 ① 텔레그래프(예비 파티클·사운드)가 미묘해 평타와 구분이 안 됨 ② 큰 패턴(P-01/02/03/04)은 5~8초 주기·페이즈(60%/30%) 조건이라 짧은 전투에선 체감 적음.
+
+**텔레그래프 보강(boss_patterns.yml P_01/02/03/04):** 각 패턴 예비 동작에 `actionmessage{...}`(액션바 경고, @PlayersInRadius r=14) + 예비 파티클 대폭 증량 + 사운드 강화. "⚠ 전방 강타/돌진/원형 폭발/휩쓸기 준비" 경고로 평타와 명확히 구분.
+
+**season_bosses.yml(mob) 잔여 파티클 보정:** SPELL_WITCH→WITCH, WATER_SPLASH→SPLASH, FLASH(무효)→END_ROD.
+
+**후속 코드 수정(DL-127 보완):**
+- 파티 스코어보드 패널에 **본인 항상 포함**(LinkedHashSet, 본인 맨 위 `§b▶` 표시) — 기존엔 누락 체감 보고.
+- 보스룸 **부활 시 야간투시 유지** — 사망이 포션효과를 초기화하므로 PlayerRespawnEvent 도중이 아닌 1틱 뒤 재적용으로 변경.
+
+**미확정(사용자 결정 대기):** 보스 표기 HP(150,000, BossHubGui)와 실제 스폰 HP 불일치 — 실제 HP는 BossMaster/스탯 경로에서 결정. 패턴 충분히 체감하려면 실효 HP·생존시간 확보 필요(별도 밸런스 결정).
+
+### DL-128 추가#2 (2026-06-02) — 스코어보드 15줄 제한 수정 + 패턴 채팅알림 + 타락 기사장 분신 소환(설계)
+
+**파티 패널 미표시 원인·수정:** 마인크래프트 사이드바는 **최대 15줄**만 표시. 기존 스코어보드가 ~14줄을 채워 파티원 HP 줄이 잘려나갔음(야간투시는 별개라 정상). → 보스룸 입장 중에는 재화/레벨/IL 블록을 생략하는 전투 압축 레이아웃으로 전환, 파티 패널 노출. 패널에 **본인 항상 포함**(맨 위 `§b▶`).
+
+**패턴 채팅 알림:** P-08 전환·P-09 무적·P-09 딜타임은 기존 `speak`(채팅) 보유. P-03 원형 폭발에 `speak` 추가. 공용 P-01/02/04는 actionbar 경고 유지.
+
+**타락 기사장 분신 소환 — 설계 패턴 구현(사용자 결정 "설계대로"):**
+- 원인: fallen_knight가 `Type: EVOKER`라 바닐라 벡스("분신체")를 강제 시전. EVOKER 주문은 `AIGoalSelectors: clear`로도 억제 불가, MM 전용 억제 옵션 없음.
+- 해결: **Type EVOKER→WITHER_SKELETON**(검 든 언데드 기사 — 테마 일치 + 벡스 원천 제거). 네더라이트 검/투구/흉갑 Equipment. 되돌리기 쉬움(한 줄).
+- 신규 소환수 `fallen_knight_phantom`(WITHER_SKELETON, HP250, 30초 자가 소멸로 누적 방지) + 신규 스킬 `P_SummonPhantoms`(채팅+actionbar 알림 → 분신 2마리). fallen_knight에 `~onHealthPercent:60/30` + `~onTimer:400 ?health{h<60%}` 연결.
+- ※ storm_sorcerer는 술사라 EVOKER 유지(벡스 적합).
+
+**검증:** mm reload 무경고(신규 몹/스킬/summon 정상). 잔여 경고는 여전히 미정의 소환수 4건(F2_CaveZombie/F4_FallenSoldier/Abyss_Tentacle — 별개). 인게임 외형·소환 발동 검증 대기.
+
+### DL-128 추가#3 (2026-06-02) — 보스 페이즈 조건 문법 수정(공용 패턴 미발동 근본 원인) + HP 캡 발견
+
+**근본 원인:** 보스/필드 스킬의 페이즈 게이팅 `?health{h>60%}`(이전 hpabove/hpbelow 수정본)이 **런타임에 항상 실패** → P-01 전방강타·P-02 돌진 등 공용 패턴이 한 번도 발동 못 함(유저 "돌진 없다"). 진단:
+- MM에는 `health`(절대값, 속성 `amount`)와 `healthpercent`(퍼센트, 속성 `percent`) 두 조건이 분리. `health{h>60%}`는 존재하지 않는 속성 `h`라 무효.
+- 1차 교체 `healthpercent{percent>0.6}`도 실패 — `healthpercent`는 ComparisonCondition이라 값이 RangedDouble. `{percent>0.6}`는 `=`가 없어 `percent` 속성 미설정.
+- **정답: `?healthpercent{percent=>0.6}`** (key=`percent`, value=`>0.6`), `?healthpercent{percent=<0.3}` 등. mm debug 3로 100% HP에서 P_01/P_02 발동 + phase2/3 미발동 확인.
+- 전 스킬/몹 파일 75개 조건 일괄 교체(skills·mobs). 로드 통과 ≠ 동작 — 반드시 debug로 발동 검증.
+
+**부수 효과:** 분신/페이즈 전환이 스폰 즉시 터지던 것도 해소(이제 실제 HP가 임계 통과할 때만). 분신 소환 채팅도 전투 중 정상 표시.
+
+**HP 캡 발견(미해결·밸런스 결정 대기):** fallen_knight 실측 HP=**1024**. `minecraft:max_health` 속성의 바닐라 상한 1024 때문에 MM `Health:150000`이 클램프됨. BossHubGui 표기(150,000)와 불일치. 1024는 파티 보스로 낮아 패턴 페이즈가 빨리 지나감. 해결안: ① 표기를 실제로 낮춤 ② 데이터팩으로 속성 상한 상향(server/) ③ 보스 DEF로 실효 HP 확보(설계 DEF 100 활용). 사용자 결정 필요.
+
+**유지 결정:** WITHER_SKELETON 피격 시 위더 효과 — 유저 "그냥 둘까" → 유지(언데드 기사 플레이버).
+
+### DL-128 추가#4 (2026-06-02) — 보스 사망 시 분신 제거 + 텔레그래프를 액션바→채팅 전환
+
+**분신 정리:** fallen_knight에 `- remove @MobsInRadius{types=fallen_knight_phantom;r=120} ~onDeath` 추가 — 보스 처치 시 잔여 분신 즉시 제거(자가 30초 소멸과 별개로 즉시).
+
+**돌진/강타가 안 보이던 원인:** 포로 HUD가 **액션바를 점유**해 패턴의 `actionmessage`(액션바 경고)가 즉시 덮여 안 보였음("고유 패턴은 보임"은 그것들이 채팅 `speak`을 써서). → P-01 강타·P-02 돌진·P-03 폭발·P-04 휩쓸기의 액션바 텔레그래프를 모두 **채팅(`speak`, @PlayersInRadius r=40~60)**으로 전환. actionmessage 전량 제거.
+
+**검증:** mm reload 무경고(@MobsInRadius·onDeath·remove·speak 정상). 공용 패턴 발동 자체는 DL-128#3에서 debug로 확인 완료(조건 수정). 인게임 채팅 가시성 검증 대기.
+
+**잔여:** HP 캡 1024(DL-128#3) 미해결 — 보스가 빨리 죽으면 패턴 노출 시간 부족. 밸런스 결정 대기.
+
+### DL-128 추가#5 (2026-06-02) — 패턴 실데미지/돌진 동작 수정 + 빈도 완화
+
+**딜이 안 들어가던 원인:** MM `damage` 메커닉의 `amount`(=`a`)는 **고정 데미지**이고 배수 옵션이 없음(배수는 프리미엄 math 필요). 기존 `damage{a=1.2}`("120%" 의도)는 실제로 1.2 데미지(0.6칸)라 사실상 0. → 설계 %를 보스 Damage(~85) 기준 **고정값으로 변환**: P-00 40 / P-01 85 / P-02 105 / P-03 90 / P-04 75 (P-05 70, P-11 95, P-12 40×3, P-13 110). ※ 공용 패턴이라 상위 보스는 저평가 — 추후 보스별 변형 또는 프리미엄 math 필요.
+
+**돌진이 안 움직이던 원인:** `throw{velocity=5} @self`는 자기를 원점에서 밀어내라는 것이라 방향이 없어 무효. → `leap{velocity=1.3} @target`(타겟으로 도약=돌진)로 교체.
+
+**빈도 완화("패턴 빠르다"):** fallen_knight 타이머 ~1.6배. P-00 2.5s / P-01 8s / P-02 14s / P-04 10s / P-03 16s / 분신 30s. 채팅 텔레그래프 스팸도 함께 완화.
+
+**검증:** mm reload 무경고(leap·damage 정상). 실제 타격량·돌진 이동은 인게임(플레이어 대상) 검증 필요. 데미지 수치는 플레이어 EHP 미확인이라 과/소하면 조정 — 사용자 피드백 대기.
+
+**잔여:** HP 캡 1024, 공용 패턴 데미지의 보스별 스케일링, P-09 무적 30s(저HP 보스에서 다운타임 길 수 있음) — 밸런스 결정 대기.
+
+### DL-128 추가#6 (2026-06-02) — 타락 기사장 패턴 디버그 분석 + 후속 수정
+
+**분석 방법:** forceload로 보스 유지 + mm debug 3로 각 HP 구간에서 "Running Skill" 로그 집계(플레이어 없이도 트리거+조건 발동 확인).
+
+**분석 결과(발동 확인):**
+- Phase1(100%, 16s): P_00×9, P_01 강타×2(8s), P_02 돌진×1(14s) — 전부 정상.
+- Phase2(56%, /damage 450): P_04 휩쓸기 신규 발동(percent=<0.6) 확인.
+- Phase3(24%, Health 250): P_01×2·P_02×2·P_04×2·분신 주기소환×1 — 조건 패턴 전부 정상.
+- 결론: **타이머+`?healthpercent` 조건 패턴은 전부 신뢰성 있게 발동.** 
+
+**발견 이슈:**
+1. **돌진 체감 약함**: `leap @target`인데 플레이어 근접 시 이동 거리≈0 → leap velocity 1.3→2.6 상향. (원거리에서 가장 잘 보임 — 근접 고정 전투에선 한계.)
+2. **"60/30% 딱 아니고 그 후에 소환"**: ① `~onHealthPercent`는 임계 통과 *히트*에 발동(MM 특성, 딱 60% 불가) ② 별도 주기 소환 `~onTimer:600 ?percent<0.6`이 30s마다 발동 → 혼란. → **주기 소환 제거, 임계(60/30%) 전용으로.**
+3. **P-09 무적 30s**: 해제 메카닉(SP-11/12) 미구현이라 깰 수 없는 30s 무적 = 답답. → **비활성(주석), EmpireRPG 연결 후 복구.**
+4. `~onHealthPercent`는 /damage·data merge로 테스트 불가(실 전투 데미지에만 반응) — 실 전투에선 작동(유저가 소환 확인).
+
+**수정:** 주기 소환 제거 / leap 2.6 / P-09 비활성. mm reload 무경고.
+
+**잔여:** HP 캡 1024, 데미지 보스별 스케일, 돌진 근접 한계(원거리 유도 후 돌진은 추가 설계 필요) — 결정 대기.
+
+### DL-128 추가#7 (2026-06-02) — 페이즈 전환 콤보화 + 돌진 "우다다" 재설계
+
+**페이즈 전환 콤보(60/30%):** 사용자 요청 — 무적+폭발+소환을 하나로. P_08_PhaseTransition 재설계: `speak` 경고 → DAMAGE_RESISTANCE 5(60t=**3초 무적**, 전환 보호용 짧게) → 주변 폭발 `damage 75 @PIR{r=7}`+넉백 → 분신 2마리 소환. 별도 P_SummonPhantoms 트리거 제거(콤보에 통합). P-09 30s 무적은 계속 비활성(해제 메카닉 미구현).
+
+**돌진 "우다다" 재설계:** 기존 leap(아치형 도약)은 근접 시 체감 0. → `potion{SPEED;lvl=4;50t}`(2.5초 신속 추격) + `lunge @target`(타겟으로 달려듦) ×4회(repeatInterval 8t)로 "플레이어에게 우다다 달려오는" 연출. 1틱당 damage 45(누적 ~90-135). lunge="Causes caster to lunge forward at target".
+
+**전방강타(P-01) 사거리:** `@PlayersInRadius{r=3}` = 3블럭(근접). 필요 시 조정 가능(MM 무료판 콘 타게터 미지원이라 원형 AoE).
+
+**검증:** mm reload 무경고(lunge/potion/repeat/summon 정상). 돌진 P_02+P_02_DashTick 발동 확인. 전환 콤보는 onHealthPercent라 실전투 검증 필요.
+
+### DL-128 추가#8 (2026-06-03) — 페이즈 전환 콤보 신뢰성 트리거 + 유예시간
+
+**문제:** `~onHealthPercent`가 fallen_knight에서 안 터짐("무적/폭발/분신 안됨"). 원인 — 포로 전투 데미지(`target.damage()`)가 MM의 HP% 추적과 연동되지 않아 onHealthPercent가 임계를 못 잡음(이전 "그 후에 나옴"은 제거한 주기소환이었음).
+
+**해결(디버그 검증):** `~onHealthPercent` → **`~onTimer:20 + ?healthpercent{percent=<0.6} + ?!variableisset{var=caster.p2}`**. 타이머가 매 1초 HP%를 직접 읽어 임계 통과 감지(데미지 경로 무관), `setvariable @self`로 1회용 플래그 + 래퍼 메타스킬 `Cooldown:99999` 이중 가드 → **정확히 1회 발동**(debug: set 실행 → 다음 틱 "Condition variableIsSet failed"=차단 확인). 함정: `setvariable`는 `@self` 타게터 필수("No applicable targets" 취소됨).
+
+**전환 콤보 + 유예시간(사용자 요청):** P_08 = 예고("분노 폭발 준비! 피하세요") + 3초 무적(연출 보호, P-09 30s 무적과 별개) → **1.75초 유예**(충전 연출) → 폭발(반경7, 75딜, 유예 동안 탈출 시 회피 가능) → 분신 2마리. 돌진 직후 60% 즉발 폭발로 즉사하던 문제 해소.
+
+**잔여:** 타 시즌보스(corrupted_lord·stone_colossus 등)는 아직 `~onHealthPercent` 사용 — 동일 문제 가능, 추후 같은 방식으로 교체 필요(현재 fallen_knight만 테스트 중). HP 캡 1024도 미해결.
+
+### DL-128 추가#9 (2026-06-03) — 돌진을 "직선 예고 → 전방 돌진"(비호밍)으로 재설계
+
+**사용자 요청:** 호밍(플레이어 추적) 돌진 대신, 보스 전방 직선 위협을 띄우고 1초 후 그 방향으로 돌진(회피 가능).
+
+**구현(P_02_LinearDash):**
+- 1) 예고: `speak`("직선 돌진 준비! 옆으로 피하세요") + `P_02_DashWarn`(전방 불꽃+연기 라인 `effect:particleline @Forward{f=12}`) 1초간 반복(repeat 5/interval 4).
+- 2) 돌진: `lunge{velocity=1.9} @Forward{f=10}`(타겟 추적 아닌 **전방** 돌진) + `P_02_DashHit`(0.1s마다 경로 위 플레이어 35딜+넉백, repeat 9).
+- @Forward 타게터로 호밍 제거 → 옆으로 피하면 회피. mm debug로 particleline·@Forward·lunge 정상 실행 확인(무에러).
+
+**잔여:** 윈드업 1초 동안 보스 AI가 플레이어를 향해 약간 회전 가능(완전 고정 방향은 변수에 방향 저장 필요) — 현재는 돌진 시점 facing으로 직진하므로 막판 사이드스텝으로 회피 가능. HP 캡 1024, 타 보스 onHealthPercent 잔존.
+
+### DL-128 추가#10 (2026-06-03) — 돌진: 제자리 고정(stun) + 라인 가시성 수정
+
+**라인 안 뜨던 원인:** `effect:particleline`의 파티클명을 소문자(`flame`/`smoke`)로 써서 미렌더(무에러 무표시). → 대문자 `FLAME`/`LARGE_SMOKE`, 밀도↑(distanceBetween 0.35), 높이 y=1.0(가슴)로 수정.
+
+**제자리 고정(사용자 요청):** 윈드업 동안 보스가 추적/이동하던 것을, `stun{duration=20} @self`로 **1.1초 제자리 고정**(이동·회전·공격 정지). 고정 중 전방 라인 표시 → 고정 해제 후 `lunge @Forward{f=11}` 전방 돌진. 고정으로 방향도 잠겨 라인=돌진경로 일치, 옆으로 피하면 회피.
+
+**검증:** mm debug — stun·effect:particleline(FLAME/LARGE_SMOKE)·lunge@Forward·DashHit 전부 정상 실행, reload 무경고.
+
+### DL-128 추가#11 (2026-06-03) — 보스 HP 1024 클램프 근본 해결(spigot 캡) + 패턴 데미지 완화
+
+**HP 1024 클램프 근본 원인:** `server/spigot.yml`의 `settings.attribute.maxHealth.max: 1024.0` — Spigot이 모든 엔티티 최대체력을 1024로 제한. MM `Health:150000`이 실효 1024로 클램프 → 보스 즉사 + (이전) HP% 깨짐의 공통 뿌리였음. → **`maxHealth.max: 1024.0 → 2048000.0`** 상향(재시작 필요, 완료). 검증: fallen_knight 스폰 시 Health=8000.0 확인.
+
+**보스 HP:** fallen_knight `Health: 150000 → 8000`(솔로 테스트값, 원 설계 파티 150000). `~onSpawn P_FillHealth`(heal 최대치) 백업 추가. 캡 상향으로 healthpercent 페이즈 조건도 실제 %로 정상화.
+
+**패턴 데미지 완화("너무 쌔다"):** 약 절반. P-00 20, P-01 강타 42, P-02 돌진틱 18, P-03 폭발 45, P-04 휩쓸기 38, P-08 폭발 38, P-05 18, P-11 48, P-13 55.
+
+**주의:** spigot.yml은 server/ gitignore — 재배포 시 재적용 필요(캡 상향 반드시 포함). 타 보스도 동일 캡 혜택, HP는 각 설계값 적용됨(파티 기준이라 솔로는 길 수 있음).
+
+### DL-128 추가#12 (2026-06-03) — 플레이어 HP 산식 상향 + 보스 데미지 역산 + 보스 타이머 표시
+
+**배경(사장님 지적):** 보스 데미지가 강화당 HP/DEF 증가를 고려 못 해 방어구 강화 의미가 약함. +18강에도 HP ~158로 너무 낮음. → +18 기준 HP 500~600 필요, 데미지는 적정 강화대 HP/DEF 역산.
+
+**정정:** 보스 데미지는 이미 `PlayerDefenseListener`에서 DEF/(DEF+200) 감산 적용됨(방어구 무의미 아님). 진짜 문제는 HP 산식.
+
+**HP 산식 상향(SkillContext.java):** 기본 HP 슬롯합 80→180(투구90·상의50·다리20·신발20), **HP 전용 강화계수 신설 0.11**(DEF는 0.04 유지·분리). 결과 +0≈200 / +8≈358 / +18≈556. 강화 2.8배 스프레드로 방어구 강화 체감 확보.
+
+**보스 데미지 역산(boss_patterns.yml, 적정 358 HP·26% 감산 기준):** 기본 28 / 강타 62 / 돌진틱 28 / 폭발 72(회피) / 휩쓸기 50 / 전환폭발 62 (효과 HP의 8~19%).
+
+**보스 남은시간 표시:** `BossRunService.remainingSeconds(runId)` 신설 → `ScoreboardService.appendBossPanel`에 `남은시간 M:SS`(60초↓ 빨강, 1초 갱신). BossRun 타임아웃(일반 900s/최종 600s) 기준. attachBossContext에 provider 추가.
+
+**잔여/주의:**
+- applyMaxHealth는 접속·강화·장착 시 호출 → 기존 접속자는 재접속/재장착해야 새 HP 적용.
+- ★ 필드몹 데미지는 옛 HP(100~158) 기준 → HP 상향으로 너무 약해질 수 있음, 재조정 필요.
+- 타 시즌보스 HP는 설계 15만대 그대로(솔로 길어짐). 공용 패턴 데미지 상향은 전 보스 공유.
+- HP 곡선·데미지 수치는 인게임 체감 후 조정.
+
+### DL-128 추가#13 (2026-06-03) — 무기 ATK 강화 곡선 ↑ + 필드 몹 ATK 재밸런스
+
+**배경(사장님):** 무기 강화 ATK가 기본 대비 너무 적음(+18에 base×1.8). 필드 몹 ATK가 필드별 차이 미미(F1 4 → F5 6)라 무기만 들고 F5 즉시 사냥 가능(저강화 게이팅 부재). HP 상향(#12)과 균형 필요.
+
+**무기 ATK 강화(WeaponPowerCalculator):** ENHANCE_ATK_BONUS ~1.8배 상향. base 80 기준 0강 80 / 10강 121 / 18강 195(2.4배) / 25강 282(3.5배). 강화 체감 확보.
+
+**필드 몹 ATK(MobStatOverrideService ATK_SEED):** 새 HP 곡선(200~556) 기준 필드별 가파른 스케일 — 일반 F1 8 / F2 13 / F3 19 / F4 26 / F5 34, 정예 ~2배, 필드보스 ~2.5배(F5 정예 72·보스 90). 상위 필드 = 저강화 플레이어 게이팅.
+- **시드 재적용**: 기존 insertIfAbsent(기존 DB값 고정) → loadAndSeed가 ATK 시드와 다르면 upsert(HP/DEF 보존). 부팅 로그 "ATK 시드 적용/갱신 21건" + 실측 Wall_SentinelElite attack_damage=72 확인.
+
+**필드 몹 HP:** 1024 캡 해제(#11)로 YAML값 복원(F1 300 → F5 1800, 미니보스 1500~9000). 별도 변경 없음.
+
+**잔여/주의:**
+- 운영자 /poro-mobstat ATK 변경은 재부팅 시 코드 시드로 복원(밸런스 단계 정책 — 확정 후 author 기반 보존으로 전환 예정).
+- ★ 필드보스 HP 10만~66만이 캡 해제로 실제 적용 → 솔로 과다 가능, 별도 검토 필요.
+- 무기 ATK·필드 ATK 수치는 인게임 체감 후 조정. 기존 접속자는 재접속해야 무기 ATK 갱신.
+
+### DL-128 추가#14 (2026-06-03) — 보스 DEF 실데미지 적용 + 방어력무시 잠재 도입
+
+**배경(사장님 결정):** 기존엔 플레이어→보스 스킬 피해에 DEF 경감이 코드 어디에도 없어(보스는 순수 HP 스펀지) "방어력무시" 잠재가 무의미. 보스 DEF를 실효화하여 방어력무시 스탯에 의미 부여.
+
+**구현:**
+- **보스 DEF 시드**(`MobStatOverrideService.DEF_SEED`): season_boss_stats_v1 설계값 — fallen_knight 100 / corrupted_lord 150 / stone_colossus 180 / storm_sorcerer 210 / abyss_guardian 240 / void_herald 265 / rift_king 280 / corrupted_dyad 270 / spirit_watcher 270 / 분신 40. 스폰 시 엔티티 PDC `poro_rpg:mob_def`에 기록.
+- **DEF 경감**(`BaseWeaponSkill.dealDamage` + `SkillContext.defenseMitigation`): `×200/(200+유효DEF)`, 유효DEF = DEF×(1−방어력무시%/100). DEF 미기록 몹은 1.0(영향 없음). 검증: fallen_knight 스폰 PDC mob_def=100.0, 경감 0.667.
+- **방어력무시 잠재**(`growth_potential_option_pool.csv` t1_weapon_pool): defense_ignore COMMON 2~5 / RARE 6~10 / EPIC 11~16 / UNIQUE 17~23 / LEGENDARY 24~32(%). `SkillContext.defenseIgnorePercent` 합산.
+
+**CANON 명확화(금지 항목 재정의):** 1차 금지 "방어 감소"는 **적에게 거는 방어 디버프(전원 공유)**를 의미 — 유지 제외. **방어력무시(플레이어 개인 관통 스탯, 잠재)**는 디버프가 아니므로 별개로 **도입**. (CANM.md §금지 설계 주석 갱신.)
+
+**잔여:** ① 보스 HP는 DEF 실효화로 effective HP = HP×(DEF+200)/200 (fallen_knight 8000×1.5=12000) — 여전히 2~3분 전투엔 부족, HP 상향은 후속(decision #2/#3). ② boss_session 통계의 defense_ignore_pct는 여전히 0 기록(스탯 와이어링 후속). ③ 필드 몹 DEF 미시드(0) — 필요 시 추가.
+
+---
+
+### DL-129 (2026-06-03) — 잠재 풀 전면 정비 1단계: CSV 정본 재작성 + 쉬운 메커니즘 배선
+
+**배경(사장님 "A로 가야지" 확정):** 구현 잠재 풀(`growth_potential_option_pool.csv`)이 정본 `docs/02_database_api_stats/potential_options_v1.md`(2026-05-24 재확정)과 전혀 안 맞았음. 폐기/금지 옵션(mark_target_damage=적표식 금지·crack_efficiency·resonance_effect_up·conditional_damage_bonus·core_tag/precision_tag·status_resistance·recovery/shield_efficiency·survival_trigger·playstyle_completion·combo_tag·resource_gain) 다수 혼재, 정본 옵션 다수 미구현. 실제 작동 옵션은 4종(attack_percent·general_damage_increase·boss_damage_increase·defense_ignore)뿐이었음.
+
+**1단계 범위(사장님 단계 순서 1→2→3 확정):**
+- **CSV 정본 재작성**: 폐기/금지 옵션 전부 제거. 무기풀 6종(attack_percent·defense_ignore·general_damage_increase=스킬피해%·boss_damage_increase·crit_chance_percent·crit_damage_percent) + 방어구 통합풀 6종(max_hp_percent·defense_percent·crit_chance_percent·general_damage_increase·boss_damage_increase·damage_reduction[유니크+]). 수치 정본 §2-1~2-4. 가중치 희귀=2·보통=3(정본 §6 1:1.5 비율 보존). T1+T2 미러.
+- **소비처 신규 배선(`SkillContext`)**: critChance(+crit_chance_percent)·critDamageMultiplier(+crit_damage_percent)·defense(×defense_percent)·applyMaxHealth(×max_hp_percent)·damageReductionPercent()[신규]·applyMoveSpeed()+MOVEMENT_SPEED[신규]·applyDerivedAttributes()[통합 헬퍼].
+- **받피감 적용(`PlayerDefenseListener`)**: 몹→플레이어 피격에 DEF 경감 × (1−damage_reduction%) 순차 곱산. 0~80% 클램프.
+- **재적용 지점**: 접속(`PlayerJoinListener`)·강화·큐브 사용/유지/선택(`GrowthGuiListener`)에서 `applyDerivedAttributes` 호출 — HP%/이속%는 attribute 베이킹이라 명시 재적용 필요(DEF%·치명·스킬/보스피해·받피감은 데미지 시점 라이브 합산이라 불필요).
+- **라벨 정본화(`EquipmentLoreRenderer.potentialOptionKr`)**: general_damage_increase→"스킬 피해", 신규 코드 한글명 추가, 폐기 코드 매핑 제거. 캐릭터 스탯 패널(치명확률·치명피해·피해감소)에 잠재 합산 표시.
+- **defense_ignore 수치 교정**: DL-128#14의 임시값(C2~5·R6~10·E11~16·U17~23·L24~32)을 정본 §2-1(C1~2·R2~4·E5~8·U8~12·L13~18)으로 하향 정렬.
+
+**검증:** `./gradlew compileJava` → BUILD SUCCESSFUL. MasterSeedValidator는 잠재 옵션 코드 미검증(부팅 안전). CSV 로더는 `#` 주석 라인 스킵 확인.
+
+**의도적 1단계 한계(2·3단계 이월):**
+- **방어구 통합풀 근사**: 머리/상의/하의/신발이 같은 t1_armor_pool 공유 → 머리가 보스피해% 롤 등 슬롯 테마 일부 혼선. EquipmentSlot enum이 4부위를 전부 `itemSlotType="armor"`로 매핑·`EquipmentService.equip`가 이를 장착검증에 사용 → 슬롯별 풀 분리는 item_master slot_type 세분(=구조변경)이 필요한 **3단계**. 옵션 정의(코드·수치·가중치)는 그대로 재사용되므로 버리는 작업 아님.
+- **미배선 옵션(2단계)**: 스킬타입 4종(기본/이동/특수/핵심 피해%, dealDamage에 입력 슬롯 태그 전달 필요)·cooldown_reduction_percent(CooldownManager 훅). CSV 미포함 — 소비처 생기면 추가.
+- **이속% 롤소스**: move_speed_percent 소비처(applyMoveSpeed)는 1단계 구현됐으나 정본상 신발 전용 → 롤 소스는 3단계 신발풀 분리 시 등장.
+- **base 치명 5%**: critChance()는 여전히 트리+잠재만(기본 5% 미가산) — GUI 표시(5%+)와 전투 불일치, 별개 선행 이슈로 미반영.
+- **PvP 받피감**: PlayerDefenseListener가 PvP 제외라 미적용(후속).
+
+**다음 세션:** 2단계(스킬타입 4종 + 쿨감) → 3단계(슬롯별 풀 완전 분리, item_master 구조변경 — 사장님 확정).
+
+---
+
+### DL-129 추가#1 (2026-06-03) — 잠재 풀 2단계: 스킬타입 피해% 4종 + 쿨타임 감소%
+
+**범위:** 1단계 미배선 옵션을 모두 작동화. 무기풀이 정본 §1-1 **11종 완성**(ATK·방무·스킬피해·보스피해·기본/이동/특수/핵심·치확·치피·쿨감).
+
+**핵심 설계 — 입력 슬롯은 스킬 키로 결정론적:** `SkillInputListener`의 slot1~4 스위치 테이블이 곧 입력→스킬 매핑(slot1=기본기 LC / slot2=이동기 RC / slot3=특수기 SRC / slot4=핵심기 F). 즉 스킬 키만으로 타입 판별 가능. `dealDamage`는 `BaseWeaponSkill` 인스턴스 메서드라 `this.key()` 접근 → **호출부 수정 0**으로 배율 주입.
+
+**구현:**
+- **`combat/SkillType.java`[신규]**: enum BASIC/MOBILITY/SPECIAL/CORE + option_code(basic/mobility/special/core_skill_damage) + `fromKey(키)` 정적 맵(6무기×4슬롯=24키, SkillInputListener와 동기 필수). 미등록 키(평타 등)→null→배율 미적용.
+- **`SkillContext`**: `skillTypeMultiplier(player, type)` = 1+해당 스킬타입 잠재%/100 / `cooldownReductionPercent(player)` = Σcooldown_reduction_percent, 0~50% 클램프.
+- **`BaseWeaponSkill.dealDamage`**: 데미지 체인에 `× skillTypeMultiplier(attacker, SkillType.fromKey(key()))` 추가.
+- **`SkillService.useSkill`**: applyCooldown 시 `effectiveCd = cooldown × (1−쿨감%)` 적용. applyCooldown이 totalMs를 저장하므로 HUD 진행바도 감소분 반영.
+- **CSV**: weapon/armor 풀(T1+T2)에 basic/mobility/special/core_skill_damage(정본 §2-1 무기 C2~4·R5~8·E10~14·U15~19·L20~26 / §2-2~4 방어구 C1~2·R3~4·E5~8·U8~11·L12~16) + cooldown_reduction_percent(C1·R2·E3~4·U5~6·L7~9) 추가. 가중치: 무기 스킬타입·쿨감=보통(3, 정본 §6-1), 방어구 스킬타입=희귀(2)·쿨감=보통(3).
+
+**검증:** `./gradlew compileJava` → BUILD SUCCESSFUL. CSV t1_weapon_pool=11종/등급(정본 §1-1 일치), t1_armor_pool=11종(통합풀). 컬럼수 전행 10 정상.
+
+**한계/이월:**
+- **dealDamage 우회 데미지엔 미적용**: 좌클릭 평타(BASIC_ATTACK_COEFF, 슬롯1 쿨 중 필러)·일부 직접 `target.damage()` 호출 스킬은 스킬타입 배율 비대상. 기본기 "스킬"(flash_slash 등)은 dealDamage 경유라 정상 적용.
+- **방어구 통합풀 테마 혼선**(1단계와 동일): 쿨감이 정본상 하의/신발 전용이나 통합풀이라 머리/상의도 롤 가능 → 3단계 슬롯분리 시 해소.
+- **SkillType 키맵 드리프트 리스크**: SkillInputListener slot 테이블 변경 시 SkillType.BY_KEY도 갱신 필요(주석 명시).
+
+---
+
+### DL-129 추가#2 (2026-06-03) — 잠재 풀 3단계: 슬롯별 풀 완전 분리 (item_master 구조변경)
+
+**범위(사장님 "완전 분리" 확정):** 방어구 통합풀(1·2단계 근사)을 정본 §1-2~1-5대로 **머리/상의/하의/신발 4개 독립 풀**로 분리. 슬롯 테마 혼선(머리가 보스피해 롤 등) 완전 해소.
+
+**핵심 안전성 — 저장 데이터가 enum 키:** `equippedItems`는 `Map<EquipmentSlot, instanceId>`(slot_type 문자열 아님) → slot_type 세분에도 **플레이어 세이브 마이그레이션 불필요**. 영향은 마스터 데이터 + 그걸 비교하는 코드에 국한. 또한 `EquipmentService.equip`(slot 검증)은 **생성만 되고 호출되지 않는 휴면 경로**(실제 장착=`equipItem` 직접 호출)라 검증 정밀화에도 회귀 0.
+
+**구현:**
+- **`item_master.csv`**: 방어구 7행 slot_type `armor`→`head`(helmet·ragnes_head) / `chest`(chestplate·ragnes_chest) / `legs`(leggings) / `feet`(boots×2).
+- **`EquipmentSlot`**: HELMET("head")·CHESTPLATE("chest")·LEGGINGS("legs")·BOOTS("feet"). itemSlotType=item_master slot_type 매칭(장착검증 + resolvePoolId 풀선택). 부수효과: 장착 검증이 부위 정확(머리템→머리칸만) — 개선.
+- **CSV 풀 분리**(생성기 `gen_pool.py` 결정론적 재작성, T1+T2 × weapon/head/chest/legs/feet=10풀): 무기 11종 / 머리 7종(+받피감 U+) / 상의 7종(+받피감 U+) / 하의 8종(+받피감 U+) / 신발 9종(받피감 없음). 수치 정본 §2-1~2-5, 가중치 §6 희귀2:보통3. resolvePoolId=`tier_slotType_pool`이 동적 라우팅(head 아이템→t1_head_pool). 하드코딩 구 풀 id 0건 확인.
+- **`RuneService.hasEquippedSlotType`**: 룬 slot_filter="armor"(rune_survival_minor) 하위호환 shim — "armor"는 head/chest/legs/feet 어느 하나 장착 시 충족.
+- **`WeaponPowerCalculator`**: attack_percent를 **장착 전 슬롯 합산**으로 변경(정본 ATK%는 무기+신발 보유). 기존엔 무기 프로필만 읽어 신발 ATK% 무시되던 것 교정.
+
+**검증:** `./gradlew build` → BUILD SUCCESSFUL(jar 포함). item_master slot_type 분포 head2/chest2/legs1/feet2 정상. 풀별 옵션 종수 무기11·머리7·상의7·하의8·신발9(정본 §1 일치). MasterSeedValidator slot_type 화이트리스트 없음(부팅 안전). SuccessionService 부옵션은 slotType 필터로 **부위별 정확 부옵션** 산출(개선).
+
+**한계/이월:**
+- **SuccessionService**: 부옵션이 t1+t2 동일부위 풀 중복 참조(가중치 2배) — 동작엔 무해.
+- **악세서리**: t2_ring_carmen(slot_type=accessory)은 t2_accessory_pool 부재 → 잠재 롤 시 전등급 fallback. 1차 시즌 악세 슬롯 미사용(정본 "장갑 슬롯 없음")이라 실경로 아님.
+- **API/스냅샷 slot_type**: PlayerGrowthSnapshotBuilder가 slot_type 문자열 그대로 노출 → 웹/봇이 "armor" 기대 시 head/chest 등으로 표기 변경됨(표시용, 기능 영향 없음).
+- **gen_pool.py**: 생성기는 미커밋(로컬). 수치 재조정 시 정본 §2 동기 후 재생성.
+
+**잠재 풀 전면 정비 1~3단계 완료.** 정본 potential_options_v1과 구현 100% 정합(슬롯별 풀·옵션·수치·가중치·메커니즘). 남은 건 인게임 검증 + 운영 중 밸런스 튜닝.
+
+---
+
+### DL-129 추가#3 (2026-06-03) — 잠재 큐브 인게임 피드백: 등급 상승 보호 + 장비명 한글화
+
+**인게임 검증 중 사장님 보고 3건 수정.**
+
+1. **등급 상승 후 재굴림으로 등급이 날아가던 버그(정본 §7 "등급 보장" 위반)**: 큐브 버튼은 대기 결과가 있으면 `before`(=상승 이전, 낮은 등급)로 되돌린 뒤 재굴림했음(DL-112 연속재롤). 등급업 시엔 before가 낮은 등급이라 클릭 한 번에 상승이 소실. → `GrowthGuiListener` 큐브 핸들러에서 **대기 결과가 `success()`(등급업)면 재굴림 차단** + "[등급 적용]으로 확정하세요" 안내. `rollPotential` 렌더를 등급업/동급 분기: 등급업이면 양 패널에 상승 결과 표시 + 좌측을 "등급 상승 보호" 안내 패널 + 우측 "[등급 적용] 확인" + **큐브 버튼 잠금**(pending=true). `CUR_KEEP`/`NEW_SELECT` 핸들러도 `success()` 분기 — 등급업은 before 복원하지 않고 새 등급 확정(하락 방지).
+2. **등급 확정 채팅이 영문**: `itemDisplayName`이 `ItemMaster.itemName()`(영문 "Training Helmet") 반환. → 잠재 채팅을 **`equipDisplayName(player, item)`**(신규)로 교체 — slot_type 기반 한글명(무기=WeaponGui 한글명 / head=투구·chest=갑옷·legs=각반·feet=장화). 등급 한글은 `gradeKr()`(potentialGradeKr 위임).
+3. **(향후) 장비 이름 변경권 연동**: `equipDisplayName`를 장비 표시명 단일 resolve 지점으로 설계 — 이름 변경권 구현 시 이 메서드 최상단에 `item.customName()` 우선 반환만 추가하면 연동(주석 TODO 명시). idea_inbox 항목에 연동 지점 기록.
+
+**검증:** `./gradlew build` SUCCESSFUL, jar 재배포 + 서버 재기동(Done 15.3s, 에러 0건). **한계:** equipDisplayName는 잠재 채팅에만 적용 — 다른 GUI의 itemDisplayName(영문)은 이름 변경권 구현 시 일괄 이관 예정.
+
+---
+
+### DL-129 추가#4 (2026-06-03) — 잠재 큐브 2차 피드백: 확률 정본화 + 천장 + GUI 풀/확률 표시 + 공방 탭
+
+**인게임 검증 중 사장님 보고 처리 (잠재 묶음 + 탭).**
+
+1. **등급업이 너무 잘됨 → 확률 정본화(DL-111 폐기)**: 코드 승급 확률이 정본 §5-2보다 2~4배 높았음(RARE→EPIC 0.10 vs 0.05 / EPIC→UNIQUE 0.04 vs 0.01). → `PotentialService.UPGRADE_CHANCE_BY_GRADE`를 정본값(커먼 0.25 / 레어 0.05 / 에픽 0.01 / 유니크 0.001)으로 교정. 시작→유니크 기댓값 ~124큐브(정본 §5-2 복귀).
+2. **큐브 천장(사장님 "기댓값×2") 신규**: `PITY_CEILING_BY_GRADE` = 2/확률 = **커먼 8 / 레어 40 / 에픽 200 / 유니크 2000회**. 카운터(`PlayerEquipmentItem.pityCount`)가 승급 없이 +1, (천장−1) 도달 시 다음 큐브에서 **확정 승급**, 승급(자연/확정) 시 0 리셋. **영속화**: `ItemSaveData`에 `pityCount` 필드 추가(Gson — 구 세이브 누락 시 0) + restore/save 양방향 와이어. 천장은 비운의 꼬리(~10%)만 보호, 평균 거의 불변.
+3. **GUI에 승급 확률·천장 진행·부위 풀 표시**: `PotentialService.upgradeChanceFor`/`pityCeilingFor`/`poolOptionCodes` 신규 노출. 잠재 GUI 미리보기 슬롯(POT_SLOT_PREVIEW) lore에 "다음 등급 승급: N%", "천장: cur/ceil", "이 부위 잠재 풀: (옵션 한글 나열)" 추가.
+4. **공방 상단 탭 구분(#7)**: `WorkshopGui.buildTabItem` 비활성 탭이 배경과 같은 GRAY 유리라 식별 불가 → **항상 탭 고유 아이콘**(GRASS_BLOCK·BLAST_FURNACE 등) 표시 + 활성은 §a§l 이름·인챈트 글로우 강조.
+
+**검증:** `./gradlew build` SUCCESSFUL. Gson 하위호환(구 세이브 pityCount=0). 서버 재배포·재기동.
+
+**미처리(보고 후 우선순위 대기)** — 별도 서브시스템이라 이번 묶음서 제외:
+- ~~**필드 정예 on/off 토글**~~ ✅ 해소 (DL-129 추가#5)
+- (이하 잔여)
+- **영지 시설현황 미등록**: `EstateState`(시설 설치) ↔ `IslandTerritoryState`(reaper/miner/Count) 미동기화. 공방 슬롯은 IslandRank.workshopQueueMax(작위 기반)로 이미 해금 — "가공기 등록→공방 해금" 설계 의도 재확인 필요.
+- **공방 레시피 텍스처**: `WorkshopRecipe.guiIcon`이 Material만(CustomModelData 미지정). 리소스팩에 공방 모델 미발견. "다 정함" 기억 vs 코드 불일치 — 텍스처 매핑 설계 복구 필요.
+
+---
+
+### DL-129 추가#5 (2026-06-03) — 필드 정예 on/off 토글 (/정예)
+
+**배경:** 필드 정예 스폰 인프라는 존재했으나(`FieldSpawnService` eliteMode Predicate·ELITE_MOB 맵·batch/3·정예 태깅) `PoroRPGPlugin`에서 `uuid->false`로 고정돼 토글 수단이 없었음(task.md §7-2 "2차 대기").
+
+**구현:**
+- `PlayerData.fieldEliteMode`(세션 메모리, 재접속 시 OFF) + `PlayerDataManager.isFieldElite/toggleFieldElite/setFieldElite`.
+- `FieldSpawnService` 생성 predicate를 `playerDataManager::isFieldElite`로 교체 — 정예 ON이면 본인 주변 웨이브가 정예 몹(수 적고 강함).
+- `/정예 [on|off]` 명령(`FieldEliteCommand`, 인자 없으면 토글, 권한 없음=전체 플레이어). plugin.yml `poro-field-elite` alias [정예].
+
+**검증:** `./gradlew build` SUCCESSFUL. **한계:** 정예 모드는 세션 메모리(영속 안 함) — 재접속 시 OFF. 다음 웨이브부터 반영(즉시 아님). GUI 토글은 미추가(명령만).
+
+**잠재 풀 정비 전체 + 인게임 피드백(등급보호·한글명·확률/천장/풀표시·탭·정예토글) 완료.** 잔여: 영지 시설현황 동기화(#5), 공방 레시피 텍스처(#6).
+
+---
+
+### DL-129 추가#6 (2026-06-03) — 필드 정예 GUI 토글 + 시설/텍스처 설계 검증
+
+**1. 필드 정예 GUI 토글(#1 추가요청):** 명령(`/정예`) 외 GUI에서도 토글 — `FieldHubGui` 슬롯 22에 정예 ON/OFF 버튼(LIME/GRAY 염료), `FieldHubListener`에 PlayerDataManager 주입 + 클릭 시 toggleFieldElite + 재오픈. `FieldHubGui.open` 시그니처에 eliteOn 추가.
+
+**2. 영지 시설현황→공방 슬롯 설계 검증(#5):** 사장님 지적이 정확 — **코드가 설계 이탈**.
+- 정본: `island_system_design.md:27` 작위별 최대 시설 슬롯(개척지 4/기사 6/준남작 7/남작 9/자작 11/백작 13/후작 15/공작 18), §3.1 "물리 블럭 없음, GUI 슬롯 클릭 배정(DB island_facility_slots)", §3.4 **"공방 가공기 1대 = 대기 슬롯 3개"**. 설치 비용 없음(작위 슬롯 배분).
+- 코드: `IslandRank.workshopQueueMax()=min(5+tier,12)`(작위 tier 기반, 가공기 수 무시), `IslandTerritoryState`에 workshopMachineCount 필드 부재, 시설 설치 GUI 플로우 없음(reaper/miner count만 존재).
+- **필요 구현(다음 작업)**: ① IslandTerritoryState.workshopMachineCount + 영속 ② IslandRank.maxFacilitySlots(작위표) ③ workshopQueueMax=machineCount×3 ④ 시설현황 GUI 빈칸 클릭→시설 선택(약초/광물/공방) 설치, 총 슬롯≤작위한계 ⑤ 스케줄러 시설 카운트 연동.
+
+**3. 공방 레시피 텍스처 설계 검증(#6):** 텍스처는 **추출 완료**(`assets/export/resourcepack/assets/poro/textures/item/`에 essence 3·trace 12·potion 4·feast 4 등 존재). 미비점: ① CustomModelData 번호 할당표 문서 부재 ② item_id↔텍스처 파일명 매핑 규칙 문서 부재 ③ 마도합금 경로 불일치(문서 alloy/ vs 실제 ingot/) ④ 공방 레시피 아이콘 코드가 기본 Material만(CMD 미지정). **필요 작업**: CMD 번호 배정 + 리소스팩 item 모델 JSON(CMD override) 등록 + WorkshopRecipe에 CMD 필드 + 아이콘 빌드 시 적용. 에셋 파이프라인(bb-export-register) + 코드 병행.
+
+---
+
+### DL-129 추가#7 (2026-06-03) — 영지 시설 설치 시스템 (#5) + 공방 텍스처 근본원인(#6)
+
+**#5 시설 설치 시스템 — 설계대로 구현(가공기 수 = 공방 슬롯):**
+- `IslandRank.maxFacilitySlots()`: 작위별 시설 슬롯(개척지 4/기사 6/준남작 7/남작 9/자작 11/백작 13/후작 15/공작 18, island_system_design §2.1). `workshopQueueMax()`는 @Deprecated.
+- `IslandTerritoryState`: `workshopMachineCount` 필드 + 영속, `FacilityType{HERB,ORE,WORKSHOP}`, `facilitySlotsUsed/Max/Available`, `installFacility/removeFacility`(슬롯 한계 검증, 설치 비용 없음). **`workshopQueueMax()=workshopMachineCount×3`**(§3.4) — 기존 작위 tier 기반에서 전환.
+- 영속: `PlayerSaveData.TerritorySaveData`에 workshopMachineCount(8번째 필드, Gson 구세이브 0) + save/load 와이어.
+- GUI `TerritoryFacilityGui` 재작성: 슬롯 0~17 = 시설 슬롯(설치 아이콘/빈칸 클릭/잠금), 빈칸 클릭→`openSelect`(약초/광물/공방 3선택), 설치칸 Shift+클릭→철거. info 슬롯에 사용/한계·공방 대기슬롯 표시. `TerritorySettingsGuiListener.handleFacility/handleFacilitySelect` + GuiTitles.TERRITORY_FACILITY_SELECT.
+- **주의(밸런스 영향)**: 기존 플레이어는 공방 가공기 미설치 시 workshopQueueMax=0 → 시설현황에서 가공기 설치해야 공방 사용 가능(설계 의도). 작위 기반 자동 슬롯 폐지.
+- 검증: `./gradlew build` SUCCESSFUL.
+
+**#6 공방 텍스처 근본원인(미구현, 에셋 파이프라인 작업):** 텍스처·모델 JSON 모두 **이미 존재**(`models/item/material/trace/trace_star.json` 등, parent=item/generated·layer0=poro:item/...). 그러나 **1.21.10 `items/` 정의(item_model 컴포넌트)가 전무**하고 코드도 `setItemModel` 미적용 → 게임 아이템에 텍스처가 연결 안 됨. **필요**: ① `assets/poro/items/<name>.json` 정의 생성(기존 모델 참조) ② WorkshopRecipe에 itemModel 키 + buildRecipeIcon에서 `setItemModel` ③ 리소스팩 zip 재패키징 + server.properties sha1 갱신(틀리면 접속 차단). **리소스팩 sha1 민감 + 메모리 에셋 규칙(bb workflow)상 별도 신중 작업으로 분리** — 무리한 재패키징 보류.
+
+---
+
+### DL-129 추가#8 (2026-06-03) — 공방 레시피 효과 설명 lore + 시설 생산 주기 확인
+
+**1. 레시피 효과·사용법 lore(인게임 피드백):** 공방 레시피 아이콘에 결과물 효과를 표시 — `WorkshopGui.effectLore(resultItemId)` 신규(레시피 정의 무수정, 결과 ID→효과 맵) + buildRecipeIcon에 배선. 정본 workshop_crafting_spec.md §6~10 수치:
+- 만찬 4종(공격력+10%/모든피해+8%/치명피해+20%/일반몹+15%, 30분·1종), 치료포션 3종(HP 30/40/50% 회복, 보스전 3/4/5회), 부스트 3종(골드/강화석/경험치 +50%, 30분·3종중첩), 강화흔적 3종(성공률 ×1.15/1.25/1.30, 10강↑ 선택소모·3종동시), 고대흔적 4종(미감정과 함께 레어/에픽/유니크 이상·레전더리 확정), 미감정 흔적(우클릭 개봉, 단독=랜덤/고대와=최소등급보장), 마도합금·정수류 재료 안내.
+
+**2. 시설 생산 주기(#4 질문) — 이미 구현 확인:** `MachineProductionScheduler`가 **20분 주기**로 약초/광물 생산 + `lastProductionAt` 기반 오프라인 누적(Lv1 12h/Lv2 16h/Lv3 24h 캡), plugin:475 기동. "안 된 것처럼 보인" 원인 = #5 전엔 시설 설치 불가(count 0)라 생산 미작동. **추가**: 시설현황 info 패널에 "생산 주기 20분 / 다음 생산까지 ~N분" 표시로 가시화.
+
+**검증(#8):** `./gradlew build` SUCCESSFUL.
+
+---
+
+### DL-129 추가#9 (2026-06-03) — 시설 생산 타이머 타일별 표시 + 신규 시설 windfall 방지
+
+**인게임 피드백: "다음 생산 약 0분으로 뜸 + 각 재배기/채굴기에 시간 표시되게".**
+- **타일별 타이머**: info 패널 집계 → **각 약초 재배지/광물 채굴기 타일 lore에 "다음 생산: N분 M초"**(`TerritoryFacilityGui.productionTimer`). 약초/광물 공통 20분 주기(전 시설 동시 생산)라 같은 값.
+- **"0분" 버그 수정**: 재시작 직후 `lastProductionAt`이 세이브의 오래된 값이면 `now-last>20분`→0 클램프로 "약 0분" 표시되던 문제. 주기 초과=다음 틱 적립이므로 **"곧 적립(생산 대기 중)"**, lastProductionAt=0(최초)은 "약 20분 후(주기 시작)".
+- **windfall 방지**: 시설 설치 시 `lastProductionAt<=0`이면 `now`로 설정. 안 하면 첫 틱에서 `intervals=(now-0)/20분`=거대→캡(12~24h)만큼 한꺼번에 생산 버그(`handleFacilitySelect`).
+
+**운영 노트:** 이번 세션 재기동에서 **백그라운드 작업 중복으로 paper JVM 2~3개 → 포트 충돌→접속불가** 발생. 원인: 재기동 bash 작업 겹침 + 진단 `pgrep -f 'paper.jar nogui'`가 자기 명령줄 자기매칭(`[p]aper` 대괄호로도 실행 중 bash 명령문자열은 못 거름). **확정 교훈: 재기동은 단일 작업, 서버 카운트는 `ps comm==java` 필터, 부팅/종료 판정은 포트 25565 LISTEN 여부로만.**
+
+---
+
+### DL-129 추가#10 (2026-06-03) — 생산 타이머가 전부 "곧 적립"으로 뜨던 문제
+
+**원인:** 생산은 플레이어별 `lastProductionAt`이 아니라 **서버 전역 20분 스케줄러 틱**에 일괄 발생. 그런데 타이머를 `lastProductionAt + 20분`으로 계산 → 세이브의 오래된 lastProductionAt이면 항상 음수 → 전부 "곧 적립". (설치 가드는 `lastProductionAt<=0`일 때만 now로 세팅하므로 이미 stale 값이 있으면 미갱신.)
+
+**수정(임시):** `MachineProductionScheduler.nextProductionAt`(전역 틱) 노출 → GUI 카운트다운. **단, 추가#11에서 전역 틱 모델 자체를 폐기**(익스플로잇).
+
+**검증:** `./gradlew build` SUCCESSFUL.
+
+---
+
+### DL-129 추가#11 (2026-06-03) — 시설별 설치시각 기반 생산 (전역 틱 익스플로잇 차단)
+
+**사장님 지적(익스플로잇):** 전역 20분 틱이면 슬롯을 평소 공방 가공기로 쓰다가 **생산 직전 5초에 재배기/채굴기로 교체→수확→다시 가공기**로 공짜 생산 가능(설치 무료·즉시). → 생산을 **시설별 설치시각 기준 20분**으로 변경해 차단(생산 받으려면 해당 슬롯을 20분 내내 생산기로 유지해야 함 = 공방과 양립 불가). 사장님 원래 요청("각 시설에 시간 표시")과도 일치.
+
+**구현:**
+- **`IslandTerritoryState`**: `reaperCount`/`minerCount` int → **`List<Long> herbProducedAt`/`oreProducedAt`**(시설별 마지막 생산시각). 파생 getter(reaperCount=size), `installFacility`가 설치 시 now 기록(설치+20분 첫 생산, windfall 내장 차단), `removeFacility`는 마지막 항목 제거.
+- **`MachineProductionScheduler`**: 전역 lastProductionAt 누적 → **시설별 누적**(`accrueProducers`: 각 시설 자기 last+20분마다 cycle 생산, cap 적용). 틱 주기 **20분→1분**(시설별 마크 제때 포착, 누적식이라 안전). 전역 `nextProductionAt` 제거. produceHerbs/Ores 통합.
+- **`TerritoryFacilityGui`**: 각 타일이 자기 시설 타임스탬프로 카운트다운(`productionTimer(lastProducedAt)`). 1분 틱이라 "곧 적립"은 최대 1분.
+- **영속(`TerritorySaveData`)**: `herbProducedAt`/`oreProducedAt` 리스트 추가(Gson). **구 세이브 마이그레이션**: 리스트 null이면 reaper/minerCount만큼 lastProductionAt(또는 now)으로 시드. save는 리스트 기록.
+
+**검증:** `./gradlew compileJava`·`build` SUCCESSFUL.
+
+---
+
+### DL-129 추가#12 (2026-06-03) — 공방 레시피 텍스처 배선 (#6, 순수 코드)
+
+**조사 결과 #6은 리소스팩 작업 불필요 — 코드만:** `assets/minecraft/items/paper.json`이 이미 `minecraft:select property=custom_model_data`로 공방 결과물 전체(정수 307xxx·약초/합금 302xxx·강화석 303002·흔적 308xxx·물약/만찬 400xxx)를 CMD→poro 모델로 매핑해 둠. **서빙 중 `server/resourcepack.zip`도 동일(122줄)·server.properties sha1 일치(9bdcdbb…)** → 재패키징/접속차단 위험 0. 빠진 건 코드가 CMD를 안 걸던 것뿐.
+
+**구현:**
+- **`CustomItemModel`[신규]**: item_id→CMD 매핑(30종) + `applyModel(item, cmd)`(carrier=PAPER + `CustomModelDataComponent.setStrings([cmd])` — 1.21.4+ select는 정수 아닌 strings[0] 매칭, 2D 이펙트와 동일 검증된 방식).
+- **`WorkshopGui.buildRecipeIcon`**: 결과물 CMD 있으면 paper+CMD 아이콘, 없으면 기존 Material fallback.
+
+**한계/후속:** 공방 레시피 아이콘만 우선 배선. 창고 GUI·실제 지급 아이템 등 동일 재료가 보이는 다른 GUI는 후속(같은 `CustomItemModel` 재사용 가능). 마도합금 모델은 ingot/mado_iron_ingot(302016) 경로 사용.
+
+**검증:** `./gradlew build` SUCCESSFUL. resourcepack 무변경(sha1 동일).
+
+---
+
+### DL-129 추가#13 (2026-06-03) — HUD HP 정수화·XP 오버플로 + 고대흔적/K·M 에셋 진단
+
+**인게임 피드백 3건.**
+
+1. **HP 소수점 → 바 밀림(수정)**: 잠재 HP% 적용 후 HP가 소수(예 358.4)로 떠 `.` 폭 변동으로 액션바 정렬이 흔들림. `HealthHudFormatter.buildHp`를 `Math.round`로 정수 표기.
+2. **XP 고레벨 큰 수 → 바 밀림(수정)**: 100레벨대 expToNext가 6자리+라 수치가 길어 밀림. `need >= 100,000`이면 수치 숨기고 바+Lv만 표시(바가 진행도 전달). **K/M 단축은 HUD 폰트(chars.png)에 K·M 글리프 부재로 미지원** — 폰트 추가(리소스팩) 후속.
+3. **고대흔적 텍스처 깨짐(에셋 진단, 미수정)**: `textures/item/material/trace/trace_ancient_*.png`가 **16×128**(일반 흔적은 16×16). `item/generated`에 16×128=8프레임 애니 스트립인데 **.mcmeta 애니메이션 정의 부재** → 통째로 찌그러져 렌더. 모델 JSON·PNG는 정상. **필요**: ① 각 PNG에 `.png.mcmeta`(animation, 8프레임) 추가(움직이는 아이콘 의도면) 또는 ② 16×16 재크롭 + ③ 리소스팩 재패키징·sha1 갱신. 리소스팩 sha1 민감 + 에셋 규칙(bb)상 별도 신중 작업.
+
+**검증:** `./gradlew build` SUCCESSFUL.
+
+**잔여 리소스팩 후속(묶음 권장 — 1회 재패키징):** 고대흔적 .mcmeta(또는 재크롭) + HUD 폰트 K·M 글리프 추가. 둘 다 chars.png/텍스처 수정 + zip 재패키징 + server.properties sha1 갱신 필요. → **DL-129 추가#14에서 처리.**
+
+---
+
+### DL-129 추가#14 (2026-06-03) — 리소스팩 1회 재패키징: 고대흔적 애니 + HUD K·M 글리프
+
+**고대흔적 텍스처는 8프레임 모두 distinct = 의도된 애니메이션 확정.** 두 에셋 이슈를 묶어 1회 재패키징.
+
+1. **고대흔적 애니메이션(.mcmeta)**: `trace_ancient_{faded,glowing,radiant,brilliant}.png.mcmeta` 신규 — `{"animation":{"interpolate":false,"frametime":3}}`. 16×128(8프레임)을 애니메이션으로 정상 렌더(찌그러짐 해소).
+2. **HUD 폰트 K·M 글리프**: `chars.png` 150×7(25칸)→**162×7(27칸)**, K(칸25)·M(칸26) 5×7 흰색 글리프 추가(기존 글리프 스타일 일치). `font/hud.json` 5개 chars provider에 코드포인트 2개씩 추가(E219/E21A …). 코드 `HealthHudFormatter.charIdx` K→25·M→26, `buildXp` abbrev(1000=K/1,000,000=M, 소수1자리). XP 자릿수 고정 → 바 밀림 해소.
+
+**재패키징(in-place, 안전):** `zip -u`로 6개 파일만 교체/추가(나머지 바이트 보존). **새 sha1 `7ffcf09768c172613cd58b29128e3289779b836a`** → `server.properties resource-pack-sha1` 갱신(구 9bdcdbb…). 백업 `server/resourcepack.zip.bak.dl129`.
+
+**★재배포 시 필수:** 리소스팩 sha1이 9bdcdbb→**7ffcf097**로 변경됨. server.properties·HTTP 서빙 zip 동기 필수(불일치 시 접속 차단). chars.png/hud.json 폰트 델타·고대흔적 mcmeta는 gitignore(로컬) — 새 환경 재적용 필요.
+
+**검증:** `./gradlew build` SUCCESSFUL. zip in-place 업데이트(chars 346→364·hud 13283→13313·mcmeta×4). server.properties sha1=zip sha1 일치.

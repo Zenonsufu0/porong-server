@@ -356,12 +356,14 @@ public final class PoroRPGPlugin extends JavaPlugin {
                 masterRegistryContext.itemMasters(), combatStateService, this);
         this.partyManager = new PartyManager();
         this.bossRewardService.attachClearFlow(this, partyManager); // 클리어 시 파티 해산·10초 후 영지
+        this.scoreboardService.attachBossContext(bossRoomManager, partyManager, // 보스룸 파티 패널(데스카운트·HP·남은시간)
+                runId -> bossEngineRuntime.runService().remainingSeconds(runId));
         FieldBossRespawnScheduler fieldBossScheduler = getServer().getPluginManager().isPluginEnabled("MythicMobs")
                 ? new FieldBossRespawnScheduler(this) : null;
         ExploreHubGui.FieldStateProvider fieldStateProvider = fieldBossScheduler != null
                 ? fieldBossScheduler : buildFieldStateProvider();
         FieldTeleportService fieldTeleportService = new FieldTeleportService(this);
-        this.fieldHubListener = new FieldHubListener(fieldStateProvider, fieldTeleportService);
+        this.fieldHubListener = new FieldHubListener(fieldStateProvider, fieldTeleportService, playerDataManager);
         this.bossHubListener  = new BossHubListener(partyManager, bossRoomManager,
                 bossEngineRuntime.bossSessionRepository(), islandTerritoryStateStore);
         ShopGui.reloadItems(this);
@@ -679,7 +681,7 @@ public final class PoroRPGPlugin extends JavaPlugin {
             };
         }
         // 동적 필드 스폰 (INBOX-006) — 필드 내 플레이어 주변 웨이브 스폰. 일반/정예 토글은 2차에서 연결(현재 전원 일반).
-        new com.poro.rpg.field.FieldSpawnService(this, mythicSpawner, uuid -> false).start();
+        new com.poro.rpg.field.FieldSpawnService(this, mythicSpawner, playerDataManager::isFieldElite).start();
 
         // 필드 진입 시 개인 WorldBorder 경계 표시 (INBOX-012) — 스폰 존(300×300)과 일치
         new com.poro.rpg.field.FieldBorderService(this).start();
@@ -715,6 +717,8 @@ public final class PoroRPGPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(shopGuiListener, this);
         getServer().getPluginManager().registerEvents(pvpHubListener, this);
         getServer().getPluginManager().registerEvents(new DeathKeepInventoryListener(), this); // 1차 시즌 사망 시 템·경험치 유지
+        getServer().getPluginManager().registerEvents( // 부활 라우팅: 보스룸(데스카운트)/그 외 수도
+                new com.poro.rpg.listener.BossRespawnListener(this, bossRoomManager, hubWorldService, bossEngineRuntime), this);
         getServer().getPluginManager().registerEvents(new IslandProtectionListener(islandTerritoryStateStore), this); // 영지 농작물 보호(trample)
         getServer().getPluginManager().registerEvents(
                 new MainHubListener(growthGuiListener, islandStorageStore, islandTerritoryStateStore,
@@ -827,6 +831,29 @@ public final class PoroRPGPlugin extends JavaPlugin {
             setClassCmd.setTabCompleter(classAdminCommand);
         } else {
             getLogger().warning("커맨드 /poro-setclass plugin.yml 미등록 — 건너뜀.");
+        }
+
+        // 재화별 한글 단축 명령 (/골드 /강화석 /큐브 /큐브조각) — 단일 핸들러, 명령 이름으로 재화 분기
+        com.poro.rpg.command.CurrencyAdminCommand currencyCmd =
+                new com.poro.rpg.command.CurrencyAdminCommand(growthStateStore, playerDataManager, scoreboardService);
+        for (String c : new String[]{"poro-gold", "poro-stone", "poro-cube", "poro-cubefrag"}) {
+            var registered = getCommand(c);
+            if (registered != null) {
+                registered.setExecutor(currencyCmd);
+                registered.setTabCompleter(currencyCmd);
+            } else {
+                getLogger().warning("커맨드 /" + c + " plugin.yml 미등록 — 건너뜀.");
+            }
+        }
+
+        // 필드 정예 모드 토글 (/정예)
+        com.poro.rpg.command.FieldEliteCommand fieldEliteCmd = new com.poro.rpg.command.FieldEliteCommand(playerDataManager);
+        var eliteCmd = getCommand("poro-field-elite");
+        if (eliteCmd != null) {
+            eliteCmd.setExecutor(fieldEliteCmd);
+            eliteCmd.setTabCompleter(fieldEliteCmd);
+        } else {
+            getLogger().warning("커맨드 /poro-field-elite plugin.yml 미등록 — 건너뜀.");
         }
 
         // 관리자 GUI 허브 (Phase 1 + Phase 2 toggles)

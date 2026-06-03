@@ -69,7 +69,13 @@ public final class RuneService {
         return block;
     }
 
+    // DL-129 3단계: 방어구 slot_type을 head/chest/legs/feet로 세분. 룬 slot_filter="armor"(예: rune_survival_minor)
+    // 하위호환 — "armor"는 4개 부위 어느 하나라도 장착돼 있으면 충족으로 본다.
+    private static final java.util.Set<String> ARMOR_SUBSLOTS =
+            java.util.Set.of("head", "chest", "legs", "feet");
+
     private boolean hasEquippedSlotType(PlayerGrowthState state, String slotType) {
+        boolean armorGroup = "armor".equals(slotType);
         for (String itemInstanceId : state.equippedItems().values()) {
             PlayerEquipmentItem item = state.inventoryItem(itemInstanceId).orElse(null);
             if (item == null) {
@@ -79,7 +85,8 @@ public final class RuneService {
             if (itemMaster == null) {
                 continue;
             }
-            if (slotType.equals(normalized(itemMaster.slotType()))) {
+            String itemSlot = normalized(itemMaster.slotType());
+            if (slotType.equals(itemSlot) || (armorGroup && ARMOR_SUBSLOTS.contains(itemSlot))) {
                 return true;
             }
         }

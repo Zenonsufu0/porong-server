@@ -215,6 +215,15 @@ public final class BossRunService {
                 >= timeoutSecondsFor(run.bossId());
     }
 
+    /** runId의 남은 전투 시간(초). 활성 런 없으면 -1, 음수면 0. (스코어보드 타이머 표시용) */
+    public long remainingSeconds(String runId) {
+        if (runId == null) return -1L;
+        BossRun run = activeRuns.get(runId);
+        if (run == null) return -1L;
+        long elapsed = java.time.Duration.between(run.enteredAt(), timeProvider.nowInstant()).getSeconds();
+        return Math.max(0L, timeoutSecondsFor(run.bossId()) - elapsed);
+    }
+
     public boolean isUserInActiveRun(String userId) {
         if (userId == null || userId.isBlank()) {
             return false;

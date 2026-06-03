@@ -131,7 +131,7 @@
   | ~~🟠 중간 강화 흔적 미연동~~ ✅ 해소 (2026-05-30, DL-089) | 강화 GUI 흔적 선택 슬롯 + `EnhancementService` 성공률 %p 보정(+10강 이상, 천장 시 미소모) + `enhancement_log.trace_id` 기록 |
   | 🟠 중간 | 필드보스 스폰 스케줄러 stub | `FieldBossRespawnScheduler` 항상 RESPAWNING/30분/0명 |
   | 🟡 낮음 | 금지 설계 시드 잔존 | `state_master.csv` DEBUFF_MARK, 방깎/받피증 각인, 공용각인 12종, T2 강화표 — 런타임 미적용이나 정리 대상 |
-  | 🟡 낮음 | 장비 이름 변경권(10,000G) 미구현 | 기획 §7 |
+  | 🟡 낮음 | 장비 이름 변경권(10,000G) 미구현 | 기획 §7. **연동 지점 준비됨(DL-129 추가#3)**: `GrowthGuiListener.equipDisplayName(player, item)`가 장비 표시명 단일 resolve — 구현 시 이 메서드 최상단에 `item.customName()` 우선 반환 추가 + `PlayerEquipmentItem`에 커스텀명 필드/영속화. 현재는 부위(투구/갑옷/각반/장화)·무기 한글명 |
 
   ※ EXP는 감사 결과 **기획 일치**(필드 몹 사냥 커스텀 XP). 바닐라 XP 바 병존 문제만 DL-085로 해소.
 
@@ -294,3 +294,10 @@
 - 상태: DRAFT (원거리 평타·자원 통일·임계/만충 재설계 구현 완료 / 처치 피드백 메시지는 사용자 결정 대기)
 
 <!-- 새 항목은 이 주석 위에 추가한다 -->
+
+## [DRAFT] 미정의 MythicMob 소환수 정의 필요 (DL-128 후속, 2026-06-02)
+보스/필드 "쫄 소환" 패턴이 참조하는 MythicMob이 mobs/에 없어 summon 실패:
+- `F2_CaveZombie` — Elite_Summon, MG_SummonFragments (광산/필드2 계열)
+- `F4_FallenSoldier` — FC_SummonKnights (필드4/타락 계열)
+- `Abyss_Tentacle` — AO_SummonTentacles (심연 수호자). ※ SeasonBossSkills.yml에 동명 *스킬* 블록은 있으나 *몹* 정의가 아님.
+→ mobs/에 3종 MythicMob 정의(바닐라 기반 쫄)를 추가하면 해소. 메인 보스 패턴과 무관하므로 분리 작업.

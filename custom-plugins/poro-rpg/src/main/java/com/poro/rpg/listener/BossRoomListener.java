@@ -145,6 +145,8 @@ public final class BossRoomListener implements Listener {
         }
         BossRun run = runResult.value();
         bossRoomManager.registerRun(run.runId(), slot.id());
+        // 공유 부활 토큰 초기화 — 온라인 참가자 수 기준 (1/2/3인 → 3/4/5)
+        bossRoomManager.initDeathPool(slot.id(), memberIds.size());
 
         // MythicMob 스폰 — 텔레포트 전에 먼저 수행하여 "보스 없는 방" 방지
         // 이 시점에서 mythicSpawner는 항상 non-null (위에서 사전 차단함). 반환=보스 mob UUID(실패 시 null)
@@ -194,8 +196,8 @@ public final class BossRoomListener implements Listener {
         }
     }
 
-    /** 밀폐 보스룸 시야 확보 — 야간투시(입자 없음, 보스전 동안 충분히 길게). */
-    private void applyBossVision(Player player) {
+    /** 밀폐 보스룸 시야 확보 — 야간투시(입자 없음, 보스전 동안 충분히 길게). 리스폰 시에도 재적용. */
+    public static void applyBossVision(Player player) {
         player.addPotionEffect(new org.bukkit.potion.PotionEffect(
                 org.bukkit.potion.PotionEffectType.NIGHT_VISION,
                 20 * 60 * 20, 0, true, false, false)); // 20분, ambient, 입자/아이콘 숨김

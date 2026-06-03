@@ -224,7 +224,8 @@ public final class PlayerPersistenceService {
                             itemDto.enhanceLevel(),
                             parseEnum(ItemGrade.class, itemDto.grade(), ItemGrade.COMMON),
                             toPotentialProfile(itemDto.potential()),
-                            toPotentialLines(itemDto.substats())
+                            toPotentialLines(itemDto.substats()),
+                            itemDto.pityCount()
                     );
                     state.addInventoryItem(item);
                 } catch (Exception e) {
@@ -284,10 +285,25 @@ public final class PlayerPersistenceService {
         } catch (IllegalArgumentException ignored) {}
 
         state.setConvenienceUnlocks(t.convenienceUnlocks());
-        state.setReaperCount(t.reaperCount());
         state.setStorageCount(t.storageCount());
-        state.setMinerCount(t.minerCount());
+        state.setWorkshopMachineCount(t.workshopMachineCount());
         state.setLastProductionAt(t.lastProductionAt());
+        // 시설 타임스탬프 (DL-129 추가#11): 신 세이브=리스트 그대로, 구 세이브=reaper/minerCount로 마이그레이션.
+        long seed = t.lastProductionAt() > 0 ? t.lastProductionAt() : System.currentTimeMillis();
+        if (t.herbProducedAt() != null) {
+            state.setHerbProducedAt(t.herbProducedAt());
+        } else {
+            java.util.List<Long> herb = new java.util.ArrayList<>();
+            for (int i = 0; i < t.reaperCount(); i++) herb.add(seed);
+            state.setHerbProducedAt(herb);
+        }
+        if (t.oreProducedAt() != null) {
+            state.setOreProducedAt(t.oreProducedAt());
+        } else {
+            java.util.List<Long> ore = new java.util.ArrayList<>();
+            for (int i = 0; i < t.minerCount(); i++) ore.add(seed);
+            state.setOreProducedAt(ore);
+        }
 
         // 커스텀 아이템 (큐브 파편, 흔적 등)
         if (data.customItems() != null) {
@@ -385,7 +401,7 @@ public final class PlayerPersistenceService {
                     .toList();
             list.add(new PlayerSaveData.ItemSaveData(
                     item.itemInstanceId(), item.itemId(), item.enhanceLevel(),
-                    item.grade().name(), potential, substats
+                    item.grade().name(), potential, substats, item.pityCount()
             ));
         });
         return list;
@@ -411,7 +427,8 @@ public final class PlayerPersistenceService {
         return new PlayerSaveData.TerritorySaveData(
                 t.islandName(), t.rank().name(), // 첫 인자(ownerName 슬롯)에 영지명 저장 — applyTerritory가 setIslandName으로 복원
                 t.convenienceUnlocks(), t.reaperCount(), t.storageCount(), t.minerCount(),
-                t.lastProductionAt()
+                t.lastProductionAt(), t.workshopMachineCount(),
+                new java.util.ArrayList<>(t.herbProducedAt()), new java.util.ArrayList<>(t.oreProducedAt())
         );
     }
 

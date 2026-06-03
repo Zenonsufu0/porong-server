@@ -61,14 +61,16 @@ public abstract class BaseWeaponSkill implements WeaponSkill {
     }
 
     /**
-     * 스킬 피해 적용 (DL-092/096). rawDamage(=ATK×계수)에 스킬피해%·보스피해%·치명(확률·피해배율)을 곱해 적용.
+     * 스킬 피해 적용 (DL-092/096/128#14). rawDamage(=ATK×계수)에 스킬피해%·보스피해%·치명·DEF경감을 곱해 적용.
      * ATK의 attack_percent는 weaponPower에 이미 반영. boss_damage_increase는 보스 대상일 때만.
-     * DEF 경감은 1차 시즌 바닐라 armor에 위임(커스텀 보스 DEF 시드 없음).
+     * DEF 경감: 대상 PDC의 DEF로 200/(200+유효DEF), 유효DEF=DEF×(1−방어력무시%). DEF 미기록 몹은 1.0(영향 없음).
      */
     protected void dealDamage(SkillContext ctx, Player attacker, LivingEntity target, double rawDamage) {
         double dmg = rawDamage
                 * ctx.generalDamageMultiplier(attacker)
-                * ctx.bossDamageMultiplier(attacker, target);
+                * ctx.bossDamageMultiplier(attacker, target)
+                * ctx.skillTypeMultiplier(attacker, com.poro.rpg.combat.SkillType.fromKey(key()))
+                * ctx.defenseMitigation(attacker, target);
         boolean crit = java.util.concurrent.ThreadLocalRandom.current().nextDouble() < ctx.critChance(attacker);
         if (crit) dmg *= ctx.critDamageMultiplier(attacker);
         double finalDmg = Math.max(0.01d, dmg);

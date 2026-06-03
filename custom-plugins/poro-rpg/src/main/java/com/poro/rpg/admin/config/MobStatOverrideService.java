@@ -22,13 +22,34 @@ import java.util.Objects;
  */
 public final class MobStatOverrideService {
 
-    public static final String SEED_AUTHOR = "seed:DL-116";
+    public static final String SEED_AUTHOR = "seed:DL-128#13";
 
     /**
      * DL-116 정본값 시드 — mobId → 평타(ATK) (`docs/06_fields_bosses/mob_attack_stats_v1.md`).
      * 일반몹 2.5% / 정예 6% / 필드보스 기본공격 8%. (HP/DEF는 미시드 = MythicMobs YAML 유지.)
      */
     private static final Map<String, Double> ATK_SEED = buildAtkSeed();
+
+    /**
+     * 보스 DEF 시드 (DL-128#14 — 방어력무시 잠재 의미화). 스폰 시 엔티티 PDC에 기록되어
+     * 플레이어→보스 피해에 200/(200+유효DEF) 경감. 설계값 = season_boss_stats_v1.
+     */
+    private static final Map<String, Double> DEF_SEED = buildDefSeed();
+
+    private static Map<String, Double> buildDefSeed() {
+        Map<String, Double> m = new LinkedHashMap<>();
+        m.put("fallen_knight",  100.0);
+        m.put("corrupted_lord", 150.0);
+        m.put("stone_colossus", 180.0);
+        m.put("storm_sorcerer", 210.0);
+        m.put("abyss_guardian", 240.0);
+        m.put("void_herald",    265.0);
+        m.put("rift_king",      280.0);
+        m.put("corrupted_dyad", 270.0);
+        m.put("spirit_watcher", 270.0);
+        m.put("fallen_knight_phantom", 40.0);
+        return m;
+    }
 
     private final MobStatOverrideRepository repository;
     private final ConfigChangeLogRepository changeLog;
@@ -43,20 +64,32 @@ public final class MobStatOverrideService {
         this.logger     = Objects.requireNonNull(logger);
     }
 
-    /** 부팅: DB 캐시 로드 + DL-116 시드(없는 키만 삽입). */
+    /**
+     * 부팅: DB 캐시 로드 + ATK 시드 적용.
+     * 밸런스 단계(DL-128#13)에서는 코드 시드가 ATK 정본 — 기존 행의 ATK가 시드와 다르면 시드값으로 upsert(재적용).
+     * 기존 HP/DEF 오버라이드는 보존(withAtk). 운영자 /poro-mobstat ATK 변경은 재부팅 시 시드로 복원됨(밸런스 확정 후 정책 전환).
+     */
     public void loadAndSeed() {
         cache.clear();
         cache.putAll(repository.findAll());
         int seeded = 0;
-        for (Map.Entry<String, Double> e : ATK_SEED.entrySet()) {
-            if (cache.containsKey(e.getKey())) continue;
-            MobStatOverride row = new MobStatOverride(e.getKey(), null, null, e.getValue());
-            if (repository.insertIfAbsent(row, SEED_AUTHOR)) {
-                cache.put(e.getKey(), row);
-                seeded++;
-            }
+        java.util.Set<String> keys = new java.util.LinkedHashSet<>();
+        keys.addAll(ATK_SEED.keySet());
+        keys.addAll(DEF_SEED.keySet());
+        for (String key : keys) {
+            MobStatOverride existing = cache.get(key);
+            Double atk = ATK_SEED.containsKey(key) ? ATK_SEED.get(key) : (existing != null ? existing.atk() : null);
+            Double def = DEF_SEED.containsKey(key) ? DEF_SEED.get(key) : (existing != null ? existing.def() : null);
+            Double hp  = existing != null ? existing.maxHp() : null;
+            if (existing != null
+                    && java.util.Objects.equals(atk, existing.atk())
+                    && java.util.Objects.equals(def, existing.def())) continue; // 변화 없음
+            MobStatOverride row = new MobStatOverride(key, hp, def, atk);
+            repository.save(row, SEED_AUTHOR);
+            cache.put(key, row);
+            seeded++;
         }
-        logger.info("mob_stat_override 로드 — 캐시 " + cache.size() + "건 (DL-116 신규 시드 " + seeded + "건).");
+        logger.info("mob_stat_override 로드 — 캐시 " + cache.size() + "건 (ATK/DEF 시드 적용/갱신 " + seeded + "건).");
     }
 
     public MobStatOverride get(String mobKey) {
@@ -70,7 +103,7 @@ public final class MobStatOverrideService {
     /** 스폰 직후 어트리뷰트 적용. MythicMobs 후속 적용과의 race를 피해 1틱 지연. */
     public void applyOnSpawn(Plugin plugin, Entity entity, String mobId) {
         MobStatOverride o = cache.get(mobId);
-        if (o == null || (o.maxHp() == null && o.atk() == null)) return;
+        if (o == null || (o.maxHp() == null && o.atk() == null && o.def() == null)) return;
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             if (!(entity instanceof LivingEntity le) || le.isDead() || !le.isValid()) return;
             if (o.maxHp() != null) {
@@ -83,6 +116,12 @@ public final class MobStatOverrideService {
             if (o.atk() != null) {
                 AttributeInstance atk = le.getAttribute(Attribute.ATTACK_DAMAGE);
                 if (atk != null) atk.setBaseValue(o.atk());
+            }
+            // DEF는 어트리뷰트가 없으므로 PDC에 기록 — 플레이어→대상 피해(BaseWeaponSkill)에서 200/(200+DEF) 경감에 사용.
+            if (o.def() != null) {
+                le.getPersistentDataContainer().set(
+                        com.poro.rpg.combat.SkillContext.MOB_DEF_KEY,
+                        org.bukkit.persistence.PersistentDataType.DOUBLE, o.def());
             }
         }, 1L);
     }
@@ -139,32 +178,33 @@ public final class MobStatOverrideService {
 
     private static Map<String, Double> buildAtkSeed() {
         Map<String, Double> m = new LinkedHashMap<>();
-        // F1 수도 외곽 평원 — 일반 4 / 정예 9 / 보스 기본공격 12
-        m.put("Plains_Soldier", 4.0);
-        m.put("Plains_Wildling", 4.0);
-        m.put("Plains_StalkerElite", 9.0);
-        m.put("Plains_Predator", 12.0);
-        // F2 폐광 지대 — 일반 5 / 정예 11 / 보스 14
-        m.put("Mine_Crawler", 5.0);
-        m.put("Mine_Husk", 5.0);
-        m.put("Mine_Golem_Fragment", 5.0);
-        m.put("Mine_WatcherElite", 11.0);
-        m.put("Mine_Golem", 14.0);
-        // F3 오염된 수로 — 일반 5 / 정예 12 / 보스 16
-        m.put("Waterway_Drowned", 5.0);
-        m.put("Waterway_Guardian", 5.0);
-        m.put("Waterway_LurkerElite", 12.0);
-        m.put("Waterway_Lord", 16.0);
-        // F4 무너진 초소 — 일반 5 / 정예 13 / 보스 17
-        m.put("Outpost_Pillager", 5.0);
-        m.put("Outpost_Vindicator", 5.0);
-        m.put("Outpost_CaptainElite", 13.0);
-        m.put("Outpost_Knight", 17.0);
-        // F5 고대 성벽 잔해 — 일반 6 / 정예 14 / 보스 18
-        m.put("Wall_Enderman", 6.0);
-        m.put("Wall_Shade", 6.0);
-        m.put("Wall_SentinelElite", 14.0);
-        m.put("Rift_Watcher", 18.0);
+        // DL-128#13 재조정: 플레이어 HP 상향(200~556)에 맞춰 필드별 ATK 가파르게 스케일(상위 필드 = 저강화 게이팅).
+        // F1 수도 외곽 평원 — 일반 8 / 정예 18 / 보스 24
+        m.put("Plains_Soldier", 8.0);
+        m.put("Plains_Wildling", 8.0);
+        m.put("Plains_StalkerElite", 18.0);
+        m.put("Plains_Predator", 24.0);
+        // F2 폐광 지대 — 일반 13 / 정예 28 / 보스 36
+        m.put("Mine_Crawler", 13.0);
+        m.put("Mine_Husk", 13.0);
+        m.put("Mine_Golem_Fragment", 13.0);
+        m.put("Mine_WatcherElite", 28.0);
+        m.put("Mine_Golem", 36.0);
+        // F3 오염된 수로 — 일반 19 / 정예 40 / 보스 52
+        m.put("Waterway_Drowned", 19.0);
+        m.put("Waterway_Guardian", 19.0);
+        m.put("Waterway_LurkerElite", 40.0);
+        m.put("Waterway_Lord", 52.0);
+        // F4 무너진 초소 — 일반 26 / 정예 56 / 보스 70
+        m.put("Outpost_Pillager", 26.0);
+        m.put("Outpost_Vindicator", 26.0);
+        m.put("Outpost_CaptainElite", 56.0);
+        m.put("Outpost_Knight", 70.0);
+        // F5 고대 성벽 잔해 — 일반 34 / 정예 72 / 보스 90
+        m.put("Wall_Enderman", 34.0);
+        m.put("Wall_Shade", 34.0);
+        m.put("Wall_SentinelElite", 72.0);
+        m.put("Rift_Watcher", 90.0);
         return m;
     }
 }

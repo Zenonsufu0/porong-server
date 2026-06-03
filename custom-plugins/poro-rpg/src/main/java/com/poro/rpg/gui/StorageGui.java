@@ -151,7 +151,10 @@ public class StorageGui {
     private static ItemStack itemSlot(Material mat, long qty) {
         ItemStack item = new ItemStack(mat);
         ItemMeta meta = item.getItemMeta();
-        meta.displayName(Component.text("§f" + formatName(mat)));
+        // 번역키 기반 — 클라 로케일(한국어)로 자연스럽게 표시. italic 제거.
+        meta.displayName(Component.translatable(mat.translationKey())
+                .color(net.kyori.adventure.text.format.NamedTextColor.WHITE)
+                .decoration(net.kyori.adventure.text.format.TextDecoration.ITALIC, false));
         meta.lore(List.of(
                 Component.text("§7보유량: §f" + FMT.format(qty) + "개"),
                 Component.text("§7──────────"),

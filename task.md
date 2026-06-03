@@ -31,7 +31,8 @@
 `assets/export/resourcepack`의 `font/hud.json`·`textures/hud/chars.png`는 비추적. 재클론·재배포 시 **유실됨 — 별도 보관 필요**:
 - `chars.png`: 24→25칸 확장, **'C' 글리프 추가**(라벨 LC/RC/SRC용).
 - `hud.json`: HUD 행 ascent +3(위로), cd바 height 8·ascent 조정, 아이콘(E034~36) height 10·ascent 8, chars provider 5개에 C 코드포인트.
-- 현재 sha1: `9bdcdbb…`(server.properties와 동기). 새 환경에선 이 폰트 델타 재적용 + zip 재패키징 필요.
+- 현재 sha1: **`7ffcf097…`**(DL-129 추가#14에서 갱신, server.properties와 동기). 구 9bdcdbb. 새 환경에선 이 폰트 델타 재적용 + zip 재패키징 필요.
+- **chars.png 25→27칸 확장**(K·M 글리프 추가, XP K/M 단축표기용) + 고대흔적 4종 `.png.mcmeta` 애니메이션 추가(16×128 8프레임). 백업 `server/resourcepack.zip.bak.dl129`.
 
 ### 아이템 이름 가림 — 해소 (2026-06-02)
 - 블럭/도구로 슬롯 변경 시 바닐라 아이템명이 액션바 HUD(XP바)에 가려 안 보이던 문제.
@@ -520,3 +521,81 @@
 | 스킬 자원 스택 최대값 | 각 스킬 파일에 max=3 또는 5 하드코딩 — CANON "유지형 자원 최대 6스택"은 각인(유지형/소모형 분기) 기반이며 1차 시즌 각인 제외로 해당 없음. 현재 값은 스킬 스펙(weapon_skills_v1.md) 기본값 |
 | ~~스킬 이펙트 22종 미구현 (DL-070)~~ ✅ 해소 (2026-05-30) | **24/24종 전체 이펙트 구현 완료.** 검·창·도끼·낫·석궁·스태프 전 스킬 `pt:` 파티클+사운드 보유. 원거리 8종은 신규 `BaseWeaponSkill.spawnBeam`(시선 빔) 헬퍼 사용. 무기별 커밋: 검→창→도끼→낫→석궁·스태프. F는 전부 논타겟 유지 |
 | ~~데이터 수집 공백 7종~~ ✅ 전체 해소 (2026-05-30) | INBOX-004 7종 모두 완료. #1 리텐션(DL-078)·#2 골드 흐름(DL-080)·#3 강화 로그(DL-079)·#4 보스 파티 스펙(DL-081)·#5 보스 데미지 기여(DL-084)·#6 PvP 무기/IL(DL-082)·#7 성장 시계열(DL-083). API: `/api/v1/activity·economy·pvp·growth`. 한계: 골드 source 미세분, 보스 damage add 미집계, MM spawn 반환 reflection 런타임 의존. 죽은 모델 `MarketPricePoint`·`LifeResourceSupplyRecord`(미사용 유지) |
+
+---
+
+# 🔻 다음 세션 인계 — 잠재 풀 전면 정비 (A) + 밸런스 후속 (2026-06-03 작성)
+
+## 이번 세션 완료 (DL-128#11~14, 모두 라이브 적용·재시작 반영)
+- **#11 보스 HP 캡 해제**: `server/spigot.yml` `attribute.maxHealth.max 1024→2048000`. 1024 클램프가 모든 보스/필드 큰몹 HP를 1024로 묶던 근본 원인. **★재배포 시 재적용 필수**(gitignore).
+- **#12 플레이어 HP 산식 상향**: `combat/SkillContext.java` 기본HP합 80→180, HP 전용 계수 0.11(DEF 0.04와 분리). +0≈200/+8≈358/+18≈556. 보스 패턴 데미지 역산 재조정. fallen_knight HP 8000(테스트값, 설계 파티 150k).
+- **#13 무기 ATK 강화 곡선↑** `combat/WeaponPowerCalculator.java`(+18 195=2.4배) + **필드 몹 ATK 재밸런스** `admin/config/MobStatOverrideService.java`(F1 일반8→F5 34, loadAndSeed upsert로 재적용).
+- **#14 보스 DEF 실데미지 적용 + 방어력무시**: `SkillContext.defenseMitigation`(×200/(200+유효DEF)), `BaseWeaponSkill.dealDamage` 적용, 보스 DEF 시드(`MobStatOverrideService.DEF_SEED` 100~280)→스폰 시 PDC `poro_rpg:mob_def` 기록. 방어력무시 잠재 옵션 정본값으로 추가.
+
+## 밸런스 분석 결과 (서브에이전트 3종) → `docs/04_combat_weapon_skills/balance_review_dl128.md`
+- 보스 HP 권장: fallen_knight 8k→30~35k(DEF무효 가정, DEF 살아있으니 ×1.5 반영해 ~20k), 시즌보스 HP가 평탄(150~170k)한데 권장강화는 6→22강 = **상위보스 역전** → 권장강화 비례 곡선 필요.
+- 필드 45마리/분: **F1만 스폰 병목**(15초·12마리 리필, 7초 노는 공백), F2~F5는 화력 부족(스폰 대기 아님). 스폰반경 코드 5~10 vs 주석 20~30 불일치.
+- 골드: 보스 미지급(의도). 인입=필드몹/영지 재료 판매(사장님 확인).
+
+## ▶ 메인 작업: 잠재 풀 전면 정비 (사장님 "A로 가야지" 확정)
+**문제**: 구현 잠재 풀(`custom-plugins/poro-rpg/src/main/resources/seeds/growth_potential_option_pool.csv`)이 **정본 `docs/02_database_api_stats/potential_options_v1.md`(2026-05-24 재확정)과 전혀 안 맞음**. 구현엔 폐기/금지 옵션(mark_target_damage=적표식 금지, crack_efficiency, resonance_effect_up, conditional_damage_bonus) 섞여있고, 정본 옵션 다수 미구현.
+**현재 실제 작동 옵션 4종뿐**: attack_percent, general_damage_increase, boss_damage_increase, defense_ignore(#14 추가). 나머지는 CSV에 있어도 소비 코드 없음.
+
+### 정본 잠재 풀 (potential_options_v1.md §1~2 — 슬롯별 옵션 + 등급값 전부 명시됨)
+- **무기 11종**: ATK%/방어력무시%/스킬피해%/보스피해%/기본기·이동기·특수기·핵심기 피해%/치명타확률%/치명타데미지%/쿨타임감소%
+- **머리 7(+유니크 받피감)**: HP%/DEF%/치명타확률%/스킬타입4종 + (유니크+)받피감%
+- **상의 7(+1)**: HP%/DEF%/스킬피해%/스킬타입4종 + 받피감%
+- **하의 8(+1)**: HP%/DEF%/쿨감%/보스피해%/스킬타입4종 + 받피감%
+- **신발 9**: 이속%/HP%/방어력무시%/쿨감%/ATK%/스킬타입4종 (받피감 없음)
+- 등급값 표: 정본 §2-1~2-5 (커먼~레전더리, 정수). 라인 적용: 1라인=현등급/2·3라인=한단계아래(이탈 2라인10%·3라인5%는 현등급).
+- 방어력무시 메카닉: 유효DEF=DEF×(1−방무%). **이미 #14에서 구현됨.**
+
+### 미구현 메커니즘 (정본 정비 = 아래 신규 구현 필요)
+| 옵션 | 난이도 | 구현처 |
+|---|---|---|
+| 스킬 피해%(skill_damage) | 쉬움 | general_damage_increase 정렬/개명, dealDamage 전체 적용 |
+| 치명타 확률%·데미지% | 쉬움 | SkillContext.critChance/critDamageMultiplier 합산 |
+| DEF%·HP% | 쉬움 | SkillContext.defense()·armorMaxHealth 합산(현재 잠재 미반영) |
+| 받는 피해 감소% | 쉬움 | listener/PlayerDefenseListener |
+| 이동 속도% | 쉬움 | MOVEMENT_SPEED 속성 |
+| 기본기/이동기/특수기/핵심기 피해% 4종 | 중간 | **입력 구분 이미 있음**: `listener/SkillInputListener`(slot1 LC=기본기/slot2 RC=이동기/slot3 SRC=특수기/slot4 F=핵심기). 스킬→slot 태그를 dealDamage에 전달해 승수 적용 |
+| 쿨타임 감소% | 중간 | CooldownManager 훅 |
+| 슬롯별 풀 차등 | 구조변경 | **현 item slot_type="armor" 단일**(머리/상의/하의/신발 구분 없음). `PotentialService.resolvePoolId`=`tier_slotType_pool`. 정본대로 4풀 나누려면 item_master.csv slot_type 세분 또는 resolvePoolId가 item_id/EquipmentSlot에서 sub-slot 도출 |
+
+### 3단계 계획 (사장님 확정: 순서 1→2→3 / 3단계=완전 분리)
+1. ~~**CSV 정본 재작성 + 쉬운 메커니즘**(스킬피해/치명확률·데미지/DEF%/HP%/받피감/이속)~~ ✅ **완료 (DL-129, 2026-06-03)** — `compileJava` 통과. 인게임 검증 대기.
+2. ~~스킬타입 피해% 4종(SkillInputListener slot 연동) + 쿨타임 감소%~~ ✅ **완료 (DL-129 추가#1, 2026-06-03)** — SkillType.fromKey(키→타입) + dealDamage 배율 + SkillService 쿨감. 무기풀 11종 정본 완성. 인게임 검증 대기.
+3. ~~슬롯별 풀 차등(머리/상의/하의/신발) — 완전 분리(item_master slot_type 세분)~~ ✅ **완료 (DL-129 추가#2, 2026-06-03)** — item_master armor→head/chest/legs/feet, EquipmentSlot itemSlotType 세분, CSV 10풀(생성기), RuneService armor shim, WeaponPowerCalculator 신발 ATK% 합산. build SUCCESSFUL. **잠재 풀 정비 1~3단계 전체 완료 = 정본 100% 정합.**
+
+### 인게임 피드백 반영 (DL-129 추가#3~#5, 2026-06-03)
+- 등급업 보호(재굴림 차단·확정 버튼), 잠재 채팅 한글 장비명(equipDisplayName, 이름변경권 연동지점)
+- 등급업 확률 정본화(레어→에픽 5%·에픽→유니크 1%) + 큐브 천장(기댓값×2=8/40/200/2000, pityCount 영속) + GUI에 확률·천장·부위풀 표시
+- 공방 상단 탭 고유 아이콘+글로우(유리 구분불가 해소)
+- **신규 운영 명령**: `/골드`·`/강화석`·`/큐브`·`/큐브조각 <플레이어> [수량]`(poro.admin) / **`/정예 [on|off]`**(전체, 필드 정예 토글·세션메모리)
+- **#1 추가**: 필드 정예 GUI 토글(FieldHubGui 슬롯22)
+- **#5 완료(DL-129 추가#7)**: 영지 시설 설치 시스템 — 작위별 슬롯 한계(4~18), 빈칸 클릭→시설(약초/광물/공방) 설치, **공방 대기슬롯=가공기×3**(설계 정합), workshopMachineCount 영속. ⚠기존 플레이어는 가공기 설치해야 공방 사용 가능
+- **#6 보류(에셋 파이프라인)**: 공방 텍스처 — 텍스처·모델 JSON은 존재하나 1.21.10 `items/` 정의·`setItemModel`·pack 재패키징(sha1)이 통째로 누락. 리소스팩 접속차단 위험 + bb 워크플로우 필요로 별도 신중 작업
+
+### 잠재 풀 정비 — 인게임 검증 체크리스트 (배포 후)
+- 부위별 옵션 분리: 머리=치명확률/HP/DEF/스킬타입, 상의=스킬피해/HP/DEF, 하의=쿨감/보스피해/HP/DEF, 신발=이속/ATK/방무/쿨감 — 큐브로 굴려 각 부위가 자기 풀 옵션만 뜨는지
+- 받피감: 머리/상의/하의 유니크+에서만, 신발엔 안 뜸
+- 신발 ATK% → 무기 공격력(스탯창 ATK) 증가 반영
+- 스킬타입: 핵심기 잠재 → F스킬만↑, 쿨감 → 쿨타임·HUD 단축
+- 강화/큐브 직후 HP·이속 즉시 반영
+- ⚠ **재배포 시**: item_master.csv·growth_potential_option_pool.csv 모두 jar에 포함(seeds) — saveResource replace=false 트랩 주의(기존 서버는 시드 갱신 안 될 수 있음, 런타임 시드 교체 확인)
+
+**1·2단계 인게임 검증 포인트(재개 시)**: ① 잠재 GUI 큐브 사용 시 폐기옵션 안 뜨고 정본 옵션만 → 한글 라벨(스킬피해/치명타확률·데미지/방어력/최대체력/받는피해감소/기본기·이동기·특수기·핵심기 피해/쿨타임 감소) ② 무기 치명확률·치명데미지 잠재 → 캐릭터 스탯창 수치 반영 ③ HP% 잠재 장착 → 최대체력 증가, 큐브 사용 직후 즉시 반영 ④ 이속% → 실제 이동 빨라짐(현재 롤소스는 통합풀 미포함, 임시 테스트 시 CSV에 1줄 추가 필요) ⑤ 받피감(유니크+) → 몹 피격 데미지 감소 ⑥ **핵심기 피해% 무기 잠재 → 핵심기(F) 스킬만 데미지↑, 기본기(LC)는 불변**(스킬타입 분리 확인) ⑦ **쿨감% 잠재 → 스킬 쿨타임·HUD 진행바 단축**.
+
+### 핵심 파일
+- 정본: `docs/02_database_api_stats/potential_options_v1.md`
+- CSV: `custom-plugins/poro-rpg/src/main/resources/seeds/growth_potential_option_pool.csv`
+- 롤/풀선택: `growth/engine/PotentialService.java`(resolvePoolId·filteredOptions·generateProfile)
+- 소비처: `combat/SkillContext.java`(generalDamageMultiplier·bossDamageMultiplier·critChance·critDamageMultiplier·defense·armorMaxHealth·defenseIgnorePercent·defenseMitigation), `combat/WeaponPowerCalculator.java`(attack_percent), `combat/skills/BaseWeaponSkill.java`(dealDamage)
+- 입력유형: `listener/SkillInputListener.java`(slot1~4)
+- 코드 stale 주석: `boss/db/BossParticipantSpec.java`("1차 방무 없음" — 정본과 모순, 정비 시 갱신)
+
+## 기타 밸런스 후속 (분석 기반, 우선순위 사장님 결정)
+- 보스 HP 재튜닝(DEF 반영): fallen_knight 8k→? / 시즌보스 HP 곡선 역전 해소
+- 필드 F1 스폰 주기 단축(15→10초 또는 batch 12→16), 스폰반경 5~10 의도 확인
+- 필드보스 HP 10만~66만 솔로 적정성
+- 기존 접속자는 재접속해야 HP/ATK 산식 갱신 적용

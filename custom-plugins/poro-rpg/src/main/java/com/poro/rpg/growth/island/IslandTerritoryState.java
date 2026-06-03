@@ -64,10 +64,15 @@ public final class IslandTerritoryState {
     /** 멤버 최대 인원 (gui_territory_settings.md §11). */
     public static final int MAX_MEMBERS = 8;
 
-    /** 기계 설치 대수. */
-    private int reaperCount  = 0; // 자동 재배기 (약초)
-    private int storageCount = 0; // 영지 저장고
-    private int minerCount   = 0; // 광물 채굴기
+    // 시설별 마지막 생산 시각(epoch ms) 리스트 — 각 시설이 자기 설치시점+20분에 독립 생산(DL-129 추가#11).
+    // 전역 틱 익스플로잇(생산 직전 슬롯 교체 수확) 방지를 위해 시설별 타임스탬프로 관리.
+    private final java.util.List<Long> herbProducedAt = new java.util.ArrayList<>(); // 약초 재배지별
+    private final java.util.List<Long> oreProducedAt  = new java.util.ArrayList<>(); // 광물 채굴기별
+    private int storageCount = 0; // 영지 저장고 (시설 슬롯 미차지 — 별도)
+    private int workshopMachineCount = 0; // 공방 가공기 (1대 = 공방 대기 슬롯 3개, island_system_design §3.4)
+
+    /** 시설 종류 — 시설현황 GUI 설치 선택용 (DL-129 추가#7). */
+    public enum FacilityType { HERB, ORE, WORKSHOP }
     /** 마지막 시설 생산 정산 시각(epoch ms). 오프라인 누적 생산 기준 (DL-088). 0=미설정(최초). */
     private long lastProductionAt = 0L;
 
@@ -99,21 +104,66 @@ public final class IslandTerritoryState {
     public IslandRank rank() { return rank; }
     public void setRank(IslandRank rank) { this.rank = rank; }
 
-    // ─── 기계 대수 ────────────────────────────────────────────────
-    public int reaperCount()  { return reaperCount;  }
+    // ─── 기계 대수 (타임스탬프 리스트에서 파생) ─────────────────────
+    public int reaperCount()  { return herbProducedAt.size(); }
     public int storageCount() { return storageCount; }
-    public int minerCount()   { return minerCount;   }
+    public int minerCount()   { return oreProducedAt.size();  }
+    public int workshopMachineCount() { return workshopMachineCount; }
+
+    /** 시설별 마지막 생산 시각 리스트 (스케줄러가 직접 갱신·GUI 타이머). 라이브 리스트. */
+    public java.util.List<Long> herbProducedAt() { return herbProducedAt; }
+    public java.util.List<Long> oreProducedAt()  { return oreProducedAt;  }
 
     public long lastProductionAt() { return lastProductionAt; }
     public void setLastProductionAt(long t) { this.lastProductionAt = t; }
-    public void setReaperCount(int n)  { this.reaperCount  = Math.max(0, n); }
     public void setStorageCount(int n) { this.storageCount = Math.max(0, n); }
-    public void setMinerCount(int n)   { this.minerCount   = Math.max(0, n); }
+    public void setWorkshopMachineCount(int n) { this.workshopMachineCount = Math.max(0, n); }
+
+    /** 영속 복원/마이그레이션용 — 타임스탬프 리스트를 통째로 설정. */
+    public void setHerbProducedAt(java.util.List<Long> ts) {
+        herbProducedAt.clear();
+        if (ts != null) ts.forEach(v -> herbProducedAt.add(v == null || v <= 0 ? System.currentTimeMillis() : v));
+    }
+    public void setOreProducedAt(java.util.List<Long> ts) {
+        oreProducedAt.clear();
+        if (ts != null) ts.forEach(v -> oreProducedAt.add(v == null || v <= 0 ? System.currentTimeMillis() : v));
+    }
+
+    // ─── 시설 슬롯 (작위 한계 내 배분, island_system_design §2.1·§3) ──
+    /** 시설 슬롯 사용량 = 약초 + 광물 + 공방 가공기 (저장고는 시설 슬롯 미차지). */
+    public int facilitySlotsUsed() { return reaperCount() + minerCount() + workshopMachineCount; }
+    /** 작위별 최대 시설 슬롯. */
+    public int facilitySlotsMax() { return rank.maxFacilitySlots(); }
+    public boolean facilitySlotsAvailable() { return facilitySlotsUsed() < facilitySlotsMax(); }
+
+    /** 시설 1대 설치 — 슬롯 여유 있으면 +1. 생산기는 설치 시각을 기준점으로 기록(설치+20분에 첫 생산). */
+    public boolean installFacility(FacilityType type) {
+        if (type == null || !facilitySlotsAvailable()) return false;
+        long now = System.currentTimeMillis();
+        switch (type) {
+            case HERB     -> herbProducedAt.add(now);
+            case ORE      -> oreProducedAt.add(now);
+            case WORKSHOP -> workshopMachineCount++;
+        }
+        return true;
+    }
+
+    /** 시설 1대 제거 — 해당 종류가 1 이상이면 -1(생산기는 마지막 항목 제거). */
+    public boolean removeFacility(FacilityType type) {
+        if (type == null) return false;
+        switch (type) {
+            case HERB     -> { if (herbProducedAt.isEmpty()) return false; herbProducedAt.remove(herbProducedAt.size() - 1); }
+            case ORE      -> { if (oreProducedAt.isEmpty())  return false; oreProducedAt.remove(oreProducedAt.size() - 1); }
+            case WORKSHOP -> { if (workshopMachineCount <= 0) return false; workshopMachineCount--; }
+        }
+        return true;
+    }
 
     // ─── 공방 ─────────────────────────────────────────────────────
     public List<WorkshopJob> workshopJobs() { return workshopJobs; }
     public int workshopQueueUsed() { return workshopJobs.size(); }
-    public int workshopQueueMax() { return rank.workshopQueueMax(); }
+    /** 공방 대기 슬롯 = 가공기 1대당 3슬롯 (island_system_design §3.4, DL-129 추가#7). */
+    public int workshopQueueMax() { return workshopMachineCount * 3; }
     public boolean workshopFull() { return workshopJobs.size() >= workshopQueueMax(); }
 
     public boolean addWorkshopJob(WorkshopJob job) {

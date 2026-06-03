@@ -33,6 +33,9 @@ public final class ScoreboardService {
     private final GrowthStateStore          growthStore;
     private final PlayerDataManager         playerDataManager;
     private final IslandTerritoryStateStore territoryStore;
+    // 보스룸 파티 패널용 — setter 주입 (PartyManager·BossRoomManager는 ScoreboardService 이후 생성).
+    private com.poro.rpg.boss.room.BossRoomManager   bossRoomManager;
+    private com.poro.rpg.boss.party.PartyManager     partyManager;
 
     private static final String OBJ_NAME = "poro_sidebar";
     private static final String LINE_SEP = "§7──────────";
@@ -54,6 +57,18 @@ public final class ScoreboardService {
         this.territoryStore    = territoryStore;
     }
 
+    /** runId → 남은 전투 시간(초). 보스 타이머 표시용 (BossRunService.remainingSeconds 위임). */
+    private java.util.function.Function<String, Long> bossTimeRemaining;
+
+    /** 보스룸 파티 패널(데스카운트·파티원 HP·남은시간) 표시용 컨텍스트 주입. */
+    public void attachBossContext(com.poro.rpg.boss.room.BossRoomManager bossRoomManager,
+                                  com.poro.rpg.boss.party.PartyManager partyManager,
+                                  java.util.function.Function<String, Long> bossTimeRemaining) {
+        this.bossRoomManager   = bossRoomManager;
+        this.partyManager      = partyManager;
+        this.bossTimeRemaining = bossTimeRemaining;
+    }
+
     /**
      * 위치 감시 태스크 시작 — 1초마다 각 플레이어의 현재 위치명을 계산해
      * 직전과 달라진 경우에만 스코어보드를 갱신한다. (필드↔보스룸↔영지↔수도 이동 반영)
@@ -64,7 +79,10 @@ public final class ScoreboardService {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 String now  = resolveLocationName(player);
                 String prev = lastLocation.put(player.getUniqueId(), now);
-                if (!now.equals(prev)) {
+                // 보스룸 안에서는 파티원 HP·데스카운트가 실시간 변하므로 매 초 강제 갱신.
+                boolean inBossRoom = bossRoomManager != null
+                        && bossRoomManager.isInBossRoom(player.getUniqueId());
+                if (!now.equals(prev) || inBossRoom) {
                     refresh(player);
                 }
             }
@@ -86,6 +104,11 @@ public final class ScoreboardService {
         WeaponType wt = playerDataManager.getWeaponType(player.getUniqueId());
         Optional<PlayerGrowthState> stateOpt = growthStore.get(player.getUniqueId());
 
+        // 보스룸 입장 중이면 전투 중심 압축 레이아웃 — 사이드바 15줄 제한 안에서 파티 패널을 확보하기 위해
+        // 재화/레벨/IL 블록을 생략한다(전투 중 불필요). 그 외에는 기존 전체 레이아웃.
+        boolean inBossRoom = bossRoomManager != null
+                && bossRoomManager.isInBossRoom(player.getUniqueId());
+
         // 행 구성 (score 높을수록 위에 표시)
         int row = 14;
 
@@ -106,7 +129,7 @@ public final class ScoreboardService {
 
         row = setRow(obj, LINE_SEP + "§0.", row); // separator 중복 방지용 invisible suffix
 
-        if (stateOpt.isPresent()) {
+        if (stateOpt.isPresent() && !inBossRoom) {
             PlayerGrowthState state = stateOpt.get();
 
             // 골드·강화석·큐브 (poro:hud PNG 아이콘 + 수치)
@@ -140,7 +163,76 @@ public final class ScoreboardService {
         String location = resolveLocationName(player);
         row = setRow(obj, "§7" + location, row);
 
+        // 보스룸 파티 패널 (데스카운트·보스·파티원 HP) — 보스룸 입장 중에만
+        row = appendBossPanel(obj, player, row);
+
         player.setScoreboard(board);
+    }
+
+    /**
+     * 보스룸 입장 중인 플레이어에게 파티 패널을 추가한다.
+     * 남은 부활(데스카운트) · 도전 보스명 · 파티원 HP(현재/최대)를 표시한다.
+     * 보스룸이 아니거나 컨텍스트 미주입이면 아무것도 추가하지 않는다.
+     */
+    private int appendBossPanel(Objective obj, Player player, int row) {
+        if (bossRoomManager == null) return row;
+        UUID uuid = player.getUniqueId();
+        if (!bossRoomManager.isInBossRoom(uuid)) return row;
+        int slotId = bossRoomManager.slotOf(uuid).orElse(-1);
+        if (slotId < 0) return row;
+
+        row = setRow(obj, LINE_SEP + "§0,", row);
+
+        // 도전 보스
+        String bossId = bossRoomManager.bossInSlot(slotId).orElse(null);
+        if (bossId != null) {
+            row = setRow(obj, "§6보스 §f" + com.poro.rpg.gui.BossHubGui.bossNameById(bossId), row);
+        }
+
+        // 남은 시간 (BossRun 타임아웃 기준)
+        if (bossTimeRemaining != null) {
+            long sec = bossRoomManager.runIdOf(slotId).map(bossTimeRemaining).orElse(-1L);
+            if (sec >= 0) {
+                String color = sec <= 60 ? "§c" : "§e";
+                row = setRow(obj, "§7남은시간 " + color
+                        + String.format("%d:%02d", sec / 60, sec % 60), row);
+            }
+        }
+
+        // 남은 부활(공유 데스카운트)
+        int rem = bossRoomManager.deathsRemaining(slotId);
+        int max = bossRoomManager.deathsMax(slotId);
+        if (max > 0) {
+            row = setRow(obj, "§c남은 부활 §f" + rem + "§7/§f" + max, row);
+        }
+
+        // 파티원 HP (현재/최대). 본인을 항상 맨 위에 포함하고, 파티원을 뒤이어 표시(중복 제거).
+        row = setRow(obj, "§7파티원", row);
+        java.util.LinkedHashSet<UUID> members = new java.util.LinkedHashSet<>();
+        members.add(uuid); // 본인 우선
+        if (partyManager != null) {
+            partyManager.findParty(uuid).ifPresent(p -> members.addAll(p.members()));
+        }
+        for (UUID memberId : members) {
+            Player member = Bukkit.getPlayer(memberId);
+            if (member == null) continue; // 오프라인 멤버는 표시 생략
+            boolean self = memberId.equals(uuid);
+            row = setRow(obj, hpLine(member, self), row);
+        }
+        return row;
+    }
+
+    /** "{▶}§f{이름} §a{현재}§7/{최대}" 형식 HP 라인. 본인은 ▶ 표시, HP 비율에 따라 색상 변화. */
+    private static String hpLine(Player p, boolean self) {
+        int cur = (int) Math.ceil(Math.max(0, p.getHealth()));
+        var attr = p.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH);
+        int max = attr != null ? (int) Math.round(attr.getValue()) : cur;
+        double ratio = max > 0 ? (double) cur / max : 0;
+        String hpColor = ratio > 0.5 ? "§a" : ratio > 0.25 ? "§e" : "§c";
+        String name = p.getName();
+        if (name.length() > 10) name = name.substring(0, 10); // 사이드바 폭 보호
+        String prefix = self ? "§b▶ " : "§f";
+        return prefix + name + " " + hpColor + cur + "§7/" + max;
     }
 
     // ─── helpers ──────────────────────────────────────────────────────────

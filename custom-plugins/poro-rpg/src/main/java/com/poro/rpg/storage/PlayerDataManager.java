@@ -67,6 +67,23 @@ public class PlayerDataManager {
         return getWeaponType(player.getUniqueId());
     }
 
+    /** 필드 정예 모드 여부 (FieldSpawnService eliteMode predicate 백킹). */
+    public boolean isFieldElite(UUID uuid) {
+        return find(uuid).map(PlayerData::isFieldEliteMode).orElse(false);
+    }
+
+    /** 필드 정예 모드 토글 — 변경 후 값 반환. */
+    public boolean toggleFieldElite(UUID uuid) {
+        PlayerData data = getOrCreate(uuid);
+        data.setFieldEliteMode(!data.isFieldEliteMode());
+        return data.isFieldEliteMode();
+    }
+
+    /** 필드 정예 모드 명시 설정. */
+    public void setFieldElite(UUID uuid, boolean on) {
+        getOrCreate(uuid).setFieldEliteMode(on);
+    }
+
     public void clear() {
         playerDataMap.clear();
     }

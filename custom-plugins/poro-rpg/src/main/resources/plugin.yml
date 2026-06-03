@@ -169,6 +169,31 @@ commands:
     description: 재화 ± 조정 (gold/mat_stone_enhance/mat_cube 등)
     usage: /poro-currency <플레이어> <code> <±N>
     permission: poro.admin
+  # 재화별 한글 단축 명령 (운용자 편의)
+  poro-gold:
+    description: 골드 지급/회수
+    aliases: [골드]
+    usage: /골드 <플레이어> [수량]
+    permission: poro.admin
+  poro-stone:
+    description: 강화석 지급/회수
+    aliases: [강화석]
+    usage: /강화석 <플레이어> [수량]
+    permission: poro.admin
+  poro-cube:
+    description: 큐브 지급/회수
+    aliases: [큐브]
+    usage: /큐브 <플레이어> [수량]
+    permission: poro.admin
+  poro-cubefrag:
+    description: 큐브 조각 지급/회수
+    aliases: [큐브조각]
+    usage: /큐브조각 <플레이어> [수량]
+    permission: poro.admin
+  poro-field-elite:
+    description: 필드 정예 모드 토글 (본인 주변 웨이브)
+    aliases: [정예]
+    usage: /정예 [on|off]
   poro-rank:
     description: 영지 작위 강제 변경
     usage: /poro-rank <플레이어> <FRONTIER|KNIGHT|BARONET|BARON|VISCOUNT|COUNT|MARQUESS|DUKE>

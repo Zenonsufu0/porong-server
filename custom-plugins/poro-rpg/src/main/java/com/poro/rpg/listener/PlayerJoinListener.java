@@ -107,7 +107,7 @@ public final class PlayerJoinListener implements Listener {
         playerPersistenceService.load(player.getUniqueId(), player.getName());
         collectWorkshopResults(player);
         hotbarService.updateHotbar(player);
-        skillContext.applyMaxHealth(player); // 방어구 HP를 max health에 반영(DL-115, combat_balance_v2 §1)
+        skillContext.applyDerivedAttributes(player); // 방어구 HP + 잠재 HP%/이속% 반영(DL-115/129)
         scoreboardService.refresh(player);
         classInitService.openSelectionGuiIfNeeded(player);
         classInitService.ensureMenuCompass(player);

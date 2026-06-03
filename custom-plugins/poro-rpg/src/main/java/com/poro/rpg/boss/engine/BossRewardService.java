@@ -232,12 +232,7 @@ public final class BossRewardService implements BossRewardResolverHook {
             territory.addCustomItem(table.ancientTraceId(), 1);
             sb.append(" §6+1 고대흔적");
         }
-        // 1~10회 보너스: 치장 제작 파편
-        if (table.cosmeticFragMin() > 0) {
-            long cf = randomInclusive(table.cosmeticFragMin(), table.cosmeticFragMax());
-            territory.addCustomItem(COSMETIC_FRAGMENT, cf);
-            sb.append(" §d+").append(cf).append(" 치장파편");
-        }
+        // 치장 제작 파편 — 1차 시즌 치장 시스템 제외라 지급하지 않음 (DL: 치장 1차 제외)
         // 균열왕 심장 (rift_king 1-10회 확정, 11회+ 0% — beyondTen에는 없음)
         if (table.heartGuaranteed()) {
             territory.addCustomItem(RIFT_KING_HEART, 1);

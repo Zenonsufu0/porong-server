@@ -11,6 +11,8 @@ public final class PlayerEquipmentItem {
     private PotentialProfile potentialProfile;
     private ItemGrade grade = ItemGrade.COMMON;
     private List<PotentialLine> substatLines = new ArrayList<>();
+    /** 잠재 큐브 천장 카운터 — 현재 등급에서 승급 없이 사용한 큐브 수. 승급 시 0 리셋 (DL-129 추가#4, 영속). */
+    private int pityCount;
 
     public PlayerEquipmentItem(String itemInstanceId, String itemId) {
         this.itemInstanceId = normalize(itemInstanceId);
@@ -45,6 +47,14 @@ public final class PlayerEquipmentItem {
         return grade;
     }
 
+    public int pityCount() {
+        return pityCount;
+    }
+
+    public void setPityCount(int pityCount) {
+        this.pityCount = Math.max(0, pityCount);
+    }
+
     public List<PotentialLine> substatLines() {
         return List.copyOf(substatLines);
     }
@@ -62,11 +72,21 @@ public final class PlayerEquipmentItem {
                                               int enhanceLevel, ItemGrade grade,
                                               PotentialProfile potential,
                                               List<PotentialLine> substats) {
+        return restore(instanceId, itemId, enhanceLevel, grade, potential, substats, 0);
+    }
+
+    /** 퍼시스턴스 역직렬화용 팩토리 (천장 카운터 포함, DL-129 추가#4). */
+    public static PlayerEquipmentItem restore(String instanceId, String itemId,
+                                              int enhanceLevel, ItemGrade grade,
+                                              PotentialProfile potential,
+                                              List<PotentialLine> substats,
+                                              int pityCount) {
         PlayerEquipmentItem item = new PlayerEquipmentItem(instanceId, itemId);
         item.setEnhanceLevel(enhanceLevel);
         item.setGrade(grade);
         item.setPotentialProfile(potential);
         item.setSubstatLines(substats != null ? substats : List.of());
+        item.setPityCount(pityCount);
         return item;
     }
 

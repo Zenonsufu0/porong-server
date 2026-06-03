@@ -17,15 +17,32 @@ public final class PotentialService {
     private static final String MATERIAL_GOLD = "gold";
     private static final long CUBE_USE_GOLD_COST = 500L;
 
-    // 메모리얼 승급 확률 (단조 상승, COMMON 시작 / DL-094 → DL-111 재조정).
-    // 수급량 역산(economy-reviewer): 일반~200·선발대~1300큐브/45일 대비 "전설=상위 0.5~1%"가
-    // 성립하려면 전설 기댓값을 ~1,040큐브로 격리해야 함. 유니크까지(~40큐브)는 큐브 후함 철학 유지.
+    // 등급 승급 확률 — 정본 potential_options_v1 §5-2 정합 (DL-129 추가#4, 기존 RARE/EPIC가 2~4배 과했음 교정).
     private static final Map<PotentialGrade, Double> UPGRADE_CHANCE_BY_GRADE = Map.of(
-            PotentialGrade.COMMON, 0.22d,   // → RARE   (누적 ~4.5)
-            PotentialGrade.RARE, 0.10d,     // → EPIC   (누적 ~14.5)
-            PotentialGrade.EPIC, 0.04d,     // → UNIQUE (누적 ~39.5)
-            PotentialGrade.UNIQUE, 0.001d   // → LEGENDARY (누적 ~1,040)
+            PotentialGrade.COMMON, 0.25d,   // → RARE      (기댓값 4)
+            PotentialGrade.RARE, 0.05d,     // → EPIC      (기댓값 20)
+            PotentialGrade.EPIC, 0.01d,     // → UNIQUE    (기댓값 100)
+            PotentialGrade.UNIQUE, 0.001d   // → LEGENDARY (기댓값 1,000)
     );
+
+    // 확정 승급 천장 — 사장님 지시 "기댓값 × 2" = 2/확률. 비운의 꼬리(~10%)만 보호, 평균은 거의 불변.
+    // 천장 카운터(item.pityCount)가 (천장−1)에 도달하면 다음 큐브에서 확정 승급. 승급 시 0으로 리셋(영속).
+    private static final Map<PotentialGrade, Integer> PITY_CEILING_BY_GRADE = Map.of(
+            PotentialGrade.COMMON, 8,       // → RARE
+            PotentialGrade.RARE, 40,        // → EPIC
+            PotentialGrade.EPIC, 200,       // → UNIQUE
+            PotentialGrade.UNIQUE, 2000     // → LEGENDARY
+    );
+
+    /** 해당 등급의 다음 등급 승급 확률(0~1). 최고 등급이면 0. GUI 표시용. */
+    public static double upgradeChanceFor(PotentialGrade grade) {
+        return grade == null ? 0.0d : UPGRADE_CHANCE_BY_GRADE.getOrDefault(grade, 0.0d);
+    }
+
+    /** 해당 등급의 확정 승급 천장 횟수. 최고 등급이면 0. GUI 표시용. */
+    public static int pityCeilingFor(PotentialGrade grade) {
+        return grade == null ? 0 : PITY_CEILING_BY_GRADE.getOrDefault(grade, 0);
+    }
 
     private final ItemMasterRegistry itemMasterRegistry;
     private final PotentialOptionRegistry potentialOptionRegistry;
@@ -101,12 +118,19 @@ public final class PotentialService {
         state.consumeCurrency(MATERIAL_GOLD, CUBE_USE_GOLD_COST);
 
         PotentialProfile before = item.potentialProfile();
-        PotentialGrade nextGrade = before.grade().nextOrNull();
+        PotentialGrade curGrade = before.grade();
+        PotentialGrade nextGrade = curGrade.nextOrNull();
 
-        double chance = nextGrade != null ? UPGRADE_CHANCE_BY_GRADE.getOrDefault(before.grade(), 0.0d) : 0.0d;
+        double chance = nextGrade != null ? UPGRADE_CHANCE_BY_GRADE.getOrDefault(curGrade, 0.0d) : 0.0d;
+        int ceiling = nextGrade != null ? PITY_CEILING_BY_GRADE.getOrDefault(curGrade, Integer.MAX_VALUE) : Integer.MAX_VALUE;
         double roll = fixedRoll == null ? randomProvider.nextDouble() : fixedRoll;
-        boolean upgradeSuccess = nextGrade != null && roll <= chance;
-        PotentialGrade resultGrade = upgradeSuccess ? nextGrade : before.grade();
+        boolean natural = nextGrade != null && roll <= chance;
+        // 천장: 이번 사용으로 카운터가 천장에 도달하면 확정 승급 (정본 §5-4, 천장=기댓값×2).
+        boolean forced = nextGrade != null && item.pityCount() + 1 >= ceiling;
+        boolean upgradeSuccess = natural || forced;
+        PotentialGrade resultGrade = upgradeSuccess ? nextGrade : curGrade;
+        // 천장 카운터: 승급(자연/확정) 시 0으로 리셋, 아니면 +1. 영속(PlayerEquipmentItem 직렬화).
+        item.setPityCount(upgradeSuccess ? 0 : item.pityCount() + 1);
 
         PotentialProfile candidate = generateProfile(state, master, resultGrade);
         PotentialProfile selected = select("cube_use", state, item, before, candidate);
@@ -186,6 +210,15 @@ public final class PotentialService {
         }
         return potentialOptionRegistry.all().values().stream()
                 .filter(option -> option.grade() == grade)
+                .toList();
+    }
+
+    /** 아이템의 현재 풀에서 등장 가능한 옵션 코드(중복 제거·정렬). GUI "현재 장비 잠재 풀 표시"용 (DL-129 추가#4). */
+    public List<String> poolOptionCodes(PlayerGrowthState state, ItemMaster itemMaster, PotentialGrade grade) {
+        return filteredOptions(state, itemMaster, grade).stream()
+                .map(PotentialOption::optionCode)
+                .distinct()
+                .sorted()
                 .toList();
     }
 

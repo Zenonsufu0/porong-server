@@ -11,6 +11,7 @@ import com.poro.rpg.gui.TerritoryHubGui;
 import com.poro.rpg.gui.TerritorySettingsGui;
 import com.poro.rpg.gui.MainHubGui;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.plugin.Plugin;
 import net.kyori.adventure.text.Component;
@@ -84,16 +85,74 @@ public final class TerritorySettingsGuiListener implements Listener {
 
         } else if (GuiTitles.TERRITORY_FACILITY.equals(event.getView().title())) {
             event.setCancelled(true);
-            if (event.getRawSlot() == TerritoryFacilityGui.SLOT_BACK) {
-                if (combatStateService.isInCombat(uid)) {
-                    player.sendMessage("§c[영지] 전투 중에는 영지 설정을 열 수 없습니다.");
-                    return;
-                }
-                TerritorySettingsGui.open(player, territory(player),
-                        weatherStates.getOrDefault(uid, 0), timeStates.getOrDefault(uid, 0));
-            }
+            handleFacility(player, event.getRawSlot(), event.isShiftClick());
+
+        } else if (GuiTitles.TERRITORY_FACILITY_SELECT.equals(event.getView().title())) {
+            event.setCancelled(true);
+            handleFacilitySelect(player, event.getRawSlot());
 
         }
+    }
+
+    // ─── 시설 현황 / 설치 ────────────────────────────────────────────
+
+    private void handleFacility(Player player, int slot, boolean shift) {
+        UUID uid = player.getUniqueId();
+        IslandTerritoryState t = territory(player);
+        if (slot == TerritoryFacilityGui.SLOT_BACK) {
+            if (combatStateService.isInCombat(uid)) {
+                player.sendMessage("§c[영지] 전투 중에는 영지 설정을 열 수 없습니다.");
+                return;
+            }
+            TerritorySettingsGui.open(player, t,
+                    weatherStates.getOrDefault(uid, 0), timeStates.getOrDefault(uid, 0));
+            return;
+        }
+        if (slot < 0 || slot >= 18) return; // 시설 슬롯 영역만
+
+        IslandTerritoryState.FacilityType installed = TerritoryFacilityGui.installedTypeAt(t, slot);
+        if (installed != null && shift) {
+            // 철거
+            if (t.removeFacility(installed)) {
+                player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_DESTROY, 0.6f, 1.0f);
+                player.sendMessage("§7[영지] " + facilityKr(installed) + " §71대를 철거했습니다.");
+                TerritoryFacilityGui.open(player, t);
+            }
+            return;
+        }
+        if (installed == null && t.facilitySlotsAvailable()) {
+            // 빈 슬롯 → 시설 선택 화면
+            TerritoryFacilityGui.openSelect(player, t);
+        } else if (installed != null) {
+            player.sendMessage("§8[영지] 철거하려면 §7Shift+클릭§8 하세요.");
+        }
+    }
+
+    private void handleFacilitySelect(Player player, int slot) {
+        IslandTerritoryState t = territory(player);
+        if (slot == TerritoryFacilityGui.SLOT_BACK_SELECT) {
+            TerritoryFacilityGui.open(player, t);
+            return;
+        }
+        IslandTerritoryState.FacilityType type = TerritoryFacilityGui.selectedType(slot);
+        if (type == null) return;
+        if (t.installFacility(type)) {
+            // installFacility가 설치시각을 now로 기록 → 설치+20분 후 첫 생산(windfall 방지 내장, DL-129 추가#11).
+            player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_USE, 0.6f, 1.2f);
+            player.sendMessage("§a[영지] " + facilityKr(type) + "§a를 설치했습니다. §7(시설 슬롯 "
+                    + t.facilitySlotsUsed() + "/" + t.facilitySlotsMax() + ")");
+            TerritoryFacilityGui.open(player, t);
+        } else {
+            player.sendMessage("§c[영지] 시설 슬롯이 부족합니다. 작위를 승급하세요.");
+        }
+    }
+
+    private String facilityKr(IslandTerritoryState.FacilityType type) {
+        return switch (type) {
+            case HERB -> "§a약초 재배지";
+            case ORE -> "§b광물 채굴기";
+            case WORKSHOP -> "§6공방 가공기";
+        };
     }
 
     // ─── 설정 클릭 핸들러 ────────────────────────────────────────────

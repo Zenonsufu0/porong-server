@@ -1,7 +1,7 @@
 item_id,item_name,tier,slot_type,region_theme,boss_source,set_id,base_stat_type,base_stat_value,is_tradeable,tags
 t2_gs_ragnes,Crimson Greatsword,T2,weapon,south,ragnes,crimson_brand,attack,245,false,core|boss_drop
-t2_armor_ragnes_head,Crimson Helm,T2,armor,south,ragnes,imperial_glory,defense,112,false,boss_drop
-t2_armor_ragnes_chest,Crimson Cuirass,T2,armor,south,ragnes,imperial_glory,defense,128,false,boss_drop
+t2_armor_ragnes_head,Crimson Helm,T2,head,south,ragnes,imperial_glory,defense,112,false,boss_drop
+t2_armor_ragnes_chest,Crimson Cuirass,T2,chest,south,ragnes,imperial_glory,defense,128,false,boss_drop
 t2_ring_carmen,Resonance Ring,T2,accessory,arkanon,carmen,imperial_glory,attack,72,false,boss_drop
 t1_sword_starter,Training Sword,T1,weapon,capital,,starter_set,attack,60,false,starter
 t1_axe_starter,Training Axe,T1,weapon,capital,,starter_set,attack,60,false,starter
@@ -9,11 +9,11 @@ t1_spear_starter,Training Spear,T1,weapon,capital,,starter_set,attack,60,false,s
 t1_crossbow_starter,Training Crossbow,T1,weapon,capital,,starter_set,attack,60,false,starter
 t1_scythe_starter,Training Scythe,T1,weapon,capital,,starter_set,attack,60,false,starter
 t1_staff_starter,Training Staff,T1,weapon,capital,,starter_set,attack,60,false,starter
-t1_helmet_starter,Training Helmet,T1,armor,capital,,starter_set,defense,35,true,starter
-t1_chestplate_starter,Training Chestplate,T1,armor,capital,,starter_set,defense,45,true,starter
-t1_leggings_starter,Training Leggings,T1,armor,capital,,starter_set,defense,40,true,starter
-t1_boots_starter,Training Boots,T1,armor,capital,,starter_set,defense,30,true,starter
-t1_boots_basic,Training Boots,T1,armor,capital,,starter_set,defense,40,true,starter
+t1_helmet_starter,Training Helmet,T1,head,capital,,starter_set,defense,35,true,starter
+t1_chestplate_starter,Training Chestplate,T1,chest,capital,,starter_set,defense,45,true,starter
+t1_leggings_starter,Training Leggings,T1,legs,capital,,starter_set,defense,40,true,starter
+t1_boots_starter,Training Boots,T1,feet,capital,,starter_set,defense,30,true,starter
+t1_boots_basic,Training Boots,T1,feet,capital,,starter_set,defense,40,true,starter
 res_herb_imperial,Imperial Herb,LIFE,material,capital,,,,0,true,starter
 res_essence_imperial,Imperial Essence,LIFE,material,capital,,,,0,true,starter
 mat_refined_herb,Refined Herb,LIFE,material,capital,,,,0,true,starter

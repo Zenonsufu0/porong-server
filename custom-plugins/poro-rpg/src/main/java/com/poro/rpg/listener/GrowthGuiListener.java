@@ -618,7 +618,7 @@ public final class GrowthGuiListener implements Listener {
         fillEnhancementEquipSlots(inv, state, playerDataManager.getWeaponType(player.getUniqueId()));
         refreshEnhanceInfo(player, inv, state, instanceId);
         refreshHeldWeapon(player, state); // 강화 후 손무기 lore 실시간 반영
-        if (skillContext != null) skillContext.applyMaxHealth(player); // 방어구 강화 시 HP를 max health에 반영(DL-115)
+        if (skillContext != null) skillContext.applyDerivedAttributes(player); // 강화 시 HP·이속 재적용(DL-115/129)
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -681,8 +681,15 @@ public final class GrowthGuiListener implements Listener {
             if (combatStateService.isInCombat(player.getUniqueId())) {
                 player.sendMessage("§c전투 중에는 잠재능력을 변경할 수 없습니다."); return;
             }
-            // 미확정 결과가 있으면 자동으로 기존 유지(before 복원) 후 재굴림 — 선택 없이 연속 재롤(DL-112).
-            PotentialService.PotentialOperationResult prev = pendingPotentialResult.remove(player.getUniqueId());
+            // 등급 상승 결과는 보호 — 재굴림으로 날리지 못하게 막고 [등급 적용]을 요구(정본 §7 등급 보장).
+            PotentialService.PotentialOperationResult prev = pendingPotentialResult.get(player.getUniqueId());
+            if (prev != null && prev.success()) {
+                player.sendMessage("§6§l[등급 상승!] §e먼저 §f[등급 적용]§e 버튼으로 확정하세요. §7(등급은 하락하지 않습니다)");
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.7f, 0.7f);
+                return;
+            }
+            // 미확정(동급) 결과가 있으면 자동으로 기존 유지(before 복원) 후 재굴림 — 선택 없이 연속 재롤(DL-112).
+            prev = pendingPotentialResult.remove(player.getUniqueId());
             if (prev != null && prev.before() != null) {
                 getState(player).updatePotentialProfile(instanceId, prev.before());
             }
@@ -690,21 +697,29 @@ public final class GrowthGuiListener implements Listener {
             return;
         }
 
-        // [현재 유지] 버튼
+        // [현재 유지] 버튼 (등급업이면 유지=하락 불가 → 새 등급 확정으로 처리)
         if (slot == POT_SLOT_CUR_KEEP) {
             PotentialService.PotentialOperationResult pending = pendingPotentialResult.remove(player.getUniqueId());
             if (pending == null) return;
             String instanceId = selectedPotentialId.get(player.getUniqueId());
             if (instanceId == null) return;
             PlayerGrowthState state = getState(player);
-            // useCube()가 already applied 'after' → revert to before
-            if (pending.before() != null) {
-                state.updatePotentialProfile(instanceId, pending.before());
+            String nm = equipDisplayName(player, state.inventoryItem(instanceId).orElse(null));
+            if (pending.success()) {
+                // 등급 상승은 하락 불가 — before 복원하지 않고 새 등급 확정.
+                player.sendMessage("§6§l[잠재] §f" + nm + " §6등급 상승 확정! §7→ §e" + gradeKr(pending.selectedGrade()));
+                player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.7f, 1.2f);
+            } else {
+                // useCube()가 already applied 'after' → before로 복원
+                if (pending.before() != null) {
+                    state.updatePotentialProfile(instanceId, pending.before());
+                }
+                player.sendMessage("§7[잠재] §f" + nm + " §7기존 옵션 유지.");
+                player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1.0f);
             }
-            player.sendMessage("§7[잠재] §f" + itemDisplayName(state.inventoryItem(instanceId).orElse(null)) + " §7기존 옵션 유지.");
-            player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1.0f);
+            if (skillContext != null) skillContext.applyDerivedAttributes(player); // HP%/이속% 재적용(DL-129)
             scoreboardService.refresh(player);
-            refreshHeldWeapon(player, state); // 잠재 유지 후 손무기 lore 반영
+            refreshHeldWeapon(player, state); // 잠재 변경 후 손무기 lore 반영
             Inventory inv = player.getOpenInventory().getTopInventory();
             refreshPotentialCurrentPanel(inv, state, instanceId);
             clearPotentialNewPanel(inv);
@@ -712,14 +727,20 @@ public final class GrowthGuiListener implements Listener {
             return;
         }
 
-        // [새 옵션 선택] 버튼
+        // [새 옵션 선택] / [등급 적용] 버튼
         if (slot == POT_SLOT_NEW_SELECT) {
             PotentialService.PotentialOperationResult pending = pendingPotentialResult.remove(player.getUniqueId());
             if (pending == null) return;
             String instanceId = selectedPotentialId.get(player.getUniqueId());
             PlayerGrowthState state = getState(player);
-            player.sendMessage("§b[잠재] §f" + itemDisplayName(state.inventoryItem(instanceId).orElse(null)) + " §b새 옵션 확정!");
+            String nm = equipDisplayName(player, state.inventoryItem(instanceId).orElse(null));
+            if (pending.success()) {
+                player.sendMessage("§6§l[잠재] §f" + nm + " §6등급 상승 확정! §7→ §e" + gradeKr(pending.selectedGrade()));
+            } else {
+                player.sendMessage("§b[잠재] §f" + nm + " §b새 옵션 확정!");
+            }
             player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.6f, 1.1f);
+            if (skillContext != null) skillContext.applyDerivedAttributes(player); // 확정 옵션 HP%/이속% 재적용(DL-129)
             scoreboardService.refresh(player);
             refreshHeldWeapon(player, state); // 잠재 새 옵션 확정 후 손무기 lore 반영
             Inventory inv = player.getOpenInventory().getTopInventory();
@@ -748,10 +769,40 @@ public final class GrowthGuiListener implements Listener {
         }
 
         pendingPotentialResult.put(player.getUniqueId(), result.value());
-        player.playSound(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.8f, 1.0f);
+        if (skillContext != null) skillContext.applyDerivedAttributes(player); // 잠재 HP%/이속% 즉시 재적용(DL-129)
 
         Inventory inv = player.getOpenInventory().getTopInventory();
-        // 왼쪽: before 패널 표시 (이미 적용됐으므로 before를 수동으로 표시)
+        boolean gradeUp = result.value().success();
+        String itemName = equipDisplayName(player, state.inventoryItem(instanceId).orElse(null));
+
+        if (gradeUp) {
+            // 등급 상승 — 자동 적용(이미 적용됨). 재굴림 잠금 + [등급 적용] 확인만(정본 §7-2·§8-4 등급 보장).
+            player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.9f, 1.2f);
+            player.sendMessage("§6§l🎉 등급 상승! §f" + itemName + " §7"
+                    + gradeKr(result.value().beforeGrade()) + " §6→ §e" + gradeKr(result.value().selectedGrade())
+                    + " §7— [등급 적용]으로 확정하세요.");
+            // 양쪽 패널 모두 새(상승) 결과 표시
+            renderPotentialPanel(inv, result.value().selectedAfter(), POT_SLOT_CUR_GRADE, POT_SLOT_CUR_LINE1,
+                    POT_SLOT_CUR_LINE2, POT_SLOT_CUR_LINE3, "§6");
+            renderPotentialPanel(inv, result.value().selectedAfter(), POT_SLOT_NEW_GRADE, POT_SLOT_NEW_LINE1,
+                    POT_SLOT_NEW_LINE2, POT_SLOT_NEW_LINE3, "§6");
+            inv.setItem(POT_SLOT_CUR_KEEP, MainHubGui.icon(Material.YELLOW_STAINED_GLASS, "§6등급 상승 보호",
+                    List.of("§7등급은 하락하지 않습니다.",
+                            "§7오른쪽 §e[등급 적용]§7으로 확정하세요.")));
+            inv.setItem(POT_SLOT_NEW_SELECT, MainHubGui.icon(Material.LIME_STAINED_GLASS, "§6§l등급 적용 (확인) ▶",
+                    List.of("§7──────────────",
+                            "§6" + gradeKr(result.value().beforeGrade()) + " → " + gradeKr(result.value().selectedGrade()),
+                            "§7──────────────",
+                            "§a클릭하여 등급 확정")));
+            inv.setItem(POT_SLOT_RESOURCE, MainHubGui.icon(Material.NETHER_STAR, "§7보유 자원",
+                    List.of("§7큐브: §e" + state.currency("mat_cube"),
+                            "§7골드: §e" + state.currency("gold"))));
+            refreshPotentialCubeButton(inv, state, instanceId, true); // 큐브 잠금 — 등급 확정 전 재굴림 불가
+            return;
+        }
+
+        // 동급 재롤 — 메모리얼 비교(현재 유지 / 새 옵션) + 연속 재굴림 허용(DL-112).
+        player.playSound(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.8f, 1.0f);
         renderPotentialPanel(inv, result.value().before(), POT_SLOT_CUR_GRADE, POT_SLOT_CUR_LINE1,
                 POT_SLOT_CUR_LINE2, POT_SLOT_CUR_LINE3, "§7");
         inv.setItem(POT_SLOT_CUR_KEEP, MainHubGui.icon(Material.RED_STAINED_GLASS, "§c◀ 현재 유지",
@@ -760,15 +811,13 @@ public final class GrowthGuiListener implements Listener {
                         "§7새 결과를 버림",
                         "§7──────────────",
                         "§c클릭하여 현재 유지")));
-        // 오른쪽: 새 옵션 표시
         renderPotentialPanel(inv, result.value().selectedAfter(), POT_SLOT_NEW_GRADE, POT_SLOT_NEW_LINE1,
                 POT_SLOT_NEW_LINE2, POT_SLOT_NEW_LINE3, "§b");
         inv.setItem(POT_SLOT_NEW_SELECT, MainHubGui.icon(Material.LIME_STAINED_GLASS, "§a새 옵션 선택 ▶",
                 List.of("§7──────────────",
-                        (result.value().success() ? "§6§l[등급 상승!] " + result.value().beforeGrade() + " → " + result.value().selectedGrade() : "§7등급 유지: " + result.value().selectedGrade()),
+                        "§7등급 유지: " + gradeKr(result.value().selectedGrade()),
                         "§7──────────────",
                         "§b클릭하여 새 옵션 확정")));
-        // 자원 표시 업데이트
         inv.setItem(POT_SLOT_RESOURCE, MainHubGui.icon(Material.NETHER_STAR, "§7보유 자원",
                 List.of("§7큐브: §e" + state.currency("mat_cube"),
                         "§7골드: §e" + state.currency("gold"))));
@@ -834,6 +883,34 @@ public final class GrowthGuiListener implements Listener {
         } else {
             previewLore.add("§7잠재 등급: §8없음");
             previewLore.add("§7큐브를 돌려 잠재능력을 부여하세요");
+        }
+        // 다음 등급 승급 확률 + 천장 진행 + 이 부위 잠재 풀 (DL-129 추가#4)
+        if (item != null && profile != null) {
+            PotentialGrade g = profile.grade();
+            PotentialGrade ng = g.nextOrNull();
+            previewLore.add("§7──────────────");
+            if (ng != null) {
+                double ch = PotentialService.upgradeChanceFor(g);
+                int ceil = PotentialService.pityCeilingFor(g);
+                previewLore.add("§7다음 등급(" + EquipmentLoreRenderer.potentialGradeKr(ng) + ") 승급: §e" + formatPct(ch));
+                if (ceil > 0) {
+                    previewLore.add("§7천장: §f" + item.pityCount() + "§7/§f" + ceil + " §8(도달 시 확정 승급)");
+                }
+            } else {
+                previewLore.add("§6§l최고 등급(레전더리) 달성");
+            }
+            ItemMaster m = itemMasters.find(item.itemId()).orElse(null);
+            if (m != null) {
+                List<String> krs = growthEngineRuntime.potentialService().poolOptionCodes(state, m, g)
+                        .stream().map(EquipmentLoreRenderer::potentialOptionKr).toList();
+                if (!krs.isEmpty()) {
+                    previewLore.add("§7──────────────");
+                    previewLore.add("§7이 부위 잠재 풀:");
+                    for (int i = 0; i < krs.size(); i += 3) {
+                        previewLore.add("§8 " + String.join(", ", krs.subList(i, Math.min(i + 3, krs.size()))));
+                    }
+                }
+            }
         }
         inv.setItem(POT_SLOT_PREVIEW, MainHubGui.icon(
                 prevMat,
@@ -1629,10 +1706,11 @@ public final class GrowthGuiListener implements Listener {
         double hp       = maxHpAttr != null ? maxHpAttr.getValue() : 20.0;
         int critPts     = state.critPts();
         int endurPts    = state.endurPts();
-        double critRate    = 5.0   + critPts  * 0.30;
-        double critDmgPct  = 150.0 + critPts  * 0.15;
-        double defBonus    = skillContext != null ? skillContext.defense(player) : endurPts * 0.4; // 방어구 베이스 DEF + 인내(정본)
-        double dmgRedPct   = endurPts * 0.15;
+        // 치명·받피감은 트리 + 잠재 합산 표시 (전투 SkillContext와 일치, DL-129).
+        double critRate    = 5.0   + critPts  * 0.30 + sumOptionFromEquipped(state, "crit_chance_percent");
+        double critDmgPct  = 150.0 + critPts  * 0.15 + sumOptionFromEquipped(state, "crit_damage_percent");
+        double defBonus    = skillContext != null ? skillContext.defense(player) : endurPts * 0.4; // 방어구 베이스 DEF + 인내 + 잠재 DEF%(정본)
+        double dmgRedPct   = endurPts * 0.15 + sumOptionFromEquipped(state, "damage_reduction");
         double bossDmgPct  = sumOptionFromEquipped(state, "boss_damage_increase");
         List<String> lore = List.of(
                 "§7──────────────────",
@@ -2085,6 +2163,36 @@ public final class GrowthGuiListener implements Listener {
     private String itemDisplayName(PlayerEquipmentItem item) {
         if (item == null) return "알 수 없음";
         return itemDisplayNameById(item.itemId());
+    }
+
+    /**
+     * 장비 표시명(한글). item_master의 itemName은 영문이라 채팅/알림에는 부위·무기 기반 한글명을 쓴다.
+     * <b>향후 "장비 이름 변경권"(커스텀명) 연동 지점</b> — 이 메서드 최상단에서 item.customName()을 우선 반환하도록 확장.
+     */
+    private String equipDisplayName(Player player, PlayerEquipmentItem item) {
+        if (item == null) return "장비";
+        // TODO(이름변경권): if (item.hasCustomName()) return item.customName();
+        String slot = itemMasters.find(item.itemId()).map(ItemMaster::slotType).orElse("");
+        return switch (slot) {
+            case "weapon" -> WeaponGui.displayName(playerDataManager.getWeaponType(player.getUniqueId()));
+            case "head"   -> "투구";
+            case "chest"  -> "갑옷";
+            case "legs"   -> "각반";
+            case "feet"   -> "장화";
+            default        -> itemMasters.find(item.itemId()).map(ItemMaster::itemName).orElse("장비");
+        };
+    }
+
+    /** 잠재 등급 enum명 문자열 → 한글(커먼/레어/…). 변환 실패 시 원문. */
+    private String gradeKr(String gradeName) {
+        try { return EquipmentLoreRenderer.potentialGradeKr(PotentialGrade.valueOf(gradeName)); }
+        catch (Exception e) { return gradeName; }
+    }
+
+    /** 확률(0~1) → 퍼센트 문자열(정수면 소수점 생략): 0.25→"25%", 0.001→"0.1%". */
+    private String formatPct(double frac) {
+        double p = frac * 100.0d;
+        return (p == Math.floor(p)) ? String.format("%.0f%%", p) : String.format("%.1f%%", p);
     }
 
     private String itemDisplayNameById(String itemId) {

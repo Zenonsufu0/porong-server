@@ -11,6 +11,7 @@ public final class GuiTitles {
     public static final Component TERRITORY_HUB      = Component.text("영지 관리");
     public static final Component TERRITORY_SETTINGS = Component.text("영지 설정");
     public static final Component TERRITORY_FACILITY = Component.text("시설 현황");
+    public static final Component TERRITORY_FACILITY_SELECT = Component.text("시설 설치 선택");
     public static final Component TERRITORY_MOVE     = Component.text("영지 이동");
     public static final Component SHOP               = Component.text("상점");
     public static final Component SHOP_SELL          = Component.text("상점 판매");

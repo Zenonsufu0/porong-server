@@ -33,12 +33,21 @@ public final class PlayerDefenseListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onPlayerDamaged(EntityDamageByEntityEvent event) {
         if (!(event.getEntity() instanceof Player victim)) return;
-        if (isPlayerSource(event.getDamager())) return; // PvP 제외 — 1단계는 몹→플레이어만
+        if (isPlayerSource(event.getDamager())) return; // PvP 제외 — 몹→플레이어만 (PvP 받피감은 후속)
 
+        // 방어구 DEF 경감 × 잠재 받는 피해 감소%(damage_reduction, 유니크+) 순차 곱산 (DL-129).
+        double factor = 1.0d;
         double def = skillContext.defense(victim);
-        if (def <= 0.0d) return;
-        double mitigation = def / (def + DEF_DENOMINATOR);
-        event.setDamage(event.getDamage() * (1.0d - mitigation));
+        if (def > 0.0d) {
+            factor *= 1.0d - def / (def + DEF_DENOMINATOR);
+        }
+        double drPct = skillContext.damageReductionPercent(victim);
+        if (drPct > 0.0d) {
+            factor *= 1.0d - drPct / 100.0d;
+        }
+        if (factor < 1.0d) {
+            event.setDamage(event.getDamage() * factor);
+        }
     }
 
     /** 가해자가 플레이어(직접 또는 투사체 발사자)면 true — PvP로 간주해 제외. */

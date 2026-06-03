@@ -23,11 +23,29 @@ public final class FieldHubGui {
 
     // 슬롯 배치: row1 한 줄 (27슬롯)
     private static final int[] FIELD_SLOTS = {9, 10, 11, 12, 13};
+    /** 정예 모드 토글 버튼 슬롯 (하단 줄). */
+    public static final int ELITE_TOGGLE_SLOT = 22;
 
-    public static void open(Player player, ExploreHubGui.FieldStateProvider provider) {
+    public static void open(Player player, ExploreHubGui.FieldStateProvider provider, boolean eliteOn) {
         Inventory inv = Bukkit.createInventory(null, 27, GuiTitles.FIELD_HUB);
         ItemStack pane = MainHubGui.icon(Material.BLACK_STAINED_GLASS_PANE, " ", List.of());
         for (int i = 0; i < 27; i++) inv.setItem(i, pane);
+
+        // 정예 모드 토글 (DL-129 추가#6) — 본인 주변 웨이브 정예화
+        if (eliteOn) {
+            inv.setItem(ELITE_TOGGLE_SLOT, MainHubGui.icon(Material.LIME_DYE, "§a§l정예 모드: ON",
+                    List.of("§7──────────────",
+                            "§7주변 필드 웨이브가 §f정예 몹§7으로 등장",
+                            "§8(수 적고 강함)",
+                            "§7──────────────",
+                            "§c클릭하여 끄기")));
+        } else {
+            inv.setItem(ELITE_TOGGLE_SLOT, MainHubGui.icon(Material.GRAY_DYE, "§7정예 모드: OFF",
+                    List.of("§7──────────────",
+                            "§7일반 몹이 등장합니다",
+                            "§7──────────────",
+                            "§a클릭하여 켜기")));
+        }
 
         for (int i = 0; i < FIELDS.size(); i++) {
             FieldDef f = FIELDS.get(i);

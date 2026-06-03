@@ -98,26 +98,23 @@ public final class EquipmentLoreRenderer {
 
     /** 잠재 옵션 코드 → 한글명. 미정의 코드는 원문 표시. */
     public static String potentialOptionKr(String code) {
+        // 정본: potential_options_v1.md (DL-129 정비). 폐기 코드는 매핑 제거 — 더 이상 롤되지 않음.
         return switch (code) {
             case "attack_percent"                -> "공격력";
-            case "general_damage_increase"       -> "일반 피해 증가";
-            case "boss_damage_increase"          -> "보스 피해 증가";
-            case "combo_tag_damage_increase"     -> "연계 피해 증가";
-            case "core_tag_damage_increase"      -> "코어 피해 증가";
-            case "precision_tag_damage_increase" -> "정밀 피해 증가";
-            case "mark_target_damage_increase"   -> "표식 대상 피해 증가";
-            case "conditional_damage_bonus"      -> "조건부 피해";
+            case "defense_ignore"                -> "방어력 무시";
+            case "general_damage_increase"       -> "스킬 피해";
+            case "boss_damage_increase"          -> "보스 피해";
+            case "crit_chance_percent"           -> "치명타 확률";
+            case "crit_damage_percent"           -> "치명타 데미지";
             case "max_hp_percent"                -> "최대 체력";
-            case "damage_reduction"              -> "피해 감소";
+            case "defense_percent"               -> "방어력";
+            case "damage_reduction"              -> "받는 피해 감소";
             case "move_speed_percent"            -> "이동 속도";
-            case "crack_efficiency"              -> "균열 효율";
-            case "recovery_efficiency"           -> "회복 효율";
-            case "shield_efficiency"             -> "보호막 효율";
-            case "resonance_effect_up"           -> "공명 효과";
-            case "resource_gain_percent"         -> "자원 획득";
-            case "status_resistance_percent"     -> "상태이상 저항";
-            case "survival_trigger_reduction"    -> "생존기 쿨감";
-            case "playstyle_completion_boost"    -> "플레이스타일 완성";
+            case "cooldown_reduction_percent"    -> "쿨타임 감소";
+            case "basic_skill_damage"            -> "기본기 피해";
+            case "mobility_skill_damage"         -> "이동기 피해";
+            case "special_skill_damage"          -> "특수기 피해";
+            case "core_skill_damage"             -> "핵심기 피해";
             default                              -> code;
         };
     }

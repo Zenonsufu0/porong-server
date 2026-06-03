@@ -3,11 +3,13 @@ package com.poro.rpg.growth.engine;
 import java.util.Locale;
 
 public enum EquipmentSlot {
+    // itemSlotType = item_master.slot_type 와 매칭(장착 검증 + 잠재 풀 resolvePoolId).
+    // DL-129 3단계: 방어구 슬롯을 정본 부위(head/chest/legs/feet)로 세분 — 부위별 잠재 풀 분리.
     WEAPON("weapon"),
-    HELMET("armor"),
-    CHESTPLATE("armor"),
-    LEGGINGS("armor"),
-    BOOTS("armor"),
+    HELMET("head"),
+    CHESTPLATE("chest"),
+    LEGGINGS("legs"),
+    BOOTS("feet"),
     ACCESSORY_1("accessory"),
     ACCESSORY_2("accessory"),
     ACCESSORY_3("accessory");

@@ -20,6 +20,8 @@ public final class BossRoomManager {
     private final Map<Integer, String>   slotToRunId   = new ConcurrentHashMap<>();
     private final Map<UUID, String>      pendingBoss   = new ConcurrentHashMap<>();
     private final Map<UUID, Set<String>> clearedBosses = new ConcurrentHashMap<>();
+    // 공유 부활 토큰(데스카운트) — slotId → [remaining, max]. 1/2/3인 = 3/4/5 (partySize+2).
+    private final Map<Integer, int[]>    slotDeaths    = new ConcurrentHashMap<>();
     // 영속 클리어 복원 (DL-097): boss_session에서 lazy 로드, 플레이어당 1회 캐시.
     private Function<UUID, Set<String>> clearSource;
     private final Set<UUID> clearsLoaded = ConcurrentHashMap.newKeySet();
@@ -109,6 +111,42 @@ public final class BossRoomManager {
         slotToRunId.put(slotId, runId);
     }
 
+    /** slotId → runId 역조회 (파티 전멸 시 endRun 호출용). */
+    public Optional<String> runIdOf(int slotId) {
+        return Optional.ofNullable(slotToRunId.get(slotId));
+    }
+
+    // ── 공유 부활 토큰(데스카운트) ──────────────────────────────────────
+
+    /** 입장 시 파티 인원수 기반으로 공유 부활 토큰을 초기화한다. 1/2/3인 → 3/4/5 (partySize+2). */
+    public void initDeathPool(int slotId, int partySize) {
+        int tokens = Math.max(1, partySize) + 2;
+        slotDeaths.put(slotId, new int[]{tokens, tokens});
+    }
+
+    /**
+     * 보스룸 사망 1건을 처리한다.
+     * 토큰이 남아 있으면 1 소모 후 {@code true}(보스룸 리스폰), 없으면 {@code false}(전멸·런 종료).
+     */
+    public boolean consumeDeath(int slotId) {
+        int[] pool = slotDeaths.get(slotId);
+        if (pool == null || pool[0] <= 0) return false;
+        pool[0]--;
+        return true;
+    }
+
+    /** 남은 부활 토큰 수 (없으면 0). */
+    public int deathsRemaining(int slotId) {
+        int[] pool = slotDeaths.get(slotId);
+        return pool == null ? 0 : pool[0];
+    }
+
+    /** 최대 부활 토큰 수 (없으면 0). */
+    public int deathsMax(int slotId) {
+        int[] pool = slotDeaths.get(slotId);
+        return pool == null ? 0 : pool[1];
+    }
+
     /** 클리어/실패 종료 시 runId 기준으로 슬롯 + 참가자 모두 해제. */
     public void releaseByRunId(String runId) {
         Integer slotId = runToSlot.remove(runId);
@@ -125,6 +163,12 @@ public final class BossRoomManager {
     public void releaseSlot(int slotId) {
         slots.stream().filter(s -> s.id() == slotId).findFirst().ifPresent(BossRoomSlot::release);
         slotToBoss.remove(slotId);
+        slotDeaths.remove(slotId);
+    }
+
+    /** slotId로 슬롯을 조회한다 (리스폰 좌표 등). */
+    public Optional<BossRoomSlot> slotById(int slotId) {
+        return slots.stream().filter(s -> s.id() == slotId).findFirst();
     }
 
     public long  freeCount()  { return slots.stream().filter(BossRoomSlot::isFree).count(); }

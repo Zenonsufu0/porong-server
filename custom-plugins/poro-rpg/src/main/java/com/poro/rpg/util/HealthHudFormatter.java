@@ -100,7 +100,8 @@ public final class HealthHudFormatter {
         double cur = Math.max(0, player.getHealth());
         double max = resolveMax(player);
         int step = Math.min(20, (int) (cur / max * 100) / 5);
-        String t = fmt(cur) + "/" + fmt(max);
+        // HP는 정수로 표기 — 소수점(.) 폭 변동으로 바가 밀리던 문제 해소(DL-129 추가#13).
+        String t = Math.round(cur) + "/" + Math.round(max);
         Component c = Component.empty()
                 .append(glyph(HP_BASE + step))
                 .append(txt(" "))
@@ -123,9 +124,9 @@ public final class HealthHudFormatter {
                 .append(rowText(XP_TEXT, lv));
         int w = W_BAR + W_SPACE + textW(lv);
 
-        // 경험치 수치 (현재/다음레벨) — chars 폰트 지원 문자(숫자·/)만 사용
-        if (state != null) {
-            String exp = cexp + "/" + need;
+        // 경험치 수치 (현재/다음레벨) — 큰 수는 K/M 단축표기로 자릿수 고정(바 밀림 방지, DL-129 추가#13).
+        if (state != null && need > 0) {
+            String exp = abbrev(cexp) + "/" + abbrev(need);
             c = c.append(txt(" ")).append(rowText(XP_TEXT, exp));
             w += W_SPACE + textW(exp);
         }
@@ -284,6 +285,7 @@ public final class HealthHudFormatter {
             case 's' -> 18; case '-' -> 19;
             case 'E' -> 20; case 'A' -> 21; case 'D' -> 22; case 'Y' -> 23;
             case 'C' -> 24; // 스킬 입력 라벨(LC/RC/SRC)용 — chars.png 25번째 칸
+            case 'K' -> 25; case 'M' -> 26; // XP K/M 단축표기용 (chars.png 26·27번째 칸, DL-129 추가#13)
             default  -> -1;
         };
     }
@@ -301,8 +303,18 @@ public final class HealthHudFormatter {
         return (attr == null || attr.getValue() <= 0) ? 20.0 : attr.getValue();
     }
 
-    private static String fmt(double v) {
-        return Math.abs(v - Math.rint(v)) < 0.01 ? Integer.toString((int) v) : String.format("%.1f", v);
+    /** 큰 수 단축표기 — 1000↑=K, 1,000,000↑=M (소수 1자리, .0 생략). XP 자릿수 고정용. */
+    private static String abbrev(long v) {
+        if (v >= 1_000_000L) return round1(v / 1_000_000.0) + "M";
+        if (v >= 1_000L)     return round1(v / 1_000.0) + "K";
+        return Long.toString(v);
+    }
+
+    private static String round1(double d) {
+        long whole = (long) d;
+        long frac  = Math.round((d - whole) * 10);
+        if (frac >= 10) { whole++; frac = 0; }
+        return frac == 0 ? Long.toString(whole) : whole + "." + frac;
     }
 
     private static int weaponIdx(WeaponType wt) {

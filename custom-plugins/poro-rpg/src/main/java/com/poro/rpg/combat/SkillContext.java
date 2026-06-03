@@ -81,21 +81,27 @@ public class SkillContext {
             EquipmentSlot.BOOTS, 7.0d
     );
 
-    // 방어구 부위별 기본 HP (DL-115 하향: 정본 §1의 400/150/100=650이 바닐라 몹 데미지 대비 과해 0강 풀세트 100 목표로 스케일 다운).
-    // 비율(투구>상의>신발) 유지. 강화 HP = 기본 HP × 0.04 × 단계(DEF와 동일 선형). 0강 풀 80 + 기본 20 = 100.
+    // 방어구 부위별 기본 HP (DL-128#12 상향: 강화 체감 확보 + 보스 데미지 역산 기준 마련).
+    // 기본HP 합 180, 강화계수 0.11(DEF와 분리). 목표: +0≈200, +8≈358, +18≈556.
+    // 비율 투구>상의>신발 유지, 다리는 DEF 전담이라 소량.
     private static final Map<EquipmentSlot, Double> BASE_HP = Map.of(
-            EquipmentSlot.HELMET, 50.0d,
-            EquipmentSlot.CHESTPLATE, 20.0d,
-            EquipmentSlot.LEGGINGS, 0.0d,
-            EquipmentSlot.BOOTS, 10.0d
+            EquipmentSlot.HELMET, 90.0d,
+            EquipmentSlot.CHESTPLATE, 50.0d,
+            EquipmentSlot.LEGGINGS, 20.0d,
+            EquipmentSlot.BOOTS, 20.0d
     );
 
-    /** 강화 스탯 선형 배율 — 기본 스탯 × (1 + 0.04 × 강화단계) (combat_balance_v2 §1). */
+    /** 강화 스탯 선형 배율(DEF용) — 기본 스탯 × (1 + 0.04 × 강화단계) (combat_balance_v2 §1). */
     private static double enhanceMultiplier(int level) {
         return 1.0d + 0.04d * Math.max(0, level);
     }
 
-    /** 장착 방어구가 제공하는 최대 HP 보너스 — Σ 기본 HP × (1+0.04×강화). max health attribute에 가산한다. */
+    /** HP 전용 강화 배율 — 기본 HP × (1 + 0.11 × 강화단계). DEF(0.04)와 분리해 강화 체감을 키운다(DL-128#12). */
+    private static double hpEnhanceMultiplier(int level) {
+        return 1.0d + 0.11d * Math.max(0, level);
+    }
+
+    /** 장착 방어구가 제공하는 최대 HP 보너스 — Σ 기본 HP × (1+0.11×강화). max health attribute에 가산한다. */
     public double armorMaxHealth(Player player) {
         PlayerGrowthState state = playerState(player);
         double sum = 0.0d;
@@ -104,18 +110,39 @@ public class SkillContext {
             if (base == null || base <= 0) continue;
             PlayerEquipmentItem item = state.inventoryItem(e.getValue()).orElse(null);
             if (item == null) continue;
-            sum += base * enhanceMultiplier(item.enhanceLevel());
+            sum += base * hpEnhanceMultiplier(item.enhanceLevel());
         }
         return sum;
     }
 
-    /** 방어구 HP를 max health에 반영(기본 20 + 방어구 HP). 접속·강화·장착 변경 시 호출 (combat_balance_v2 §1). */
+    /**
+     * 방어구 HP를 max health에 반영(기본 20 + 방어구 HP) × 잠재 HP%. 접속·강화·장착·잠재 변경 시 호출.
+     * 잠재 max_hp_percent는 (기본 20 + 방어구 HP) 전체에 곱산한다(정본 "최대 HP % 증가", combat_balance_v2 §1 / DL-129).
+     */
     public void applyMaxHealth(Player player) {
         AttributeInstance attr = player.getAttribute(Attribute.MAX_HEALTH);
         if (attr == null) return;
-        double target = 20.0d + armorMaxHealth(player);
+        double potHpPct = sumEquippedPotential(player, "max_hp_percent") / 100.0d;
+        double target = (20.0d + armorMaxHealth(player)) * (1.0d + potHpPct);
         attr.setBaseValue(target);
         if (player.getHealth() > target) player.setHealth(target);
+    }
+
+    // 잠재 이동 속도% 적용용 — 바닐라 기본 이동 속도 attribute 베이스값(정본 캡 +13% 내, +40% 안전 클램프).
+    private static final double BASE_MOVE_SPEED = 0.1d;
+
+    /** 잠재 move_speed_percent를 MOVEMENT_SPEED attribute에 반영. 접속·장착·잠재 변경 시 호출 (DL-129). */
+    public void applyMoveSpeed(Player player) {
+        AttributeInstance attr = player.getAttribute(Attribute.MOVEMENT_SPEED);
+        if (attr == null) return;
+        double pct = Math.min(40.0d, sumEquippedPotential(player, "move_speed_percent"));
+        attr.setBaseValue(BASE_MOVE_SPEED * (1.0d + pct / 100.0d));
+    }
+
+    /** 잠재 의존 attribute(최대 HP·이동 속도)를 일괄 재적용한다. 접속·강화·장착·큐브 사용 후 호출. */
+    public void applyDerivedAttributes(Player player) {
+        applyMaxHealth(player);
+        applyMoveSpeed(player);
     }
 
     /**
@@ -134,6 +161,8 @@ public class SkillContext {
             sum += base * enhanceMultiplier(item.enhanceLevel()); // 정본 선형: 기본 DEF×(1+0.04×강화)
         }
         sum += Math.max(0, state.endurPts()) * 0.4d; // 인내 트리 방어력(코드 기존 계수)
+        // 잠재 defense_percent — (방어구 베이스+강화+인내) 총 DEF에 곱산 (정본 "방어력 % 증가", DL-129).
+        sum *= 1.0d + sumEquippedPotential(player, "defense_percent") / 100.0d;
         return sum;
     }
 
@@ -185,13 +214,64 @@ public class SkillContext {
         return 1.0d + sumEquippedPotential(player, "boss_damage_increase") / 100.0d;
     }
 
-    /** 치명타 확률 (치명 트리 주효과, 0.30%/pt). 0~1 클램프 (DL-092/095). */
-    public double critChance(Player player) {
-        return Math.min(1.0d, Math.max(0, playerState(player).critPts()) * 0.003d);
+    /**
+     * 스킬타입 피해 승수 — 발동 스킬의 입력 유형(기본/이동/특수/핵심)에 해당하는 잠재%만 적용 (DL-129 2단계).
+     * type이 null(평타·미등록 스킬)이면 1.0.
+     */
+    public double skillTypeMultiplier(Player player, SkillType type) {
+        if (type == null) return 1.0d;
+        return 1.0d + sumEquippedPotential(player, type.optionCode()) / 100.0d;
     }
 
-    /** 치명타 피해 배율 = 기본 1.5 + 치명 트리 부효과(0.15%/pt) (DL-096, level_stat_system §2). */
+    /** 잠재 쿨타임 감소(cooldown_reduction_percent) 합산(%). 0~50 클램프 — 쿨 0 방지 (DL-129 2단계). */
+    public double cooldownReductionPercent(Player player) {
+        return Math.min(50.0d, sumEquippedPotential(player, "cooldown_reduction_percent"));
+    }
+
+    /** 치명타 확률 = 치명 트리(0.30%/pt) + 잠재 crit_chance_percent. 0~1 클램프 (DL-092/095/129). */
+    public double critChance(Player player) {
+        double tree = Math.max(0, playerState(player).critPts()) * 0.003d;
+        double potential = sumEquippedPotential(player, "crit_chance_percent") / 100.0d;
+        return Math.min(1.0d, tree + potential);
+    }
+
+    /** 치명타 피해 배율 = 1.5 + 치명 트리(0.15%/pt) + 잠재 crit_damage_percent (DL-096/129, level_stat_system §2). */
     public double critDamageMultiplier(Player player) {
-        return 1.5d + Math.max(0, playerState(player).critPts()) * 0.0015d;
+        double potential = sumEquippedPotential(player, "crit_damage_percent") / 100.0d;
+        return 1.5d + Math.max(0, playerState(player).critPts()) * 0.0015d + potential;
+    }
+
+    /** 잠재 받는 피해 감소(damage_reduction) 합산(%). 0~80 클램프 — 무적 방지 (DL-129, 유니크+ 전용 옵션). */
+    public double damageReductionPercent(Player player) {
+        return Math.min(80.0d, sumEquippedPotential(player, "damage_reduction"));
+    }
+
+    // ─── 보스/몹 DEF 경감 + 방어력무시 (DL-128#14) ─────────────────────────
+    /** 몹/보스 DEF를 스폰 시 기록하는 PDC 키 (MobStatOverrideSpawnListener가 set). */
+    public static final org.bukkit.NamespacedKey MOB_DEF_KEY =
+            org.bukkit.NamespacedKey.fromString("poro_rpg:mob_def");
+
+    /** 대상의 DEF — 스폰 시 PDC에 기록된 값(없으면 0 = 경감 없음). */
+    public double targetDefense(LivingEntity target) {
+        if (target == null) return 0.0d;
+        Double d = target.getPersistentDataContainer()
+                .get(MOB_DEF_KEY, org.bukkit.persistence.PersistentDataType.DOUBLE);
+        return d == null ? 0.0d : Math.max(0.0d, d);
+    }
+
+    /** 무기 잠재 방어력무시(%) 합산 — 대상 DEF를 이만큼 무시. 0~100 클램프 (DL-128#14). */
+    public double defenseIgnorePercent(Player player) {
+        return Math.min(100.0d, sumEquippedPotential(player, "defense_ignore"));
+    }
+
+    /**
+     * 플레이어→대상 피해의 DEF 경감 배율 = 200/(200+유효DEF).
+     * 유효DEF = 대상DEF × (1 − 방어력무시%/100). DEF 0이면 1.0(경감 없음).
+     */
+    public double defenseMitigation(Player attacker, LivingEntity target) {
+        double def = targetDefense(target);
+        if (def <= 0) return 1.0d;
+        double effDef = def * (1.0d - defenseIgnorePercent(attacker) / 100.0d);
+        return 200.0d / (200.0d + Math.max(0.0d, effDef));
     }
 }

@@ -125,22 +125,32 @@ public final class WorkshopGui {
     // ─── 아이템 빌더 ─────────────────────────────────────────────
 
     private static ItemStack buildTabItem(WorkshopTab tab, boolean active) {
-        String nameColor = active ? "§a" : "§7";
+        // 비활성 탭도 고유 아이콘으로 표시 — 회색 유리(배경과 동일)면 구분 불가했음(DL-129 추가#4).
+        String nameColor = active ? "§a§l" : "§e";
         List<String> lore = List.of(
                 "§7" + tab.description,
                 "§7──────────",
                 active ? "§a▶ 선택된 탭" : "§7클릭하여 선택");
-        ItemStack item = new ItemStack(active ? tab.icon : Material.GRAY_STAINED_GLASS_PANE);
+        ItemStack item = new ItemStack(tab.icon);
         ItemMeta meta = item.getItemMeta();
-        meta.displayName(Component.text(nameColor + tab.displayName));
+        meta.displayName(Component.text((active ? "" : "§r") + nameColor + tab.displayName));
         meta.lore(lore.stream().map(Component::text).toList());
+        if (active) { // 활성 탭 강조 — 인챈트 글로우
+            meta.addEnchant(org.bukkit.enchantments.Enchantment.UNBREAKING, 1, true);
+            meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
+        }
         item.setItemMeta(meta);
         return item;
     }
 
     private static ItemStack buildRecipeIcon(WorkshopRecipe recipe) {
         List<String> lore = new ArrayList<>();
-        lore.add("§7──────────────");
+        // 결과물 효과/사용법 (workshop_crafting_spec.md, DL-129 추가#8)
+        List<String> effect = effectLore(recipe.resultItemId());
+        if (!effect.isEmpty()) {
+            lore.addAll(effect);
+            lore.add("§7──────────────");
+        }
         lore.add("§7재료:");
         for (var mat : recipe.materials()) {
             lore.add("  §7- §f" + WorkshopRecipeRegistry.displayName(mat.itemId())
@@ -151,7 +161,53 @@ public final class WorkshopGui {
         lore.add("§7결과물: §e" + recipe.displayName() + " §7×" + recipe.resultAmount());
         lore.add("§7──────────────");
         lore.add("§e좌클릭 §7제작 등록");
+        // 결과물 전용 텍스처가 있으면 paper+CMD로 렌더(리소스팩 paper.json), 없으면 기본 Material (DL-129 추가#12)
+        Integer cmd = CustomItemModel.cmd(recipe.resultItemId());
+        if (cmd != null) {
+            ItemStack item = icon(CustomItemModel.CARRIER, "§f" + recipe.displayName(), lore);
+            CustomItemModel.applyModel(item, cmd);
+            return item;
+        }
         return icon(recipe.guiIcon(), "§f" + recipe.displayName(), lore);
+    }
+
+    /** 결과물 효과·사용법 설명 (정본 workshop_crafting_spec.md §6~10). 없으면 빈 목록. */
+    private static List<String> effectLore(String resultItemId) {
+        return switch (resultItemId) {
+            // 만찬 (효과 30분 지속, 만찬은 1종만 적용)
+            case "con_feast_warrior"  -> List.of("§a효과: 공격력 +10%", "§830분 지속 · 만찬 1종만 적용");
+            case "con_feast_slayer"   -> List.of("§a효과: 모든 피해 +8%", "§830분 지속 · 만찬 1종만 적용");
+            case "con_feast_assassin" -> List.of("§a효과: 치명타 피해 +20%", "§830분 지속 · 만찬 1종만 적용");
+            case "con_feast_hunter"   -> List.of("§a효과: 일반 몹 피해 +15%", "§8보스 미적용 · 30분 · 만찬 1종만");
+            // 치료 포션 (필드 무제한, 보스전 횟수 제한)
+            case "con_heal_minor" -> List.of("§a효과: 최대 HP 30% 즉시 회복", "§8필드 무제한 · 보스전 3회");
+            case "con_heal_mid"   -> List.of("§a효과: 최대 HP 40% 즉시 회복", "§8필드 무제한 · 보스전 4회");
+            case "con_heal_major" -> List.of("§a효과: 최대 HP 50% 즉시 회복", "§8필드 무제한 · 보스전 5회");
+            // 부스트 포션 (30분, 3종 동시 가능)
+            case "con_potion_gold"    -> List.of("§a효과: 골드 획득량 +50%", "§830분 지속 · 부스트 3종 중첩 가능");
+            case "con_potion_enhance" -> List.of("§a효과: 강화석 획득량 +50%", "§830분 지속 · 부스트 3종 중첩 가능");
+            case "con_potion_exp"     -> List.of("§a효과: 경험치 획득량 +50%", "§830분 지속 · 부스트 3종 중첩 가능");
+            // 강화 흔적 (10강↑ 강화 시 선택 소모, 성공률 곱연산, 3종 동시 가능 최대 ×1.70)
+            case "mat_trace_star" -> List.of("§b강화 성공률 ×1.15", "§810강 이상 강화 시 선택 소모 · 3종 동시 가능");
+            case "mat_trace_moon" -> List.of("§b강화 성공률 ×1.25", "§810강 이상 강화 시 선택 소모 · 3종 동시 가능");
+            case "mat_trace_sun"  -> List.of("§b강화 성공률 ×1.30", "§810강 이상 강화 시 선택 소모 · 3종 동시 가능");
+            // 고대흔적 (미감정 흔적과 함께 사용 시 최소 등급 보장)
+            case "ancient_trace_faded"     -> List.of("§d미감정 흔적과 함께 사용", "§7→ §f레어 이상§7 등급 보장");
+            case "ancient_trace_glowing"   -> List.of("§d미감정 흔적과 함께 사용", "§7→ §5에픽 이상§7 등급 보장");
+            case "ancient_trace_radiant"   -> List.of("§d미감정 흔적과 함께 사용", "§7→ §6유니크 이상§7 등급 보장");
+            case "ancient_trace_brilliant" -> List.of("§d미감정 흔적과 함께 사용", "§7→ §a레전더리 확정");
+            // 미감정 흔적 (우클릭 개봉)
+            case "equip_trace_unidentified" -> List.of(
+                    "§e우클릭: 장비의 흔적 1개 획득",
+                    "§8단독 개봉 = 커먼~레전더리 랜덤",
+                    "§8고대흔적과 함께 사용 = 최소 등급 보장");
+            // 핵심 재료
+            case "mat_mado_alloy"   -> List.of("§7강화 흔적·고대흔적의 핵심 재료");
+            case "mat_essence_farmer", "mat_essence_miner", "mat_essence_nature"
+                                    -> List.of("§7제작 체인 중간 재료");
+            case "mat_refined_herb" -> List.of("§7포션·만찬 제작 재료");
+            default -> List.of();
+        };
     }
 
     private static ItemStack buildJobIcon(WorkshopJob job) {
