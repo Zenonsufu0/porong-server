@@ -77,12 +77,18 @@ public final class BossHubGui {
 
         for (Map.Entry<Integer, BossDef> e : SLOT_MAP.entrySet()) {
             BossDef b = e.getValue();
+            // 실제 적용 스탯(MobStatOverrideService 시드) 우선, 없으면 BossDef 설계값 (DL-129 추가#16, B).
+            Double sHp  = com.poro.rpg.admin.config.MobStatOverrideService.seededHp(b.id());
+            Double sAtk = com.poro.rpg.admin.config.MobStatOverrideService.seededAtk(b.id());
+            Double sDef = com.poro.rpg.admin.config.MobStatOverrideService.seededDef(b.id());
+            long hp = sHp != null ? sHp.longValue() : b.hp();
+            int  atk = sAtk != null ? sAtk.intValue() : b.atk();
             java.util.List<String> lore = new java.util.ArrayList<>();
             lore.add("§7──────────────");
-            lore.add("§7체력: §c" + String.format("%,d", b.hp()));
-            lore.add("§7공격력: §c" + b.atk());
-            lore.add("§7방어: §f—");
-            lore.add("§7패턴: §f3페이즈 §8(HP 60%·30% 전환)");
+            lore.add("§7체력: §c" + String.format("%,d", hp));
+            lore.add("§7공격력: §c" + atk);
+            lore.add("§7방어: §f" + (sDef != null ? String.valueOf(sDef.intValue()) : "—"));
+            lore.add("§7패턴: §f" + bossPattern(b.id()));
             lore.add("§7권장: §e" + b.recLevel() + "  §7파티: §f1~3인");
             if (b.needsUnlock()) lore.add("§c공허 사자 클리어 필요");
             lore.add("");
@@ -102,4 +108,20 @@ public final class BossHubGui {
         return id;
     }
     public static boolean bossNeedsUnlockAt(int slot)  { BossDef d = SLOT_MAP.get(slot); return d != null && d.needsUnlock(); }
+
+    /** 보스별 패턴 요약 (season_boss_patterns.md, DL-129 추가#16 C). 보스정보 GUI 표시용. */
+    private static String bossPattern(String id) {
+        return switch (id) {
+            case "fallen_knight"  -> "3페이즈(60%·30%) · 에너지 석판 · 유도 구체";
+            case "corrupted_lord" -> "3페이즈(55%·20%) · 전도체 기둥 · 쉴드+반사 · 관통";
+            case "stone_colossus" -> "3페이즈(60%·25%) · 지진 발걸음 · 거석 투척";
+            case "storm_sorcerer" -> "3페이즈(60%·25%) · 소환체 봉인 · 번개 장판/포화";
+            case "abyss_guardian" -> "3페이즈(60%·25%) · 어둠 결정 · 심연 진동";
+            case "void_herald"    -> "3페이즈(55%·20%) · 포탈 파괴 · 허상 처치";
+            case "rift_king"      -> "5페이즈(75/50/25/10%) · 무적딜타임×4 · 분신/격자폭발";
+            case "corrupted_dyad" -> "이중체 동시전투 · 페이즈 전환 · 반사/연계";
+            case "spirit_watcher" -> "진혼 광역 · 페이즈 전환 · 영혼 처치 관문";
+            default -> "3페이즈 페이즈 전환";
+        };
+    }
 }

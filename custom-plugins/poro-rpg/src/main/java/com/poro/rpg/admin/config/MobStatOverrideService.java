@@ -36,6 +36,33 @@ public final class MobStatOverrideService {
      */
     private static final Map<String, Double> DEF_SEED = buildDefSeed();
 
+    /**
+     * 보스 HP 시드 (DL-129 추가#16 — A 제안 곡선). 권장강화 비례로 시즌1→시즌6 상승(역전 해소, balance_review_dl128 §2).
+     * 솔로/소규모 파티 기준. DEF 경감(×(DEF+200)/200)이 추가로 실효 HP를 늘림. <b>운영 검토 후 조정 대상</b>.
+     */
+    private static final Map<String, Double> HP_SEED = buildHpSeed();
+
+    private static Map<String, Double> buildHpSeed() {
+        Map<String, Double> m = new LinkedHashMap<>();
+        // 시즌보스 6종 — DEF 경감 역산(raw×(DEF+200)/200=실효). raw 낮춰 솔로 친화(타락기사 실효~4.5만, balance_review 30~35k 부합).
+        m.put("fallen_knight",   30_000.0); // 시즌1 (6~10강)   실효 ~45k
+        m.put("corrupted_lord",  45_000.0); // 시즌2 (10~13강)  실효 ~79k
+        m.put("stone_colossus",  70_000.0); // 시즌3 (13~16강)  실효 ~133k
+        m.put("storm_sorcerer", 100_000.0); // 시즌4 (16~18강)  실효 ~205k
+        m.put("abyss_guardian", 130_000.0); // 시즌5 (18~20강)  실효 ~286k
+        m.put("void_herald",    180_000.0); // 시즌6 (20~22강)  실효 ~419k
+        // 최종보스 3종 (22강+)
+        m.put("rift_king",      420_000.0); // 실효 ~1.0M
+        m.put("corrupted_dyad", 300_000.0); // 이중체 — 각 체력 낮게
+        m.put("spirit_watcher", 420_000.0);
+        return m;
+    }
+
+    /** 보스정보 GUI 등 표시용 — 시드된 HP/ATK/DEF (없으면 null). */
+    public static Double seededHp(String mobId)  { return HP_SEED.get(mobId); }
+    public static Double seededAtk(String mobId) { return ATK_SEED.get(mobId); }
+    public static Double seededDef(String mobId) { return DEF_SEED.get(mobId); }
+
     private static Map<String, Double> buildDefSeed() {
         Map<String, Double> m = new LinkedHashMap<>();
         m.put("fallen_knight",  100.0);
@@ -76,14 +103,16 @@ public final class MobStatOverrideService {
         java.util.Set<String> keys = new java.util.LinkedHashSet<>();
         keys.addAll(ATK_SEED.keySet());
         keys.addAll(DEF_SEED.keySet());
+        keys.addAll(HP_SEED.keySet());
         for (String key : keys) {
             MobStatOverride existing = cache.get(key);
             Double atk = ATK_SEED.containsKey(key) ? ATK_SEED.get(key) : (existing != null ? existing.atk() : null);
             Double def = DEF_SEED.containsKey(key) ? DEF_SEED.get(key) : (existing != null ? existing.def() : null);
-            Double hp  = existing != null ? existing.maxHp() : null;
+            Double hp  = HP_SEED.containsKey(key)  ? HP_SEED.get(key)  : (existing != null ? existing.maxHp() : null);
             if (existing != null
                     && java.util.Objects.equals(atk, existing.atk())
-                    && java.util.Objects.equals(def, existing.def())) continue; // 변화 없음
+                    && java.util.Objects.equals(def, existing.def())
+                    && java.util.Objects.equals(hp, existing.maxHp())) continue; // 변화 없음
             MobStatOverride row = new MobStatOverride(key, hp, def, atk);
             repository.save(row, SEED_AUTHOR);
             cache.put(key, row);

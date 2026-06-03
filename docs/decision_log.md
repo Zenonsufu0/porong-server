@@ -2895,3 +2895,17 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 **수정:** `GrowthGuiListener` 전승 영역 `itemDisplayName(...)` 3곳 → `equipDisplayName(findEquipSlot(state,targetId), playerDataManager.getWeaponType(uid))`(전승 selector와 동일 한글 변환). 무기=한글 무기명·방어구=부위명(투구/흉갑/레깅스/부츠).
 
 **검증:** `./gradlew build` SUCCESSFUL. **잔여:** 잠재 미리보기 슬롯 타이틀·강화 메시지 등 다른 GUI itemDisplayName(영문)은 이름변경권 구현 시 일괄 이관(equipDisplayName 재사용).
+
+---
+
+### DL-129 추가#16 (2026-06-03) — 보스정보 GUI 실스탯 동기(B) + 보스별 패턴(C) + HP 곡선(A 제안)
+
+**배경:** 보스정보 GUI(BossHubGui)가 HP/ATK를 하드코딩(설계값)으로 표시 — 실제 보스 스탯(MobStatOverrideService 시드)과 분리. 패턴은 "3페이즈 60%·30%" 고정. 실제 보스 HP는 미시드(테스트 ~8000).
+
+**B — GUI 실스탯 동기:** `MobStatOverrideService.seededHp/seededAtk/seededDef` 정적 접근자 노출. `BossHubGui`가 시드값 우선 표시(없으면 BossDef 설계값 fallback) + **방어(DEF) 행 표시**(기존 "—").
+
+**C — 보스별 패턴 표시:** `BossHubGui.bossPattern(id)` — season_boss_patterns.md 기반 보스별 요약(페이즈 전환%·고유 SP 패턴명). 9보스 각각(예 균열왕 "5페이즈(75/50/25/10%)·무적딜타임×4·분신/격자폭발").
+
+**A — 보스 HP 곡선(제안·적용):** `MobStatOverrideService.HP_SEED` 신규 + loadAndSeed에 HP 시드/적용 추가(applyOnSpawn이 MAX_HEALTH 적용, spigot 캡 2048000). balance_review_dl128 §2 "시즌보스 평탄 150~170k → 권장강화 비례 곡선(역전 해소)" 반영. **제안값(검토·조정 대상)**: 시즌1 fallen_knight 10만 / 시즌2 16만 / 시즌3 23만 / 시즌4 31만 / 시즌5 40만 / 시즌6 50만 / 최종 균열왕 85만·이중체 55만·주시자 85만. DEF 경감(×(DEF+200)/200)이 실효 HP 추가 가산. **사장님 검토 후 숫자 조정 — HP_SEED 맵 1곳 수정.**
+
+**검증:** `./gradlew build` SUCCESSFUL. 부팅 시 mob_stat_override 시드 갱신(HP 포함). **잔여:** 필드보스 HP, 보스 ATK 곡선 미세조정, 패턴 데미지(MM YAML)는 본 레이어 밖.
