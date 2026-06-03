@@ -2885,3 +2885,13 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 **★재배포 시 필수:** 리소스팩 sha1이 9bdcdbb→**7ffcf097**로 변경됨. server.properties·HTTP 서빙 zip 동기 필수(불일치 시 접속 차단). chars.png/hud.json 폰트 델타·고대흔적 mcmeta는 gitignore(로컬) — 새 환경 재적용 필요.
 
 **검증:** `./gradlew build` SUCCESSFUL. zip in-place 업데이트(chars 346→364·hud 13283→13313·mcmeta×4). server.properties sha1=zip sha1 일치.
+
+---
+
+### DL-129 추가#15 (2026-06-03) — 전승 GUI 장비명 영문→한글
+
+**인게임 피드백:** 전승 GUI 대상 표시가 영문(itemDisplayName=item_master 영문명, 예 "Training Sword"). 장비 선택칸은 한글(equipDisplayName)인데 **대상 슬롯·전승 버튼·완료 메시지** 3곳만 영문.
+
+**수정:** `GrowthGuiListener` 전승 영역 `itemDisplayName(...)` 3곳 → `equipDisplayName(findEquipSlot(state,targetId), playerDataManager.getWeaponType(uid))`(전승 selector와 동일 한글 변환). 무기=한글 무기명·방어구=부위명(투구/흉갑/레깅스/부츠).
+
+**검증:** `./gradlew build` SUCCESSFUL. **잔여:** 잠재 미리보기 슬롯 타이틀·강화 메시지 등 다른 GUI itemDisplayName(영문)은 이름변경권 구현 시 일괄 이관(equipDisplayName 재사용).

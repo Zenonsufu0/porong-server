@@ -1077,7 +1077,7 @@ public final class GrowthGuiListener implements Listener {
             selectedHeirloomTarget.remove(uid);
             selectedHeirloomType.put(uid, SuccessionService.SuccessionType.BASIC);
             scoreboardService.refresh(player);
-            String tgtName = itemDisplayName(state.inventoryItem(targetId).orElse(null));
+            String tgtName = equipDisplayName(findEquipSlot(state, targetId), playerDataManager.getWeaponType(uid));
             player.sendMessage("§6§l[전승 완료] §f" + tgtName + " §e" + type.displayName() + " §a적용!");
             player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.7f, 1.0f);
             openGrowthHeirloom(player);
@@ -1134,8 +1134,14 @@ public final class GrowthGuiListener implements Listener {
         // 대상 슬롯
         if (targetId != null) {
             PlayerEquipmentItem tgt = state.inventoryItem(targetId).orElse(null);
+            EquipmentSlot tgtSlot = findEquipSlot(state, targetId);
+            WeaponType tgtWt = playerDataManager.getWeaponType(uid);
+            // 아이콘을 실제 장비 재질로 — 무기는 치장 재질, 방어구는 슬롯별 재질(다이아검 하드코딩 제거).
+            Material tgtMat = tgtSlot == EquipmentSlot.WEAPON
+                    ? weaponCosmeticMaterial(tgtWt, state.getCosmeticMaterial(weaponCosmeticKey(tgtWt)))
+                    : EQUIP_MATERIAL.getOrDefault(tgtSlot, Material.NETHER_STAR);
             inv.setItem(HEIR_SLOT_TARGET, MainHubGui.icon(
-                    Material.DIAMOND_SWORD, "§b대상: §f" + itemDisplayName(tgt),
+                    tgtMat, "§b대상: §f" + equipDisplayName(tgtSlot, tgtWt),
                     List.of("§7등급: " + gradeColor(tgt != null ? tgt.grade() : ItemGrade.COMMON) + (tgt != null ? tgt.grade().displayName() : "?"),
                             "§7서브스탯: §e" + (tgt != null ? tgt.substatLines().size() : 0) + "라인")));
             if (traceId != null) {
@@ -1165,7 +1171,7 @@ public final class GrowthGuiListener implements Listener {
         boolean hasTrace = islandState.getCustomItem(traceId) >= 1;
         if (canAfford && hasTrace) {
             String traceName = traceDisplayName(traceId);
-            String tgtName = itemDisplayName(state.inventoryItem(targetId).orElse(null));
+            String tgtName = equipDisplayName(findEquipSlot(state, targetId), playerDataManager.getWeaponType(uid));
             inv.setItem(HEIR_SLOT_EXECUTE, MainHubGui.icon(Material.NETHER_STAR, "§e§l전승!",
                     List.of("§7──────────────",
                             "§7흔적: §e" + traceName + " §c(소모됨)",
