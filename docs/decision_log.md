@@ -2909,3 +2909,20 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 **A — 보스 HP 곡선(제안·적용):** `MobStatOverrideService.HP_SEED` 신규 + loadAndSeed에 HP 시드/적용 추가(applyOnSpawn이 MAX_HEALTH 적용, spigot 캡 2048000). balance_review_dl128 §2 "시즌보스 평탄 150~170k → 권장강화 비례 곡선(역전 해소)" 반영. **제안값(검토·조정 대상)**: 시즌1 fallen_knight 10만 / 시즌2 16만 / 시즌3 23만 / 시즌4 31만 / 시즌5 40만 / 시즌6 50만 / 최종 균열왕 85만·이중체 55만·주시자 85만. DEF 경감(×(DEF+200)/200)이 실효 HP 추가 가산. **사장님 검토 후 숫자 조정 — HP_SEED 맵 1곳 수정.**
 
 **검증:** `./gradlew build` SUCCESSFUL. 부팅 시 mob_stat_override 시드 갱신(HP 포함). **잔여:** 필드보스 HP, 보스 ATK 곡선 미세조정, 패턴 데미지(MM YAML)는 본 레이어 밖.
+
+**HP 곡선 1차 조정(사장님 피드백):** raw 10만 너무 높음 → DEF 경감 역산 반영. raw HP 하향: fallen_knight 30k(실효~45k) / corrupted_lord 45k / stone_colossus 70k / storm_sorcerer 100k / abyss_guardian 130k / void_herald 180k / rift_king 420k / corrupted_dyad 300k / spirit_watcher 420k. (실효 HP = raw × (DEF+200)/200.)
+
+---
+
+### DL-129 추가#17 (2026-06-03) — 보스 HP 실입장 인원수 스케일링
+
+**사장님 요청:** HP를 등록 파티가 아니라 **실제 입장(온라인) 유저수** 기준으로 곱. 3인 파티라도 2명만 들어오면 2인 HP.
+
+**핵심:** `BossRoomListener`가 memberIds 구성 시 **온라인 파티원만**(`Bukkit.getPlayer != null`) 포함(125-133행) → `memberIds.size()`가 곧 실입장 인원. 별도 추적 불필요(데스풀도 이 값 사용).
+
+**구현:**
+- `partyHpMultiplier(entered)`: 1인 ×1.0 / 2인 ×1.8 / 3인+ ×2.5.
+- 스폰 후 5틱 지연(MobStatOverride applyOnSpawn 1틱 이후) → 보스 MAX_HEALTH × 배수 + setHealth. `BossRoomListener`에 Plugin 주입(스케줄러).
+- `BossHubGui` 체력 표기에 "(1인 기준 · 2인 ×1.8 · 3인 ×2.5)" 추가.
+
+**검증:** `./gradlew build` SUCCESSFUL. **참고:** 입장 후 합류/이탈은 미반영(스폰 시점 고정). 데스카운트(3/4/5)와 동일 기준(memberIds.size).

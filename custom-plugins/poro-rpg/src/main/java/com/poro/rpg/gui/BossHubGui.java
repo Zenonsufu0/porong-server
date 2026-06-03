@@ -85,7 +85,7 @@ public final class BossHubGui {
             int  atk = sAtk != null ? sAtk.intValue() : b.atk();
             java.util.List<String> lore = new java.util.ArrayList<>();
             lore.add("§7──────────────");
-            lore.add("§7체력: §c" + String.format("%,d", hp));
+            lore.add("§7체력: §c" + String.format("%,d", hp) + " §8(1인 기준 · 2인 ×1.8 · 3인 ×2.5)");
             lore.add("§7공격력: §c" + atk);
             lore.add("§7방어: §f" + (sDef != null ? String.valueOf(sDef.intValue()) : "—"));
             lore.add("§7패턴: §f" + bossPattern(b.id()));

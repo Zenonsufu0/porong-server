@@ -42,20 +42,31 @@ public final class BossRoomListener implements Listener {
     private final AdminTogglesService togglesService;
     /** 인스턴스 보스 데미지 기여 추적 (DL-084). */
     private final BossDamageTracker damageTracker;
+    /** 보스 HP 인원수 스케일 지연 적용용 (DL-129 추가#17). */
+    private final org.bukkit.plugin.Plugin plugin;
 
-    public BossRoomListener(BossRoomManager bossRoomManager,
+    public BossRoomListener(org.bukkit.plugin.Plugin plugin,
+                            BossRoomManager bossRoomManager,
                             BossMasterRegistry bossMasters,
                             PartyManager partyManager,
                             BossEngineRuntime bossEngineRuntime,
                             BiFunction<String, Location, UUID> mythicSpawner,
                             AdminTogglesService togglesService,
                             BossDamageTracker damageTracker) {
+        this.plugin            = plugin;
         this.bossRoomManager   = bossRoomManager;
         this.bossEngineRuntime = bossEngineRuntime;
         this.partyManager      = partyManager;
         this.mythicSpawner     = mythicSpawner;
         this.togglesService    = togglesService;
         this.damageTracker     = damageTracker;
+    }
+
+    /** 실제 입장(온라인) 인원수 → 보스 HP 배수 (1인 ×1 / 2인 ×1.8 / 3인+ ×2.5). */
+    private static double partyHpMultiplier(int entered) {
+        if (entered <= 1) return 1.0;
+        if (entered == 2) return 1.8;
+        return 2.5;
     }
 
     /**
@@ -162,6 +173,23 @@ public final class BossRoomListener implements Listener {
             bossEngineRuntime.runService().endRun(run.runId(), false, "spawn_failed");
             player.sendMessage("§c[보스] 보스 소환에 실패했습니다. 잠시 후 다시 시도하세요.");
             return;
+        }
+
+        // 보스 HP를 실제 입장 인원수로 스케일 (DL-129 추가#17). MobStatOverride applyOnSpawn(1틱)이 seedHp 적용 후
+        // 곱하도록 5틱 지연. 등록 파티가 아니라 실제 온라인 입장 인원(memberIds) 기준 — 2명만 들어오면 ×1.8.
+        final UUID scaleUuid = bossMobUuid;
+        final int  enteredCount = memberIds.size();
+        if (enteredCount >= 2) {
+            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                if (Bukkit.getEntity(scaleUuid) instanceof org.bukkit.entity.LivingEntity le2 && !le2.isDead()) {
+                    org.bukkit.attribute.AttributeInstance hpAttr = le2.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH);
+                    if (hpAttr != null) {
+                        double scaled = hpAttr.getBaseValue() * partyHpMultiplier(enteredCount);
+                        hpAttr.setBaseValue(scaled);
+                        le2.setHealth(scaled);
+                    }
+                }
+            }, 5L);
         }
 
         // 보스 mob ↔ run 등록 — 데미지 기여 추적 (DL-084)

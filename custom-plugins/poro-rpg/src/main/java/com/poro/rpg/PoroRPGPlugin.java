@@ -712,7 +712,7 @@ public final class PoroRPGPlugin extends JavaPlugin {
                 new com.poro.rpg.listener.HubSpawnListener(this, hubWorldService), this);
 
         BossRoomListener bossRoomListenerInstance =
-                new BossRoomListener(bossRoomManager, masterRegistryContext.bossMasters(), partyManager, bossEngineRuntime, mythicSpawner, adminTogglesService, bossDamageTracker);
+                new BossRoomListener(this, bossRoomManager, masterRegistryContext.bossMasters(), partyManager, bossEngineRuntime, mythicSpawner, adminTogglesService, bossDamageTracker);
         this.bossHubListener.setBossRoomEntry(bossRoomListenerInstance); // 파티 GUI 입장 버튼 → 보스룸 텔레포트
         getServer().getPluginManager().registerEvents(shopGuiListener, this);
         getServer().getPluginManager().registerEvents(pvpHubListener, this);
