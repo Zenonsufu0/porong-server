@@ -103,7 +103,7 @@ public final class GrowthEngineBootstrap {
                 new PreferAfterPotentialSelectionHook(),
                 new ThreadLocalRandomProvider()
         );
-        SuccessionService successionService = new SuccessionService(potentialOptionRegistry, masterRegistryContext.itemMasters(), new ThreadLocalRandomProvider());
+        SuccessionService successionService = new SuccessionService();
         TraceSubstatRoller traceSubstatRoller = new TraceSubstatRoller(traceSubstatRegistry, new ThreadLocalRandomProvider());
         SetBonusService setBonusService = new SetBonusService(masterRegistryContext.itemMasters(), setBonusRegistry);
         RuneService runeService = new RuneService(runeRegistry, masterRegistryContext.itemMasters());

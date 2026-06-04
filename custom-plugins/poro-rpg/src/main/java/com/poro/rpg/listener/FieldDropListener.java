@@ -5,7 +5,11 @@ import com.poro.rpg.boss.engine.BossRewardService;
 import com.poro.rpg.field.ContributionTracker;
 import com.poro.rpg.field.FieldBossRespawnScheduler;
 import com.poro.rpg.growth.GrowthStateStore;
+import com.poro.rpg.growth.engine.ItemGrade;
 import com.poro.rpg.growth.engine.PlayerGrowthState;
+import com.poro.rpg.growth.engine.PotentialLine;
+import com.poro.rpg.growth.engine.TraceInstance;
+import com.poro.rpg.growth.engine.TraceSubstatRoller;
 import com.poro.rpg.growth.island.IslandTerritoryStateStore;
 import com.poro.rpg.leveling.PlayerLevelingService;
 import com.poro.rpg.scoreboard.ScoreboardService;
@@ -39,6 +43,8 @@ public final class FieldDropListener implements Listener {
     private final ScoreboardService scoreboardService;
     /** EXP_BOOST / DROP_BOOST 운영 토글 (optional — null이면 미적용). */
     private final AdminTogglesService togglesService;
+    /** 흔적 인스턴스 세부스탯 롤러 (DL-129 추가#38, P2). null이면 흔적 드랍 생략. */
+    private final TraceSubstatRoller traceSubstatRoller;
 
     public FieldDropListener(
             GrowthStateStore growthStateStore,
@@ -49,7 +55,8 @@ public final class FieldDropListener implements Listener {
             BossRewardService bossRewardService,
             ContributionTracker contributionTracker,
             ScoreboardService scoreboardService,
-            AdminTogglesService togglesService
+            AdminTogglesService togglesService,
+            TraceSubstatRoller traceSubstatRoller
     ) {
         this.growthStateStore = growthStateStore;
         this.islandTerritoryStateStore = islandTerritoryStateStore;
@@ -59,6 +66,7 @@ public final class FieldDropListener implements Listener {
         this.contributionTracker = contributionTracker;
         this.scoreboardService = scoreboardService;
         this.togglesService = togglesService;
+        this.traceSubstatRoller = traceSubstatRoller;
     }
 
     /** EXP_BOOST 토글 시 EXP ×2. */
@@ -158,10 +166,24 @@ public final class FieldDropListener implements Listener {
                         "[Cube] " + player.getUniqueId() + " 10 fragments -> 1 cube (wallet)");
             }
         }
-        if (profile.elite && roll(profile.traceChancePct)) {
-            islandTerritoryStateStore.getOrCreate(player.getUniqueId(), player.getName())
-                    .addCustomItem(randomTraceId(profile.field()), mult);
-            sb.append(" §3+").append(mult).append(" 흔적");
+        if (profile.elite && roll(profile.traceChancePct) && traceSubstatRoller != null) {
+            // 인스턴스화 (DL-129 추가#38, P2): mult개의 독립 흔적 — 각자 등급·세부스탯 롤.
+            var state = islandTerritoryStateStore.getOrCreate(player.getUniqueId(), player.getName());
+            ItemGrade lastGrade = null;
+            for (int i = 0; i < mult; i++) {
+                ItemGrade grade = randomTraceGrade(profile.field());
+                java.util.List<PotentialLine> substats = traceSubstatRoller.roll(grade);
+                state.addTraceInstance(new TraceInstance(
+                        "trace_" + UUID.randomUUID(), grade, substats));
+                lastGrade = grade;
+            }
+            // 메시지: 1개면 등급 명시, 여러 개면 개수만 (등급 혼재 가능).
+            if (mult == 1 && lastGrade != null) {
+                sb.append(" §3+1 ").append(com.poro.rpg.gui.EquipmentLoreRenderer.gradeColor(lastGrade))
+                        .append(lastGrade.displayName()).append(" §3흔적");
+            } else {
+                sb.append(" §3+").append(mult).append(" 흔적");
+            }
         }
         return sb.toString();
     }
@@ -195,26 +217,27 @@ public final class FieldDropListener implements Listener {
         };
     }
 
-    private String randomTraceId(int field) {
+    /** 필드별 흔적 등급 분포 (DL-129 추가#38 P2 — 기존 randomTraceId 분포를 ItemGrade로 환산). */
+    private ItemGrade randomTraceGrade(int field) {
         double roll = ThreadLocalRandom.current().nextDouble(100.0);
         if (field == 5) {
-            if (roll < 2.0)  return "equip_trace_brilliant"; // 레전더리 2%
-            if (roll < 7.0)  return "equip_trace_radiant";   // 유니크 5%
-            if (roll < 25.0) return "equip_trace_glowing";   // 에픽 18%
-            if (roll < 60.0) return "equip_trace_faded";     // 레어 35%
-            return "equip_trace_broken";                      // 커먼 40%
+            if (roll < 2.0)  return ItemGrade.LEGENDARY; // 2%
+            if (roll < 7.0)  return ItemGrade.UNIQUE;    // 5%
+            if (roll < 25.0) return ItemGrade.EPIC;      // 18%
+            if (roll < 60.0) return ItemGrade.RARE;      // 35%
+            return ItemGrade.COMMON;                      // 40%
         }
         if (field == 4) {
-            if (roll < 0.5)  return "equip_trace_brilliant"; // 레전더리 0.5%
-            if (roll < 3.0)  return "equip_trace_radiant";   // 유니크 2.5%
-            if (roll < 13.0) return "equip_trace_glowing";   // 에픽 10%
-            if (roll < 48.0) return "equip_trace_faded";     // 레어 35%
-            return "equip_trace_broken";                      // 커먼 52%
+            if (roll < 0.5)  return ItemGrade.LEGENDARY; // 0.5%
+            if (roll < 3.0)  return ItemGrade.UNIQUE;    // 2.5%
+            if (roll < 13.0) return ItemGrade.EPIC;      // 10%
+            if (roll < 48.0) return ItemGrade.RARE;      // 35%
+            return ItemGrade.COMMON;                      // 52%
         }
         // 필드 1~3 기본
-        if (roll < 5.0)  return "equip_trace_glowing";   // 에픽 5%
-        if (roll < 40.0) return "equip_trace_faded";     // 레어 35%
-        return "equip_trace_broken";                      // 커먼 60%
+        if (roll < 5.0)  return ItemGrade.EPIC;  // 5%
+        if (roll < 40.0) return ItemGrade.RARE;  // 35%
+        return ItemGrade.COMMON;                  // 60%
     }
 
     private boolean roll(double chancePct) {

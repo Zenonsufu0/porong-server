@@ -31,6 +31,7 @@ import com.poro.rpg.growth.engine.PotentialLine;
 import com.poro.rpg.growth.engine.PotentialProfile;
 import com.poro.rpg.growth.engine.PotentialService;
 import com.poro.rpg.growth.engine.SuccessionService;
+import com.poro.rpg.growth.engine.TraceInstance;
 import com.poro.rpg.gui.EquipmentLoreRenderer;
 import com.poro.rpg.gui.GuiTitles;
 import com.poro.rpg.gui.MainHubGui;
@@ -207,7 +208,7 @@ public final class GrowthGuiListener implements Listener {
     private final Map<UUID, java.util.Set<String>>      enabledEnhanceTraces    = new ConcurrentHashMap<>();
     private final Map<UUID, String>                     selectedPotentialId     = new ConcurrentHashMap<>();
     private final Map<UUID, PotentialService.PotentialOperationResult> pendingPotentialResult = new ConcurrentHashMap<>();
-    // 전승 상태 (traceId = "equip_trace_broken" 등 customItems 키)
+    // 전승 상태 (traceId = TraceInstance.instanceId, DL-129 추가#38 P3)
     private final Map<UUID, String>                            selectedHeirloomTarget  = new ConcurrentHashMap<>();
     private final Map<UUID, String>                            selectedHeirloomTraceId = new ConcurrentHashMap<>();
     private final Map<UUID, SuccessionService.SuccessionType> selectedHeirloomType    = new ConcurrentHashMap<>();
@@ -1116,14 +1117,18 @@ public final class GrowthGuiListener implements Listener {
         SuccessionService.SuccessionType type = selectedHeirloomType.getOrDefault(uid, SuccessionService.SuccessionType.BASIC);
 
         // 흔적 슬롯
-        if (traceId != null) {
+        TraceInstance selTrace = traceId != null ? islandState.findTraceInstance(traceId).orElse(null) : null;
+        if (selTrace != null) {
             inv.setItem(HEIR_SLOT_SOURCE, buildTraceIcon(traceId, islandState));
-            ItemGrade traceGrade = SuccessionService.traceGrade(traceId);
+            ItemGrade traceGrade = selTrace.grade();
             List<String> srcLore = new ArrayList<>();
             srcLore.add("§7등급: " + gradeColor(traceGrade) + traceGrade.displayName());
-            srcLore.add("§7보유: §e" + islandState.getCustomItem(traceId) + "개");
-            srcLore.add("§7──────────────");
-            srcLore.add("§8서브스탯은 전승 시 무작위 생성");
+            if (selTrace.substats().isEmpty()) {
+                srcLore.add("§8세부스탯: 없음");
+            } else {
+                srcLore.add("§7세부스탯:");
+                selTrace.substats().forEach(l -> srcLore.add("§7  " + substatLabel(l.optionCode()) + " §e+" + String.format("%.1f", l.value())));
+            }
             inv.setItem(HEIR_SLOT_PREVIEW_SRC, MainHubGui.icon(Material.PAPER, "§7흔적 정보", srcLore));
         } else {
             inv.setItem(HEIR_SLOT_SOURCE, MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§8흔적 (미선택)",
@@ -1145,7 +1150,7 @@ public final class GrowthGuiListener implements Listener {
                     List.of("§7등급: " + gradeColor(tgt != null ? tgt.grade() : ItemGrade.COMMON) + (tgt != null ? tgt.grade().displayName() : "?"),
                             "§7서브스탯: §e" + (tgt != null ? tgt.substatLines().size() : 0) + "라인")));
             if (traceId != null) {
-                inv.setItem(HEIR_SLOT_PREVIEW_TGT, buildHeirloomAfterPreviewIcon(traceId, tgt, type));
+                inv.setItem(HEIR_SLOT_PREVIEW_TGT, buildHeirloomAfterPreviewIcon(traceId, tgt, type, islandState));
             } else {
                 inv.setItem(HEIR_SLOT_PREVIEW_TGT, buildHeirloomPreviewIcon(tgt, "§b대상 현재 옵션", "§b"));
             }
@@ -1168,9 +1173,10 @@ public final class GrowthGuiListener implements Listener {
         }
         long cost = type.goldCost();
         boolean canAfford = cost == 0 || state.currency("gold") >= cost;
-        boolean hasTrace = islandState.getCustomItem(traceId) >= 1;
+        TraceInstance selTrace = islandState.findTraceInstance(traceId).orElse(null);
+        boolean hasTrace = selTrace != null;
         if (canAfford && hasTrace) {
-            String traceName = traceDisplayName(traceId);
+            String traceName = traceDisplayName(selTrace);
             String tgtName = equipDisplayName(findEquipSlot(state, targetId), playerDataManager.getWeaponType(uid));
             inv.setItem(HEIR_SLOT_EXECUTE, MainHubGui.icon(Material.NETHER_STAR, "§e§l전승!",
                     List.of("§7──────────────",
@@ -1182,7 +1188,7 @@ public final class GrowthGuiListener implements Listener {
                             "§e클릭하여 전승 실행")));
         } else if (!hasTrace) {
             inv.setItem(HEIR_SLOT_EXECUTE, MainHubGui.icon(Material.RED_STAINED_GLASS_PANE, "§c흔적 부족",
-                    List.of("§c" + traceDisplayName(traceId) + " 보유량 부족")));
+                    List.of("§c선택한 흔적을 찾을 수 없습니다")));
         } else {
             inv.setItem(HEIR_SLOT_EXECUTE, MainHubGui.icon(Material.RED_STAINED_GLASS_PANE, "§c골드 부족",
                     List.of("§c필요: " + type.goldCost() + "G",
@@ -1220,49 +1226,64 @@ public final class GrowthGuiListener implements Listener {
         return MainHubGui.icon(Material.PAPER, color + title, lore);
     }
 
-    private ItemStack buildHeirloomAfterPreviewIcon(String traceId, PlayerEquipmentItem tgt,
-                                                    SuccessionService.SuccessionType type) {
-        if (traceId == null || tgt == null) return pane();
-        ItemGrade traceGrade = SuccessionService.traceGrade(traceId);
-        ItemGrade resultGrade = (type == SuccessionService.SuccessionType.SUBSTAT_ONLY) ? tgt.grade() : traceGrade;
+    private ItemStack buildHeirloomAfterPreviewIcon(String traceInstanceId, PlayerEquipmentItem tgt,
+                                                    SuccessionService.SuccessionType type, IslandTerritoryState islandState) {
+        if (traceInstanceId == null || tgt == null) return pane();
+        TraceInstance trace = islandState.findTraceInstance(traceInstanceId).orElse(null);
+        if (trace == null) return pane();
+        ItemGrade resultGrade = (type == SuccessionService.SuccessionType.SUBSTAT_ONLY) ? tgt.grade() : trace.grade();
         List<String> lore = new ArrayList<>();
         lore.add("§b전승 후 등급: " + gradeColor(resultGrade) + resultGrade.displayName());
+        // 전승 후 서브스탯: GRADE_ONLY=대상 유지, 그 외=흔적 인스턴스 값 그대로 이전.
+        List<PotentialLine> resultSubs = (type == SuccessionService.SuccessionType.GRADE_ONLY)
+                ? tgt.substatLines() : trace.substats();
         if (type == SuccessionService.SuccessionType.GRADE_ONLY) {
-            List<PotentialLine> substats = tgt.substatLines();
-            if (substats.isEmpty()) {
-                lore.add("§8서브스탯: 유지 (없음)");
-            } else {
-                lore.add("§7서브스탯: §f유지됨");
-                substats.forEach(l -> lore.add("§7  " + l.optionCode() + " §e+" + String.format("%.2f", l.value())));
-            }
+            lore.add(resultSubs.isEmpty() ? "§8서브스탯: 유지 (없음)" : "§7서브스탯: §f유지됨");
         } else {
-            lore.add("§7서브스탯: §e무작위 생성");
-            lore.add("§8(실행 시 확정)");
+            lore.add(resultSubs.isEmpty() ? "§8서브스탯: 없음" : "§7서브스탯: §f흔적 값 이전");
         }
+        resultSubs.forEach(l -> lore.add("§7  " + substatLabel(l.optionCode()) + " §e+" + String.format("%.1f", l.value())));
         return MainHubGui.icon(Material.NETHER_STAR, "§b전승 후 대상 옵션", lore);
     }
 
+    /** 보유 흔적 인스턴스 id 목록 — 등급 내림차순(고등급 우선) 정렬. */
     private List<String> availableTraceIds(IslandTerritoryState islandState) {
-        return SuccessionService.TRACE_GRADE_MAP.keySet().stream()
-                .filter(id -> islandState.getCustomItem(id) > 0)
-                .sorted()
+        return islandState.traceInstancesSnapshot().stream()
+                .sorted((a, b) -> b.grade().ordinal() - a.grade().ordinal())
+                .map(TraceInstance::instanceId)
                 .collect(Collectors.toList());
     }
 
-    private ItemStack buildTraceIcon(String traceId, IslandTerritoryState islandState) {
-        ItemGrade grade = SuccessionService.traceGrade(traceId);
-        String name = traceDisplayName(traceId);
-        long count = islandState.getCustomItem(traceId);
-        return MainHubGui.icon(Material.PAPER,
-                gradeColor(grade) + name,
-                List.of("§7등급: " + gradeColor(grade) + grade.displayName(),
-                        "§7보유: §e" + count + "개",
-                        "§7──────────────",
-                        "§7클릭 → 다음 흔적으로"));
+    private ItemStack buildTraceIcon(String traceInstanceId, IslandTerritoryState islandState) {
+        TraceInstance trace = islandState.findTraceInstance(traceInstanceId).orElse(null);
+        if (trace == null) {
+            return MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, "§8흔적 (없음)", List.of());
+        }
+        ItemGrade grade = trace.grade();
+        long total = islandState.traceInstancesSnapshot().size();
+        List<String> lore = new ArrayList<>();
+        lore.add("§7등급: " + gradeColor(grade) + grade.displayName());
+        if (trace.substats().isEmpty()) {
+            lore.add("§8세부스탯: 없음");
+        } else {
+            lore.add("§7세부스탯:");
+            trace.substats().forEach(l -> lore.add("§7  " + substatLabel(l.optionCode()) + " §e+" + String.format("%.1f", l.value())));
+        }
+        lore.add("§7──────────────");
+        lore.add("§7보유 흔적: §e" + total + "개");
+        lore.add("§7클릭 → 다음 흔적으로");
+        return MainHubGui.icon(Material.PAPER, gradeColor(grade) + traceDisplayName(trace), lore);
     }
 
-    private String traceDisplayName(String traceId) {
-        return itemMasters.find(traceId).map(ItemMaster::itemName).orElse(traceId);
+    /** 흔적 인스턴스 표시명 — 등급 기반(범용, 슬롯 없음). */
+    private String traceDisplayName(TraceInstance trace) {
+        if (trace == null) return "장비의 흔적";
+        return trace.grade().displayName() + " 장비의 흔적";
+    }
+
+    /** 세부스탯 옵션코드 → 한글 라벨(잠재 렌더러 재사용). */
+    private String substatLabel(String optionCode) {
+        return EquipmentLoreRenderer.potentialOptionKr(optionCode);
     }
 
     // ═══════════════════════════════════════════════════════════════

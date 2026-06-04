@@ -1,42 +1,29 @@
 package com.poro.rpg.growth.engine;
 
-import com.poro.rpg.common.registry.master.ItemMasterRegistry;
-import com.poro.rpg.common.registry.master.model.ItemMaster;
 import com.poro.rpg.common.result.ErrorCode;
 import com.poro.rpg.common.result.Result;
 import com.poro.rpg.growth.island.IslandTerritoryState;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
 
+/**
+ * 장비 전승 — 흔적 인스턴스의 등급·세부스탯을 대상 장비로 이전 (DL-129 추가#38, P3 재작성).
+ *
+ * <p>인스턴스화 이전(카운터형)에는 흔적 등급으로 세부스탯을 <em>전승 시점에</em> 롤했으나,
+ * 이제 흔적이 드랍 시점에 롤된 등급+세부스탯을 들고 다니므로({@link TraceInstance}),
+ * 전승은 그 인스턴스의 값을 <em>그대로 이전</em>하고 인스턴스 1개를 소모한다.</p>
+ */
 public final class SuccessionService {
 
+    /** 구 스택형 흔적 id → 등급 매핑. P6 마이그레이션(스택→인스턴스 변환)·레거시 표시용으로 유지. */
     public static final Map<String, ItemGrade> TRACE_GRADE_MAP = Map.of(
         "equip_trace_broken",    ItemGrade.COMMON,
         "equip_trace_faded",     ItemGrade.RARE,
         "equip_trace_glowing",   ItemGrade.EPIC,
         "equip_trace_radiant",   ItemGrade.UNIQUE,
         "equip_trace_brilliant", ItemGrade.LEGENDARY
-    );
-
-    private static final Map<ItemGrade, PotentialGrade> GRADE_TO_POT = Map.of(
-        ItemGrade.COMMON,    PotentialGrade.COMMON,
-        ItemGrade.RARE,      PotentialGrade.RARE,
-        ItemGrade.EPIC,      PotentialGrade.EPIC,
-        ItemGrade.UNIQUE,    PotentialGrade.UNIQUE,
-        ItemGrade.LEGENDARY, PotentialGrade.LEGENDARY
-    );
-
-    private static final Map<ItemGrade, Integer> GRADE_SUBSTAT_COUNT = Map.of(
-        ItemGrade.COMMON,    1,
-        ItemGrade.RARE,      2,
-        ItemGrade.EPIC,      3,
-        ItemGrade.UNIQUE,    3,
-        ItemGrade.LEGENDARY, 3
     );
 
     public enum SuccessionType {
@@ -63,22 +50,12 @@ public final class SuccessionService {
     }
 
     public record SuccessionResult(
-            String traceId,
+            String traceInstanceId,
             String targetInstanceId,
             SuccessionType type,
             ItemGrade appliedGrade,
             List<PotentialLine> appliedSubstats
     ) {}
-
-    private final PotentialOptionRegistry potentialOptionRegistry;
-    private final ItemMasterRegistry itemMasters;
-    private final RandomProvider randomProvider;
-
-    public SuccessionService(PotentialOptionRegistry potentialOptionRegistry, ItemMasterRegistry itemMasters, RandomProvider randomProvider) {
-        this.potentialOptionRegistry = potentialOptionRegistry;
-        this.itemMasters = itemMasters;
-        this.randomProvider = randomProvider;
-    }
 
     public static ItemGrade traceGrade(String traceId) {
         return TRACE_GRADE_MAP.getOrDefault(normalize(traceId), ItemGrade.COMMON);
@@ -88,19 +65,22 @@ public final class SuccessionService {
         return TRACE_GRADE_MAP.containsKey(normalize(traceId));
     }
 
+    /**
+     * 흔적 인스턴스를 대상 장비에 전승한다.
+     *
+     * @param traceInstanceId 보유 흔적 인스턴스 id (islandState.traceInstances)
+     * @param targetInstanceId 대상 장비 인스턴스 id (growthState.inventory)
+     */
     public Result<SuccessionResult> apply(
             PlayerGrowthState growthState,
             IslandTerritoryState islandState,
-            String traceId,
+            String traceInstanceId,
             String targetInstanceId,
             SuccessionType type
     ) {
-        String normTrace = normalize(traceId);
-        if (!TRACE_GRADE_MAP.containsKey(normTrace)) {
-            return Result.failure(ErrorCode.INVALID_ARGUMENT, "유효하지 않은 흔적입니다: " + traceId);
-        }
-        if (islandState.getCustomItem(normTrace) < 1) {
-            return Result.failure(ErrorCode.INVALID_ARGUMENT, "흔적이 부족합니다.");
+        TraceInstance trace = islandState.findTraceInstance(traceInstanceId).orElse(null);
+        if (trace == null) {
+            return Result.failure(ErrorCode.INVALID_ARGUMENT, "흔적을 찾을 수 없습니다.");
         }
         PlayerEquipmentItem target = growthState.inventoryItem(targetInstanceId).orElse(null);
         if (target == null) {
@@ -111,49 +91,21 @@ public final class SuccessionService {
             return Result.failure(ErrorCode.INVALID_ARGUMENT, "골드가 부족합니다. (필요: " + goldCost + "G)");
         }
 
-        ItemGrade traceGrade = TRACE_GRADE_MAP.get(normTrace);
         ItemGrade appliedGrade = null;
         List<PotentialLine> appliedSubstats = null;
 
         if (type == SuccessionType.BASIC || type == SuccessionType.GRADE_ONLY) {
-            appliedGrade = traceGrade;
-            target.setGrade(traceGrade);
+            appliedGrade = trace.grade();
+            target.setGrade(trace.grade());
         }
         if (type == SuccessionType.BASIC || type == SuccessionType.SUBSTAT_ONLY) {
-            String targetSlotType = itemMasters.find(target.itemId())
-                    .map(ItemMaster::slotType)
-                    .orElse("");
-            appliedSubstats = generateSubstats(traceGrade, targetSlotType);
+            appliedSubstats = trace.substats();
             target.setSubstatLines(appliedSubstats);
         }
 
-        islandState.withdrawCustomItem(normTrace, 1);
+        islandState.removeTraceInstance(traceInstanceId);
 
-        return Result.success(new SuccessionResult(traceId, targetInstanceId, type, appliedGrade, appliedSubstats));
-    }
-
-    private List<PotentialLine> generateSubstats(ItemGrade grade, String slotType) {
-        PotentialGrade potGrade = GRADE_TO_POT.getOrDefault(grade, PotentialGrade.COMMON);
-        int count = GRADE_SUBSTAT_COUNT.getOrDefault(grade, 1);
-        String normSlot = normalize(slotType);
-
-        List<PotentialOption> pool = potentialOptionRegistry.all().values().stream()
-                .filter(o -> o.grade() == potGrade)
-                .filter(o -> o.slotType().isBlank() || o.slotType().equals(normSlot))
-                .collect(Collectors.toList());
-
-        if (pool.isEmpty()) return List.of();
-
-        List<PotentialOption> shuffled = new ArrayList<>(pool);
-        Collections.shuffle(shuffled);
-
-        List<PotentialLine> result = new ArrayList<>();
-        for (int i = 0; i < Math.min(count, shuffled.size()); i++) {
-            PotentialOption opt = shuffled.get(i);
-            double value = opt.valueMin() + randomProvider.nextDouble() * (opt.valueMax() - opt.valueMin());
-            result.add(new PotentialLine(i + 1, opt.grade(), opt.optionCode(), value));
-        }
-        return result;
+        return Result.success(new SuccessionResult(traceInstanceId, targetInstanceId, type, appliedGrade, appliedSubstats));
     }
 
     private static String normalize(String s) {

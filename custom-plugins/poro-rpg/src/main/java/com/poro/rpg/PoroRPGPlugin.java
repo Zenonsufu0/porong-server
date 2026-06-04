@@ -756,7 +756,8 @@ public final class PoroRPGPlugin extends JavaPlugin {
         if (getServer().getPluginManager().isPluginEnabled("MythicMobs")) {
             getServer().getPluginManager().registerEvents(
                     new FieldDropListener(growthStateStore, islandTerritoryStateStore, playerDataManager,
-                            playerLevelingService, fieldBossScheduler, bossRewardService, new ContributionTracker(), scoreboardService, adminTogglesService), this);
+                            playerLevelingService, fieldBossScheduler, bossRewardService, new ContributionTracker(), scoreboardService, adminTogglesService,
+                            growthEngineRuntime.traceSubstatRoller()), this);
             getServer().getPluginManager().registerEvents(new BossDefenseListener(bossDamageTracker), this);
             getServer().getPluginManager().registerEvents(
                     new com.poro.rpg.listener.BossInstanceDamageListener(bossDamageTracker, bossEngineRuntime.runService()), this);
