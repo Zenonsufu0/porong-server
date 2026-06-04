@@ -52,14 +52,14 @@
 - ✅ **P1b 완료** — `growth_trace_substat_pool.csv`(8종 범용스탯×5등급, 값범위 메인풀 정합) + `TraceSubstatRoller`(등급별 1/2/3개 가중 비복원 롤). 별도 `traceSubstatRegistry`로 적재(메인 전승 롤 오염 방지). `GrowthEngineRuntime`에 roller 노출. ⚠ weight 균등 v1 — combat-balance 튜닝 대상.
 - ✅ **P2 완료** — `FieldDropListener`: `randomTraceId`→`randomTraceGrade`(ItemGrade), 엘리트 드랍 시 `mult`개 독립 `TraceInstance` 롤(`traceSubstatRoller.roll`)·`addTraceInstance` 저장. 드랍 메시지 등급 색상 표기. roller는 PoroRPGPlugin에서 `growthEngineRuntime.traceSubstatRoller()` 주입. (공방 "미감정 흔적 개봉"은 lore만 존재·핸들러 없음 → 충돌 없음.)
 - ✅ **P3 완료** — `SuccessionService` 무인자 재작성: 흔적 인스턴스(grade+substat)를 대상 장비에 **그대로 이전**, 인스턴스 1개 소모(롤 제거). 전승 GUI(`GrowthGuiListener`) 전면 인스턴스화 — availableTraceIds=instance목록, buildTraceIcon/미리보기가 흔적 실제 세부스탯 표시(전승 전 정확 미리보기), execute=findTraceInstance. TRACE_GRADE_MAP은 P6용 static 유지.
-- ⏳ **P4/P5/P6 남음** — 창고 인스턴스 표시 / 경매 인스턴스 거래 / **스택→인스턴스 마이그레이션(P6)**.
+- ✅ **P6 완료** — 마이그레이션: `PlayerPersistenceService.migrateStackTracesToInstances` — 로드 시 customItems의 equip_trace_* 스택 감지 → `traceSubstatRoller.roll(grade)`로 인스턴스 N개 변환 + 스택 제거(일회성, 재변환 없음). roller를 persistence에 주입. CANON: `equipment_growth_spec §2.3` 인스턴스 모델로 갱신, `item_grade_substat_v1.md` 부활 포인터.
+- ⏳ **P4/P5 남음** — 창고 인스턴스 표시 / 경매 인스턴스 거래(스키마 확장).
 
-### ⚠ 배포 전 주의 (P2+P3 커밋 f628f6d 이후)
-- 기존 보유 **스택형 흔적**(customItems equip_trace_*)은 전승 GUI가 이제 traceInstances만 보므로 **P6 마이그레이션 전까지 전승에서 안 보임.** 테스트 단계라 허용되나 플레이어 배포 전 P6 우선 권장.
-- 신규 드랍 흔적은 traceInstances에 저장되나 **창고 GUI(P4 전)·경매(P5 전)에는 미표시.** 현재는 전승 GUI에서만 보이고 사용 가능.
+### ⚠ 남은 표시 갭 (P4/P5 전)
+- 신규+마이그레이션 흔적은 traceInstances에 저장·전승 GUI에서 사용 가능하나, **창고 GUI(P4 전)·경매(P5 전)에는 미표시.** 기존 스택 흔적은 로드 시 인스턴스로 자동 변환되므로 전승에서 정상 사용 가능(회귀 해소).
 
 ### 재개 지점
-**P6(마이그레이션) 또는 P4(창고 표시)부터.** P6는 `PlayerPersistenceService.applyTerritory`에서 customItems의 equip_trace_* 스택을 감지→`traceSubstatRoller.roll(grade)`로 인스턴스 N개 변환(roller를 persistence에 주입 필요). P4는 `StorageGui`에 흔적 인스턴스 항목 추가.
+**P4(창고 표시)부터.** `StorageGui`(+ `StorageGuiListener`)에 흔적 인스턴스 항목 추가(등급+세부스탯 lore, 개별 표시), 입출금 인스턴스 단위. 이후 P5(경매 — listing JSON payload 부활 + auction 스키마 확장).
 
 ---
 

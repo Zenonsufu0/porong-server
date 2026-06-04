@@ -325,7 +325,8 @@ public final class PoroRPGPlugin extends JavaPlugin {
         PlayerDataRepository playerDataRepository = new PlayerDataRepository(this);
         this.playerPersistenceService = new PlayerPersistenceService(
                 playerDataRepository, playerDataManager, growthStateStore,
-                islandTerritoryStateStore, islandStorageStore, getLogger());
+                islandTerritoryStateStore, islandStorageStore, getLogger(),
+                growthEngineRuntime.traceSubstatRoller());
 
         PlayerFlagRepository flagRepo = new PlayerFlagRepository(
                 foundationContext.transactionHelper(),

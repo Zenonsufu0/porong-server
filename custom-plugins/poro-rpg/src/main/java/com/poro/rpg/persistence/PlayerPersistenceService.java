@@ -36,19 +36,23 @@ public final class PlayerPersistenceService {
     private final IslandTerritoryStateStore territoryStore;
     private final IslandStorageStore        storageStore;
     private final Logger logger;
+    /** 스택→인스턴스 마이그레이션(P6) 시 세부스탯 롤용. null이면 마이그레이션 생략. */
+    private final com.poro.rpg.growth.engine.TraceSubstatRoller traceSubstatRoller;
 
     public PlayerPersistenceService(PlayerDataRepository repo,
                                     PlayerDataManager playerDataManager,
                                     GrowthStateStore growthStore,
                                     IslandTerritoryStateStore territoryStore,
                                     IslandStorageStore storageStore,
-                                    Logger logger) {
+                                    Logger logger,
+                                    com.poro.rpg.growth.engine.TraceSubstatRoller traceSubstatRoller) {
         this.repo              = repo;
         this.playerDataManager = playerDataManager;
         this.growthStore       = growthStore;
         this.territoryStore    = territoryStore;
         this.storageStore      = storageStore;
         this.logger            = logger;
+        this.traceSubstatRoller = traceSubstatRoller;
     }
 
     // ─── 로드 ──────────────────────────────────────────────────────
@@ -344,6 +348,34 @@ public final class PlayerPersistenceService {
                             toPotentialLines(dto.substats())))
                     .toList();
             state.setTraceInstances(traces);
+        }
+
+        // P6 마이그레이션 — 구 스택형 흔적(equip_trace_*)을 인스턴스로 일회성 변환 (DL-129 추가#38).
+        // 변환된 스택은 customItems에서 제거 → 다음 로드 시 재변환 없음. 인스턴스는 다음 save에 영속.
+        migrateStackTracesToInstances(state, uuid);
+    }
+
+    /** customItems의 equip_trace_* 스택을 흔적 인스턴스로 변환(등급별 세부스탯 롤). 변환 후 스택 제거. */
+    private void migrateStackTracesToInstances(IslandTerritoryState state, UUID uuid) {
+        if (traceSubstatRoller == null) return;
+        int converted = 0;
+        for (Map.Entry<String, Long> e : new LinkedHashMap<>(state.customItemsSnapshot()).entrySet()) {
+            String id = e.getKey();
+            if (!com.poro.rpg.growth.engine.SuccessionService.isKnownTrace(id)) continue;
+            long count = e.getValue();
+            if (count <= 0) continue;
+            ItemGrade grade = com.poro.rpg.growth.engine.SuccessionService.traceGrade(id);
+            for (long i = 0; i < count; i++) {
+                state.addTraceInstance(new com.poro.rpg.growth.engine.TraceInstance(
+                        "trace_" + java.util.UUID.randomUUID(),
+                        grade,
+                        traceSubstatRoller.roll(grade)));
+                converted++;
+            }
+            state.withdrawCustomItem(id, count);
+        }
+        if (converted > 0) {
+            logger.info("[Migration] " + uuid + " 스택 흔적 " + converted + "개 → 인스턴스 변환 (DL-129 추가#38)");
         }
     }
 
