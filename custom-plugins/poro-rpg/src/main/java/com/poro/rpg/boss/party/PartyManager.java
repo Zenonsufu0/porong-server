@@ -1,5 +1,7 @@
 package com.poro.rpg.boss.party;
 
+import org.bukkit.Bukkit;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -93,6 +95,56 @@ public final class PartyManager {
                 party.ready.remove(memberId);
             }
         }
+    }
+
+    /** {@link #leaveOrDelegate} 결과 종류. */
+    public enum LeaveResultType { NOT_IN_PARTY, MEMBER_LEFT, LEADER_DELEGATED, DISBANDED }
+
+    /** 떠남 결과 — newLeaderId는 LEADER_DELEGATED일 때만 non-null. */
+    public record PartyLeaveOutcome(LeaveResultType type, UUID newLeaderId) {}
+
+    /**
+     * 보스룸 포기/탈퇴용 떠남 처리 (DL-129 추가#25).
+     * 일반 멤버 → 탈퇴. 리더 + 남은 멤버 있음 → 첫 멤버에게 파티장 위임(해체 안 함). 리더 + 혼자 → 해체.
+     * {@link #leaveParty}(리더=무조건 해체)와 달리 남은 파티원이 계속 전투할 수 있게 유지한다.
+     */
+    public PartyLeaveOutcome leaveOrDelegate(UUID memberId) {
+        UUID leaderId = memberToLeader.get(memberId);
+        if (leaderId == null) return new PartyLeaveOutcome(LeaveResultType.NOT_IN_PARTY, null);
+        Party party = byLeader.get(leaderId);
+        if (party == null) {
+            memberToLeader.remove(memberId);
+            return new PartyLeaveOutcome(LeaveResultType.NOT_IN_PARTY, null);
+        }
+
+        // 일반 멤버 탈퇴
+        if (!leaderId.equals(memberId)) {
+            party.members.remove(memberId);
+            party.ready.remove(memberId);
+            memberToLeader.remove(memberId);
+            return new PartyLeaveOutcome(LeaveResultType.MEMBER_LEFT, leaderId);
+        }
+
+        // 리더 떠남
+        party.members.remove(memberId);
+        party.ready.remove(memberId);
+        memberToLeader.remove(memberId);
+        if (party.members.isEmpty()) {
+            byLeader.remove(leaderId);
+            return new PartyLeaveOutcome(LeaveResultType.DISBANDED, null);
+        }
+        // 남은 첫 멤버에게 위임 — leaderId가 final이라 새 Party로 rekey
+        UUID newLeader = party.members.get(0);
+        String newLeaderName = Bukkit.getOfflinePlayer(newLeader).getName();
+        Party reparented = new Party(newLeader, newLeaderName == null ? "파티장" : newLeaderName,
+                party.bossId, party.title, party.maxSize);
+        for (UUID m : party.members) if (!m.equals(newLeader)) reparented.members.add(m);
+        for (UUID m : party.ready) if (!m.equals(newLeader)) reparented.ready.add(m);
+        reparented.started = party.started;
+        byLeader.remove(leaderId);
+        byLeader.put(newLeader, reparented);
+        for (UUID m : reparented.members) memberToLeader.put(m, newLeader);
+        return new PartyLeaveOutcome(LeaveResultType.LEADER_DELEGATED, newLeader);
     }
 
     /** 리더가 멤버를 추방. 리더 자신·미존재 멤버는 무시, 성공 시 true. */

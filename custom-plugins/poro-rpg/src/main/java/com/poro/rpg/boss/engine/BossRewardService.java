@@ -28,7 +28,7 @@ public final class BossRewardService implements BossRewardResolverHook {
     private static final String ANCIENT_TRACE_GLOWING  = "ancient_trace_glowing";
     private static final String ANCIENT_TRACE_RADIANT  = "ancient_trace_radiant";
     private static final String ANCIENT_TRACE_BRILLIANT = "ancient_trace_brilliant";
-    private static final String COSMETIC_FRAGMENT       = "cosmetic_fragment";
+    // 치장 파편(cosmetic_fragment)은 1차 시즌 제외 — 보상 미지급(record 필드 cosmeticFrag*는 inert). DL-129#32
     private static final String RIFT_KING_HEART         = "rift_king_heart";
     private static final double CONTRIBUTION_THRESHOLD = 3.0;
     private static final int    WEEKLY_BONUS_THRESHOLD = 10; // 주간 1~10회 보너스 / 11회+ 기본

@@ -36,6 +36,10 @@ public final class MainHubListener implements Listener {
     private final ShopGuiListener           shopGuiListener;
     private final PvpHubListener            pvpHubListener;
     private final CombatStateService        combatStateService;
+    /** 보스룸 이동 포기 확인 (세터 주입, nullable). */
+    private BossAbandonListener bossAbandonListener;
+
+    public void setBossAbandonListener(BossAbandonListener l) { this.bossAbandonListener = l; }
 
     /** 영지 이동 GUI 페이지 추적 (in-memory). */
     private final Map<UUID, Integer> territoryMovePage = new ConcurrentHashMap<>();
@@ -120,7 +124,7 @@ public final class MainHubListener implements Listener {
             TerritoryStatusGui.open(player, territory, storage);
         } else if (TerritoryHubGui.ZONE_STORAGE.contains(slot)) {
             var storage = islandStorageStore.getOrCreate(player.getUniqueId());
-            StorageGui.open(player, storage, 0);
+            StorageGui.open(player, islandTerritoryStateStore.getOrCreate(player.getUniqueId()), storage, 0);
         } else if (TerritoryHubGui.ZONE_WORKSHOP.contains(slot)) {
             IslandTerritoryState territory = islandTerritoryStateStore.getOrCreate(
                     player.getUniqueId(), player.getName());
@@ -145,6 +149,8 @@ public final class MainHubListener implements Listener {
 
         switch (slot) {
             case TerritoryMoveGui.SLOT_MY_ISLAND -> {
+                // 보스룸에서 이동 시 포기 확인 (DL-129 추가#20)
+                if (bossAbandonListener != null && bossAbandonListener.promptIfInRoom(player, "home")) return;
                 // 영지 이동은 전투 중에도 허용 (필드 이탈 수단)
                 player.closeInventory();
                 if (!player.performCommand("is home")) {
@@ -183,12 +189,14 @@ public final class MainHubListener implements Listener {
             player.sendMessage("§c[영지] 해당 영지에 입장할 수 없습니다.");
             return;
         }
-        player.closeInventory();
         String ownerName = org.bukkit.Bukkit.getOfflinePlayer(targetOwner).getName();
         if (ownerName == null) {
             player.sendMessage("§c[영지] 소유자 정보를 찾을 수 없습니다.");
             return;
         }
+        // 보스룸에서 이동 시 포기 확인 (DL-129 추가#20)
+        if (bossAbandonListener != null && bossAbandonListener.promptIfInRoom(player, "visit:" + ownerName)) return;
+        player.closeInventory();
         // IridiumSkyblock /is visit <player>
         if (!player.performCommand("is visit " + ownerName)) {
             player.sendMessage("§c[영지] 방문에 실패했습니다.");

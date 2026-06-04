@@ -285,6 +285,8 @@ public final class PlayerPersistenceService {
         } catch (IllegalArgumentException ignored) {}
 
         state.setConvenienceUnlocks(t.convenienceUnlocks());
+        state.setTimeState(t.timeState());       // 영지 시간 고정 복원 (DL-129#33)
+        state.setWeatherState(t.weatherState());
         state.setStorageCount(t.storageCount());
         state.setWorkshopMachineCount(t.workshopMachineCount());
         state.setLastProductionAt(t.lastProductionAt());
@@ -428,7 +430,8 @@ public final class PlayerPersistenceService {
                 t.islandName(), t.rank().name(), // 첫 인자(ownerName 슬롯)에 영지명 저장 — applyTerritory가 setIslandName으로 복원
                 t.convenienceUnlocks(), t.reaperCount(), t.storageCount(), t.minerCount(),
                 t.lastProductionAt(), t.workshopMachineCount(),
-                new java.util.ArrayList<>(t.herbProducedAt()), new java.util.ArrayList<>(t.oreProducedAt())
+                new java.util.ArrayList<>(t.herbProducedAt()), new java.util.ArrayList<>(t.oreProducedAt()),
+                t.timeState(), t.weatherState() // 영지 시간/날씨 고정 영속 (DL-129#33)
         );
     }
 

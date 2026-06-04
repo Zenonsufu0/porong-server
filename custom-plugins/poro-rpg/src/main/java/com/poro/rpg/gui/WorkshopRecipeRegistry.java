@@ -200,7 +200,9 @@ public final class WorkshopRecipeRegistry {
             case "LAPIS_BLOCK"    -> "청금석 블럭";
             default -> switch (itemId.toLowerCase()) {
                 case "res_herb_imperial"     -> "제국 약초";
+                case "mat_herb_imperial"     -> "제국 약초";
                 case "res_essence_imperial"  -> "제국 정수";
+                case "mat_essence_imperial"  -> "제국 정수";
                 case "res_ore_resonance"     -> "마도철 원석";
                 case "res_silver_ore"        -> "은 원석";
                 case "mat_battle_shard"      -> "전장의 파편";
@@ -209,6 +211,27 @@ public final class WorkshopRecipeRegistry {
                 case "mat_essence_farmer"    -> "농부의 정수";
                 case "mat_essence_miner"     -> "광부의 정수";
                 case "mat_essence_nature"    -> "자연의 정수";
+                case "rift_king_heart"       -> "균열왕의 심장";
+                case "mat_stone_enhance"     -> "강화석";
+                case "mat_cube"              -> "큐브";
+                case "mat_cube_fragment"     -> "큐브 조각";
+                case "cosmetic_fragment"     -> "치장 파편 (미사용)"; // 1차 시즌 제외 — 잔존분 표시용
+                // 무기 강화 흔적 (item_master 정본명, 커먼→레전더리)
+                case "equip_trace_unidentified" -> "미감정 흔적";
+                case "equip_trace_broken"    -> "깨진 장비의 흔적";
+                case "equip_trace_faded"     -> "빛 바랜 장비의 흔적";
+                case "equip_trace_glowing"   -> "빛나는 장비의 흔적";
+                case "equip_trace_radiant"   -> "눈부신 장비의 흔적";
+                case "equip_trace_brilliant" -> "찬란한 장비의 흔적";
+                // 고대 흔적
+                case "ancient_trace_faded"     -> "바랜 고대 흔적";
+                case "ancient_trace_glowing"   -> "빛나는 고대 흔적";
+                case "ancient_trace_radiant"   -> "찬란한 고대 흔적";
+                case "ancient_trace_brilliant" -> "눈부신 고대 흔적";
+                // 잠재능력 흔적
+                case "mat_trace_star"        -> "별의 흔적";
+                case "mat_trace_moon"        -> "달의 흔적";
+                case "mat_trace_sun"         -> "태양의 흔적";
                 default -> itemId;
             };
         };

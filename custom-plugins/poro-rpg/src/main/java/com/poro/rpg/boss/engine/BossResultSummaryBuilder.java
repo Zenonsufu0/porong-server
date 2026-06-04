@@ -23,6 +23,7 @@ public final class BossResultSummaryBuilder {
 
         List<Map<String, Object>> participantSummary = new ArrayList<>();
         for (Map.Entry<String, Integer> entry : run.participantDeaths().entrySet()) {
+            if (run.isAbandoned(entry.getKey())) continue; // 이탈자는 보상·종료 텔레포트 대상에서 제외 (DL-129 추가#20)
             Map<String, Object> placeholder = new LinkedHashMap<>();
             placeholder.put("user_id", entry.getKey());
             placeholder.put("damage_total", 0L);

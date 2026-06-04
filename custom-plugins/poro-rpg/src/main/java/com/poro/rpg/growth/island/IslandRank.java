@@ -6,21 +6,21 @@ import java.util.Locale;
 
 /** 영지 작위 8단계 (island_system_design.md §2.1). */
 public enum IslandRank {
-    // 승급 재료: 전장의 파편(mat_battle_shard) + 골드만 요구 (DL-066 확정)
+    // 승급 재료: 전장의 파편(mat_battle_shard) + 골드만 요구 (DL-066 / 요구량 ×50 상향 DL-129#32 — 파편 과잉)
     FRONTIER ("개척지",  0,   500,    20_000,
-            List.of(new UpgradeMaterial("mat_battle_shard", 50))),
+            List.of(new UpgradeMaterial("mat_battle_shard", 2_500))),
     KNIGHT   ("기사령",  1,   900,    35_000,
-            List.of(new UpgradeMaterial("mat_battle_shard", 80))),
+            List.of(new UpgradeMaterial("mat_battle_shard", 4_000))),
     BARONET  ("준남작령",2, 1_500,    55_000,
-            List.of(new UpgradeMaterial("mat_battle_shard", 100))),
+            List.of(new UpgradeMaterial("mat_battle_shard", 5_000))),
     BARON    ("남작령",  3, 2_500,    75_000,
-            List.of(new UpgradeMaterial("mat_battle_shard", 80))),
+            List.of(new UpgradeMaterial("mat_battle_shard", 4_000))),
     VISCOUNT ("자작령",  4, 3_500,    95_000,
-            List.of(new UpgradeMaterial("mat_battle_shard", 60))),
+            List.of(new UpgradeMaterial("mat_battle_shard", 3_000))),
     COUNT    ("백작령",  5, 5_000,   120_000,
-            List.of(new UpgradeMaterial("mat_battle_shard", 120))),
+            List.of(new UpgradeMaterial("mat_battle_shard", 6_000))),
     MARQUESS ("후작령",  6, 7_000,   150_000,
-            List.of(new UpgradeMaterial("mat_battle_shard", 200))),
+            List.of(new UpgradeMaterial("mat_battle_shard", 10_000))),
     DUKE     ("공작령",  7,10_000,         0,
             List.of());
 

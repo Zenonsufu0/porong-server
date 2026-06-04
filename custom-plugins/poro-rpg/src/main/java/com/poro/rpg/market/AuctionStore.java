@@ -21,6 +21,10 @@ public final class AuctionStore {
     public static final long   EXPIRY_MILLIS = 3L * 24 * 60 * 60 * 1_000;
     public static final double FEE_RATE      = 0.05;
 
+    /** 실체 없는 통화형 거래 품목 — 창고(customItems) 아닌 통화(growthState)로 차감·지급 (DL-129#37). */
+    public static final java.util.Set<String> CURRENCY_ITEMS = java.util.Set.of("mat_cube", "mat_stone_enhance");
+    public static boolean isCurrencyItem(String itemId) { return CURRENCY_ITEMS.contains(itemId); }
+
     private final ConnectionProvider connectionProvider;
     private final TransactionHelper  transactionHelper;
     private final Logger             logger;

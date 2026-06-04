@@ -29,6 +29,8 @@ public final class GuiTitles {
     public static final Component ADMIN_TERRITORY    = Component.text("§c[관리자] 영지 관리");
     public static final Component BOSS_HUB         = Component.text("보스 도전");
     public static final Component BOSS_INFO        = Component.text("보스 선택");
+    public static final Component BOSS_DETAIL      = Component.text("보스 상세 정보");
+    public static final Component BOSS_ABANDON     = Component.text("보스 포기");
     public static final Component BOSS_CLEAR_RECORDS = Component.text("클리어 기록");
     public static final Component EXPLORE_HUB      = Component.text("탐험 지도");
     public static final Component STORAGE          = Component.text("영지 저장고");

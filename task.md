@@ -16,6 +16,40 @@
 
 ---
 
+## ★ 다음 세션 작업 — 장비의 흔적 "개별 인스턴스화" (DL-129#37에서 방향 확정, 2026-06-04)
+
+> **사용자 확정 방향**: 흔적을 장비처럼 **등급 + 세부스탯을 가진 개별 인스턴스**로. 드랍 시 등급+세부스탯이 롤되어 표시되고, 전승 시 그 흔적의 등급·세부스탯이 장비로 이전. **멀티-시스템 재설계 = 큰 작업.** 단계별로 배포·검증하며 진행.
+
+### 현행 구조 (조사 완료, 2026-06-04)
+- **장비 `PlayerEquipmentItem`**: 이미 인스턴스 구조 — `itemInstanceId, itemId, enhanceLevel, grade(ItemGrade), substatLines(List<PotentialLine>), potentialProfile, pityCount`. ← 흔적이 따라야 할 모델.
+- **흔적(현행)**: `equip_trace_broken/faded/glowing/radiant/brilliant` = **5종 고정 등급의 스택형**. `IslandTerritoryState.customItems`(`Map<String,Long>`)에 개수만 저장. **세부스탯 없음**, 등급은 item_id로 고정.
+- **전승 `SuccessionService`**: `TRACE_GRADE_MAP`(id→ItemGrade), `GRADE_TO_POT`, `GRADE_SUBSTAT_COUNT`(grade→세부스탯 개수 1/2/3/3/3), `SuccessionType`(BASIC 무료 / GRADE_ONLY 10만G / SUBSTAT_ONLY 10만G). 현재는 **흔적 등급으로 세부스탯을 전승 시점에 롤**(흔적이 세부스탯을 들고 다니지 않음).
+- **드랍 `FieldDropListener.randomTraceId(field)`**: 필드별 등급 분포로 trace_id 뽑아 `addCustomItem(trace_id, mult)` (스택 가산).
+- **창고/경매**: `customItems`(item_id) 스택 기반. 경매 listing도 item_id+qty 스택 (`auction` 테이블, item_data 컬럼은 §6-10에서 DROP됨).
+- **정본 문서**: `item_grade_substat_v1.md`(§3 slot별 흔적·§4 전승은 **SUPERSEDED** 표기), 현행 전승 = `02_database_api_stats/equipment_growth_spec.md §2.3`(카운터형). ⚠ 인스턴스화는 사실상 옛 §3·§4 설계로 회귀 → **CANON 갱신 필요**.
+
+### 선행 결정 (착수 전 사용자 확인 필요)
+1. **흔적이 슬롯별인가 범용인가?** — 옛 §3은 무기/투구/상의/하의/신발의 흔적(슬롯별). 현행은 등급만(범용). 인스턴스화 시 슬롯 부여할지.
+2. **세부스탯 롤 규칙** — 어떤 스탯 풀에서, 등급별 몇 개, 값 범위? `PotentialService`의 세부스탯/옵션 풀 재사용 가능한지.
+3. **기존 스택형 흔적 마이그레이션** — 보유 중인 스택 흔적을 인스턴스로 변환(등급별 기본 세부스탯 롤)할지, 폐기/회수할지.
+4. **경매 인스턴스 거래 범위** — 인스턴스(고유 세부스탯) 흔적을 경매에 올리려면 listing payload(JSON) 부활 필요. 1차 시즌 포함할지.
+
+### 단계별 구현 계획 (각 단계 배포·검증)
+- **P1. 데이터 모델 + 영속** — `TraceInstance`(instanceId, grade, List<PotentialLine> substats, [slotType?]) 신규. 저장: `IslandTerritoryState`에 `List<TraceInstance>` 추가 + `PlayerSaveData`(Gson) 직렬화(구 세이브 호환). customItems 스택과 **공존**(equip_trace_*는 인스턴스로 이관, 나머지 재료는 스택 유지). → data-schema 영역.
+- **P2. 드랍 롤** — `FieldDropListener` 흔적 드랍 시 등급(기존 분포)+세부스탯(P_규칙) 롤 → `TraceInstance` 생성·저장. 드랍 메시지/로그에 등급 표기.
+- **P3. 전승 재작성** — `SuccessionService`를 **인스턴스 소스 기반**으로: 소스 = `TraceInstance`(grade+substat) → 장비에 grade·substat 적용, 인스턴스 1개 소모. BASIC/GRADE_ONLY/SUBSTAT_ONLY 의미 유지. 전승 GUI(`gui_succession`)에서 보유 흔적 인스턴스 목록 선택.
+- **P4. 창고/표시** — `StorageGui.entries`에 흔적 인스턴스 항목 추가(등급+세부스탯 lore, 개별 표시). 출금/입금은 인스턴스 단위.
+- **P5. 경매 인스턴스 거래** — listing에 인스턴스 payload(JSON) 복원(`auction` 스키마 확장 또는 별도 테이블). 등록/구매/배달을 인스턴스 단위로. (현행 통화/스택 경로와 분기.)
+- **P6. 마이그레이션 + CANON** — 기존 스택 흔적 변환(결정3), `item_grade_substat`/`equipment_growth_spec` CANON 갱신 + decision_log DL 기록.
+
+### 리스크
+- 세이브 호환(IslandTerritoryState 구조 변경 — Gson trailing 필드/별도 맵), 경매 스키마(item_data 재도입), 전승 GUI 전면 재작업, 창고 통합 GUI(인스턴스 vs 스택 혼재 렌더), 밸런스(세부스탯 롤 = combat-balance 검토).
+
+### 재개 지점
+**위 "선행 결정 1~4"를 사용자에게 먼저 확인 → P1(데이터 모델)부터 착수.** 현행 구조 조사는 완료 상태(위 참조).
+
+---
+
 ## §9 HUD·스코어보드 정리 (2026-06-02) — 진행 중
 
 액션바 HUD(`HealthHudFormatter`) + 사이드바(`ScoreboardService`) 인게임 반복 튜닝.

@@ -17,6 +17,10 @@ public final class FieldHubListener implements Listener {
     private final ExploreHubGui.FieldStateProvider fieldStateProvider;
     private final FieldTeleportService             fieldTeleportService;
     private final PlayerDataManager                playerDataManager;
+    /** 보스룸 이동 포기 확인 (세터 주입, nullable). */
+    private BossAbandonListener bossAbandonListener;
+
+    public void setBossAbandonListener(BossAbandonListener l) { this.bossAbandonListener = l; }
 
     public FieldHubListener(ExploreHubGui.FieldStateProvider fieldStateProvider,
                              FieldTeleportService fieldTeleportService,
@@ -39,6 +43,8 @@ public final class FieldHubListener implements Listener {
         int slot = event.getRawSlot();
         String fieldId = FieldHubGui.fieldIdAt(slot);
         if (fieldId != null) {
+            // 보스룸에서 필드 이동 시 포기 확인 (DL-129 추가#20)
+            if (bossAbandonListener != null && bossAbandonListener.promptIfInRoom(player, "field:" + fieldId)) return;
             fieldTeleportService.teleportToField(player, fieldId);
             return;
         }

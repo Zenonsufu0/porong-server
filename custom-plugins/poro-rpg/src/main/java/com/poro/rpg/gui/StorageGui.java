@@ -1,6 +1,7 @@
 package com.poro.rpg.gui;
 
 import com.poro.rpg.growth.island.IslandStorage;
+import com.poro.rpg.growth.island.IslandTerritoryState;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -81,11 +82,35 @@ public class StorageGui {
         return CATEGORY.getOrDefault(mat, 99);
     }
 
-    public static void open(Player player, IslandStorage storage, int page) {
+    public static void open(Player player, IslandTerritoryState territory, IslandStorage storage, int page) {
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);
         fill(inv);
-        render(inv, storage, page);
+        render(inv, territory, storage, page);
         player.openInventory(inv);
+    }
+
+    /** 창고 표시 항목 — 커스텀 재료(customId) 또는 바닐라(material). 둘 중 하나만 non-null. */
+    public record Entry(String customId, Material material, long qty) {
+        public boolean isCustom() { return customId != null; }
+    }
+
+    /**
+     * 정렬된 표시 항목 (DL-129 추가#29): 커스텀 재료(생산·필드/보스 드랍, customItems) 먼저 → 바닐라 Material.
+     * 생산물이 창고에 보이지 않던 이중 저장소 불일치를 통합 뷰로 해소.
+     */
+    public static List<Entry> entries(IslandTerritoryState territory, IslandStorage storage) {
+        List<Entry> list = new ArrayList<>();
+        if (territory != null) {
+            territory.customItemsSnapshot().entrySet().stream()
+                    .filter(e -> e.getValue() != null && e.getValue() > 0)
+                    .sorted(Map.Entry.comparingByKey())
+                    .forEach(e -> list.add(new Entry(e.getKey(), null, e.getValue())));
+        }
+        var materials = new ArrayList<>(storage.materialList());
+        materials.sort(Comparator.comparingInt(StorageGui::categoryOf)
+                .thenComparingLong((Material m) -> -storage.getAmount(m)));
+        for (Material m : materials) list.add(new Entry(null, m, storage.getAmount(m)));
+        return list;
     }
 
     public static boolean isTitle(Component title) {
@@ -99,25 +124,23 @@ public class StorageGui {
     }
 
     /** 인벤토리 전체 재렌더 (페이지 변경·입금 후 호출). */
-    public static void render(Inventory inv, IslandStorage storage, int page) {
+    public static void render(Inventory inv, IslandTerritoryState territory, IslandStorage storage, int page) {
         // 아이템 슬롯 초기화
         var filler = MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, " ", List.of());
         for (int i = 0; i < ITEMS_PER_PAGE; i++) inv.setItem(i, filler);
 
-        // 카테고리(광물→농작물→목재→기타) → 수량 내림차순 정렬
-        var materials = new ArrayList<>(storage.materialList());
-        materials.sort(Comparator.comparingInt(StorageGui::categoryOf)
-                .thenComparingLong((Material m) -> -storage.getAmount(m)));
-        int totalPages = Math.max(1, (int) Math.ceil((double) materials.size() / ITEMS_PER_PAGE));
+        // 커스텀 재료(생산·드랍) + 바닐라 통합 목록
+        List<Entry> entries = entries(territory, storage);
+        int totalPages = Math.max(1, (int) Math.ceil((double) entries.size() / ITEMS_PER_PAGE));
         int clampedPage = Math.max(0, Math.min(page, totalPages - 1));
 
         int start = clampedPage * ITEMS_PER_PAGE;
-        int end   = Math.min(start + ITEMS_PER_PAGE, materials.size());
+        int end   = Math.min(start + ITEMS_PER_PAGE, entries.size());
         for (int i = start; i < end; i++) {
-            Material mat = materials.get(i);
-            long qty = storage.getAmount(mat);
-            inv.setItem(i - start, itemSlot(mat, qty));
+            Entry e = entries.get(i);
+            inv.setItem(i - start, e.isCustom() ? customSlot(e.customId(), e.qty()) : itemSlot(e.material(), e.qty()));
         }
+        int materialsCount = entries.size();
 
         // 이전/다음 페이지
         if (clampedPage > 0) {
@@ -136,7 +159,7 @@ public class StorageGui {
         // 페이지 정보
         inv.setItem(SLOT_PAGE_INFO, MainHubGui.icon(Material.PAPER,
                 "§f" + (clampedPage + 1) + " / " + totalPages + " 페이지",
-                List.of("§7총 §f" + materials.size() + "§7종 보관 중")));
+                List.of("§7총 §f" + materialsCount + "§7종 보관 중")));
 
         // 전체 입금
         inv.setItem(SLOT_DEPOSIT_ALL, MainHubGui.icon(Material.CHEST,
@@ -147,6 +170,25 @@ public class StorageGui {
     }
 
     // ─── internal ────────────────────────────────────────────────
+
+    /** 커스텀 재료 슬롯 — CMD 모델 또는 폴백 바닐라 아이콘 + 한글명 + 보유량/출금 안내 (DL-129 추가#29·#31). */
+    private static ItemStack customSlot(String itemId, long qty) {
+        ItemStack item = CustomItemModel.buildStack(itemId, 1);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.lore(List.of(
+                    Component.text("§7보유량: §f" + FMT.format(qty) + "개"),
+                    Component.text("§7──────────"),
+                    Component.text("§8생산·드랍 재료 — 공방·상점·경매장에서 사용"),
+                    Component.text("§7──────────"),
+                    Component.text("§7좌클릭  §f64개 출금"),
+                    Component.text("§7우클릭  §f1개 출금"),
+                    Component.text("§7Shift+클릭  §f256개 출금")
+            ));
+            item.setItemMeta(meta);
+        }
+        return item;
+    }
 
     private static ItemStack itemSlot(Material mat, long qty) {
         ItemStack item = new ItemStack(mat);

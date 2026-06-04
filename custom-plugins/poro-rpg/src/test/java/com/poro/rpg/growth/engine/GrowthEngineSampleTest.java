@@ -90,7 +90,8 @@ class GrowthEngineSampleTest {
                 .generateInitial(state, weapon.itemInstanceId(), PotentialGrade.RARE)
                 .orElseThrow();
         PotentialService.PotentialOperationResult cubeResult = potentialService
-                .useCube(state, weapon.itemInstanceId(), 0.10d)
+                // RARE→EPIC 자연 승급 확률 0.05 (DL-129 추가#4 정본 정합). roll ≤ 0.05 면 성공.
+                .useCube(state, weapon.itemInstanceId(), 0.01d)
                 .orElseThrow();
 
         SetBonusService.SetBonusState setState = setBonusService.calculate(state);

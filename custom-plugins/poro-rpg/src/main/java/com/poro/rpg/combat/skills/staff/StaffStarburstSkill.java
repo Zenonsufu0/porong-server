@@ -15,12 +15,13 @@ public final class StaffStarburstSkill extends PluginWeaponSkill {
     private static final Particle.DustOptions STAR = new Particle.DustOptions(Color.fromRGB(190, 160, 255), 1.2f);
 
     public StaffStarburstSkill(Plugin plugin) {
-        super(plugin, "staff:starburst", "별빛쇄도", WeaponType.STAFF, 20000L);
+        // DL-129 추가#28: F 회전율 정렬 — 쿨 20s→11s(3스택 적립 ~9s, 원거리 프리미엄 +1s), 계수 ×0.55 DPS 중립.
+        super(plugin, "staff:starburst", "별빛쇄도", WeaponType.STAFF, 11000L);
     }
 
     @Override
     public boolean execute(Player player, SkillContext ctx) {
-        double damage = scaledDamageFullChargeSpike(ctx, player, 3.89, 0.05, 1.20);
+        double damage = scaledDamageFullChargeSpike(ctx, player, 2.14, 0.03, 1.20);
         SkillHitboxHelper.projectileRaycast(player, 22.0, 0.5)
                 .ifPresent(t -> dealDamage(ctx, player, t, damage));
         consumeStacks(ctx, player);

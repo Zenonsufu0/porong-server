@@ -2926,3 +2926,333 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 - `BossHubGui` 체력 표기에 "(1인 기준 · 2인 ×1.8 · 3인 ×2.5)" 추가.
 
 **검증:** `./gradlew build` SUCCESSFUL. **참고:** 입장 후 합류/이탈은 미반영(스폰 시점 고정). 데스카운트(3/4/5)와 동일 기준(memberIds.size).
+
+---
+
+### DL-129 추가#18 (2026-06-03) — 보스정보 요약 아이콘 + 클릭 시 상세(페이즈·패턴·데미지)
+
+**사장님 요청:** 보스정보 아이콘은 간단히, 클릭하면 페이즈별 패턴·패턴 데미지 상세.
+
+**구현:**
+- **요약 아이콘**(BossHubGui 그리드): 체력(1인 기준)·권장·파티만 + "클릭 — 상세". 기존 공격력/방어/패턴 라인 제거.
+- **상세 GUI**(`openBossDetail`, GuiTitles.BOSS_DETAIL, 27슬롯): slot11 스탯(HP+인원배수·ATK·DEF+경감식·권장), slot15 페이즈·패턴 상세(`bossDetailLore`), slot22 뒤로.
+- **`bossDetailLore(id)`**: 9보스 각각 페이즈 전환%·패턴·데미지.
+- `BossHubListener.handleBossInfo`: 보스 슬롯 클릭→openBossDetail, BOSS_DETAIL 뒤로(slot22)→openBossInfo.
+
+**★정본 정정(사장님 지적):** 처음엔 `season_boss_patterns.md`(SP-11 에너지 석판·SP-12 유도 구체 등)로 채웠으나 **이는 옛 초안이고 실제 인게임과 다름**. **정본 = MythicMobs YAML**(`season_bosses.yml`·`boss_patterns.yml`). 실제 패턴은 공용 P-00~P-13(기본×0.6/전방강타×1.2/직선돌진×1.5/원형폭발×1.3/부채꼴×1.1/투사체×1.0/산탄/소환/연속타격×0.6/낙하충격×1.6) + P-08 전환 + P-09 무적(SP 해제 메카닉 미구현→자동해제). `bossDetailLore`를 YAML 기준으로 전면 교체(데미지 = mdamage 배율 = 보스ATK×N). `season_boss_patterns.md` 헤더에 "DRAFT·일부 미구현, 정본=YAML" 명시.
+
+**검증:** `./gradlew build` SUCCESSFUL. (bossPattern 요약 메서드는 미사용이나 잔존 — 경고만.)
+
+---
+
+### DL-129 추가#19 (2026-06-03) — 오염된 군주 히트박스(엘더가디언→RAVAGER) + 보스 종료 영지 텔레포트 확인
+
+**① 히트박스(사장님: 스킬이 안 맞음):** corrupted_lord Type = **ELDER_GUARDIAN** = 원거리 빔·수중 부유 몹 → 플레이어와 거리 벌리고 떠다녀 근접/단거리 스킬(반경 ~3-4) 빗나감. 다른 보스(EVOKER·IRON_GOLEM·WARDEN=근접 지상)는 정상. → **Type ELDER_GUARDIAN → RAVAGER**(대형 근접 지상, 큰 히트박스). `season_bosses.yml` 소스+런타임 둘 다 교체, `mm reload`(118 스킬 무에러). 보스 재스폰 시 적용.
+
+**② 보스룸→영지(사장님: 보스룸 있다가 영지 감):** `BossRewardService.onRunEnded`가 **클리어 시 10초 후·실패 시 즉시 전원 `is home`(영지 귀환)** — **의도된 동작**(채팅 "영지로 귀환합니다"). 예상치 못한 케이스는 ①과 연결: 엘더가디언이 지상 질식/원거리 이탈로 스스로/조기 종료 시 영지로 보내짐. RAVAGER 교체로 정상 전투 → 정상 종료 흐름 복원. (귀환지를 수도/hub로 바꾸려면 BossRewardService tp 대상 변경 — 후속 옵션.)
+
+**검증:** mm reload OK. server-config·런타임 YAML 동기. 인게임 재입장 확인 대기.
+
+---
+
+### DL-129 추가#20 (2026-06-03) — 보스룸 이동 시 "보스 포기" 확인 게이트
+
+**사장님:** 보스 안 깼는데 메뉴에서 영지/필드 이동이 그냥 됨 → 이동 시 "포기하겠습니까? [예][아니요]" 떠야 함. 예=파티 탈퇴+이동, 아니요=계속 전투.
+
+**구현:**
+- `BossAbandonGui`(27슬롯, 예 slot11/아니요 slot15) + GuiTitles.BOSS_ABANDON.
+- `BossAbandonListener`: `promptIfInRoom(player, destCode)` — `bossRoomManager.isInBossRoom`이면 목적지 저장+확인 GUI 띄우고 true(이동 보류), 아니면 false. 예→`partyManager.leaveParty` + `bossRoomManager.exitRoom` + 야간투시 해제 + 목적지 이동("home"/"visit:<owner>"/"field:<id>"). 아니요→닫기.
+- 가드 배선: `MainHubListener.handleTerritoryMove`(내 영지 is home·공개 영지 is visit) + `FieldHubListener`(필드 이동) — 이동 직전 promptIfInRoom 호출, true면 return. 세터 주입(setBossAbandonListener), PoroRPGPlugin에서 생성·등록.
+- 보스 클리어/실패 시 영지 귀환(BossRewardService)은 의도된 동작 — 변경 없음.
+- **재입장 버그 수정:** 포기 후 재입장 시 INVALID_ARGUMENT("이미 활성 런에 있음") — `exitRoom`이 슬롯만 정리하고 `BossRunService.activeRunByParticipant`(검증 체커가 보는 맵)는 안 지웠던 것. **`BossRunService.leaveRun(userId)`** 신규(참가자 추적 제거, 전원 떠나면 activeRuns 레코드 제거, 텔레포트/보상 없음) → BossAbandonListener에서 호출. 슬롯은 exitRoom, 보스 엔티티 despawn은 후속 부채.
+
+**검증:** `./gradlew build` SUCCESSFUL. (보스 엔티티 despawn·HP 재조정은 추가#21에서 구현)
+
+---
+
+### DL-129 추가#21 (2026-06-03) — 보스 포기 시 솔로 즉시 despawn · 파티 HP 인원 비례 재조정 · 이탈자 보상 제외
+
+**사장님:** 솔로일 땐 나가면 즉시 despawn하고 방 바로 비워라. 2~3인일 땐 한 명이라도 남으면 계속 진행하게 하되 HP를 즉시 남은 인원수에 맞춰라 — 단 이때까지 입힌 피해량은 남기고, HP만 회복시키는 게 아니라 아예 비율에 맞춰 깎아라. 나간 사람은 남은 사람이 깨도 보상 들어오면 안 됨.
+
+**구현:**
+- **이탈 추적 모델:** `BossRun.abandoned`(LinkedHashSet) + `markAbandoned`/`isAbandoned`/`activeCount`(미이탈 참가자 수). 종료 판정·HP 스케일·보상의 단일 기준.
+- **`BossRunService.leaveRun`** 반환형을 `LeaveResult(runId, empty, oldActiveCount, newActiveCount)`로 변경. 호출 시 `run.markAbandoned` 후 newActiveCount≤0이면 activeRuns 제거(empty=true).
+- **`BossAbandonListener`** — `BossDamageTracker` 주입. 예 처리 시 `damageTracker.mobForRun(runId)`로 보스 엔티티 조회:
+  - `empty`(솔로/전원 포기) → `boss.remove()` 즉시 despawn(슬롯은 exitRoom이 해제).
+  - 일부 잔류 → `ratio = partyHpMultiplier(newActiveCount)/partyHpMultiplier(oldActiveCount)`로 MAX_HEALTH base와 현재 체력을 **동시에 축소**(입힌 피해 보존, ratio<1일 때만). `BossRoomListener.partyHpMultiplier` public static화하여 입장 스케일과 동일 곡선(1인×1/2인×1.8/3인+×2.5) 재사용.
+- **이탈자 보상 제외:** `BossResultSummaryBuilder.fromRun`이 `run.isAbandoned(uid)` 참가자를 participantSummary에서 skip → 남은 사람이 클리어해도 이탈자는 보상·종료 텔레포트 대상 아님.
+- 추가#20에서 "보스 엔티티 despawn은 후속 부채"로 남겼던 부분 해소.
+
+**검증:** `./gradlew build` SUCCESSFUL(31 tests; GrowthEngineSampleTest 큐브 roll을 새 RARE→EPIC 확률 0.05 경계 안 0.01로 갱신). 서버 재기동 정상(Done 19.6s, PoroRPG·boss-engine 예외 없음).
+
+---
+
+### DL-129 추가#22 (2026-06-03) — 보스 잔존 버그 수정(슬롯 해제 = 단일 despawn 권한) + 근접 스킬 히트박스 인지
+
+**사장님:** ① 리타이어/타임아웃/영지이동 등 보스룸을 빠져나갈 때 보스가 즉시 despawn 안 되고 방만 비워져서, 새 입장자에게 같은 슬롯이 배정되면 새 보스 + 잔존 보스가 겹친다. ② 낫 스킬이 타락기사장엔 스택이 잘 차는데 오염된 군주엔 안 찬다 — 히트 판정 확인.
+
+**원인 ①:** `BossRoomManager.releaseByRunId`/`exitRoom`/`releaseSlot`가 슬롯만 비우고 보스 엔티티는 월드에 방치. despawn은 타임아웃 스케줄러와 abandon 경로에만 산재 → 전멸(리타이어)·일부 경로에서 보스 잔존.
+**수정 ①:** `BossRoomManager.slotToBossMob`(slotId→보스 UUID) 추가, `registerBossMob`(스폰 직후 BossRoomListener에서 등록). **`releaseSlot`이 단일 despawn 권한** — 클리어/전멸/타임아웃/포기/스폰실패 모든 경로가 releaseSlot으로 수렴하므로 여기서 `Bukkit.getEntity(mob).remove()`. 클리어 시엔 보스가 이미 사망(getEntity=null)이라 무해. abandon 경로의 명시적 despawn은 제거(exitRoom→releaseSlot이 처리), HP 비율 재조정만 유지.
+
+**원인 ②:** `SkillHitboxHelper.arc/line/burst`가 타겟을 **발밑 중심점 한 점(`e.getLocation()`)**으로만 판정. WITHER_SKELETON(타락기사장, 폭 0.7)은 OK지만 RAVAGER(오염된 군주, 폭 1.95)·WARDEN·IRON_GOLEM 등 대형 보스는 몸통이 플레이어를 밀어내 중심이 사거리·부채꼴 축 밖으로 → 누락.
+**수정 ②:** **히트박스 인지(hitbox-aware)** — `horizontalRadius(e)=max(BoundingBox 폭X,폭Z)/2`로 ⓐ 1차 탐색 반경 +2.5 여유, ⓑ arc 사거리=`dist−er≤radius`·부채꼴 허용각 `+atan2(er,dist)`, ⓒ line 폭·길이 `±er` 확장, ⓓ burst 반경 가장자리 기준. 모든 대형 보스에 일괄 적용.
+
+**검증:** `./gradlew build` SUCCESSFUL(31 tests). 서버 재기동 정상(Done 17.4s, 예외 없음). 인게임: ① 전멸/포기/타임아웃 시 보스 즉시 소멸·슬롯 재사용 정상, ② 오염된 군주(RAVAGER) 낫 스킬 명중·스택 충전 — 확인 필요.
+
+---
+
+### DL-129 추가#23 (2026-06-03) — 슬롯 해제 시 방 전체 청소(소환수 포함) + 바닐라 디버프 차단
+
+**사장님:** ① 보스 본체만 없어지는 듯 — 소환수까지 그 방에 있는 모든 애를 디스폰시켜라. ② 바닐라 위더 효과·채굴 피로 같은 디버프 빼자.
+
+**수정 ① (방 전체 청소):** 추가#22는 추적된 보스 UUID 1개만 제거 → 소환수(add)·잔류 투사체·장판이 남았음. `BossRoomSlot.roomBox()`(방 영역 BoundingBox — 슬롯 X간격 60이라 X±28로 이웃 침범 방지, z는 player/boss 스폰 감싸도록 ±35) 추가. `releaseSlot`이 방 박스 안의 **플레이어 아닌 LivingEntity + Projectile + AreaEffectCloud**를 일괄 `remove()`. 홀로그램/데미지숫자(TextDisplay·ArmorStand·Display)는 보존. 보스 add(소환수)도 LivingEntity라 함께 정리.
+- 보스룸 설정: world 10024.5~ X 60 간격 일렬, player-spawn z=10045 / boss-spawn z=10010.
+
+**수정 ② (바닐라 디버프 차단):** `VanillaDebuffBlockListener` 신규 — `EntityPotionEffectEvent`(ADDED/CHANGED)에서 플레이어 대상이고 효과가 블랙리스트면 취소. 차단 목록 = **WITHER(위더 스켈레톤), MINING_FATIGUE(가디언/엘더가디언 채굴피로), DARKNESS(워든 어둠 — 보스전 시야방해)**. 플레이어가 직접 마실 일 없는 효과라 출처 구분 없이 전역 차단해도 안전. `Set<PotionEffectType> BLOCKED` 상수라 확장 용이.
+
+**검증:** `./gradlew build` SUCCESSFUL(31 tests). 서버 재기동 정상(Done 21.9s, 예외 없음). 인게임 확인 필요: 방 청소(소환수 포함)·위더/채굴피로/어둠 미적용.
+
+---
+
+### DL-129 추가#24 (2026-06-03) — 직선 돌진 텔레그래프 방향 잠금 + 디버프 차단 확장(BLINDNESS) + 낫 스택 진단
+
+**사장님:** ① 돌진 패턴에서 바닥 예고선과 실제 돌진 방향이 다르다(예고선 따로, 돌진은 플레이어 추적). 0.5s 추종 후 고정하고 그 방향으로 돌진하거나, 처음부터 고정해라. ② 낫 스택 여전히 안 참.
+
+**수정 ① (돌진 방향 잠금, MM `P_02_LinearDash`):** 기존 `stun{duration=20}`은 이동만 막고 **회전은 허용** → windup 내내 보스가 플레이어를 따라 돌다가 마지막 텔레그래프(t=15)와 lunge(t=22) 사이 7틱 더 회전 → 예고선≠돌진 방향. 재설계:
+- 1) 추종 0.6s: `stun{duration=12}` + `P_02_DashWarn`(불꽃선) 반복 — 이동만 막고 회전 허용해 플레이어 추적.
+- 2) 고정 0.6s: `setAI{ai=false}`로 **회전까지 동결**(돌진 방향 확정) + `P_02_DashLock`(영혼불꽃 고정 강조선) 반복.
+- 3) `setAI{ai=true}` 직후 **같은 틱** `lunge @Forward{f=11}` — velocity가 잠긴 yaw 기준 월드벡터로 캡처되어 이후 재회전과 무관하게 예고선 방향 직진. 무료 MM엔 yaw 고정 전용 메커닉이 없어 setAI 토글이 유일 수단.
+- 필드몹도 동일 스킬 공유 → 일괄 개선. server-config tracked 사본이 라이브보다 크게 드리프트(boss_patterns 221줄·season_bosses 304줄)되어 있어 **tracked ← live 전체 동기화**로 해소(드리프트엔 #21·#22 RAVAGER 전환·HP값 등 이미 라이브 반영분 포함).
+
+**수정 (디버프 확장):** corrupted_lord가 MM `potion{MINING_FATIGUE}`를 직접 걸던 라인(season_bosses) 제거. 추가로 일부 보스 <25% 패턴의 `BLINDNESS`(@PlayersInRadius) 발견 → `VanillaDebuffBlockListener.BLOCKED`에 BLINDNESS 추가(이제 WITHER·MINING_FATIGUE·DARKNESS·BLINDNESS). 리스너가 출처 무관 중앙 차단이므로 MM 소스 누락분도 안전망으로 흡수.
+
+**진단 ② (낫 스택):** 히트박스 수정(#22) 후에도 미충전 보고. 정적 분석상 death_slash `arc(3.0,150)`가 RAVAGER를 잡아야 정상 → 원인 미상. `ScytheDeathSlashSkill`에 **임시 디버그**(`타겟=N 스택획득=bool 현재스택=N` 채팅 출력) 삽입해 실측 진단. 콤보=월영회전(RMB)→2s내 사신베기(LMB) 명중. 원인 확인 후 디버그 제거 예정.
+
+**검증:** `./gradlew build` SUCCESSFUL(31 tests). MM `bosses=14` 정상 로드(P_02 신스킬 오류 없음). 서버 재기동 정상(Done 17.2s). 인게임 확인: 돌진 예고선=돌진 방향 일치, 디버그 메시지로 스택 원인 파악.
+
+**후속(돌진·디버프 확인):** 사장님 인게임 — "디버프 안 걸리고 돌진 잘된다" 확인. setAI 잠금 돌진 정상 작동.
+
+---
+
+### DL-129 추가#25 (2026-06-03) — 낫 스택 LC 직접 적립 + 보스룸 파티 위임(해체 방지)
+
+**사장님:** ① 낫 스택이 RC(월영회전)→LC(사신베기) 콤보로만 차서 불편하다. "1RC=2LC"로 LC를 늘리거나 LC에 스택이 차게 해라. ② 보스룸에서 파티가 해체된다 — 파티 해체도 포기 GUI 띄우고 영지로 보내라. 파티장이면 남은 파티원에게 위임, 파티원이면 탈퇴 후 GUI+영지.
+
+**수정 ① (낫 스택):** `ScytheDeathSlashSkill` — 월영회전 2초 윈도우 게이트(`consumeShadowSpinWindow`) 제거, **사신베기(LC) 명중 시마다 1스택 직접 적립**(max 3, 유지각인 시 6). 월영회전은 순수 이동기로 단순화(`recordShadowSpin` 호출 제거 — 죽은 코드). 사장님이 준 두 옵션 중 "LC에 스택" 채택(가장 직관적). 콤보 의존 제거로 스택 램프 자연스러워짐.
+
+**수정 ② (파티 위임):** `PartyManager.leaveParty`는 리더 호출 시 **무조건 파티 해체**라, BossAbandonListener가 포기 시 leaveParty(리더) 호출 → 남은 파티원 파티 소멸이 버그였음.
+- **`PartyManager.leaveOrDelegate(uid)`** 신규 → `PartyLeaveOutcome(type, newLeaderId)`. 멤버=탈퇴 / 리더+멤버잔류=첫 멤버에게 위임(leaderId final이라 새 Party로 rekey, members·ready·started 이관) / 리더혼자=해체.
+- `BossAbandonListener` 포기 YES → leaveParty 대신 `leaveOrDelegate`, 위임 시 새 파티장에게 알림.
+- `BossHubListener` 파티 GUI 탈퇴/해산 버튼(slot 39) → 보스룸이면 `bossAbandonListener.promptIfInRoom(player,"home")`로 포기 게이트 경유(리더 위임·멤버 탈퇴 + 영지 귀환). 비보스룸(로비)은 기존 해체 유지. setter 주입(PoroRPGPlugin 와이어링).
+
+**검증:** `./gradlew build` SUCCESSFUL(31 tests). 서버 재기동 정상(Done 19.6s, 예외 없음). 인게임 확인 필요: ① 사신베기 LC 명중마다 스택 증가, ② 보스룸에서 리더 포기 시 파티 유지·위임 / 멤버 포기 시 탈퇴, 양쪽 영지 귀환.
+
+**후속(좌클 스택 확인):** 사장님 "좌클 스택 잘 오른다" 확인.
+
+---
+
+### DL-129 추가#26 (2026-06-03) — 월영회전 돌진 경로 전체 타격 + 돌진 중 무적
+
+**사장님:** 월영회전 돌진이 시작 구간에만 데미지가 들어간다. 돌진 경로의 모든 적을 때려야 한다. 그리고 돌진 중엔 잠시 무적이 되어 경로에서 맞아 죽지 않게(생존기 겸용). (그믐참 스택 미소비도 재확인 — 이미 미소비 상태였음. consumeStacks는 사신처형만 호출.)
+
+**원인:** 기존 `dashForward` 후 같은 틱에 `burst` 4회 → velocity는 다음 틱부터 적용되어 4회 모두 **출발 지점** 타격. "시작 구간에만 데미지" 현상.
+
+**수정:** `ScytheShadowSpinSkill` 재구현 — `BukkitRunnable`로 8틱(0.4s) 동안 매 틱 전방 추진(tick당 0.7블록 ≈ 5.6블록)하며 그 위치에서 `burst(2.5)`로 훑고 `Set<UUID>`로 적별 1회 타격(경로 전체 커버). 시작 시 `setInvulnerable(true)`, 종료(틱 만료·오프라인·사망) 모든 분기에서 `setInvulnerable(false)` 복구. 쿨다운 5s > 돌진 0.4s라 중첩 없음. per-hit 계수 0.60 유지(유틸/이동기 — 데미지보다 커버리지·생존이 핵심).
+
+**검증:** `./gradlew build` SUCCESSFUL(31 tests). 서버 재기동 정상(Done 16.8s). 인게임 확인 필요: 돌진 경로 적 전원 타격·돌진 중 무적(보스 패턴 피격 무효).
+
+**후속:** 사장님 "경로상 다 때리고 무적도 된다" 확인.
+
+---
+
+### DL-129 추가#27 (2026-06-03) — 돌진 스킬 전체 경로타격+무적 통일 + 낫 F 회전율 개선
+
+**사장님:** ① 월영회전식 경로타격+무적을 돌진 있는 스킬 전부에 적용. ② 낫 LC 스택은 빨리 쌓이는데 F 쿨이 길어 3스택 차도 바로 F를 못 써 답답 — F 쿨 줄이고 계수 낮추는 쪽 검토.
+
+**수정 ① (돌진 통일):** `PluginWeaponSkill`에 공용 헬퍼 2종 추가 —
+- `dashStrike(player, dir, ticks, speed, hitRadius, invuln, trail, onHit, onComplete)`: 매 틱 전방 추진하며 `burst`로 경로 적 1회씩 타격, 무적·잔상 처리, 종료 시 명중수 콜백. 모든 종료 분기에서 `setInvulnerable(false)` 복구.
+- `invulnerableFor(player, ticks)`: 경로타격 없이 무적만(후방 회피기용).
+- 적용: **전방 공격 돌진** = 월영회전(8t)·돌파창(9t,5.4블록)·섬광베기(5t,스택 onComplete)·파쇄돌진(6t) → 모두 경로타격+무적+잔상. 창/검/도끼는 `BaseWeaponSkill`→`PluginWeaponSkill` 전환(생성자에 plugin, PoroRPGPlugin 등록 `new …Skill(this)`).
+- **후방 회피** = 석궁 회피사격 → 무적(6t,0.3s)만(뒤로 빠지는 회피라 경로타격 부적합).
+
+**수정 ② (낫 F 튜닝):** `ScytheExecutionSkill` 쿨 16000→10000ms, 계수 2.80→1.80(처형 hp<30% 4.80→3.10). DPS 거의 중립(0.175→0.18/s)이면서 회전율↑ — LC 3스택 적립(~10s)과 F 쿨이 맞아 "차면 바로 사용" 가능. 처형 보너스 비율(≈1.72×) 보존.
+
+**리스크/메모:** 섬광베기는 쿨 3s라 0.25s 무적이 잦음(스킬 기반 i-frame). 의도된 회피 표현이나 밸런스 모니터링 필요. 그믐참 스택 미소비는 기존 유지(변경 없음). 다른 무기 F 쿨/계수는 이번 범위 외(낫만 조정).
+
+**검증:** `./gradlew build` SUCCESSFUL(31 tests). 서버 재기동 정상(Done 19.6s, 예외 없음). 인게임 확인 필요: 4종 전방 돌진 경로타격+무적, 석궁 회피 무적, 낫 F 회전율.
+
+---
+
+### DL-129 추가#28 (2026-06-03) — 전 무기 F 회전율 정렬 (스택 적립 속도 대비)
+
+**사장님:** 낫뿐 아니라 다른 무기도 스택 쌓는 속도 대비 F 쿨이 너무 길지 않은지 검토.
+
+**검토:** 전 무기 공통 구조 = LC(slot1) 명중마다 1스택 적립(max 3), F(slot4)가 스택 소비. LC 쿨로 3스택 적립 시간 계산 → F 쿨과 비교:
+| 무기 | LC쿨 | 3스택≈ | 기존 F쿨 | 기존비율 | → 신 F쿨 | 계수배율 |
+|---|---|---|---|---|---|---|
+| 낫 | 3s | 9s | 10s(#27) | 1.1× | 10s | — |
+| 검 | 3s | 9s | 16s | 1.8× | **10s** | ×0.625 (3.32/0.06→2.08/0.04) |
+| 창 | 3s | 9s | 15s | 1.7× | **10s** | ×0.667 (2.96/0.04→1.97/0.03) |
+| 석궁 | 3s | 9s | 14s | 1.6× | **10s** | ×0.714 (3.35/0.05→2.39/0.04) |
+| 도끼 | 4s | 12s | 18s | 1.5× | **13s** | ×0.722 (4.55/0.10→3.29/0.07) |
+| 지팡이 | 3s | 9s | 20s | 2.2× | **11s** | ×0.55 (3.89/0.05→2.14/0.03) |
+
+**수정:** 각 F 쿨다운을 3스택 적립 시간의 ~1.1배로 정렬(도끼·지팡이는 LC속도/원거리 프리미엄 반영). 계수는 `신쿨/구쿨` 비율로 base·perStack 동반 하향(fullChargeMult 1.20·처형 임계비율 보존) → **DPS 거의 중립**, 풀스택 후 대기시간만 제거(답답함 해소). 모든 F가 scaledDamageFullChargeSpike(도끼만 scaledDamageWithStacks) 사용.
+
+**리스크:** 지팡이 20→11s는 상대 절감폭 최대(원거리 폭딜 빈도↑). 검 F 10s + LC 섬광베기 무적(#27)으로 검 생존/딜 동시 상향 — 종합 모니터링 필요. CANON(04_combat) 일괄 반영은 안정화 후 권장.
+
+**검증:** `./gradlew build` SUCCESSFUL(31 tests). 서버 재기동 정상(Done 19.7s, 예외 없음). 인게임 확인 필요: 무기별 3스택 시점에 F 사용 가능(대기 최소화), 체감 DPS 유지.
+
+---
+
+### DL-129 추가#29 (2026-06-03) — 영지 창고 통합 (생산·드랍 커스텀 재료 표시·입출금)
+
+**사장님:** ① 자동재배기·광물생산기 생산물이 시간 지나도 창고에 안 들어옴. ② 창고 우클릭이 다른 물건을 입금.
+
+**진단:** 이중 저장소 불일치 — 생산·필드/보스 드랍은 `IslandTerritoryState.customItems`(item_id 키)에 적립되나, 창고 GUI(`StorageGui`)는 `IslandStorage`(Material 키)만, 그것도 `materialList()`가 유효 Material만 통과시켜 커스텀 ID를 숨김. CANON §3.4("자동 창고 입금")와 불일치.
+
+**수정 (창고 GUI 통합):**
+- `StorageGui`: `Entry(customId | material, qty)` 통합 항목 모델. `entries(territory, storage)` = 커스텀 재료(생산·드랍) 먼저 + 바닐라 Material. 커스텀은 `customSlot`(PAPER+CMD+한글명)으로 렌더. open/render 시그니처에 `IslandTerritoryState` 추가.
+- `CustomItemModel`: `buildStack(id, n)`(PAPER+CMD+displayName + 재입금용 `STORAGE_ID_KEY` PDC), `readStorageId`. `WorkshopRecipeRegistry.displayName`에 mat_herb_imperial/mat_essence_imperial 추가.
+- `StorageGuiListener`: `IslandTerritoryStateStore` 주입. 출금=entries 인덱스로 커스텀(`withdrawCustomItem`→buildStack 64분할 지급)/바닐라 분기. 입금=① PDC id 커스텀(우클릭=같은 id 전부, **이슈② 해소**) ② 무기·메뉴·기타 CMD 커스텀 차단(Material 쓸어담기 방지) ③ 바닐라. depositAll도 동일 분기.
+- 호출처 3곳(PlayerCommandRouter·MainHubListener·TerritoryStatusGuiListener) + 리스너 생성(PoroRPGPlugin) 시그니처 갱신.
+
+**검증:** `./gradlew build` SUCCESSFUL(31 tests). 서버 재기동 정상(Done 16.9s, 예외 없음). 인게임 확인 필요: 생산물이 창고에 표시·출금, 커스텀 재료 좌(1)/우(같은 id 전부) 입금 정상.
+
+**남은 작업:** §6 기본 광물 생성기(물-울타리)는 미구현 확인 — 트리거 메커닉 확정 후 별도 구현 (BlockFormEvent는 물+울타리만으로 발생 안 함, 구성 확인 필요). → 추가#30에서 구현.
+
+---
+
+### DL-129 추가#30 (2026-06-03) — 기본 광물 생성기 구현 (물-울타리, §6)
+
+**사장님:** 물-울타리 구성으로, 재생성 쿨다운은 5초가 아니라 0.n초로 빠르게 "딱딱 캐지게".
+
+**결정/제약:** 스펙(§6)의 `BlockFormEvent`는 물+울타리만으로는 미발생(용암 필요) → **`BlockFromToEvent`(물 흐름)로 변경**. 위치→소유자 API 부재(IslandProtectionListener 주석: 액체 흐름은 플레이어 정보 없음) → 작위는 **근처(반경 12) 플레이어 기준**(생성기는 곁에서 캐는 능동 사용 전제).
+
+**구현:** `WaterFenceOreListener` 신규 —
+- IridiumSkyblock 월드에서 물(WATER) 흐름의 도착 블록이 울타리(`Tag.FENCES`)에 6면 인접 시 트리거.
+- 위치별 **0.4s 쿨다운**(흐르는 물이 계속 닿을 때마다 빠른 반복 생성).
+- 근처 플레이어 영지 작위 tier(0 개척지~7 공작령)로 §6 확률표 8열 선택 → 누적 롤로 광물 1개 드랍(조약돌/구리·철·금 원석/레드스톤/청금석/다이아/에메랄드).
+- 자작령+(tier≥4) 다이아/에메랄드 생성 시 보너스 1종(석탄·금·철·레드스톤·청금석) 추가. 행운 레벨은 소스 미정 → 현재 "없음=1개" 고정.
+- 확률표 각 열 합 100 검증(개척지·공작령 확인).
+
+**리스크/메모:** ① 작위=근처 플레이어 기준이라 방문자가 곁에 있으면 그 작위 적용(소유자 위치 API 도입 시 교체). ② 연속 생성은 "흐르는 물"이 울타리에 계속 닿는 구성 필요(고인 물은 이벤트 미발생). ③ 행운 레벨 소스 확정 시 보너스 수량 반영 필요.
+
+**검증:** `./gradlew build` SUCCESSFUL(31 tests). 서버 재기동 정상(Done 17.7s, 예외 없음). 인게임 확인 필요: 영지에서 물-울타리 구성 시 광물 드랍·작위별 확률·0.4s 반복.
+
+---
+
+### DL-129 추가#31 (2026-06-03) — 창고 커스텀 한글명·아이콘 폴백 + 광물 생성기 블럭 방식·채굴 자동입금
+
+**사장님:** ① 창고 커스텀 물자가 영어로 나옴. ② equip_trace_faded 텍스쳐 깨짐, cosmetic_fragment/전장의 파편/마도철 원석 텍스쳐 없음. ③ 광물 생성기는 드랍이 아니라 **블럭이 생겨 유저가 캐는** 방식, 자동입금은 캘 때 땅에 안 떨어지고 창고로.
+
+**수정 ① (한글명):** `WorkshopRecipeRegistry.displayName`에 흔적류(equip_trace_*·ancient_trace_*·mat_trace_*)·cosmetic_fragment(치장 파편)·rift_king_heart(균열왕의 심장)·mat_stone_enhance 한글명 추가.
+
+**수정 ② (아이콘 폴백):** CMD 모델 없는 커스텀은 PAPER 빈 종이로 보이던 것 → `CustomItemModel.iconMaterial`/`FALLBACK_ICON`로 대표 바닐라 아이콘 표시(res_ore_resonance→IRON_ORE, mat_battle_shard→PRISMARINE_SHARD, cosmetic_fragment→AMETHYST_SHARD, rift_king_heart→NETHER_STAR 등). `buildStack`이 폴백 아이콘 사용. **남은 리소스팩 작업:** equip_trace_faded는 모델(trace_equip_faded.json) 존재하나 깨짐 → paper.json CMD 매핑/resourcepack.zip 동기화 필요(별도). res_silver_ore는 raw_silver 모델 존재하나 CMD 미연결.
+
+**수정 ③ (광물 생성기 블럭 방식):** 드랍→**블럭 생성**으로 전환. `BlockFromToEvent`에서 물이 울타리 인접 빈칸(AIR)으로 흐르면 `setCancelled`+`setType(광물블럭)`(조약돌·구리/철/금/레드스톤/청금석/다이아/에메랄드 ORE 블럭). 바닐라 물 흐름 속도(~0.25s)로 자동 재생성 → "딱딱" 채굴(쿨다운 불필요, 제거). **채굴 자동입금**: `BlockBreakEvent`에서 영지+CONV_AUTO_DEPOSIT ON이면 드랍을 창고(IslandStorage)로 입금하고 `setDropItems(false)`(토글 있었으나 핸들러 미구현이던 것 구현). 작위는 근처 플레이어 기준 유지.
+
+**리스크/메모:** §6 자작령+ 보너스 드랍(다이아/에메랄드 시 추가)은 블럭 방식 전환으로 보류(생성 시점 플레이어 귀속 모호) — 추후 채굴 시 부여 검토. 자동입금은 영지 전체 채굴에 적용(생성기 광물 포함).
+
+**검증:** `./gradlew build` SUCCESSFUL(31 tests). 서버 재기동 정상(Done 22.6s, 예외 없음). 인게임 확인 필요: 창고 한글명·아이콘, 물-울타리 광물 블럭 생성·재생성, 자동입금 ON 시 채굴→창고.
+
+---
+
+### DL-129 추가#32 (2026-06-03) — 마도철/은 원석 텍스쳐 배선·치장파편 제외·작위 승급 비용 표시·파편 요구량 ×50
+
+**사장님:** ① 마도철 원석 텍스쳐 정하지 않았나(확인). ② 치장파편 안 하기로 함 — 제거. ③ 작위 승급에 전장의 파편 영어로 나옴. ④ 승급 조건(골드+전장의 파편) 표시. ⑤ 전장의 파편 요구량 50배(과잉). ⑥ 흔적명 "파손" 수정. ⑦ 장비/고대 흔적 텍스쳐 깨짐·동일 의혹(확인).
+
+**조사 결과:**
+- **마도철/은 원석**: paper.json에 `302014→raw_mado_iron`(마도철)·`302013→raw_silver`(은) 텍스쳐 **이미 매핑됨**. `CustomItemModel.CMD`에만 누락 → 추가(코드 수정만, 리소스팩 재패키징 불필요).
+- **장비/고대 흔적**: CMD(308101~308106/308201~308204)·모델·텍스쳐 PNG·zip 모두 정상 배선. 모델은 서로 다른 텍스쳐 참조. 깨짐/동일 의혹은 **텍스쳐 아트 문제**(trace_equip_*.png) → Windows Blockbench 소스 작업 영역(메모리 규칙상 AI 텍스쳐 수정 금지) → 별도 보고.
+- **전장의 파편(mat_battle_shard)**: 전용 텍스쳐 없음 → PRISMARINE_SHARD 폴백 유지.
+- **치장파편**: 보상 코드에 `addCustomItem` 호출 없음 = **미지급 dead data**(record 필드만 inert). 사용자 창고분은 잔존.
+
+**수정:**
+- `CustomItemModel.CMD`에 res_ore_resonance→302014, res_silver_ore→302013 추가. FALLBACK_ICON에서 두 원석(이제 CMD有)·cosmetic_fragment 제거.
+- cosmetic_fragment: `BossRewardService.COSMETIC_FRAGMENT` 상수 제거(미사용), 표시명 "치장 파편 (미사용)"으로(잔존분 가독). record cosmeticFrag* 필드는 inert 유지.
+- 흔적명: equip_trace_broken "파손된"→**"낡은 흔적"**(커먼). 등급=낡은/바랜/빛나는/찬란한/눈부신 + 미감정.
+- 작위 승급: 재료부족 메시지·승급 GUI lore에 raw id→**한글명**, 골드+전장의 파편 요구량 표시("추후 공개" 제거).
+- **전장의 파편 요구량 ×50** (IslandRank): 50/80/100/80/60/120/200 → 2500/4000/5000/4000/3000/6000/10000.
+
+**작위 승급 비용표 (골드 / 전장의 파편):** 개척→기사 2만/2500 · 기사→준남작 3.5만/4000 · 준남작→남작 5.5만/5000 · 남작→자작 7.5만/4000 · 자작→백작 9.5만/3000 · 백작→후작 12만/6000 · 후작→공작 15만/10000.
+
+**남은 리소스팩 작업:** equip_trace 텍스쳐 아트 깨짐/고대와 중복 — Windows 소스 수정 필요. 전장의 파편 전용 텍스쳐(원하면).
+
+**검증:** `./gradlew build` SUCCESSFUL(31 tests). 서버 재기동 정상(Done 22.0s, 예외 없음). 인게임 확인 필요: 마도철/은 원석 텍스쳐, 승급 한글명·비용 표시·파편 요구량.
+
+---
+
+### DL-129 추가#33 (2026-06-03) — 경매 등록 버그 수정·흔적 정본명·영지 시간/날씨 영속화
+
+**사장님:** ① 경매장 등록 정상작동 안 함. ② 흔적명 "파손"(정본 확인). ③ 영지 시간 설정이 나갔다 들어오면 풀려 밤으로 나옴.
+
+**수정 ① (경매 등록):** `AuctionGuiListener.onChat`만 구식 `AsyncPlayerChatEvent` 사용(나머지 모든 채팅 핸들러는 `AsyncChatEvent`). 모던 Paper에서 구식 이벤트 미발동 → **가격 채팅 입력이 처리 안 돼 등록 미완료**. `io.papermc.paper.event.player.AsyncChatEvent`로 교체 + `PlainTextComponentSerializer`로 메시지 추출. 근본 원인은 이벤트 타입 불일치.
+
+**수정 ② (흔적 정본명):** item_master.csv가 정본 — equip_trace_broken="깨진 장비의 흔적"(파손 아님), faded="빛 바랜", glowing="빛나는", **radiant="눈부신"**, **brilliant="찬란한"**(추가#32에서 radiant/brilliant 뒤바뀜 교정). WorkshopRecipeRegistry를 item_master 명칭에 일치.
+
+**수정 ③ (시간/날씨 영속):** `TerritorySettingsGuiListener`의 시간/날씨가 in-memory Map(`timeStates`/`weatherStates`, 재접속 시 소실)이라 풀렸음(섬 월드 밤 고정→밤으로 보임). `IslandTerritoryState.timeState`/`weatherState` 필드 추가 + Gson 영속(`TerritorySaveData` trailing int 2개, 구 세이브 0 기본). 토글/렌더를 in-memory→영지 상태로 전환. `PlayerJoinListener`에서 재접속 시 40틱 지연 후 `setPlayerTime`/`setPlayerWeather` 재적용.
+
+**메모:** res_ore_resonance item_master명이 "Resonance Ore"(영어) — 경매 등 item_master.itemName 사용처에서 영어 노출 가능. 차후 item_master.csv Korean화 검토. 흔적 텍스쳐 아트 깨짐은 여전히 리소스팩 작업(추가#32).
+
+**검증:** `./gradlew build` SUCCESSFUL(31 tests). 서버 재기동 정상(Done 16.3s, 예외 없음). 인게임 확인 필요: 경매 가격 입력→등록 완료, 흔적명, 시간 설정 재접속 유지.
+
+---
+
+### DL-129 추가#34 (2026-06-04) — 경매 등록 GUI 클릭 미취소·창고 입금 메시지·장비흔적 .mcmeta 누락
+
+**사장님:** ① 경매 등록 GUI 클릭 시 이벤트 미처리·아이템이 그냥 빠져나감. ② 창고 좌클릭 입금 메시지 없음(우클릭만), 영어 표시. ③ 장비의 흔적 텍스쳐 깨짐.
+
+**수정 ① (경매 클릭, 아이템 손실 버그):** `onClick`이 `playerMode==null`이면 취소 없이 return. 메인→등록 전환 시 `openRegister`가 mode 설정 후 `openInventory` 호출 → 이전 메인 GUI close의 `onClose(AUCTION)`이 `playerMode.remove` → 등록 GUI에서 mode=null → **클릭 미취소로 아이템 인벤 이동**. 타이틀 체크가 이미 경매 GUI를 식별하므로 `mode==null` 가드 제거(불필요·해로운 중복).
+
+**수정 ② (창고 입금 메시지):** 좌클릭(1개) 입금에 메시지 누락 → 좌/우 모두 `sendDeposit` 호출. 바닐라 이름이 영어(`titleCase`)였던 것 → `Component.translatable(mat.translationKey())`로 한국어 클라 표시. 커스텀은 displayName(한글) 유지.
+
+**수정 ③ (장비 흔적 텍스쳐):** `trace_equip_faded/glowing/radiant/brilliant.png`가 **16×128(8프레임)인데 `.mcmeta` 애니메이션 파일 누락** → 16×16 아이템에 세로로 짓눌려 깨짐. 고대 흔적(trace_ancient_*)은 .mcmeta 있어 정상. 이전 DL-129 작업에서 고대만 추가하고 장비는 누락한 것. **누락 .mcmeta 4개 추가**(frametime 3·interpolate false, 고대 패턴 복사) → resourcepack.zip 갱신 → sha1 `ad15c19...`로 server.properties 갱신 → 재기동. 클라 재접속 시 새 팩 다운로드. **Windows 소스에도 동일 .mcmeta 추가 필요**(재export 시 유실 방지). trace_equip_broken(16×16)은 단일 프레임이라 불필요.
+
+**검증:** `./gradlew build` SUCCESSFUL(31 tests). 서버 재기동 정상(Done 16.8s). HTTP 팩 서버(8080) 동작·sha1 일치. 인게임 확인 필요: 경매 등록 클릭 정상·아이템 유지, 창고 좌클릭 한글 메시지, 장비 흔적 텍스쳐(재접속 후).
+
+---
+
+### DL-129 추가#35 (2026-06-04) — 흔적 아이템 lore + 경매 등록 재설계(창고 재료 브라우저)
+
+**사장님:** ① 흔적류 아이템에도 lore 추가(레시피에만 있음). ② 경매 등록 선택 안 됨·풀 너무 적음 → 창고 재료 보여주고 거기서 고르게, 가격은 채팅.
+
+**수정 ① (흔적 lore):** `CustomItemModel.buildStack`에 `loreFor(itemId)` 적용 — equip_trace_*="장비 전승(계승) 재료", ancient_trace_*="고대 전승 재료" 설명. 창고 표시·출금 실물 모두 lore 표시(전승=SuccessionService 등급별 재료).
+
+**수정 ② (경매 등록 재설계):** 기존 27칸 GUI의 **8칸 팔레트**(보유 tradeable customItems만)라 풀이 적고 선택 체감 불량 → **54칸 페이지네이션 브라우저**로 교체. 창고의 거래가능 재료(item_master is_tradeable=true, 보유분) 최대 45/페이지 표시. 재료 클릭 → 즉시 가격 채팅 입력 → `confirmRegister`로 1개 등록(클릭→가격→등록 단순화, 선택/미리보기/확인 슬롯 제거). 가격 채팅 "취소"·빈입력 처리. 최대 등록수 사전 체크.
+
+**메모:** 등록 수량은 현재 1개 고정 — 대량 판매(수량 선택)는 후속 검토. 인벤 직접 판매는 미지원(창고 입금 후 등록 — 통합 창고로 입금 간편). tradeable=false 재료(약초·강화석 등)는 의도적 거래 제한 유지.
+
+**검증:** `./gradlew build` SUCCESSFUL(31 tests). 서버 재기동 정상(Done 22.1s, 예외 없음). 인게임 확인 필요: 등록 브라우저에 창고 재료 다수 표시·클릭 선택·가격 채팅→등록, 흔적 lore.
+
+---
+
+### DL-129 추가#36 (2026-06-04) — 흔적 lore 정본화·경매 창고 동일표시·등록 수량 입력
+
+**사장님:** ① 흔적 설명이 이상함(문서 안 보고 붙임). ② 경매 등록이 창고 전체를 안 보여주고 텍스쳐·이름(영어)이 창고와 다름. ③ 등록 수량 = 가격 받고 다음 채팅에 수량, 보유 초과면 "그만큼 없다".
+
+**수정 ① (흔적 정본 lore):** `item_grade_substat_v1 §1`·`gui_succession`·`gui_enhancement` 근거로 `CustomItemModel.loreFor` 재작성 — **장비의 흔적**(전투 드롭·전승 소스·경매 거래), **고대 흔적**(미감정 흔적과 공방 사용→등급 보장, faded 레어↑/glowing 에픽↑/radiant 유니크↑/brilliant 레전더리 확정), **강화 흔적**(별×1.15/달×1.25/태양×1.30 성공률). 이전 추측 lore 폐기.
+
+**수정 ② (경매=창고 동일):** 경매 등록 브라우저가 `itemMaterial`(자체 아이콘)·`itemDisplayName`(item_master 영어명)을 써 창고와 달랐음 → ⓐ `storageIcon`=`CustomItemModel.buildStack`(CMD 텍스쳐+한글명) 사용, ⓑ `itemDisplayName`을 WorkshopRecipeRegistry(한글) 우선으로(경매 전역 한글화), ⓒ 팔레트를 **창고 전체(보유 customItems 전부)**로 확장, 거래불가 재료는 "§c경매 거래 불가" 표기 + 클릭 시 안내(거래는 item_master is_tradeable 유지).
+
+**수정 ③ (수량 입력):** 재료 클릭 → 가격 채팅 → **수량 채팅**(보유량 안내) → 등록. 수량>보유면 "그만큼 없습니다(보유 N)" 후 재시도. `awaitingQtyInput` 단계 추가, onClose가 가격/수량 대기 중 선택 보존.
+
+**메모:** 인벤 직접 판매는 여전히 미지원(창고 입금 후 등록). 메인/내목록 listing 아이콘은 아직 itemMaterial(이름은 한글화됨) — 필요 시 storageIcon 통일.
+
+**검증:** `./gradlew build` SUCCESSFUL(31 tests). 서버 재기동 정상(Done 19.0s, 예외 없음). 인게임 확인 필요: 흔적 설명 정확, 경매 등록이 창고와 동일 표시·전체 재료, 가격→수량 입력·초과 거부.
+
+---
+
+### DL-129 추가#37 (2026-06-04) — 흔적 등급표기·고대lore간결화·경매 창고전체·큐브/강화석 등록·메시지
+
+**사장님:** ① 장비의 흔적 이름별 등급 표시. ② 고대 흔적 lore "공방에서~" 빼고 "미감정 흔적~"부터. ③ 경매=창고 전체(거래불가 체크 임의분리 제거). ④ 큐브·강화석도 경매 등록(실체 없는 통화 → 등록 GUI 1·2번 고정, 텍스쳐 동일). ⑤ "그만큼 없습니다" 정중화.
+
+**수정:**
+- ① equip_trace lore에 등급 `[커먼/레어/에픽/유니크/레전더리]`(색상) 표기. ② ancient_trace lore "공방에서" 제거.
+- ③ 경매 등록 팔레트 tradeable 필터 제거 → **창고 전체(보유 customItems 전부)** 등록 가능. 클릭 거래불가 차단 제거(거래불가 품목은 애초에 customItems에 미진입 전제).
+- ④ **큐브(mat_cube)·강화석(mat_stone_enhance)은 통화(growthState)** — `AuctionStore.CURRENCY_ITEMS` + `isCurrencyItem`. 경매 등록 팔레트 1·2번 고정. 차감/지급/반환/배달을 통화↔창고 라우팅(`heldOf`/`debitItem`/`creditItem`) — confirmRegister·취소·배달(AuctionGuiListener·PlayerJoinListener) 4지점. 큐브 표시명 "큐브"·폴백아이콘 ENDER_EYE, 강화석은 CMD 303002 텍스쳐.
+- ⑤ "그만큼 없습니다" → "보유 수량이 부족합니다 (보유 N개)".
+
+**보류/확인 필요:** ⑥ **장비의 흔적 드랍 시 등급+세부스탯** — 현행 흔적은 등급만 가진 **스택형**(item_id→qty). 개별 인스턴스(등급+세부스탯)는 전승 시스템 재설계(현행 카운터형 전승과 충돌, item_grade_substat §4는 SUPERSEDED). 별도 설계 결정 필요 → 사용자 확인.
+
+**검증:** `./gradlew build` SUCCESSFUL(31 tests). 서버 재기동 정상(Done 17.0s, 예외 없음). 인게임 확인 필요: 흔적 등급표기, 경매 창고전체, 큐브·강화석 등록/구매/배달, 메시지.

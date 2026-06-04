@@ -61,7 +61,40 @@ public final class BossHubGui {
 
     /** 보스 정보/선택 — 시즌 6(좌측 세로 컬럼) + 최종 3(우측 세로 컬럼). */
     public static void openBossInfo(Player player) {
-        renderBossGrid(player, GuiTitles.BOSS_INFO, "§8— 정보 전용 (입장은 파티 생성) —");
+        renderBossGrid(player, GuiTitles.BOSS_INFO, "§e▶ 클릭 — 패턴·페이즈·데미지 상세");
+    }
+
+    /** 보스 상세 정보 — 스탯 + 페이즈별 패턴·데미지 (DL-129 추가#18). */
+    public static void openBossDetail(Player player, String bossId) {
+        BossDef b = null;
+        for (BossDef d : SLOT_MAP.values()) if (d.id().equals(bossId)) { b = d; break; }
+        if (b == null) { openBossInfo(player); return; }
+        Inventory inv = Bukkit.createInventory(null, 27, GuiTitles.BOSS_DETAIL);
+        ItemStack pane = MainHubGui.icon(Material.BLACK_STAINED_GLASS_PANE, " ", List.of());
+        for (int i = 0; i < 27; i++) inv.setItem(i, pane);
+
+        Double sHp  = com.poro.rpg.admin.config.MobStatOverrideService.seededHp(bossId);
+        Double sAtk = com.poro.rpg.admin.config.MobStatOverrideService.seededAtk(bossId);
+        Double sDef = com.poro.rpg.admin.config.MobStatOverrideService.seededDef(bossId);
+        long hp = sHp != null ? sHp.longValue() : b.hp();
+        int  atk = sAtk != null ? sAtk.intValue() : b.atk();
+
+        // 스탯 (slot 11)
+        inv.setItem(11, MainHubGui.icon(b.icon(), "§f[" + b.tier() + "] " + b.name(),
+                List.of("§7──────────────",
+                        "§7체력: §c" + String.format("%,d", hp),
+                        "§8  1인 §f×1.0 §8/ 2인 §f×1.8 §8/ 3인 §f×2.5 §8(실입장 인원)",
+                        "§7공격력: §c" + atk,
+                        "§7방어: §f" + (sDef != null ? String.valueOf(sDef.intValue()) : "—")
+                            + " §8(피해 ×200/(200+유효DEF) 경감)",
+                        "§7권장: §e" + b.recLevel() + " §7· 파티 §f1~3인")));
+
+        // 패턴/페이즈 (slot 15)
+        inv.setItem(15, MainHubGui.icon(Material.WRITTEN_BOOK, "§c페이즈·패턴 상세",
+                bossDetailLore(bossId)));
+
+        inv.setItem(22, MainHubGui.icon(Material.ARROW, "§7뒤로", List.of("§7보스 정보")));
+        player.openInventory(inv);
     }
 
     private static void renderBossGrid(Player player, net.kyori.adventure.text.Component title, String action) {
@@ -77,19 +110,13 @@ public final class BossHubGui {
 
         for (Map.Entry<Integer, BossDef> e : SLOT_MAP.entrySet()) {
             BossDef b = e.getValue();
-            // 실제 적용 스탯(MobStatOverrideService 시드) 우선, 없으면 BossDef 설계값 (DL-129 추가#16, B).
+            // 요약 아이콘 — 핵심만. 상세(패턴·페이즈·데미지)는 클릭 시 상세 GUI (DL-129 추가#18).
             Double sHp  = com.poro.rpg.admin.config.MobStatOverrideService.seededHp(b.id());
-            Double sAtk = com.poro.rpg.admin.config.MobStatOverrideService.seededAtk(b.id());
-            Double sDef = com.poro.rpg.admin.config.MobStatOverrideService.seededDef(b.id());
             long hp = sHp != null ? sHp.longValue() : b.hp();
-            int  atk = sAtk != null ? sAtk.intValue() : b.atk();
             java.util.List<String> lore = new java.util.ArrayList<>();
             lore.add("§7──────────────");
-            lore.add("§7체력: §c" + String.format("%,d", hp) + " §8(1인 기준 · 2인 ×1.8 · 3인 ×2.5)");
-            lore.add("§7공격력: §c" + atk);
-            lore.add("§7방어: §f" + (sDef != null ? String.valueOf(sDef.intValue()) : "—"));
-            lore.add("§7패턴: §f" + bossPattern(b.id()));
-            lore.add("§7권장: §e" + b.recLevel() + "  §7파티: §f1~3인");
+            lore.add("§7체력: §c" + String.format("%,d", hp) + " §8(1인 기준)");
+            lore.add("§7권장: §e" + b.recLevel() + " §7· 파티 §f1~3인");
             if (b.needsUnlock()) lore.add("§c공허 사자 클리어 필요");
             lore.add("");
             lore.add(action);
@@ -108,6 +135,68 @@ public final class BossHubGui {
         return id;
     }
     public static boolean bossNeedsUnlockAt(int slot)  { BossDef d = SLOT_MAP.get(slot); return d != null && d.needsUnlock(); }
+
+    /**
+     * 보스 상세 — 실제 인게임 패턴·데미지 (정본 = MythicMobs season_bosses.yml / boss_patterns.yml).
+     * 데미지 ×N = 보스 공격력 배율(mdamage). 페이즈 전환 시 무적 진입(현재 SP 해제 메카닉 미구현 → 자동 해제) (DL-129 추가#18).
+     */
+    private static List<String> bossDetailLore(String id) {
+        return switch (id) {
+            case "fallen_knight" -> List.of(
+                    "§7── 3페이즈 (전환 60%·30%) ──",
+                    "§8공통: 기본 공격 §c×0.6",
+                    "§e[P1 100~60%] 전방 강타 §c×1.2§e · 직선 돌진 §c×1.5",
+                    "§e[P2 60~30%] §7+ 부채꼴 휩쓸기 §c×1.1",
+                    "§e[P3 30~0%] §7+ 원형 폭발 §c×1.3 §8(쿨 단축)",
+                    "§b전환 60%·30% → 무적 §8(자동 해제 ~120s)");
+            case "corrupted_lord" -> List.of(
+                    "§7── 3페이즈 (전환 55%·20%) ──",
+                    "§8기본 §c×0.6§8 · 직선 돌진 §c×1.5",
+                    "§e[<55%] 원형 폭발 §c×1.3",
+                    "§b전환 55%·20% → 무적");
+            case "stone_colossus" -> List.of(
+                    "§7── 3페이즈 (전환 60%·25%) ──",
+                    "§8기본 §c×0.6§8 · 전방 강타 §c×1.2§8 · 부채꼴 §c×1.1",
+                    "§e[P1] 직선 돌진 §c×1.5 §8(느린 쿨)",
+                    "§e[<60%] 직선 돌진 빨라짐 · 원형 폭발 §c×1.3",
+                    "§b전환 60%·25% → 무적");
+            case "storm_sorcerer" -> List.of(
+                    "§7── 3페이즈 (전환 60%·25%) ──",
+                    "§8기본 §c×0.6§8 · 투사체 §c×1.0",
+                    "§e[>25%] 소환 — Vex 2기 호출(압박)",
+                    "§e[<60%] 산탄 — 화살 6발 확산",
+                    "§b전환 60%·25% → 무적");
+            case "abyss_guardian" -> List.of(
+                    "§7── 3페이즈 (전환 60%·25%) ──",
+                    "§8기본 §c×0.6§8 · 원형 폭발 §c×1.3",
+                    "§e[<60%] 부채꼴 §c×1.1§e · 연속 타격 §c×0.6§e 연타",
+                    "§e[<25%] 낙하 충격 §c×1.6§e · 실명(블라인드) 광역",
+                    "§b전환 60%·25% → 무적");
+            case "void_herald" -> List.of(
+                    "§7── 3페이즈 (전환 55%·20%) ──",
+                    "§8기본 §c×0.6§8 · 직선 돌진 §c×1.5",
+                    "§e[<55%] 투사체 §c×1.0§e · 유도 구체 §c×1.4",
+                    "§b전환 55%·20% → 무적");
+            case "rift_king" -> List.of(
+                    "§7── 4페이즈 (전환 75·50·25·10%) ──",
+                    "§8기본 §c×0.6§8 · 전방 강타 §c×1.2§8 · 원형 폭발 §c×1.3",
+                    "§e[<50%] 산탄 — 화살 6발 확산 추가",
+                    "§e[<25%] 모든 패턴 쿨 단축(분노)",
+                    "§b전환 75·50·25·10% → 무적 4회");
+            case "corrupted_dyad" -> List.of(
+                    "§7── 이중체 (전환 60%·30%) ──",
+                    "§8두 개체 동시 전투 · 전방 강타 §c×1.2§8 · 직선 돌진 §c×1.5",
+                    "§e[<30%] 돌진/강타 쿨 단축",
+                    "§b전환 60%·30% → 무적");
+            case "spirit_watcher" -> List.of(
+                    "§7── 3페이즈 (전환 60%·30%) ──",
+                    "§8기본 §c×0.6§8 · 산탄(화살 6발)",
+                    "§e[>70%] 소환 — 정령 마법사 호출",
+                    "§e[<60%] 원형 폭발 §c×1.3 §e[<30%] 투사체 빨라짐",
+                    "§b전환 60%·30% → 무적");
+            default -> List.of("§83페이즈 페이즈 전환");
+        };
+    }
 
     /** 보스별 패턴 요약 (season_boss_patterns.md, DL-129 추가#16 C). 보스정보 GUI 표시용. */
     private static String bossPattern(String id) {

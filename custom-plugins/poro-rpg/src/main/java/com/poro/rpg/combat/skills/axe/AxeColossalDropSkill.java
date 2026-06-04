@@ -14,12 +14,13 @@ public final class AxeColossalDropSkill extends BaseWeaponSkill {
     private static final Particle.DustOptions AMBER = new Particle.DustOptions(Color.fromRGB(220, 140, 40), 1.4f);
 
     public AxeColossalDropSkill() {
-        super("axe:colossal_drop", "거신추락", WeaponType.AXE, 18000L);
+        // DL-129 추가#28: F 회전율 정렬 — 쿨 18s→13s(LC 4s, 3스택 적립 ~12s), 계수 ×0.722 DPS 중립.
+        super("axe:colossal_drop", "거신추락", WeaponType.AXE, 13000L);
     }
 
     @Override
     public boolean execute(Player player, SkillContext ctx) {
-        double damage = scaledDamageWithStacks(ctx, player, 4.55, 0.10);
+        double damage = scaledDamageWithStacks(ctx, player, 3.29, 0.07);
         SkillHitboxHelper.burst(player, 4.5).forEach(t -> dealDamage(ctx, player, t, damage));
         consumeStacks(ctx, player);
         // 2D 이펙트: 착탄 균열(바닥 장판) + 공용 임팩트링(충격파 고리). 링은 균열을 감싸도록 크게·짧게 팝.

@@ -231,6 +231,27 @@ public final class BossRunService {
         return activeRunByParticipant.containsKey(userId);
     }
 
+    /** {@link #leaveRun} 결과 — 호출자(BossAbandonListener)가 보스 despawn/HP 재조정에 사용. */
+    public record LeaveResult(String runId, boolean empty, int oldActiveCount, int newActiveCount) {}
+
+    /**
+     * 보스 포기 — 참가자 추적/이탈 표시(재입장 차단 해제·보상 제외, DL-129 추가#20). 텔레포트/보상 없음.
+     * 전원 이탈이면 런 레코드 제거(보스 despawn·슬롯 해제는 호출자/exitRoom).
+     */
+    public LeaveResult leaveRun(String userId) {
+        if (userId == null || userId.isBlank()) return null;
+        String runId = activeRunByParticipant.remove(userId);
+        if (runId == null) return null;
+        BossRun run = activeRuns.get(runId);
+        if (run == null) return new LeaveResult(runId, true, 0, 0);
+        int oldCount = run.activeCount();
+        run.markAbandoned(userId);
+        int newCount = run.activeCount();
+        boolean empty = newCount <= 0;
+        if (empty) activeRuns.remove(runId);
+        return new LeaveResult(runId, empty, oldCount, newCount);
+    }
+
     public Optional<BossRun> findRun(String runId) {
         return Optional.ofNullable(activeRuns.get(runId));
     }

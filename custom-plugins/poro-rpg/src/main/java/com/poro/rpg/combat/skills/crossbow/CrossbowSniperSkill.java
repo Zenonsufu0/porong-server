@@ -15,12 +15,13 @@ public final class CrossbowSniperSkill extends PluginWeaponSkill {
     private static final Particle.DustOptions BOLT = new Particle.DustOptions(Color.fromRGB(120, 255, 130), 1.0f);
 
     public CrossbowSniperSkill(Plugin plugin) {
-        super(plugin, "crossbow:sniper", "저격태세", WeaponType.CROSSBOW, 14000L);
+        // DL-129 추가#28: F 회전율 정렬 — 쿨 14s→10s(3스택 적립 ~9s, 다슬롯 적립으로 더 빠름), 계수 ×0.714 DPS 중립.
+        super(plugin, "crossbow:sniper", "저격태세", WeaponType.CROSSBOW, 10000L);
     }
 
     @Override
     public boolean execute(Player player, SkillContext ctx) {
-        double damage = scaledDamageFullChargeSpike(ctx, player, 3.35, 0.05, 1.20);
+        double damage = scaledDamageFullChargeSpike(ctx, player, 2.39, 0.04, 1.20);
         SkillHitboxHelper.projectileRaycast(player, 50.0, 0.5)
                 .ifPresent(t -> dealDamage(ctx, player, t, damage));
         consumeStacks(ctx, player);

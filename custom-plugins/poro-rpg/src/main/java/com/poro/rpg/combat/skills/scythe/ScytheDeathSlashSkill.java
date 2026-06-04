@@ -24,8 +24,8 @@ public final class ScytheDeathSlashSkill extends BaseWeaponSkill {
         targets.forEach(t -> dealDamage(ctx, player, t, damage));
         ctx.effectDisplay().spawnGroundTravel(400107, player, 6.0, 4.0f, 8, 0.6);   // 사신베기 (바닥 비행)
 
-        // 월영회전 2초 윈도우 내 명중 시 1스택 충전
-        if (!targets.isEmpty() && ctx.getResourceTracker().consumeShadowSpinWindow(player.getUniqueId())) {
+        // 사신베기(LC) 명중 시 1스택 충전 (DL-129 추가#25 — 월영회전 콤보 게이트 제거, LC 직접 적립).
+        if (!targets.isEmpty()) {
             gainStack(ctx, player, 3);
         }
 

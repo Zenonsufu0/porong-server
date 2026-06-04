@@ -63,7 +63,7 @@ public final class BossRoomListener implements Listener {
     }
 
     /** 실제 입장(온라인) 인원수 → 보스 HP 배수 (1인 ×1 / 2인 ×1.8 / 3인+ ×2.5). */
-    private static double partyHpMultiplier(int entered) {
+    public static double partyHpMultiplier(int entered) {
         if (entered <= 1) return 1.0;
         if (entered == 2) return 1.8;
         return 2.5;
@@ -196,6 +196,8 @@ public final class BossRoomListener implements Listener {
         if (damageTracker != null) {
             damageTracker.registerMob(run.runId(), bossMobUuid);
         }
+        // 보스 mob ↔ slot 등록 — 슬롯 해제(releaseSlot) 시 보스 즉시 despawn (잔존 보스 방지, DL-129 추가#22)
+        bossRoomManager.registerBossMob(slot.id(), bossMobUuid);
 
         bossRoomManager.clearPendingBoss(uuid);
 

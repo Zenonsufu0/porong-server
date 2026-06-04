@@ -52,6 +52,9 @@ public final class IslandTerritoryState {
 
     private IslandRank rank;
     private int  convenienceUnlocks;
+    /** 영지 시간/날씨 고정 설정 (0=서버기본/맑음, 1=낮/비, 2=밤/천둥). 영속화(DL-129#33). */
+    private int  timeState;
+    private int  weatherState;
     private String islandName;
     /** 방문 공개 설정 — IslandSettingsRepository로 영속화. */
     private VisitMode visitMode = VisitMode.PUBLIC;
@@ -214,6 +217,11 @@ public final class IslandTerritoryState {
     }
     public int convenienceUnlocks() { return convenienceUnlocks; }
     public void setConvenienceUnlocks(int mask) { this.convenienceUnlocks = mask; }
+
+    public int  timeState()    { return timeState; }
+    public void setTimeState(int s)    { this.timeState = s; }
+    public int  weatherState() { return weatherState; }
+    public void setWeatherState(int s) { this.weatherState = s; }
 
     // ─── 멤버 관리 (in-memory) ────────────────────────────────────
     public boolean addMember(java.util.UUID uuid, String name, Role role) {

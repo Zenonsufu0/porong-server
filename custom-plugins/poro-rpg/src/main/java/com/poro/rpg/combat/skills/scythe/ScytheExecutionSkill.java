@@ -15,7 +15,9 @@ public final class ScytheExecutionSkill extends BaseWeaponSkill {
     private static final Particle.DustOptions PURPLE = new Particle.DustOptions(Color.fromRGB(160, 0, 200), 1.3f);
 
     public ScytheExecutionSkill() {
-        super("scythe:execution", "처형낫", WeaponType.SCYTHE, 16000L);
+        // DL-129 추가#27: F 회전율 개선 — 쿨 16s→10s, 계수 하향(2.80→1.80 / 처형 4.80→3.10)로 DPS 중립 유지.
+        // LC 스택 적립 주기(~10s에 3스택)와 맞춰 "3스택 차면 바로 F" 답답함 해소.
+        super("scythe:execution", "처형낫", WeaponType.SCYTHE, 10000L);
     }
 
     @Override
@@ -27,7 +29,7 @@ public final class ScytheExecutionSkill extends BaseWeaponSkill {
             var maxHpAttr = t.getAttribute(Attribute.MAX_HEALTH);
             double hpRatio = (maxHpAttr != null && maxHpAttr.getValue() > 0)
                     ? t.getHealth() / maxHpAttr.getValue() : 1.0;
-            double coeff = hpRatio < 0.30 ? 4.80 : 2.80;
+            double coeff = hpRatio < 0.30 ? 3.10 : 1.80;
             dealDamage(ctx, player, t, scaledDamage(ctx, player, coeff));
         });
 

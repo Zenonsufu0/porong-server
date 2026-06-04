@@ -100,8 +100,12 @@ public final class TerritoryStatusGui {
         if (next != null) {
             lore.add("§7다음 작위: §f" + next.displayName);
             lore.add("§7──────────────");
-            lore.add("§7승급 비용 (골드): §e" + rank.goldUpgradeCostDisplay());
-            lore.add("§8자세한 조건 — 추후 공개");
+            lore.add("§7승급 비용");
+            lore.add("§7· 골드: §e" + rank.goldUpgradeCostDisplay());
+            for (IslandRank.UpgradeMaterial mat : rank.upgradeMaterials) {
+                lore.add("§7· " + WorkshopRecipeRegistry.displayName(mat.itemId())
+                        + ": §e" + java.text.NumberFormat.getNumberInstance(java.util.Locale.KOREA).format(mat.amount()) + "개");
+            }
         } else {
             lore.add("§6§l☆ 최고 단계 달성!");
         }

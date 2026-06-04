@@ -431,20 +431,20 @@ public final class PoroRPGPlugin extends JavaPlugin {
                 damageNumberService);
 
         this.skillService = new SkillService(skillContext);
-        skillService.registerSkill(new SwordFlashSlashSkill());
+        skillService.registerSkill(new SwordFlashSlashSkill(this));
         skillService.registerSkill(new SwordTripleStrikeSkill(this));
         skillService.registerSkill(new SwordGuardCounterSkill(this));
         skillService.registerSkill(new SwordFinalStrikeSkill());
         skillService.registerSkill(new SpearThrustSkill());
         skillService.registerSkill(new SpearCrescentSkill());
-        skillService.registerSkill(new SpearChargeSkill());
+        skillService.registerSkill(new SpearChargeSkill(this));
         skillService.registerSkill(new SpearThunderstrikeSkill());
         skillService.registerSkill(new CrossbowRapidFireSkill(this));
         skillService.registerSkill(new CrossbowEvadeFireSkill(this));
         skillService.registerSkill(new CrossbowPierceBoltSkill(this));
         skillService.registerSkill(new CrossbowSniperSkill(this));
         skillService.registerSkill(new AxeSmashSkill());
-        skillService.registerSkill(new AxeCrushChargeSkill());
+        skillService.registerSkill(new AxeCrushChargeSkill(this));
         skillService.registerSkill(new AxeUnyieldingSkill(this));
         skillService.registerSkill(new AxeColossalDropSkill());
         skillService.registerSkill(new ScytheDeathSlashSkill());
@@ -720,14 +720,25 @@ public final class PoroRPGPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents( // 부활 라우팅: 보스룸(데스카운트)/그 외 수도
                 new com.poro.rpg.listener.BossRespawnListener(this, bossRoomManager, hubWorldService, bossEngineRuntime), this);
         getServer().getPluginManager().registerEvents(new IslandProtectionListener(islandTerritoryStateStore), this); // 영지 농작물 보호(trample)
-        getServer().getPluginManager().registerEvents(
-                new MainHubListener(growthGuiListener, islandStorageStore, islandTerritoryStateStore,
-                        auctionGuiListener, fieldHubListener, bossHubListener, shopGuiListener,
-                        pvpHubListener, combatStateService), this);
+        getServer().getPluginManager().registerEvents(new com.poro.rpg.listener.WaterFenceOreListener(islandTerritoryStateStore, islandStorageStore), this); // 기본 광물 생성기(물-울타리, §6) + 채굴 자동입금
+        MainHubListener mainHubListener = new MainHubListener(growthGuiListener, islandStorageStore, islandTerritoryStateStore,
+                auctionGuiListener, fieldHubListener, bossHubListener, shopGuiListener,
+                pvpHubListener, combatStateService);
+        // 보스룸 이동 포기 확인 (DL-129 추가#20) — 영지/필드 이동 가드
+        com.poro.rpg.listener.BossAbandonListener bossAbandonListener =
+                new com.poro.rpg.listener.BossAbandonListener(bossRoomManager, partyManager,
+                        new com.poro.rpg.field.FieldTeleportService(this), bossEngineRuntime.runService(),
+                        bossDamageTracker);
+        mainHubListener.setBossAbandonListener(bossAbandonListener);
+        fieldHubListener.setBossAbandonListener(bossAbandonListener);
+        bossHubListener.setBossAbandonListener(bossAbandonListener); // 파티 GUI 탈퇴/해산 → 보스룸이면 포기 게이트
+        getServer().getPluginManager().registerEvents(mainHubListener, this);
+        getServer().getPluginManager().registerEvents(bossAbandonListener, this);
+        getServer().getPluginManager().registerEvents(new com.poro.rpg.listener.VanillaDebuffBlockListener(), this);
         getServer().getPluginManager().registerEvents(bossRoomListenerInstance, this);
         getServer().getPluginManager().registerEvents(growthGuiListener, this);
         getServer().getPluginManager().registerEvents(
-                new StorageGuiListener(islandStorageStore), this);
+                new StorageGuiListener(islandStorageStore, islandTerritoryStateStore), this);
         getServer().getPluginManager().registerEvents(
                 new TerritoryStatusGuiListener(islandTerritoryStateStore, islandStorageStore, growthStateStore, playerDataManager, scoreboardService), this);
         getServer().getPluginManager().registerEvents(

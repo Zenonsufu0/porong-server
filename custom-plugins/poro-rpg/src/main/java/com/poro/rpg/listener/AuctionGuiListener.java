@@ -82,8 +82,11 @@ public final class AuctionGuiListener implements Listener {
     // 등록 GUI 상태
     private final Map<UUID, String>    regSelectedItem  = new ConcurrentHashMap<>();
     private final Map<UUID, Long>      regPrice         = new ConcurrentHashMap<>();
+    private final Map<UUID, Integer>   regPage          = new ConcurrentHashMap<>(); // 등록 브라우저 페이지 (DL-129#35)
     // 가격 채팅 입력 대기 중인 플레이어
     private final Set<UUID> awaitingPriceInput = ConcurrentHashMap.newKeySet();
+    // 수량 채팅 입력 대기 (가격 입력 후, DL-129#36)
+    private final Set<UUID> awaitingQtyInput = ConcurrentHashMap.newKeySet();
     // 등록 GUI의 팔레트(0~8) 아이템 매핑 (슬롯 → itemId)
     private final Map<UUID, List<String>> regPalette = new ConcurrentHashMap<>();
 
@@ -133,9 +136,9 @@ public final class AuctionGuiListener implements Listener {
     public void onClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
         UUID uid = player.getUniqueId();
-        GuiMode mode = playerMode.get(uid);
-        if (mode == null) return;
 
+        // 타이틀로만 경매 GUI 식별 — playerMode는 GUI 전환 시 onClose가 지워 null이 될 수 있어 가드로 쓰지 않음
+        // (메인→등록 전환 시 mode 소실로 클릭이 취소 안 되어 아이템이 빠져나가던 버그 수정, DL-129#34).
         Component title = event.getView().title();
         boolean isMainGui     = GuiTitles.AUCTION.equals(title);
         boolean isRegisterGui = GuiTitles.AUCTION_REGISTER.equals(title);
@@ -161,8 +164,8 @@ public final class AuctionGuiListener implements Listener {
 
         Component title = event.getView().title();
         boolean isRegisterGui = GuiTitles.AUCTION_REGISTER.equals(title);
-        if (isRegisterGui && !awaitingPriceInput.contains(uid)) {
-            // 등록 GUI를 닫을 때 팔레트 선택 해제
+        // 가격/수량 채팅 대기 중이면 선택 상태 보존 (입력 위해 닫은 것)
+        if (isRegisterGui && !awaitingPriceInput.contains(uid) && !awaitingQtyInput.contains(uid)) {
             regSelectedItem.remove(uid);
             regPrice.remove(uid);
             regPalette.remove(uid);
@@ -174,30 +177,60 @@ public final class AuctionGuiListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onChat(AsyncPlayerChatEvent event) {
+    public void onChat(io.papermc.paper.event.player.AsyncChatEvent event) {
         UUID uid = event.getPlayer().getUniqueId();
-        if (!awaitingPriceInput.contains(uid)) return;
-        event.setCancelled(true);
-        awaitingPriceInput.remove(uid);
+        boolean priceP = awaitingPriceInput.contains(uid);
+        boolean qtyP   = awaitingQtyInput.contains(uid);
+        if (!priceP && !qtyP) return;
+        event.setCancelled(true); // 입력 메시지 채팅 미노출
 
-        String input = event.getMessage().trim().replace(",", "");
+        // DL-129#33: AsyncChatEvent에서 메시지 추출
+        String input = net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText()
+                .serialize(event.message()).trim().replace(",", "");
         Player player = event.getPlayer();
         Bukkit.getScheduler().runTask(plugin, () -> {
-            long price;
-            try {
-                price = Long.parseLong(input);
-            } catch (NumberFormatException e) {
-                player.sendMessage("§c[경매장] 숫자를 입력하세요.");
+            if ("취소".equals(input) || input.isBlank()) {
+                awaitingPriceInput.remove(uid); awaitingQtyInput.remove(uid);
+                regSelectedItem.remove(uid); regPrice.remove(uid);
+                player.sendMessage("§7[경매장] 등록을 취소했습니다.");
                 openRegister(player);
                 return;
             }
-            if (price < AuctionStore.MIN_PRICE) {
-                player.sendMessage("§c[경매장] 최소 등록가는 " + fmt(AuctionStore.MIN_PRICE) + "G 입니다.");
-                openRegister(player);
+            String selected = regSelectedItem.get(uid);
+            if (selected == null) { awaitingPriceInput.remove(uid); awaitingQtyInput.remove(uid); openRegister(player); return; }
+
+            // ① 가격 입력 단계 → 가격 확정 후 수량 입력으로
+            if (priceP) {
+                awaitingPriceInput.remove(uid);
+                long price;
+                try { price = Long.parseLong(input); }
+                catch (NumberFormatException e) { player.sendMessage("§c[경매장] 숫자를 입력하세요. 다시 등록해 주세요."); openRegister(player); return; }
+                if (price < AuctionStore.MIN_PRICE) {
+                    player.sendMessage("§c[경매장] 최소 등록가는 " + fmt(AuctionStore.MIN_PRICE) + "G 입니다. 다시 등록해 주세요.");
+                    openRegister(player); return;
+                }
+                regPrice.put(uid, price);
+                long held = heldOf(uid, selected);
+                awaitingQtyInput.add(uid);
+                player.sendMessage("§e[경매장] §f" + itemDisplayName(selected) + " §e등록 수량을 채팅으로 입력하세요. §8(보유 "
+                        + fmt(held) + "개 · 취소: '취소')");
                 return;
             }
-            regPrice.put(uid, price);
-            openRegister(player);
+
+            // ② 수량 입력 단계 → 보유 검증 후 등록
+            awaitingQtyInput.remove(uid);
+            Long price = regPrice.get(uid);
+            if (price == null) { openRegister(player); return; }
+            long qty;
+            try { qty = Long.parseLong(input); }
+            catch (NumberFormatException e) { player.sendMessage("§c[경매장] 숫자를 입력하세요. 다시 등록해 주세요."); openRegister(player); return; }
+            long held = heldOf(uid, selected);
+            if (qty <= 0) { player.sendMessage("§c[경매장] 1개 이상 입력하세요."); openRegister(player); return; }
+            if (qty > held) {
+                player.sendMessage("§c[경매장] 보유 수량이 부족합니다. §7(보유 " + fmt(held) + "개) 다시 등록해 주세요.");
+                openRegister(player); return;
+            }
+            confirmRegister(player, selected, qty, price);
         });
     }
 
@@ -396,140 +429,81 @@ public final class AuctionGuiListener implements Listener {
         playerMode.put(uid, GuiMode.REGISTER);
 
         IslandTerritoryState territory = islandStore.get(uid).orElse(null);
-        List<String> palette = buildTradeablePalette(territory);
+        // 통화형(큐브·강화석)을 1·2번에 고정 + 창고 전체 (DL-129#36·#37)
+        List<String> palette = new java.util.ArrayList<>();
+        palette.add("mat_cube");
+        palette.add("mat_stone_enhance");
+        palette.addAll(buildTradeablePalette(territory));
         regPalette.put(uid, palette);
 
-        Inventory inv = Bukkit.createInventory(player, 27, GuiTitles.AUCTION_REGISTER);
+        final int per = 45;
+        int totalPages = Math.max(1, (int) Math.ceil((double) palette.size() / per));
+        int cp = Math.max(0, Math.min(regPage.getOrDefault(uid, 0), totalPages - 1));
+        regPage.put(uid, cp);
 
-        // Row 0: 팔레트 (거래 가능한 아이템 목록)
-        String selectedItem = regSelectedItem.get(uid);
-        for (int i = 0; i <= REG_PALETTE_END; i++) {
-            if (i < palette.size()) {
+        Inventory inv = Bukkit.createInventory(player, 54, GuiTitles.AUCTION_REGISTER);
+        for (int i = 45; i < 54; i++) inv.setItem(i, glassPane(Material.GRAY_STAINED_GLASS_PANE));
+
+        if (palette.isEmpty()) {
+            inv.setItem(22, named(Material.BARRIER, "§c판매 가능한 재료가 없습니다",
+                    "§7──────────",
+                    "§7창고에 거래 가능한 재료(필드·보스",
+                    "§7드랍·생산 재료 등)가 있어야",
+                    "§7경매에 등록할 수 있습니다."));
+        } else {
+            int start = cp * per, end = Math.min(start + per, palette.size());
+            for (int i = start; i < end; i++) {
                 String itemId = palette.get(i);
-                boolean selected = itemId.equals(selectedItem);
-                long held = territory != null ? territory.getCustomItem(itemId) : 0;
-                ItemStack icon = named(itemMaterial(itemId),
-                        (selected ? "§a§l[선택됨] " : "§f") + itemDisplayName(itemId),
-                        "§7보유: §e" + held + "개",
-                        selected ? "§a현재 선택된 아이템" : "§7클릭 → 선택");
-                inv.setItem(i, icon);
-            } else {
-                inv.setItem(i, glassPane(Material.GRAY_STAINED_GLASS_PANE));
+                long held = heldOf(uid, itemId); // 통화형은 통화, 그 외는 창고
+                long avg = auctionStore.getAveragePrice(itemId);
+                String avgText = avg < 0 ? "§8데이터 없음" : "§7" + fmt(avg) + "G §8(참고)";
+                java.util.List<String> lore = java.util.List.of(
+                        "§7보유: §e" + fmt(held) + "개",
+                        "§83일 평균시세: " + avgText,
+                        "§7──────────", "§a클릭 → 가격·수량 입력 후 등록");
+                inv.setItem(i - start, storageIcon(itemId, lore));
             }
         }
 
-        // Row 1
-        for (int i = 9; i <= 17; i++) inv.setItem(i, glassPane(Material.GRAY_STAINED_GLASS_PANE));
-
-        // 슬롯 9: 선택된 아이템 미리보기
-        if (selectedItem != null) {
-            long avg = auctionStore.getAveragePrice(selectedItem);
-            String avgText = avg < 0 ? "§7데이터 없음" : "§7" + fmt(avg) + "G §8(참고용)";
-            inv.setItem(REG_PREVIEW, named(itemMaterial(selectedItem),
-                    "§f" + itemDisplayName(selectedItem),
-                    "§7──────────",
-                    "§83일 평균시세: " + avgText,
-                    "§7──────────",
-                    "§7클릭 → 선택 해제"));
-        } else {
-            inv.setItem(REG_PREVIEW, named(Material.WHITE_STAINED_GLASS_PANE,
-                    "§7아이템 미선택",
-                    "§7──────────",
-                    "§7위 팔레트에서 등록할",
-                    "§7아이템을 선택하세요."));
-        }
-
-        // 슬롯 12: 가격 설정
-        Long price = regPrice.get(uid);
-        if (price != null) {
-            long fee = (long) (price * AuctionStore.FEE_RATE);
-            inv.setItem(REG_PRICE, named(Material.GOLD_NUGGET,
-                    "§f가격 설정",
-                    "§7현재: §e" + fmt(price) + "G",
-                    "§7수수료(5%): §f" + fmt(fee) + "G",
-                    "§7실수령: §f" + fmt(price - fee) + "G",
-                    "§7──────────",
-                    "§7클릭 → 가격 변경"));
-        } else {
-            inv.setItem(REG_PRICE, named(Material.GRAY_STAINED_GLASS_PANE,
-                    "§f가격 설정",
-                    "§7현재: §c미설정",
-                    "§7클릭 → 가격 입력"));
-        }
-
-        // 슬롯 14: 등록 확인
-        if (selectedItem != null && price != null) {
-            long fee = (long) (price * AuctionStore.FEE_RATE);
-            inv.setItem(REG_CONFIRM, named(Material.LIME_DYE,
-                    "§a등록 확인",
-                    "§7──────────",
-                    "§f" + itemDisplayName(selectedItem),
-                    "§e가격: §f" + fmt(price) + "G",
-                    "§7수수료: §f" + fmt(fee) + "G §8(판매 완료 시)",
-                    "§7만료: §f3일 후",
-                    "§7──────────",
-                    "§7클릭 → 등록"));
-        } else {
-            inv.setItem(REG_CONFIRM, named(Material.BLACK_STAINED_GLASS_PANE,
-                    "§7등록 확인 §8(비활성)",
-                    "§8아이템과 가격을 설정하세요."));
-        }
-
-        // Row 2
-        for (int i = 18; i <= 26; i++) inv.setItem(i, glassPane(Material.GRAY_STAINED_GLASS_PANE));
-        inv.setItem(REG_BACK, named(Material.ARROW, "§f뒤로"));
+        if (cp > 0) inv.setItem(SLOT_PREV, named(Material.ARROW, "§f◀ 이전", "§7" + cp + " / " + totalPages));
+        inv.setItem(SLOT_PAGE_LABEL, named(Material.PAPER, "§f" + (cp + 1) + " / " + totalPages + " 페이지",
+                "§7판매 가능 재료 §f" + palette.size() + "종",
+                "§7최대 등록 §f" + AuctionStore.MAX_LISTINGS + "개 / 계정"));
+        if (cp < totalPages - 1) inv.setItem(SLOT_NEXT, named(Material.ARROW, "§f다음 ▶", "§7" + (cp + 2) + " / " + totalPages));
+        inv.setItem(SLOT_BACK_MAIN, named(Material.ARROW, "§f뒤로 (경매장)"));
 
         player.openInventory(inv);
     }
 
     private void handleRegisterClick(Player player, int slot) {
         UUID uid = player.getUniqueId();
-        List<String> palette = regPalette.getOrDefault(uid, List.of());
 
-        if (slot >= 0 && slot <= REG_PALETTE_END) {
-            if (slot < palette.size()) {
-                String itemId = palette.get(slot);
-                if (itemId.equals(regSelectedItem.get(uid))) {
-                    regSelectedItem.remove(uid); // 선택 해제
-                } else {
-                    regSelectedItem.put(uid, itemId);
-                }
-                openRegister(player);
+        if (slot == SLOT_BACK_MAIN) { regPage.remove(uid); regSelectedItem.remove(uid); openMain(player); return; }
+        if (slot == SLOT_PREV) { regPage.merge(uid, -1, Integer::sum); openRegister(player); return; }
+        if (slot == SLOT_NEXT) { regPage.merge(uid, 1, Integer::sum); openRegister(player); return; }
+
+        // 재료 슬롯(0~44) 클릭 → 거래가능 판정 후 가격 채팅 입력으로 (DL-129#36)
+        if (slot >= 0 && slot <= 44) {
+            List<String> palette = regPalette.getOrDefault(uid, List.of());
+            int idx = regPage.getOrDefault(uid, 0) * 45 + slot;
+            if (idx >= palette.size()) return;
+            String itemId = palette.get(idx);
+            if (auctionStore.countActive(uid) >= AuctionStore.MAX_LISTINGS) {
+                player.sendMessage("§c[경매장] 최대 등록 수(" + AuctionStore.MAX_LISTINGS + "개)에 도달했습니다.");
+                return;
             }
-            return;
-        }
-        if (slot == REG_PREVIEW) {
-            // 미리보기 클릭 → 선택 해제
-            regSelectedItem.remove(uid);
-            openRegister(player);
-            return;
-        }
-        if (slot == REG_PRICE) {
+            regSelectedItem.put(uid, itemId);
             player.closeInventory();
             awaitingPriceInput.add(uid);
-            player.sendMessage("§e[경매장] 가격을 채팅으로 입력하세요. §8(취소: /경매장)");
-            return;
-        }
-        if (slot == REG_CONFIRM) {
-            String selectedItem = regSelectedItem.get(uid);
-            Long price = regPrice.get(uid);
-            if (selectedItem == null || price == null) return;
-            confirmRegister(player, selectedItem, 1, price);
-            return;
-        }
-        if (slot == REG_BACK) {
-            regSelectedItem.remove(uid);
-            regPrice.remove(uid);
-            regPalette.remove(uid);
-            openMain(player);
+            player.sendMessage("§e[경매장] §f" + itemDisplayName(itemId)
+                    + " §e개당 등록 가격을 채팅으로 입력하세요. §8(최소 " + fmt(AuctionStore.MIN_PRICE) + "G · 취소: '취소')");
         }
     }
 
     private void confirmRegister(Player player, String itemId, long quantity, long price) {
         UUID uid = player.getUniqueId();
-        IslandTerritoryState territory = islandStore.get(uid).orElse(null);
-        if (territory == null) { player.sendMessage("§c[경매장] 오류: 영지 데이터가 없습니다."); return; }
-        if (territory.getCustomItem(itemId) < quantity) {
+        // 통화형(큐브·강화석)은 통화에서, 그 외는 창고에서 차감 (DL-129#37)
+        if (heldOf(uid, itemId) < quantity) {
             player.sendMessage("§c[경매장] 보유 수량이 부족합니다.");
             openRegister(player);
             return;
@@ -540,13 +514,17 @@ public final class AuctionGuiListener implements Listener {
             return;
         }
 
-        territory.withdrawCustomItem(itemId, quantity);
+        if (!debitItem(uid, itemId, quantity)) {
+            player.sendMessage("§c[경매장] 보유 수량이 부족합니다.");
+            openRegister(player);
+            return;
+        }
         final long qty = quantity;
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             Result<Long> result = auctionStore.register(uid, player.getName(), itemId, (int) qty, price);
             Bukkit.getScheduler().runTask(plugin, () -> {
                 if (result.isFailure()) {
-                    territory.addCustomItem(itemId, qty); // 롤백
+                    creditItem(uid, itemId, qty); // 롤백
                     player.sendMessage("§c[경매장] 등록 실패: " + result.message());
                 } else {
                     player.sendMessage("§a[경매장] §f" + itemDisplayName(itemId) + " §7×" + qty
@@ -685,10 +663,10 @@ public final class AuctionGuiListener implements Listener {
                     player.sendMessage("§c[경매장] 취소 실패: " + result.message());
                 } else {
                     AuctionListing l = result.value();
-                    IslandTerritoryState territory = islandStore.get(uid).orElse(null);
-                    if (territory != null) territory.addCustomItem(l.itemId(), l.quantity());
+                    creditItem(uid, l.itemId(), l.quantity()); // 통화형은 통화로, 그 외는 창고로 반환 (DL-129#37)
+                    String dest = AuctionStore.isCurrencyItem(l.itemId()) ? "반환됐습니다." : "창고에 반환됐습니다.";
                     player.sendMessage("§e[경매장] §f" + itemDisplayName(l.itemId())
-                            + "§7 등록을 취소했습니다. 창고에 반환됐습니다.");
+                            + "§7 등록을 취소했습니다. " + dest);
                 }
                 openMyListings(player);
             });
@@ -725,6 +703,11 @@ public final class AuctionGuiListener implements Listener {
                         deliveredIds.add(d.id());
                         player.sendMessage("§a[경매장] §7판매 완료 수익: §e"
                                 + fmt(d.gold()) + "G §7자동 지급됨.");
+                    } else if (d.itemId() != null && AuctionStore.isCurrencyItem(d.itemId()) && growth != null) {
+                        growth.addCurrency(d.itemId(), d.quantity()); // 통화형 배달 (DL-129#37)
+                        deliveredIds.add(d.id());
+                        player.sendMessage("§a[경매장] §f" + itemDisplayName(d.itemId())
+                                + " §7×" + fmt(d.quantity()) + " §7지급됐습니다.");
                     } else if (d.itemId() != null && territory != null) {
                         territory.addCustomItem(d.itemId(), d.quantity());
                         deliveredIds.add(d.id());
@@ -748,19 +731,60 @@ public final class AuctionGuiListener implements Listener {
 
     private List<String> buildTradeablePalette(IslandTerritoryState territory) {
         if (territory == null) return List.of();
+        // DL-129#36: 창고 전체(보유 커스텀 재료 전부) 표시 — 거래 가능 여부는 클릭 시 판정.
         return territory.customItemsSnapshot().entrySet().stream()
                 .filter(e -> e.getValue() > 0)
                 .map(Map.Entry::getKey)
-                .filter(id -> itemMasters.find(id)
-                        .map(ItemMaster::tradeable).orElse(false))
                 .sorted()
                 .toList();
     }
 
+    /** 해당 재료 경매 거래 가능 여부 (item_master is_tradeable). */
+    private boolean isTradeable(String itemId) {
+        return itemMasters.find(itemId).map(ItemMaster::tradeable).orElse(false);
+    }
+
+    // ── 통화형(큐브·강화석) ↔ 창고 라우팅 (DL-129#37) ──
+    /** 보유량 — 통화형은 growthState 통화, 그 외는 창고 customItems. */
+    private long heldOf(UUID uid, String itemId) {
+        if (AuctionStore.isCurrencyItem(itemId))
+            return growthStateStore.get(uid).map(g -> g.currency(itemId)).orElse(0L);
+        return islandStore.get(uid).map(t -> t.getCustomItem(itemId)).orElse(0L);
+    }
+    /** 차감 — 성공 여부. */
+    private boolean debitItem(UUID uid, String itemId, long qty) {
+        if (AuctionStore.isCurrencyItem(itemId))
+            return growthStateStore.get(uid).map(g -> g.consumeCurrency(itemId, qty)).orElse(false);
+        IslandTerritoryState t = islandStore.get(uid).orElse(null);
+        if (t == null || t.getCustomItem(itemId) < qty) return false;
+        t.withdrawCustomItem(itemId, qty);
+        return true;
+    }
+    /** 지급(반환/롤백/배달). */
+    private void creditItem(UUID uid, String itemId, long qty) {
+        if (AuctionStore.isCurrencyItem(itemId)) {
+            growthStateStore.get(uid).ifPresent(g -> g.addCurrency(itemId, qty));
+        } else {
+            islandStore.get(uid).ifPresent(t -> t.addCustomItem(itemId, qty));
+        }
+    }
+
+    /** 창고와 동일한 아이콘(CMD 텍스쳐)+한글명. 경매 표시 통일 (DL-129#36). */
+    private ItemStack storageIcon(String itemId, java.util.List<String> lore) {
+        ItemStack item = com.poro.rpg.gui.CustomItemModel.buildStack(itemId, 1);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null && !lore.isEmpty()) {
+            meta.setLore(lore);
+            item.setItemMeta(meta);
+        }
+        return item;
+    }
+
     private String itemDisplayName(String itemId) {
-        return itemMasters.find(itemId)
-                .map(ItemMaster::itemName)
-                .orElse(itemId);
+        // 창고와 동일한 한글명 우선 — WorkshopRecipeRegistry(한글), 없으면 item_master(영어 가능)
+        String n = com.poro.rpg.gui.WorkshopRecipeRegistry.displayName(itemId);
+        if (n != null && !n.equals(itemId)) return n;
+        return itemMasters.find(itemId).map(ItemMaster::itemName).orElse(itemId);
     }
 
     private Material itemMaterial(String itemId) {

@@ -123,7 +123,7 @@ public class PlayerCommandRouter implements CommandExecutor {
 
     private void openStorage(Player player) {
         IslandStorage storage = storageStore.getOrCreate(player.getUniqueId());
-        StorageGui.open(player, storage, 0);
+        StorageGui.open(player, territoryStore.getOrCreate(player.getUniqueId()), storage, 0);
     }
 
     private void openTerritoryStatus(Player player) {

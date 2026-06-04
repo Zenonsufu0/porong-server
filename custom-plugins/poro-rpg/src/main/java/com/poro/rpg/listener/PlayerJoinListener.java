@@ -113,6 +113,25 @@ public final class PlayerJoinListener implements Listener {
         classInitService.ensureMenuCompass(player);
         claimAuctionPending(player);
         syncOperationsSnapshot(player);
+        applyIslandTimeWeather(player);
+    }
+
+    /** 영지 시간/날씨 고정 설정을 재접속 시 재적용 (영속 — DL-129#33). 클라 로드 후 적용되도록 40틱 지연. */
+    private void applyIslandTimeWeather(Player player) {
+        islandTerritoryStateStore.get(player.getUniqueId()).ifPresent(territory ->
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                if (!player.isOnline()) return;
+                switch (territory.timeState()) {
+                    case 1 -> player.setPlayerTime(6000, false);   // 낮 고정
+                    case 2 -> player.setPlayerTime(18000, false);  // 밤 고정
+                    default -> player.resetPlayerTime();
+                }
+                switch (territory.weatherState()) {
+                    case 1 -> player.setPlayerWeather(org.bukkit.WeatherType.CLEAR);    // 맑음 고정
+                    case 2 -> player.setPlayerWeather(org.bukkit.WeatherType.DOWNFALL); // 비 고정
+                    default -> player.resetPlayerWeather();
+                }
+            }, 40L));
     }
 
     private void syncOperationsSnapshot(Player player) {
@@ -175,6 +194,10 @@ public final class PlayerJoinListener implements Listener {
                         deliveredIds.add(d.id());
                         player.sendMessage("§a[경매장] §7판매 완료 수익: §e"
                                 + fmt(d.gold()) + "G §7자동 지급됨.");
+                    } else if (d.itemId() != null && AuctionStore.isCurrencyItem(d.itemId()) && growth != null) {
+                        growth.addCurrency(d.itemId(), d.quantity()); // 통화형(큐브·강화석) 배달 (DL-129#37)
+                        deliveredIds.add(d.id());
+                        player.sendMessage("§a[경매장] §f" + d.itemId() + " §7×" + d.quantity() + " §7지급됐습니다.");
                     } else if (d.itemId() != null && territory != null) {
                         territory.addCustomItem(d.itemId(), d.quantity());
                         deliveredIds.add(d.id());

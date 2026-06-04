@@ -1,6 +1,7 @@
 # 시즌보스 패턴 배정 초안
 
-> **[STATUS: REFERENCE]** — 시즌보스 패턴 조합 참조. 공식 보스 기준은 `../06_fields_bosses/CANON.md`가 우선.
+> **[STATUS: DRAFT — 일부 미구현]** — 시즌보스 패턴 조합 초안. 공식 보스 기준은 `../06_fields_bosses/CANON.md`가 우선.
+> **⚠️ 실제 인게임 구현(정본) = MythicMobs YAML** (`server-config/mythicmobs/mobs/season_bosses.yml` + `skills/boss_patterns.yml`). 이 문서의 **SP-XX 고유 패턴(에너지 석판·유도 구체·전도체 기둥 등)은 대부분 미구현**이며, YAML은 공용 패턴(P-00~P-13: 기본/전방강타/직선돌진/원형폭발/부채꼴/투사체/산탄/소환/연속타격/낙하충격) + P-08 페이즈 전환 + P-09 무적(자동 해제)로 단순화돼 있다. 보스정보 GUI(`BossHubGui.bossDetailLore`)는 YAML 기준으로 표기한다(DL-129 추가#18). 이 초안의 SP 메카닉은 후속 PoroRPG BossEngine 구현 대상.
 
 > 작성일: 2026-05-13  
 > 시즌보스는 공용 패턴(P-00~P-09, P-11~P-13) + 보스별 고유 패턴(SP-XX)을 조합한다. (P-10 폐기, DL-048)  

@@ -41,6 +41,11 @@ public final class BossHubListener implements Listener {
 
     public void setBossRoomEntry(BossRoomListener entry) { this.bossRoomEntry = entry; }
 
+    /** 보스룸 내 파티 탈퇴/해산 시 포기 확인 게이트. 생성 순서상 setter 주입. */
+    private BossAbandonListener bossAbandonListener;
+
+    public void setBossAbandonListener(BossAbandonListener l) { this.bossAbandonListener = l; }
+
     public BossHubListener(PartyManager partyManager,
                            BossRoomManager bossRoomManager,
                            BossSessionRepository bossSessionRepository,
@@ -72,6 +77,9 @@ public final class BossHubListener implements Listener {
         } else if (GuiTitles.BOSS_INFO.equals(event.getView().title())) {
             event.setCancelled(true);
             handleBossInfo(player, event.getRawSlot());
+        } else if (GuiTitles.BOSS_DETAIL.equals(event.getView().title())) {
+            event.setCancelled(true);
+            if (event.getRawSlot() == 22) BossHubGui.openBossInfo(player); // 뒤로
         } else if (GuiTitles.BOSS_CLEAR_RECORDS.equals(event.getView().title())) {
             event.setCancelled(true);
             if (event.getRawSlot() == BossClearRecordsGui.SLOT_BACK) openBossHub(player);
@@ -109,8 +117,10 @@ public final class BossHubListener implements Listener {
     // ── 보스 선택 (54슬롯) ────────────────────────────────────────
 
     private void handleBossInfo(Player player, int slot) {
-        // 보스 클릭 = 정보 전용(lore에 체력·공격력·패턴 표시). 입장은 파티 생성 플로우로.
-        if (slot == 45) openBossHub(player);
+        if (slot == 45) { openBossHub(player); return; }
+        // 보스 아이콘 클릭 → 상세(패턴·페이즈·데미지) GUI (DL-129 추가#18)
+        String bossId = BossHubGui.bossIdAt(slot);
+        if (bossId != null) BossHubGui.openBossDetail(player, bossId);
     }
 
     // ── 파티 허브 ────────────────────────────────────────────────────
@@ -128,6 +138,8 @@ public final class BossHubListener implements Listener {
         } else {
             switch (slot) {
                 case 39 -> { // 탈퇴 / 해산
+                    // 보스룸 안이면 포기 확인 GUI 경유 (리더=위임·멤버=탈퇴 + 영지 귀환, DL-129 추가#25)
+                    if (bossAbandonListener != null && bossAbandonListener.promptIfInRoom(player, "home")) return;
                     boolean isLeader = party.get().leaderId().equals(uid);
                     partyManager.leaveParty(uid);
                     player.sendMessage(isLeader ? "§c[파티] 파티를 해산했습니다." : "§c[파티] 파티에서 탈퇴했습니다.");

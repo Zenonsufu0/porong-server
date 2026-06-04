@@ -22,6 +22,8 @@ public final class BossRoomManager {
     private final Map<UUID, Set<String>> clearedBosses = new ConcurrentHashMap<>();
     // 공유 부활 토큰(데스카운트) — slotId → [remaining, max]. 1/2/3인 = 3/4/5 (partySize+2).
     private final Map<Integer, int[]>    slotDeaths    = new ConcurrentHashMap<>();
+    // 슬롯 ↔ 스폰된 보스 mob UUID — 슬롯 해제 시 보스 엔티티 즉시 despawn(잔존 보스 방지, DL-129 추가#22).
+    private final Map<Integer, UUID>     slotToBossMob = new ConcurrentHashMap<>();
     // 영속 클리어 복원 (DL-097): boss_session에서 lazy 로드, 플레이어당 1회 캐시.
     private Function<UUID, Set<String>> clearSource;
     private final Set<UUID> clearsLoaded = ConcurrentHashMap.newKeySet();
@@ -111,6 +113,11 @@ public final class BossRoomManager {
         slotToRunId.put(slotId, runId);
     }
 
+    /** 보스 스폰 성공 후 슬롯 ↔ 보스 mob 등록 — releaseSlot이 이 엔티티를 despawn 한다 (DL-129 추가#22). */
+    public void registerBossMob(int slotId, UUID mobUuid) {
+        if (mobUuid != null) slotToBossMob.put(slotId, mobUuid);
+    }
+
     /** slotId → runId 역조회 (파티 전멸 시 endRun 호출용). */
     public Optional<String> runIdOf(int slotId) {
         return Optional.ofNullable(slotToRunId.get(slotId));
@@ -161,9 +168,25 @@ public final class BossRoomManager {
     }
 
     public void releaseSlot(int slotId) {
-        slots.stream().filter(s -> s.id() == slotId).findFirst().ifPresent(BossRoomSlot::release);
+        BossRoomSlot slot = slots.stream().filter(s -> s.id() == slotId).findFirst().orElse(null);
+        if (slot != null) slot.release();
         slotToBoss.remove(slotId);
         slotDeaths.remove(slotId);
+        slotToBossMob.remove(slotId); // 보스 UUID 추적은 정리만 — 실제 제거는 아래 방 전체 청소가 담당
+        // 방 안의 모든 몹/소환수/잔류 투사체·장판을 일괄 청소 — 클리어/전멸/타임아웃/포기/스폰실패 모든 경로 수렴 (DL-129 추가#23).
+        // 플레이어는 제외(이미 텔레포트로 빠짐). 홀로그램/데미지숫자(TextDisplay·ArmorStand·Display)는 보존하기 위해
+        // "플레이어 아닌 LivingEntity + 투사체 + 장판"만 제거한다. 보스 add(소환수)도 LivingEntity라 함께 정리됨.
+        if (slot != null && slot.bossSpawn().getWorld() != null) {
+            org.bukkit.util.BoundingBox box = slot.roomBox();
+            for (org.bukkit.entity.Entity e : slot.bossSpawn().getWorld().getNearbyEntities(box)) {
+                if (e instanceof org.bukkit.entity.Player) continue;
+                if (e instanceof org.bukkit.entity.LivingEntity
+                        || e instanceof org.bukkit.entity.Projectile
+                        || e instanceof org.bukkit.entity.AreaEffectCloud) {
+                    e.remove();
+                }
+            }
+        }
     }
 
     /** slotId로 슬롯을 조회한다 (리스폰 좌표 등). */

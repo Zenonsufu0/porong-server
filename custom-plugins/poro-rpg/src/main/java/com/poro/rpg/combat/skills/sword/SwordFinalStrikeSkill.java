@@ -17,12 +17,13 @@ public final class SwordFinalStrikeSkill extends BaseWeaponSkill {
     private static final double LENGTH = 6.0;
 
     public SwordFinalStrikeSkill() {
-        super("sword:final_strike", "결전일섬", WeaponType.SWORD, 16000L);
+        // DL-129 추가#28: F 회전율 정렬 — 쿨 16s→10s(3스택 적립 ~9s), 계수 ×0.625 DPS 중립.
+        super("sword:final_strike", "결전일섬", WeaponType.SWORD, 10000L);
     }
 
     @Override
     public boolean execute(Player player, SkillContext ctx) {
-        double damage = scaledDamageFullChargeSpike(ctx, player, 3.32, 0.06, 1.20);
+        double damage = scaledDamageFullChargeSpike(ctx, player, 2.08, 0.04, 1.20);
         SkillHitboxHelper.line(player, LENGTH, 0.6).forEach(t -> dealDamage(ctx, player, t, damage));
         consumeStacks(ctx, player);
 

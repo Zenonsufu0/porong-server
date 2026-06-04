@@ -104,8 +104,7 @@ public final class TerritorySettingsGuiListener implements Listener {
                 player.sendMessage("§c[영지] 전투 중에는 영지 설정을 열 수 없습니다.");
                 return;
             }
-            TerritorySettingsGui.open(player, t,
-                    weatherStates.getOrDefault(uid, 0), timeStates.getOrDefault(uid, 0));
+            TerritorySettingsGui.open(player, t, t.weatherState(), t.timeState());
             return;
         }
         if (slot < 0 || slot >= 18) return; // 시설 슬롯 영역만
@@ -420,8 +419,9 @@ public final class TerritorySettingsGuiListener implements Listener {
     // ─── 날씨 토글 ───────────────────────────────────────────────────
 
     private void toggleWeather(Player player, UUID uid) {
-        int next = (weatherStates.getOrDefault(uid, 0) + 1) % 3;
-        weatherStates.put(uid, next);
+        IslandTerritoryState state = islandTerritoryStateStore.getOrCreate(uid, player.getName());
+        int next = (state.weatherState() + 1) % 3;
+        state.setWeatherState(next);
         switch (next) {
             case TerritorySettingsGui.WEATHER_CLEAR -> {
                 player.setPlayerWeather(WeatherType.CLEAR);
@@ -442,8 +442,9 @@ public final class TerritorySettingsGuiListener implements Listener {
     // ─── 시간 토글 ───────────────────────────────────────────────────
 
     private void toggleTime(Player player, UUID uid) {
-        int next = (timeStates.getOrDefault(uid, 0) + 1) % 3;
-        timeStates.put(uid, next);
+        IslandTerritoryState state = islandTerritoryStateStore.getOrCreate(uid, player.getName());
+        int next = (state.timeState() + 1) % 3;
+        state.setTimeState(next);
         switch (next) {
             case TerritorySettingsGui.TIME_DAY -> {
                 player.setPlayerTime(6000, false);
@@ -462,11 +463,12 @@ public final class TerritorySettingsGuiListener implements Listener {
     }
 
     private void refreshWeatherTime(Player player, UUID uid) {
+        IslandTerritoryState state = islandTerritoryStateStore.getOrCreate(uid, player.getName());
         var inv = player.getOpenInventory().getTopInventory();
         inv.setItem(TerritorySettingsGui.SLOT_WEATHER,
-                TerritorySettingsGui.weatherIcon(weatherStates.getOrDefault(uid, 0)));
+                TerritorySettingsGui.weatherIcon(state.weatherState()));
         inv.setItem(TerritorySettingsGui.SLOT_TIME,
-                TerritorySettingsGui.timeIcon(timeStates.getOrDefault(uid, 0)));
+                TerritorySettingsGui.timeIcon(state.timeState()));
     }
 
     // ─── 영지명 변경 (Anvil GUI) ─────────────────────────────────────

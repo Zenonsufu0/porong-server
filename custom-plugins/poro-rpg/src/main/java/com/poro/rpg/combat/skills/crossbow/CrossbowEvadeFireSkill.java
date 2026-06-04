@@ -21,6 +21,7 @@ public final class CrossbowEvadeFireSkill extends PluginWeaponSkill {
     @Override
     public boolean execute(Player player, SkillContext ctx) {
         dashBackward(player, 2.5);
+        invulnerableFor(player, 6); // 회피 중 무적(0.3s) — 후방 회피기라 경로 타격 없이 생존만 (DL-129 추가#27)
         double damage = scaledDamage(ctx, player, 1.70);
         SkillHitboxHelper.projectileRaycast(player, 25.0, 0.5)
                 .ifPresent(t -> { dealDamage(ctx, player, t, damage); gainStack(ctx, player, 3); });

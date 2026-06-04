@@ -18,6 +18,8 @@ public final class BossRun {
     private final Instant enteredAt;
     private final int totalDeathCount;
     private final Map<String, Integer> participantDeaths = new LinkedHashMap<>();
+    /** 도중 포기(이탈)한 참가자 — 보상·HP 스케일·종료 판정에서 제외 (DL-129 추가#20). */
+    private final Set<String> abandoned = new LinkedHashSet<>();
     private final Map<String, Instant> patternLastUsedAt = new LinkedHashMap<>();
     private final Deque<String> forcedPatternQueue = new ArrayDeque<>();
     private final Set<Integer> enteredPhases = new LinkedHashSet<>();
@@ -72,6 +74,14 @@ public final class BossRun {
 
     public List<String> participants() {
         return participants;
+    }
+
+    // ─── 이탈(포기) 추적 (DL-129 추가#20) ───────────────────────────
+    public void markAbandoned(String userId) { if (userId != null) abandoned.add(userId); }
+    public boolean isAbandoned(String userId) { return abandoned.contains(userId); }
+    /** 남은(미이탈) 참가자 수. */
+    public int activeCount() {
+        return (int) participants.stream().filter(p -> !abandoned.contains(p)).count();
     }
 
     public int partySize() {
