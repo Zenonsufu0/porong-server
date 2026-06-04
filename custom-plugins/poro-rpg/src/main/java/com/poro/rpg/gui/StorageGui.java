@@ -89,27 +89,33 @@ public class StorageGui {
         player.openInventory(inv);
     }
 
-    /** 창고 표시 항목 — 커스텀 재료(customId) 또는 바닐라(material). 둘 중 하나만 non-null. */
-    public record Entry(String customId, Material material, long qty) {
+    /** 창고 표시 항목 — 커스텀 재료(customId)·바닐라(material)·흔적 인스턴스(trace) 중 하나. */
+    public record Entry(String customId, Material material, long qty,
+                        com.poro.rpg.growth.engine.TraceInstance trace) {
         public boolean isCustom() { return customId != null; }
+        public boolean isTrace()  { return trace != null; }
     }
 
     /**
-     * 정렬된 표시 항목 (DL-129 추가#29): 커스텀 재료(생산·필드/보스 드랍, customItems) 먼저 → 바닐라 Material.
-     * 생산물이 창고에 보이지 않던 이중 저장소 불일치를 통합 뷰로 해소.
+     * 정렬된 표시 항목 (DL-129 추가#29·#38): 흔적 인스턴스(등급↓) → 커스텀 재료(customItems) → 바닐라 Material.
+     * 생산물이 창고에 보이지 않던 이중 저장소 불일치를 통합 뷰로 해소 + 흔적 인스턴스 개별 표시.
      */
     public static List<Entry> entries(IslandTerritoryState territory, IslandStorage storage) {
         List<Entry> list = new ArrayList<>();
         if (territory != null) {
+            // 흔적 인스턴스 — 등급 내림차순(고등급 우선) 개별 표시 (DL-129 추가#38).
+            territory.traceInstancesSnapshot().stream()
+                    .sorted((a, b) -> b.grade().ordinal() - a.grade().ordinal())
+                    .forEach(t -> list.add(new Entry(null, null, 1, t)));
             territory.customItemsSnapshot().entrySet().stream()
                     .filter(e -> e.getValue() != null && e.getValue() > 0)
                     .sorted(Map.Entry.comparingByKey())
-                    .forEach(e -> list.add(new Entry(e.getKey(), null, e.getValue())));
+                    .forEach(e -> list.add(new Entry(e.getKey(), null, e.getValue(), null)));
         }
         var materials = new ArrayList<>(storage.materialList());
         materials.sort(Comparator.comparingInt(StorageGui::categoryOf)
                 .thenComparingLong((Material m) -> -storage.getAmount(m)));
-        for (Material m : materials) list.add(new Entry(null, m, storage.getAmount(m)));
+        for (Material m : materials) list.add(new Entry(null, m, storage.getAmount(m), null));
         return list;
     }
 
@@ -138,7 +144,10 @@ public class StorageGui {
         int end   = Math.min(start + ITEMS_PER_PAGE, entries.size());
         for (int i = start; i < end; i++) {
             Entry e = entries.get(i);
-            inv.setItem(i - start, e.isCustom() ? customSlot(e.customId(), e.qty()) : itemSlot(e.material(), e.qty()));
+            ItemStack icon = e.isTrace() ? traceSlot(e.trace())
+                    : e.isCustom() ? customSlot(e.customId(), e.qty())
+                    : itemSlot(e.material(), e.qty());
+            inv.setItem(i - start, icon);
         }
         int materialsCount = entries.size();
 
@@ -185,6 +194,32 @@ public class StorageGui {
                     Component.text("§7우클릭  §f1개 출금"),
                     Component.text("§7Shift+클릭  §f256개 출금")
             ));
+            item.setItemMeta(meta);
+        }
+        return item;
+    }
+
+    /** 흔적 인스턴스 슬롯 — 등급 색상명 + 세부스탯 lore. 표시 전용(전승/경매에서 사용, 물리 출금 없음). DL-129 추가#38. */
+    private static ItemStack traceSlot(com.poro.rpg.growth.engine.TraceInstance trace) {
+        ItemStack item = CustomItemModel.buildStack("equip_trace_unidentified", 1);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            String color = EquipmentLoreRenderer.gradeColor(trace.grade());
+            meta.displayName(Component.text(color + trace.grade().displayName() + " 장비의 흔적")
+                    .decoration(net.kyori.adventure.text.format.TextDecoration.ITALIC, false));
+            List<Component> lore = new ArrayList<>();
+            lore.add(Component.text("§7등급: " + color + trace.grade().displayName()));
+            if (trace.substats().isEmpty()) {
+                lore.add(Component.text("§8세부스탯: 없음"));
+            } else {
+                lore.add(Component.text("§7세부스탯:"));
+                trace.substats().forEach(l -> lore.add(Component.text(
+                        "§7  " + EquipmentLoreRenderer.potentialOptionKr(l.optionCode())
+                                + " §e+" + String.format("%.1f", l.value()))));
+            }
+            lore.add(Component.text("§7──────────"));
+            lore.add(Component.text("§8전승 GUI에서 장비에 적용 / 경매장에서 거래"));
+            meta.lore(lore);
             item.setItemMeta(meta);
         }
         return item;

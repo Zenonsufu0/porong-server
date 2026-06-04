@@ -156,6 +156,12 @@ public class StorageGuiListener implements Listener {
             if (index >= entries.size()) return;
             StorageGui.Entry entry = entries.get(index);
 
+            // 흔적 인스턴스는 표시 전용 — 전승 GUI/경매장에서 사용(물리 출금 없음, DL-129 추가#38).
+            if (entry.isTrace()) {
+                player.sendMessage(PREFIX + "§7흔적은 §f전승 GUI§7에서 장비에 적용하거나 §f경매장§7에서 거래하세요.");
+                return;
+            }
+
             long requested = switch (event.getClick()) {
                 case RIGHT -> 1L;
                 case SHIFT_LEFT, SHIFT_RIGHT -> 256L;

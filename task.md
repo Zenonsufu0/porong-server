@@ -53,13 +53,11 @@
 - ✅ **P2 완료** — `FieldDropListener`: `randomTraceId`→`randomTraceGrade`(ItemGrade), 엘리트 드랍 시 `mult`개 독립 `TraceInstance` 롤(`traceSubstatRoller.roll`)·`addTraceInstance` 저장. 드랍 메시지 등급 색상 표기. roller는 PoroRPGPlugin에서 `growthEngineRuntime.traceSubstatRoller()` 주입. (공방 "미감정 흔적 개봉"은 lore만 존재·핸들러 없음 → 충돌 없음.)
 - ✅ **P3 완료** — `SuccessionService` 무인자 재작성: 흔적 인스턴스(grade+substat)를 대상 장비에 **그대로 이전**, 인스턴스 1개 소모(롤 제거). 전승 GUI(`GrowthGuiListener`) 전면 인스턴스화 — availableTraceIds=instance목록, buildTraceIcon/미리보기가 흔적 실제 세부스탯 표시(전승 전 정확 미리보기), execute=findTraceInstance. TRACE_GRADE_MAP은 P6용 static 유지.
 - ✅ **P6 완료** — 마이그레이션: `PlayerPersistenceService.migrateStackTracesToInstances` — 로드 시 customItems의 equip_trace_* 스택 감지 → `traceSubstatRoller.roll(grade)`로 인스턴스 N개 변환 + 스택 제거(일회성, 재변환 없음). roller를 persistence에 주입. CANON: `equipment_growth_spec §2.3` 인스턴스 모델로 갱신, `item_grade_substat_v1.md` 부활 포인터.
-- ⏳ **P4/P5 남음** — 창고 인스턴스 표시 / 경매 인스턴스 거래(스키마 확장).
-
-### ⚠ 남은 표시 갭 (P4/P5 전)
-- 신규+마이그레이션 흔적은 traceInstances에 저장·전승 GUI에서 사용 가능하나, **창고 GUI(P4 전)·경매(P5 전)에는 미표시.** 기존 스택 흔적은 로드 시 인스턴스로 자동 변환되므로 전승에서 정상 사용 가능(회귀 해소).
+- ✅ **P4 완료** — `StorageGui.Entry`에 trace 변형 추가, 흔적 인스턴스를 등급↓ 개별 표시(등급 색상명+세부스탯 lore). 표시 전용(전승/경매 in-place 사용 → 물리 출금 없음, `StorageGuiListener`가 클릭 시 안내). icon=equip_trace_unidentified 텍스처.
+- ⏳ **P5 남음** — 경매 인스턴스 거래(auction 스키마 확장 + listing JSON payload).
 
 ### 재개 지점
-**P4(창고 표시)부터.** `StorageGui`(+ `StorageGuiListener`)에 흔적 인스턴스 항목 추가(등급+세부스탯 lore, 개별 표시), 입출금 인스턴스 단위. 이후 P5(경매 — listing JSON payload 부활 + auction 스키마 확장).
+**P5(경매 인스턴스 거래).** auction listing에 인스턴스 payload(JSON: instanceId+grade+substats) 복원 — 스키마 확장 또는 별도 처리. 등록(영지 traceInstances에서 선택)·구매·배달을 인스턴스 단위로. 현행 통화/스택 경매 경로와 분기. 흔적 소비처는 모두 영지상태 직접 읽음(물리 아이템 불필요).
 
 ---
 
