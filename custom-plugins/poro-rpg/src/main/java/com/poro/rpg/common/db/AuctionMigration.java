@@ -38,11 +38,29 @@ public final class AuctionMigration implements MigrationEntryPoint {
             st.execute(AuctionDdl.CREATE_INDEX_EXPIRES);
             st.execute(AuctionDdl.CREATE_PENDING_DELIVERY);
             st.execute(AuctionDdl.CREATE_INDEX_PENDING_PLAYER);
+            // 흔적 인스턴스 거래(DL-129 추가#38, P5) — 기존 테이블에 item_payload 컬럼 보강(idempotent).
+            ensureColumn(connection, "auction_listings", "item_payload", "TEXT");
+            ensureColumn(connection, "auction_pending_delivery", "item_payload", "TEXT");
             logger.info("auction_listings + auction_pending_delivery DDL applied (idempotent).");
             return Result.success();
         } catch (Exception e) {
             return Result.failure(ErrorCode.DB_CONNECTION_FAILED,
                     "Failed to apply auction DDL", e);
+        }
+    }
+
+    /** 컬럼이 없으면 ALTER TABLE ADD COLUMN (SQLite). 이미 있으면 무시. */
+    private void ensureColumn(Connection connection, String table, String column, String type) {
+        try (ResultSet rs = connection.getMetaData().getColumns(null, null, table, column)) {
+            if (rs.next()) return; // 이미 존재
+        } catch (Exception e) {
+            return;
+        }
+        try (Statement st = connection.createStatement()) {
+            st.execute("ALTER TABLE " + table + " ADD COLUMN " + column + " " + type);
+            logger.info("[Auction] " + table + "." + column + " 컬럼 추가 (DL-129 추가#38).");
+        } catch (Exception e) {
+            logger.warn("[Auction] " + table + "." + column + " 컬럼 추가 실패: " + e.getMessage());
         }
     }
 

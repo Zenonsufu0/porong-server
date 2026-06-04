@@ -12,8 +12,11 @@ public record AuctionListing(
         long listedAt,
         long expiresAt,
         String status,
-        Long soldAt
+        Long soldAt,
+        String itemPayload   // 흔적 인스턴스 거래용 JSON payload (DL-129 추가#38, P5). 일반 매물은 null.
 ) {
+    public boolean isTrace() { return itemPayload != null && !itemPayload.isBlank(); }
+
     public String remainingText() {
         long remaining = expiresAt - System.currentTimeMillis();
         if (remaining <= 0) return "만료됨";

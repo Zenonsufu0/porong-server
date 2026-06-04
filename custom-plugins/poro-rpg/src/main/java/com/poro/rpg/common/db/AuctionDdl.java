@@ -14,7 +14,8 @@ public final class AuctionDdl {
             listed_at   INTEGER NOT NULL,
             expires_at  INTEGER NOT NULL,
             status      TEXT    NOT NULL DEFAULT 'active',
-            sold_at     INTEGER
+            sold_at     INTEGER,
+            item_payload TEXT
         )
         """;
 
@@ -34,7 +35,8 @@ public final class AuctionDdl {
             item_id     TEXT,
             quantity    INTEGER NOT NULL DEFAULT 0,
             gold        INTEGER NOT NULL DEFAULT 0,
-            created_at  INTEGER NOT NULL
+            created_at  INTEGER NOT NULL,
+            item_payload TEXT
         )
         """;
 

@@ -194,6 +194,16 @@ public final class PlayerJoinListener implements Listener {
                         deliveredIds.add(d.id());
                         player.sendMessage("§a[경매장] §7판매 완료 수익: §e"
                                 + fmt(d.gold()) + "G §7자동 지급됨.");
+                    } else if (d.isTrace() && territory != null) {
+                        // 흔적 인스턴스 배달 (DL-129 추가#38, P5).
+                        com.poro.rpg.growth.engine.TraceInstance trace =
+                                com.poro.rpg.market.TraceInstanceCodec.fromJson(d.itemPayload());
+                        if (trace != null) {
+                            territory.addTraceInstance(trace);
+                            deliveredIds.add(d.id());
+                            player.sendMessage("§a[경매장] §7흔적 §f" + trace.grade().displayName()
+                                    + " 장비의 흔적 §7이(가) 창고에 지급됐습니다.");
+                        }
                     } else if (d.itemId() != null && AuctionStore.isCurrencyItem(d.itemId()) && growth != null) {
                         growth.addCurrency(d.itemId(), d.quantity()); // 통화형(큐브·강화석) 배달 (DL-129#37)
                         deliveredIds.add(d.id());

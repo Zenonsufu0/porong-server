@@ -5,6 +5,8 @@ import com.poro.rpg.common.registry.master.ItemMasterRegistry;
 import com.poro.rpg.common.registry.master.model.ItemMaster;
 import com.poro.rpg.growth.GrowthStateStore;
 import com.poro.rpg.growth.engine.PlayerGrowthState;
+import com.poro.rpg.growth.engine.TraceInstance;
+import com.poro.rpg.market.TraceInstanceCodec;
 import com.poro.rpg.growth.island.IslandTerritoryState;
 import com.poro.rpg.growth.island.IslandTerritoryStateStore;
 import com.poro.rpg.gui.GuiTitles;
@@ -210,6 +212,12 @@ public final class AuctionGuiListener implements Listener {
                     openRegister(player); return;
                 }
                 regPrice.put(uid, price);
+                // 흔적 인스턴스는 수량 개념이 없음(개별 1개) → 수량 입력 생략, 바로 등록 (DL-129 추가#38 P5).
+                if (isTraceId(selected)) {
+                    regPrice.remove(uid);
+                    confirmRegister(player, selected, 1, price);
+                    return;
+                }
                 long held = heldOf(uid, selected);
                 awaitingQtyInput.add(uid);
                 player.sendMessage("§e[경매장] §f" + itemDisplayName(selected) + " §e등록 수량을 채팅으로 입력하세요. §8(보유 "
@@ -326,18 +334,18 @@ public final class AuctionGuiListener implements Listener {
                         ids.add(l.id());
                         long avg = auctionStore.getAveragePrice(l.itemId());
                         String avgText = avg < 0 ? "§7데이터 없음" : "§7" + fmt(avg) + "G";
-                        inv.setItem(invSlot, named(
-                                itemMaterial(l.itemId()),
-                                "§f" + itemDisplayName(l.itemId()),
-                                "§7──────────",
-                                "§e가격: §f" + fmt(l.price()) + "G",
-                                "§7판매자: §f" + l.sellerName(),
-                                "§7남은 시간: §f" + l.remainingText(),
-                                "§7──────────",
-                                "§83일 평균시세: " + avgText,
-                                "§7──────────",
-                                "§7좌클릭  §f구매"
-                        ));
+                        List<String> lore = new ArrayList<>();
+                        lore.add("§7──────────");
+                        lore.addAll(traceSubstatLore(l));
+                        lore.add("§e가격: §f" + fmt(l.price()) + "G");
+                        lore.add("§7판매자: §f" + l.sellerName());
+                        lore.add("§7남은 시간: §f" + l.remainingText());
+                        lore.add("§7──────────");
+                        lore.add("§83일 평균시세: " + avgText);
+                        lore.add("§7──────────");
+                        lore.add("§7좌클릭  §f구매");
+                        inv.setItem(invSlot, named(listingMaterial(l), "§f" + listingDisplayName(l),
+                                lore.toArray(new String[0])));
                     } else {
                         inv.setItem(invSlot, glassPane(Material.GRAY_STAINED_GLASS_PANE));
                     }
@@ -402,7 +410,7 @@ public final class AuctionGuiListener implements Listener {
                             refreshMain(player);
                             return;
                         }
-                        player.sendMessage("§a[경매장] §f" + itemDisplayName(listing.itemId())
+                        player.sendMessage("§a[경매장] §f" + listingDisplayName(listing)
                                 + " §7을 §e" + fmt(listing.price()) + "G§7에 구매했습니다.");
                         scoreboardService.refresh(player);
 
@@ -434,6 +442,12 @@ public final class AuctionGuiListener implements Listener {
         palette.add("mat_cube");
         palette.add("mat_stone_enhance");
         palette.addAll(buildTradeablePalette(territory));
+        // 흔적 인스턴스 — 등급↓ 개별 등록 (DL-129 추가#38, P5).
+        if (territory != null) {
+            territory.traceInstancesSnapshot().stream()
+                    .sorted((a, b) -> b.grade().ordinal() - a.grade().ordinal())
+                    .forEach(t -> palette.add(t.instanceId()));
+        }
         regPalette.put(uid, palette);
 
         final int per = 45;
@@ -454,6 +468,10 @@ public final class AuctionGuiListener implements Listener {
             int start = cp * per, end = Math.min(start + per, palette.size());
             for (int i = start; i < end; i++) {
                 String itemId = palette.get(i);
+                if (isTraceId(itemId)) {
+                    inv.setItem(i - start, registerTraceIcon(uid, itemId));
+                    continue;
+                }
                 long held = heldOf(uid, itemId); // 통화형은 통화, 그 외는 창고
                 long avg = auctionStore.getAveragePrice(itemId);
                 String avgText = avg < 0 ? "§8데이터 없음" : "§7" + fmt(avg) + "G §8(참고)";
@@ -495,13 +513,20 @@ public final class AuctionGuiListener implements Listener {
             regSelectedItem.put(uid, itemId);
             player.closeInventory();
             awaitingPriceInput.add(uid);
-            player.sendMessage("§e[경매장] §f" + itemDisplayName(itemId)
-                    + " §e개당 등록 가격을 채팅으로 입력하세요. §8(최소 " + fmt(AuctionStore.MIN_PRICE) + "G · 취소: '취소')");
+            player.sendMessage("§e[경매장] §f" + registerDisplayName(uid, itemId)
+                    + " §e등록 가격을 채팅으로 입력하세요. §8(최소 " + fmt(AuctionStore.MIN_PRICE) + "G · 취소: '취소')");
         }
     }
 
     private void confirmRegister(Player player, String itemId, long quantity, long price) {
         UUID uid = player.getUniqueId();
+
+        // 흔적 인스턴스 — 개별 등록(수량 무조건 1, payload에 등급+세부스탯 보관). DL-129 추가#38 P5.
+        if (isTraceId(itemId)) {
+            confirmRegisterTrace(player, itemId, price);
+            return;
+        }
+
         // 통화형(큐브·강화석)은 통화에서, 그 외는 창고에서 차감 (DL-129#37)
         if (heldOf(uid, itemId) < quantity) {
             player.sendMessage("§c[경매장] 보유 수량이 부족합니다.");
@@ -529,6 +554,40 @@ public final class AuctionGuiListener implements Listener {
                 } else {
                     player.sendMessage("§a[경매장] §f" + itemDisplayName(itemId) + " §7×" + qty
                             + "개를 §e" + fmt(price) + "G§7에 등록했습니다.");
+                }
+                regSelectedItem.remove(uid);
+                regPrice.remove(uid);
+                regPalette.remove(uid);
+                openMain(player);
+            });
+        });
+    }
+
+    /** 흔적 인스턴스 등록 — payload 캡처 후 영지에서 제거, 등록 실패 시 롤백(재추가). DL-129 추가#38 P5. */
+    private void confirmRegisterTrace(Player player, String instanceId, long price) {
+        UUID uid = player.getUniqueId();
+        IslandTerritoryState t = islandStore.get(uid).orElse(null);
+        TraceInstance trace = t != null ? t.findTraceInstance(instanceId).orElse(null) : null;
+        if (trace == null) {
+            player.sendMessage("§c[경매장] 흔적을 찾을 수 없습니다.");
+            openRegister(player);
+            return;
+        }
+        if (auctionStore.countActive(uid) >= AuctionStore.MAX_LISTINGS) {
+            player.sendMessage("§c[경매장] 최대 등록 수(" + AuctionStore.MAX_LISTINGS + "개)에 도달했습니다.");
+            return;
+        }
+        String payload = TraceInstanceCodec.toJson(trace);
+        t.removeTraceInstance(instanceId);
+        String display = trace.grade().displayName() + " 장비의 흔적";
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            Result<Long> result = auctionStore.register(uid, player.getName(), instanceId, 1, price, payload);
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                if (result.isFailure()) {
+                    t.addTraceInstance(trace); // 롤백
+                    player.sendMessage("§c[경매장] 등록 실패: " + result.message());
+                } else {
+                    player.sendMessage("§a[경매장] §f" + display + " §7을(를) §e" + fmt(price) + "G§7에 등록했습니다.");
                 }
                 regSelectedItem.remove(uid);
                 regPrice.remove(uid);
@@ -619,14 +678,16 @@ public final class AuctionGuiListener implements Listener {
                 ids.add(l.id());
                 long avg = auctionStore.getAveragePrice(l.itemId());
                 String avgText = avg < 0 ? "§7데이터 없음" : "§7" + fmt(avg) + "G";
-                inv.setItem(i, named(itemMaterial(l.itemId()),
-                        "§f" + itemDisplayName(l.itemId()),
-                        "§e가격: §f" + fmt(l.price()) + "G",
-                        "§7남은 시간: §f" + l.remainingText(),
-                        "§7──────────",
-                        "§83일 평균시세: " + avgText,
-                        "§7──────────",
-                        "§c우클릭 → 등록 취소 §8(창고 반환)"));
+                List<String> lore = new ArrayList<>();
+                lore.addAll(traceSubstatLore(l));
+                lore.add("§e가격: §f" + fmt(l.price()) + "G");
+                lore.add("§7남은 시간: §f" + l.remainingText());
+                lore.add("§7──────────");
+                lore.add("§83일 평균시세: " + avgText);
+                lore.add("§7──────────");
+                lore.add("§c우클릭 → 등록 취소 §8(창고 반환)");
+                inv.setItem(i, named(listingMaterial(l), "§f" + listingDisplayName(l),
+                        lore.toArray(new String[0])));
             } else {
                 inv.setItem(i, glassPane(Material.GRAY_STAINED_GLASS_PANE));
             }
@@ -663,10 +724,16 @@ public final class AuctionGuiListener implements Listener {
                     player.sendMessage("§c[경매장] 취소 실패: " + result.message());
                 } else {
                     AuctionListing l = result.value();
-                    creditItem(uid, l.itemId(), l.quantity()); // 통화형은 통화로, 그 외는 창고로 반환 (DL-129#37)
-                    String dest = AuctionStore.isCurrencyItem(l.itemId()) ? "반환됐습니다." : "창고에 반환됐습니다.";
-                    player.sendMessage("§e[경매장] §f" + itemDisplayName(l.itemId())
-                            + "§7 등록을 취소했습니다. " + dest);
+                    if (l.isTrace()) {
+                        creditTrace(uid, l.itemPayload(), player.getName()); // 흔적 인스턴스 반환 (DL-129 추가#38)
+                        player.sendMessage("§e[경매장] §f" + auctionTraceName(l)
+                                + "§7 등록을 취소했습니다. 창고에 반환됐습니다.");
+                    } else {
+                        creditItem(uid, l.itemId(), l.quantity()); // 통화형은 통화로, 그 외는 창고로 반환 (DL-129#37)
+                        String dest = AuctionStore.isCurrencyItem(l.itemId()) ? "반환됐습니다." : "창고에 반환됐습니다.";
+                        player.sendMessage("§e[경매장] §f" + itemDisplayName(l.itemId())
+                                + "§7 등록을 취소했습니다. " + dest);
+                    }
                 }
                 openMyListings(player);
             });
@@ -703,6 +770,15 @@ public final class AuctionGuiListener implements Listener {
                         deliveredIds.add(d.id());
                         player.sendMessage("§a[경매장] §7판매 완료 수익: §e"
                                 + fmt(d.gold()) + "G §7자동 지급됨.");
+                    } else if (d.isTrace() && territory != null) {
+                        // 흔적 인스턴스 배달 (DL-129 추가#38, P5) — payload 복원 후 영지에 추가.
+                        TraceInstance trace = TraceInstanceCodec.fromJson(d.itemPayload());
+                        if (trace != null) {
+                            territory.addTraceInstance(trace);
+                            deliveredIds.add(d.id());
+                            player.sendMessage("§a[경매장] §7흔적 §f" + trace.grade().displayName()
+                                    + " 장비의 흔적 §7이(가) 창고에 지급됐습니다.");
+                        }
                     } else if (d.itemId() != null && AuctionStore.isCurrencyItem(d.itemId()) && growth != null) {
                         growth.addCurrency(d.itemId(), d.quantity()); // 통화형 배달 (DL-129#37)
                         deliveredIds.add(d.id());
@@ -744,14 +820,21 @@ public final class AuctionGuiListener implements Listener {
         return itemMasters.find(itemId).map(ItemMaster::tradeable).orElse(false);
     }
 
+    // ── 흔적 인스턴스 식별 (DL-129 추가#38, P5) — 인스턴스 id 접두어 "trace_" ──
+    private static boolean isTraceId(String itemId) {
+        return itemId != null && itemId.startsWith("trace_");
+    }
+
     // ── 통화형(큐브·강화석) ↔ 창고 라우팅 (DL-129#37) ──
-    /** 보유량 — 통화형은 growthState 통화, 그 외는 창고 customItems. */
+    /** 보유량 — 통화형은 growthState 통화, 흔적 인스턴스는 보유=1, 그 외는 창고 customItems. */
     private long heldOf(UUID uid, String itemId) {
         if (AuctionStore.isCurrencyItem(itemId))
             return growthStateStore.get(uid).map(g -> g.currency(itemId)).orElse(0L);
+        if (isTraceId(itemId))
+            return islandStore.get(uid).map(t -> t.findTraceInstance(itemId).isPresent() ? 1L : 0L).orElse(0L);
         return islandStore.get(uid).map(t -> t.getCustomItem(itemId)).orElse(0L);
     }
-    /** 차감 — 성공 여부. */
+    /** 차감 — 성공 여부. (흔적은 confirmRegister에서 payload 캡처 후 직접 처리하므로 여기선 미지원) */
     private boolean debitItem(UUID uid, String itemId, long qty) {
         if (AuctionStore.isCurrencyItem(itemId))
             return growthStateStore.get(uid).map(g -> g.consumeCurrency(itemId, qty)).orElse(false);
@@ -760,13 +843,44 @@ public final class AuctionGuiListener implements Listener {
         t.withdrawCustomItem(itemId, qty);
         return true;
     }
-    /** 지급(반환/롤백/배달). */
+    /** 지급(반환/롤백/배달) — 통화/창고 스택용. 흔적은 creditTrace 사용. */
     private void creditItem(UUID uid, String itemId, long qty) {
         if (AuctionStore.isCurrencyItem(itemId)) {
             growthStateStore.get(uid).ifPresent(g -> g.addCurrency(itemId, qty));
         } else {
             islandStore.get(uid).ifPresent(t -> t.addCustomItem(itemId, qty));
         }
+    }
+    /** 등록 palette용 흔적 아이콘 — 등급 색상명 + 세부스탯 lore. */
+    private ItemStack registerTraceIcon(UUID uid, String instanceId) {
+        TraceInstance t = islandStore.get(uid).flatMap(s -> s.findTraceInstance(instanceId)).orElse(null);
+        if (t == null) return named(Material.PAPER, "§8흔적 (없음)");
+        java.util.List<String> lore = new ArrayList<>();
+        lore.add("§7등급: " + com.poro.rpg.gui.EquipmentLoreRenderer.gradeColor(t.grade()) + t.grade().displayName());
+        t.substats().forEach(line -> lore.add("§7  "
+                + com.poro.rpg.gui.EquipmentLoreRenderer.potentialOptionKr(line.optionCode())
+                + " §e+" + String.format("%.1f", line.value())));
+        lore.add("§7──────────");
+        lore.add("§a클릭 → 가격 입력 후 등록");
+        return named(traceGradeMaterial(t),
+                com.poro.rpg.gui.EquipmentLoreRenderer.gradeColor(t.grade()) + t.grade().displayName() + " 장비의 흔적",
+                lore.toArray(new String[0]));
+    }
+
+    /** 등록 흐름 표시명 — 흔적이면 등급명, 그 외 일반명. */
+    private String registerDisplayName(UUID uid, String itemId) {
+        if (isTraceId(itemId)) {
+            TraceInstance t = islandStore.get(uid).flatMap(s -> s.findTraceInstance(itemId)).orElse(null);
+            return t != null ? t.grade().displayName() + " 장비의 흔적" : "장비의 흔적";
+        }
+        return itemDisplayName(itemId);
+    }
+
+    /** 흔적 인스턴스 지급 — payload(JSON) 복원 후 영지에 추가 (배달/반환/롤백). */
+    private void creditTrace(UUID uid, String payload, String playerName) {
+        TraceInstance trace = TraceInstanceCodec.fromJson(payload);
+        if (trace == null) return;
+        islandStore.getOrCreate(uid, playerName != null ? playerName : "").addTraceInstance(trace);
     }
 
     /** 창고와 동일한 아이콘(CMD 텍스쳐)+한글명. 경매 표시 통일 (DL-129#36). */
@@ -778,6 +892,51 @@ public final class AuctionGuiListener implements Listener {
             item.setItemMeta(meta);
         }
         return item;
+    }
+
+    /** listing 표시명 — 흔적이면 등급 색상명, 그 외 일반 한글명. */
+    private String listingDisplayName(AuctionListing l) {
+        if (l.isTrace()) return auctionTraceName(l);
+        return itemDisplayName(l.itemId());
+    }
+
+    /** listing 아이콘 재질 — 흔적이면 등급별, 그 외 itemMaterial. */
+    private Material listingMaterial(AuctionListing l) {
+        if (l.isTrace()) {
+            TraceInstance t = TraceInstanceCodec.fromJson(l.itemPayload());
+            return traceGradeMaterial(t);
+        }
+        return itemMaterial(l.itemId());
+    }
+
+    /** 흔적 payload → "[색]등급 장비의 흔적" 표시명. */
+    private String auctionTraceName(AuctionListing l) {
+        TraceInstance t = TraceInstanceCodec.fromJson(l.itemPayload());
+        if (t == null) return "장비의 흔적";
+        return com.poro.rpg.gui.EquipmentLoreRenderer.gradeColor(t.grade()) + t.grade().displayName() + " 장비의 흔적";
+    }
+
+    private Material traceGradeMaterial(TraceInstance t) {
+        if (t == null) return Material.PAPER;
+        return switch (t.grade()) {
+            case LEGENDARY -> Material.NETHER_STAR;
+            case UNIQUE    -> Material.PRISMARINE_SHARD;
+            case EPIC      -> Material.PRISMARINE_CRYSTALS;
+            case RARE      -> Material.IRON_NUGGET;
+            case COMMON    -> Material.GRAVEL;
+        };
+    }
+
+    /** 흔적 세부스탯 lore 라인 목록(없으면 빈 리스트). */
+    private List<String> traceSubstatLore(AuctionListing l) {
+        TraceInstance t = TraceInstanceCodec.fromJson(l.itemPayload());
+        if (t == null || t.substats().isEmpty()) return List.of();
+        List<String> lore = new ArrayList<>();
+        lore.add("§7세부스탯:");
+        t.substats().forEach(line -> lore.add("§7  "
+                + com.poro.rpg.gui.EquipmentLoreRenderer.potentialOptionKr(line.optionCode())
+                + " §e+" + String.format("%.1f", line.value())));
+        return lore;
     }
 
     private String itemDisplayName(String itemId) {

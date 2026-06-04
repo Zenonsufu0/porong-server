@@ -54,10 +54,18 @@
 - ✅ **P3 완료** — `SuccessionService` 무인자 재작성: 흔적 인스턴스(grade+substat)를 대상 장비에 **그대로 이전**, 인스턴스 1개 소모(롤 제거). 전승 GUI(`GrowthGuiListener`) 전면 인스턴스화 — availableTraceIds=instance목록, buildTraceIcon/미리보기가 흔적 실제 세부스탯 표시(전승 전 정확 미리보기), execute=findTraceInstance. TRACE_GRADE_MAP은 P6용 static 유지.
 - ✅ **P6 완료** — 마이그레이션: `PlayerPersistenceService.migrateStackTracesToInstances` — 로드 시 customItems의 equip_trace_* 스택 감지 → `traceSubstatRoller.roll(grade)`로 인스턴스 N개 변환 + 스택 제거(일회성, 재변환 없음). roller를 persistence에 주입. CANON: `equipment_growth_spec §2.3` 인스턴스 모델로 갱신, `item_grade_substat_v1.md` 부활 포인터.
 - ✅ **P4 완료** — `StorageGui.Entry`에 trace 변형 추가, 흔적 인스턴스를 등급↓ 개별 표시(등급 색상명+세부스탯 lore). 표시 전용(전승/경매 in-place 사용 → 물리 출금 없음, `StorageGuiListener`가 클릭 시 안내). icon=equip_trace_unidentified 텍스처.
-- ⏳ **P5 남음** — 경매 인스턴스 거래(auction 스키마 확장 + listing JSON payload).
+- ✅ **P5 완료** — 경매 인스턴스 거래. DDL+마이그레이션: 두 테이블에 `item_payload TEXT`(신규 DDL + 기존 DB `ensureColumn` ALTER). `AuctionListing`/`PendingDelivery`에 itemPayload, `AuctionStore` register/buy/expireOld/매핑 payload-aware. `TraceInstanceCodec`(Gson). `AuctionGuiListener`: palette에 흔적, confirmRegisterTrace(payload 캡처·제거·롤백), 수량입력 생략, 구매/배달/취소 payload→addTraceInstance, listing/palette 아이콘 등급명+세부스탯. `PlayerJoinListener` 로그인 배달 흔적 분기. 카테고리 trace_ 포함.
 
-### 재개 지점
-**P5(경매 인스턴스 거래).** auction listing에 인스턴스 payload(JSON: instanceId+grade+substats) 복원 — 스키마 확장 또는 별도 처리. 등록(영지 traceInstances에서 선택)·구매·배달을 인스턴스 단위로. 현행 통화/스택 경매 경로와 분기. 흔적 소비처는 모두 영지상태 직접 읽음(물리 아이템 불필요).
+### ✅ 흔적 인스턴스화 전체 완료 (P0~P6, DL-129 추가#38)
+드랍→인스턴스→전승/창고/경매→마이그레이션 전 경로 인스턴스화. 커밋: f628f6d(P1/P1b) → e37cc6a(P2/P3) → 3806ae8(P6) → ac7ceb0(P4) → P5.
+
+### 인게임 검증 필요 (다음 세션)
+1. 엘리트 처치 → 흔적 드랍 등급+세부스탯 박힘(채팅 등급 색상)
+2. 창고 GUI 흔적 인스턴스 개별 표시(등급↓·세부스탯 lore)
+3. 전승: 흔적 선택→장비에 등급/세부스탯 그대로 이전·인스턴스 소모
+4. 경매: 흔적 등록(가격만)·구매·배달·취소·만료 반환, 등급명+세부스탯 표시
+5. 기존 스택 흔적 캐릭터 로그인 시 자동 변환(로그 `스택 흔적 N개 → 인스턴스`)
+6. 흔적풀 weight 균등 v1 — combat-balance 튜닝 여지
 
 ---
 

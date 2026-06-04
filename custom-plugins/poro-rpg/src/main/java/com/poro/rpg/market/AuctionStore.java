@@ -66,12 +66,18 @@ public final class AuctionStore {
     /** 아이템은 호출 전에 customItems에서 차감해야 한다. */
     public Result<Long> register(UUID sellerUuid, String sellerName,
                                   String itemId, int quantity, long price) {
+        return register(sellerUuid, sellerName, itemId, quantity, price, null);
+    }
+
+    /** 흔적 인스턴스 거래용 — itemPayload(JSON)에 등급+세부스탯 보관 (DL-129 추가#38, P5). */
+    public Result<Long> register(UUID sellerUuid, String sellerName,
+                                  String itemId, int quantity, long price, String itemPayload) {
         long now = System.currentTimeMillis();
         return transactionHelper.inTransaction(conn -> {
             String sql = """
                 INSERT INTO auction_listings
-                  (seller_uuid, seller_name, item_id, quantity, price, listed_at, expires_at, status)
-                VALUES (?, ?, ?, ?, ?, ?, ?, 'active')
+                  (seller_uuid, seller_name, item_id, quantity, price, listed_at, expires_at, status, item_payload)
+                VALUES (?, ?, ?, ?, ?, ?, ?, 'active', ?)
                 """;
             try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 ps.setString(1, sellerUuid.toString());
@@ -81,6 +87,7 @@ public final class AuctionStore {
                 ps.setLong(5, price);
                 ps.setLong(6, now);
                 ps.setLong(7, now + EXPIRY_MILLIS);
+                ps.setString(8, itemPayload);
                 ps.executeUpdate();
                 ResultSet keys = ps.getGeneratedKeys();
                 return keys.next() ? keys.getLong(1) : -1L;
@@ -213,13 +220,14 @@ public final class AuctionStore {
                 ps.setLong(3, now);
                 ps.executeUpdate();
             }
-            // 구매자 아이템 pending — crash 시 다음 로그인에서 재전달 보장
+            // 구매자 아이템 pending — crash 시 다음 로그인에서 재전달 보장. 흔적은 item_payload 동반.
             try (PreparedStatement ps = conn.prepareStatement(
-                    "INSERT INTO auction_pending_delivery (player_uuid, item_id, quantity, gold, created_at) VALUES (?, ?, ?, 0, ?)")) {
+                    "INSERT INTO auction_pending_delivery (player_uuid, item_id, quantity, gold, created_at, item_payload) VALUES (?, ?, ?, 0, ?, ?)")) {
                 ps.setString(1, buyerUuid.toString());
                 ps.setString(2, listing.itemId());
                 ps.setInt(3, listing.quantity());
                 ps.setLong(4, now);
+                ps.setString(5, listing.itemPayload());
                 ps.executeUpdate();
             }
             return listing;
@@ -267,7 +275,7 @@ public final class AuctionStore {
             try (PreparedStatement upPs = conn.prepareStatement(
                      "UPDATE auction_listings SET status='expired' WHERE id=?");
                  PreparedStatement insPs = conn.prepareStatement(
-                     "INSERT INTO auction_pending_delivery (player_uuid, item_id, quantity, created_at) VALUES (?, ?, ?, ?)")) {
+                     "INSERT INTO auction_pending_delivery (player_uuid, item_id, quantity, created_at, item_payload) VALUES (?, ?, ?, ?, ?)")) {
                 for (AuctionListing l : toExpire) {
                     upPs.setLong(1, l.id());
                     upPs.addBatch();
@@ -275,6 +283,7 @@ public final class AuctionStore {
                     insPs.setString(2, l.itemId());
                     insPs.setInt(3, l.quantity());
                     insPs.setLong(4, now);
+                    insPs.setString(5, l.itemPayload());
                     insPs.addBatch();
                 }
                 upPs.executeBatch();
@@ -288,7 +297,9 @@ public final class AuctionStore {
     // ── 로그인 시 대기 보상 수령 ──────────────────────────────────────────
 
     public record PendingDelivery(long id, UUID playerUuid, String itemId,
-                                   int quantity, long gold) {}
+                                   int quantity, long gold, String itemPayload) {
+        public boolean isTrace() { return itemPayload != null && !itemPayload.isBlank(); }
+    }
 
     /**
      * 지급 대기 목록 조회 (읽기 전용, DB 변경 없음).
@@ -307,7 +318,8 @@ public final class AuctionStore {
                         playerUuid,
                         rs.getString("item_id"),
                         rs.getInt("quantity"),
-                        rs.getLong("gold")
+                        rs.getLong("gold"),
+                        rs.getString("item_payload")
                 ));
             }
             return deliveries;
@@ -339,11 +351,12 @@ public final class AuctionStore {
 
     private String categoryWhere(String category) {
         return switch (category) {
-            case "흔적" -> " AND (item_id LIKE 'equip_trace_%' OR item_id LIKE 'ancient_trace_%')";
+            case "흔적" -> " AND (item_id LIKE 'equip_trace_%' OR item_id LIKE 'ancient_trace_%' OR item_id LIKE 'trace\\_%' ESCAPE '\\')";
             case "재료" -> " AND item_id LIKE 'mat_%'";
             case "치장" -> " AND item_id LIKE 'display_%'";
             case "기타" -> " AND item_id NOT LIKE 'equip_trace_%'"
                            + " AND item_id NOT LIKE 'ancient_trace_%'"
+                           + " AND item_id NOT LIKE 'trace\\_%' ESCAPE '\\'"
                            + " AND item_id NOT LIKE 'mat_%'"
                            + " AND item_id NOT LIKE 'display_%'";
             default    -> "";
@@ -376,7 +389,8 @@ public final class AuctionStore {
                     rs.getLong("listed_at"),
                     rs.getLong("expires_at"),
                     rs.getString("status"),
-                    soldAt
+                    soldAt,
+                    rs.getString("item_payload")
             ));
         }
         return result;
