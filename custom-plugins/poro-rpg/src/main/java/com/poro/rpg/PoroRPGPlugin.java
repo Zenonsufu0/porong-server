@@ -349,7 +349,7 @@ public final class PoroRPGPlugin extends JavaPlugin {
                 getLogger());
         // registerCommands() 전에 초기화해야 NPE 방지
         this.auctionGuiListener = new AuctionGuiListener(
-                this, growthStateStore, islandTerritoryStateStore,
+                this, growthStateStore, islandTerritoryStateStore, islandStorageStore,
                 auctionStore, masterRegistryContext.itemMasters(), combatStateService, scoreboardService);
         this.growthGuiListener = new GrowthGuiListener(
                 growthStateStore, islandTerritoryStateStore, growthEngineRuntime,

@@ -2,6 +2,7 @@ package com.poro.rpg.gui;
 
 import com.poro.rpg.combat.weapon.WeaponType;
 import com.poro.rpg.combat.weapon.WeaponTypeResolver;
+import com.poro.rpg.growth.engine.EquipmentSlot;
 import com.poro.rpg.growth.engine.PlayerEquipmentItem;
 import com.poro.rpg.growth.engine.PlayerGrowthState;
 import net.kyori.adventure.text.Component;
@@ -49,7 +50,12 @@ public final class WeaponItemFactory {
      * 완전히 동일한 형식·한글 표기(잠재 등급·각인명)를 사용한다. 무기별 독립 인스턴스 기준.
      */
     public static List<Component> buildLore(PlayerGrowthState state, WeaponType wt) {
-        PlayerEquipmentItem eq = state.inventoryItem(WeaponGui.weaponInstanceId(wt)).orElse(null);
+        // 장착 WEAPON 슬롯 인스턴스를 권위로 사용 — 전투/스탯(PlayerGrowthSnapshotBuilder)·강화/큐브/전승이
+        // 모두 이 인스턴스를 대상으로 하므로, 손무기 lore도 동일 인스턴스를 읽어야 표시가 일치한다 (DL-129 추가#38 후속).
+        // 미장착(이론상)일 때만 타입 기반 인스턴스로 폴백.
+        String equippedId = state.equippedItems().get(EquipmentSlot.WEAPON);
+        PlayerEquipmentItem eq = equippedId != null ? state.inventoryItem(equippedId).orElse(null) : null;
+        if (eq == null) eq = state.inventoryItem(WeaponGui.weaponInstanceId(wt)).orElse(null);
         // 무기별 독립 각인(DL-110) — 해당 무기 타입(classId)의 각인을 표시.
         String engravingId = state.classEngravingId(wt.name().toLowerCase(java.util.Locale.ROOT));
         List<Component> lore = new ArrayList<>();

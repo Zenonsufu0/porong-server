@@ -101,6 +101,24 @@ public class SkillContext {
         return 1.0d + 0.11d * Math.max(0, level);
     }
 
+    // ── lore 표시용 공개 접근자 (단일 출처 — 위 BASE_DEF/BASE_HP·배율과 동일 산식) ──
+    /** 방어구 부위가 현재 강화단계에서 제공하는 DEF(베이스×(1+0.04×강화)). 무기/미정의 슬롯=0. */
+    public static double armorDefAt(EquipmentSlot slot, int level) {
+        return BASE_DEF.getOrDefault(slot, 0.0d) * enhanceMultiplier(level);
+    }
+    /** 방어구 부위가 현재 강화단계에서 제공하는 최대 HP(베이스×(1+0.11×강화)). 무기/미정의 슬롯=0. */
+    public static double armorHpAt(EquipmentSlot slot, int level) {
+        return BASE_HP.getOrDefault(slot, 0.0d) * hpEnhanceMultiplier(level);
+    }
+    /** 다음 강화(+1)로 늘어나는 DEF 증가분. */
+    public static double armorDefGainNext(EquipmentSlot slot, int level) {
+        return armorDefAt(slot, level + 1) - armorDefAt(slot, level);
+    }
+    /** 다음 강화(+1)로 늘어나는 HP 증가분. */
+    public static double armorHpGainNext(EquipmentSlot slot, int level) {
+        return armorHpAt(slot, level + 1) - armorHpAt(slot, level);
+    }
+
     /** 장착 방어구가 제공하는 최대 HP 보너스 — Σ 기본 HP × (1+0.11×강화). max health attribute에 가산한다. */
     public double armorMaxHealth(Player player) {
         PlayerGrowthState state = playerState(player);

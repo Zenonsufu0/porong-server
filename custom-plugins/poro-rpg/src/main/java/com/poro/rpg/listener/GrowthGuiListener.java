@@ -444,7 +444,7 @@ public final class GrowthGuiListener implements Listener {
                 Material mat = es == EquipmentSlot.WEAPON
                         ? weaponCosmeticMaterial(wt, state.getCosmeticMaterial(weaponCosmeticKey(wt)))
                         : EQUIP_MATERIAL.getOrDefault(es, Material.NETHER_STAR);
-                List<String> lore = equipBaseLore(item, es == EquipmentSlot.WEAPON, state.classEngravingId());
+                List<String> lore = equipBaseLore(item, es, state.classEngravingId());
                 lore.add("§7클릭하여 선택");
                 inv.setItem(guiSlot, MainHubGui.icon(mat, "§f" + equipDisplayName(es, wt), lore));
             }
@@ -472,7 +472,7 @@ public final class GrowthGuiListener implements Listener {
                 : EQUIP_MATERIAL.getOrDefault(prevSlot, Material.NETHER_STAR);
         inv.setItem(ENH_SLOT_PREVIEW, MainHubGui.icon(prevMat,
                 "§f" + equipDisplayName(prevSlot, prevWt) + " §e+" + curLv,
-                equipBaseLore(item, prevSlot == EquipmentSlot.WEAPON, state.classEngravingId())));
+                equipBaseLore(item, prevSlot, state.classEngravingId())));
         // 강화 시도 버튼 등에 쓸 표시명 — 정본 한글명(무기=검/도끼…, 방어구=투구…) 사용(영어 itemName 대체).
         String itemName = equipDisplayName(prevSlot, prevWt);
 
@@ -597,8 +597,9 @@ public final class GrowthGuiListener implements Listener {
                     .map(GrowthGuiListener::enhanceTraceName).collect(Collectors.joining(", "));
             player.sendMessage("§d[강화 흔적] §f" + names + " §7사용 — 성공률 곱연산 보정 적용");
         }
+        String enhName = equipNameByInstance(player, state, instanceId, r.itemId());
         if (r.success()) {
-            player.sendMessage("§6§l[강화 성공!] §e" + itemDisplayNameById(r.itemId())
+            player.sendMessage("§6§l[강화 성공!] §e" + enhName
                     + " §a+" + r.finalLevel() + " 달성!" + (r.forcedByCeiling() ? " §7(천장 보정)" : ""));
             player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_USE, 1.0f, 1.2f);
             if (healthHudListener != null) {
@@ -606,7 +607,7 @@ public final class GrowthGuiListener implements Listener {
                         Component.text("§6§l✦ 강화 성공! §e+" + r.finalLevel()), 60);
             }
         } else {
-            player.sendMessage("§7[강화] §e" + itemDisplayNameById(r.itemId()) + " §c+" + r.targetLevel() + " 실패."
+            player.sendMessage("§7[강화] §e" + enhName + " §c+" + r.targetLevel() + " 실패."
                     + " §7(" + String.format("%.1f%%", r.successRate()) + ")");
             player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_LAND, 0.7f, 0.8f);
             if (healthHudListener != null) {
@@ -845,7 +846,7 @@ public final class GrowthGuiListener implements Listener {
                         : EQUIP_MATERIAL.getOrDefault(es, Material.NETHER_STAR);
                 List<String> lore = new ArrayList<>();
                 lore.add(isSelected ? "§a▶ 선택됨" : "§7클릭하여 선택");
-                lore.addAll(equipBaseLore(item, es == EquipmentSlot.WEAPON, state.classEngravingId()));
+                lore.addAll(equipBaseLore(item, es, state.classEngravingId()));
                 inv.setItem(guiSlot, MainHubGui.icon(mat,
                         (isSelected ? "§a§l" : "§f") + equipDisplayName(es, wt), lore));
             }
@@ -1078,6 +1079,7 @@ public final class GrowthGuiListener implements Listener {
             selectedHeirloomTarget.remove(uid);
             selectedHeirloomType.put(uid, SuccessionService.SuccessionType.BASIC);
             scoreboardService.refresh(player);
+            refreshHeldWeapon(player, state); // 전승 후 손무기 lore 실시간 반영 (DL-129 추가#38 후속)
             String tgtName = equipDisplayName(findEquipSlot(state, targetId), playerDataManager.getWeaponType(uid));
             player.sendMessage("§6§l[전승 완료] §f" + tgtName + " §e" + type.displayName() + " §a적용!");
             player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.7f, 1.0f);
@@ -1104,7 +1106,7 @@ public final class GrowthGuiListener implements Listener {
                         : EQUIP_MATERIAL.getOrDefault(es, Material.NETHER_STAR);
                 List<String> lore = new ArrayList<>();
                 lore.add(selected ? "§a▶ 대상 선택됨" : "§7클릭하여 대상 선택");
-                lore.addAll(equipBaseLore(item, es == EquipmentSlot.WEAPON, state.classEngravingId()));
+                lore.addAll(equipBaseLore(item, es, state.classEngravingId()));
                 inv.setItem(guiSlot, MainHubGui.icon(mat,
                         (selected ? "§a§l" : "§f") + equipDisplayName(es, wt), lore));
             }
@@ -1694,7 +1696,7 @@ public final class GrowthGuiListener implements Listener {
                 ? weaponCosmeticMaterial(wt, state.getCosmeticMaterial(weaponCosmeticKey(wt)))
                 : EQUIP_MATERIAL.getOrDefault(slot, Material.PAPER);
         return MainHubGui.icon(mat, "§f" + equipDisplayName(slot, wt),
-                equipBaseLore(item, slot == EquipmentSlot.WEAPON, state.classEngravingId()));
+                equipBaseLore(item, slot, state.classEngravingId()));
     }
 
     private void handleEquipDetailClick(Player player, int slot) {
@@ -2022,7 +2024,7 @@ public final class GrowthGuiListener implements Listener {
                 ? weaponCosmeticMaterial(wt, state.getCosmeticMaterial(weaponCosmeticKey(wt)))
                 : EQUIP_MATERIAL.getOrDefault(slot, Material.NETHER_STAR);
         return MainHubGui.icon(mat, "§f" + label,
-                equipBaseLore(item, slot == EquipmentSlot.WEAPON, state.classEngravingId()));
+                equipBaseLore(item, slot, state.classEngravingId()));
     }
 
     private Material weaponMaterial(WeaponType wt) {
@@ -2226,6 +2228,13 @@ public final class GrowthGuiListener implements Listener {
         return itemMasters.find(itemId).map(ItemMaster::itemName).orElse(itemId);
     }
 
+    /** 인스턴스 기준 한글 장비명(무기=검/낫…, 방어구=투구/흉갑…). 슬롯 미발견 시 마스터명 폴백. */
+    private String equipNameByInstance(Player player, PlayerGrowthState state, String instanceId, String fallbackItemId) {
+        EquipmentSlot slot = findEquipSlot(state, instanceId);
+        if (slot != null) return equipDisplayName(slot, playerDataManager.getWeaponType(player.getUniqueId()));
+        return itemDisplayNameById(fallbackItemId);
+    }
+
     private java.util.Optional<ItemMaster> masterFor(PlayerEquipmentItem item) {
         if (item == null) return java.util.Optional.empty();
         return itemMasters.find(item.itemId());
@@ -2291,8 +2300,8 @@ public final class GrowthGuiListener implements Listener {
      * 장비 아이콘 정본 lore (WeaponItemFactory.buildLore와 동일 형식) — 강화/잠재/전승/캐릭터/상세 GUI 공용.
      * 구분선 / 강화 / 등급 / 잠재 / 세부스탯 / 각인(무기만) / 구분선.
      */
-    private List<String> equipBaseLore(PlayerEquipmentItem item, boolean isWeapon, String engravingId) {
-        return EquipmentLoreRenderer.baseLore(item, isWeapon, engravingId);
+    private List<String> equipBaseLore(PlayerEquipmentItem item, EquipmentSlot slot, String engravingId) {
+        return EquipmentLoreRenderer.baseLore(item, slot, engravingId, "§8장착 장비 없음");
     }
 
     private EquipmentSlot findEquipSlot(PlayerGrowthState state, String instanceId) {

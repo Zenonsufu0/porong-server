@@ -208,6 +208,13 @@ public final class PlayerJoinListener implements Listener {
                         growth.addCurrency(d.itemId(), d.quantity()); // 통화형(큐브·강화석) 배달 (DL-129#37)
                         deliveredIds.add(d.id());
                         player.sendMessage("§a[경매장] §f" + d.itemId() + " §7×" + d.quantity() + " §7지급됐습니다.");
+                    } else if (d.itemId() != null && Material.getMaterial(d.itemId()) != null) {
+                        // 바닐라 재료 배달 → IslandStorage (영지 창고 연동, DL-129 추가#38 후속).
+                        Material vm = Material.getMaterial(d.itemId());
+                        islandStorageStore.getOrCreate(uuid).add(vm, d.quantity());
+                        deliveredIds.add(d.id());
+                        player.sendMessage("§a[경매장] §7아이템 §f" + d.itemId()
+                                + " §7×" + d.quantity() + " §7창고에 지급됐습니다.");
                     } else if (d.itemId() != null && territory != null) {
                         territory.addCustomItem(d.itemId(), d.quantity());
                         deliveredIds.add(d.id());

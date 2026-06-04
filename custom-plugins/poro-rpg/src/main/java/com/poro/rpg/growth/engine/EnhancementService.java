@@ -113,17 +113,17 @@ public final class EnhancementService {
         Objects.requireNonNull(state, "state");
         PlayerEquipmentItem item = state.inventoryItem(itemInstanceId).orElse(null);
         if (item == null) {
-            return Result.failure(ErrorCode.INVALID_ARGUMENT, "Item instance not found: " + itemInstanceId);
+            return Result.failure(ErrorCode.INVALID_ARGUMENT, "강화할 아이템을 찾을 수 없습니다.");
         }
 
         ItemMaster itemMaster = itemMasterRegistry.find(item.itemId()).orElse(null);
         if (itemMaster == null) {
-            return Result.failure(ErrorCode.INVALID_ARGUMENT, "Unknown item master for enhancement: " + item.itemId());
+            return Result.failure(ErrorCode.INVALID_ARGUMENT, "알 수 없는 아이템입니다.");
         }
 
         int currentLevel = item.enhanceLevel();
         if (currentLevel >= MAX_ENHANCE_LEVEL) {
-            return Result.failure(ErrorCode.INVALID_ARGUMENT, "Enhancement is already at max level: " + currentLevel);
+            return Result.failure(ErrorCode.INVALID_ARGUMENT, "이미 최대 강화 단계입니다. (+" + currentLevel + ")");
         }
 
         int targetLevel = currentLevel + 1;
@@ -132,7 +132,7 @@ public final class EnhancementService {
         if (rule == null) {
             return Result.failure(
                     ErrorCode.INVALID_ARGUMENT,
-                    "Enhancement rule not found. tier=" + tier + ", level=" + targetLevel
+                    "강화 규칙을 찾을 수 없습니다. (등급 " + tier + ", +" + targetLevel + ")"
             );
         }
 
@@ -145,14 +145,14 @@ public final class EnhancementService {
         if (!state.consumeCurrency(CURRENCY_GOLD, rule.goldCost())) {
             return Result.failure(
                     ErrorCode.INVALID_ARGUMENT,
-                    "Not enough gold. required=" + rule.goldCost() + ", current=" + state.currency(CURRENCY_GOLD)
+                    "골드가 부족합니다. (필요 " + rule.goldCost() + "G · 보유 " + state.currency(CURRENCY_GOLD) + "G)"
             );
         }
         if (!state.consumeCurrency(MATERIAL_ENHANCE_STONE, stoneCost)) {
             state.addCurrency(CURRENCY_GOLD, rule.goldCost());
             return Result.failure(
                     ErrorCode.INVALID_ARGUMENT,
-                    "Not enough enhancement stone. required=" + stoneCost + ", current=" + state.currency(MATERIAL_ENHANCE_STONE)
+                    "강화석이 부족합니다. (필요 " + stoneCost + "개 · 보유 " + state.currency(MATERIAL_ENHANCE_STONE) + "개)"
             );
         }
 
