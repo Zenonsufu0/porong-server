@@ -136,7 +136,7 @@
 
 **검증:** 빌드 통과. 기동 로그 `[FieldBorder] 필드 진입 경계 활성 — 필드 5개, 크기 300×300`. per-player WorldBorder 시각(빨간 경계)은 플레이어 필드 진입 시 발현 — 사용자 인게임 확인.
 
-**관련:** INBOX-012, DL-100(필드 ±150 스폰 존), `12_map_design/field_map_concepts`(포탈/울타리 경계 — 향후 빌드).
+**관련:** INBOX-012, DL-100(필드 ±150 스폰 존), `poro-rpg/docs/12_map_design/field_map_concepts`(포탈/울타리 경계 — 향후 빌드).
 
 ---
 
@@ -158,7 +158,7 @@
 
 ### DL-117 런타임 몹 스탯 오버라이드 시스템 MVP (INBOX-010 축 A)
 
-**배경:** 몹 HP/DEF/ATK·상점을 플러그인 재배포 없이 인게임 명령으로 핫에딧하려는 운영 요구(INBOX-010). 기획안 `01_plugin_architecture/runtime_admin_config_plan_v1.md` 작성 후 축 A(몹 스탯 ATK·HP) MVP 구현.
+**배경:** 몹 HP/DEF/ATK·상점을 플러그인 재배포 없이 인게임 명령으로 핫에딧하려는 운영 요구(INBOX-010). 기획안 `poro-rpg/docs/01_plugin_architecture/runtime_admin_config_plan_v1.md` 작성 후 축 A(몹 스탯 ATK·HP) MVP 구현.
 
 **구현 (custom-plugins/poro-rpg):**
 1. **DB** — `mob_stat_override`(mob_key PK, max_hp/def/atk nullable) + `config_change_log`(감사 로그=패치노트 원천). `RuntimeConfigMigration`을 `CommonFoundationBootstrap` 마이그레이션 리스트에 등록.
@@ -196,9 +196,9 @@
 **정합성:** 최고 티어 시즌보스 강 40% ≪ 85% 클램프. 필드(몹+필드보스)는 포션 없이 버티도록 설계 — 회복약은 시즌보스용. 하급 포션(HP 30%/3회)이 시즌보스 강 1대(40%)를 겨우 상쇄하는 "줄타기", 연달아 맞으면 회피 필수. 인내·받피감 잠재·포션 미반영 **보수적 하한**.
 
 **변경 (docs only):**
-- 신규 `docs/06_fields_bosses/mob_attack_stats_v1.md`(field_boss_stats의 공격 측 대칭 문서, 설계 전제·티어 룰·필드/시즌 정본표·현행 gap·MythicMobs 적용 매핑).
+- 신규 `poro-rpg/docs/06_fields_bosses/mob_attack_stats_v1.md`(field_boss_stats의 공격 측 대칭 문서, 설계 전제·티어 룰·필드/시즌 정본표·현행 gap·MythicMobs 적용 매핑).
 - `combat_balance_v2.md §1.5` 신설(정본 요약 + 포인터), DL-115 HP 노트에 "정본화 완료" 갱신.
-- `06_fields_bosses/CANON.md` 참조 우선순위에 신규 문서 추가.
+- `poro-rpg/docs/06_fields_bosses/CANON.md` 참조 우선순위에 신규 문서 추가.
 
 **남은 작업:** (1) server/plugins/MythicMobs 실제 적용은 별도 배포 단계(사용자 승인 필요). (2) 시즌보스 강 패턴 비율(30 vs 35~40%) 실측 확정. (3) 오픈 1주차 사망 로그로 티어 비율 보정.
 
@@ -723,7 +723,7 @@
 
 **영향 범위:** `EnhancementService`, `EnhancementResult`, `DbEnhancementLogHook`, `EnhancementLogDdl`, `EnhancementLogMigration`, `GrowthGuiListener`. 문서: `gui_enhancement.md`.
 
-**관련:** `docs/idea_inbox.md` INBOX-005 #강화 흔적 미연동 해소. `workshop_crafting_spec §9`, `equipment_growth_spec §3.4`, DL-024(레시피).
+**관련:** `poro-rpg/docs/idea_inbox.md` INBOX-005 #강화 흔적 미연동 해소. `workshop_crafting_spec §9`, `equipment_growth_spec §3.4`, DL-024(레시피).
 
 ---
 
@@ -742,7 +742,7 @@
 
 **영향 범위:** `IslandTerritoryState`, `PlayerSaveData`, `PlayerPersistenceService`, `MachineProductionScheduler`, `estate_facility_master.csv`.
 
-**관련:** `docs/idea_inbox.md` INBOX-005 #영지 생산·#광물 채굴기 시드 해소. island_system_design.md §2.2.
+**관련:** `poro-rpg/docs/idea_inbox.md` INBOX-005 #영지 생산·#광물 채굴기 시드 해소. island_system_design.md §2.2.
 
 ---
 
@@ -765,7 +765,7 @@
 
 **영향 범위:** `boss_master.csv`(src). 코드 변경 없음.
 
-**관련:** `docs/idea_inbox.md` INBOX-005 #보스 시드(🔴) 해소. DL-043, final_master_plan §9.
+**관련:** `poro-rpg/docs/idea_inbox.md` INBOX-005 #보스 시드(🔴) 해소. DL-043, final_master_plan §9.
 
 ---
 
@@ -788,7 +788,7 @@
 
 **영향 범위:** `growth_enhancement_table.csv`(src), `EnhancementService`, `GrowthEngineBootstrap`.
 
-**관련:** `docs/idea_inbox.md` INBOX-005 #강화 테이블(🔴) 해소. economy_numbers_v2.md §강화 비용표, DL-033.
+**관련:** `poro-rpg/docs/idea_inbox.md` INBOX-005 #강화 테이블(🔴) 해소. economy_numbers_v2.md §강화 비용표, DL-033.
 
 ---
 
@@ -829,7 +829,7 @@
 
 **영향 범위:** `BossDamageTracker`/`BossInstanceDamageListener`/`BossSessionPlayerMigrationV3`(신규), `mythicSpawner`(plugin), `BossRoomListener`, `BossSessionDdl`, `BossSessionRepository`, `DbBossRunRecordHook`, `BossEngineBootstrap`, `PoroRPGPlugin`, `CommonFoundationBootstrap`.
 
-**관련:** `docs/idea_inbox.md` INBOX-004 #5 (PROMOTED). **데이터 수집 공백 7종 전부 해소 — INBOX-004 완료.**
+**관련:** `poro-rpg/docs/idea_inbox.md` INBOX-004 #5 (PROMOTED). **데이터 수집 공백 7종 전부 해소 — INBOX-004 완료.**
 
 ---
 
@@ -849,7 +849,7 @@
 
 **영향 범위:** `GrowthSnapshotDdl`/`GrowthSnapshotMigration`/`GrowthSnapshotRepository`(신규), `PoroRPGPlugin`(스케줄러+행 구성), `GrowthApiHandler`(신규), `PoroHttpServer`, `OperationsQueryBootstrap`, `CommonFoundationBootstrap`.
 
-**관련:** `docs/idea_inbox.md` INBOX-004 #7 (PROMOTED). 남은 공백 1종(#5 보스 데미지 기여 — 런타임 데미지 추적).
+**관련:** `poro-rpg/docs/idea_inbox.md` INBOX-004 #7 (PROMOTED). 남은 공백 1종(#5 보스 데미지 기여 — 런타임 데미지 추적).
 
 ---
 
@@ -871,7 +871,7 @@
 
 **영향 범위:** `PvpDdl`, `PvpMatchLogMigrationV2`(신규), `PvpMatchLogRepository`, `PvpMatchService`, `PvpApiHandler`(신규), `PoroHttpServer`, `OperationsQueryBootstrap`, `CommonFoundationBootstrap`.
 
-**관련:** `docs/idea_inbox.md` INBOX-004 #6 (PROMOTED). 남은 공백 2종(#5 보스 데미지 기여·#7 성장 시계열).
+**관련:** `poro-rpg/docs/idea_inbox.md` INBOX-004 #6 (PROMOTED). 남은 공백 2종(#5 보스 데미지 기여·#7 성장 시계열).
 
 ---
 
@@ -894,7 +894,7 @@
 
 **영향 범위:** `BossParticipantSpec`/`BossParticipantSpecResolver`(신규), `BossSessionRepository`, `DbBossRunRecordHook`, `BossEngineBootstrap`, `PoroRPGPlugin`.
 
-**관련:** `docs/idea_inbox.md` INBOX-004 #4 (PROMOTED). DL-064(damage_share placeholder)는 #5로 별도. 남은 공백 3종(#5·#6·#7).
+**관련:** `poro-rpg/docs/idea_inbox.md` INBOX-004 #4 (PROMOTED). DL-064(damage_share placeholder)는 #5로 별도. 남은 공백 3종(#5·#6·#7).
 
 ---
 
@@ -918,7 +918,7 @@
 
 **영향 범위:** `CurrencyFlowListener`(신규), `PlayerGrowthState`, `GrowthStateStore`, `PlayerPersistenceService`, `EconomyFlowDdl`/`EconomyFlowMigration`/`EconomyFlowRepository`(신규), `PoroRPGPlugin`, `EconomyApiHandler`, `OperationsQueryBootstrap`, `CommonFoundationBootstrap`.
 
-**관련:** `docs/idea_inbox.md` INBOX-004 #2 (PROMOTED). 남은 공백 4종(#4~#7). 죽은 모델 `EconomyFlowRecord`(in-memory)는 본 DB 방식으로 대체 — 미사용 유지.
+**관련:** `poro-rpg/docs/idea_inbox.md` INBOX-004 #2 (PROMOTED). 남은 공백 4종(#4~#7). 죽은 모델 `EconomyFlowRecord`(in-memory)는 본 DB 방식으로 대체 — 미사용 유지.
 
 ---
 
@@ -938,7 +938,7 @@
 
 **영향 범위:** `EnhancementLogDdl`, `EnhancementLogMigration`, `DbEnhancementLogHook`(신규, write+read), `CompositeEnhancementLogHook`(신규), `GrowthEngineBootstrap`, `EconomyApiHandler`(신규), `PoroHttpServer`, `OperationsQueryBootstrap`, `CommonFoundationBootstrap`.
 
-**관련:** `docs/idea_inbox.md` INBOX-004 #3 (PROMOTED). 남은 공백 5종(#2·#4~#7).
+**관련:** `poro-rpg/docs/idea_inbox.md` INBOX-004 #3 (PROMOTED). 남은 공백 5종(#2·#4~#7).
 
 ---
 
@@ -958,7 +958,7 @@
 
 **영향 범위:** `PlayerSessionDdl`, `PlayerSessionMigration`, `PlayerSessionRepository`(신규), `PlayerJoinListener`, `PoroRPGPlugin`, `ActivityApiHandler`(신규), `PoroHttpServer`, `OperationsQueryBootstrap`, `CommonFoundationBootstrap`.
 
-**관련:** `docs/idea_inbox.md` INBOX-004 #1 (PROMOTED). 나머지 공백 6종(#2~#7)은 미구현 잔존.
+**관련:** `poro-rpg/docs/idea_inbox.md` INBOX-004 #1 (PROMOTED). 나머지 공백 6종(#2~#7)은 미구현 잔존.
 
 ---
 
@@ -999,7 +999,7 @@
 
 **영향 범위:** `BossSessionDdl.CREATE_SESSION_LOG` (DEFAULT 'abandoned'), `BossSessionRepository.recordStart()`, `BossSessionDdl.CREATE_STATS_SUMMARY_VIEW` (WHERE ended_at IS NOT NULL).
 
-**관련:** `docs/02_database_api_stats/boss_clear_stats_spec.md` §5 업데이트 완료.
+**관련:** `poro-rpg/docs/02_database_api_stats/boss_clear_stats_spec.md` §5 업데이트 완료.
 
 ---
 
@@ -1066,7 +1066,7 @@
 
 **이유:** 제련 후 주괴 형태가 인벤토리에 쌓이는 구조이므로 원석 요구는 UX상 부자연스러움. 공방은 가공된 재료 투입이 일관된 설계.
 
-**근거 문서:** `docs/05_island_farm_system/workshop_crafting_spec.md §4`, `docs/02_database_api_stats/economy_numbers_v2.md §8`
+**근거 문서:** `poro-rpg/docs/05_island_farm_system/workshop_crafting_spec.md §4`, `poro-rpg/docs/02_database_api_stats/economy_numbers_v2.md §8`
 
 ---
 
@@ -1084,7 +1084,7 @@
 
 **이유:** 기존 +0.20%/pt 초안 대비 하향. 치피 스텟만으로 얻는 이득을 줄여 치확 또는 잠재에 더 의존하게 만드는 설계 방향. 레벨 50 치명 all-in 시 치명 vs 특화 DPS 격차 6.3% → 설계 목표 5~10% 내 유지.
 
-**근거 문서:** `docs/04_combat_weapon_skills/level_stat_system_v1.md §2, §4`
+**근거 문서:** `poro-rpg/docs/04_combat_weapon_skills/level_stat_system_v1.md §2, §4`
 
 ---
 
@@ -1098,7 +1098,7 @@
 
 **이유:** 이벤트마다 DB write 시 메인 틱 스레드 블로킹으로 틱 지연 직결. 자정 일괄 집계는 당일 실시간 조회 불가. 메모리 누적 + 주기 플러시는 서버 부하 거의 없고 웹 대시보드에서 약 10분 지연의 실시간 통계 제공 가능. 45일 시즌 서버에서 크래시 시 최대 10분 손실은 허용 범위.
 
-**근거 문서:** `docs/11_web_dashboard/db_event_log_spec.md`, `docs/02_database_api_stats/CANON.md`
+**근거 문서:** `poro-rpg/docs/11_web_dashboard/db_event_log_spec.md`, `poro-rpg/docs/02_database_api_stats/CANON.md`
 
 ---
 
@@ -1111,7 +1111,7 @@
 
 **이유:** 개인 독립 드랍 구조에서는 보스 보상이 이미 각자에게 귀속되므로 파티 경매를 위한 공용 드랍 풀이 존재하지 않는다. 구현 복잡도 대비 설계 이점 없음.
 
-**근거 문서:** `docs/02_database_api_stats/economy_numbers_v2.md §11`, `docs/06_fields_bosses/CANON.md`
+**근거 문서:** `poro-rpg/docs/02_database_api_stats/economy_numbers_v2.md §11`, `poro-rpg/docs/06_fields_bosses/CANON.md`
 
 ---
 
@@ -1125,7 +1125,7 @@
 
 **이유:** 드랍 수량이 초안으로만 남아 구현 블로커였음. 수치는 45일 시즌 경제 시뮬레이션(economy_numbers_v2.md) 기준 잉여 설계 의도와 충돌하지 않음. 강화석 완성품은 파편 시스템 시절 잔재로 DB 가상 재화 체계와 이중 설계가 됨.
 
-**근거 문서:** `docs/06_fields_bosses/drop_tables_v1.md §4`, `docs/04_combat_weapon_skills/season_boss_stats_v1.md §8.1 R-5`
+**근거 문서:** `poro-rpg/docs/06_fields_bosses/drop_tables_v1.md §4`, `poro-rpg/docs/04_combat_weapon_skills/season_boss_stats_v1.md §8.1 R-5`
 
 ---
 
@@ -1150,7 +1150,7 @@
 **이동속도% 바닐라 캡:** 레전더리 신발 최대 +13%는 바닐라 속성 캡 범위 내. 별도 처리 불필요. 구현 시 실측 확인만.
 
 **이유:** 필드보스 큐브 조각을 확률형에서 확정형으로 전환 — 30분 보스 참여 보상의 예측 가능성 확보. 불확실한 0% 보상보다 소량 확정이 참여 유도에 효과적.  
-**파일:** `docs/06_fields_bosses/drop_tables_v1.md`, `docs/02_database_api_stats/potential_options_v1.md`  
+**파일:** `poro-rpg/docs/06_fields_bosses/drop_tables_v1.md`, `poro-rpg/docs/02_database_api_stats/potential_options_v1.md`  
 **근거:** 2026-05-24 확정
 
 ---
@@ -1164,7 +1164,7 @@
 - 스코어보드에 현재 큐브 수 옆 **(큐브 조각: n개)** 표시.
 
 **이유:** 공방 슬롯을 점유하지 않아 가공 병렬성 유지. 조각 수집 즉시 교환 가능해 수급 체감 개선.  
-**파일:** `docs/02_database_api_stats/potential_options_v1.md`, `docs/10_development_roadmap/index.md`  
+**파일:** `poro-rpg/docs/02_database_api_stats/potential_options_v1.md`, `poro-rpg/docs/10_development_roadmap/index.md`  
 **근거:** 2026-05-24 확정
 
 ---
@@ -1181,7 +1181,7 @@
 
 전 필드보스 5종에 **P-00 기본 공격** 추가. 헤더 "P-01~P-10" → "P-00~P-13" 갱신.
 
-**파일:** `docs/07_boss_pattern_modules/field_boss_patterns.md`  
+**파일:** `poro-rpg/docs/07_boss_pattern_modules/field_boss_patterns.md`  
 **근거:** DL-048 P-10 폐기 후속 정합 (2026-05-24)
 
 ---
@@ -1204,7 +1204,7 @@
 - 시즌최종보스 3종: 1~2인 입장 가능, **인원 스케일 보정 없음** (3인 기준 설계).
 - SP-81~84, SP-91~92 전체 상태 초안 → 확정.
 
-**파일:** `docs/07_boss_pattern_modules/season_boss_patterns.md`  
+**파일:** `poro-rpg/docs/07_boss_pattern_modules/season_boss_patterns.md`  
 **근거:** 사용자 확인 (2026-05-24)
 
 ---
@@ -1224,7 +1224,7 @@
 
 **SP-41~62 전체 상태 초안 → 확정.**
 
-**파일:** `docs/07_boss_pattern_modules/season_boss_patterns.md`  
+**파일:** `poro-rpg/docs/07_boss_pattern_modules/season_boss_patterns.md`  
 **근거:** 사용자 확인 (2026-05-24)
 
 ---
@@ -1245,7 +1245,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 
 버프/너프 기준: 클리어율이 설계 목표 ±15~20%p 이상 2주 지속 시 검토.
 
-**파일:** `docs/02_database_api_stats/boss_clear_stats_spec.md` (신규), `docs/02_database_api_stats/CANON.md`  
+**파일:** `poro-rpg/docs/02_database_api_stats/boss_clear_stats_spec.md` (신규), `poro-rpg/docs/02_database_api_stats/CANON.md`  
 **근거:** INBOX-002 → 확정 (2026-05-24)
 
 ---
@@ -1267,7 +1267,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 - 방어력 무시 유니크(~17%)가 보스4+ 클리어의 실질 필요 조건.
 - 정확한 TTK 검증은 M-1 프리 시즌 실측 후. 방향성 확정, 수치는 조정 가능.
 
-**파일:** `docs/04_combat_weapon_skills/season_boss_stats_v1.md`
+**파일:** `poro-rpg/docs/04_combat_weapon_skills/season_boss_stats_v1.md`
 **근거:** 사용자 확인 (2026-05-24)
 
 ---
@@ -1279,7 +1279,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 - 구버전(35분 타이머 시절) 설계값이 그대로 남아있던 오류.
 - 확정 타이머 10분 기준으로 8분 경과 시 전 패턴 속도 +20%, 분노 구간 진입.
 
-**파일:** `docs/07_boss_pattern_modules/season_boss_patterns.md`  
+**파일:** `poro-rpg/docs/07_boss_pattern_modules/season_boss_patterns.md`  
 **근거:** 타이머 불일치 발견 + 사용자 확인 (2026-05-24)
 
 ---
@@ -1293,7 +1293,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 - 실패 시 전이율 80% 강화 + 분노 복귀
 - **설계 의도**: SP-81(개체 분리 강제) ↔ SP-83(집결 강제) — 전환마다 파티 배치 반전 압박
 
-**파일:** `docs/07_boss_pattern_modules/season_boss_patterns.md`  
+**파일:** `poro-rpg/docs/07_boss_pattern_modules/season_boss_patterns.md`  
 **근거:** 사용자 확인 (2026-05-24)
 
 ---
@@ -1314,7 +1314,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 | 보스6 공허 사자 | P-10 균열 장판 | P-11 추적 균열 구체 (착탄 시 텔레포트) |
 | 균열왕 | P-10 저주 성장 장판 | P-03 저주 폭발 Phase별 반지름 증가 |
 
-**파일:** `docs/07_boss_pattern_modules/common_patterns.md`, `season_boss_patterns.md`  
+**파일:** `poro-rpg/docs/07_boss_pattern_modules/common_patterns.md`, `season_boss_patterns.md`  
 **근거:** 사용자 확인 (2026-05-24)
 
 ---
@@ -1337,7 +1337,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 
 - P-14(독기/화염 장판)은 서버 부하 이유로 미채택 (DL-048 참조).
 
-**파일:** `docs/07_boss_pattern_modules/common_patterns.md`, `season_boss_patterns.md`  
+**파일:** `poro-rpg/docs/07_boss_pattern_modules/common_patterns.md`, `season_boss_patterns.md`  
 **근거:** 사용자 확인 (2026-05-24)
 
 ---
@@ -1355,7 +1355,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 - SP-31 지진 발걸음: 발구름 3회 동심원 진동파 → 점프 회피 + 석판 충전으로 무적 해제
 - SP-32 거석 팔 투척: 팔 오브젝트(HP 20,000) 파괴로 무적 해제. 성공 시 Phase 3 P-04 범위 -30%, 실패 시 공격력 +15% 분노
 
-**파일:** `docs/07_boss_pattern_modules/season_boss_patterns.md`  
+**파일:** `poro-rpg/docs/07_boss_pattern_modules/season_boss_patterns.md`  
 **근거:** 사용자 확인 (2026-05-24)
 
 ---
@@ -1383,7 +1383,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 - 두 아이템 현재 상점 미판매. 보스 드랍 단일 경로.
 - 수치는 초안 — 운영 후 조정 가능.
 
-**파일:** `docs/06_fields_bosses/drop_tables_v1.md`  
+**파일:** `poro-rpg/docs/06_fields_bosses/drop_tables_v1.md`  
 **근거:** 사용자 확인 (2026-05-24)
 
 ---
@@ -1397,7 +1397,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 - 공방 가공기 균열왕 입장권 제작 레시피 불필요
 
 **근거:** 입장권 수집 과정이 콘텐츠 진행 흐름을 단절시킴. 보스6 클리어 자체가 최종보스 도전 자격의 자연스러운 기준. 사용자 확인 (2026-05-24)  
-**파일:** `docs/06_fields_bosses/drop_tables_v1.md`, `docs/decision_log.md`
+**파일:** `poro-rpg/docs/06_fields_bosses/drop_tables_v1.md`, `poro-rpg/docs/decision_log.md`
 
 ---
 
@@ -1418,7 +1418,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 - **타락한 이중체 핵심 설계:** 좀비 HP% · 스켈레톤 HP% 차이 >25% 시 광폭화. 각 HP 445,000 (총 890,000), DEF 270, 타이머 10분
 - **진혼의 주시자 핵심 설계:** 위더가 별빛 마법사 주기 소환. 마법사 수 스택별 위더 받피감 증가: 1~2명 +15%/명, 3~4명 +20%/명 추가, 5명+ 전원 소모 → 별빛 대마법 발동. HP 890,000, DEF 280, 타이머 10분
 
-**파일:** `docs/06_fields_bosses/CANON.md`, `docs/06_fields_bosses/drop_tables_v1.md`, `docs/04_combat_weapon_skills/season_boss_stats_v1.md`, `docs/07_boss_pattern_modules/season_boss_patterns.md`  
+**파일:** `poro-rpg/docs/06_fields_bosses/CANON.md`, `poro-rpg/docs/06_fields_bosses/drop_tables_v1.md`, `poro-rpg/docs/04_combat_weapon_skills/season_boss_stats_v1.md`, `poro-rpg/docs/07_boss_pattern_modules/season_boss_patterns.md`  
 **근거:** 사용자 확인 (2026-05-24)
 
 ---
@@ -1437,7 +1437,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 | 보스6 | **공허 사자** | 엔더맨 | 균열 파편 (균열 에너지) |
 | 최종보스 | **균열왕** | 위더스켈레톤 + 말 | 검 든 기사왕 |
 
-**파일:** `docs/06_fields_bosses/CANON.md`, `docs/06_fields_bosses/drop_tables_v1.md`, `docs/04_combat_weapon_skills/season_boss_stats_v1.md`, `docs/07_boss_pattern_modules/season_boss_patterns.md`  
+**파일:** `poro-rpg/docs/06_fields_bosses/CANON.md`, `poro-rpg/docs/06_fields_bosses/drop_tables_v1.md`, `poro-rpg/docs/04_combat_weapon_skills/season_boss_stats_v1.md`, `poro-rpg/docs/07_boss_pattern_modules/season_boss_patterns.md`  
 **근거:** 사용자 확인 (2026-05-24)
 
 ---
@@ -1461,7 +1461,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 - 모듈 패턴 시스템으로 추가 3보스 구현 비용 최소화
 - 컨셉/이름/스탯/보상 표는 후속 작업에서 확정
 
-**파일:** `docs/06_fields_bosses/CANON.md`, `docs/final_master_plan.md`  
+**파일:** `poro-rpg/docs/06_fields_bosses/CANON.md`, `poro-rpg/docs/final_master_plan.md`  
 **근거:** 사용자 확인 (2026-05-24)
 
 ---
@@ -1480,7 +1480,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 
 > **보스명/컨셉 변경 가능성 있음.** "균열왕"은 현재 임시 명칭. 변경 시 수치 재검토 가능하나 스택 구조 자체는 유지.
 
-**파일:** `docs/04_combat_weapon_skills/season_boss_stats_v1.md` (M-7 해소), `docs/07_boss_pattern_modules/season_boss_patterns.md` (기존 초안 수치 확정)  
+**파일:** `poro-rpg/docs/04_combat_weapon_skills/season_boss_stats_v1.md` (M-7 해소), `poro-rpg/docs/07_boss_pattern_modules/season_boss_patterns.md` (기존 초안 수치 확정)  
 **근거:** 사용자 확인 (2026-05-24)
 
 ---
@@ -1501,7 +1501,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 
 **폐기된 아이템:** `시즌보스 1/2/3 핵심 재료`
 
-**파일:** `docs/06_fields_bosses/drop_tables_v1.md`  
+**파일:** `poro-rpg/docs/06_fields_bosses/drop_tables_v1.md`  
 **근거:** 사용자 확인 (2026-05-24)
 
 ---
@@ -1514,7 +1514,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 - 입장 시 인원 부족 경고 메시지 출력 (`§e[경고] 현재 인원으로 클리어가 어려울 수 있습니다.`)
 - 클리어 여부는 유저 책임. 구현 복잡도 절감 (인원 체크 로직 불필요)
 
-**파일:** `docs/04_combat_weapon_skills/season_boss_stats_v1.md` (R-3, M-3 해소), `docs/06_fields_bosses/CANON.md`  
+**파일:** `poro-rpg/docs/04_combat_weapon_skills/season_boss_stats_v1.md` (R-3, M-3 해소), `poro-rpg/docs/06_fields_bosses/CANON.md`  
 **근거:** 사용자 확인 (2026-05-24)
 
 ---
@@ -1533,7 +1533,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 
 **45일 시즌 기준:** 6주 = 풀 보상 최대 6회 기회.
 
-**파일:** `docs/06_fields_bosses/drop_tables_v1.md`, `docs/06_fields_bosses/CANON.md`  
+**파일:** `poro-rpg/docs/06_fields_bosses/drop_tables_v1.md`, `poro-rpg/docs/06_fields_bosses/CANON.md`  
 **근거:** 사용자 확인 (2026-05-24)
 
 ---
@@ -1549,7 +1549,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 
 **약초 재배지 / 광물 채굴기는 기존 3사이클 캡 유지** — 주기적 생산 재화 폭발 방지 목적.
 
-**파일:** `docs/05_island_farm_system/island_system_design.md`, `docs/05_island_farm_system/CANON.md`  
+**파일:** `poro-rpg/docs/05_island_farm_system/island_system_design.md`, `poro-rpg/docs/05_island_farm_system/CANON.md`  
 **근거:** 사용자 확인 (2026-05-24)
 
 ---
@@ -1573,7 +1573,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 
 **설계 의도:** 처리 시간이 곧 "게임 내 대기 비용". 고급일수록 길어지지만 최대 90분(찬란한)을 상한으로 둬 오프라인 누적 보상(최대 3사이클)과 조합 시 비효율이 없도록 설계.
 
-**파일:** `docs/05_island_farm_system/workshop_crafting_spec.md`  
+**파일:** `poro-rpg/docs/05_island_farm_system/workshop_crafting_spec.md`  
 **근거:** 사용자 확인 (2026-05-24)
 
 ---
@@ -1601,7 +1601,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 - 광부의 정수: 자연의 정수 → 미감정 흔적 체인 + 부스트 포션 전용 (고비용 유지)
 - 마도합금: 광물 채굴기 → 제련 → 강화 흔적/고대흔적 체인 담당
 
-**파일:** `docs/05_island_farm_system/workshop_crafting_spec.md`
+**파일:** `poro-rpg/docs/05_island_farm_system/workshop_crafting_spec.md`
 **근거:** 사용자 확인 (2026-05-24)
 
 ---
@@ -1636,9 +1636,9 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 17~25강 성공률 현행 유지.
 
 **파일:**
-- `docs/06_fields_bosses/drop_tables_v1.md`
-- `docs/02_database_api_stats/economy_numbers_v2.md`
-- `docs/final_master_plan.md` §13 미확정 항목 업데이트
+- `poro-rpg/docs/06_fields_bosses/drop_tables_v1.md`
+- `poro-rpg/docs/02_database_api_stats/economy_numbers_v2.md`
+- `poro-rpg/docs/final_master_plan.md` §13 미확정 항목 업데이트
 
 **이유:** 버튼 많이 누르는 경험 > 정밀한 수급 계산. 오픈 후 3일 실측 기반 재조정 여지 유지.
 **근거:** 사용자 확인 (2026-05-24)
@@ -1659,7 +1659,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 - 이동기 거리: 스태프 1.5 < 검/석궁 2~2.5 < 도끼 3 < 창 5블럭
 - 각도: 표준 근접 120°, 좌우 대응 보완 스킬 150°
 
-**파일:** `docs/04_combat_weapon_skills/weapon_skills_v1.md` — 히트박스 섹션 + 스키마 필드 추가
+**파일:** `poro-rpg/docs/04_combat_weapon_skills/weapon_skills_v1.md` — 히트박스 섹션 + 스키마 필드 추가
 **근거:** 사용자 확인 (2026-05-24)
 
 ---
@@ -1684,7 +1684,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 **구현 격리 원칙:** MythicMobs API 직접 호출은 `MythicMobsEffectHandler` 안에만 격리. PoroRPG core는 인터페이스(`EffectDispatcher`)만 참조.
 
 **파일:**
-- `docs/04_combat_weapon_skills/weapon_skills_v1.md` — 이펙트 시스템 섹션 + 24개 스킬 effect_key 기준값 추가
+- `poro-rpg/docs/04_combat_weapon_skills/weapon_skills_v1.md` — 이펙트 시스템 섹션 + 24개 스킬 effect_key 기준값 추가
 
 **이유:** MythicMobs는 이미 스택에 있어 추가 의존 없음. prefix 기반 dispatch는 핸들러를 교체해도 스킬 데이터를 건드리지 않아 2차 확장 시 ModelEngine 교체 비용 최소화.
 **근거:** 사용자 확인 (2026-05-24)
@@ -1699,7 +1699,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 3. 봇 구현 언어 — **Node.js (Discord.js)**, PoroRPG와 독립 프로세스.
 
 **파일:**
-- `docs/03_discord_onboarding_bot/discord_bot_spec.md`
+- `poro-discord/docs/discord_bot_spec.md`
 
 **이유:**
 - `/강화계산`: 강화 비용은 CANON 고정 수치. API 왕복 불필요. 봇 내부 계산이 응답 빠르고 구현 단순. 45일 시즌 내 수치 변경 가능성 낮음.
@@ -1714,8 +1714,8 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 **결정:** 디스코드 봇 `/버그제보` 접수번호는 `bug_report.id` AUTOINCREMENT를 사용하고 `BUG-{id}` 형식으로 공개한다.
 
 **파일:**
-- `docs/03_discord_onboarding_bot/discord_bot_spec.md`
-- `docs/11_web_dashboard/db_event_log_spec.md` — `bug_report` 테이블 추가
+- `poro-discord/docs/discord_bot_spec.md`
+- `poro-rpg/docs/11_web_dashboard/db_event_log_spec.md` — `bug_report` 테이블 추가
 
 **이유:** 날짜+순번 방식(`BUG-20260523-001`)은 날짜 파싱·중복 방지 로직이 추가로 필요하다. DB AUTOINCREMENT는 SQLite가 보장하므로 구현이 단순하고, 45일 시즌 내 버그 수가 수백 건 이하로 예상되므로 번호 자릿수 부담 없음.
 **근거:** 사용자 확인 (2026-05-24)
@@ -1724,14 +1724,14 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 
 ### DL-028 운영자 웹 대시보드 도메인 신설
 
-**결정:** `docs/11_web_dashboard/` 폴더를 신설하고 운영자 전용 웹 대시보드 설계 문서 4종을 작성한다.
+**결정:** `poro-rpg/docs/11_web_dashboard/` 폴더를 신설하고 운영자 전용 웹 대시보드 설계 문서 4종을 작성한다.
 
 **변경:**
-- `docs/11_web_dashboard/index.md` 신규: 전체 구조 개요, 페이지 목록, 기술 스택
-- `docs/11_web_dashboard/web_dashboard_spec.md` 신규: 페이지별 레이아웃·필터·표시 데이터 상세
-- `docs/11_web_dashboard/api_endpoints.md` 신규: 대시보드 호출 API 엔드포인트 목록
-- `docs/11_web_dashboard/db_event_log_spec.md` 신규: 경제·전투 이벤트 로그 DB 테이블 설계
-- `docs/final_master_plan.md`: 공식 문서 구조 표에 도메인 11 추가, §11 데이터와 API에 웹 대시보드 설명 추가
+- `poro-rpg/docs/11_web_dashboard/index.md` 신규: 전체 구조 개요, 페이지 목록, 기술 스택
+- `poro-rpg/docs/11_web_dashboard/web_dashboard_spec.md` 신규: 페이지별 레이아웃·필터·표시 데이터 상세
+- `poro-rpg/docs/11_web_dashboard/api_endpoints.md` 신규: 대시보드 호출 API 엔드포인트 목록
+- `poro-rpg/docs/11_web_dashboard/db_event_log_spec.md` 신규: 경제·전투 이벤트 로그 DB 테이블 설계
+- `poro-rpg/docs/final_master_plan.md`: 공식 문서 구조 표에 도메인 11 추가, §11 데이터와 API에 웹 대시보드 설명 추가
 
 **이유:** 45일 시즌 서버에서 경제 이상·보스 밸런스를 운영 중 감지하고 근거 있는 너프/버프 판단을 하기 위해 운영자 관제 도구가 필요하다.
 
@@ -1766,7 +1766,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 
 ### DL-001 Citizens 플러그인 제거
 
-**파일:** `docs/01_plugin_architecture/index.md`  
+**파일:** `poro-rpg/docs/01_plugin_architecture/index.md`  
 **변경:** 플러그인 목록 테이블에서 `Citizens | NPC 껍데기` 행 제거  
 **이유:** `final_master_plan.md`의 "플러그인 구조"에서 Citizens 제거가 확정됨. NPC 역할은 PoroRPG 자체 처리로 전환.  
 **근거:** `final_master_plan.md`의 "플러그인 구조" (2026-05-20 기준)
@@ -1775,7 +1775,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 
 ### DL-002 마력 과부하 채팅 메시지 제거
 
-**파일:** `docs/04_combat_weapon_skills/index.md`  
+**파일:** `poro-rpg/docs/04_combat_weapon_skills/index.md`  
 **변경:** 채팅/알림 포맷 테이블에서 `마력 과부하`, `마력 과부하 반복` 행 제거  
 **이유:** 마력 시스템(발전기·마력 소비 구조) 2026-05-19 전면 폐지 확정.  
 **근거:** `final_master_plan.md`의 "개인 영지" + `economy_numbers_v2.md`의 마력 시스템 폐지 주석
@@ -1785,8 +1785,8 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 ### DL-003 무기 이름 망치 → 도끼
 
 **파일:**  
-- `docs/04_combat_weapon_skills/weapon_skills_v1.md` (전체 표시명 치환)  
-- `docs/04_combat_weapon_skills/index.md` (무기 클래스 테이블, GUI 레이아웃, 아이콘 테이블)  
+- `poro-rpg/docs/04_combat_weapon_skills/weapon_skills_v1.md` (전체 표시명 치환)  
+- `poro-rpg/docs/04_combat_weapon_skills/index.md` (무기 클래스 테이블, GUI 레이아웃, 아이콘 테이블)  
 **변경:** 표시명 "망치" → "도끼" (당시 YAML 코드 식별자 `hammer`는 구현 로직으로 유지했으나, DL-025에서 `axe`로 전환 확정)
 **이유:** `final_master_plan.md`의 "전투와 장비 성장"에서 무기 6종 중 "도끼"로 확정됨. `weapon_skills_v1.md`의 도끼 항목도 `minecraft:netherite_axe`를 추천 베이스 아이템으로 기재함.  
 **근거:** `final_master_plan.md`의 "전투와 장비 성장" (2026-05-20 기준)
@@ -1795,7 +1795,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 
 ### DL-004 도끼 베이스 아이템 NETHERITE_PICKAXE → NETHERITE_AXE
 
-**파일:** `docs/04_combat_weapon_skills/index.md`  
+**파일:** `poro-rpg/docs/04_combat_weapon_skills/index.md`  
 **변경:** 무기 선택창 아이콘 테이블에서 도끼 베이스 아이템을 `NETHERITE_PICKAXE` → `NETHERITE_AXE`로 수정  
 **이유:** `weapon_skills_v1.md`의 도끼 항목에 "추천 베이스 아이템: `minecraft:netherite_axe`"로 명시됨. index.md의 `NETHERITE_PICKAXE`는 이전 망치 기반 시절의 잔재.  
 **근거:** `weapon_skills_v1.md`의 도끼 항목 + `final_master_plan.md`의 "전투와 장비 성장"
@@ -1804,7 +1804,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 
 ### DL-005 강화 비용표 전면 교체
 
-**파일:** `docs/02_database_api_stats/economy_numbers_v2.md`  
+**파일:** `poro-rpg/docs/02_database_api_stats/economy_numbers_v2.md`  
 **변경:** `### 강화 비용표` 섹션 전체를 `final_master_plan.md`의 "전투와 장비 성장" 및 "미확정 항목" 확정 내용 기준으로 교체  
 **상세 변경:**
 - 골드 비용: 1강 180G → **2,000G**, 22강+ 25,000G → **27,000G 고정**
@@ -1814,13 +1814,13 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 - 구 계산 테이블(강화석 파편 소모량, 보조재 소모량)은 구버전 표기로 인라인 주석 처리
 
 **이유:** economy_numbers_v2가 2026-05-15 기준 수치이고, `final_master_plan.md`의 "전투와 장비 성장"은 2026-05-20 M-3 확정 기준. 최신 확정이 우선.  
-**근거:** `final_master_plan.md`의 "전투와 장비 성장" 및 `docs/02_database_api_stats/CANON.md`
+**근거:** `final_master_plan.md`의 "전투와 장비 성장" 및 `poro-rpg/docs/02_database_api_stats/CANON.md`
 
 ---
 
 ### DL-006 마력 관련 항목 제거 (economy_numbers_v2)
 
-**파일:** `docs/02_database_api_stats/economy_numbers_v2.md`  
+**파일:** `poro-rpg/docs/02_database_api_stats/economy_numbers_v2.md`  
 **변경:**
 - `economy_numbers_v2.md`의 병목 구간 테이블에서 "발전기 마력 부족" 행 제거
 - `economy_numbers_v2.md`의 v2 신규 체크포인트 테이블에서 "마력 과부하 발생 비율" 행 제거
@@ -1834,25 +1834,25 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 
 ### DL-007 final_master_plan.md 2,341줄 → 601줄 축소
 
-**파일:** `docs/final_master_plan.md`  
+**파일:** `poro-rpg/docs/final_master_plan.md`  
 **변경:** 세부 수치·슬롯 매핑·레시피 체인·확정 완료 M-tags를 "→ 상세: X 참조" 형태로 위임.  
 **제거 및 위임 목록:**
-- 무기 6종 스킬 상세 → `04_combat_weapon_skills/weapon_skills_v1.md`
-- 장비 포맷·시작 장비 → `01_plugin_architecture/implementation_reference.md`
-- 시스템 메시지 포맷 → `01_plugin_architecture/CANON.md`
-- 상점 상세 → `02_database_api_stats/CANON.md`
-- 잠재 등급 상세 표 → `02_database_api_stats/potential_options_v1.md`
-- 강화 비용표 전체 → `02_database_api_stats/economy_numbers_v2.md`
-- 작위별 상세 표 → `05_island_farm_system/CANON.md`
-- 공방 레시피 체인 → `05_island_farm_system/workshop_crafting_spec.md`
-- 광물 생성기 확률표 → `05_island_farm_system/CANON.md`
-- 엘리베이터 구현 코드 → `01_plugin_architecture/implementation_reference.md`
-- GUI 슬롯 매핑 전체 → `08_resourcepack_pipeline/gui_*.md`
+- 무기 6종 스킬 상세 → `poro-rpg/docs/04_combat_weapon_skills/weapon_skills_v1.md`
+- 장비 포맷·시작 장비 → `poro-rpg/docs/01_plugin_architecture/implementation_reference.md`
+- 시스템 메시지 포맷 → `poro-rpg/docs/01_plugin_architecture/CANON.md`
+- 상점 상세 → `poro-rpg/docs/02_database_api_stats/CANON.md`
+- 잠재 등급 상세 표 → `poro-rpg/docs/02_database_api_stats/potential_options_v1.md`
+- 강화 비용표 전체 → `poro-rpg/docs/02_database_api_stats/economy_numbers_v2.md`
+- 작위별 상세 표 → `poro-rpg/docs/05_island_farm_system/CANON.md`
+- 공방 레시피 체인 → `poro-rpg/docs/05_island_farm_system/workshop_crafting_spec.md`
+- 광물 생성기 확률표 → `poro-rpg/docs/05_island_farm_system/CANON.md`
+- 엘리베이터 구현 코드 → `poro-rpg/docs/01_plugin_architecture/implementation_reference.md`
+- GUI 슬롯 매핑 전체 → `poro-rpg/docs/08_resourcepack_pipeline/gui_*.md`
 - 확정 완료 M-tags → 각 도메인 문서와 `decision_log.md`에 흡수
-- 관리자 커맨드 상세 표 → `01_plugin_architecture/admin_command_spec.md`
+- 관리자 커맨드 상세 표 → `poro-rpg/docs/01_plugin_architecture/admin_command_spec.md`
 **추가 수정:** 장비 이름 변경권 가격 300,000G → **10,000G** (DL-007 충돌 해소, M-11 확정 반영)  
 **이유:** final_master_plan을 프로젝트 철학·핵심 방향성·시스템 연결 중심 문서로 전환. 세부 내용은 전용 시스템 문서(CANON.md, 시스템 스펙 문서)에서 관리.  
-**근거:** `docs/_archive/master_plan_content_audit.md` 분류 기준
+**근거:** `poro-rpg/docs/_archive/master_plan_content_audit.md` 분류 기준
 
 ---
 
@@ -1861,34 +1861,34 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 ### DL-008 archive 구조 확정
 
 **파일:**
-- `docs/_archive/README.md`
-- `docs/_archive/docs_restructure_plan.md`
-- `docs/_archive/master_plan_content_audit.md`
-- `docs/_archive/11_remaining_decisions/index.md`
+- `poro-rpg/docs/_archive/README.md`
+- `poro-rpg/docs/_archive/docs_restructure_plan.md`
+- `poro-rpg/docs/_archive/master_plan_content_audit.md`
+- `poro-rpg/docs/_archive/11_remaining_decisions/index.md`
 
-**변경:** 활성 docs 루트에 남아 있던 리빌드 계획/감사/구 결정 문서를 `docs/_archive/`로 이동하고, README에 archive 이유와 대체 문서를 기록.  
+**변경:** 활성 docs 루트에 남아 있던 리빌드 계획/감사/구 결정 문서를 `poro-rpg/docs/_archive/`로 이동하고, README에 archive 이유와 대체 문서를 기록.  
 **이유:** 실행 완료된 계획 문서와 흡수된 결정 문서가 활성 기준 문서처럼 보이는 문제 제거.  
-**근거:** docs 리빌드 검수 기준 — archive 폴더는 `docs/_archive/`로 통일.
+**근거:** docs 리빌드 검수 기준 — archive 폴더는 `poro-rpg/docs/_archive/`로 통일.
 
 ---
 
 ### DL-009 구현 레퍼런스 경로 확정
 
-**파일:** `docs/01_plugin_architecture/implementation_reference.md`  
+**파일:** `poro-rpg/docs/01_plugin_architecture/implementation_reference.md`  
 **변경:** 기존 루트 `docs/final_설계_plan.md`를 플러그인 아키텍처 하위 구현 레퍼런스로 이동.  
-**이유:** `final_master_plan.md`과 각 CANON에서 이미 구현 상세를 `01_plugin_architecture/implementation_reference.md`로 위임하고 있었으므로 실제 파일 경로를 참조와 일치시킴.  
-**근거:** `docs/01_plugin_architecture/CANON.md`
+**이유:** `final_master_plan.md`과 각 CANON에서 이미 구현 상세를 `poro-rpg/docs/01_plugin_architecture/implementation_reference.md`로 위임하고 있었으므로 실제 파일 경로를 참조와 일치시킴.  
+**근거:** `poro-rpg/docs/01_plugin_architecture/CANON.md`
 
 ---
 
 ### DL-010 CANON.md 역할 정리
 
 **파일:**
-- `docs/01_plugin_architecture/CANON.md`
-- `docs/02_database_api_stats/CANON.md`
-- `docs/04_combat_weapon_skills/CANON.md`
-- `docs/05_island_farm_system/CANON.md`
-- `docs/06_fields_bosses/CANON.md`
+- `poro-rpg/docs/01_plugin_architecture/CANON.md`
+- `poro-rpg/docs/02_database_api_stats/CANON.md`
+- `poro-rpg/docs/04_combat_weapon_skills/CANON.md`
+- `poro-rpg/docs/05_island_farm_system/CANON.md`
+- `poro-rpg/docs/06_fields_bosses/CANON.md`
 
 **변경:** TODO/잔존 충돌 문구를 제거하고, 공식 기준·참조 우선순위·충돌 처리 방식만 남김. 잘못된 섹션 번호와 이동 예정 문구도 정리.  
 **이유:** CANON 문서가 작업 체크리스트가 아니라 현재 공식 기준 역할을 해야 함.  
@@ -1899,7 +1899,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 ### DL-011 Status 태그와 참조 경로 통일
 
 **파일:** `docs/**/*.md`, `CLAUDE.md`  
-**변경:** 주요 문서 상단 Status를 `[STATUS: CANON|REFERENCE|DRAFT|ARCHIVED]` 형식으로 통일. 구 GUI 경로를 `docs/08_resourcepack_pipeline/`로 수정. 존재하지 않는 경제 검토 문서 참조 제거.  
+**변경:** 주요 문서 상단 Status를 `[STATUS: CANON|REFERENCE|DRAFT|ARCHIVED]` 형식으로 통일. 구 GUI 경로를 `poro-rpg/docs/08_resourcepack_pipeline/`로 수정. 존재하지 않는 경제 검토 문서 참조 제거.  
 **이유:** 문서 역할과 현재 docs 구조를 명확히 하고 깨진 참조를 제거.  
 **근거:** docs 리빌드 검수 기준 — Status 태그 누락, CLAUDE/AGENTS 참조 경로 정합성.
 
@@ -1907,10 +1907,10 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 
 ### DL-012 final_master_plan 재축약
 
-**파일:** `docs/final_master_plan.md`  
+**파일:** `poro-rpg/docs/final_master_plan.md`  
 **변경:** 구현 절차, 상세 수치표, 슬롯 배치, API 상세, 관리자 커맨드 상세를 하위 문서로 위임하고 원칙/방향성/도메인 진입점 중심으로 재구성.  
 **이유:** `final_master_plan.md`가 너무 많은 세부사항을 보유하면 각 CANON.md와 하위 문서가 공식 기준으로 기능하기 어렵다.  
-**근거:** `docs/_archive/master_plan_content_audit.md`
+**근거:** `poro-rpg/docs/_archive/master_plan_content_audit.md`
 
 ---
 
@@ -1932,9 +1932,9 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 ### DL-014 M-6 확정 — 강화 흔적 3종 아이템 정의·수급 경로
 
 **파일:**
-- `docs/final_master_plan.md` (§13 미확정 항목에서 제거)
-- `docs/02_database_api_stats/CANON.md` (흔적 수급 경로 추가)
-- `docs/05_island_farm_system/CANON.md` (공방 가공기 제작 대상 명시)
+- `poro-rpg/docs/final_master_plan.md` (§13 미확정 항목에서 제거)
+- `poro-rpg/docs/02_database_api_stats/CANON.md` (흔적 수급 경로 추가)
+- `poro-rpg/docs/05_island_farm_system/CANON.md` (공방 가공기 제작 대상 명시)
 
 **변경:**
 - 별의 흔적 / 달의 흔적 / 태양의 흔적 = **강화 성공률 보정 아이템**으로 정의
@@ -1949,8 +1949,8 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 ### DL-015 M-4 확정 — 전승권 비용
 
 **파일:**
-- `docs/final_master_plan.md` (§13 미확정 항목에서 제거)
-- `docs/02_database_api_stats/CANON.md` (전승권 비용 추가)
+- `poro-rpg/docs/final_master_plan.md` (§13 미확정 항목에서 제거)
+- `poro-rpg/docs/02_database_api_stats/CANON.md` (전승권 비용 추가)
 
 **변경:**
 - 기본 전승: **0G (무료)**
@@ -1967,8 +1967,8 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 ### DL-016 큐브 1회 비용 5,000G → 500G
 
 **파일:**
-- `docs/02_database_api_stats/CANON.md`
-- `docs/02_database_api_stats/economy_numbers_v2.md`
+- `poro-rpg/docs/02_database_api_stats/CANON.md`
+- `poro-rpg/docs/02_database_api_stats/economy_numbers_v2.md`
 
 **변경:**
 - 큐브 1회 사용 골드 비용: **5,000G → 500G**
@@ -1982,8 +1982,8 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 ### DL-017 enhancement_droprate_v1.md 아카이브
 
 **파일:**
-- `docs/02_database_api_stats/enhancement_droprate_v1.md` → `docs/_archive/enhancement_droprate_v1.md`
-- `docs/_archive/README.md` (PHASE 6 항목 추가)
+- `poro-rpg/docs/02_database_api_stats/enhancement_droprate_v1.md` → `poro-rpg/docs/_archive/enhancement_droprate_v1.md`
+- `poro-rpg/docs/_archive/README.md` (PHASE 6 항목 추가)
 
 **변경:** enhancement_droprate_v1.md를 _archive로 이동
 
@@ -1994,11 +1994,11 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 
 ### DL-018 economy_numbers_v2.md 영지·공방 섹션 제거
 
-**파일:** `docs/02_database_api_stats/economy_numbers_v2.md`
+**파일:** `poro-rpg/docs/02_database_api_stats/economy_numbers_v2.md`
 
 **변경:**
 - §2 영지 시설 슬롯 구성, §3 공방 가공기 레시피, §4 공방 대기열 한도 전체 삭제
-- 해당 내용은 `05_island_farm_system/island_system_design.md`, `05_island_farm_system/workshop_crafting_spec.md`가 권위 있는 최신 버전으로 유지
+- 해당 내용은 `poro-rpg/docs/05_island_farm_system/island_system_design.md`, `poro-rpg/docs/05_island_farm_system/workshop_crafting_spec.md`가 권위 있는 최신 버전으로 유지
 - economy_numbers_v2는 강화·큐브·경제 분석 전용 문서로 범위 축소
 - §1 작위 구매 비용 재료 컬럼을 전장의 파편 기반으로 수정 (island_system_design.md 기준)
 - 폐지된 마력 결정, 자동재배기, 전투 식량, 구버전 공명 추출기 잔존 참조 일괄 제거
@@ -2013,12 +2013,12 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 ### DL-019 문서 정리 기준과 폐기 설계 목록 확정
 
 **파일:**
-- `docs/final_master_plan.md`
-- `docs/02_database_api_stats/CANON.md`
-- `docs/04_combat_weapon_skills/CANON.md`
-- `docs/05_island_farm_system/CANON.md`
-- `docs/06_fields_bosses/CANON.md`
-- `docs/08_resourcepack_pipeline/index.md`
+- `poro-rpg/docs/final_master_plan.md`
+- `poro-rpg/docs/02_database_api_stats/CANON.md`
+- `poro-rpg/docs/04_combat_weapon_skills/CANON.md`
+- `poro-rpg/docs/05_island_farm_system/CANON.md`
+- `poro-rpg/docs/06_fields_bosses/CANON.md`
+- `poro-rpg/docs/08_resourcepack_pipeline/index.md`
 
 **변경:**
 - 문서 정리 기준을 `final_master_plan.md` / 각 `CANON.md` / 최신 DL 항목 우선으로 고정
@@ -2037,15 +2037,15 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 ### DL-020 구버전 GUI 상세 문서 3종 archive
 
 **파일:**
-- `docs/08_resourcepack_pipeline/gui_functional_specs.md` → `docs/_archive/gui_functional_specs.md`
-- `docs/08_resourcepack_pipeline/gui_territory_status.md` → `docs/_archive/gui_territory_status.md`
-- `docs/08_resourcepack_pipeline/gui_boss_info.md` → `docs/_archive/gui_boss_info.md`
-- `docs/08_resourcepack_pipeline/index.md`
-- `docs/08_resourcepack_pipeline/gui_todo_list.md`
-- `docs/05_island_farm_system/CANON.md`
-- `docs/05_island_farm_system/index.md`
-- `docs/04_combat_weapon_skills/index.md`
-- `docs/_archive/README.md`
+- `poro-rpg/docs/08_resourcepack_pipeline/gui_functional_specs.md` → `poro-rpg/docs/_archive/gui_functional_specs.md`
+- `poro-rpg/docs/08_resourcepack_pipeline/gui_territory_status.md` → `poro-rpg/docs/_archive/gui_territory_status.md`
+- `poro-rpg/docs/08_resourcepack_pipeline/gui_boss_info.md` → `poro-rpg/docs/_archive/gui_boss_info.md`
+- `poro-rpg/docs/08_resourcepack_pipeline/index.md`
+- `poro-rpg/docs/08_resourcepack_pipeline/gui_todo_list.md`
+- `poro-rpg/docs/05_island_farm_system/CANON.md`
+- `poro-rpg/docs/05_island_farm_system/index.md`
+- `poro-rpg/docs/04_combat_weapon_skills/index.md`
+- `poro-rpg/docs/_archive/README.md`
 
 **변경:**
 - 마력/발전기, 강화석 파편, 큐브 5,000G, 전승권 구가격, 구 보스 보상 기준이 섞인 GUI 상세 문서 3종을 archive로 이동
@@ -2062,12 +2062,12 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 ### DL-021 경제·성장·드랍·GUI 허브 활성 문서 기준 정리
 
 **파일:**
-- `docs/02_database_api_stats/economy_numbers_v2.md`
-- `docs/02_database_api_stats/equipment_growth_spec.md`
-- `docs/02_database_api_stats/potential_options_v1.md`
-- `docs/06_fields_bosses/drop_tables_v1.md`
-- `docs/08_resourcepack_pipeline/gui_hub_structure.md`
-- `docs/08_resourcepack_pipeline/gui_shop.md`
+- `poro-rpg/docs/02_database_api_stats/economy_numbers_v2.md`
+- `poro-rpg/docs/02_database_api_stats/equipment_growth_spec.md`
+- `poro-rpg/docs/02_database_api_stats/potential_options_v1.md`
+- `poro-rpg/docs/06_fields_bosses/drop_tables_v1.md`
+- `poro-rpg/docs/08_resourcepack_pipeline/gui_hub_structure.md`
+- `poro-rpg/docs/08_resourcepack_pipeline/gui_shop.md`
 
 **변경:**
 - `economy_numbers_v2.md`는 강화 비용·큐브 비용·골드 경제 지표 문서로 범위를 좁히고, 잠재 확률 세부 기준은 `potential_options_v1.md`로 위임
@@ -2086,9 +2086,9 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 ### DL-022 implementation_reference.md 장문 구버전 archive
 
 **파일:**
-- `docs/01_plugin_architecture/implementation_reference.md` → `docs/_archive/implementation_reference_legacy.md`
-- `docs/01_plugin_architecture/implementation_reference.md` (현재 기준 진입점으로 재작성)
-- `docs/_archive/README.md`
+- `poro-rpg/docs/01_plugin_architecture/implementation_reference.md` → `poro-rpg/docs/_archive/implementation_reference_legacy.md`
+- `poro-rpg/docs/01_plugin_architecture/implementation_reference.md` (현재 기준 진입점으로 재작성)
+- `poro-rpg/docs/_archive/README.md`
 
 **변경:**
 - 1,500줄 이상의 장문 구현 레퍼런스를 archive로 이동
@@ -2105,9 +2105,9 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 ### DL-024 강화 흔적 3종 제작 레시피 및 효과 확정
 
 **파일:**
-- `docs/05_island_farm_system/workshop_crafting_spec.md` (§9 레시피 전면 교체, `tab_trace` 신설)
-- `docs/05_island_farm_system/CANON.md` (레시피 확정 명시)
-- `docs/idea_inbox.md` (INBOX-001 PROMOTED)
+- `poro-rpg/docs/05_island_farm_system/workshop_crafting_spec.md` (§9 레시피 전면 교체, `tab_trace` 신설)
+- `poro-rpg/docs/05_island_farm_system/CANON.md` (레시피 확정 명시)
+- `poro-rpg/docs/idea_inbox.md` (INBOX-001 PROMOTED)
 
 **변경:**
 - 별의 흔적 (`mat_trace_star`): 강화 성공률 **+20%p**, 마도합금×10 + 다이아블럭×2 + 에메랄드블럭×2
@@ -2124,13 +2124,13 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 ### DL-023 활성 문서 최종 스캔 반영
 
 **파일:**
-- `docs/03_discord_onboarding_bot/index.md`
-- `docs/07_boss_pattern_modules/season_boss_patterns.md`
-- `docs/01_plugin_architecture/poro_rpg_design_intent.md`
-- `docs/01_plugin_architecture/poro_rpg_module_design.md`
-- `docs/04_combat_weapon_skills/combat_balance_v2.md`
-- `docs/08_resourcepack_pipeline/gui_hud_spec.md`
-- `docs/02_database_api_stats/index.md`
+- `poro-discord/docs/index.md`
+- `poro-rpg/docs/07_boss_pattern_modules/season_boss_patterns.md`
+- `poro-rpg/docs/01_plugin_architecture/poro_rpg_design_intent.md`
+- `poro-rpg/docs/01_plugin_architecture/poro_rpg_module_design.md`
+- `poro-rpg/docs/04_combat_weapon_skills/combat_balance_v2.md`
+- `poro-rpg/docs/08_resourcepack_pipeline/gui_hud_spec.md`
+- `poro-rpg/docs/02_database_api_stats/index.md`
 
 **변경:**
 - Discord 알림 목록에서 폐지된 마력 과부하 제거
@@ -2149,19 +2149,19 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 ### DL-025 강화석 DB 재화 및 `axe` 내부 식별자 확정
 
 **파일:**
-- `docs/02_database_api_stats/CANON.md`
-- `docs/02_database_api_stats/economy_numbers_v2.md`
-- `docs/02_database_api_stats/equipment_growth_spec.md`
-- `docs/06_fields_bosses/CANON.md`
-- `docs/06_fields_bosses/drop_tables_v1.md`
-- `docs/final_master_plan.md`
-- `docs/01_plugin_architecture/implementation_reference.md`
-- `docs/04_combat_weapon_skills/CANON.md`
-- `docs/04_combat_weapon_skills/weapon_skills_v1.md`
-- `docs/04_combat_weapon_skills/index.md`
-- `docs/08_resourcepack_pipeline/index.md`
-- `docs/08_resourcepack_pipeline/gui_todo_list.md`
-- `docs/08_resourcepack_pipeline/gui_boss_info.md`
+- `poro-rpg/docs/02_database_api_stats/CANON.md`
+- `poro-rpg/docs/02_database_api_stats/economy_numbers_v2.md`
+- `poro-rpg/docs/02_database_api_stats/equipment_growth_spec.md`
+- `poro-rpg/docs/06_fields_bosses/CANON.md`
+- `poro-rpg/docs/06_fields_bosses/drop_tables_v1.md`
+- `poro-rpg/docs/final_master_plan.md`
+- `poro-rpg/docs/01_plugin_architecture/implementation_reference.md`
+- `poro-rpg/docs/04_combat_weapon_skills/CANON.md`
+- `poro-rpg/docs/04_combat_weapon_skills/weapon_skills_v1.md`
+- `poro-rpg/docs/04_combat_weapon_skills/index.md`
+- `poro-rpg/docs/08_resourcepack_pipeline/index.md`
+- `poro-rpg/docs/08_resourcepack_pipeline/gui_todo_list.md`
+- `poro-rpg/docs/08_resourcepack_pipeline/gui_boss_info.md`
 
 **변경:**
 - 강화석은 실물 아이템 드랍이 아니라 DB 가상 재화로 처치 시 직접 적립/소모하는 기준으로 통일
@@ -2177,11 +2177,11 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 ### DL-027 GUI 완료 상태 및 공식 배경 4종 확정
 
 **파일:**
-- `docs/08_resourcepack_pipeline/index.md`
-- `docs/08_resourcepack_pipeline/gui_todo_list.md`
-- `docs/08_resourcepack_pipeline/gui_bitmap_spec.md`
-- `docs/08_resourcepack_pipeline/gui_png_make_guide.md`
-- `docs/08_resourcepack_pipeline/gui_hub_structure.md`
+- `poro-rpg/docs/08_resourcepack_pipeline/index.md`
+- `poro-rpg/docs/08_resourcepack_pipeline/gui_todo_list.md`
+- `poro-rpg/docs/08_resourcepack_pipeline/gui_bitmap_spec.md`
+- `poro-rpg/docs/08_resourcepack_pipeline/gui_png_make_guide.md`
+- `poro-rpg/docs/08_resourcepack_pipeline/gui_hub_structure.md`
 
 **변경:**
 - 최신 커밋 기준 모든 GUI 설정이 완료된 상태로 정리
@@ -2197,7 +2197,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 ### DL-067 플레이어 레벨링 경험치 곡선·몹 EXP·보스 EXP 재확정
 
 **파일:**
-- `docs/04_combat_weapon_skills/level_stat_system_v1.md` (§5 전체 대체)
+- `poro-rpg/docs/04_combat_weapon_skills/level_stat_system_v1.md` (§5 전체 대체)
 - `custom-plugins/poro-rpg/src/main/java/com/poro/poro/leveling/PlayerLevelingService.java` (신규)
 - `custom-plugins/poro-rpg/src/main/java/com/poro/poro/listener/FieldDropListener.java` (EXP 연동)
 
@@ -2222,8 +2222,8 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 **파일:**
 - `custom-plugins/poro-rpg/src/main/java/com/poro/poro/listener/FieldDropListener.java`
 - `custom-plugins/poro-rpg/src/main/java/com/poro/poro/boss/engine/BossRewardService.java`
-- `docs/06_fields_bosses/drop_tables_v1.md`
-- `docs/04_combat_weapon_skills/item_grade_substat_v1.md` (§2 표 "시즌보스 1~3" → "1~6")
+- `poro-rpg/docs/06_fields_bosses/drop_tables_v1.md`
+- `poro-rpg/docs/04_combat_weapon_skills/item_grade_substat_v1.md` (§2 표 "시즌보스 1~3" → "1~6")
 
 **변경:**
 - 초기 구현: 정예몹/보스 모두 broken/faded/glowing 3등급만 드랍.
@@ -2241,8 +2241,8 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 ### DL-069 PvP 대전 시스템 — 자유/정규/친선 3종 확정
 
 **파일:**
-- `docs/13_pvp_system/CANON.md` (신규)
-- `docs/idea_inbox.md` INBOX-003 → PROMOTED
+- `poro-rpg/docs/13_pvp_system/CANON.md` (신규)
+- `poro-rpg/docs/idea_inbox.md` INBOX-003 → PROMOTED
 
 **내용:**
 - 1차 시즌(45일) 포함 결정.
@@ -2373,7 +2373,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 
 ### DL-077 PvP 시스템 1차 시즌 압축 구현 + 미해결 항목
 
-**결정:** PvP 시스템 (CANON `docs/13_pvp_system/CANON.md`)을 다음 범위로 1차 시즌 구현.
+**결정:** PvP 시스템 (CANON `poro-rpg/docs/13_pvp_system/CANON.md`)을 다음 범위로 1차 시즌 구현.
 
 **구현 범위:**
 - PvP 허브 GUI (54슬롯, 자유/정규/친선/랭킹)
@@ -2656,7 +2656,7 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 
 ### DL-129 (2026-06-03) — 잠재 풀 전면 정비 1단계: CSV 정본 재작성 + 쉬운 메커니즘 배선
 
-**배경(사장님 "A로 가야지" 확정):** 구현 잠재 풀(`growth_potential_option_pool.csv`)이 정본 `docs/02_database_api_stats/potential_options_v1.md`(2026-05-24 재확정)과 전혀 안 맞았음. 폐기/금지 옵션(mark_target_damage=적표식 금지·crack_efficiency·resonance_effect_up·conditional_damage_bonus·core_tag/precision_tag·status_resistance·recovery/shield_efficiency·survival_trigger·playstyle_completion·combo_tag·resource_gain) 다수 혼재, 정본 옵션 다수 미구현. 실제 작동 옵션은 4종(attack_percent·general_damage_increase·boss_damage_increase·defense_ignore)뿐이었음.
+**배경(사장님 "A로 가야지" 확정):** 구현 잠재 풀(`growth_potential_option_pool.csv`)이 정본 `poro-rpg/docs/02_database_api_stats/potential_options_v1.md`(2026-05-24 재확정)과 전혀 안 맞았음. 폐기/금지 옵션(mark_target_damage=적표식 금지·crack_efficiency·resonance_effect_up·conditional_damage_bonus·core_tag/precision_tag·status_resistance·recovery/shield_efficiency·survival_trigger·playstyle_completion·combo_tag·resource_gain) 다수 혼재, 정본 옵션 다수 미구현. 실제 작동 옵션은 4종(attack_percent·general_damage_increase·boss_damage_increase·defense_ignore)뿐이었음.
 
 **1단계 범위(사장님 단계 순서 1→2→3 확정):**
 - **CSV 정본 재작성**: 폐기/금지 옵션 전부 제거. 무기풀 6종(attack_percent·defense_ignore·general_damage_increase=스킬피해%·boss_damage_increase·crit_chance_percent·crit_damage_percent) + 방어구 통합풀 6종(max_hp_percent·defense_percent·crit_chance_percent·general_damage_increase·boss_damage_increase·damage_reduction[유니크+]). 수치 정본 §2-1~2-4. 가중치 희귀=2·보통=3(정본 §6 1:1.5 비율 보존). T1+T2 미러.
@@ -3279,4 +3279,4 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 - **P5** 경매 인스턴스 거래 — listing JSON payload 복원, 등록/구매/배달 인스턴스 단위.
 - **P6** 마이그레이션(스택→인스턴스 자동 변환) + CANON 갱신(`item_grade_substat`·`equipment_growth_spec`) + DL 기록.
 
-**근거 문서:** `02_database_api_stats/equipment_growth_spec.md §2.3`(현행 카운터형 전승, 대체 예정), `item_grade_substat_v1.md`(§3·§4 SUPERSEDED였으나 인스턴스화로 일부 회귀 → P6에서 정합), `growth_potential_option_pool.csv`(슬롯별 풀, 통합풀은 별도 신설).
+**근거 문서:** `poro-rpg/docs/02_database_api_stats/equipment_growth_spec.md §2.3`(현행 카운터형 전승, 대체 예정), `item_grade_substat_v1.md`(§3·§4 SUPERSEDED였으나 인스턴스화로 일부 회귀 → P6에서 정합), `growth_potential_option_pool.csv`(슬롯별 풀, 통합풀은 별도 신설).

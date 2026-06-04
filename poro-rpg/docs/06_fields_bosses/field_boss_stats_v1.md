@@ -4,7 +4,7 @@
 
 > 작성일: 2026-05-17  
 > 기준: combat_balance_v2.md v2 비선형 ATK / DEF 공식 일치  
-> 참조: `docs/_archive/atk_dps_baseline_v1.md` (DPS 구조, archive 이동됨), season_boss_stats_v1.md (DEF 스케일)
+> 참조: `poro-rpg/docs/_archive/atk_dps_baseline_v1.md` (DPS 구조, archive 이동됨), season_boss_stats_v1.md (DEF 스케일)
 
 ---
 
@@ -28,7 +28,7 @@
 ```
 필드보스 유효 DPS = ATK × (200/(DEF+200)) × 1.35 × 57 × (1+각인%) × 0.60
 
-각인 평균 기여율: +11% (낫/창 기준, `docs/_archive/atk_dps_baseline_v1.md` §2 요약 — archive 이동됨)
+각인 평균 기여율: +11% (낫/창 기준, `poro-rpg/docs/_archive/atk_dps_baseline_v1.md` §2 요약 — archive 이동됨)
 ```
 
 ### 1.3 필드별 기준 ATK (v2 비선형, combat_balance_v2.md §1)

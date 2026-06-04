@@ -35,15 +35,15 @@
   - 타임아웃 실패율, 패턴 실패(무적 해제 실패) 비율
   - 시즌 경과에 따른 주간 클리어율 추이
 - 분류: [x] CANON 반영 후보 (DB/API 설계 반영 필요)
-- 관련 문서: `docs/02_database_api_stats/CANON.md`, `docs/10_development_roadmap/index.md`
+- 관련 문서: `poro-rpg/docs/02_database_api_stats/CANON.md`, `poro-rpg/docs/10_development_roadmap/index.md`
 - 상태: **[PROMOTED → DL-052]** (2026-05-24 DB 스키마·API 스펙 확정)
 
 ### INBOX-001 강화 흔적 3종 공방 레시피
 - 날짜: 2026-05-22
 - 출처: M-6 확정 작업 (DL-014)
 - 내용: 별의 흔적 / 달의 흔적 / 태양의 흔적의 영지 공방 가공기 제작 레시피 (재료·수량·제작 시간) 사용자 정의 필요. 수급 경로(공방 제작)와 역할(강화 성공률 보정)은 확정됨.
-- 분류: [x] CANON 반영 후보 (레시피 확정 시 `05_island_farm_system/workshop_crafting_spec.md`에 기록)
-- 관련 문서: `docs/05_island_farm_system/CANON.md`, `docs/decision_log.md` DL-014, `docs/02_database_api_stats/economy_numbers_v2.md` 탭 1
+- 분류: [x] CANON 반영 후보 (레시피 확정 시 `poro-rpg/docs/05_island_farm_system/workshop_crafting_spec.md`에 기록)
+- 관련 문서: `poro-rpg/docs/05_island_farm_system/CANON.md`, `poro-rpg/docs/decision_log.md` DL-014, `poro-rpg/docs/02_database_api_stats/economy_numbers_v2.md` 탭 1
 - 상태: **[PROMOTED → DL-024]** (2026-05-22 레시피·효과 수치 확정)
 
 ### INBOX-003 PvP 대전 시스템 — 자유/정규/친선 3종
@@ -74,7 +74,7 @@
   - 종료 조건: 한 명만 생존 또는 타임아웃.
 
 - 분류: [x] CANON 반영 후보 / [ ] 기획 확정 필요 / [ ] 실험적 / [ ] 폐기 후보
-- 관련 문서: `docs/13_pvp_system/CANON.md`, `docs/decision_log.md` DL-069
+- 관련 문서: `poro-rpg/docs/13_pvp_system/CANON.md`, `poro-rpg/docs/decision_log.md` DL-069
 
 ---
 
@@ -102,7 +102,7 @@
   ※ 시세(market price)는 별도 수집 없이도 `auction_listings`의 sold price/time으로 재구성 가능(`getAveragePrice` 이미 존재).
 
 - 분류: [ ] CANON 반영 후보 / [x] 기획 확정 필요 / [ ] 실험적 / [ ] 폐기 후보
-- 관련 문서: `docs/02_database_api_stats/CANON.md`, `boss_clear_stats_spec.md`, task.md 알려진 기술 부채
+- 관련 문서: `poro-rpg/docs/02_database_api_stats/CANON.md`, `boss_clear_stats_spec.md`, task.md 알려진 기술 부채
 - 상태: ✅ 전체 완료 (2026-05-30) — 7종 모두 구현 [PROMOTED → DL-078~084]. 죽은 모델 `MarketPricePoint`·`LifeResourceSupplyRecord`는 미사용 유지(필요 시 별도 검토)
 
   **오픈 질문 (답변 완료)**
@@ -115,7 +115,7 @@
   7. 정규대전 동일화 기준: IL 12강 = 5슬롯 모두 12강 (IL 60)인가, 평균 IL 60인가?
   8. 대기열 취소 가능 여부, 대기 중 서버 이탈 처리?
 
-- 상태: **[PROMOTED → DL-069]** (2026-05-28 핵심 설계 확정 → `docs/13_pvp_system/CANON.md` 생성)
+- 상태: **[PROMOTED → DL-069]** (2026-05-28 핵심 설계 확정 → `poro-rpg/docs/13_pvp_system/CANON.md` 생성)
 
 ### INBOX-005 코드 ↔ 기획 정합성 감사 결과 — 시드/구현 불일치
 - 날짜: 2026-05-30
@@ -172,7 +172,7 @@
   - ✅ 완료(DL-098): 배포(jar+seed+MM) + 실부팅 검증. 부팅 중 드러난 검증 과엄격 4건(skill_master class_id, NPC sync fatal, life 바닐라 재료, facility workshop) 해소. **8개 bootstrap 전부 통과·disable 0**
   - ✅ 완료(DL-099): 단일 평지 월드 `world` 생성 + config 배포(보스룸30/아레나10 슬롯) + genrooms/genarenas 실행. NPC 3명 스폰, 구조물 생성 검증.
   - → **🎉 서버 테스트 진입 준비 완료.** 남은 건 첫날 스모크 테스트 10단계(server_test_prep.md §5) + 선택사항(필드 장식·season-start-epoch)
-  - ⏳ 선행조건(코드 밖) → `docs/10_development_roadmap/server_test_prep.md` 체크리스트로 정리(2026-05-31):
+  - ⏳ 선행조건(코드 밖) → `poro-rpg/docs/10_development_roadmap/server_test_prep.md` 체크리스트로 정리(2026-05-31):
     - 🔴 **런타임 seed/jar stale** — `server/plugins/PoroRPG/seeds/boss_master.csv`가 DL-087 이전(void_herald·최종보스 없음). `saveResource(replace=false)`라 jar 교체로도 갱신 안 됨 → 빌드+seeds폴더 비우고 재시작 필수. DL-086~090·이번 코드수정 전부 미배포 상태.
     - 🔴 config 좌표·월드명(world_main/farm/boss/test), `/poro genrooms`·`genarenas`
     - 🟠 MM 셸 배포(현재 Example만), 보스 armor 확인
@@ -197,7 +197,7 @@
   - ✅ 첫접속 라우팅 + IS 섬 자동생성+이동 (DL-102, 무기선택→is create poro). 실흐름 인게임 검증 대기
   - ⏳ 튜토리얼 맵(안내 스텝) — 첫접속을 허브 대신 튜토리얼로, TutorialService 구현
 - 파라미터(시작값, 튜닝): 주기 15~20s / 배치 10~15 / 캡 ~40 / 반경 20~30 / 정예 1:3 수·×2.5.
-- 관련 문서: `docs/06_fields_bosses/`, DL-099(단일 월드), `FieldTeleportService`, `FieldDropListener`(필드 드랍), `MobTagHelper`(poro_field_N 태그).
+- 관련 문서: `poro-rpg/docs/06_fields_bosses/`, DL-099(단일 월드), `FieldTeleportService`, `FieldDropListener`(필드 드랍), `MobTagHelper`(poro_field_N 태그).
 
 ### INBOX-007 라이브 온보딩 테스트 1차 피드백 (7건)
 - 날짜: 2026-05-31
@@ -229,7 +229,7 @@
 - 내용 (남은 task):
   - **잠재 슬롯별 풀 정본화** — `equipment_growth_spec §2.2`는 슬롯별(투구=HP/받피감/쿨감, 상의=HP/방어/받피감, 하의=HP/방어/이속, **신발=이속/방어/방어무시**)인데 현재 csv는 weapon/armor 통합. DL-114는 보스공 편중만 임시 완화. csv `slot_type`→`slot_filter` 세분화 + 옵션 값 정본화 필요.
   - **잠재 라인 수 정본화** — `§2.1` 커먼1/레어2/에픽·유니크·레전 3줄. 현재 `generateProfile`은 항상 3줄 고정. 등급별 라인 수 반영.
-  - **몹→플레이어 ATK 정본표 신규** — ✅ **[PROMOTED → DL-116]** (2026-06-01). `docs/06_fields_bosses/mob_attack_stats_v1.md` 신규. 티어별 "추천 강화 풀세트 최대 HP 대비 % 유효피해" 룰. **필드 가볍게(일반2.5/정예6/필드보스8·16·24%) / 시즌보스 무겁게(12·24·40%)** 분리. **잔여(후속)**: ① server/plugins/MythicMobs 실제 적용(`Damage:`·스킬 `damage{a}`) — §6 매핑 / ② 시즌보스 §5 정합(패턴 문서 P-03 140% 등 % 오버라이드 기준 통일, 잠정→확정).
+  - **몹→플레이어 ATK 정본표 신규** — ✅ **[PROMOTED → DL-116]** (2026-06-01). `poro-rpg/docs/06_fields_bosses/mob_attack_stats_v1.md` 신규. 티어별 "추천 강화 풀세트 최대 HP 대비 % 유효피해" 룰. **필드 가볍게(일반2.5/정예6/필드보스8·16·24%) / 시즌보스 무겁게(12·24·40%)** 분리. **잔여(후속)**: ① server/plugins/MythicMobs 실제 적용(`Damage:`·스킬 `damage{a}`) — §6 매핑 / ② 시즌보스 §5 정합(패턴 문서 P-03 140% 등 % 오버라이드 기준 통일, 잠정→확정).
   - **방어구 부위별 주스탯 확인** — 강화는 부위별 주스탯만 증가(투구=HP만/하의=DEF만, base 0 처리로 구현됨). 신발 이속은 §2.2 잠재 옵션 영역(강화 스탯 아님). 검증 필요.
   - **방어구 DEF 3단계** — 잠재 def%·받피감% 가산 + "실질 감소 70% 하드캡"(combat-balance 권고). 곱산 폭주 방지.
   - **평타 계수 튜닝** — 현재 `weaponPower×0.4`. 라이브 체감 따라 조정.
@@ -243,12 +243,12 @@
 - 출처: 사용자 아이디어 (DL-116 작업 중 발상)
 - 내용: 웹 대시보드와 디스코드 봇에서 **서버 실시간 상태**를 볼 수 있게 한다. 예: 서버 핑/지연, 온라인 인원, 가동 여부(up/down), TPS 등.
 - 검토 메모:
-  - 도메인: `docs/02_database_api_stats`(API/통계) + `docs/03_discord_onboarding_bot`(봇 표시).
+  - 도메인: `poro-rpg/docs/02_database_api_stats`(API/통계) + `poro-discord/docs`(봇 표시).
   - 구현 후보: (a) PoroRPG가 주기적으로 상태(온라인 수/TPS/하트비트)를 DB·HTTP 엔드포인트로 push → 웹/봇이 polling. (b) 봇이 서버 status ping(Minecraft SLP) 직접 조회 — 핑/온라인 수는 SLP로 즉시 가능, TPS 등 상세는 (a) 필요.
   - MVP: 봇 `/status` 명령 + 웹 헤더 배지(온라인/핑/up-down). 상세 통계는 기존 stats 파이프라인 확장.
   - 오픈 게이팅(디스코드 공식 오픈) 모델과 잘 맞음 — 봇이 이미 온보딩 게이트라 status 명령 자연스러움.
 - 분류: [ ] 기획 확정 필요 / [x] DRAFT 보관 (범위·우선순위 미정)
-- 관련 문서: `02_database_api_stats/CANON.md`, `03_discord_onboarding_bot/index.md`
+- 관련 문서: `poro-rpg/docs/02_database_api_stats/CANON.md`, `03_discord_control_bot/index.md`
 - 상태: DRAFT
 
 ### INBOX-010 런타임 명령어 기반 설정 변경 (상점 물품/가격·몬스터 HP/DEF/ATK)
@@ -261,10 +261,10 @@
     - **상점**: 상점이 PoroRPG-owned + DB/CSV 백킹이면 `/poro-shop add|setprice` 류 명령 → DB write, 재배포 불필요.
   - **트레이드오프(사용자 인지)**: 일괄 배포 = 패치노트 작성 편함. 런타임 명령 = 편의성↑이나 변경 추적 필요 → **변경 감사 로그(audit log) + 패치노트 피드** 동반 권장(명령으로 바꾸면 자동으로 변경 이력 기록).
   - **권한/안전**: 운영자 전용 권한 게이트 + 되돌리기(롤백) 고려. 시즌 서버라 "실측→즉시 너프/버프"와 직결(DL-116 실측 보정 루프 가속).
-  - 도메인: `docs/01_plugin_architecture`(명령·런타임 구조) + `docs/02_database_api_stats`(오버라이드 테이블 스키마).
+  - 도메인: `poro-rpg/docs/01_plugin_architecture`(명령·런타임 구조) + `poro-rpg/docs/02_database_api_stats`(오버라이드 테이블 스키마).
 - 분류: [x] 기획 확정 필요 (구조 설계) / [x] DRAFT 보관
-- 관련 문서: `01_plugin_architecture/CANON.md`, `02_database_api_stats/CANON.md`, `06_fields_bosses/mob_attack_stats_v1.md`(§6 적용), `economy_numbers_v2`(상점/가격)
-- 진행: 📋 기획안 → `docs/01_plugin_architecture/runtime_admin_config_plan_v1.md`. ✅ **축 A MVP 구현 [PARTIAL → DL-117]** (2026-06-01): `mob_stat_override`+`config_change_log` DB, `MobStatOverrideService`(DL-116 ATK 시드), `MythicMobSpawnEvent` 리스너(전 스폰 경로), `/poro-mobstat` 명령. 빌드 통과. **핵심 제약 확인**: HP·평타·일반/정예 ATK는 런타임 즉시 변경 가능하나 **보스 스킬 패턴 데미지는 MythicMobs YAML 상수라 런타임 불가**(C-2 유지).
+- 관련 문서: `poro-rpg/docs/01_plugin_architecture/CANON.md`, `poro-rpg/docs/02_database_api_stats/CANON.md`, `poro-rpg/docs/06_fields_bosses/mob_attack_stats_v1.md`(§6 적용), `economy_numbers_v2`(상점/가격)
+- 진행: 📋 기획안 → `poro-rpg/docs/01_plugin_architecture/runtime_admin_config_plan_v1.md`. ✅ **축 A MVP 구현 [PARTIAL → DL-117]** (2026-06-01): `mob_stat_override`+`config_change_log` DB, `MobStatOverrideService`(DL-116 ATK 시드), `MythicMobSpawnEvent` 리스너(전 스폰 경로), `/poro-mobstat` 명령. 빌드 통과. **핵심 제약 확인**: HP·평타·일반/정예 ATK는 런타임 즉시 변경 가능하나 **보스 스킬 패턴 데미지는 MythicMobs YAML 상수라 런타임 불가**(C-2 유지).
 - 잔여: 축 B(상점 명령) / 축 C(패치노트 디스코드·웹 피드) / DEF 연동(2단계) / 보스 패턴 배율 placeholder(C-1) / 인게임 검증.
 - 상태: DRAFT (축 A MVP 구현 완료, 축 B·C 미착수)
 

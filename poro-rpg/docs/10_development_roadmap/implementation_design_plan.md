@@ -26,12 +26,12 @@
 
 | 구분 | 작성 대상 | 기준 문서 |
 |---|---|---|
-| 아이템·재화 키 | item_id, currency key, PDC key, CMD | `docs/02_database_api_stats/item_master_v1.md` |
-| 클래스 선택 | GUI slot, 지급 장비, 첫 접속 상태 전이 | `docs/02_database_api_stats/item_master_v1.md` |
-| 스킬 입력 | LMB/RMB/Shift+RMB/F 매핑, 이벤트 처리 | `docs/04_combat_weapon_skills/weapon_skills_v1.md` |
-| 필드 드랍 | MythicMob 태그 규칙, 보상 지급 경계 | `docs/06_fields_bosses/drop_tables_v1.md` |
+| 아이템·재화 키 | item_id, currency key, PDC key, CMD | `poro-rpg/docs/02_database_api_stats/item_master_v1.md` |
+| 클래스 선택 | GUI slot, 지급 장비, 첫 접속 상태 전이 | `poro-rpg/docs/02_database_api_stats/item_master_v1.md` |
+| 스킬 입력 | LMB/RMB/Shift+RMB/F 매핑, 이벤트 처리 | `poro-rpg/docs/04_combat_weapon_skills/weapon_skills_v1.md` |
+| 필드 드랍 | MythicMob 태그 규칙, 보상 지급 경계 | `poro-rpg/docs/06_fields_bosses/drop_tables_v1.md` |
 | 저장·복원 | JSON schema v3, migration 정책 | `PlayerSaveData.java` |
-| GUI 라우팅 | title 상수, slot 매핑, listener 연결 | `docs/08_resourcepack_pipeline/gui_hub_structure.md` |
+| GUI 라우팅 | title 상수, slot 매핑, listener 연결 | `poro-rpg/docs/08_resourcepack_pipeline/gui_hub_structure.md` |
 | 검증 | compile/수동 QA 체크리스트 | 이 문서 §7 |
 
 범위 밖:
@@ -303,7 +303,7 @@ migration은 `PlayerPersistenceService.load()` 내부에서 버전별 분기로 
 | 플레이어 퇴장 | PlayerQuitEvent에서 즉시 save + cache 제거 |
 | 서버 종료 | onDisable 온라인 전원 동기 save |
 
-영지 저장고(`island_storage`)는 `docs/05_island_farm_system/island_system_design.md` 기준 DB 가상 저장고로 분리한다. Player JSON의 `storage` 필드는 제거하거나 migration 전용 legacy 필드로만 취급한다.
+영지 저장고(`island_storage`)는 `poro-rpg/docs/05_island_farm_system/island_system_design.md` 기준 DB 가상 저장고로 분리한다. Player JSON의 `storage` 필드는 제거하거나 migration 전용 legacy 필드로만 취급한다.
 
 ### 4.5 GUI title 상수 (DP-004 확정: GuiTitles 클래스)
 
@@ -394,7 +394,7 @@ listener는 title 문자열을 직접 문자열 비교하지 않고 `GuiTitles.W
 |---|---|
 | 컴파일 | `./gradlew compileJava` |
 | 공백 오류 | `git diff --check` |
-| 문서 상태 | `orc status` |
+| 문서 상태 | `git status` |
 
 ### 7.2 수동 QA 시나리오
 

@@ -31,7 +31,7 @@
 | 4 | `implementation_design_plan.md` | 본격 구현 전 확정한 DP-001~DP-006 및 구현 순서 |
 | 5 | 도메인 상세 문서 | 수치·GUI·드랍·보상 세부 기준 |
 
-`docs/_archive/`는 현재 기준으로 사용하지 않는다.
+`poro-rpg/docs/_archive/`는 현재 기준으로 사용하지 않는다.
 
 ---
 
@@ -285,8 +285,8 @@
 
 | 검증 | 명령 |
 |---|---|
-| worktree 상태 | `orc status` |
-| review diff | `orc diff-review` |
+| 작업 상태 | `git status` |
+| diff | `git diff` |
 | 공백 오류 | `git diff --check` |
 | 컴파일 | `cd custom-plugins/poro-rpg && bash ./gradlew compileJava` |
 

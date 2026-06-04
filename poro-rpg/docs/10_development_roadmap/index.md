@@ -49,7 +49,7 @@ Phase 3, 4, 5는 순서에 관계없이 병렬 착수 가능. Phase 6은 3·4·5
 - SQLite `poro.db` 생성
 - 플레이어 기본 테이블 (uuid, nickname, discord_id, join_ts)
 - 강화석 재화 테이블 (player_resource)
-- 레퍼런스: `docs/01_plugin_architecture/implementation_reference.md`
+- 레퍼런스: `poro-rpg/docs/01_plugin_architecture/implementation_reference.md`
 
 **1-3. 월드 구조**
 - `world_main` — 수도 + 필드 5개 + 훈련장
@@ -78,7 +78,7 @@ Phase 3, 4, 5는 순서에 관계없이 병렬 착수 가능. Phase 6은 3·4·5
 
 **1-6. `/poro` 관리자 명령어 뼈대**
 - `/poro <category> <subcommand> [args]` 구조
-- 레퍼런스: `docs/01_plugin_architecture/admin_command_spec.md`
+- 레퍼런스: `poro-rpg/docs/01_plugin_architecture/admin_command_spec.md`
 
 ### 완료 기준
 - 서버 기동 시 오류 없이 PoroRPG 로드
@@ -157,7 +157,7 @@ Phase 3, 4, 5는 순서에 관계없이 병렬 착수 가능. Phase 6은 3·4·5
 **3-5. 직업각인**
 - 무기별 A/B 2종 고유 각인
 - 공용각인: 1차 시즌 제외
-- 레퍼런스: `docs/04_combat_weapon_skills/weapon_skills_v1.md`
+- 레퍼런스: `poro-rpg/docs/04_combat_weapon_skills/weapon_skills_v1.md`
 
 **3-6. 금지 설계 검증 목록**
 - 지속 장판 ❌
@@ -175,7 +175,7 @@ Phase 3, 4, 5는 순서에 관계없이 병렬 착수 가능. Phase 6은 3·4·5
 스킬 피해   = 기본 피해 × 스킬 배율
 ```
 
-레퍼런스: `docs/04_combat_weapon_skills/combat_balance_v2.md`
+레퍼런스: `poro-rpg/docs/04_combat_weapon_skills/combat_balance_v2.md`
 
 ### 완료 기준
 - 6무기 각각 4개 스킬 입력 인식 및 스킬 발동 확인
@@ -214,7 +214,7 @@ Phase 3, 4, 5는 순서에 관계없이 병렬 착수 가능. Phase 6은 3·4·5
 - 메모리얼 선택 화면: 현재 vs 신규 비교 선택
 - 등급 보호: 결과가 현재보다 낮으면 자동 폐기 (큐브만 소모)
 - 천장: 유니크→레전더리 1,000회 / 에픽→유니크 200회 / 레어→에픽 40회 / 시작→레어 10회
-- 레퍼런스: `docs/02_database_api_stats/potential_options_v1.md`
+- 레퍼런스: `poro-rpg/docs/02_database_api_stats/potential_options_v1.md`
 
 **4-5. 전승 시스템**
 - 기본 전승: 0G (무료)
@@ -241,7 +241,7 @@ Phase 3, 4, 5는 순서에 관계없이 병렬 착수 가능. Phase 6은 3·4·5
 
 **5-2. 영지 저장고**
 - 영지 전용 인벤토리 GUI
-- 레퍼런스: `docs/08_resourcepack_pipeline/gui_storage.md`
+- 레퍼런스: `poro-rpg/docs/08_resourcepack_pipeline/gui_storage.md`
 
 **5-3. 시설 3종**
 
@@ -260,7 +260,7 @@ Phase 3, 4, 5는 순서에 관계없이 병렬 착수 가능. Phase 6은 3·4·5
 - 레시피 목록:
   - 강화 흔적 3종 (별의/달의/태양의)
   - 고대흔적 4종 (빛 바랜/빛나는/눈부신/찬란한)
-- 레퍼런스: `docs/05_island_farm_system/workshop_crafting_spec.md`
+- 레퍼런스: `poro-rpg/docs/05_island_farm_system/workshop_crafting_spec.md`
 
 ### 완료 기준
 - 영지 접속 → 저장고 GUI 열람 정상 동작
@@ -308,7 +308,7 @@ Phase 3, 4, 5는 순서에 관계없이 병렬 착수 가능. Phase 6은 3·4·5
 
 - 5분 미처치 시 소멸
 - 공용 패턴 P-00~P-13 조합 (P-10 폐기, DL-048)
-- 레퍼런스: `docs/07_boss_pattern_modules/field_boss_patterns.md`
+- 레퍼런스: `poro-rpg/docs/07_boss_pattern_modules/field_boss_patterns.md`
 
 **6-4. 시즌보스 6종**
 
@@ -334,7 +334,7 @@ Phase 3, 4, 5는 순서에 관계없이 병렬 착수 가능. Phase 6은 3·4·5
 
 - 보스6 클리어 후 자유 입장 (봉인 파편 없음, DL-044)
 - 1~2인 입장 가능, 스케일 보정 없음 (DL-054)
-- 레퍼런스: `docs/07_boss_pattern_modules/season_boss_patterns.md`
+- 레퍼런스: `poro-rpg/docs/07_boss_pattern_modules/season_boss_patterns.md`
 
 **6-6. 보스 패턴 모듈 구현**
 - 공용 패턴 P-00~P-09, P-11~P-13 (P-10 폐기)
@@ -344,7 +344,7 @@ Phase 3, 4, 5는 순서에 관계없이 병렬 착수 가능. Phase 6은 3·4·5
 **6-7. 보스 클리어 통계 수집**
 - `boss_session_log`, `boss_session_player` 테이블
 - 4개 API 엔드포인트 (`/api/v1/boss/stats` 등)
-- 레퍼런스: `docs/02_database_api_stats/boss_clear_stats_spec.md`
+- 레퍼런스: `poro-rpg/docs/02_database_api_stats/boss_clear_stats_spec.md`
 
 ### 완료 기준
 - 필드 5개 몹 스폰 및 드랍 정상 동작
@@ -385,7 +385,7 @@ Phase 3, 4, 5는 순서에 관계없이 병렬 착수 가능. Phase 6은 3·4·5
 **7-3. PoroRPG HTTP API**
 - 포트 8765
 - 엔드포인트: 유저 조회, 강화 현황, 보스 클리어 통계, 경제 로그
-- 레퍼런스: `docs/01_plugin_architecture/implementation_reference.md`
+- 레퍼런스: `poro-rpg/docs/01_plugin_architecture/implementation_reference.md`
 
 **7-4. 보스 클리어 통계 운영**
 - 클리어율 목표 대비 ±15~20%p 이상 2주 지속 시 버프/너프 검토
@@ -424,12 +424,12 @@ Phase 3, 4, 5는 순서에 관계없이 병렬 착수 가능. Phase 6은 3·4·5
 - 나머지 GUI: chest + 유리판/바닐라 아이템/lore 구성
 
 **8-3. 영지/가공기 GUI** ← 우선순위 3
-- 레퍼런스: `docs/08_resourcepack_pipeline/gui_crop_management.md`, `gui_storage.md`
+- 레퍼런스: `poro-rpg/docs/08_resourcepack_pipeline/gui_crop_management.md`, `gui_storage.md`
 
 **8-4. 무기 6종 치장** ← 우선순위 5
 - 검/도끼/창/석궁/낫/스태프 각 1종
 - Blockbench → WSL export → CustomModelData 등록 파이프라인
-- 레퍼런스: `docs/08_resourcepack_pipeline/index.md` (Phase 워크플로우)
+- 레퍼런스: `poro-rpg/docs/08_resourcepack_pipeline/index.md` (Phase 워크플로우)
 - 작업 순서: Phase 0(스캐폴드) → Phase 1(bb-ref-curator) → Phase 3(bb-build-blockout) → Phase 4(bb-texture-pass) → Phase 5(bb-export-register) → 인게임 테스트 → active
 
 **8-5. 날개 치장 1종** ← 우선순위 6
@@ -459,4 +459,4 @@ Phase 3, 4, 5는 순서에 관계없이 병렬 착수 가능. Phase 6은 3·4·5
 ---
 
 > 도감(컬렉션): **1차 시즌 제외.**
-> 각 Phase 세부 구현: `docs/01_plugin_architecture/` 및 각 시스템 설계서 참조.
+> 각 Phase 세부 구현: `poro-rpg/docs/01_plugin_architecture/` 및 각 시스템 설계서 참조.

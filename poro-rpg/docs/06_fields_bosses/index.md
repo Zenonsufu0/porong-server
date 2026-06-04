@@ -158,9 +158,9 @@
 
 ---
 
-## 시즌보스 입장 GUI (docs/08_resourcepack_pipeline 이관)
+## 시즌보스 입장 GUI (poro-rpg/docs/08_resourcepack_pipeline 이관)
 
-> 시즌보스 입장·파티 방 시스템 전체 설계는 `docs/08_resourcepack_pipeline/gui_hub_structure.md §5` 로 이관됨.
+> 시즌보스 입장·파티 방 시스템 전체 설계는 `poro-rpg/docs/08_resourcepack_pipeline/gui_hub_structure.md §5` 로 이관됨.
 >
 > 보스 서브 허브(PNG) → 보스정보 / 클리어기록 / 파티목록 / 파티생성 흐름으로 확정.
 > 파티생성: 앤빌 방 이름 입력 → 54칸 방설정 GUI → 54칸 방목록 GUI → 로비 → 보스 인스턴스.
@@ -177,9 +177,9 @@
 
 ---
 
-## 탐험 서브 허브 GUI (docs/08_resourcepack_pipeline 이관)
+## 탐험 서브 허브 GUI (poro-rpg/docs/08_resourcepack_pipeline 이관)
 
-> 탐험 서브 허브(27칸, 바닐라) 전체 설계는 `docs/08_resourcepack_pipeline/gui_hub_structure.md §6` 로 이관됨.
+> 탐험 서브 허브(27칸, 바닐라) 전체 설계는 `poro-rpg/docs/08_resourcepack_pipeline/gui_hub_structure.md §6` 로 이관됨.
 >
 > 나침반 아이콘 우클릭 → 5개 필드 이동 + 훈련장 진입. 바닐라 스타일 (PNG 배경 없음).
 > 필드보스 리젠 타이머는 GUI 열린 동안 1초 주기 실시간 갱신.

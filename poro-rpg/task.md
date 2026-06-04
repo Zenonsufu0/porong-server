@@ -1,6 +1,8 @@
 # 포로 서버 작업 현황
 
 > 마지막 갱신: 2026-06-05 (§19 흔적 인스턴스화 P0~P6 완료·커밋 + 인게임 검증·후속수정 6건[미커밋] — DL-129 추가#38)
+>
+> **2026-06-05 레포 구조 정리(폴더 이동만, 코드/데이터 무수정):** RPG 자산이 모두 `poro-rpg/` 하위로 이동 — `custom-plugins`·`server`·`server-config`·`assets`·`tools`·`scripts`·`env`·`docs`. 프로젝트 전역 SoT(`final_master_plan.md`)·`decision_log.md`·`idea_inbox.md`·`_archive/`도 `poro-rpg/docs/`로 통합(루트 `docs/` 폐지). 디스코드 docs는 `poro-discord/docs/`. orc 워크플로우 스크립트 제거. 빌드: `cd poro-rpg/custom-plugins/poro-rpg && ./gradlew build`.
 
 ---
 
@@ -208,7 +210,7 @@
 
 ## §6 PoroRPG 플러그인 코어 구현 — 완료
 
-기준 문서: `docs/10_development_roadmap/implementation_design_plan.md`
+기준 문서: `poro-rpg/docs/10_development_roadmap/implementation_design_plan.md`
 
 | 순서 | 작업 | 상태 |
 |---|---|---|
@@ -347,7 +349,7 @@
 
 ## §6-11 HUD 5레이어·스코어보드·스킬·커맨드 구현 — 완료 (2026-05-28)
 
-기준 문서: `docs/10_development_roadmap/implementation_plan_v2.md`
+기준 문서: `poro-rpg/docs/10_development_roadmap/implementation_plan_v2.md`
 
 | 항목 | 파일 | 상태 |
 |---|---|---|
@@ -405,7 +407,7 @@
 
 ## §6-13 PvP 시스템 (CANON §13) — 완료 (2026-05-29~30)
 
-기준 문서: `docs/04_combat_weapon_skills/CANON.md §13`, DL-077
+기준 문서: `poro-rpg/docs/04_combat_weapon_skills/CANON.md §13`, DL-077
 
 | 항목 | 파일 | 상태 |
 |---|---|---|
@@ -420,7 +422,7 @@
 
 ## §6-14 관리자 GUI Phase 1 + 운영자 명령어 (Step 1) — 완료 (2026-05-30)
 
-기준 문서: `docs/10_development_roadmap/admin_gui_phase2.md`, 커밋 `627e163`
+기준 문서: `poro-rpg/docs/10_development_roadmap/admin_gui_phase2.md`, 커밋 `627e163`
 
 | 항목 | 파일 | 상태 |
 |---|---|---|
@@ -446,12 +448,12 @@
 | `AdminGuiListener` — togglesService 주입, `ADMIN_TOGGLES` 클릭 핸들러, `toggleSlotMapping` | `listener/AdminGuiListener.java` | ✅ |
 | `PoroRPGPlugin` — `AdminTogglesService` 생성 + `AdminTogglesCommand` 등록 | `PoroRPGPlugin.java` | ✅ |
 | `plugin.yml` — `poro-toggle` 명령 등록 (`poro.admin`) | `plugin.yml` | ✅ |
-| `docs/10_development_roadmap/admin_gui_phase2.md` — Step 2 완료/Step 2b hook 명시 | docs | ✅ |
+| `poro-rpg/docs/10_development_roadmap/admin_gui_phase2.md` — Step 2 완료/Step 2b hook 명시 | docs | ✅ |
 | `BUILD SUCCESSFUL` | — | ✅ |
 
 ## §6-18 관리자 Phase 2 Step 5 — 영지 관리 GUI (slot 29) — 완료 (2026-05-30)
 
-기준: `docs/10_development_roadmap/admin_gui_phase2.md` §영지 관리 (slot 29). **Phase 2 마지막 단계.**
+기준: `poro-rpg/docs/10_development_roadmap/admin_gui_phase2.md` §영지 관리 (slot 29). **Phase 2 마지막 단계.**
 
 | 항목 | 파일 | 상태 |
 |---|---|---|
@@ -474,7 +476,7 @@
 
 ## §6-17 관리자 Phase 2 Step 4 — 보스 디버그 GUI + /poro-boss-list·/poro-boss-end — 완료 (2026-05-30, 커밋 `7c02972`)
 
-기준: `docs/10_development_roadmap/admin_gui_phase2.md` §보스 디버그 (slot 24)
+기준: `poro-rpg/docs/10_development_roadmap/admin_gui_phase2.md` §보스 디버그 (slot 24)
 
 | 항목 | 파일 | 상태 |
 |---|---|---|
@@ -496,7 +498,7 @@
 
 ## §6-16 관리자 Phase 2 Step 3 — 로그/감시 GUI + /poro-log — 완료 (2026-05-30, 커밋 `ef31e9e`)
 
-기준: `docs/10_development_roadmap/admin_gui_phase2.md` §로그/감시 (slot 33)
+기준: `poro-rpg/docs/10_development_roadmap/admin_gui_phase2.md` §로그/감시 (slot 33)
 
 | 항목 | 파일 | 상태 |
 |---|---|---|
@@ -567,7 +569,7 @@
 | 높음 | 서버 통합 테스트 — `/보스` 선택 → `[보스]` 표지판 → MM 스폰 런타임 확인 | `season_bosses.yml` 로드 + bossId 매칭 검증 |
 | 중간 | HUD 행 X 정렬 패딩 (행별 advance 패딩으로 정확한 overlay) | 확인 후 필요 시 |
 | 중간 | 서버 통합 테스트 — 봇 `/영지`·`/보스`·`/프로필` → Java API → 응답 확인 | 닉네임 기반 조회 실제 동작 검증 |
-| 낮음 | 리소스팩 파이프라인 (Phase 8) | `docs/08_resourcepack_pipeline/index.md` |
+| 낮음 | 리소스팩 파이프라인 (Phase 8) | `poro-rpg/docs/08_resourcepack_pipeline/index.md` |
 
 ## Phase 5 잔여 기술 부채
 
@@ -603,13 +605,13 @@
 - **#13 무기 ATK 강화 곡선↑** `combat/WeaponPowerCalculator.java`(+18 195=2.4배) + **필드 몹 ATK 재밸런스** `admin/config/MobStatOverrideService.java`(F1 일반8→F5 34, loadAndSeed upsert로 재적용).
 - **#14 보스 DEF 실데미지 적용 + 방어력무시**: `SkillContext.defenseMitigation`(×200/(200+유효DEF)), `BaseWeaponSkill.dealDamage` 적용, 보스 DEF 시드(`MobStatOverrideService.DEF_SEED` 100~280)→스폰 시 PDC `poro_rpg:mob_def` 기록. 방어력무시 잠재 옵션 정본값으로 추가.
 
-## 밸런스 분석 결과 (서브에이전트 3종) → `docs/04_combat_weapon_skills/balance_review_dl128.md`
+## 밸런스 분석 결과 (서브에이전트 3종) → `poro-rpg/docs/04_combat_weapon_skills/balance_review_dl128.md`
 - 보스 HP 권장: fallen_knight 8k→30~35k(DEF무효 가정, DEF 살아있으니 ×1.5 반영해 ~20k), 시즌보스 HP가 평탄(150~170k)한데 권장강화는 6→22강 = **상위보스 역전** → 권장강화 비례 곡선 필요.
 - 필드 45마리/분: **F1만 스폰 병목**(15초·12마리 리필, 7초 노는 공백), F2~F5는 화력 부족(스폰 대기 아님). 스폰반경 코드 5~10 vs 주석 20~30 불일치.
 - 골드: 보스 미지급(의도). 인입=필드몹/영지 재료 판매(사장님 확인).
 
 ## ▶ 메인 작업: 잠재 풀 전면 정비 (사장님 "A로 가야지" 확정)
-**문제**: 구현 잠재 풀(`custom-plugins/poro-rpg/src/main/resources/seeds/growth_potential_option_pool.csv`)이 **정본 `docs/02_database_api_stats/potential_options_v1.md`(2026-05-24 재확정)과 전혀 안 맞음**. 구현엔 폐기/금지 옵션(mark_target_damage=적표식 금지, crack_efficiency, resonance_effect_up, conditional_damage_bonus) 섞여있고, 정본 옵션 다수 미구현.
+**문제**: 구현 잠재 풀(`custom-plugins/poro-rpg/src/main/resources/seeds/growth_potential_option_pool.csv`)이 **정본 `poro-rpg/docs/02_database_api_stats/potential_options_v1.md`(2026-05-24 재확정)과 전혀 안 맞음**. 구현엔 폐기/금지 옵션(mark_target_damage=적표식 금지, crack_efficiency, resonance_effect_up, conditional_damage_bonus) 섞여있고, 정본 옵션 다수 미구현.
 **현재 실제 작동 옵션 4종뿐**: attack_percent, general_damage_increase, boss_damage_increase, defense_ignore(#14 추가). 나머지는 CSV에 있어도 소비 코드 없음.
 
 ### 정본 잠재 풀 (potential_options_v1.md §1~2 — 슬롯별 옵션 + 등급값 전부 명시됨)
@@ -658,7 +660,7 @@
 **1·2단계 인게임 검증 포인트(재개 시)**: ① 잠재 GUI 큐브 사용 시 폐기옵션 안 뜨고 정본 옵션만 → 한글 라벨(스킬피해/치명타확률·데미지/방어력/최대체력/받는피해감소/기본기·이동기·특수기·핵심기 피해/쿨타임 감소) ② 무기 치명확률·치명데미지 잠재 → 캐릭터 스탯창 수치 반영 ③ HP% 잠재 장착 → 최대체력 증가, 큐브 사용 직후 즉시 반영 ④ 이속% → 실제 이동 빨라짐(현재 롤소스는 통합풀 미포함, 임시 테스트 시 CSV에 1줄 추가 필요) ⑤ 받피감(유니크+) → 몹 피격 데미지 감소 ⑥ **핵심기 피해% 무기 잠재 → 핵심기(F) 스킬만 데미지↑, 기본기(LC)는 불변**(스킬타입 분리 확인) ⑦ **쿨감% 잠재 → 스킬 쿨타임·HUD 진행바 단축**.
 
 ### 핵심 파일
-- 정본: `docs/02_database_api_stats/potential_options_v1.md`
+- 정본: `poro-rpg/docs/02_database_api_stats/potential_options_v1.md`
 - CSV: `custom-plugins/poro-rpg/src/main/resources/seeds/growth_potential_option_pool.csv`
 - 롤/풀선택: `growth/engine/PotentialService.java`(resolvePoolId·filteredOptions·generateProfile)
 - 소비처: `combat/SkillContext.java`(generalDamageMultiplier·bossDamageMultiplier·critChance·critDamageMultiplier·defense·armorMaxHealth·defenseIgnorePercent·defenseMitigation), `combat/WeaponPowerCalculator.java`(attack_percent), `combat/skills/BaseWeaponSkill.java`(dealDamage)

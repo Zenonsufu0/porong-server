@@ -6,18 +6,18 @@
 - Do not modify unrelated areas.
 
 ## Forbidden paths unless explicitly requested
-- `server/`
+- `poro-rpg/server/`
 - `security/`
 - `ops/`
 - `tests/`
 - `scripts/`
-- `custom-plugins/`
+- `poro-rpg/custom-plugins/`
 - `.github/`
 
 ## Asset work
-- Blockbench source assets live under `assets/source`.
-- Exported pack outputs belong under `assets/export/resourcepack`.
-- When working under `assets/source`, also follow the deeper AGENTS files.
+- Blockbench source assets live under `poro-rpg/assets/source`.
+- Exported pack outputs belong under `poro-rpg/assets/export/resourcepack`.
+- When working under `poro-rpg/assets/source`, also follow the deeper AGENTS files.
 
 ---
 
@@ -27,58 +27,39 @@
 
 | 계층 | 문서 | 역할 |
 |---|---|---|
-| 1 | `docs/final_master_plan.md` | 프로젝트 전체 방향성·시스템 연결·우선순위의 최상위 기준 |
-| 2 | 각 `docs/NN_*/CANON.md` | 도메인별 현재 공식 기준 (수치·구조·충돌 처리 포함) |
-| 3 | `docs/decision_log.md` | 설계 결정 이력. DL-NNN 형식으로 무엇을/왜/근거 문서를 기록 |
+| 1 | `poro-rpg/docs/final_master_plan.md` | 프로젝트 전체 방향성·시스템 연결·우선순위의 최상위 기준 |
+| 2 | 각 프로젝트 docs의 `CANON.md` (RPG: `poro-rpg/docs/NN_*/CANON.md`) | 도메인별 현재 공식 기준 (수치·구조·충돌 처리 포함) |
+| 3 | `poro-rpg/docs/decision_log.md` | 설계 결정 이력. DL-NNN 형식으로 무엇을/왜/근거 문서를 기록 |
 | 4 | 각 도메인 하위 `*.md` | CANON이 위임한 세부 수치·스펙·구현 참조 |
-| 5 | `docs/_archive/` | **폐기 문서.** 현재 설계 판단에 사용 금지 (아래 참조) |
+| 5 | `poro-rpg/docs/_archive/` | **폐기 문서.** 현재 설계 판단에 사용 금지 (아래 참조) |
 
 ### 도메인별 CANON 진입점
 
 | 도메인 | 공식 기준 |
 |---|---|
-| 플러그인/구현 경계 | `docs/01_plugin_architecture/CANON.md` |
-| DB/API/경제/통계 | `docs/02_database_api_stats/CANON.md` |
-| 디스코드 온보딩 | `docs/03_discord_onboarding_bot/index.md` |
-| 전투/무기/스킬 | `docs/04_combat_weapon_skills/CANON.md` |
-| 영지/농사/공방 | `docs/05_island_farm_system/CANON.md` |
-| 필드/보스/드랍 | `docs/06_fields_bosses/CANON.md` |
-| 보스 패턴 | `docs/07_boss_pattern_modules/index.md` |
-| GUI/리소스팩 | `docs/08_resourcepack_pipeline/index.md` |
-| 약관/운영정책 | `docs/09_terms_and_policy/index.md` |
-| 개발 로드맵 | `docs/10_development_roadmap/index.md` |
-| 맵 디자인 | `docs/12_map_design/` |
-| Archive | `docs/_archive/README.md` |
+| 플러그인/구현 경계 | `poro-rpg/docs/01_plugin_architecture/CANON.md` |
+| DB/API/경제/통계 | `poro-rpg/docs/02_database_api_stats/CANON.md` |
+| 디스코드 온보딩 | `poro-discord/docs/index.md` |
+| 전투/무기/스킬 | `poro-rpg/docs/04_combat_weapon_skills/CANON.md` |
+| 영지/농사/공방 | `poro-rpg/docs/05_island_farm_system/CANON.md` |
+| 필드/보스/드랍 | `poro-rpg/docs/06_fields_bosses/CANON.md` |
+| 보스 패턴 | `poro-rpg/docs/07_boss_pattern_modules/index.md` |
+| GUI/리소스팩 | `poro-rpg/docs/08_resourcepack_pipeline/index.md` |
+| 약관/운영정책 | `poro-rpg/docs/09_terms_and_policy/index.md` |
+| 개발 로드맵 | `poro-rpg/docs/10_development_roadmap/index.md` |
+| 맵 디자인 | `poro-rpg/docs/12_map_design/` |
+| Archive | `poro-rpg/docs/_archive/README.md` |
 
 ---
 
 ## Archive 문서 사용 규칙
 
-`docs/_archive/` 안의 모든 파일은 **현재 canon이 아니다.**
+`poro-rpg/docs/_archive/` 안의 모든 파일은 **현재 canon이 아니다.**
 
 - archive 문서의 수치·구조·결정을 현재 설계 기준으로 인용하지 않는다.
-- 어떤 문서가 archive로 이동된 이유와 대체 문서는 `docs/_archive/README.md`에서 확인한다.
+- 어떤 문서가 archive로 이동된 이유와 대체 문서는 `poro-rpg/docs/_archive/README.md`에서 확인한다.
 - 구버전 `00_master_plan.md`, `economy_numbers_v1.md`, `atk_dps_baseline_v1.md` 등은 모두 대체 문서가 있다.
 - archive 파일을 읽는 경우: 결정 이력 추적 또는 과거 설계 맥락 파악 목적에 한한다.
-
----
-
-## 작업 루프 명령어
-
-공식 명령어는 `orc` (`scripts/orchestra.sh`)로 통일한다.  
-legacy alias (`aistatus`, `toreview`, `tomaster`)는 호환용으로 남아 있지만 공식 문서에서는 `orc` 사용을 권장한다.
-
-| 명령어 | 역할 |
-|---|---|
-| `orc status` | 양쪽 worktree 상태 확인 |
-| `orc diff-review` | review worktree diff stat (staged + unstaged) |
-| `orc handoff-review "요약"` | review 변경사항을 `add -A` 후 commit하고 `orc to-master` 실행 |
-| `orc to-master` | review/codex-review의 커밋된 변경사항을 main/master로 병합하고 양쪽 동기화 |
-
-`orc to-master`는 양쪽 worktree가 dirty 상태이면 실행을 막는 안전 명령이다.
-`orc handoff-review`는 모든 변경사항을 `add -A` 하므로 작업이 섞였으면 먼저 `orc diff-review`로 확인한다.
-
-commit · merge · push는 사용자 승인 후 실행한다. `orc handoff-review`는 제안만 하고 자동 실행하지 않는다.
 
 ---
 
@@ -88,7 +69,7 @@ Codex는 기본적으로 **리뷰 / QA / docs consistency** 담당이다. 구현
 
 ### 기본 행동 (명시적 요청 없을 때)
 
-- `docs/` 문서 일관성 검토: CANON ↔ 하위 문서 수치·명칭 충돌 발견 및 보고
+- 프로젝트 docs 일관성 검토: CANON ↔ 하위 문서 수치·명칭 충돌 발견 및 보고
 - `decision_log.md` 참조 경로 유효성 확인 (깨진 §번호, 이동된 파일 경로 등)
 - `_archive/README.md` 누락 항목 확인 (archive 폴더 파일과 README 항목 대조)
 - 구현 코드 리뷰: 설계 문서 기준 대비 로직 일치 여부 확인
@@ -98,7 +79,7 @@ Codex는 기본적으로 **리뷰 / QA / docs consistency** 담당이다. 구현
 ### 코드 수정 규칙
 
 - 코드 파일 수정은 **사용자가 명시적으로 요청할 때만** 수행한다.
-- `custom-plugins/`, `server/`, `scripts/`, `tests/` 는 명시적 요청 없이 수정하지 않는다.
+- `poro-rpg/custom-plugins/`, `poro-rpg/server/`, `scripts/`, `tests/` 는 명시적 요청 없이 수정하지 않는다.
 - 발견된 코드 버그나 개선점은 수정하지 않고 **보고서 형태로 출력**한다.
 
 ### 항상 금지
@@ -116,7 +97,7 @@ Codex는 기본적으로 **리뷰 / QA / docs consistency** 담당이다. 구현
 
 ### 검토 항목
 
-- `docs/idea_inbox.md`에 `[PROMOTED]`·`[폐기]` 처리 없이 오래 방치된 항목이 있는가?
+- `poro-rpg/docs/idea_inbox.md`에 `[PROMOTED]`·`[폐기]` 처리 없이 오래 방치된 항목이 있는가?
 - 최근 커밋의 변경 내용이 CANON.md 또는 decision_log.md에 기록됐는가?
 - decision_log.md의 최신 DL-NNN이 실제 파일 변경과 일치하는가?
 
@@ -152,11 +133,9 @@ Codex는 기본적으로 **리뷰 / QA / docs consistency** 담당이다. 구현
   - decision_log 기록:
   - 미반영 (이유):
 - 검증:
-  - orc status:
-  - orc diff-review:
+  - git status:
+  - git diff --stat:
   - git diff --check:
 - 남은 위험/미확정:
-- 다음 단계:
-  - 맞으면 실행할 명령어: orc handoff-review "요약"
-  - 아니면 추가 지시할 내용:
+- 다음 단계 (제안):
 ```

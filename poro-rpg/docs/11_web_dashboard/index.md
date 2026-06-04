@@ -78,8 +78,8 @@ SQLite poro.db
 | `web_dashboard_spec.md` | 페이지별 레이아웃·필터·표시 데이터 상세 |
 | `api_endpoints.md` | 대시보드가 호출하는 API 엔드포인트 목록 |
 | `db_event_log_spec.md` | 경제·전투 이벤트 로그 DB 테이블 설계 |
-| `docs/02_database_api_stats/CANON.md` | DB·API·경제 공식 기준 |
-| `docs/01_plugin_architecture/implementation_reference.md` | API 구현 진입점 |
+| `poro-rpg/docs/02_database_api_stats/CANON.md` | DB·API·경제 공식 기준 |
+| `poro-rpg/docs/01_plugin_architecture/implementation_reference.md` | API 구현 진입점 |
 
 ---
 
