@@ -1,0 +1,7 @@
+type = last_world
+
+last_world {
+  is_server = false
+  world = C:/Users/User/curseforge/minecraft/Instances/PoroMon 0.1 Dev/saves/Tutorial World v4 (1.7.2)
+}
+
