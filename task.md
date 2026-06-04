@@ -1,6 +1,6 @@
 # 포로 서버 작업 현황
 
-> 마지막 갱신: 2026-06-02 (§8 전투밸런스·리브랜드·라이선스·2D 이펙트 — DL-124/125)
+> 마지막 갱신: 2026-06-05 (§19 흔적 인스턴스화 P0~P6 완료·커밋 + 인게임 검증·후속수정 6건[미커밋] — DL-129 추가#38)
 
 ---
 
@@ -59,13 +59,31 @@
 ### ✅ 흔적 인스턴스화 전체 완료 (P0~P6, DL-129 추가#38)
 드랍→인스턴스→전승/창고/경매→마이그레이션 전 경로 인스턴스화. 커밋: f628f6d(P1/P1b) → e37cc6a(P2/P3) → 3806ae8(P6) → ac7ceb0(P4) → P5.
 
-### 인게임 검증 필요 (다음 세션)
-1. 엘리트 처치 → 흔적 드랍 등급+세부스탯 박힘(채팅 등급 색상)
-2. 창고 GUI 흔적 인스턴스 개별 표시(등급↓·세부스탯 lore)
-3. 전승: 흔적 선택→장비에 등급/세부스탯 그대로 이전·인스턴스 소모
-4. 경매: 흔적 등록(가격만)·구매·배달·취소·만료 반환, 등급명+세부스탯 표시
-5. 기존 스택 흔적 캐릭터 로그인 시 자동 변환(로그 `스택 흔적 N개 → 인스턴스`)
-6. 흔적풀 weight 균등 v1 — combat-balance 튜닝 여지
+### 인게임 검증 결과 (2026-06-04~05 세션) — ✅ 핵심 통과
+- ✅ 흔적 드랍·창고 개별 표시·전승 이전/소모·경매 등록 — 유저 인게임 확인 "다 잘 보인다/전승 잘 된다/경매 등록 된다".
+- ✅ 마이그레이션 — 콘솔로 스택 7종 지급 후 재접속 시 로그 `스택 흔적 7개 → 인스턴스 변환` 확인. traceInstances 세부스탯 개수 규칙(C1/R2/E·U·L3) 정상. 드랍분도 인스턴스 누적 확인.
+- ✅ 부팅 로그 `trace_substat_options=40`(별도 레지스트리 적재) + 신규코드 에러 0.
+- ⏳ 흔적풀 weight 균등 v1 — combat-balance 튜닝 여지(미착수).
+
+### ★ 인게임 테스트 중 발견·수정한 후속 (⚠ 미커밋 — 다음 세션 첫 작업: 빌드확인 후 커밋)
+> 8개 파일 수정됨(현재 워킹트리 dirty). 빌드·테스트 통과 + 서버 재기동 검증 완료(Done~18s, 에러0). **아직 커밋 안 함.**
+> 미커밋 파일: PoroRPGPlugin, combat/SkillContext, growth/engine/EnhancementService, gui/EquipmentLoreRenderer, gui/WeaponItemFactory, listener/{AuctionGuiListener, GrowthGuiListener, PlayerJoinListener}
+
+1. **이슈 A — 경매 등록 ≠ 영지 창고**: 경매 등록 palette에 바닐라 IslandStorage 재료가 빠져 있었음 → palette에 추가 + heldOf/debitItem/creditItem/배달(AuctionGuiListener+PlayerJoinListener)을 IslandStorage 경로로 라우팅(`vanillaMaterial(itemId)`=Material.getMaterial). `AuctionGuiListener`에 `IslandStorageStore` 주입. 바닐라 아이콘은 `vanillaIcon`(StorageGui와 동일 translatable 한글명+기본 텍스처).
+2. **이슈 B — 손에 든 무기 0강 표시**: 원인 = `WeaponItemFactory`/`refreshHeldWeapon`이 `weaponInstanceId(weaponType)`를 읽는데, 전투·강화·전승은 `equippedItems().get(WEAPON)`을 씀. **장착 슬롯 기준으로 통일** — `WeaponItemFactory.buildLore`가 equipped WEAPON 인스턴스 읽음(미장착 시 타입 폴백). 전승 후 `refreshHeldWeapon` 호출 추가.
+3. **강화/재화 메시지 한글화**: `EnhancementService` 실패 메시지(골드/강화석 부족 등) 영어→한글. 강화 성공/실패 채팅도 item_master 영어명→인스턴스 슬롯 기반 한글 장비명(`equipNameByInstance`).
+4. **경매 흔적 텍스처 깨짐**: 흔적 아이콘이 `traceGradeMaterial`(바닐라 NETHER_STAR 등)이라 깨져 보임 → 창고와 동일 `traceIcon`(CustomItemModel `equip_trace_unidentified` 텍스처). 등록 palette·경매 목록·내 목록 전부.
+5. **세부스탯 lore 펼침**: `EquipmentLoreRenderer.baseLore`가 세부스탯을 "3줄"(개수)로만 표시 → 잠재처럼 옵션별 줄 펼침. 무기·GUI 공통.
+6. **방어구 강화 lore**: `SkillContext`에 공개 접근자(`armorDefAt/armorHpAt/...GainNext`) 추가 + `baseLore` 슬롯 인식 → 방어구에 `강화: +N강 (방어력 +X · 체력 +Y)` + `+1강 시 ...` 표시. 실제 전투 산식과 동일 출처. `equipBaseLore`/호출처 6곳 슬롯 전달로 변경.
+
+### ⚠ 보류 — 사용자 결정 필요 (다음 세션)
+- **weaponType ↔ 장착 WEAPON 슬롯 어긋남**: 테스트 캐릭(zenonsufu0)이 `weaponType=SCYTHE`인데 장착=`weapon_sword`(+15 LEGENDARY). 전투는 장착(검 +15) 사용, 스킬/표시는 타입(낫) 기준이라 이름=낫·스탯=검으로 보일 수 있음. B 수정으로 lore는 장착 기준 통일했으나 **type↔장착 재동기화는 미적용**(어느 쪽으로 맞출지 = 검 유지 vs 낫 전환, 데이터 결정 필요). 정상 캐릭은 일치하므로 일반 발생 여부도 조사 필요.
+
+### 재개 지점 (다음 세션 시작)
+1. **먼저** 위 미커밋 후속 6건 빌드 확인(`cd custom-plugins/poro-rpg && ./gradlew build`) → 커밋. 제안 메시지: `fix(growth/market): 경매 영지창고 연동·무기표시 통일·메시지 한글화·흔적텍스처·방어구 강화lore (DL-129 추가#38 인게임 후속)`
+2. weaponType↔장착 어긋남 처리 방향 사용자 확인 후 적용.
+3. (선택) 흔적풀 weight combat-balance 튜닝, 경매 2계정 구매 검증.
+- 서버: tmux `poro` 세션에서 기동 중(8080 리소스팩 http 별도). 배포 = `cp build/libs/poro-rpg-0.1.0.jar server/plugins/` → tmux `save-all`→`stop`→`start.sh`.
 
 ---
 

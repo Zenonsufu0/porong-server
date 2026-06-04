@@ -5,6 +5,7 @@ import com.poro.rpg.common.registry.master.ItemMasterRegistry;
 import com.poro.rpg.common.registry.master.model.ItemMaster;
 import com.poro.rpg.growth.GrowthStateStore;
 import com.poro.rpg.growth.engine.PlayerGrowthState;
+import com.poro.rpg.growth.engine.ItemGrade;
 import com.poro.rpg.growth.engine.TraceInstance;
 import com.poro.rpg.market.TraceInstanceCodec;
 import com.poro.rpg.growth.island.IslandTerritoryState;
@@ -95,6 +96,7 @@ public final class AuctionGuiListener implements Listener {
     private final Plugin               plugin;
     private final GrowthStateStore     growthStateStore;
     private final IslandTerritoryStateStore islandStore;
+    private final com.poro.rpg.growth.island.IslandStorageStore islandStorageStore;
     private final CombatStateService   combatStateService;
     private final AuctionStore         auctionStore;
     private final ItemMasterRegistry   itemMasters;
@@ -104,6 +106,7 @@ public final class AuctionGuiListener implements Listener {
     public AuctionGuiListener(Plugin plugin,
                                GrowthStateStore growthStateStore,
                                IslandTerritoryStateStore islandTerritoryStateStore,
+                               com.poro.rpg.growth.island.IslandStorageStore islandStorageStore,
                                AuctionStore auctionStore,
                                ItemMasterRegistry itemMasters,
                                CombatStateService combatStateService,
@@ -111,6 +114,7 @@ public final class AuctionGuiListener implements Listener {
         this.plugin             = plugin;
         this.growthStateStore   = growthStateStore;
         this.islandStore        = islandTerritoryStateStore;
+        this.islandStorageStore = islandStorageStore;
         this.auctionStore       = auctionStore;
         this.itemMasters        = itemMasters;
         this.combatStateService = combatStateService;
@@ -344,8 +348,7 @@ public final class AuctionGuiListener implements Listener {
                         lore.add("§83일 평균시세: " + avgText);
                         lore.add("§7──────────");
                         lore.add("§7좌클릭  §f구매");
-                        inv.setItem(invSlot, named(listingMaterial(l), "§f" + listingDisplayName(l),
-                                lore.toArray(new String[0])));
+                        inv.setItem(invSlot, listingIcon(l, lore));
                     } else {
                         inv.setItem(invSlot, glassPane(Material.GRAY_STAINED_GLASS_PANE));
                     }
@@ -442,6 +445,8 @@ public final class AuctionGuiListener implements Listener {
         palette.add("mat_cube");
         palette.add("mat_stone_enhance");
         palette.addAll(buildTradeablePalette(territory));
+        // 바닐라 IslandStorage 재료 — 영지 창고 연동(경매=영지 창고 전체).
+        palette.addAll(buildVanillaPalette(uid));
         // 흔적 인스턴스 — 등급↓ 개별 등록 (DL-129 추가#38, P5).
         if (territory != null) {
             territory.traceInstancesSnapshot().stream()
@@ -472,14 +477,19 @@ public final class AuctionGuiListener implements Listener {
                     inv.setItem(i - start, registerTraceIcon(uid, itemId));
                     continue;
                 }
-                long held = heldOf(uid, itemId); // 통화형은 통화, 그 외는 창고
+                long held = heldOf(uid, itemId); // 통화형=통화, 바닐라=IslandStorage, 그 외=창고
                 long avg = auctionStore.getAveragePrice(itemId);
                 String avgText = avg < 0 ? "§8데이터 없음" : "§7" + fmt(avg) + "G §8(참고)";
                 java.util.List<String> lore = java.util.List.of(
                         "§7보유: §e" + fmt(held) + "개",
                         "§83일 평균시세: " + avgText,
                         "§7──────────", "§a클릭 → 가격·수량 입력 후 등록");
-                inv.setItem(i - start, storageIcon(itemId, lore));
+                Material vm = vanillaMaterial(itemId);
+                if (vm != null) {
+                    inv.setItem(i - start, vanillaIcon(vm, lore));
+                } else {
+                    inv.setItem(i - start, storageIcon(itemId, lore));
+                }
             }
         }
 
@@ -686,8 +696,7 @@ public final class AuctionGuiListener implements Listener {
                 lore.add("§83일 평균시세: " + avgText);
                 lore.add("§7──────────");
                 lore.add("§c우클릭 → 등록 취소 §8(창고 반환)");
-                inv.setItem(i, named(listingMaterial(l), "§f" + listingDisplayName(l),
-                        lore.toArray(new String[0])));
+                inv.setItem(i, listingIcon(l, lore));
             } else {
                 inv.setItem(i, glassPane(Material.GRAY_STAINED_GLASS_PANE));
             }
@@ -784,6 +793,13 @@ public final class AuctionGuiListener implements Listener {
                         deliveredIds.add(d.id());
                         player.sendMessage("§a[경매장] §f" + itemDisplayName(d.itemId())
                                 + " §7×" + fmt(d.quantity()) + " §7지급됐습니다.");
+                    } else if (d.itemId() != null && vanillaMaterial(d.itemId()) != null) {
+                        // 바닐라 재료 배달 → IslandStorage (영지 창고 연동).
+                        Material vm = vanillaMaterial(d.itemId());
+                        islandStorageStore.get(uuid).ifPresent(s -> s.add(vm, d.quantity()));
+                        deliveredIds.add(d.id());
+                        player.sendMessage("§a[경매장] §7아이템 §f" + itemDisplayName(d.itemId())
+                                + " §7×" + fmt(d.quantity()) + " §7창고에 지급됐습니다.");
                     } else if (d.itemId() != null && territory != null) {
                         territory.addCustomItem(d.itemId(), d.quantity());
                         deliveredIds.add(d.id());
@@ -815,6 +831,17 @@ public final class AuctionGuiListener implements Listener {
                 .toList();
     }
 
+    /** 바닐라 IslandStorage 재료 팔레트 — item_id = Material.name()(대문자). 영지 창고 연동. */
+    private List<String> buildVanillaPalette(UUID uid) {
+        return islandStorageStore.get(uid)
+                .map(s -> s.materialList().stream()
+                        .filter(m -> s.getAmount(m) > 0)
+                        .map(Material::name)
+                        .sorted()
+                        .toList())
+                .orElse(List.of());
+    }
+
     /** 해당 재료 경매 거래 가능 여부 (item_master is_tradeable). */
     private boolean isTradeable(String itemId) {
         return itemMasters.find(itemId).map(ItemMaster::tradeable).orElse(false);
@@ -825,33 +852,55 @@ public final class AuctionGuiListener implements Listener {
         return itemId != null && itemId.startsWith("trace_");
     }
 
+    // ── 바닐라 IslandStorage 재료 식별 (영지 창고 연동) — itemId가 Material 이름(대문자) ──
+    private static Material vanillaMaterial(String itemId) {
+        return itemId == null ? null : Material.getMaterial(itemId);
+    }
+    private static boolean isVanillaMaterial(String itemId) {
+        return vanillaMaterial(itemId) != null;
+    }
+
     // ── 통화형(큐브·강화석) ↔ 창고 라우팅 (DL-129#37) ──
-    /** 보유량 — 통화형은 growthState 통화, 흔적 인스턴스는 보유=1, 그 외는 창고 customItems. */
+    /** 보유량 — 통화형=통화, 흔적=1/0, 바닐라=IslandStorage, 그 외=창고 customItems. */
     private long heldOf(UUID uid, String itemId) {
         if (AuctionStore.isCurrencyItem(itemId))
             return growthStateStore.get(uid).map(g -> g.currency(itemId)).orElse(0L);
         if (isTraceId(itemId))
             return islandStore.get(uid).map(t -> t.findTraceInstance(itemId).isPresent() ? 1L : 0L).orElse(0L);
+        Material vm = vanillaMaterial(itemId);
+        if (vm != null)
+            return islandStorageStore.get(uid).map(s -> s.getAmount(vm)).orElse(0L);
         return islandStore.get(uid).map(t -> t.getCustomItem(itemId)).orElse(0L);
     }
-    /** 차감 — 성공 여부. (흔적은 confirmRegister에서 payload 캡처 후 직접 처리하므로 여기선 미지원) */
+    /** 차감 — 성공 여부. (흔적은 confirmRegister에서 payload 캡처 후 직접 처리) */
     private boolean debitItem(UUID uid, String itemId, long qty) {
         if (AuctionStore.isCurrencyItem(itemId))
             return growthStateStore.get(uid).map(g -> g.consumeCurrency(itemId, qty)).orElse(false);
+        Material vm = vanillaMaterial(itemId);
+        if (vm != null) {
+            com.poro.rpg.growth.island.IslandStorage s = islandStorageStore.get(uid).orElse(null);
+            if (s == null || s.getAmount(vm) < qty) return false;
+            return s.withdraw(vm, qty) == qty;
+        }
         IslandTerritoryState t = islandStore.get(uid).orElse(null);
         if (t == null || t.getCustomItem(itemId) < qty) return false;
         t.withdrawCustomItem(itemId, qty);
         return true;
     }
-    /** 지급(반환/롤백/배달) — 통화/창고 스택용. 흔적은 creditTrace 사용. */
+    /** 지급(반환/롤백/배달) — 통화/바닐라/창고 스택용. 흔적은 creditTrace 사용. */
     private void creditItem(UUID uid, String itemId, long qty) {
         if (AuctionStore.isCurrencyItem(itemId)) {
             growthStateStore.get(uid).ifPresent(g -> g.addCurrency(itemId, qty));
-        } else {
-            islandStore.get(uid).ifPresent(t -> t.addCustomItem(itemId, qty));
+            return;
         }
+        Material vm = vanillaMaterial(itemId);
+        if (vm != null) {
+            islandStorageStore.get(uid).ifPresent(s -> s.add(vm, qty));
+            return;
+        }
+        islandStore.get(uid).ifPresent(t -> t.addCustomItem(itemId, qty));
     }
-    /** 등록 palette용 흔적 아이콘 — 등급 색상명 + 세부스탯 lore. */
+    /** 등록 palette용 흔적 아이콘 — 창고와 동일한 흔적 텍스처(CustomItemModel) + 등급명 + 세부스탯 lore. */
     private ItemStack registerTraceIcon(UUID uid, String instanceId) {
         TraceInstance t = islandStore.get(uid).flatMap(s -> s.findTraceInstance(instanceId)).orElse(null);
         if (t == null) return named(Material.PAPER, "§8흔적 (없음)");
@@ -862,9 +911,21 @@ public final class AuctionGuiListener implements Listener {
                 + " §e+" + String.format("%.1f", line.value())));
         lore.add("§7──────────");
         lore.add("§a클릭 → 가격 입력 후 등록");
-        return named(traceGradeMaterial(t),
+        return traceIcon(t.grade(),
                 com.poro.rpg.gui.EquipmentLoreRenderer.gradeColor(t.grade()) + t.grade().displayName() + " 장비의 흔적",
-                lore.toArray(new String[0]));
+                lore);
+    }
+
+    /** 흔적 아이콘 빌더 — 창고(StorageGui)와 동일한 CustomItemModel 흔적 텍스처 사용(바닐라 폴백 방지). */
+    private ItemStack traceIcon(ItemGrade grade, String displayName, java.util.List<String> lore) {
+        ItemStack item = com.poro.rpg.gui.CustomItemModel.buildStack("equip_trace_unidentified", 1);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(displayName);
+            if (lore != null && !lore.isEmpty()) meta.setLore(lore);
+            item.setItemMeta(meta);
+        }
+        return item;
     }
 
     /** 등록 흐름 표시명 — 흔적이면 등급명, 그 외 일반명. */
@@ -892,6 +953,18 @@ public final class AuctionGuiListener implements Listener {
             item.setItemMeta(meta);
         }
         return item;
+    }
+
+    /** listing 아이콘 — 흔적=CustomItemModel 흔적 텍스처, 바닐라=StorageGui 동일 외형, 그 외 재질+표시명. */
+    private ItemStack listingIcon(AuctionListing l, java.util.List<String> lore) {
+        if (l.isTrace()) {
+            TraceInstance t = TraceInstanceCodec.fromJson(l.itemPayload());
+            ItemGrade g = t != null ? t.grade() : ItemGrade.COMMON;
+            return traceIcon(g, "§f" + listingDisplayName(l), lore);
+        }
+        Material vm = vanillaMaterial(l.itemId());
+        if (vm != null) return vanillaIcon(vm, lore);
+        return named(listingMaterial(l), "§f" + listingDisplayName(l), lore.toArray(new String[0]));
     }
 
     /** listing 표시명 — 흔적이면 등급 색상명, 그 외 일반 한글명. */
@@ -940,13 +1013,26 @@ public final class AuctionGuiListener implements Listener {
     }
 
     private String itemDisplayName(String itemId) {
+        // 바닐라 재료 — Material 이름 타이틀케이스(아이언 오어 등). 클라 번역은 GUI translatable로 별도.
+        Material vm = vanillaMaterial(itemId);
+        if (vm != null) return titleCase(vm.name());
         // 창고와 동일한 한글명 우선 — WorkshopRecipeRegistry(한글), 없으면 item_master(영어 가능)
         String n = com.poro.rpg.gui.WorkshopRecipeRegistry.displayName(itemId);
         if (n != null && !n.equals(itemId)) return n;
         return itemMasters.find(itemId).map(ItemMaster::itemName).orElse(itemId);
     }
 
+    private static String titleCase(String raw) {
+        String s = raw.replace('_', ' ').toLowerCase(java.util.Locale.ROOT);
+        StringBuilder sb = new StringBuilder(s.length());
+        boolean cap = true;
+        for (char c : s.toCharArray()) { sb.append(cap ? Character.toUpperCase(c) : c); cap = c == ' '; }
+        return sb.toString();
+    }
+
     private Material itemMaterial(String itemId) {
+        Material vm = vanillaMaterial(itemId);
+        if (vm != null) return vm;
         if (itemId.startsWith("equip_trace_brilliant")) return Material.NETHER_STAR;
         if (itemId.startsWith("equip_trace_radiant"))   return Material.PRISMARINE_SHARD;
         if (itemId.startsWith("equip_trace_glowing"))   return Material.PRISMARINE_CRYSTALS;
@@ -956,6 +1042,18 @@ public final class AuctionGuiListener implements Listener {
         if (itemId.startsWith("mat_"))                  return Material.CRAFTING_TABLE;
         if (itemId.startsWith("display_"))              return Material.DIAMOND;
         return Material.PAPER;
+    }
+
+    /** 바닐라 재료 아이콘 — StorageGui와 동일(번역키 한글명 + 기본 아이템 텍스처). 영지 창고와 외형 일치. */
+    private ItemStack vanillaIcon(Material mat, java.util.List<String> lore) {
+        ItemStack item = new ItemStack(mat);
+        ItemMeta meta = item.getItemMeta();
+        meta.displayName(net.kyori.adventure.text.Component.translatable(mat.translationKey())
+                .color(net.kyori.adventure.text.format.NamedTextColor.WHITE)
+                .decoration(net.kyori.adventure.text.format.TextDecoration.ITALIC, false));
+        if (lore != null && !lore.isEmpty()) meta.setLore(lore);
+        item.setItemMeta(meta);
+        return item;
     }
 
     private ItemStack glassPane(Material mat) {

@@ -1,7 +1,9 @@
 package com.poro.rpg.gui;
 
+import com.poro.rpg.combat.SkillContext;
 import com.poro.rpg.combat.WeaponPowerCalculator;
 import com.poro.rpg.growth.engine.EngravingRegistry;
+import com.poro.rpg.growth.engine.EquipmentSlot;
 import com.poro.rpg.growth.engine.ItemGrade;
 import com.poro.rpg.growth.engine.PlayerEquipmentItem;
 import com.poro.rpg.growth.engine.PotentialGrade;
@@ -38,7 +40,7 @@ public final class EquipmentLoreRenderer {
      * @param engravingId 표시할 클래스 각인 ID(무기일 때만 사용)
      */
     public static List<String> baseLore(PlayerEquipmentItem item, boolean isWeapon, String engravingId) {
-        return baseLore(item, isWeapon, engravingId, "§8장착 장비 없음");
+        return baseLore(item, isWeapon ? EquipmentSlot.WEAPON : null, engravingId, "§8장착 장비 없음");
     }
 
     /**
@@ -46,15 +48,40 @@ public final class EquipmentLoreRenderer {
      * "미육성(교체 시 +0강 생성)"으로 안내한다.
      */
     public static List<String> baseLore(PlayerEquipmentItem item, boolean isWeapon, String engravingId, String emptyLabel) {
+        return baseLore(item, isWeapon ? EquipmentSlot.WEAPON : null, engravingId, emptyLabel);
+    }
+
+    /**
+     * 슬롯 인식 변형 — 방어구 슬롯이면 강화 단계별 DEF/HP 제공량을 함께 표시한다 (DL-129 추가#38 후속).
+     * slot=null이면 무기/슬롯 미상으로 간주(방어구 수치 생략).
+     */
+    public static List<String> baseLore(PlayerEquipmentItem item, EquipmentSlot slot, String engravingId, String emptyLabel) {
+        boolean isWeapon = slot == EquipmentSlot.WEAPON;
         List<String> lore = new ArrayList<>();
         lore.add("§7──────────────────");
         if (item != null) {
-            // 무기는 강화 단계별 고정 ATK 보너스(WeaponPowerCalculator) 병기 — 강화 체감 가시화(DL-112).
-            // 방어구 DEF 보너스는 정본/계산 미구현이라 별도 작업으로 분리.
+            // 무기는 강화 단계별 고정 ATK 보너스(WeaponPowerCalculator), 방어구는 부위별 DEF/HP 제공량을 병기.
             if (isWeapon) {
                 int atkBonus = WeaponPowerCalculator.enhanceAtkBonus(item.enhanceLevel());
                 lore.add("§7강화   : §e+" + item.enhanceLevel() + "강"
                         + (atkBonus > 0 ? " §7(공격력 §c+" + atkBonus + "§7)" : ""));
+            } else if (slot != null) {
+                int lvl = item.enhanceLevel();
+                double def = SkillContext.armorDefAt(slot, lvl);
+                double hp  = SkillContext.armorHpAt(slot, lvl);
+                StringBuilder b = new StringBuilder("§7강화   : §e+" + lvl + "강");
+                java.util.List<String> parts = new ArrayList<>();
+                if (def > 0) parts.add("방어력 §a+" + String.format("%.1f", def));
+                if (hp > 0)  parts.add("체력 §a+" + String.format("%.0f", hp));
+                if (!parts.isEmpty()) b.append(" §7(").append(String.join(" §7· ", parts)).append("§7)");
+                lore.add(b.toString());
+                // 다음 강화 증가분 안내(0강~ 체감).
+                double dn = SkillContext.armorDefGainNext(slot, lvl);
+                double hn = SkillContext.armorHpGainNext(slot, lvl);
+                java.util.List<String> nxt = new ArrayList<>();
+                if (dn > 0) nxt.add("방어력 +" + String.format("%.1f", dn));
+                if (hn > 0) nxt.add("체력 +" + String.format("%.0f", hn));
+                if (!nxt.isEmpty()) lore.add("§8  +1강 시 " + String.join(" · ", nxt));
             } else {
                 lore.add("§7강화   : §e+" + item.enhanceLevel() + "강");
             }
@@ -69,7 +96,14 @@ public final class EquipmentLoreRenderer {
                 lore.add("§7잠재   : §8없음");
             }
             List<PotentialLine> sub = item.substatLines();
-            lore.add("§7세부스탯: " + (sub.isEmpty() ? "§8없음" : "§f" + sub.size() + "줄"));
+            if (sub.isEmpty()) {
+                lore.add("§7세부스탯: §8없음");
+            } else {
+                lore.add("§7세부스탯:");
+                for (PotentialLine pl : sub) {
+                    lore.add("§8  " + potentialOptionKr(pl.optionCode()) + " §e+" + String.format("%.2f", pl.value()));
+                }
+            }
         } else {
             lore.add(emptyLabel);
         }
