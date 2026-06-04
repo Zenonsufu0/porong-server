@@ -3256,3 +3256,27 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 **보류/확인 필요:** ⑥ **장비의 흔적 드랍 시 등급+세부스탯** — 현행 흔적은 등급만 가진 **스택형**(item_id→qty). 개별 인스턴스(등급+세부스탯)는 전승 시스템 재설계(현행 카운터형 전승과 충돌, item_grade_substat §4는 SUPERSEDED). 별도 설계 결정 필요 → 사용자 확인.
 
 **검증:** `./gradlew build` SUCCESSFUL(31 tests). 서버 재기동 정상(Done 17.0s, 예외 없음). 인게임 확인 필요: 흔적 등급표기, 경매 창고전체, 큐브·강화석 등록/구매/배달, 메시지.
+
+---
+
+### DL-129 추가#38 (2026-06-04) — 장비의 흔적 "개별 인스턴스화" 설계 결정 (추가#37 ⑥ 후속)
+
+**배경:** 추가#37 ⑥에서 보류한 "흔적 드랍 시 등급+세부스탯". 사용자 확정 방향 = 흔적을 장비처럼 **등급 + 세부스탯을 가진 개별 인스턴스**로. 드랍 시 등급+세부스탯이 롤되어 표시되고, 전승 시 그 흔적의 등급·세부스탯이 장비로 이전. 멀티-시스템 재설계(데이터 모델·드랍·전승·창고·경매·마이그레이션) = 단계별 배포·검증.
+
+**착수 전 선행 결정 (2026-06-04 사용자 확정):**
+1. **슬롯 부여 = 범용(슬롯 없음).** 드랍 시 등급만 확정, 세부스탯은 슬롯-무관 풀에서 롤. 어떤 장비에든 전승 가능(현행 유연성 유지). 옛 `item_grade_substat §3`의 슬롯별 흔적은 채택하지 않음.
+2. **세부스탯 롤 규칙 = 현행 개수 규칙 그대로.** 등급별 개수 COMMON 1 / RARE 2 / EPIC·UNIQUE·LEGENDARY 3. 값은 옵션 풀 `value_min~value_max` 균등 롤. (현행 `SuccessionService.generateSubstats`의 개수·값 규칙 계승.)
+3. **기존 스택 흔적 = 자동 변환.** 보유 스택 `equip_trace_*` N개를 각각 인스턴스 N개로 변환(등급별 세부스탯 롤). 폐기·환급 아님.
+4. **경매 인스턴스 거래 = 포함.** 고유 세부스탯 흔적을 경매에 올릴 수 있도록 listing payload(JSON) 부활 + 경매 스키마 확장(`item_data` 또는 별도 테이블). 1차 시즌 포함.
+5. **세부스탯 풀 = 슬롯무관 통합풀 신설.** ⚠ 충돌 발견 — 현행 `growth_potential_option_pool.csv`(437행)는 **완전 슬롯별 분리**(weapon/head/chest/legs/feet)이고 슬롯-무관 옵션이 0개. 게다가 슬롯이 스탯 종류 자체를 결정(ATK%=무기·신발만, 치명확률%=무기·머리만, 받피감=머리/상의/하의 전용, 신발=이동테마). 따라서 결정1(범용·드랍시 표시)을 만족하려면 **흔적 전용 슬롯-무관 세부스탯 풀을 신규 작성**해야 함(범용 스탯만: 공격%·체력%·치명·쿨감 등, 슬롯테마 스탯 제외). combat-balance 검토 대상. 결정2의 "현행 규칙"은 *개수·값롤 방식*만 계승하고 풀 자체는 신설로 해석.
+
+**단계별 구현 계획 (각 단계 배포·검증):**
+- **P1** 데이터 모델 + 영속 — `TraceInstance`(instanceId, grade, List<PotentialLine> substats) 신규. `IslandTerritoryState`에 `List<TraceInstance>` 추가 + `PlayerSaveData` Gson 직렬화(구 세이브 호환). customItems 스택과 공존(equip_trace_*만 인스턴스 이관, 나머지 재료는 스택 유지).
+- **P1b** 슬롯무관 통합 세부스탯 풀 CSV + 로더/롤 서비스.
+- **P2** 드랍 롤 — `FieldDropListener` 흔적 드랍 시 등급(기존 분포)+세부스탯(통합풀) 롤 → `TraceInstance` 생성·저장.
+- **P3** 전승 재작성 — `SuccessionService`를 인스턴스 소스 기반으로(grade+substat → 장비 적용, 인스턴스 1개 소모). BASIC/GRADE_ONLY/SUBSTAT_ONLY 의미 유지. 전승 GUI 인스턴스 목록 선택.
+- **P4** 창고/표시 — 흔적 인스턴스 항목 개별 표시(등급+세부스탯 lore), 입출금 인스턴스 단위.
+- **P5** 경매 인스턴스 거래 — listing JSON payload 복원, 등록/구매/배달 인스턴스 단위.
+- **P6** 마이그레이션(스택→인스턴스 자동 변환) + CANON 갱신(`item_grade_substat`·`equipment_growth_spec`) + DL 기록.
+
+**근거 문서:** `02_database_api_stats/equipment_growth_spec.md §2.3`(현행 카운터형 전승, 대체 예정), `item_grade_substat_v1.md`(§3·§4 SUPERSEDED였으나 인스턴스화로 일부 회귀 → P6에서 정합), `growth_potential_option_pool.csv`(슬롯별 풀, 통합풀은 별도 신설).

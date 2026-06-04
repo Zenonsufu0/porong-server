@@ -1,0 +1,45 @@
+pool_id,option_code,grade,slot_type,class_filter,weapon_filter,tag_filter,value_min,value_max,weight
+# 장비 흔적 전용 슬롯-무관 세부스탯 통합풀 (DL-129 추가#38).
+# 결정1(범용): 흔적은 슬롯이 없으므로 드랍 시점에 슬롯을 모른다 → 어떤 장비에든 유효한 범용 스탯만 수록.
+# 슬롯테마 스탯(이동속도=신발, 받피감=방어구)은 제외. 값 범위는 growth_potential_option_pool.csv 등급별 집계에 정합(슬롯 전체 min~max).
+# 개수 규칙(COMMON1/RARE2/EPIC·UNIQUE·LEGENDARY3)·값 균등롤은 TraceSubstatRoller가 적용. weight 균등(v1) — combat-balance 튜닝 대상.
+trace,attack_percent,COMMON,,,,,1,2,1
+trace,attack_percent,RARE,,,,,1,5,1
+trace,attack_percent,EPIC,,,,,3,12,1
+trace,attack_percent,UNIQUE,,,,,5,15,1
+trace,attack_percent,LEGENDARY,,,,,8,21,1
+trace,max_hp_percent,COMMON,,,,,1,2,1
+trace,max_hp_percent,RARE,,,,,3,5,1
+trace,max_hp_percent,EPIC,,,,,5,9,1
+trace,max_hp_percent,UNIQUE,,,,,7,13,1
+trace,max_hp_percent,LEGENDARY,,,,,10,18,1
+trace,crit_chance_percent,COMMON,,,,,1,2,1
+trace,crit_chance_percent,RARE,,,,,2,4,1
+trace,crit_chance_percent,EPIC,,,,,4,7,1
+trace,crit_chance_percent,UNIQUE,,,,,7,10,1
+trace,crit_chance_percent,LEGENDARY,,,,,10,14,1
+trace,crit_damage_percent,COMMON,,,,,2,3,1
+trace,crit_damage_percent,RARE,,,,,4,6,1
+trace,crit_damage_percent,EPIC,,,,,7,11,1
+trace,crit_damage_percent,UNIQUE,,,,,12,17,1
+trace,crit_damage_percent,LEGENDARY,,,,,18,25,1
+trace,cooldown_reduction_percent,COMMON,,,,,1,1,1
+trace,cooldown_reduction_percent,RARE,,,,,1,2,1
+trace,cooldown_reduction_percent,EPIC,,,,,2,4,1
+trace,cooldown_reduction_percent,UNIQUE,,,,,4,6,1
+trace,cooldown_reduction_percent,LEGENDARY,,,,,7,9,1
+trace,general_damage_increase,COMMON,,,,,1,2,1
+trace,general_damage_increase,RARE,,,,,2,5,1
+trace,general_damage_increase,EPIC,,,,,4,10,1
+trace,general_damage_increase,UNIQUE,,,,,6,14,1
+trace,general_damage_increase,LEGENDARY,,,,,9,20,1
+trace,boss_damage_increase,COMMON,,,,,1,2,1
+trace,boss_damage_increase,RARE,,,,,2,4,1
+trace,boss_damage_increase,EPIC,,,,,4,9,1
+trace,boss_damage_increase,UNIQUE,,,,,6,13,1
+trace,boss_damage_increase,LEGENDARY,,,,,9,18,1
+trace,defense_ignore,COMMON,,,,,1,2,1
+trace,defense_ignore,RARE,,,,,1,4,1
+trace,defense_ignore,EPIC,,,,,3,8,1
+trace,defense_ignore,UNIQUE,,,,,6,12,1
+trace,defense_ignore,LEGENDARY,,,,,9,18,1

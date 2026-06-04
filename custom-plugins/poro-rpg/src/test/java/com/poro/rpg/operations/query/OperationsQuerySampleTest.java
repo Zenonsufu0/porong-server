@@ -142,7 +142,7 @@ class OperationsQuerySampleTest {
 
         GrowthEngineRuntime growthRuntime = new GrowthEngineRuntime(
                 null, null, null, null, null, null, null, null,
-                null, null, null, null, null, new InMemoryEnhancementLogHook()
+                null, null, null, null, null, new InMemoryEnhancementLogHook(), null
         );
 
         BossMasterRegistry bossMasterRegistry = new BossMasterRegistry();

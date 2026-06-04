@@ -82,8 +82,11 @@ public final class IslandTerritoryState {
     /** 공방 대기열. 완료된 작업은 GUI 열 때 collect 처리. */
     private final List<WorkshopJob> workshopJobs = new ArrayList<>();
 
-    /** 커스텀 아이템 재고 (큐브 조각, 흔적 등). String ID → 수량. */
+    /** 커스텀 아이템 재고 (큐브 조각, 재료 등). String ID → 수량. */
     private final Map<String, Long> customItems = new LinkedHashMap<>();
+
+    /** 장비의 흔적 개별 인스턴스 보관함 (DL-129 추가#38). customItems 스택과 공존. */
+    private final List<com.poro.rpg.growth.engine.TraceInstance> traceInstances = new ArrayList<>();
 
     public IslandTerritoryState(String ownerName) {
         this.rank               = IslandRank.FRONTIER;
@@ -206,6 +209,33 @@ public final class IslandTerritoryState {
     }
 
     public java.util.Map<String, Long> customItemsSnapshot() { return java.util.Map.copyOf(customItems); }
+
+    // ─── 장비 흔적 인스턴스 (DL-129 추가#38) ──────────────────────
+    /** 흔적 인스턴스 1개 추가. */
+    public void addTraceInstance(com.poro.rpg.growth.engine.TraceInstance trace) {
+        if (trace != null) traceInstances.add(trace);
+    }
+    /** instanceId로 흔적 1개 제거(소모). 성공 시 true. */
+    public boolean removeTraceInstance(String instanceId) {
+        if (instanceId == null) return false;
+        String norm = instanceId.trim();
+        return traceInstances.removeIf(t -> t.instanceId().equals(norm));
+    }
+    /** instanceId로 흔적 조회. */
+    public java.util.Optional<com.poro.rpg.growth.engine.TraceInstance> findTraceInstance(String instanceId) {
+        if (instanceId == null) return java.util.Optional.empty();
+        String norm = instanceId.trim();
+        return traceInstances.stream().filter(t -> t.instanceId().equals(norm)).findFirst();
+    }
+    /** 보유 흔적 인스턴스 불변 스냅샷. */
+    public List<com.poro.rpg.growth.engine.TraceInstance> traceInstancesSnapshot() {
+        return List.copyOf(traceInstances);
+    }
+    /** 영속 복원용 — 전체 교체. */
+    public void setTraceInstances(List<com.poro.rpg.growth.engine.TraceInstance> list) {
+        traceInstances.clear();
+        if (list != null) traceInstances.addAll(list);
+    }
 
     // ─── 편의 해금 ────────────────────────────────────────────────
     public boolean hasConvenience(int bit) { return (convenienceUnlocks & bit) != 0; }

@@ -14,6 +14,7 @@ public record GrowthEngineRuntime(
         SetBonusRegistry setBonusRegistry,
         RuneRegistry runeRegistry,
         EngravingRegistry engravingRegistry,
-        InMemoryEnhancementLogHook enhancementLogHook
+        InMemoryEnhancementLogHook enhancementLogHook,
+        TraceSubstatRoller traceSubstatRoller
 ) {
 }

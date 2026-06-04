@@ -12,6 +12,7 @@ final class DefaultGrowthSeedInstaller {
     private static final List<String> RESOURCE_PATHS = List.of(
             "seeds/growth_enhancement_table.csv",
             "seeds/growth_potential_option_pool.csv",
+            "seeds/growth_trace_substat_pool.csv",
             "seeds/growth_set_bonus.csv",
             "seeds/growth_rune_master.csv",
             "seeds/growth_engraving_master.csv"

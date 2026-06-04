@@ -34,9 +34,11 @@ public record PlayerSaveData(
         int ilWarningCount,
         int mobIlHitCount,
         int catalystBonusPct,
-        Map<String, String> cosmeticMaterials
+        Map<String, String> cosmeticMaterials,
+        // 장비 흔적 개별 인스턴스 (v7, DL-129 추가#38). 구 세이브엔 없음 → null → 마이그레이션에서 List.of().
+        List<TraceInstanceSaveData> traceInstances
 ) {
-    public static final int CURRENT_VERSION = 6;
+    public static final int CURRENT_VERSION = 7;
 
     public record ItemSaveData(
             String instanceId,
@@ -118,5 +120,12 @@ public record PlayerSaveData(
             String recipeId,
             long   startedAt,
             long   completeAt
+    ) {}
+
+    /** 흔적 인스턴스 직렬화 DTO (v7, DL-129 추가#38). grade·세부스탯 라인 보관. */
+    public record TraceInstanceSaveData(
+            String instanceId,
+            String grade,
+            List<PotentialLineSaveData> substats
     ) {}
 }

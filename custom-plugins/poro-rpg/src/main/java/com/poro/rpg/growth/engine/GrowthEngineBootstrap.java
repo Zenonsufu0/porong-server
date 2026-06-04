@@ -32,6 +32,8 @@ public final class GrowthEngineBootstrap {
 
         EnhancementRuleRegistry enhancementRuleRegistry = new EnhancementRuleRegistry();
         PotentialOptionRegistry potentialOptionRegistry = new PotentialOptionRegistry();
+        // 흔적 전용 슬롯-무관 세부스탯 풀 — 메인 풀과 분리해 전승 슬롯 롤에 오염되지 않게 한다 (DL-129 추가#38).
+        PotentialOptionRegistry traceSubstatRegistry = new PotentialOptionRegistry();
         SetBonusRegistry setBonusRegistry = new SetBonusRegistry();
         RuneRegistry runeRegistry = new RuneRegistry();
         EngravingRegistry engravingRegistry = new EngravingRegistry();
@@ -47,6 +49,11 @@ public final class GrowthEngineBootstrap {
                         "growth_potential_option_pool",
                         new CsvSeedLoader<>("growth_potential_option_pool", seedPath.resolve("growth_potential_option_pool.csv"), GrowthSeedMappers::potentialOption),
                         list -> list.forEach(potentialOptionRegistry::register)
+                ),
+                RegistryBootstrapper.task(
+                        "growth_trace_substat_pool",
+                        new CsvSeedLoader<>("growth_trace_substat_pool", seedPath.resolve("growth_trace_substat_pool.csv"), GrowthSeedMappers::potentialOption),
+                        list -> list.forEach(traceSubstatRegistry::register)
                 ),
                 RegistryBootstrapper.task(
                         "growth_set_bonus",
@@ -97,6 +104,7 @@ public final class GrowthEngineBootstrap {
                 new ThreadLocalRandomProvider()
         );
         SuccessionService successionService = new SuccessionService(potentialOptionRegistry, masterRegistryContext.itemMasters(), new ThreadLocalRandomProvider());
+        TraceSubstatRoller traceSubstatRoller = new TraceSubstatRoller(traceSubstatRegistry, new ThreadLocalRandomProvider());
         SetBonusService setBonusService = new SetBonusService(masterRegistryContext.itemMasters(), setBonusRegistry);
         RuneService runeService = new RuneService(runeRegistry, masterRegistryContext.itemMasters());
         EngravingService engravingService = new EngravingService(engravingRegistry);
@@ -110,6 +118,7 @@ public final class GrowthEngineBootstrap {
 
         logger.info("Growth engine bootstrap completed. enhancement_rules=" + enhancementRuleRegistry.all().size()
                 + ", potential_options=" + potentialOptionRegistry.all().size()
+                + ", trace_substat_options=" + traceSubstatRegistry.all().size()
                 + ", set_bonus_rules=" + setBonusRegistry.all().size()
                 + ", runes=" + runeRegistry.all().size()
                 + ", engravings=" + engravingRegistry.all().size());
@@ -128,7 +137,8 @@ public final class GrowthEngineBootstrap {
                 setBonusRegistry,
                 runeRegistry,
                 engravingRegistry,
-                enhancementLogHook
+                enhancementLogHook,
+                traceSubstatRoller
         ));
     }
 

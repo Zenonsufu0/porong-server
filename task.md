@@ -28,14 +28,16 @@
 - **창고/경매**: `customItems`(item_id) 스택 기반. 경매 listing도 item_id+qty 스택 (`auction` 테이블, item_data 컬럼은 §6-10에서 DROP됨).
 - **정본 문서**: `item_grade_substat_v1.md`(§3 slot별 흔적·§4 전승은 **SUPERSEDED** 표기), 현행 전승 = `02_database_api_stats/equipment_growth_spec.md §2.3`(카운터형). ⚠ 인스턴스화는 사실상 옛 §3·§4 설계로 회귀 → **CANON 갱신 필요**.
 
-### 선행 결정 (착수 전 사용자 확인 필요)
-1. **흔적이 슬롯별인가 범용인가?** — 옛 §3은 무기/투구/상의/하의/신발의 흔적(슬롯별). 현행은 등급만(범용). 인스턴스화 시 슬롯 부여할지.
-2. **세부스탯 롤 규칙** — 어떤 스탯 풀에서, 등급별 몇 개, 값 범위? `PotentialService`의 세부스탯/옵션 풀 재사용 가능한지.
-3. **기존 스택형 흔적 마이그레이션** — 보유 중인 스택 흔적을 인스턴스로 변환(등급별 기본 세부스탯 롤)할지, 폐기/회수할지.
-4. **경매 인스턴스 거래 범위** — 인스턴스(고유 세부스탯) 흔적을 경매에 올리려면 listing payload(JSON) 부활 필요. 1차 시즌 포함할지.
+### 선행 결정 (✅ 확정 2026-06-04, DL-129 추가#38)
+1. **슬롯 = 범용(슬롯 없음)** — 드랍 시 등급만 확정, 세부스탯은 슬롯-무관 풀에서 롤. 모든 장비에 전승 가능.
+2. **롤 규칙 = 현행 개수 규칙 계승** — COMMON 1 / RARE 2 / EPIC·UNIQUE·LEGENDARY 3, 값은 `value_min~value_max` 균등 롤.
+3. **기존 스택 = 자동 변환** — 보유 N개 → 인스턴스 N개(등급별 세부스탯 롤).
+4. **경매 = 인스턴스 거래 포함** — listing JSON payload 부활 + 경매 스키마 확장. 1차 시즌 포함.
+5. **세부스탯 풀 = 슬롯무관 통합풀 신설** — ⚠ 현행 `growth_potential_option_pool.csv`(437행)는 완전 슬롯별 분리·슬롯무관 옵션 0개. 슬롯이 스탯 종류 자체를 결정(ATK%=무기·신발만 등). → 흔적 전용 슬롯-무관 통합풀(범용 스탯만)을 **신규 작성**(P1b). 결정2의 "현행 규칙"은 개수·값롤 방식만 계승, 풀은 신설.
 
 ### 단계별 구현 계획 (각 단계 배포·검증)
-- **P1. 데이터 모델 + 영속** — `TraceInstance`(instanceId, grade, List<PotentialLine> substats, [slotType?]) 신규. 저장: `IslandTerritoryState`에 `List<TraceInstance>` 추가 + `PlayerSaveData`(Gson) 직렬화(구 세이브 호환). customItems 스택과 **공존**(equip_trace_*는 인스턴스로 이관, 나머지 재료는 스택 유지). → data-schema 영역.
+- **P1. 데이터 모델 + 영속** — `TraceInstance`(instanceId, grade, List<PotentialLine> substats) 신규(슬롯 필드 없음 = 결정1 범용). 저장: `IslandTerritoryState`에 `List<TraceInstance>` 추가 + `PlayerSaveData`(Gson) 직렬화(구 세이브 호환). customItems 스택과 **공존**(equip_trace_*는 인스턴스로 이관, 나머지 재료는 스택 유지). → data-schema 영역.
+- **P1b. 슬롯무관 통합 세부스탯 풀** — 흔적 전용 슬롯-무관 풀 CSV(등급별 범용스탯) + 로더/롤 서비스(개수규칙 결정2 계승). → combat-balance 검토.
 - **P2. 드랍 롤** — `FieldDropListener` 흔적 드랍 시 등급(기존 분포)+세부스탯(P_규칙) 롤 → `TraceInstance` 생성·저장. 드랍 메시지/로그에 등급 표기.
 - **P3. 전승 재작성** — `SuccessionService`를 **인스턴스 소스 기반**으로: 소스 = `TraceInstance`(grade+substat) → 장비에 grade·substat 적용, 인스턴스 1개 소모. BASIC/GRADE_ONLY/SUBSTAT_ONLY 의미 유지. 전승 GUI(`gui_succession`)에서 보유 흔적 인스턴스 목록 선택.
 - **P4. 창고/표시** — `StorageGui.entries`에 흔적 인스턴스 항목 추가(등급+세부스탯 lore, 개별 표시). 출금/입금은 인스턴스 단위.
@@ -45,8 +47,13 @@
 ### 리스크
 - 세이브 호환(IslandTerritoryState 구조 변경 — Gson trailing 필드/별도 맵), 경매 스키마(item_data 재도입), 전승 GUI 전면 재작업, 창고 통합 GUI(인스턴스 vs 스택 혼재 렌더), 밸런스(세부스탯 롤 = combat-balance 검토).
 
+### 진행 상태 (2026-06-04)
+- ✅ **P1 완료** — `TraceInstance`(record) 신규. `IslandTerritoryState`에 `List<TraceInstance>` + add/remove/find/snapshot/set 접근자. `PlayerSaveData` schema **v7**(`TraceInstanceSaveData` + top-level `traceInstances`), 마이그레이션 v6→v7(null→List.of()), `PlayerPersistenceService` 직렬화/복원 배선. 빌드·테스트 통과.
+- ✅ **P1b 완료** — `growth_trace_substat_pool.csv`(8종 범용스탯×5등급, 값범위 메인풀 정합) + `TraceSubstatRoller`(등급별 1/2/3개 가중 비복원 롤). 별도 `traceSubstatRegistry`로 적재(메인 전승 롤 오염 방지). `GrowthEngineRuntime`에 roller 노출. ⚠ weight 균등 v1 — combat-balance 튜닝 대상.
+- ⏳ **P2 다음** — `FieldDropListener` 흔적 드랍을 스택 가산 → `TraceInstance` 롤·저장으로 교체. 드랍 메시지 등급 표기.
+
 ### 재개 지점
-**위 "선행 결정 1~4"를 사용자에게 먼저 확인 → P1(데이터 모델)부터 착수.** 현행 구조 조사는 완료 상태(위 참조).
+**P2(드랍 롤)부터.** 현행 `FieldDropListener.randomTraceId`/`addCustomItem(trace_id)` 경로를 `traceSubstatRoller.roll(grade)` → `addTraceInstance`로 교체. roller는 `growthRuntime.traceSubstatRoller()`로 접근.
 
 ---
 

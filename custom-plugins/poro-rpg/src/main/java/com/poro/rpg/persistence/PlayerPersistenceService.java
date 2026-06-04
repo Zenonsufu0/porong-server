@@ -82,7 +82,7 @@ public final class PlayerPersistenceService {
                     current.playerLevel(), current.unspentPts(), current.critPts(), current.specPts(),
                     current.endurPts(), current.currentExp(), current.ceilingCounters(),
                     current.ilWarningCount(), current.mobIlHitCount(), current.catalystBonusPct(),
-                    Map.of());
+                    Map.of(), current.traceInstances());
             logger.info("[Migration] " + uuid + " v" + version + " → v2");
         }
 
@@ -96,7 +96,7 @@ public final class PlayerPersistenceService {
                     current.playerLevel(), current.unspentPts(), current.critPts(), current.specPts(),
                     current.endurPts(), current.currentExp(), current.ceilingCounters(),
                     current.ilWarningCount(), current.mobIlHitCount(), current.catalystBonusPct(),
-                    current.cosmeticMaterials() != null ? current.cosmeticMaterials() : Map.of());
+                    current.cosmeticMaterials() != null ? current.cosmeticMaterials() : Map.of(), current.traceInstances());
             logger.info("[Migration] " + uuid + " v2 → v3");
         }
 
@@ -109,7 +109,7 @@ public final class PlayerPersistenceService {
                     current.playerLevel(), current.unspentPts(), current.critPts(), current.specPts(),
                     current.endurPts(), current.currentExp(), current.ceilingCounters(),
                     current.ilWarningCount(), current.mobIlHitCount(), current.catalystBonusPct(),
-                    current.cosmeticMaterials() != null ? current.cosmeticMaterials() : Map.of());
+                    current.cosmeticMaterials() != null ? current.cosmeticMaterials() : Map.of(), current.traceInstances());
             logger.info("[Migration] " + uuid + " v3 → v4");
         }
 
@@ -122,7 +122,7 @@ public final class PlayerPersistenceService {
                     current.playerLevel(), current.unspentPts(), current.critPts(), current.specPts(),
                     current.endurPts(), current.currentExp(), current.ceilingCounters(),
                     current.ilWarningCount(), current.mobIlHitCount(), current.catalystBonusPct(),
-                    Map.of());
+                    Map.of(), current.traceInstances());
             logger.info("[Migration] " + uuid + " v4 → v5");
         }
 
@@ -142,8 +142,24 @@ public final class PlayerPersistenceService {
                     current.playerLevel(), current.unspentPts(), current.critPts(), current.specPts(),
                     current.endurPts(), current.currentExp(), current.ceilingCounters(),
                     current.ilWarningCount(), current.mobIlHitCount(), current.catalystBonusPct(),
-                    current.cosmeticMaterials() != null ? current.cosmeticMaterials() : Map.of());
+                    current.cosmeticMaterials() != null ? current.cosmeticMaterials() : Map.of(), current.traceInstances());
             logger.info("[Migration] " + uuid + " v5 → v6 (classEngraving → byClass)");
+        }
+
+        if (current.schemaVersion() < 7) {
+            // 흔적 인스턴스화(DL-129 추가#38) — v7 신규 필드. 구 세이브엔 인스턴스가 없으므로 빈 리스트로 초기화.
+            // 기존 스택형 흔적(customItems의 equip_trace_*)의 인스턴스 변환은 P6 마이그레이션에서 별도 처리.
+            current = new PlayerSaveData(7,
+                    current.weaponType(), current.classId(), current.classEngravingId(), current.classEngravingByClass(),
+                    current.wallet(), current.equippedSlots(), current.inventory(), current.equippedRunes(),
+                    current.commonEngravings(), current.territory(), current.storage(), current.customItems(),
+                    current.workshopJobs() != null ? current.workshopJobs() : List.of(),
+                    current.playerLevel(), current.unspentPts(), current.critPts(), current.specPts(),
+                    current.endurPts(), current.currentExp(), current.ceilingCounters(),
+                    current.ilWarningCount(), current.mobIlHitCount(), current.catalystBonusPct(),
+                    current.cosmeticMaterials() != null ? current.cosmeticMaterials() : Map.of(),
+                    current.traceInstances() != null ? current.traceInstances() : List.of());
+            logger.info("[Migration] " + uuid + " v6 → v7 (trace instances)");
         }
 
         return current;
@@ -318,6 +334,17 @@ public final class PlayerPersistenceService {
                     state.addWorkshopJob(new com.poro.rpg.growth.island.WorkshopJob(
                             dto.recipeId(), dto.startedAt(), dto.completeAt())));
         }
+
+        // 장비 흔적 인스턴스 (DL-129 추가#38) — setTraceInstances로 일괄 교체(중복 복원 방지).
+        if (data.traceInstances() != null) {
+            java.util.List<com.poro.rpg.growth.engine.TraceInstance> traces = data.traceInstances().stream()
+                    .map(dto -> new com.poro.rpg.growth.engine.TraceInstance(
+                            dto.instanceId(),
+                            parseEnum(ItemGrade.class, dto.grade(), ItemGrade.COMMON),
+                            toPotentialLines(dto.substats())))
+                    .toList();
+            state.setTraceInstances(traces);
+        }
     }
 
     private void applyStorage(UUID uuid, PlayerSaveData data) {
@@ -366,7 +393,8 @@ public final class PlayerPersistenceService {
                 growth != null ? growth.ilWarningCount()    : 0,
                 growth != null ? growth.mobIlHitCount()     : 0,
                 growth != null ? growth.catalystBonusPct()  : 0,
-                toCosmeticMaterialsDto(growth)
+                toCosmeticMaterialsDto(growth),
+                toTraceInstancesDto(territory)
         );
         repo.save(uuid, data);
     }
@@ -448,6 +476,18 @@ public final class PlayerPersistenceService {
     private Map<String, Long> toCustomItemsDto(IslandTerritoryState t) {
         if (t == null) return Map.of();
         return new LinkedHashMap<>(t.customItemsSnapshot());
+    }
+
+    private List<PlayerSaveData.TraceInstanceSaveData> toTraceInstancesDto(IslandTerritoryState t) {
+        if (t == null) return List.of();
+        return t.traceInstancesSnapshot().stream()
+                .map(tr -> new PlayerSaveData.TraceInstanceSaveData(
+                        tr.instanceId(),
+                        tr.grade().name(),
+                        tr.substats().stream()
+                                .map(l -> new PlayerSaveData.PotentialLineSaveData(l.lineNo(), l.grade().name(), l.optionCode(), l.value()))
+                                .toList()))
+                .toList();
     }
 
     private List<PlayerSaveData.WorkshopJobSaveData> toWorkshopJobsDto(IslandTerritoryState t) {
