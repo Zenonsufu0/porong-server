@@ -12,6 +12,12 @@
 - 프로젝트 전역 단일 진실 공급원(SoT): **`poro-rpg/docs/final_master_plan.md`** (충돌 시 최우선). 결정 기록: `poro-rpg/docs/decision_log.md` (DL-NNN), 미확정 인박스: `poro-rpg/docs/idea_inbox.md`, 아카이브: `poro-rpg/docs/_archive/`.
 - 작업을 시작하기 전, 대상 프로젝트의 `CLAUDE.md`와 관련 docs를 먼저 읽는다.
 
+## 워크트리 작업 범위 (이 체크아웃 = `poro-work-rpg`)
+
+- **이 worktree(`poro-work-rpg`, 브랜치 `feature/rpg-dev`)에서는 RPG(`poro-rpg/`) 관련 작업만 한다.** 포로몬(`poromon`)·디스코드봇(`poro-discord`) 작업은 각자의 worktree(`poro-work-poromon`·`poro-work-discord`)에서 수행하고, 이 세션에서는 **하지 않는다**.
+- 포로몬·디스코드 파일은 이 worktree에 없거나 참조 대상일 뿐이다. 필요하면 읽기만 하고 **수정·커밋하지 않는다**.
+- 다른 프로젝트 작업 요청이 오면, 잘못된 worktree임을 먼저 알리고 해당 worktree에서 진행하도록 안내한다.
+
 ## 안전 / 범위
 
 - 무관한 영역은 수정하지 않는다. 변경은 작업 대상 프로젝트 폴더 안으로 한정한다.
