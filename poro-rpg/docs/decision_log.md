@@ -3362,3 +3362,39 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 **관련:** DL-131(멀티서버 온보딩·호스팅), DL-130(봇 구조), DL-029(`/연동` 인증코드).
 
 **근거:** 사용자 확인 (2026-06-05).
+
+---
+
+### DL-133 (2026-06-05) — 서버 구조 + 봇 관여 경계 + 통신 패턴(게임서버→봇 push) 확정
+
+**배경:** 봇이 "어디까지 관여하는가"의 경계와, 멀티 게임서버(RPG Paper / 포로몬 Cobblemon+PoroMonCore)와의 통신 방식을 확정. DL-130~132(봇 구조·온보딩·채널)에 이은 인프라/연동 설계.
+
+**서버 구조(토폴로지):**
+- **오라클 클라우드(24h, 게임 호스팅 분리)**: 디스코드 봇(Python/discord.py). `core`(config·permissions·notifier 예정) / `integrations`(rpg_api·poromon_api) / `modules`(도메인 Cog).
+- **게임 호스팅(별도)**: PoroRPG(Paper, HTTP API :8765) · PoroMon(Cobblemon+PoroMonCore).
+- 봇 → 게임서버는 `integrations/*_api.py` HTTP로만. 봇은 디스코드 길드(역할·카테고리·채널)의 권위.
+
+**결정:**
+1. **봇 관여 = API 경유만.** 봇은 게임 상태의 **권위가 아니라 클라이언트**다. 게임에 영향을 주는 모든 동작은 게임서버가 노출한 **정의된 API 엔드포인트**로만 한다.
+   - 봇 IN: 디스코드 역할/카테고리/채널 가시성, 온보딩 구동, 화이트리스트 **요청**(API→게임서버가 적용), 조회 임베드, 알림 게시, 운영명령 **트리거**.
+   - 봇 OUT(게임서버 권위): 게임 로직 계산(전투·드랍·경제·강화), 게임 DB 직접 읽기/쓰기, 게임서버 파일·화이트리스트 직접 수정, 게임 내 **임의 RCON/명령 직접 실행**, 세션/인스턴스 직접 제어.
+   - 예외: `/강화계산` 등 **CANON 고정 수치 표시**는 봇 내부 계산 허용(상태 불변·순수 표시, DL-030 계승).
+2. **포로몬 연동 = HTTP API.** PoroMonCore가 RPG와 **동일한 HTTP API 패턴**을 노출한다(인증/조회/이벤트). `integrations/poromon_api.py`가 그 클라이언트. (RCON·공유DB 미채택.)
+3. **알림 = 게임서버 → 봇 push.** 게임 이벤트는 게임서버가 봇의 **인바운드 HTTP 수신 엔드포인트**로 push(webhook/HTTP)한다. 봇은 이를 받아 `core/notifier`로 채널 라우팅+멘션+전송.
+   - 봇은 인바운드 수신을 위해 경량 HTTP 리스너(aiohttp.web 등)를 discord 이벤트 루프와 함께 띄운다.
+   - 인바운드는 외부 유입이므로 **공유 시크릿/HMAC 서명 + 방화벽/IP 허용** 보호 필수. 시크릿은 `.env`.
+   - 현행 RPG 필드보스 **폴링**·인증 `role-queue` 폴링은 구현돼 있으므로 유지(점진 이관 대상). 신규 알림은 push 우선.
+
+**파일:**
+- `poro-discord/docs/architecture.md` — "서버 구조 / 봇 관여 경계 / 통신 패턴" 절 신규.
+- `poro-discord/docs/notifications.md` — 통합 알림 디스패처를 push 수신+디스패처 2부 구조로 갱신.
+- `poro-discord/docs/domains/poromon.md` — 연동 방식 = HTTP API(PoroMonCore)로 확정 방향 기재.
+- `poro-discord/docs/task.md` — T1(notifier=push 수신+디스패처)·인바운드 엔드포인트·poromon API 계약 갱신.
+
+**이유:** "디스코드 신원/UX"와 "게임 상태"의 권위를 분리하면 게임서버 점검/재시작이 봇과 독립(오라클 분리 의도, DL-131)이고, 보안 사고 표면이 정의된 API로 한정된다. 포로몬을 RPG와 같은 HTTP API로 맞추면 봇 도메인 모듈·integrations 패턴이 일관된다. push는 폴링 지연·낭비를 없애고 도메인 확장 시 일관된 알림 경로를 준다.
+
+**구현 상태:** 미구현(설계 결정·docs 정합만, 코드 변경 없음). RPG 조회/인증/필드보스 폴링은 기구현. notifier·인바운드 수신·poromon HTTP API는 → `task.md`. 실 API/엔드포인트 구현은 사용자 명시 요청 시.
+
+**관련:** DL-130(봇 구조·스택), DL-131(호스팅 분리·온보딩), DL-132(채널/역할), DL-030(/강화계산 내부계산).
+
+**근거:** 사용자 확인 (2026-06-05).

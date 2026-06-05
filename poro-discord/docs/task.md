@@ -9,7 +9,7 @@
 
 | # | 작업 | 영역 | 선행 | 상태 |
 |---|---|---|---|---|
-| T1 | 통합 알림 디스패처 `core/notifier.py` 설계 | core | — | 🔴 |
+| T1 | 알림 인바운드 수신(push) + `core/notifier.py` 디스패처 | core | — | 🔴 |
 | T2 | `rpg.md §8` Node.js 표기 → Python 정합 | docs | — | ⬜ |
 | T3 | `modules/admin` 명령어 설계 확정 | admin | 권한정책 | 🟡 |
 | T4 | `integrations/poromon_api.py` 인터페이스 확정 | poromon | 포로몬 설계 | 🟡 |
@@ -23,19 +23,23 @@
 
 ## 1. core (공통 인프라)
 
-- ⬜ **T1. `core/notifier.py` 통합 알림 디스패처** — 현재 알림 로직이 `modules/rpg/field_boss.py`에 RPG 종속으로 박혀 있음(DL-130 남은 작업).
-  - 입력 통일: `(domain, kind, embed, mention_role_key)`.
-  - 책임: 알림 키 → 채널 ID / 멘션 역할 ID 라우팅 · 전송 · 실패 무시.
-  - 각 도메인 모듈은 상태 감지만, 전송은 notifier에 위임.
-  - → 설계는 [`notifications.md`] "구조적 제안" 절. 실구현 전 인터페이스 제안 단계.
+- 🔴 **T1. 알림 인바운드 수신(push) + 디스패처** — 통신 방향 = 게임서버 → 봇 push 확정(DL-133).
+  - ⬜ ① 인바운드 HTTP 리스너(`core/`, aiohttp.web 등)를 discord 루프와 함께 기동.
+  - ⬜ 인바운드 보안: 공유 시크릿/HMAC 서명 검증 + 방화벽/IP 허용. 시크릿 `.env`(`INBOUND_SECRET` 등).
+  - ⬜ ② `core/notifier.py` 디스패처 — `(domain, kind, embed, mention_role_key)` → 채널/멘션 라우팅·전송·실패무시.
+  - ⬜ 각 도메인 모듈은 이벤트 의미 해석(embed)만, 전송은 notifier 위임.
+  - ⬜ 현행 RPG 필드보스 폴링은 유지, push 구조 완성 후 점진 이관.
+  - → 설계: [`notifications.md`] "통합 알림 구조" 절. 실구현 전 인터페이스 단계.
+- ⬜ **봇 관여 경계 가드(DL-133)** — 게임 상태 변경은 `integrations/*_api.py` 경유로만. DB/파일/임의 RCON 직접접근 금지를 코드 리뷰 체크포인트로.
 - ⬜ 권한 데코레이터(`requires_permission`) 단위 검증 보강(운영 명령어 도입 전).
 
 ## 2. integrations (외부 서버 연동)
 
 - 🟢 `rpg_api.py` — PoroRPG HTTP API 클라이언트(구현됨). 신규 엔드포인트는 RPG API 확정 시 추가.
-- 🟡 **T4. `poromon_api.py`** — 현재 인터페이스 스텁.
-  - ⬜ 연결 방식(포트·인증) 확정 — `../../poromon/` 설계 확정 선행.
+- 🟡 **T4. `poromon_api.py`** — 현재 인터페이스 스텁. 연동 방식 = HTTP API(PoroMonCore, RPG와 동일 패턴, DL-133).
+  - ⬜ API 포트·인증 시크릿·엔드포인트 계약(인증/조회/이벤트 push 스키마) 확정 — `../../poromon/docs/03_poromoncore/` 선행.
   - ⬜ `get_server_status`(접속/TPS), 도감 조회 인터페이스 확정.
+  - ⬜ 이벤트 알림 = 포로몬 서버 → 봇 push(T1 인바운드 수신 공용).
   - ⚠ 실 API 연동은 사용자 명시 요청 시에만(DL-130 ⑤).
 
 ## 3. modules (도메인 Cog)
