@@ -121,3 +121,7 @@ assets/
 # Env
 .env
 .env.*
+
+# Local runtime per worktree
+.local/
+**/.local/
