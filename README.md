@@ -40,6 +40,22 @@
 
 ---
 
+## 🌳 Worktree 운영
+
+> 합본 저장소(이 폴더)는 **merge/기록/전체 구조 확인용**이며, 여기서는 **서버를 실행하지 않고 개발용 VS Code도 열지 않는다.** 프로젝트별 개발/실행은 각 worktree에서, 자기 프로젝트 폴더만 sparse-checkout해서 한다. 전체 기준은 [`docs/worktree_policy.md`](docs/worktree_policy.md).
+
+| worktree 디렉토리 | 브랜치 | sparse-checkout | 용도 |
+|---|---|---|---|
+| `poro-server` (이 폴더) | `master` | (전체) | 합본 · merge · 기록 |
+| `poro-work-rpg` | `feature/rpg-dev` | `poro-rpg` | RPG 개발/실행 |
+| `poro-work-poromon` | `feature/poromon-dev` | `poromon` | PoroMon 개발/실행 |
+| `poro-work-discord` | `feature/discord-dev` | `poro-discord` `poro-rpg/docs` `poromon/docs` | Discord 봇 개발/실행 |
+
+- in-repo 폴더 이름(`poro-rpg/` 등)은 SoT 경로·문서가 참조하므로 rename하지 않는다. worktree **디렉토리** 이름(`poro-work-*`)은 별개 레이어다.
+- 새 서버/하위 프로젝트는 새 폴더 + 새 worktree + 해당 폴더만 sparse-checkout. 절차는 정책 문서 참고.
+
+---
+
 ## 📜 라이선스
 
 **사유 라이선스 (Proprietary, All Rights Reserved)** — 전문은 [`LICENSE`](LICENSE) 참조.
