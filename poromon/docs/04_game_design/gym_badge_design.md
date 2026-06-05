@@ -70,7 +70,7 @@
 
 ## 7. 진행 게이트 (배지가 여는 것)
 - N배지 → 티켓 구매권(전설 제단 §5 연계)
-- **4배지 → 배틀타워 입장**(`league_season_design.md` §3)
+- **8배지(관장 전원) → 배틀타워 입장**(결정 028 — 기존 4배지에서 상향; `league_season_design.md` §3, `battle_tower_design.md`)
 - 특정 배지 → 메가팔찌/테라 해금 조건의 일부(`mega_tera_unlock.md`)
 - 8배지 → 정규리그 자격(`league_season_design.md` §4)
 - 구체 임계값(N) — **TBD**.

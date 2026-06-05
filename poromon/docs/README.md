@@ -44,7 +44,7 @@
 
 ### 00_project — 프로젝트 방향
 - ✅ [overview.md](00_project/overview.md) — 서버 방향/코어 루프
-- ✅ [decisions.md](00_project/decisions.md) — 결정 기록(001~025)
+- ✅ [decisions.md](00_project/decisions.md) — 결정 기록(001~028)
 - ✅ [roadmap.md](00_project/roadmap.md) — 단계별 로드맵(Phase 0~7)
 
 ### 01_modpack — 모드팩
@@ -81,6 +81,7 @@
 - ✅ [egg_pool_design.md](04_game_design/egg_pool_design.md) — 알 등급별 풀(커스텀 가능 여부 확인 필요)
 - ✅ [gym_badge_design.md](04_game_design/gym_badge_design.md) — 짐/배지
 - ✅ [league_season_design.md](04_game_design/league_season_design.md) — 리그/시즌
+- ✅ [battle_tower_design.md](04_game_design/battle_tower_design.md) — 배틀타워 50층 층별 설계(입장 8관장·Lv100, 종/기술 검증완료, 결정 028)
 
 ### 05_operations — 운영
 - ✅ [localization_policy.md](05_operations/localization_policy.md) — 한글화 정책(유저 표시 텍스트 한국어)

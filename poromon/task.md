@@ -2,7 +2,7 @@
 
 > 최종 업데이트: 2026-06-05
 > 이 파일은 세션 간 작업 연속성을 위한 핸드오프 노트다. 다음 세션은 이 파일부터 읽고 이어서 진행한다.
-> 권위 규칙: `CLAUDE.md` · 문서 인덱스: `docs/README.md` · 결정 기록: `docs/00_project/decisions.md`(001~027)
+> 권위 규칙: `CLAUDE.md` · 문서 인덱스: `docs/README.md` · 결정 기록: `docs/00_project/decisions.md`(001~028)
 >
 > **2026-06-05 모노레포 구조 정리:** poromon 자체 폴더/파일은 **변경 없음**. 다만 레포 레벨에서 RPG 자산과 프로젝트 전역 docs가 `poro-rpg/`로 통합되고 루트 `docs/`가 폐지됨. 포로몬은 계속 `poromon/`(자체 `docs/`·`server/`·`custom-mods/`) 안에서 독립적으로 작업한다.
 
@@ -62,6 +62,7 @@
 - ✅ **희귀 풀 확정(#3)**: 비전설 600족/인기 라인 **73종 전수 실 ID + 전원 비전설 라벨 확인**, rare_encounter_pool 주입(stage basic/middle/final). 종합 재검증(16풀 285엔트리, 오타0, 동기화0).
 - ✅ **Eggs Addon 동작 검증(결정 027)**: 부화종=`egg/poke/*.mcfunction`의 `spawnpokemon`(loot table은 난수범위만 — 기존 문서 부정확 정정). 기본 풀 common56(스타터+흔한)·rare26(희귀조우권 중복)·shiny81. 알=armor_stand+컴포넌트, 지급=`egg/give/<등급>`. 커스텀=mcfunction 오버라이드+loot rolls.max, 가중=인덱스중복. **커스텀 알 현재 0개**(모드 기본만).
 - ✅ **알 방랑상인 비활성 적용(결정 027)**: OpenLoader 팩 `poromon_egg_control`로 `diesse:egg/villager_spawn` 빈 함수 오버라이드. 서버 기동 검증(datapack list 활성+eggs 모드보다 뒤 로드). 야생 둥지 자연 스폰은 미통제(별도 결정).
+- ✅ **배틀타워 50층 초안 편입·검증(결정 028)**: 외부 초안→`battle_tower_design.md`. 입장 조건 **8관장 상향**(CANON 4곳 동기화: league §2/§3·gym_badge·hub). 검증: 종족 119·기술 172·메가스톤10·시그니처기18 **전수 실재(매칭0)**. 남은=동작(NPC메가/AI 실배틀). 후속 불일치=Lv100고정 vs league §35 "정규화 안 함 TBD".
 - ✅ **MSD 핵심 아이템 ID 검증**: 키스톤·메가링·메가스톤 47·주홍/쪽빛구슬·Z링·테라오브·다이맥스밴드 실 ID+한글명 확정. ko_kr 기본 포함.
 - ✅ **상점 카탈로그 ID 채움(#2)**: §3.1~3.3·3.6 TODO→실 ID. Cobblemon 볼12+마스터·회복약·진화돌11·비타민6·민트25·특성캡슐/패치·사탕류 + 메가스톤47 전수(오타0 검증). Exp Share=미존재 확인. 잔여=SimpleTMs 개별TM·Eggs 알 ID.
 - ⚠️ 잔여: **SimpleTMs 개별 기술 TM ID**(lang 1:1 부재 → 동적 합성 추정, 컴포넌트 방식 확인 필요), **Eggs 알 아이템 ID**·둥지 스폰 비활성 여부.
