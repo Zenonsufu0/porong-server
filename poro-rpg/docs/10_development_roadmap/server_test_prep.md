@@ -13,7 +13,7 @@
 - [x] **MM 셸 배포** — server-config/mythicmobs → 런타임. 옛 stale 파일(FieldBosses/SeasonBosses/PoroFieldMobs) 제거로 `rift_king` 중복 충돌 해소. Outpost_Knight 리네임 반영.
 - [x] **부팅 검증** — 실서버 부팅 시 8개 bootstrap 전부 completed, disable 0, MythicMobs 감지 → 리스너 등록, Done. (부팅 중 드러난 검증 과엄격 4건 DL-098로 해소.)
 
-> ⚠️ 운영 팁: 종료는 콘솔 `stop`으로 클린 셧다운. `kill`/timeout 종료는 `world/session.lock` 잔존 → 다음 부팅 크래시(`session.lock already locked`). 크래시 시 `find server -name session.lock -delete`.
+> ⚠️ 운영 팁: 종료는 콘솔 `stop`으로 클린 셧다운. `kill`/timeout 종료는 `world/session.lock` 잔존 → 다음 부팅 크래시(`session.lock already locked`). 크래시 시 `find .local/server -name session.lock -delete`.
 
 ---
 
@@ -45,7 +45,7 @@
 ## 2. 🔴 MythicMobs 셸 (server-config/mythicmobs)
 
 - [x] **ID 충돌 해소** (2026-05-31, DL-093 점검): `field_outpost.yml`의 `Fallen_Knight`(필드4) → `Outpost_Knight`로 리네임(+표시명 `초소 기사장`). season_bosses의 `fallen_knight`(시즌1)와 대소문자 충돌 제거. boss_master(src) `outpost_knight` 정합.
-- [ ] **MM 셸 배포**: `server-config/mythicmobs/`를 런타임 `server/plugins/MythicMobs/`에 배포(현재 ExampleMobs 등 기본값만 존재). 보스/필드몹 셸 yml 설치 필수 — 없으면 전투/보스/필드 리스너 통째 미등록.
+- [ ] **MM 셸 배포**: `server-config/mythicmobs/`를 런타임 `.local/server/plugins/MythicMobs/`에 배포(현재 ExampleMobs 등 기본값만 존재). 보스/필드몹 셸 yml 설치 필수 — 없으면 전투/보스/필드 리스너 통째 미등록.
 - [x] season_bosses.yml 보스 내부명 9종 = boss_master 시즌+최종 id 정확히 일치 (검증됨).
 - [ ] MM 보스 Health/Armor 확인: 피해 공식 DEF항은 1차 시즌 바닐라 armor에 위임(DL-092) — 보스 armor가 의도대로 설정됐는지.
 

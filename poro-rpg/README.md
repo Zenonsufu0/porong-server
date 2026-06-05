@@ -74,9 +74,9 @@
 | `scripts/` | RPG 전용 스크립트 (`setup-worlds.sh` 등). |
 | `env/` | 환경변수 **예시** 템플릿 (실제 값은 커밋 금지). |
 | `assets/` | 리소스팩/텍스처 원본 — 외부 유래 에셋 혼재로 **저장소 비배포**(gitignored). 리소스팩은 별도 HTTP 서버로 서빙. |
-| `server/` | 런타임 서버 데이터(월드·플러그인 설치본·로그). gitignored. |
+| `.local/server/` | 런타임 서버 실행 폴더(월드·플러그인 설치본·로그). gitignored(`.local/` 전체). 실행은 worktree-local에서(DL-130). |
 
-> 제3자 플러그인(MythicMobs, IridiumSkyblock 등)은 자체 플러그인만 저장소에 포함하며, 제3자 jar는 각 배포처에서 받아 `server/plugins/`에 설치한다.
+> 제3자 플러그인(MythicMobs, IridiumSkyblock 등)은 자체 플러그인만 저장소에 포함하며, 제3자 jar는 각 배포처에서 받아 `.local/server/plugins/`에 설치한다.
 
 ---
 
@@ -88,10 +88,10 @@
 # 플러그인 빌드
 cd custom-plugins/poro-rpg
 ./gradlew build
-# 산출물: build/libs/poro-rpg-0.1.0.jar  → server/plugins/ 에 배치
+# 산출물: build/libs/poro-rpg-0.1.0.jar  → .local/server/plugins/ 에 배치
 ```
 
-> 플러그인 데이터 폴더는 `server/plugins/PoroRPG/`, 시드는 `server/plugins/PoroRPG/seeds/`(런타임 우선 로드). 운영자 명령은 `/poro`, `/poro-*` 계열, 권한 노드는 `poro.*`.
+> 플러그인 데이터 폴더는 `.local/server/plugins/PoroRPG/`, 시드는 `.local/server/plugins/PoroRPG/seeds/`(런타임 우선 로드). 운영자 명령은 `/poro`, `/poro-*` 계열, 권한 노드는 `poro.*`.
 > 월드 초기 생성: `scripts/setup-worlds.sh` 참조.
 
 ## 🔐 설정 · 비밀정보

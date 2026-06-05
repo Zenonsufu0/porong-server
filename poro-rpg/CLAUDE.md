@@ -42,7 +42,7 @@
 - 루트 공통 파일(`../CLAUDE.md`, `../README.md`, `../.gitignore`, 루트 docs 구조)은 수정하지 않는다.
 - 게임 로직(전투·스킬 수치·보스·퀘스트·밸런스)을 바꾸기 전, **구조·빌드 영향을 먼저 확인**한다.
 - 커밋 전 반드시 `git status`로 변경 범위를 확인하고, 작고 리뷰 가능한 단위로 나눈다.
-- 런타임 파일·빌드 산출물·로그·JAR는 커밋하지 않는다(`server/`, `build/`, `*.jar`, 로그 등 — 단 `gradle/wrapper/gradle-wrapper.jar`는 예외 추적).
+- 런타임 파일·빌드 산출물·로그·JAR는 커밋하지 않는다(`.local/server/`, `build/`, `*.jar`, 로그 등 — 단 `gradle/wrapper/gradle-wrapper.jar`는 예외 추적). 런타임 실행 폴더는 `poro-rpg/.local/server`(DL-130).
 
 ## 빌드
 
@@ -50,9 +50,10 @@
 
 ## 코드/서버 작업 범위
 
-- 플러그인 구현은 `poro-rpg/custom-plugins/poro-rpg` (기존 PoroRPG 경로).
-- 런타임 서버 파일은 명시적 요청 시에만 `poro-rpg/server/plugins` 또는 `poro-rpg/server-config` 편집.
-- `poro-rpg/server/`, `poro-rpg/custom-plugins/`는 명시적 요청 없이 수정하지 않는다.
+- 플러그인 개발 소스는 `poro-rpg/custom-plugins/poro-rpg` (기존 PoroRPG 경로).
+- 런타임 서버 실행 폴더는 `poro-rpg/.local/server`, 플러그인 배치 위치는 `poro-rpg/.local/server/plugins` (DL-130). `paper.jar`·`world`·`logs`·`plugins/*.jar`·`cache`·`versions` 등은 Git 추적 금지(`.local/` 전체 gitignored).
+- 런타임 서버 파일은 명시적 요청 시에만 `poro-rpg/.local/server/plugins` 편집. MythicMobs YAML 소스(추적 대상)는 `poro-rpg/server-config`에서 편집 후 런타임에 배포한다.
+- `poro-rpg/.local/server/`, `poro-rpg/custom-plugins/`는 명시적 요청 없이 수정하지 않는다.
 
 ## 에셋
 
