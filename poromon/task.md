@@ -56,10 +56,11 @@
 - [ ] (이후) Phase 2: `custom-mods/poromon-core` Gradle 골격
 
 ## 5. 진행 중 / 미해결 TODO (요약)
-- species ID 전부 TODO(cobblemon 네임스페이스 추정, jar 직접 노출 X) — Cobblemon 레지스트리 확인 필요.
-- Eggs 알 아이템 ID, 둥지 스폰 비활성 가능 여부.
-- MSD 다이맥스 구체 아이템 ID, 메가스톤 ko_kr 커버리지.
-- keystone_ore 월드 생성 비활성 가능 여부(메가팔찌 골드 독점 관련).
+- ✅ **species ID 검증 완료** → `01_modpack/jar_registry_reference.md`: 전설 71(restricted 27 / 준전설 44)·환상 23·UB 11·패러독스 20 실 ID 확정. **남은 건 등급/풀 배치(설계)**.
+- ✅ **MSD 핵심 아이템 ID 검증**: 키스톤·메가링·메가스톤 47·주홍/쪽빛구슬·Z링·테라오브·다이맥스밴드 실 ID+한글명 확정. ko_kr 기본 포함.
+- ⚠️ 잔여: **SimpleTMs 개별 기술 TM ID**(lang 1:1 부재 → 동적 합성 추정, 컴포넌트 방식 확인 필요), **Eggs 알 아이템 ID**·둥지 스폰 비활성 여부.
+- ⚠️ 레쿠쟈 메가 해금 방식(MSD에 `rayquazite` 미발견 — 기술/전용처리 추정, 추가 확인).
+- keystone/메가스톤 월드 획득 경로(메가팔찌 골드 독점 관련) 확인.
 - config 포맷: 0.1 JSON vs legendary_pools/events YAML 혼용 결정.
 
 ## 6. 파일/디렉터리 맵

@@ -30,7 +30,7 @@
 | 항목 | 값 |
 |---|---|
 | Minecraft | 1.21.1 |
-| 로더 | Fabric (Loader 0.18.4) |
+| 로더 | Fabric (Loader 0.19.3) |
 | Java | 21 |
 | 베이스 모드팩 | Cobblemon Official [Fabric] 1.7.3 + Mega Showdown + SimpleTMs + Eggs Addon + Legendary Monuments |
 | 커스텀 모드 | `custom-mods/poromon-core` (PoroMonCore) |
@@ -44,14 +44,15 @@
 
 ### 00_project — 프로젝트 방향
 - ✅ [overview.md](00_project/overview.md) — 서버 방향/코어 루프
-- ✅ [decisions.md](00_project/decisions.md) — 결정 기록(001~012)
-- 📝 [roadmap.md](00_project/roadmap.md) — 단계별 로드맵
+- ✅ [decisions.md](00_project/decisions.md) — 결정 기록(001~025)
+- ✅ [roadmap.md](00_project/roadmap.md) — 단계별 로드맵(Phase 0~7)
 
 ### 01_modpack — 모드팩
 - ✅ [modpack_list.md](01_modpack/modpack_list.md) — 80개 모드 목록(+SimpleTMs, Eggs, Legendary Monuments)
 - ✅ [server_mod_separation.md](01_modpack/server_mod_separation.md) — 서버/클라 분리(필수·권장·제외·애매) + 테스트 체크리스트
 - ✅ [client_mod_tiers.md](01_modpack/client_mod_tiers.md) — 클라 85개 티어링(T0 코어/T1 권장/T2 선택/서버전용) — 간편설치기용(결정 025)
 - ✅ [jar_feature_audit.md](01_modpack/jar_feature_audit.md) — jar 내부 기준 기능 검토(LM/Eggs/SimpleTMs/MSD ID·한글화·충돌)
+- ✅ [jar_registry_reference.md](01_modpack/jar_registry_reference.md) — **실 jar 추출 검증 ID**: 전설71/환상23/UB11/패러독스20·메가스톤47·키아이템(한글명). 풀/상점 TODO 해소 출처
 - 📝 [client_pack_policy.md](01_modpack/client_pack_policy.md) — 클라 배포 팩 정책
 - 📝 [export_notes.md](01_modpack/export_notes.md) — CurseForge export 메모
 
@@ -94,10 +95,8 @@
 4. `03_poromoncore/poromoncore_spec.md` → `module_structure.md`
 
 ## 4. 현재 진행 / 다음 단계
-- ✅ 모드팩 분석, 서버/클라 분리 설계, 서버 정책 4종, PoroMonCore 설계 4종
-- ▶ 다음: 서버 최소구성 기동 테스트(`server_setup.md` 선행조건) → PoroMonCore Gradle 골격 → `/poromon` 0.1
+- ✅ 모드팩 분석, 서버/클라 분리 설계, 서버 정책 4종, PoroMonCore 설계 6종
+- ✅ **서버 1차 기동 통과**(2026-06-05, `.local/server` 25모드 `Done`) + 클라 모드 티어링(결정 025)
+- ▶ 다음: 클라 인스턴스 실제 접속 테스트 → 간편설치기 스펙 → PoroMonCore Gradle 골격 → `/poromon` 0.1
 
-## 5. 정리 메모(중복 파일)
-루트의 다음 4개는 하위 폴더 문서와 **중복되는 빈 파일** — 삭제 또는 통합 대상:
-`docs/economy_plan.md`, `docs/hub_plan.md`, `docs/poromon_design.md`, `docs/poromoncore_spec.md`
-(정식 위치: `04_game_design/economy_design.md`, `04_game_design/hub_design.md`, `00_project/overview.md`, `03_poromoncore/poromoncore_spec.md`)
+> 빈 플레이스홀더(추후 작성): `01_modpack/{client_pack_policy, export_notes}.md`, `05_operations/{admin_policy, balance_policy, known_issues, user_install_guide}.md`
