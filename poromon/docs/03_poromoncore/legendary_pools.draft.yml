@@ -18,12 +18,86 @@
 legendary_pools:
 
   # ───────────────────────────── 희귀(비전설) ─────────────────────────────
-  # 상세 후보/가중은 encounter_pool_design.md §1 + egg_pool 중복정리(#3 작업)에서 확정.
+  # 73종 전수 실 ID 검증(전원 비전설 라벨 확인). stage_weight 70/20/10이 단계 비중 처리.
+  # ⚠️ egg_pool_design.md 와 중복(특히 600족 라인) 정리 필요 — encounter_pool_design.md §10-5.
   rare_encounter_pool:
     type: "rare"
     display_name_ko: "희귀 조우권"
     stage_weight: { basic: 70, middle: 20, final: 10 }
-    candidates: []   # TODO(#3): 600족/인기 라인 실 species ID로 채움
+    candidates:
+      - { species: "cobblemon:dratini", display_name_ko: "미뇽", stage: "basic", weight: 10, enabled: true }
+      - { species: "cobblemon:dragonair", display_name_ko: "신뇽", stage: "middle", weight: 10, enabled: true }
+      - { species: "cobblemon:dragonite", display_name_ko: "망나뇽", stage: "final", weight: 10, enabled: true }
+      - { species: "cobblemon:larvitar", display_name_ko: "애버라스", stage: "basic", weight: 10, enabled: true }
+      - { species: "cobblemon:pupitar", display_name_ko: "데기라스", stage: "middle", weight: 10, enabled: true }
+      - { species: "cobblemon:tyranitar", display_name_ko: "마기라스", stage: "final", weight: 10, enabled: true }
+      - { species: "cobblemon:bagon", display_name_ko: "아공이", stage: "basic", weight: 10, enabled: true }
+      - { species: "cobblemon:shelgon", display_name_ko: "쉘곤", stage: "middle", weight: 10, enabled: true }
+      - { species: "cobblemon:salamence", display_name_ko: "보만다", stage: "final", weight: 10, enabled: true }
+      - { species: "cobblemon:beldum", display_name_ko: "메탕", stage: "basic", weight: 10, enabled: true }
+      - { species: "cobblemon:metang", display_name_ko: "메탕구", stage: "middle", weight: 10, enabled: true }
+      - { species: "cobblemon:metagross", display_name_ko: "메타그로스", stage: "final", weight: 10, enabled: true }
+      - { species: "cobblemon:gible", display_name_ko: "딥상어동", stage: "basic", weight: 10, enabled: true }
+      - { species: "cobblemon:gabite", display_name_ko: "한바이트", stage: "middle", weight: 10, enabled: true }
+      - { species: "cobblemon:garchomp", display_name_ko: "한카리아스", stage: "final", weight: 10, enabled: true }
+      - { species: "cobblemon:deino", display_name_ko: "모노두", stage: "basic", weight: 10, enabled: true }
+      - { species: "cobblemon:zweilous", display_name_ko: "디헤드", stage: "middle", weight: 10, enabled: true }
+      - { species: "cobblemon:hydreigon", display_name_ko: "삼삼드래", stage: "final", weight: 10, enabled: true }
+      - { species: "cobblemon:goomy", display_name_ko: "미끄메라", stage: "basic", weight: 10, enabled: true }
+      - { species: "cobblemon:sliggoo", display_name_ko: "미끄네일", stage: "middle", weight: 10, enabled: true }
+      - { species: "cobblemon:goodra", display_name_ko: "미끄래곤", stage: "final", weight: 10, enabled: true }
+      - { species: "cobblemon:jangmoo", display_name_ko: "짜랑꼬", stage: "basic", weight: 10, enabled: true }
+      - { species: "cobblemon:hakamoo", display_name_ko: "짜랑고우", stage: "middle", weight: 10, enabled: true }
+      - { species: "cobblemon:kommoo", display_name_ko: "짜랑고우거", stage: "final", weight: 10, enabled: true }
+      - { species: "cobblemon:dreepy", display_name_ko: "드라꼰", stage: "basic", weight: 10, enabled: true }
+      - { species: "cobblemon:drakloak", display_name_ko: "드래런치", stage: "middle", weight: 10, enabled: true }
+      - { species: "cobblemon:dragapult", display_name_ko: "드래펄트", stage: "final", weight: 10, enabled: true }
+      - { species: "cobblemon:frigibax", display_name_ko: "드니차", stage: "basic", weight: 10, enabled: true }
+      - { species: "cobblemon:arctibax", display_name_ko: "드니꽁", stage: "middle", weight: 10, enabled: true }
+      - { species: "cobblemon:baxcalibur", display_name_ko: "드닐레이브", stage: "final", weight: 10, enabled: true }
+      - { species: "cobblemon:bisharp", display_name_ko: "절각참", stage: "middle", weight: 10, enabled: true }
+      - { species: "cobblemon:kingambit", display_name_ko: "대도각참", stage: "final", weight: 10, enabled: true }
+      - { species: "cobblemon:honedge", display_name_ko: "단칼빙", stage: "basic", weight: 10, enabled: true }
+      - { species: "cobblemon:doublade", display_name_ko: "쌍검킬", stage: "middle", weight: 10, enabled: true }
+      - { species: "cobblemon:aegislash", display_name_ko: "킬가르도", stage: "final", weight: 10, enabled: true }
+      - { species: "cobblemon:scyther", display_name_ko: "스라크", stage: "basic", weight: 10, enabled: true }
+      - { species: "cobblemon:scizor", display_name_ko: "핫삼", stage: "final", weight: 10, enabled: true }
+      - { species: "cobblemon:gligar", display_name_ko: "글라이거", stage: "basic", weight: 10, enabled: true }
+      - { species: "cobblemon:gliscor", display_name_ko: "글라이온", stage: "final", weight: 10, enabled: true }
+      - { species: "cobblemon:rookidee", display_name_ko: "파라꼬", stage: "basic", weight: 10, enabled: true }
+      - { species: "cobblemon:corviknight", display_name_ko: "아머까오", stage: "final", weight: 10, enabled: true }
+      - { species: "cobblemon:ferroseed", display_name_ko: "철시드", stage: "basic", weight: 10, enabled: true }
+      - { species: "cobblemon:ferrothorn", display_name_ko: "너트령", stage: "final", weight: 10, enabled: true }
+      - { species: "cobblemon:swinub", display_name_ko: "꾸꾸리", stage: "basic", weight: 10, enabled: true }
+      - { species: "cobblemon:piloswine", display_name_ko: "메꾸리", stage: "middle", weight: 10, enabled: true }
+      - { species: "cobblemon:mamoswine", display_name_ko: "맘모꾸리", stage: "final", weight: 10, enabled: true }
+      - { species: "cobblemon:azurill", display_name_ko: "루리리", stage: "basic", weight: 10, enabled: true }
+      - { species: "cobblemon:marill", display_name_ko: "마릴", stage: "middle", weight: 10, enabled: true }
+      - { species: "cobblemon:azumarill", display_name_ko: "마릴리", stage: "final", weight: 10, enabled: true }
+      - { species: "cobblemon:togepi", display_name_ko: "토게피", stage: "basic", weight: 10, enabled: true }
+      - { species: "cobblemon:togetic", display_name_ko: "토게틱", stage: "middle", weight: 10, enabled: true }
+      - { species: "cobblemon:togekiss", display_name_ko: "토게키스", stage: "final", weight: 10, enabled: true }
+      - { species: "cobblemon:shroomish", display_name_ko: "버섯꼬", stage: "basic", weight: 10, enabled: true }
+      - { species: "cobblemon:breloom", display_name_ko: "버섯모", stage: "final", weight: 10, enabled: true }
+      - { species: "cobblemon:rotom", display_name_ko: "로토무", stage: "basic", weight: 10, enabled: true }
+      - { species: "cobblemon:mimikyu", display_name_ko: "따라큐", stage: "basic", weight: 10, enabled: true }
+      - { species: "cobblemon:larvesta", display_name_ko: "활화르바", stage: "basic", weight: 10, enabled: true }
+      - { species: "cobblemon:volcarona", display_name_ko: "불카모스", stage: "final", weight: 10, enabled: true }
+      - { species: "cobblemon:riolu", display_name_ko: "리오르", stage: "basic", weight: 10, enabled: true }
+      - { species: "cobblemon:lucario", display_name_ko: "루카리오", stage: "final", weight: 10, enabled: true }
+      - { species: "cobblemon:zorua", display_name_ko: "조로아", stage: "basic", weight: 10, enabled: true }
+      - { species: "cobblemon:zoroark", display_name_ko: "조로아크", stage: "final", weight: 10, enabled: true }
+      - { species: "cobblemon:absol", display_name_ko: "앱솔", stage: "basic", weight: 10, enabled: true }
+      - { species: "cobblemon:feebas", display_name_ko: "빈티나", stage: "basic", weight: 10, enabled: true }
+      - { species: "cobblemon:milotic", display_name_ko: "밀로틱", stage: "final", weight: 10, enabled: true }
+      - { species: "cobblemon:snorlax", display_name_ko: "잠만보", stage: "basic", weight: 10, enabled: true }
+      - { species: "cobblemon:lapras", display_name_ko: "라프라스", stage: "basic", weight: 10, enabled: true }
+      - { species: "cobblemon:eevee", display_name_ko: "이브이", stage: "basic", weight: 10, enabled: true }
+      - { species: "cobblemon:gastly", display_name_ko: "고오스", stage: "basic", weight: 10, enabled: true }
+      - { species: "cobblemon:haunter", display_name_ko: "고우스트", stage: "middle", weight: 10, enabled: true }
+      - { species: "cobblemon:gengar", display_name_ko: "팬텀", stage: "final", weight: 10, enabled: true }
+      - { species: "cobblemon:drilbur", display_name_ko: "두더류", stage: "basic", weight: 10, enabled: true }
+      - { species: "cobblemon:excadrill", display_name_ko: "몰드류", stage: "final", weight: 10, enabled: true }
 
   # ───────────────────────────── 하급(basic) ─────────────────────────────
   basic_legendary_ticket_pool:
