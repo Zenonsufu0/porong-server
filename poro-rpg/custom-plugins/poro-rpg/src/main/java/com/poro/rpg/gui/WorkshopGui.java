@@ -66,7 +66,7 @@ public final class WorkshopGui {
     public static void open(Player player, WorkshopTab tab, IslandTerritoryState territory) {
         Component title = TITLE_PREFIX.append(Component.text(tab.displayName).color(NamedTextColor.YELLOW));
         Inventory inv = Bukkit.createInventory(null, 54, title);
-        render(inv, tab, territory);
+        render(inv, tab, player, territory);
         player.openInventory(inv);
     }
 
@@ -89,7 +89,7 @@ public final class WorkshopGui {
 
     // ─── 렌더 ────────────────────────────────────────────────────
 
-    public static void render(Inventory inv, WorkshopTab activeTab, IslandTerritoryState territory) {
+    public static void render(Inventory inv, WorkshopTab activeTab, Player player, IslandTerritoryState territory) {
         ItemStack filler = icon(Material.GRAY_STAINED_GLASS_PANE, " ", List.of());
         for (int i = 0; i < 54; i++) inv.setItem(i, filler);
 
@@ -102,7 +102,7 @@ public final class WorkshopGui {
         List<WorkshopRecipe> recipes = WorkshopRecipeRegistry.getRecipes(activeTab);
         for (int i = 0; i < 9; i++) {
             if (i < recipes.size()) {
-                inv.setItem(9 + i, buildRecipeIcon(recipes.get(i)));
+                inv.setItem(9 + i, buildRecipeIcon(recipes.get(i), player, territory));
             }
         }
 
@@ -143,7 +143,7 @@ public final class WorkshopGui {
         return item;
     }
 
-    private static ItemStack buildRecipeIcon(WorkshopRecipe recipe) {
+    private static ItemStack buildRecipeIcon(WorkshopRecipe recipe, Player player, IslandTerritoryState territory) {
         List<String> lore = new ArrayList<>();
         // 결과물 효과/사용법 (workshop_crafting_spec.md, DL-129 추가#8)
         List<String> effect = effectLore(recipe.resultItemId());
@@ -151,16 +151,22 @@ public final class WorkshopGui {
             lore.addAll(effect);
             lore.add("§7──────────────");
         }
-        lore.add("§7재료:");
+        // 재료: 필요량 + 현재 보유량 표시(보유 충분=초록 / 부족=빨강). 보유 소스는 제작 차감과 동일
+        // (바닐라 재료=플레이어 인벤토리, 커스텀 재료=영지 저장고 customItems — WorkshopGuiListener와 일치).
+        boolean craftable = true;
         for (var mat : recipe.materials()) {
+            long need = mat.amount();
+            long have = heldCount(player, territory, mat);
+            if (have < need) craftable = false;
+            String col = have >= need ? "§a" : "§c";
             lore.add("  §7- §f" + WorkshopRecipeRegistry.displayName(mat.itemId())
-                    + " §7×" + mat.amount());
+                    + " §7×" + need + " " + col + "(보유 " + have + ")");
         }
         lore.add("§7──────────────");
         lore.add("§7제작 시간: §e" + recipe.durationMinutes() + "분");
         lore.add("§7결과물: §e" + recipe.displayName() + " §7×" + recipe.resultAmount());
         lore.add("§7──────────────");
-        lore.add("§e좌클릭 §7제작 등록");
+        lore.add(craftable ? "§e좌클릭 §7제작 등록" : "§c✖ 재료 부족 §7— 제작 불가");
         // 결과물 전용 텍스처가 있으면 paper+CMD로 렌더(리소스팩 paper.json), 없으면 기본 Material (DL-129 추가#12)
         Integer cmd = CustomItemModel.cmd(recipe.resultItemId());
         if (cmd != null) {
@@ -239,6 +245,24 @@ public final class WorkshopGui {
         long min = totalSec / 60;
         long sec = totalSec % 60;
         return min > 0 ? min + "분 " + sec + "초" : sec + "초";
+    }
+
+    /**
+     * 재료 보유량 — 제작 차감과 동일 소스로 계산(WorkshopGuiListener와 일치).
+     * 바닐라 재료는 플레이어 인벤토리 합계, 커스텀 재료는 영지 저장고 customItems.
+     * territory가 null이면 커스텀 재료는 0으로 표시(드문 경로).
+     */
+    private static long heldCount(Player player, IslandTerritoryState territory, WorkshopRecipe.RecipeMaterial mat) {
+        if (mat.isVanilla()) {
+            Material m = mat.asMaterial();
+            if (m == null) return 0L;
+            long count = 0;
+            for (ItemStack it : player.getInventory().getContents()) {
+                if (it != null && it.getType() == m) count += it.getAmount();
+            }
+            return count;
+        }
+        return territory == null ? 0L : territory.getCustomItem(mat.itemId());
     }
 
     static ItemStack icon(Material material, String name, List<String> lore) {

@@ -85,7 +85,8 @@ public class PlayerCommandRouter implements CommandExecutor {
             // ── 영지 계열 ──────────────────────────────────────────
             case "창고"     -> openStorage(player);
             case "영지상태"  -> openTerritoryStatus(player);
-            case "공방"     -> WorkshopGui.open(player, WorkshopGui.WorkshopTab.ESTATE);
+            case "공방"     -> WorkshopGui.open(player, WorkshopGui.WorkshopTab.ESTATE,
+                    territoryStore.getOrCreate(player.getUniqueId()));
             // 이하 GUI 클래스 구현 후 연동
             case "메뉴"     -> MainHubGui.open(player);
             case "장비"     -> growthGuiListener.openEquipHub(player);
