@@ -385,16 +385,30 @@
 
 ---
 
+## 4-N. NPC 구현 경로 검증 (Cobblemon 네이티브 트레이너 — 2026-06-05)
+
+> ✅ **Cobblemon에 트레이너 NPC 시스템 내장 확인.** 서버 기동 후 `/summon cobblemon:npc 0 100 0 {NPCClass:"cobblemon:standard"}` → "Blue" 트레이너 소환 성공(Lv100 경쟁 파티). **타워 전 층 파티 스펙이 NPC로 그대로 표현 가능**.
+
+- **파티 스펙(검증)**: NPC class 프리셋(`data/cobblemon/npcs/*.json`)의 party가 아래 포맷 지원 —
+  `<species> level=100 pokeball=<ball> held_item=cobblemon:<item> ability=<ab> nature=<nat> moves=m1,m2,m3,m4 hp_iv=31 … speed_ev=252`
+  → **레벨 고정·held item·기술 4개·특성·성격·IV/EV 전부 설정 가능**(타워 §3 파티표와 1:1 매핑). held item 동작 = NPC 파티 필드로 해결 ✅.
+- **AI 난이도**: NPC `skill` 필드(예시 5). **층별 skill 조정으로 난이도 축 추가 가능** ✅(기존 우려 = 설정 knob 존재).
+- **배틀 진입**: `battleConfiguration.canChallenge:true` → 플레이어가 NPC에 말 걸면 배틀 시작.
+- **⇒ 구현 함의**: **배틀타워 = Cobblemon NPC class 프리셋 50개(층별) + PoroMonCore 오케스트레이션**(클리어 시 다음 층 NPC 소환/이동 + `highestClearedFloor` 저장 + 보상). 배틀 엔진을 자체 구현할 필요 없음.
+- **⚠️ 남은 실배틀 검증(헤드리스 불가 — 클라 필요)**: **NPC 메가 발동 여부.** MSD 메가는 "메가링(키스톤) 트레이너 + 메가스톤 포켓몬" 조건(툴팁) — NPC가 이 조건을 만족/발동하는지는 **실배틀로만** 확인.
+  - **수동 테스트 절차**: ① 메가스톤 보유 파티 NPC 프리셋 작성(예 `scizor level=100 held_item=mega_showdown:scizorite moves=bulletpunch,uturn,swordsdance,roost`) ② `/summon cobblemon:npc ~ ~ ~ {NPCClass:"<프리셋>"}` ③ 클라로 말 걸어 배틀 → **핫삼이 메가핫삼으로 변하는지** + AI가 Swords Dance(셋업) 쓰는지 관찰. 안 되면 메가는 PoroMonCore가 별도 트리거(MSD API/이벤트)해야 할 수 있음.
+
 ## 5. 구현 TODO
 
 - [x] Cobblemon species 존재 여부 확인 — **119종 전수 ✅**
 - [x] SimpleTMs/Cobblemon move 지원 여부 확인 — **172종 전수 ✅**(시그니처기 포함)
 - [x] 41~50층 전설/환상 species 검증 — **전수 실재 ✅**(`encounter_pool_design.md`와 동일 ID)
 - [x] 메가스톤·전용 아이템 존재 — **§4.1/§4.2 전수 ✅**
-- [ ] **NPC Mega Evolution 작동 확인** — 실배틀 테스트(최대 리스크). MSD의 NPC 메가 발동 조건 확인
-- [ ] **NPC held item 전투 반영 확인** — 실배틀 테스트
-- [ ] **AI 운용 확인** — 랭크업/회복/스텔스록/상태이상을 AI가 어떻게 쓰는지(곡선 좌우)
-- [ ] 1~50층 trainer config 스키마 확정(`seasons.json`/PoroMonCore)
+- [x] **NPC 트레이너 시스템 존재·소환 확인** — Cobblemon `cobblemon:npc` + class 프리셋(§4-N). 타워 파티 스펙 네이티브 지원
+- [~] **NPC held item** — 파티 포맷 `held_item=` 지원 확인(§4-N). 전투 효과 발현은 실배틀로 최종 확인
+- [~] **AI 운용** — `skill` 필드(층별 난이도 knob) 확인. 셋업/해저드 실제 운용 수준은 실배틀 관찰
+- [ ] **NPC Mega Evolution 발동** — ⚠️ **실배틀 테스트(클라 필요, 최대 리스크)**. §4-N 수동 절차. 안 되면 PoroMonCore가 MSD 메가 트리거 별도 처리
+- [ ] 1~50층 trainer 프리셋(`data/cobblemon/npcs/floor_NN.json`) 작성 + PoroMonCore 오케스트레이션(소환/진행저장/보상)
 - [ ] 한국어 GUI/입장 조건/보상 안내 문구 작성
 - [x] 배틀타워 보상 설계 작성 — **§3-R(층당 골드+10층 체크포인트+50층 특별, 1회 완주 ~95,000 골드 예시)**
 - [ ] 클리어 기록/랭킹/시즌 보상 연동 여부 결정(`PlayerProgress.battleTower.highestClearedFloor`) — 50층=왕중왕전 예선 자격 후보(§3-R.3)
