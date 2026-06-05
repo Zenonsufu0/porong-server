@@ -22,6 +22,45 @@ It is a separate modded server line under the Poro brand.
 
 ---
 
+## 작업 영역 / 워크스페이스 규칙 (모노레포)
+
+이 저장소는 포로 서버 모노레포다. **이 작업 영역(`poromon/`)은 포로몬 모드서버/모드팩만 담당한다.**
+
+### 수정 가능
+- `poromon/` 내부 전체 (`modpack/`, `docs/`, `scripts/`, `reports/`, `CLAUDE.md`, `task.md`)
+
+### 읽기만 (수정 금지)
+- `poro-rpg/`, `poro-discord/` — 다른 프로젝트. **절대 수정하지 않는다.**
+- 루트 `.gitignore`, 루트 `README.md`, 루트 `CLAUDE.md`, `infra/`, 공통 docs 구조
+
+### 런타임 파일 커밋 금지
+다음은 Git에 올리지 않는다 (루트 `.gitignore`가 커버하지만 항상 확인):
+- 모드 jar / 서버 jar (`**/*.jar`, 단 `gradle/wrapper/gradle-wrapper.jar`는 예외)
+- `server/`, `world/`, `world_nether/`, `world_the_end/`
+- `logs/`, `crash-reports/`, `cache/`, `libraries/`, `versions/`, `backups/`
+
+> ⚠️ `modpack/overrides/config`·`datapack`은 **실제 모드팩 구성 파일**이다.
+> 경로/이름에 `world` 같은 문자열이 들어가도 런타임 산출물로 오인해 삭제하지 않는다.
+
+### 관리 중심
+모드팩 `overrides/`·`config/`, `scripts/`, `docs/`, `reports/` 중심으로 관리한다.
+RPG Paper 플러그인 구조에 억지로 맞추지 않고, `poro-common` 같은 공통 모듈도 억지로 만들지 않는다.
+
+### 커밋 전 필수 검사
+```
+git status --short
+git diff --stat
+git diff --check
+git ls-files | grep -E '\.jar$' | grep -v 'gradle/wrapper/gradle-wrapper.jar'
+git ls-files | grep -E '(^|/)(logs|crash-reports|world|world_nether|world_the_end|backups|cache|libraries|versions)(/|$)|(^|/)server\.jar$'
+```
+금지 파일이 추적 중이면 바로 삭제하지 말고 먼저 보고한다.
+
+### 임의 수정 금지 (요청 시에만)
+모드 목록 / 조우권 데이터 / 포로몬 밸런스(종족값·타입·기술) / 서버 설정값. RPG·디스코드봇 코드.
+
+---
+
 ## Current Technical Baseline
 
 - Minecraft: 1.21.1
