@@ -72,9 +72,12 @@ git ls-files | grep -E '(^|/)(logs|crash-reports|world|world_nether|world_the_en
   - All are Cobblemon gameplay addons → required on **both client and server**. Item/Pokémon IDs, structures, and config keys must be verified from the actual jars/registry (do not guess).
   - **Legendary Monuments**: used for legendary-themed structures/encounters, BUT **PoroMonCore's legendary control (tickets + private rooms + controlled world events) takes precedence**. Verify whether its natural structures/summoning bypass that control; if so, disable/gate it (decision 017).
 - Development Environment: WSL Ubuntu
-- Main Project Path: `/home/zenonsufu1/dev/poro-server-poromon`
+- Repo Layout: 포로 서버 모노레포. 포로몬 작업 영역은 모노레포 루트 하위 `poromon/`
+  - 포로몬 전용 worktree: `/home/zenonsufu1/dev/poromon-work/poromon` (브랜치 `feature/poromon-dev`)
+  - 모노레포 루트(master worktree): `/home/zenonsufu1/dev/poro-server`
+  - ⚠️ 옛 경로 `/home/zenonsufu1/dev/poro-server-poromon`는 모노레포 이전 표기 — 사용 금지
 - IDE: VS Code with Claude Code
-- Custom Mod Path: `custom-mods/poromon-core`
+- Custom Mod Path: `poromon/custom-mods/poromon-core` (포로몬 작업 영역 기준 `custom-mods/poromon-core`)
 
 ---
 
