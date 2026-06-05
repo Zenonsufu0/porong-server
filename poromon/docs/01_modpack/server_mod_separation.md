@@ -30,8 +30,10 @@ Cobblemon 게임플레이 스택 + 필수 의존. 없으면 서버 미기동 또
 | `mega_showdown-fabric-1.8.4+1.7.3+1.21.1.jar` | 메가/테라 등(배틀 서버측) | 파서오류였음, 수동 |
 | `SimpleTMs-fabric-2.3.3.jar` | TM/TR(기술 부여 서버측) | — |
 | `eggs-cobblemon-addon-0.9.jar` | 알/부화(서버측) | — |
-| `LegendaryMonuments-7.8.jar` | 전설 구조물/소환(서버측) | ⚠️ **전설 통제 우회 검증**(결정 017, `legendary_encounter.md`) |
+| `LegendaryMonuments-7.8.jar` | 전설 구조물/소환(서버측) | ⚠️ **완전 비활성 대상**(결정 023): worldgen/loot_table datapack 오버라이드로 소환 경로 차단. jar는 로드하되 자연 생성·드롭만 무력화. `legendary_encounter.md` LM 섹션 |
 | `accessories-fabric-1.1.0-beta.53+1.21.1.jar` | MSD 착용 슬롯 의존 | depends 확인 |
+
+> ⚠️ **LM 하드 의존 JIJ 검증(결정 023 §2)**: LM `fabric.mod.json` `depends`에 `chipped`·`cobblefurnies`·`terrablender`·`accessories`·`mega_showdown`이 **필수**. 공개 팩 modlist 80개에 `chipped`·`cobblefurnies`·`terrablender`는 **미포함** → LM jar 내부 **JIJ(jar-in-jar) 번들 추정**. 별도 jar가 없고 JIJ도 아니면 **서버·클라 미기동**. → §6 부팅 로그(`Missing dependency`)로 확정.
 
 ## 2. 서버 권장 (Server Recommended) — 10개
 성능/운영 + 그 의존 라이브러리. 빠져도 크래시는 아니나 권장.
@@ -110,7 +112,8 @@ AmbientEnvironment · BHMenu · BetterPingDisplay · BetterThirdPerson · CraftP
 
 ### 6-4. 애드온 로드 확인
 - [ ] Mega Showdown / SimpleTMs / Eggs / Legendary Monuments 로드
-- [ ] **Legendary Monuments 구조물 자동생성·소환이 전설 통제(조우권/사설룸)를 우회하는지 점검** → 우회 시 비활성/게이트(결정 017)
+- [ ] **LM 하드 의존 해소 확인(결정 023 §2)**: `chipped`/`cobblefurnies`/`terrablender`가 JIJ로 로드되어 `Missing dependency` 경고 없음. 뜨면 해당 jar를 별도 확보·추가(아니면 LM 제외 재검토).
+- [ ] **LM 완전 비활성 검증(결정 023)**: 신규 청크에 LM 구조물(제단/trial spawner/shrine 등) **미생성**, 소환 아이템(항아리/피리/열쇠/구체 등) 야생/드롭 **미획득**. 실제 jar의 `data/legendarymonuments/worldgen/*`·`loot_table/*` 경로를 추출해 `overrides` datapack으로 비활성 후 재확인.
 
 ### 6-5. 클라 접속 / 안정성
 - [ ] PoroMon 클라 모드팩 접속 성공(서버가 클라 전용 모드 요구 안 함)
