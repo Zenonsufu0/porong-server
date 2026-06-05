@@ -24,6 +24,8 @@ dependencies {
     // Cobblemon API (배틀타워 pvn). compileOnly — 런타임은 서버의 Cobblemon 모드가 제공.
     modCompileOnly "com.cobblemon:fabric:${project.cobblemon_version}"
     modCompileOnly "net.fabricmc:fabric-language-kotlin:${project.flk_version}"
+    // Mega Showdown API (NPC 메가 발동 megaEvolveInBattle). 로컬 jar(maven 미배포). compileOnly.
+    modCompileOnly files("../../modpack/client/mods/mega_showdown-fabric-1.8.4+1.7.3+1.21.1.jar")
 }
 
 processResources {

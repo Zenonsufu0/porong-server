@@ -1,10 +1,12 @@
 package kr.poro.poromoncore;
 
+import kr.poro.poromoncore.battle.BattleTowerService;
 import kr.poro.poromoncore.command.PoroMonCommand;
 import kr.poro.poromoncore.data.PlayerProgress;
 import kr.poro.poromoncore.data.PoroMonState;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -33,6 +35,13 @@ public class PoroMonCore implements ModInitializer {
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             ServerPlayerEntity player = handler.player;
             initPlayer(server, player);
+        });
+
+        // 배틀타워 점검(NPC 메가 발동 + 아이템드롭 차단) — 매 20틱(1초)
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
+            if (server.getTicks() % 20 == 0) {
+                BattleTowerService.tick(server);
+            }
         });
     }
 
