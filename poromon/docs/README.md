@@ -50,6 +50,7 @@
 ### 01_modpack — 모드팩
 - ✅ [modpack_list.md](01_modpack/modpack_list.md) — 80개 모드 목록(+SimpleTMs, Eggs, Legendary Monuments)
 - ✅ [server_mod_separation.md](01_modpack/server_mod_separation.md) — 서버/클라 분리(필수·권장·제외·애매) + 테스트 체크리스트
+- ✅ [client_mod_tiers.md](01_modpack/client_mod_tiers.md) — 클라 85개 티어링(T0 코어/T1 권장/T2 선택/서버전용) — 간편설치기용(결정 025)
 - ✅ [jar_feature_audit.md](01_modpack/jar_feature_audit.md) — jar 내부 기준 기능 검토(LM/Eggs/SimpleTMs/MSD ID·한글화·충돌)
 - 📝 [client_pack_policy.md](01_modpack/client_pack_policy.md) — 클라 배포 팩 정책
 - 📝 [export_notes.md](01_modpack/export_notes.md) — CurseForge export 메모

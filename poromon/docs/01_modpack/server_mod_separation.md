@@ -140,6 +140,7 @@ AmbientEnvironment · BHMenu · BetterPingDisplay · BetterThirdPerson · CraftP
 - [ ] `.local/server/logs/latest.log` ERROR 없음, `stop` 시 월드 정상 저장
 
 ## 7. 관련 문서
+- **클라이언트 관점 티어링(간편설치기용): `client_mod_tiers.md`** ← 본 문서가 "서버에 무엇을 넣을지"라면, 그쪽은 "클라에 무엇을 권장/선택으로 둘지"(T0 코어/T1 권장/T2 선택). 결정 025.
 - 동기화 스크립트: `../../scripts/sync-server-mods.sh`
 - 서버 셋업/런북: `../02_server/server_setup.md` · `server_runbook.md`
 - 보고서: `../../reports/mod_classification.md` · `client_mod_jars.txt`

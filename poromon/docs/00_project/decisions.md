@@ -125,3 +125,15 @@ jar 감사 결과(`01_modpack/jar_feature_audit.md`, `reports/jar_inspection/Leg
 - 거래는 서버 검증 트랜잭션(잔액 확인→차감→지급, 실패 롤백). 가격은 `economy.json` 단일 출처.
 
 **골드 스케일**: `economy_design.md §9` 예시를 **0.1 기준선으로 채택**(메가팔찌 20,000 앵커, 매입가 다이아 40·금 8 등, 야생 처치 레벨×2). 인플레 위험 낮음(거래 없음) → 운영 후 §6 텔레메트리로 튜닝. `economy_design.md §5/§10`, `shop_design.md §5`, `hub_design.md §2`, `CLAUDE.md` 메뉴 설계 반영.
+
+### 025. 클라이언트 모드 티어링 (간편설치기 기반)
+
+서버/클라 분리(`server_mod_separation.md`)는 "서버에 무엇을 넣을지" 관점이었다. **클라이언트 설치를 간편설치기로 돕기 위해**, 클라 85개를 클라이언트 관점에서 **4구분으로 티어링**한다. 분류는 `01_modpack/client_mod_tiers.md`(단일 출처).
+
+- **T0 코어(14, 강제·서버 일치)**: 게임플레이 + 레지스트리 추가 모드와 그 하드 의존(Cobblemon·MSD·SimpleTMs·Eggs·LM + chipped/cobblefurnies/terrablender + accessories/athena/resourcefullib + fabric-api/architectury/owo). 서버 화이트리스트 §1+§1b(14)와 동일 집합. 설치기 토글 불가.
+- **T1 권장 편의(기본 ON)**: 성능(Sodium 패밀리·ferritecore·entityculling·lithium·krypton) + 아이템/정보 뷰어(EMI·JEI·appleskin·enchdesc 등) + 조작/인벤 QoL + UI(modmenu·fancymenu). 끄면 성능·편의만 손해.
+- **T2 선택 취향(기본 OFF)**: 셰이더(iris)·ETF/EMF·파티클/사운드/분위기(particlerain·visuality·lambdynamiclights·PresenceFootsteps 등)·CraftPresence. 순수 비주얼/취향.
+- **L 라이브러리**: 선택 모드 의존성으로 **자동 포함**(cloth-config·YACL·balm·konkrete·melody·bookshelf·UniLib 등).
+- **(S) 서버전용(클라 제외 가능, 무해)**: OpenLoader·letmedespawn·netherportalfix·bwncr·Clumps. 클라 게임플레이 미사용.
+
+설치기 모델 = **3토글(T0 강제 / T1 기본 ON / T2 기본 OFF) + 라이브러리 자동 의존 해소**. 최소 설치(저사양)는 T0+성능만으로 정상 플레이. **의존 관계는 각 모드 `fabric.mod.json depends` / CurseForge·Modrinth 메타로 재검증 후 설치기 로직 반영(추측 금지)**. 토글 단위(개별 vs 묶음)·정확 개수는 설치기 스펙 확정 시 재고정(TODO). `01_modpack/client_mod_tiers.md`, `server_mod_separation.md`, `CLAUDE.md` 모드팩 정책 참고.
