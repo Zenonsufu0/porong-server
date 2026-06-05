@@ -4,7 +4,7 @@ PoroRPG HTTP API 클라이언트 (aiohttp 기반).
 모든 요청에 X-Api-Key 헤더를 포함한다.
 """
 import aiohttp
-from config import PORO_API_URL, PORO_API_KEY
+from core.config import PORO_API_URL, PORO_API_KEY
 
 
 class PoroApiClient:
