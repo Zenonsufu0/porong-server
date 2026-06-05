@@ -17,6 +17,10 @@
 
 - **원본 `poro-server`에서는 서버를 실행하지 않고, 개발용 VS Code도 열지 않는다.**
 - 모든 merge·태그·전체 히스토리 작업은 원본 `poro-server`에서 한다.
+- **서버 실행물의 표준 위치는 각 worktree의 `<프로젝트>/.local/server`** 다 (아래 §5).
+  - RPG: `poro-work-rpg/poro-rpg/.local/server` (Paper: paper.jar·world·plugins·config·logs 등)
+  - PoroMon: `poro-work-poromon/poromon/.local/server` (Fabric/Cobblemon: run·worlds·mods·server jar 등)
+  - `.local/`은 `.gitignore`(`**/.local/`)로 어느 worktree에서도 추적되지 않는다. (DL-130)
 
 ---
 
@@ -95,6 +99,12 @@ git sparse-checkout set poro-discord poro-rpg/docs poromon/docs
 - 서버 실행 산출물은 추적하지 않는다 — `.gitignore`로 관리:
   `*/server/`, `world*/`, `logs/`, `build/`, `*.jar`, `mods/`,
   `.local/`(런타임 데이터) 등.
+- **실행물의 표준 배치 = `<프로젝트>/.local/server`** (worktree-local 런타임). 원본
+  `poro-server` 작업트리 안에는 서버 실행물을 두지 않는다. (2026-06-05 정리, DL-130)
+  - RPG → `poro-work-rpg/poro-rpg/.local/server`
+  - PoroMon → `poro-work-poromon/poromon/.local/server`
+  - 직접 만든 산출물만 추적: 플러그인 소스 `poro-rpg/custom-plugins/`,
+    커스텀 모드 소스 `poromon/custom-mods/`, 모드팩 메타/오버라이드 `poromon/modpack/`.
 
 ---
 

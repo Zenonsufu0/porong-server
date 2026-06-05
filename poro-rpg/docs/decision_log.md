@@ -3280,3 +3280,21 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 - **P6** 마이그레이션(스택→인스턴스 자동 변환) + CANON 갱신(`item_grade_substat`·`equipment_growth_spec`) + DL 기록.
 
 **근거 문서:** `poro-rpg/docs/02_database_api_stats/equipment_growth_spec.md §2.3`(현행 카운터형 전승, 대체 예정), `item_grade_substat_v1.md`(§3·§4 SUPERSEDED였으나 인스턴스화로 일부 회귀 → P6에서 정합), `growth_potential_option_pool.csv`(슬롯별 풀, 통합풀은 별도 신설).
+
+---
+
+### DL-130 (2026-06-05) — 서버 실행물의 표준 위치 = worktree `<프로젝트>/.local/server`
+
+**무엇:** RPG·PoroMon의 서버 실행물(런타임)을 원본 합본 저장소(`poro-server`) 작업트리 밖, 각 worktree의 `<프로젝트>/.local/server`로 표준화한다.
+- RPG: `poro-work-rpg/poro-rpg/.local/server`
+- PoroMon: `poro-work-poromon/poromon/.local/server`
+- Git 추적 대상은 **직접 만든 산출물만**: 플러그인 소스 `poro-rpg/custom-plugins/`, 커스텀 모드 소스 `poromon/custom-mods/`, 모드팩 메타/오버라이드 `poromon/modpack/`, 각 `docs/`·`scripts/`.
+
+**왜:** worktree_policy(§1) "원본 `poro-server`에서는 서버를 실행하지 않는다"와 정합. 그러나 실제로는 `poro-server/poro-rpg/server`(508M, paper.jar·world·plugins)와 `poro-server/poromon/server`가 원본 작업트리 안에 존재해 정책 위반 상태였다. 실행물을 worktree-local `.local/`로 분리해 (a) 원본은 합본/merge 전용으로 깨끗이 유지, (b) 실행은 각 worktree에서 수행하도록 물리적으로 강제.
+
+**조치 (2026-06-05 실행, `mv` rename, 같은 파일시스템):**
+- `poro-server/poro-rpg/server` → `poro-work-rpg/poro-rpg/.local/server` (38항목, 무손상: paper.jar 54,475,623 bytes 동일)
+- `poro-server/poromon/server` → `poro-work-poromon/poromon/.local/server` (run·worlds)
+- Git 영향: **없음.** 두 `server/`는 원래부터 미추적(`.gitignore:35 server/`)이었고, 목적지 `.local/`도 `.gitignore:127 **/.local/`로 무시됨. `git rm` 대상 0건. master·rpg·poromon worktree 전부 `git status` clean 유지.
+
+**미정리(후속):** `poro-rpg/CLAUDE.md`의 런타임 경로 표기(`poro-rpg/server/plugins`, `poro-rpg/server-config`)가 이번 이동으로 stale. RPG 워크트리 작업 시 `.local/server` 기준으로 갱신 필요(이번 변경 범위 외 — 루트 작업트리에서 RPG 전용 파일 수정 보류).
