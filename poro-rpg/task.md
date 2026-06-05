@@ -67,9 +67,9 @@
 - ✅ 부팅 로그 `trace_substat_options=40`(별도 레지스트리 적재) + 신규코드 에러 0.
 - ⏳ 흔적풀 weight 균등 v1 — combat-balance 튜닝 여지(미착수).
 
-### ★ 인게임 테스트 중 발견·수정한 후속 (⚠ 미커밋 — 다음 세션 첫 작업: 빌드확인 후 커밋)
-> 8개 파일 수정됨(현재 워킹트리 dirty). 빌드·테스트 통과 + 서버 재기동 검증 완료(Done~18s, 에러0). **아직 커밋 안 함.**
-> 미커밋 파일: PoroRPGPlugin, combat/SkillContext, growth/engine/EnhancementService, gui/EquipmentLoreRenderer, gui/WeaponItemFactory, listener/{AuctionGuiListener, GrowthGuiListener, PlayerJoinListener}
+### ★ 인게임 테스트 중 발견·수정한 후속 (✅ 커밋됨 — 3d6b837 "Save current RPG plugin changes")
+> 8개 파일 수정. 빌드·테스트 통과 + 서버 재기동 검증(Done~18s, 에러0). 커밋: `3d6b837`(P5 `e977e17` 이후, 모노레포 재구조화 전). master 반영 완료.
+> 파일: PoroRPGPlugin, combat/SkillContext, growth/engine/EnhancementService, gui/EquipmentLoreRenderer, gui/WeaponItemFactory, listener/{AuctionGuiListener, GrowthGuiListener, PlayerJoinListener}
 
 1. **이슈 A — 경매 등록 ≠ 영지 창고**: 경매 등록 palette에 바닐라 IslandStorage 재료가 빠져 있었음 → palette에 추가 + heldOf/debitItem/creditItem/배달(AuctionGuiListener+PlayerJoinListener)을 IslandStorage 경로로 라우팅(`vanillaMaterial(itemId)`=Material.getMaterial). `AuctionGuiListener`에 `IslandStorageStore` 주입. 바닐라 아이콘은 `vanillaIcon`(StorageGui와 동일 translatable 한글명+기본 텍스처).
 2. **이슈 B — 손에 든 무기 0강 표시**: 원인 = `WeaponItemFactory`/`refreshHeldWeapon`이 `weaponInstanceId(weaponType)`를 읽는데, 전투·강화·전승은 `equippedItems().get(WEAPON)`을 씀. **장착 슬롯 기준으로 통일** — `WeaponItemFactory.buildLore`가 equipped WEAPON 인스턴스 읽음(미장착 시 타입 폴백). 전승 후 `refreshHeldWeapon` 호출 추가.
@@ -78,14 +78,31 @@
 5. **세부스탯 lore 펼침**: `EquipmentLoreRenderer.baseLore`가 세부스탯을 "3줄"(개수)로만 표시 → 잠재처럼 옵션별 줄 펼침. 무기·GUI 공통.
 6. **방어구 강화 lore**: `SkillContext`에 공개 접근자(`armorDefAt/armorHpAt/...GainNext`) 추가 + `baseLore` 슬롯 인식 → 방어구에 `강화: +N강 (방어력 +X · 체력 +Y)` + `+1강 시 ...` 표시. 실제 전투 산식과 동일 출처. `equipBaseLore`/호출처 6곳 슬롯 전달로 변경.
 
-### ⚠ 보류 — 사용자 결정 필요 (다음 세션)
-- **weaponType ↔ 장착 WEAPON 슬롯 어긋남**: 테스트 캐릭(zenonsufu0)이 `weaponType=SCYTHE`인데 장착=`weapon_sword`(+15 LEGENDARY). 전투는 장착(검 +15) 사용, 스킬/표시는 타입(낫) 기준이라 이름=낫·스탯=검으로 보일 수 있음. B 수정으로 lore는 장착 기준 통일했으나 **type↔장착 재동기화는 미적용**(어느 쪽으로 맞출지 = 검 유지 vs 낫 전환, 데이터 결정 필요). 정상 캐릭은 일치하므로 일반 발생 여부도 조사 필요.
+### ⚠ 보류 — weaponType ↔ 장착 WEAPON 슬롯 어긋남 (조사 완료 2026-06-05, 수정 보류)
+**증상**: 테스트 캐릭(zenonsufu0)이 `weaponType=SCYTHE`인데 장착=`weapon_sword`(+15 LEGENDARY). 전투는 장착(검 +15), 스킬/표시는 타입(낫) 기준 → 이름=낫·스탯=검.
+
+**근본 원인 확정** (코드 직독):
+- `ClassInitService.grantStarterEquipment`(`/직업` 어드민 명령 경로)가 `setClassId(newType)`은 **무조건** 갱신하는데, 바로 아래 `addAndEquipIfMissing(WEAPON, weapon_<TYPE>, …)`는 `if (state.equippedItemInstanceId(slot).isEmpty())` 가드로 **WEAPON 슬롯이 비어있을 때만** 장착. → 이미 무기 장착 시 weaponType/classId만 새 타입, equipped WEAPON은 옛 무기 → 어긋남.
+- 같은 메서드 주석은 "직업 변경 시 weapon_<타입>로 전환"을 **의도로 명시** → 의도-동작 불일치(버그).
+
+**일반 발생 여부 = 없음** (어드민 전용):
+- 정식 신규가입(WEAPON 빈 슬롯)·GUI 무기교체(`GrowthGuiListener.handleWeaponChangeClick` L2148-2149에서 `ensureWeaponInstance` + **무조건** `equipItem`)는 항상 weaponType·classId·equipped 3개 동기화.
+- 어긋남은 `/직업`으로 **이미 무장한** 캐릭의 직업을 바꿀 때만(=테스트 캐릭).
+
+**수정 방향 A (권장, 미적용 — 사용자 "일단 기록·보류" 2026-06-05)**:
+- `grantStarterEquipment`에서 **무기 슬롯만** GUI 교체와 동일 패턴으로: `ensureWeaponInstance(state, wt)` + `state.equipItem(WEAPON, WeaponGui.weaponInstanceId(wt))`(무조건). 방어구는 현행 `addAndEquipIfMissing` 유지(공유 인스턴스).
+- 부작용 없음: 검+15는 `weapon_SWORD` 인스턴스로 인벤토리에 보존(DL-104 무기별 독립 성장) → 검 직업 복귀 시 +15 복원.
+- 게임 로직 변경이라 적용 전 사용자 승인 필요(밸런스/수치 변경 아님, 의도 동작 복원).
+
+**후속 이슈(별도, → INBOX-014)**: `PoroCommand`의 구형 최초선택 경로(`ensureStarterGrowthState`)는 `starter_<classId>`/`equip_<classId>` 인스턴스 체계 — `ClassInitService`/GUI의 `weapon_<TYPE>`와 갈림. 실사용/데드코드 여부 확인 필요.
+
+**테스트 캐릭 복구(검 유지 vs 낫 전환)**: 인게임 어드민 명령 영역 → 원본 `poro-server` worktree(server 필요)에서. 위 코드 수정과 독립.
 
 ### 재개 지점 (다음 세션 시작)
-1. **먼저** 위 미커밋 후속 6건 빌드 확인(`cd custom-plugins/poro-rpg && ./gradlew build`) → 커밋. 제안 메시지: `fix(growth/market): 경매 영지창고 연동·무기표시 통일·메시지 한글화·흔적텍스처·방어구 강화lore (DL-129 추가#38 인게임 후속)`
-2. weaponType↔장착 어긋남 처리 방향 사용자 확인 후 적용.
+1. ✅ 인게임 후속 6건 — 커밋 완료(`3d6b837`, master 반영).
+2. ⏸ weaponType↔장착 어긋남 — 조사 완료, **수정 방향 A 보류 중**(사용자 승인 시 적용).
 3. (선택) 흔적풀 weight combat-balance 튜닝, 경매 2계정 구매 검증.
-- 서버: tmux `poro` 세션에서 기동 중(8080 리소스팩 http 별도). 배포 = `cp build/libs/poro-rpg-0.1.0.jar server/plugins/` → tmux `save-all`→`stop`→`start.sh`.
+- 서버: tmux `poro` 세션에서 기동(8080 리소스팩 http 별도). 배포 = `cp build/libs/poro-rpg-0.1.0.jar server/plugins/` → tmux `save-all`→`stop`→`start.sh`. ※ 인게임 검증은 server가 있는 원본 worktree에서.
 
 ---
 

@@ -35,6 +35,19 @@
 - 플레이어 스킬 설계 제외: 지속 장판, 적 표식, 방어 감소, 받는 피해 증가 디버프.
 - 영지/농장은 영지 저장고만 사용. 마력 시스템 제거. 시설: 약초 재배지 + 광물 채굴기 + 공방 가공기 (2026-05-19 확정). 호퍼/케이블 물류 없음.
 
+## 작업 영역 / 가드레일
+
+- 이 작업 영역은 **RPG Paper 플러그인 서버** 담당이다.
+- **포로몬(`../poromon/`)·디스코드봇(`../poro-discord/`)은 수정 금지.** 읽기만 한다.
+- 루트 공통 파일(`../CLAUDE.md`, `../README.md`, `../.gitignore`, 루트 docs 구조)은 수정하지 않는다.
+- 게임 로직(전투·스킬 수치·보스·퀘스트·밸런스)을 바꾸기 전, **구조·빌드 영향을 먼저 확인**한다.
+- 커밋 전 반드시 `git status`로 변경 범위를 확인하고, 작고 리뷰 가능한 단위로 나눈다.
+- 런타임 파일·빌드 산출물·로그·JAR는 커밋하지 않는다(`server/`, `build/`, `*.jar`, 로그 등 — 단 `gradle/wrapper/gradle-wrapper.jar`는 예외 추적).
+
+## 빌드
+
+- 빌드 루트: `poro-rpg/custom-plugins/poro-rpg`. 빌드: `./gradlew build` (→ `BUILD SUCCESSFUL`).
+
 ## 코드/서버 작업 범위
 
 - 플러그인 구현은 `poro-rpg/custom-plugins/poro-rpg` (기존 PoroRPG 경로).

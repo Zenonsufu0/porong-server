@@ -293,6 +293,16 @@
   - **몹 드랍·경험치 연동** — ℹ️ **이미 작동**: 스킬 killer 귀속(`target.damage(dmg, attacker)`) + `FieldDropListener`가 EXP+골드+강화석+큐브 지급. 단 **DB 지갑**(바닥 드랍 없음)이라 체감 안 됨. 처치 피드백 메시지 추가 검토(미구현).
 - 상태: DRAFT (원거리 평타·자원 통일·임계/만충 재설계 구현 완료 / 처치 피드백 메시지는 사용자 결정 대기)
 
+### INBOX-014 무기 인스턴스 ID 체계 이원화 (직업/장착 어긋남 조사 후속)
+- 날짜: 2026-06-05
+- 출처: weaponType↔장착 어긋남 조사(task.md §19 보류 항목) 중 발견
+- 내용: 같은 무기인데 진입 경로에 따라 **서로 다른 인스턴스 ID/item_id**가 생성됨.
+  - 정식 신규가입(`ClassInitService.grantStarterEquipment`) · GUI 무기교체(`GrowthGuiListener.ensureWeaponInstance`): `weapon_<TYPE>` / `t1_<type>_starter` (= `WeaponGui.weaponInstanceId`/`starterItemId`). **정본**.
+  - 구형 최초선택(`PoroCommand.ensureStarterGrowthState`, `hasSelectedWeapon` 가드): `starter_<classId>` / `equip_<classId>`. **레거시 잔재**.
+- 리스크: `PoroCommand` 경로로 최초 무기를 선택한 유저는 `starter_sword`를 장착 → 이후 GUI 무기교체 시 `weapon_SWORD`(별개 인스턴스)로 갈려 강화/등급/잠재가 따로 노는 어긋남 가능.
+- 확인 필요: `PoroCommand` 무기선택 명령이 실제 운용 경로인가(정식 가입은 `WeaponSelectionGuiListener`→`ClassInitService`로 추정), 아니면 데드코드/디버그 잔재인가. 데드코드면 제거, 실사용이면 `weapon_<TYPE>` 체계로 통일.
+- 상태: DRAFT (조사만 — 코드 미수정)
+
 <!-- 새 항목은 이 주석 위에 추가한다 -->
 
 ## [DRAFT] 미정의 MythicMob 소환수 정의 필요 (DL-128 후속, 2026-06-02)
