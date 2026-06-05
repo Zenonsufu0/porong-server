@@ -136,18 +136,18 @@
 ---
 
 ## 3.5 알 상점 (Eggs - Cobblemon Addon)
-> ✅ jar 확인(`jar_feature_audit.md` §2): **데이터팩형**(namespace `diesse`). 기본 풀 = loot table **common/rare/shiny/rides** 4종. assets/lang 없음 → **알 아이템 ID 불명확(둥지/animated_java) = TODO, 추측 금지.** 상인/trade 없음(둥지 스폰형).
+> ✅ jar 전수 검증(`egg_pool_design.md §8`, 결정 027): **animated_java+mcfunction형**(namespace `diesse`). 부화 종 = `egg/poke/*.mcfunction`의 `spawnpokemon <id>`. **알 = `minecraft:armor_stand`+컴포넌트**(custom_model_data 1/2/3, tag `egg.<등급>.placed`) → 지급은 **`function diesse:egg/give/<등급>`**. ⚠️ 모드 방랑상인은 **바닐라 화폐 판매(우회) → 비활성**, 판매는 PoroMonCore 골드 차감 후 give 함수로 단일화.
 
-| 알 종류(설계) | 모드 제공 | 아이템 ID | 판매 | 해금 | 비고 |
+| 알 종류(설계) | 모드 제공 | 지급 방식 | 판매 | 해금 | 비고 |
 |---|---|---|---|---|---|
-| 일반 알 | ✅ common loot table | `TODO: item id 확인 필요` | 판매 | 없음 | 기본 |
-| 희귀 알 | ✅ rare loot table | TODO | 판매 | 배지 후보 | 고가 |
-| 색이 다른 알(Shiny) | ✅ shiny loot table | TODO | 보류 | 이벤트/후반 | 일반 판매 비추천 |
-| 탈것 알(rides) | ✅ rides loot table | TODO | 후보 | 후보 | 모드 기본 등급 |
-| 스타팅/화석/드래곤/타입별 알 | ❌ 모드 미제공 | — | 후보 | — | **PoroMonCore 커스텀 또는 loot table 추가 필요** |
+| 일반 알 | ✅ common(스타터+흔한 종 56) | `function diesse:egg/give/common` | 판매 | 없음 | 기본·저가 |
+| 희귀 알 | ✅ rare(유사전설/강종 26) | `function diesse:egg/give/rare` | 판매 | 배지 후보 | 고가·희귀조우권과 중복 |
+| 색이 다른 알(Shiny) | ✅ shiny(common+rare 이로치 81) | `function diesse:egg/give/shiny` | 보류 | 이벤트/후반 | 일반 판매 비추천 |
+| 탈것 알(rides) | ✅ rides(소수) | (give 함수 확인) | 후보 | 후보 | 모드 기본 등급 |
+| 스타팅/화석/드래곤/타입별 알 | ❌ 모드 미제공 | 커스텀 `egg/poke/*`+loot+give | 후보 | — | **PoroMonCore 관리 datapack 추가** |
 | 전설 알 | — | — | **금지** | — | 판매하지 않음 |
 
-> 풀 커스텀 = `data/diesse/loot_table/{common,rare,shiny,rides}.json` datapack 오버라이드로 가능(`egg_pool_design.md` §8).
+> 풀 커스텀 = `egg/poke/{common,rare,shiny}.mcfunction` 오버라이드 + `loot_table/*.json` rolls.max 일치(가중=인덱스 중복). loot table만 바꿔선 종 안 바뀜(`egg_pool_design.md §8-1`).
 
 ---
 
