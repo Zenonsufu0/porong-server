@@ -81,7 +81,12 @@ public final class ClassInitService {
         // 무기별 독립 각인(DL-110)이므로 이전 각인 해제 불필요 — 각 무기가 자기 각인을 보유.
         state.setClassId(classId);
         // 무기는 무기별 독립 인스턴스(weapon_<타입>) — 교체 시 각 무기의 강화/등급/잠재를 따로 가져간다 (DL-104).
-        addAndEquipIfMissing(state, EquipmentSlot.WEAPON,     WeaponGui.weaponInstanceId(weaponType), WeaponGui.starterItemId(weaponType));
+        // 무기 슬롯은 GUI 무기교체(GrowthGuiListener.handleWeaponChangeClick)와 동일 패턴: 인스턴스 보장 + 무조건 장착.
+        // 직업 변경(/직업) 시 이미 다른 무기를 장착 중이어도 새 직업 무기로 교체 → weaponType/classId/equipped 3자 동기화.
+        // (옛 동작: addAndEquipIfMissing는 WEAPON 슬롯이 비었을 때만 장착 → 무장 상태에서 직업 변경 시 weaponType↔장착 어긋남 버그.)
+        // 부작용 없음: 직전 무기는 자기 weapon_<타입> 인스턴스로 인벤토리에 보존되어, 그 직업 복귀 시 강화/등급/잠재 복원(DL-104).
+        ensureWeaponInstance(state, weaponType);
+        state.equipItem(EquipmentSlot.WEAPON, WeaponGui.weaponInstanceId(weaponType));
         addAndEquipIfMissing(state, EquipmentSlot.HELMET,     "starter_helmet",      "t1_helmet_starter");
         addAndEquipIfMissing(state, EquipmentSlot.CHESTPLATE, "starter_chestplate",  "t1_chestplate_starter");
         addAndEquipIfMissing(state, EquipmentSlot.LEGGINGS,   "starter_leggings",    "t1_leggings_starter");
@@ -148,6 +153,15 @@ public final class ClassInitService {
         }
         if (state.equippedItemInstanceId(slot).isEmpty()) {
             state.equipItem(slot, instanceId);
+        }
+    }
+
+    /** 무기 타입의 독립 성장 인스턴스(weapon_<타입>)가 없으면 +0강 기본으로 생성한다. (GrowthGuiListener와 동일 패턴) */
+    private void ensureWeaponInstance(PlayerGrowthState state, WeaponType wt) {
+        String iid = WeaponGui.weaponInstanceId(wt);
+        if (state.inventoryItem(iid).isEmpty()) {
+            state.addInventoryItem(PlayerEquipmentItem.restore(
+                    iid, WeaponGui.starterItemId(wt), 0, ItemGrade.COMMON, null, List.of()));
         }
     }
 

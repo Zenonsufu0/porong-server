@@ -78,7 +78,7 @@
 5. **세부스탯 lore 펼침**: `EquipmentLoreRenderer.baseLore`가 세부스탯을 "3줄"(개수)로만 표시 → 잠재처럼 옵션별 줄 펼침. 무기·GUI 공통.
 6. **방어구 강화 lore**: `SkillContext`에 공개 접근자(`armorDefAt/armorHpAt/...GainNext`) 추가 + `baseLore` 슬롯 인식 → 방어구에 `강화: +N강 (방어력 +X · 체력 +Y)` + `+1강 시 ...` 표시. 실제 전투 산식과 동일 출처. `equipBaseLore`/호출처 6곳 슬롯 전달로 변경.
 
-### ⚠ 보류 — weaponType ↔ 장착 WEAPON 슬롯 어긋남 (조사 완료 2026-06-05, 수정 보류)
+### ✅ 해결 — weaponType ↔ 장착 WEAPON 슬롯 어긋남 (방향 A 적용 2026-06-05, 빌드 OK)
 **증상**: 테스트 캐릭(zenonsufu0)이 `weaponType=SCYTHE`인데 장착=`weapon_sword`(+15 LEGENDARY). 전투는 장착(검 +15), 스킬/표시는 타입(낫) 기준 → 이름=낫·스탯=검.
 
 **근본 원인 확정** (코드 직독):
@@ -89,10 +89,10 @@
 - 정식 신규가입(WEAPON 빈 슬롯)·GUI 무기교체(`GrowthGuiListener.handleWeaponChangeClick` L2148-2149에서 `ensureWeaponInstance` + **무조건** `equipItem`)는 항상 weaponType·classId·equipped 3개 동기화.
 - 어긋남은 `/직업`으로 **이미 무장한** 캐릭의 직업을 바꿀 때만(=테스트 캐릭).
 
-**수정 방향 A (권장, 미적용 — 사용자 "일단 기록·보류" 2026-06-05)**:
-- `grantStarterEquipment`에서 **무기 슬롯만** GUI 교체와 동일 패턴으로: `ensureWeaponInstance(state, wt)` + `state.equipItem(WEAPON, WeaponGui.weaponInstanceId(wt))`(무조건). 방어구는 현행 `addAndEquipIfMissing` 유지(공유 인스턴스).
+**수정 방향 A (적용 완료 — 사용자 승인 2026-06-05)**:
+- `ClassInitService.grantStarterEquipment`에서 **무기 슬롯만** GUI 교체와 동일 패턴으로 변경: `ensureWeaponInstance(state, wt)` + `state.equipItem(WEAPON, WeaponGui.weaponInstanceId(wt))`(무조건). 방어구 4슬롯은 현행 `addAndEquipIfMissing` 유지(공유 인스턴스). GUI와 동일한 `ensureWeaponInstance` 헬퍼를 ClassInitService에 추가.
 - 부작용 없음: 검+15는 `weapon_SWORD` 인스턴스로 인벤토리에 보존(DL-104 무기별 독립 성장) → 검 직업 복귀 시 +15 복원.
-- 게임 로직 변경이라 적용 전 사용자 승인 필요(밸런스/수치 변경 아님, 의도 동작 복원).
+- 밸런스/수치 변경 아님(의도 동작 복원). `./gradlew build` ✅ BUILD SUCCESSFUL. **인게임 검증 대기**(`/직업`으로 무장 캐릭 직업 변경 → weaponType·장착·이름·스탯 일치 확인).
 
 **후속 이슈(별도, → INBOX-014)**: `PoroCommand`의 구형 최초선택 경로(`ensureStarterGrowthState`)는 `starter_<classId>`/`equip_<classId>` 인스턴스 체계 — `ClassInitService`/GUI의 `weapon_<TYPE>`와 갈림. 실사용/데드코드 여부 확인 필요.
 
@@ -100,7 +100,7 @@
 
 ### 재개 지점 (다음 세션 시작)
 1. ✅ 인게임 후속 6건 — 커밋 완료(`3d6b837`, master 반영).
-2. ⏸ weaponType↔장착 어긋남 — 조사 완료, **수정 방향 A 보류 중**(사용자 승인 시 적용).
+2. ✅ weaponType↔장착 어긋남 — **방향 A 적용 완료**(2026-06-05, ClassInitService 무기슬롯 무조건 장착). 빌드 OK, 인게임 검증 대기.
 3. (선택) 흔적풀 weight combat-balance 튜닝, 경매 2계정 구매 검증.
 - 서버: tmux `poro` 세션에서 기동(8080 리소스팩 http 별도). 배포 = `cp build/libs/poro-rpg-0.1.0.jar server/plugins/` → tmux `save-all`→`stop`→`start.sh`. ※ 인게임 검증은 server가 있는 원본 worktree에서.
 
