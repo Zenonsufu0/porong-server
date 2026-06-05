@@ -28,16 +28,17 @@
 - **Cobblemon**: ko_kr 기본 포함.
 - **Legendary Monuments**: ko_kr **없음**(신규 번역 1순위). 자체 소환 시스템 방대(제단/항아리/피리/trial spawner/바이옴).
 
-## 3. ⚠️ 다음 세션에서 먼저 결정해야 할 것 (BLOCKER)
-1. **[최우선] Legendary Monuments 처리 방향** — 자체 전설 소환이 PoroMonCore 통제(조우권/사설룸)를 **확정적으로 우회**함(jar 확인).
-   - (A) 구조물/소환/바이옴 **비활성**(datapack 제거 가능한지 검증) → 조우권 통제 유지
-   - (B) **통제된 후반 콘텐츠로 수용** + 조우권 재정의
-   - → 결정 후 `legendary_encounter.md` / `encounter_pool_design.md` / `decisions.md` 정리.
-2. **chipped / cobblefurnies / terrablender**: LM 하드 의존인데 별도 jar 없음(JIJ 추정) → **서버 로드 확인**(아니면 미기동).
-3. **client/mods=80 vs 기대 81** 개수 불일치 원인 확인.
+## 3. ⚠️ BLOCKER 상태 (2026-06-05 갱신)
+1. **[해소 → 결정 023] Legendary Monuments 처리 = (A) 완전 비활성 확정.**
+   - LM worldgen(구조물·feature·광석) + 루트테이블을 datapack 오버라이드로 비활성 → 소환 아이템 자연 획득 차단(아이템 우클릭 소환 로직은 자바 하드코딩이라 제거 불가, 획득 차단으로 무력화).
+   - 문서 반영 완료: `decisions.md`(023), `legendary_encounter.md`(LM 섹션), `encounter_pool_design.md`(§10).
+   - **남은 구현 TODO**: 서버 mods 배치 후 실제 jar의 `data/legendarymonuments/worldgen/*`·`loot_table/*` 경로 확인 → overrides datapack으로 비활성 작성. terrablender 바이옴은 코드 등록이라 로그로 확인 후 게이트.
+2. **chipped / cobblefurnies / terrablender** (LM 하드 의존): 공개 팩 modlist 80개에 **미포함** 확인 → **LM jar 내부 JIJ 추정**(accessories·mega_showdown은 modlist에 있음). 확정 검증은 실제 jar 내부 또는 **서버 기동 로그**(`Missing dependency` 경고 유무)로 — Phase 1에서 확인.
+3. **client/mods=80 vs 기대 81**: `server_mod_separation.md:17` 기설명 — manifest CurseForge 80 + 수동 swingthrough 기대 = 81, **1건 차이 = swingthrough 미반영**. 신규 미스터리 아님(추적만).
 
 ## 4. 다음 액션 (Phase 1)
-- [ ] 위 §3 결정/검증
+- [x] §3-1 LM 처리 방향 결정 → 완전 비활성(결정 023). [ ] 실제 비활성 datapack 작성(서버 mods 배치 후 jar worldgen 경로 확인)
+- [ ] §3-2 chipped/cobblefurnies/terrablender JIJ 여부 = 서버 기동 로그로 검증
 - [ ] `server/run` 기동 파일 작성: `eula.txt`, `server.properties`(pvp=false, spawn-protection), `start.sh`(Java21, JVM)
 - [ ] `DRY_RUN=0 ./scripts/sync-server-mods.sh` 로 서버 mods 19개 복사(실행 전 §3 확인)
 - [ ] 서버 1차 기동 → Cobblemon/MSD/SimpleTMs/Eggs/LM 로드, 의존성 경고 확인(애매 5개는 경고 시 추가)

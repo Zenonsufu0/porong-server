@@ -70,7 +70,7 @@ PoroMonCore는 전설 조우, 메가/테라 해금, 짐, 배지, 리그 진행, 
 
 ### 017. 애드온 추가 (Cobblemon: Legendary Monuments)
 
-모드팩에 **Cobblemon: Legendary Monuments**(JorgaoMC)를 추가한다(manifest 79 → 80). Cobblemon 게임플레이 애드온으로 **클라/서버 양쪽 필요**, Cobblemon 의존(그 외 의존성 jar 검증). 전설 관련 구조물/소환 콘텐츠 활용에 사용하되, **전설 획득은 PoroMonCore의 통제 정책(조우권+사설룸+통제된 월드 이벤트, 결정 008/013)을 우선**한다. 이 모드가 제공하는 자연 생성 구조물/소환이 PoroMonCore 통제를 **우회할 수 있는지는 확인 필요(TODO)** — 우회 시 비활성/게이트/통합 방안 결정. `04_game_design/legendary_encounter.md`, `01_modpack/server_mod_separation.md` 참고. 실제 구조물/아이템/포켓몬 ID·config key는 추측 금지(미확인 TODO).
+모드팩에 **Cobblemon: Legendary Monuments**(JorgaoMC)를 추가한다(manifest 79 → 80). Cobblemon 게임플레이 애드온으로 **클라/서버 양쪽 필요**, Cobblemon 의존(그 외 의존성 jar 검증). 전설 관련 구조물/소환 콘텐츠 활용에 사용하되, **전설 획득은 PoroMonCore의 통제 정책(조우권+사설룸+통제된 월드 이벤트, 결정 008/013)을 우선**한다. 이 모드가 제공하는 자연 생성 구조물/소환이 PoroMonCore 통제를 **우회할 수 있는지는 확인 필요(TODO)** — 우회 시 비활성/게이트/통합 방안 결정. `04_game_design/legendary_encounter.md`, `01_modpack/server_mod_separation.md` 참고. 실제 구조물/아이템/포켓몬 ID·config key는 추측 금지(미확인 TODO). **[해소 → 결정 023: 완전 비활성 확정]**
 
 ### 018. 전설 조우권 등급 체계 (일반 5등급)
 
@@ -95,3 +95,17 @@ PoroMonCore는 전설 조우, 메가/테라 해금, 짐, 배지, 리그 진행, 
 - **컨셉권에서 나오는 최상급 라인은 최상급 전설 조우권 풀에도 반드시 포함**한다(동기화, 불일치 방지).
 - **최상급 전설 조우권은 최상급 풀에서만** 등장(중급/상급 미등장) — "핵심 전설 하나를 뽑는" 최고가 상품.
 - `encounter_pool_design.md` §0/§7, `config_structure.md` §6.
+
+### 023. Legendary Monuments 처리 = 완전 비활성 (결정 017 해소)
+
+jar 감사 결과(`01_modpack/jar_feature_audit.md`, `reports/jar_inspection/LegendaryMonuments-7.8.jar.md`) LM의 전설 소환이 PoroMonCore 통제(조우권+사설룸+통제 이벤트, 결정 008/013)를 **확정적으로 우회**한다: 자체 항아리(urn)·피리(flute)·호루라기(whistle)·열쇠(key)·구체(globe)·treat **아이템 우클릭 소환** + 제단(pedestal)·trial spawner·shrine·lock **구조물 소환** + terrablender **바이옴**. 감사 기준 **in-game config 토글 파일 부재**.
+
+→ **방향 (A) 완전 비활성 확정.** LM의 worldgen(구조물·구조물셋·feature·광석)과 관련 **루트테이블을 datapack 오버라이드로 비활성**해 소환 아이템의 **자연 획득 경로를 차단**한다. 아이템 우클릭 소환 로직 자체는 자바 하드코딩이라 제거 불가하나, 소환 아이템을 야생에서 얻지 못하면 사실상 무력화된다. 전설 획득은 PoroMonCore 조우권/사설룸으로 단일화(018~022 유지). LM은 블록/장식 자산만 잔존 허용.
+
+구현 범위(서버 mods 배치 후 실제 jar의 worldgen 경로 확인 필요 = **TODO**):
+- `data/legendarymonuments/worldgen/{structure,structure_set,placed_feature,configured_feature}/*` 비활성(빈 오버라이드 또는 structure_set placement 제거).
+- `data/legendarymonuments/loot_table/*` 비활성(소환·진행 아이템 드롭 차단). cobblemon_drops 주입분도 점검.
+- terrablender 바이옴은 **코드 등록**이라 datapack 제거 난도 높음 → 서버 기동 로그로 생성 여부 확인, 필요 시 바이옴 weight 0/스폰 풀 제거로 게이트.
+- 검증: 서버 기동 후 신규 청크에 LM 구조물 미생성 + 소환 아이템 미획득(크리에이티브 외) 확인. (Phase 1 `task.md` §4 "LM 우회 동작 점검"으로 연계.)
+
+`legendary_encounter.md`(LM 섹션), `encounter_pool_design.md`(전설 단서/충돌 처리), `01_modpack/server_mod_separation.md` 반영. 실제 경로/ID·config key는 추측 금지(미확인 TODO).

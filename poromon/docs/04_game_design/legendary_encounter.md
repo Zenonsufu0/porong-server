@@ -81,14 +81,21 @@
 - **레쿠쟈(Rayquaza)**: **하늘 조우권 중심**(`encounter_pool_design.md` §8.1). 일반 하급/중급/상급 풀에 넣지 않음. 후반/하늘 균열 이벤트. 일반 랜덤 스폰 금지.
 - **아르세우스(Arceus)**: **영원 조우권 중심**(§8.10). 일반 판매 비추천, **기본 enabled: false 권장**. 실제 모드팩 미존재 시 잠금/TODO. 시즌 최종/왕중왕전/특수 퀘스트.
 
-## Legendary Monuments 연동 / 우회 점검 (TODO)
+## Legendary Monuments 처리 = 완전 비활성 (결정 023 확정)
 
-모드팩에 **Cobblemon: Legendary Monuments**(JorgaoMC) 추가됨(결정 017). 이 모드는 자체 구조물/소환 방식으로 전설을 얻게 할 수 있어, **PoroMonCore 전설 통제(조우권+사설룸+통제 월드 이벤트)를 우회할 가능성**이 있다. 확인 필요:
+모드팩에 **Cobblemon: Legendary Monuments**(JorgaoMC) 추가됨(결정 017). jar 감사 결과 LM의 전설 소환이 PoroMonCore 통제(조우권+사설룸+통제 이벤트)를 **확정적으로 우회**한다:
 
-1. **자연 구조물 생성 여부**: 월드에 전설 제단/구조물이 자동 생성되어 누구나 소환 가능한지(= 통제 우회).
-2. **소환 메커니즘**: 아이템/구조물 상호작용으로 전설 소환 시 PoroMonCore 통제와 충돌하는지.
-3. **비활성/게이트 가능 여부**: 구조물 생성 off, 소환 조건 datapack/config로 제어 가능한지.
-4. **통합 방안**: Legendary Monuments 구조물을 *허브 전설 제단/2시간 이벤트의 비주얼·연출*로만 활용하고, 실제 소환 판정은 PoroMonCore가 가져갈 수 있는지.
-5. 구조물/아이템/포켓몬/config key = **추측 금지, jar·datapack 확인 후 작성(TODO)**.
+- **아이템 우클릭 소환**: 항아리(urn)·피리(flute)·호루라기(whistle)·열쇠(key)·구체(globe)·treat 등.
+- **구조물 소환**: 제단(pedestal)·trial spawner·shrine·lock 등 자연 생성 구조물.
+- **바이옴**: terrablender 엔트리포인트로 자체 바이옴 등록.
+- 감사 기준 **in-game config 토글 부재**.
 
-> 원칙: **충돌 시 PoroMonCore 통제 정책 우선**(결정 017). 우회가 확인되면 해당 생성/소환을 비활성 또는 게이트.
+→ **결정 023: 방향 (A) 완전 비활성 확정.** LM worldgen(구조물·구조물셋·feature·광석) + 관련 **루트테이블을 datapack 오버라이드로 비활성**해 소환 아이템의 **자연 획득 경로를 차단**한다. 아이템 우클릭 소환 로직 자체는 자바 하드코딩이라 제거 불가하나, 소환 아이템을 야생에서 얻지 못하면 사실상 무력화. 전설 획득은 PoroMonCore 조우권/사설룸으로 단일화. LM은 블록/장식 자산만 잔존 허용.
+
+구현(서버 mods 배치 후 실제 jar worldgen 경로 확인 = **TODO**):
+1. `data/legendarymonuments/worldgen/{structure,structure_set,placed_feature,configured_feature}/*` 비활성.
+2. `data/legendarymonuments/loot_table/*` 비활성(소환·진행 아이템 드롭 차단). `cobblemon_drops` 주입분도 점검.
+3. terrablender 바이옴은 코드 등록 → datapack 제거 난도 높음. 서버 로그로 생성 확인, 필요 시 weight 0/스폰 풀 제거로 게이트.
+4. 검증: 신규 청크 LM 구조물 미생성 + 소환 아이템 미획득 확인(Phase 1 `task.md` §4).
+
+> 원칙: **충돌 시 PoroMonCore 통제 정책 우선**(결정 017/023). 구조물/아이템/포켓몬/config key·실제 경로는 **추측 금지, jar·datapack 확인 후 작성(TODO)**.

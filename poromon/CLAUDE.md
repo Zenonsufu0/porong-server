@@ -70,7 +70,7 @@ git ls-files | grep -E '(^|/)(logs|crash-reports|world|world_nether|world_the_en
 - Added Core Addon: Cobblemon: Mega Showdown
 - Added Addons: SimpleTMs (TMs/TRs for Cobblemon), Eggs - Cobblemon Addon, Cobblemon: Legendary Monuments
   - All are Cobblemon gameplay addons → required on **both client and server**. Item/Pokémon IDs, structures, and config keys must be verified from the actual jars/registry (do not guess).
-  - **Legendary Monuments**: used for legendary-themed structures/encounters, BUT **PoroMonCore's legendary control (tickets + private rooms + controlled world events) takes precedence**. Verify whether its natural structures/summoning bypass that control; if so, disable/gate it (decision 017).
+  - **Legendary Monuments**: jar 감사 결과 자체 소환(아이템/구조물/바이옴)이 PoroMonCore 통제를 우회 확정 → **결정 023: 완전 비활성**(worldgen + loot_table datapack 오버라이드로 비활성, 소환 아이템 자연 획득 차단). 전설은 조우권/사설룸으로만. 실제 비활성 datapack은 서버 mods 배치 후 jar worldgen 경로 확인 필요(TODO).
 - Development Environment: WSL Ubuntu
 - Repo Layout: 포로 서버 모노레포. 포로몬 작업 영역은 모노레포 루트 하위 `poromon/`
   - 포로몬 전용 worktree: `/home/zenonsufu1/dev/poromon-work/poromon` (브랜치 `feature/poromon-dev`)
@@ -240,7 +240,7 @@ Important:
 - **Concept tickets (10):** 하늘·심해·대지·시간·공간·반전·빛·용왕·수호자·영원 — mixed 중급/상급/최상급 (weight 55/35/10). **Any apex line in a concept pool MUST also be in the apex pool** (decision 020/022).
 - **레쿠쟈 = 하늘 조우권 중심**; **아르세우스 = 영원 조우권 중심** (default enabled:false; lock/TODO if not in modpack).
 - No legendary eggs. User-facing names/notices in Korean.
-- **Legendary Monuments must not bypass this control** (decision 017) — verify and gate if needed.
+- **Legendary Monuments는 완전 비활성** (decision 023) — worldgen/loot_table datapack 오버라이드로 소환 경로 차단. 전설은 PoroMonCore 통제만.
 - Do not guess species IDs — mark `TODO`. Pools/policy: `docs/04_game_design/encounter_pool_design.md`.
 
 ---
@@ -329,7 +329,7 @@ Added:
 - Cobblemon: Mega Showdown
 - SimpleTMs: TMs and TRs for Cobblemon (dragomordor)
 - Eggs - Cobblemon Addon (Diesse)
-- Cobblemon: Legendary Monuments (JorgaoMC) — PoroMonCore legendary control takes precedence; verify it doesn't bypass it
+- Cobblemon: Legendary Monuments (JorgaoMC) — 자체 소환이 통제 우회 확정 → **완전 비활성**(decision 023): worldgen/loot_table datapack 오버라이드로 차단, 전설은 조우권/사설룸만
 
 The modpack should be distributed as a single official PoroMon pack.
 

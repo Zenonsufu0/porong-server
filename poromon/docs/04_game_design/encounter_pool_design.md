@@ -128,7 +128,7 @@
 ## 10. 확인 필요 (TODO)
 1. **Cobblemon species ID 전부**(추측 금지) + 구현/존재 여부(특히 레지에레키/레지드래고/총지엔·파오젠·딩루·위유이/무한다이노/코스모그/아르세우스).
 2. **Legendary Monuments 구현 전설 확인됨**(`../01_modpack/jar_feature_audit.md` §1, jar 제단/소환 lang 기준): 디아루가/펄기아/기라티나·루기아/칠색조·삼성수(라이코/앤테이/스이쿤)·라티/히드런·레지 일족(+레지에레키/레지드래고/레지기가스)·크레세리아·다크라이·미스피/아그놈/유크시·뮤·후파·자시안/자마젠타·빅티니·케르디오(+코바르온/테라키온/비리디온)·에터너스·**아르세우스(Azure Flute)**·레시라무/제크로무/큐레무. ⚠️ **LM은 이들을 자체 소환(제단/항아리/피리/trial spawner)으로 제공 → PoroMonCore 통제 우회**(아래). species ID는 `cobblemon:` 네임스페이스 추정이나 jar 직접 노출 X = TODO.
-   - ⚠️ **충돌 처리 결정 필요**: LM 자체 소환을 비활성/게이트할지, 통제 콘텐츠로 수용할지(`jar_feature_audit.md` §1, 결정 017).
+   - ✅ **충돌 처리 확정(결정 023)**: LM worldgen(구조물·feature·광석) + 루트테이블을 datapack으로 **완전 비활성** → 소환 아이템 자연 획득 차단. 위 LM 전설 라인은 PoroMonCore 조우권/사설룸으로만 등장(LM 자체 소환 경로 무력화). species ID는 여전히 `cobblemon:` 추정·미확인 TODO. 실제 비활성 datapack은 서버 mods 배치 후 jar worldgen 경로 확인 필요(`legendary_encounter.md` LM 섹션).
 3. 환상(뮤/세레비/지라치/다크라이/마나피/피오네/쉐이미/후파/마샤도) 배치·정책(상급/컨셉에 다수 포함됨).
 4. 가중치 수치(`legendary_pools.yml`) + 컨셉권 중55/상35/최10 검증.
 5. 희귀 600족 ↔ 알 풀(`egg_pool_design.md`) 중복 정리.
