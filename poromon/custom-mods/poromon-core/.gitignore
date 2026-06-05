@@ -1,0 +1,14 @@
+# Gradle / build 산출물 (비추적)
+.gradle/
+build/
+run/
+*.log
+
+# IDE
+.idea/
+*.iml
+.vscode/
+bin/
+
+# loom
+.fabric/

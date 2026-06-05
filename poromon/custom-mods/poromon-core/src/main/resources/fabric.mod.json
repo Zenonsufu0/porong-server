@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "poromoncore",
+  "version": "${version}",
+  "name": "PoroMonCore",
+  "description": "PoroMon 서버 규칙 엔진 — 진행도/배틀타워/허브/티켓(0.1 스캐폴드).",
+  "authors": ["Poro Server"],
+  "license": "ARR",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["kr.poro.poromoncore.PoroMonCore"]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}

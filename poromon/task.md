@@ -9,7 +9,7 @@
 ---
 
 ## 0. 현재 단계
-**Phase 0(설계/문서) 완료 + Phase 1(서버 최소구성 기동) 1차 통과.** PoroMonCore **구현 코드는 아직 0줄**(Phase 2 대기).
+**Phase 0(설계/문서) 완료 + Phase 1(서버 기동) 통과 + Phase 2 착수.** **PoroMonCore 0.1 스캐폴드 빌드·로드 성공**(`custom-mods/poromon-core/`, 순수 Fabric, BUILD SUCCESSFUL, 서버 로드 `poromoncore 0.1.0` 확인, `/poromon` 명령 동작).
 - 모드팩: PoroMon 0.1 Dev / MC 1.21.1 / **Fabric Loader 0.19.3** / Java 21.
 - 실제 jar **85개**를 `modpack/client/mods/`에 복사 완료 + jar 내부 감사 완료.
 - **서버 1차 기동 성공**(2026-06-05): `.local/server`(표준, 비추적)에서 화이트리스트 **25개** 로드, `Done` 출력, 크래시·실제 ERROR 없음. 2026-06-05 재기동 재확인(1.3s, 정상 stop).
@@ -65,6 +65,7 @@
 - ✅ **배틀타워 50층 초안 편입·검증(결정 028)**: 외부 초안→`battle_tower_design.md`. 입장 조건 **8관장 상향**(CANON 4곳 동기화: league §2/§3·gym_badge·hub). 검증: 종족 119·기술 172·메가스톤10·시그니처기18 **전수 실재(매칭0)**. 남은=동작(NPC메가/AI 실배틀). 레벨 명확화: **NPC Lv100 고정 / 플레이어 실레벨(정규화X, 엔드콘텐츠 육성 전제)** — 정규리그 Lv50 정규화와 대비(충돌 아님). **보상 설계 완료(§3-R)**: 층당 골드+10층 체크포인트+50층 특별(칭호·조우권·왕중왕전 예선), 1회 완주 ~95,000골드 예시.
 - ✅ **NPC 구현 경로 검증(§4-N)**: Cobblemon 네이티브 트레이너 NPC(`cobblemon:npc`+class 프리셋) 소환 성공. 파티 `level=100/held_item/moves/ability/nature/IV·EV/skill(AI)` 전부 지원 → **타워 50층 파티가 NPC로 1:1 표현**. ⇒ 구현 = NPC 프리셋 50개 + PoroMonCore 오케스트레이션(진행저장/소환/보상). 진행도 영속화는 PoroMonCore 필요(현 0줄). **남은 실배틀 검증=NPC 메가 발동(클라 필요)**.
 - ✅ **NPC 배틀 무동작 근본원인 규명(javap 바이트코드 추적)**: `start_battle`→`BattleBuilder.pvn`→`getPartyForChallenge`→`SimplePartyProvider.provide`. /summon NPC는 배틀 파티 미초기화 → pvn `noParty` 에러, start_battle은 `ifSuccessful`만 처리해 조용히 무동작(stock NPC 동일). **구현경로 확정**: `pvn` 마지막 인자=`PartyStore` 명시주입 → PoroMonCore가 층 파티를 직접 빌드해 `pvn(player, npc, …, 층파티)` 호출하면 배틀 확정 오픈(메가도 여기서 확인). battle_tower §4-N.
+- ✅ **PoroMonCore 0.1 스캐폴드 생성·빌드·로드(Phase 2 착수)**: `custom-mods/poromon-core/`(Fabric 1.21.1/Java21, 순수 Fabric). `PoroMonCore`(ModInitializer)·`PlayerProgress`·`PoroMonState`(PersistentState 월드부속 NBT)·`PoroMonCommand`. **BUILD SUCCESSFUL** → jar 서버 배포 → `poromoncore 0.1.0` 로드 + 초기화 로그 + `/poromon` 명령 동작 확인. `/poromon admin tower set <player> <floor>`로 진행도 영속화 테스트 가능(클라 접속 시). **다음: Cobblemon 의존 추가 + 배틀타워 pvn 오케스트레이션.**
 - ✅ **MSD 핵심 아이템 ID 검증**: 키스톤·메가링·메가스톤 47·주홍/쪽빛구슬·Z링·테라오브·다이맥스밴드 실 ID+한글명 확정. ko_kr 기본 포함.
 - ✅ **상점 카탈로그 ID 채움(#2)**: §3.1~3.3·3.6 TODO→실 ID. Cobblemon 볼12+마스터·회복약·진화돌11·비타민6·민트25·특성캡슐/패치·사탕류 + 메가스톤47 전수(오타0 검증). Exp Share=미존재 확인. 잔여=SimpleTMs 개별TM·Eggs 알 ID.
 - ⚠️ 잔여: **SimpleTMs 개별 기술 TM ID**(lang 1:1 부재 → 동적 합성 추정, 컴포넌트 방식 확인 필요), **Eggs 알 아이템 ID**·둥지 스폰 비활성 여부.
