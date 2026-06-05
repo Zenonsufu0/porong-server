@@ -96,7 +96,7 @@
 
 ## 6. 전설 조우 설정 (향후 — `legendary_pools.yml` / `legendary_events.yml`)
 
-> 풀 설계: `../04_game_design/encounter_pool_design.md`. **species ID는 추측 금지 → `TODO_*`로 표기.** 가중치 수치 TBD.
+> 풀 설계: `../04_game_design/encounter_pool_design.md`. ✅ **species ID 검증 완료** → 실 ID + 초기 가중치 드래프트: **`legendary_pools.draft.yml`**(결정 026, 16풀 전수, YAML/오타/동기화 검증 통과). 아래 §6.2는 **스키마 예시**(전체 데이터는 드래프트 파일 참조).
 
 ### 6.1 풀 구분 (legendary_pools.yml)
 일반 5등급 + 필드 이벤트 + 컨셉 10종:
