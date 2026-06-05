@@ -400,7 +400,14 @@
   - **수동 테스트 절차(클라 필요)**: ① 서버 접속 ② `/summon cobblemon:npc ~ ~ ~ {NPCClass:"poromon:floor_20"}` ③ "타워 20층" NPC에 우클릭→배틀 ④ 관찰: **핫삼이 메가핫삼으로 변하는지**(메가 발동) + AI가 Swords Dance(셋업)/U-turn 쓰는지. (1층 비교용 = `poromon:floor_01`.)
   - **결과 해석**: 메가 발동 ✅ → 타워는 프리셋만으로 됨. 발동 ✗ → MSD가 트레이너 메가링(accessories)을 요구 → **PoroMonCore가 MSD 메가 API/이벤트로 강제 발동** 필요(설계 반영). 발견 시 본 문서·결정 028 갱신.
 
-> ⚠️ **실테스트 결과(2026-06-06) — 콘솔 /summon으로는 배틀 시작 불가**: `/summon cobblemon:npc {NPCClass:...}`로 소환·대화(dialogue interaction)는 정상 작동하나, **배틀이 시작되지 않음**. 증상: dialogue "배틀" 버튼이 `c.npc.can_battle=false`로 비활성, 강제 활성화해도 `q.npc.start_battle(q.player)` **무동작**. **Cobblemon 기본 `cobblemon:standard` NPC도 동일** → 프리셋 문제 아님. 추정 원인 = **콘솔 raw /summon은 NPC 배틀 파티/배틀 트리거를 초기화하지 않음**(Cobblemon 1.7 NPC는 에디터/스폰 플로우 또는 API 경유 생성 전제). ⇒ **NPC 메가 발동 검증은 PoroMonCore가 Cobblemon NPC API로 "배틀 준비된" 트레이너를 생성한 뒤로 이연**. 데이터(파티/기술/아이템/Lv100)·소환·대화는 검증됨. 테스트 프리셋(`poromon:floor_01/20`)·다이얼로그(`poromon:battletower_start`)는 보존(API 경유 재사용 가능).
+> ⚠️ **실테스트 결과(2026-06-06) — 콘솔 /summon NPC는 배틀이 시작 안 됨**: 소환·대화(dialogue)는 정상이나 배틀 미시작. stock `cobblemon:standard`도 동일 → 프리셋 문제 아님.
+>
+> **근본 원인(바이트코드 추적 확정, `javap`)**:
+> `q.npc.start_battle(q.player)` → `BattleBuilder.pvn(player, npc, …, PartyStore)` → `NPCEntity.getPartyForChallenge()` → `SimplePartyProvider.provide()` 체인. **NPC 배틀 파티가 비면 `pvn`이 `NoPartyError`/`insufficientPokemon` 반환**, 그런데 `start_battle`은 **`BattleStartResult.ifSuccessful`만 처리** → 실패해도 **에러 출력 없이 조용히 무동작**. `c.npc.can_battle`도 같은 사유로 false(버튼 비활성). 즉 **콘솔 raw /summon NPC는 배틀 파티가 초기화되지 않음**(NPC 에디터/스폰 플로우 또는 API 경유 생성 전제 — Cobblemon 1.7 NPC 한계).
+>
+> **✅ 구현 경로 확정(이 분석의 수확)**: `BattleBuilder.pvn` 시그니처 마지막 인자가 **`PartyStore`(NPC 파티 명시 주입)**다. → **PoroMonCore가 층 파티를 `PokemonProperties`로 직접 구성해 `pvn(player, npcEntity, uuid, BattleFormat.GEN_9_SINGLES(adjustLevel=100), …, 층파티Store)` 호출**하면 자동 생성(getPartyForChallenge)에 의존하지 않고 배틀이 확실히 열린다. 검증된 §3 파티 데이터가 그대로 입력. **메가 발동도 이 실배틀에서 확인**(MSD가 NPCBattleActor의 메가 처리 지원하는지 — pvn 경유 시 확정).
+>
+> **결론**: 배틀 엔진(`BattleBuilder.pvn`)·데이터·소환·대화 모두 확보. 남은 건 **PoroMonCore가 pvn을 호출하는 오케스트레이션 코드**(층 파티 빌드 + 진행저장 + 다음 층). 테스트 프리셋(`poromon:floor_01/20`)·다이얼로그(`poromon:battletower_start`) 보존.
 
 ## 5. 구현 TODO
 
