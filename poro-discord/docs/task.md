@@ -1,7 +1,7 @@
 # 포로서버 디스코드 봇 — 작업 목록 (task.md)
 
 > **[STATUS: ACTIVE]** — poro-discord 구현 작업 트래커.
-> 구조 정본은 [`architecture.md`], 결정 근거는 `../../poro-rpg/docs/decision_log.md` **DL-130**.
+> 구조 정본은 [`architecture.md`], 통신 계약은 [`integration_contract.md`], 결정 근거는 `../../poro-rpg/docs/decision_log.md` **DL-130~134**.
 > 상태 표기: 🟢 구현 · 🟡 스텁/부분 · 🔴 미설계 · ✅ 완료 · ⬜ 미착수.
 > 연동/운영 명령어는 **사용자 명시 요청 시에만** 실구현(DL-130 ⑤). 그 외는 설계/인터페이스까지만.
 
@@ -120,3 +120,34 @@
 - 구문 검증: `python3 -m compileall main.py core integrations modules`.
 - 비밀정보(토큰·키·웹훅·DB 자격증명) 커밋 금지. 새 설정은 `.env.example`에 placeholder만.
 - commit · merge · push는 사용자 승인 후에만. master 직접 merge 금지.
+
+## 8. 세션 핸드오프 (다음 세션 이어가기)
+
+### 이번 세션 완료 (2026-06-05, feature/discord-dev)
+설계 라인 정본화 — 모두 **docs/DL만, 코드 변경 없음**. 커밋 단위:
+- `c6d4124` DL-130~132 — 봇 구조 정본화(스택 Python, DL-030 SUPERSEDE) · task.md 신설 · 멀티서버 온보딩(공통 디스코드 인증 → 서버별 약관동의 → 서버별 화이트리스트) · 오라클 상시호스팅 · 카테고리 채널구조 + 이모지 서버선택(역할기반 가시성) · 운영자 전용 닉네임 변경.
+- `a17f9a2` DL-133 — 서버 구조 토폴로지 · 봇 관여 경계(봇=API 클라이언트, 게임상태 권위 아님) · 포로몬=HTTP API · 알림=게임서버→봇 push.
+- (다음 커밋) DL-134 — 봇↔게임서버 통신 계약 명세([`integration_contract.md`]).
+
+### 확정된 핵심 결정 (요약)
+- 봇 = 포로서버 중앙제어 허브, Python 3.12/discord.py, 오라클 24h 상시(게임 호스팅 분리).
+- 온보딩 = ①공통 디스코드 인증(규칙+닉네임 1회) → ②서버별 약관동의 + 인게임 `/연동` → 서버별 화이트리스트.
+- 채널 = 카테고리(공통/RPG/포로몬/기타), 이모지로 서버선택 → 카테고리 접근 역할(가시성). 접근 ≠ 화이트리스트.
+- 봇 관여 = API 경유만(DB/파일/임의 RCON 금지). 알림 = push(인바운드 HMAC+timestamp+IP).
+- 닉네임 변경 = 운영자 전용(`/닉네임변경`·`/닉네임재입력`).
+
+### 다음 세션 착수 후보 (택1)
+1. **`core/notifier` 인터페이스 초안** — 통신 계약 B(push)를 소비. 인바운드 수신 → `(domain,kind)` 라우팅 테이블 → 전송. (T1)
+2. **온보딩 상세 시퀀스** — 공통 인증 `core/` 분리(T7) + 이모지 서버선택(T10) + `/연동`→화이트리스트 시퀀스 다이어그램.
+3. **운영(admin) 명령 상세** — A-3 운영 API 계약과 짝지어 권한·입력·운영로그 설계. (T3·T11)
+
+### 착수 전 열린 결정 (정해지면 진행 빨라짐)
+- 인바운드 인증: HMAC+timestamp(권장) vs 단순 공유키 — 최종 택1.
+- 포로몬 API 포트·엔드포인트 계약: PoroMonCore(`../../poromon/docs/03_poromoncore/`) 설계 선행 — poromon 워크스페이스 영역.
+- 운영 API(A-3) 게임서버 측 엔드포인트: RPG 워크스페이스 협의 필요(여기선 읽기전용).
+- 필드보스 폴링 → push 이관 시점.
+
+### 재진입 메모
+- 작업 worktree: `poro-work-discord`(디스코드 전용). 브랜치 `feature/discord-dev`.
+- 문서 진입점: [`index.md`] → architecture / integration_contract / roles_and_permissions / notifications / domains/*.
+- DL 로그: `../../poro-rpg/docs/decision_log.md` DL-130~134.

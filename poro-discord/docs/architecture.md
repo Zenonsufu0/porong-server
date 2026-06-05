@@ -91,6 +91,8 @@ poro-discord/
   - 인바운드는 외부 유입 → **공유 시크릿/HMAC 서명 + 방화벽/IP 허용** 필수. 시크릿은 `.env`.
   - 현행 RPG 필드보스 폴링은 유지(점진 이관). 신규 알림은 push 우선.
 
+> 엔드포인트·페이로드 수준 명세는 [`integration_contract.md`](integration_contract.md)(DL-134).
+
 ## 배포 / 호스팅 (DL-131)
 
 - 봇은 **24시간 상시 운영**이 전제다. 따라서 **게임 서버 호스팅과 분리된

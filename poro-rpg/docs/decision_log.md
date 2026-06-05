@@ -3398,3 +3398,33 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 **관련:** DL-130(봇 구조·스택), DL-131(호스팅 분리·온보딩), DL-132(채널/역할), DL-030(/강화계산 내부계산).
 
 **근거:** 사용자 확인 (2026-06-05).
+
+---
+
+### DL-134 (2026-06-05) — 봇↔게임서버 통신 계약 명세 (DL-133 구체화)
+
+**배경:** DL-133에서 통신 방향(봇→게임서버 API, 게임서버→봇 push)을 확정. 이를 엔드포인트·페이로드 수준 계약으로 구체화. 현행 RPG API(rpg_api.py 8개 엔드포인트)를 정본화하고, push 이벤트·운영 API·포로몬 연동을 설계로 명세.
+
+**결정:**
+1. **계약 SoT 문서 신설** — `poro-discord/docs/integration_contract.md`. 봇 관점 계약(게임서버 API 권위는 각 게임 프로젝트). 🟢구현/🟡설계/🔴미정 표기.
+2. **방향 A(봇→게임서버) 공통 규약:** JSON over HTTP(S), `X-Api-Key` 헤더(서버별 키, .env), 도메인별 베이스 URL(`PORO_API_URL`/신규 `POROMON_API_URL`), 에러 `{error,message}`, 운영 명령 멱등성 고려.
+   - A-1 인증/온보딩(RPG 🟢): `/auth/pending`·`/auth/status/{nick}`·`/auth/role-queue`·`/auth/role-granted`. 화이트리스트는 봇이 요청만, 게임서버가 확정(DL-131 §D).
+   - A-2 조회(RPG 🟢): `/field-boss/status`·`/player|island|boss-history/by-nick/{nick}` → `DiscordCardResponse`.
+   - A-3 운영(🟡 설계): `/admin/grant-gold`·`/admin/relink`·`/admin/whitelist`·`/admin/player/{nick}`. 권한 보호+운영로그, 실구현은 명시 요청 시.
+   - A-4 포로몬(🟡): PoroMonCore가 동형 HTTP API 제공, 구체는 포로몬 설계 선행.
+3. **방향 B(게임서버→봇 push) 인바운드 계약:** 단일 `POST {BOT_INBOUND_BASE}/events`. 봉투 `{domain, kind, ts, idempotency_key, data}`. 인증 = **HMAC-SHA256 서명(X-Signature) + X-Timestamp(리플레이 방지) + IP 허용**, 시크릿 `.env`. 중복 idempotency_key 무시(dedup).
+4. **이벤트 카탈로그(🟡):** `rpg.field_boss_pre/spawn`·`rpg.season_boss_recruit`·`common.world_boss/maintenance/update/event_start/event_end`·`poromon.event` → 멘션 역할·data 스키마 정의. `(domain,kind)` → 채널/멘션 라우팅은 notifications.md.
+5. **현행 필드보스 폴링 → push 점진 이관.** 폴링·push 병행 허용, push 구조 완성 후 이관.
+6. **신규 env(추가 예정):** `POROMON_API_URL`·`POROMON_API_KEY`·`BOT_INBOUND_BASE`·`INBOUND_SECRET`·`INBOUND_ALLOW_IPS`. 실 추가는 구현 시 `.env.example` placeholder로.
+
+**파일:**
+- `poro-discord/docs/integration_contract.md` (신규 — 계약 SoT).
+- `poro-discord/docs/index.md`(문서 지도)·`architecture.md`(통신 패턴 절 → 계약 문서 링크).
+
+**이유:** 통신 방향만으로는 구현·합의가 어렵다. 엔드포인트·페이로드·인증을 한 문서에 고정하면 봇 구현, 게임서버 측 API 제공, 포로몬 동형 설계가 같은 계약 위에서 진행된다. 현행 RPG API를 정본화해 "구현됨/설계" 경계를 명확히 했다.
+
+**구현 상태:** RPG A-1·A-2는 기구현. A-3 운영·B push·포로몬·인바운드 수신은 설계(미구현). 코드 변경 없음 — 문서 신설·정합만.
+
+**관련:** DL-133(통신 패턴), DL-131(온보딩·화이트리스트), DL-132(닉네임/화이트리스트 운영), DL-130(/강화계산 내부계산 예외), DL-029(인증코드).
+
+**근거:** 사용자 확인 (2026-06-05).
