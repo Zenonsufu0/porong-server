@@ -35,7 +35,9 @@ SERVER_WHITELIST=(
   "mega_showdown-fabric-1.8.4+1.7.3+1.21.1.jar"
   "SimpleTMs-fabric-2.3.3.jar"
   "eggs-cobblemon-addon-0.9.jar"
-  "LegendaryMonuments-7.8.jar"                       # ⚠️ 전설 통제 우회 검증(결정 017)
+  # "LegendaryMonuments-7.8.jar"  ── 1차 부팅 제외(보류): 하드 의존 chipped/cobblefurnies/
+  #   terrablender가 팩 80개에 없고 JIJ 번들도 아님 → 부팅 차단(결정 023 §2 예측 확인).
+  #   의존성 전략 확정 전까지 서버 화이트리스트에서 제외. server_mod_separation.md §1-LM 참조.
   "accessories-fabric-1.1.0-beta.53+1.21.1.jar"
   # §2 서버 권장 (성능/운영 + 의존 lib)
   "lithium-fabric-0.15.1+mc1.21.1.jar"
@@ -48,15 +50,16 @@ SERVER_WHITELIST=(
   "balm-fabric-1.21.1-21.0.56.jar"
   "bwncr-fabric-1.21.1-3.20.3.jar"
   "OpenLoader-fabric-1.21.1-21.1.5.jar"
+  "prickle-fabric-1.21.1-21.1.11.jar"               # OpenLoader 하드 의존(prickle>=21.1.8). §3→서버 필수 재분류.
 )
 
 # §3 애매/공용 후보 (기본 제외; INCLUDE_AMBIGUOUS=1 시 추가; 부팅 의존성 경고 시 개별 활성)
+# (prickle은 OpenLoader 하드 의존이라 위 SERVER_WHITELIST로 승격)
 AMBIGUOUS_WHITELIST=(
   "appleskin-fabric-mc1.21-3.0.6.jar"
   "craftingtweaks-fabric-1.21.1-21.1.7.jar"
   "cloth-config-15.0.140-fabric.jar"
   "bookshelf-fabric-1.21.1-21.1.80.jar"
-  "prickle-fabric-1.21.1-21.1.11.jar"
 )
 
 # ---------------------------------------------------------------------------
@@ -98,6 +101,24 @@ main() {
   if [[ "$INCLUDE_AMBIGUOUS" == "1" ]]; then
     echo "[애매/공용 §3 = ${#AMBIGUOUS_WHITELIST[@]}개]"
     for f in "${AMBIGUOUS_WHITELIST[@]}"; do copy_one "$f"; done
+  fi
+
+  # ── prune: DEST를 화이트리스트로 미러링. 화이트리스트에 없는 stale jar 제거 ──
+  #    (예: 보류된 LegendaryMonuments jar가 이전 동기화로 DEST에 남아 있으면 제거)
+  echo "[prune] 화이트리스트에 없는 DEST jar 제거:"
+  if [[ -d "$DEST_DIR" ]]; then
+    local allowed=(); allowed+=("${SERVER_WHITELIST[@]}")
+    [[ "$INCLUDE_AMBIGUOUS" == "1" ]] && allowed+=("${AMBIGUOUS_WHITELIST[@]}")
+    local pruned=0
+    for j in "$DEST_DIR"/*.jar; do [[ -e "$j" ]] || continue
+      local bn keep=0; bn="$(basename "$j")"
+      for a in "${allowed[@]}"; do [[ "$bn" == "$a" ]] && { keep=1; break; }; done
+      if [[ "$keep" == 0 ]]; then
+        pruned=1
+        if [[ "$DRY_RUN" == "1" ]]; then echo "  WOULD REMOVE: $bn"; else rm -v "$j"; fi
+      fi
+    done
+    [[ "$pruned" == 0 ]] && echo "  (제거 대상 없음)"
   fi
 
   echo "[사후 검증] DEST에 DENY 키워드 jar 잔존 검사:"

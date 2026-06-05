@@ -18,7 +18,7 @@
 
 ---
 
-## 1. 서버 필수 (Server Required) — 9개
+## 1. 서버 필수 (Server Required) — 9개 (LM 1종 1차 부팅 **보류** → 활성 8)
 Cobblemon 게임플레이 스택 + 필수 의존. 없으면 서버 미기동 또는 핵심 기능 불가.
 
 | jar | 역할 | 확인 |
@@ -30,13 +30,14 @@ Cobblemon 게임플레이 스택 + 필수 의존. 없으면 서버 미기동 또
 | `mega_showdown-fabric-1.8.4+1.7.3+1.21.1.jar` | 메가/테라 등(배틀 서버측) | 파서오류였음, 수동 |
 | `SimpleTMs-fabric-2.3.3.jar` | TM/TR(기술 부여 서버측) | — |
 | `eggs-cobblemon-addon-0.9.jar` | 알/부화(서버측) | — |
-| `LegendaryMonuments-7.8.jar` | 전설 구조물/소환(서버측) | ⚠️ **완전 비활성 대상**(결정 023): worldgen/loot_table datapack 오버라이드로 소환 경로 차단. jar는 로드하되 자연 생성·드롭만 무력화. `legendary_encounter.md` LM 섹션 |
+| ~~`LegendaryMonuments-7.8.jar`~~ | 전설 구조물/소환(서버측) | 🚧 **1차 부팅 보류(제외)**: 하드 의존 `chipped`/`cobblefurnies`/`terrablender` 미충족으로 부팅 차단(2026-06-05 부팅테스트 확인). 의존성 전략 확정 전까지 화이트리스트 제외. ⚠️ 채택 시 **완전 비활성**(결정 023): worldgen/loot_table datapack 오버라이드. |
 | `accessories-fabric-1.1.0-beta.53+1.21.1.jar` | MSD 착용 슬롯 의존 | depends 확인 |
 
-> ⚠️ **LM 하드 의존 JIJ 검증(결정 023 §2)**: LM `fabric.mod.json` `depends`에 `chipped`·`cobblefurnies`·`terrablender`·`accessories`·`mega_showdown`이 **필수**. 공개 팩 modlist 80개에 `chipped`·`cobblefurnies`·`terrablender`는 **미포함** → LM jar 내부 **JIJ(jar-in-jar) 번들 추정**. 별도 jar가 없고 JIJ도 아니면 **서버·클라 미기동**. → §6 부팅 로그(`Missing dependency`)로 확정.
+> ✅ **LM 하드 의존 JIJ 검증 결과(결정 023 §2 — 2026-06-05 부팅테스트로 확정)**: LM 7.8은 `chipped`·`cobblefurnies`·`terrablender`를 **하드 의존**하는데 팩 80개에 없고 **JIJ 번들도 아님**(`HARD_DEP_NO_CANDIDATE`). 따라서 LM jar 단독으로는 **서버 미기동** 확정 → LM을 **§1에서 1차 부팅 대상 제외(보류)**. 전설 추가 후보로는 유효하나 의존 3종 확보·정합 전략을 별도 확정해야 채택 가능(의존 3종 임의 다운로드 보류).
+> ℹ️ LM의 `accessories`·`mega_showdown` 의존은 팩 내 존재(충족).
 
-## 2. 서버 권장 (Server Recommended) — 10개
-성능/운영 + 그 의존 라이브러리. 빠져도 크래시는 아니나 권장.
+## 2. 서버 권장 (Server Recommended) — 11개
+성능/운영 + 그 의존 라이브러리. (※ `prickle`은 권장이 아니라 OpenLoader **하드 의존**이라 사실상 필수.)
 
 | jar | 역할 | 비고 |
 |---|---|---|
@@ -49,12 +50,15 @@ Cobblemon 게임플레이 스택 + 필수 의존. 없으면 서버 미기동 또
 | `netherportalfix-fabric-1.21.1-21.1.3.jar` | 포털 링크 보정 | dep Balm |
 | `balm-fabric-1.21.1-21.0.56.jar` | netherportalfix/craftingtweaks 의존 lib | |
 | `bwncr-fabric-1.21.1-3.20.3.jar` | 보스 브로드캐스트 억제(서버) | 파서오류였음, 수동 |
-| `OpenLoader-fabric-1.21.1-21.1.5.jar` | 외부 datapack/resource 로더(서버측 data) | |
+| `OpenLoader-fabric-1.21.1-21.1.5.jar` | 외부 datapack/resource 로더(서버측 data) | dep prickle |
+| `prickle-fabric-1.21.1-21.1.11.jar` | Darkhax lib | **OpenLoader 하드 의존**(`prickle>=21.1.8`). §3→서버 필수 재분류(2026-06-05 부팅테스트) |
 
-> **§1 + §2 = 서버 화이트리스트 19개** → `scripts/sync-server-mods.sh`.
+> **서버 화이트리스트 = §1 활성 8 + §2 11 = 19개**(LM 1차 부팅 보류) → `scripts/sync-server-mods.sh`.
+> 스크립트는 화이트리스트로 DEST를 미러링(prune)하므로, 이전에 복사된 LM jar는 재동기화 시 자동 제거된다.
 
-## 3. 애매 / 공용 후보 (Conditional) — 5개
+## 3. 애매 / 공용 후보 (Conditional) — 4개
 양쪽 동작 가능, 서버 필수 아님. **기본 제외**, 부팅 시 `Missing dependency` 뜨거나 동작 필요 시 개별 추가.
+(※ `prickle`은 OpenLoader 하드 의존으로 §2 서버 필수 승격 → 이 목록에서 제외.)
 
 | jar | 판단 |
 |---|---|
@@ -62,7 +66,6 @@ Cobblemon 게임플레이 스택 + 필수 의존. 없으면 서버 미기동 또
 | `craftingtweaks-fabric-1.21.1-21.1.7.jar` | 서버 카운터파트 존재(QoL). dep Balm |
 | `cloth-config-15.0.140-fabric.jar` | 설정 lib. 서버측 모드가 요구하면 포함 |
 | `bookshelf-fabric-1.21.1-21.1.80.jar` | Darkhax lib. 이 팩 의존처가 대부분 클라(enchdesc 등) → 부팅 경고 시만 |
-| `prickle-fabric-1.21.1-21.1.11.jar` | Darkhax lib. 동일 |
 
 ## 4. 클라이언트 전용 — 서버 제외 (56개)
 **`.local/server/mods`에 넣지 않음.** (★ = 서버 진입점 크래시 위험 큰 순수 클라)
@@ -84,12 +87,14 @@ AmbientEnvironment · BHMenu · BetterPingDisplay · BetterThirdPerson · CraftP
 ## 5. 집계
 | 구분 | 수 |
 |---|---|
-| 서버 필수(§1) | 9 |
-| 서버 권장(§2) | 10 |
-| **서버 화이트리스트 합** | **19** |
-| 애매/공용(§3) | 5 |
+| 서버 필수(§1) | 9 (LM 1종 1차 부팅 보류 → **활성 8**) |
+| 서버 권장(§2) | 11 (prickle 승격 포함) |
+| **서버 화이트리스트 합(1차 부팅)** | **19** (활성 8 + 11) |
+| 애매/공용(§3) | 4 |
 | 클라 전용 제외(§4) | 56 |
 | **총 jar** | **80** |
+
+> 1차 부팅 화이트리스트 = 19개(LM 제외, prickle 포함). LM 의존 전략 확정 후 채택 시 §1 활성 9 복귀.
 
 ---
 
