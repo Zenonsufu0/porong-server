@@ -28,6 +28,7 @@
 
 추가로 서버 기동 시 자동 생성되는 파일(수동 작성 불필요, 단 관리 대상):
 - `server.properties` (포트/난이도/뷰디스턴스/시뮬레이션-디스턴스/online-mode 등)
+  - ⚠️ **포트 할당**: 포로몬 = **25566** (`server-port`/`query.port`). **RPG 서버가 25565를 쓰므로 충돌 회피**. `.local/server`는 비추적이라 재배포 시 이 값 재적용 필요. PvP는 `pvp=false`(결정 011).
 - `whitelist.json`, `ops.json`, `banned-*.json`
 - `libraries/`, `versions/` (런처가 받는 Minecraft/Fabric 라이브러리 — 비추적)
 
