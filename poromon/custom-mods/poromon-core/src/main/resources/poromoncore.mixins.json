@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "kr.poro.poromoncore.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "WaitDispatchMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

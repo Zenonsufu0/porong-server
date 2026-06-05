@@ -10,6 +10,7 @@
   "entrypoints": {
     "main": ["kr.poro.poromoncore.PoroMonCore"]
   },
+  "mixins": ["poromoncore.mixins.json"],
   "depends": {
     "fabricloader": ">=0.16.0",
     "minecraft": "~1.21.1",

@@ -55,6 +55,9 @@ public final class BattleTowerService {
             float facing = player.getYaw() + 180.0f; // 플레이어를 마주보게
             npc.refreshPositionAndAngles(nx, player.getY(), nz, facing, 0.0f);
             world.spawnEntity(npc);
+            // ⚠️ skill: StrongBattleAI checkSwitchOutSkill 임계가 skill5=1.0(매턴 스위칭)·skill1≈0(거의 안바꿈).
+            //    DataTracker 반영 위해 spawn 후 설정. 1=무한 스위칭 억제, 공격 위주.
+            npc.setSkill(1);
 
             // 2) 층 파티를 코드로 빌드(명시 주입용)
             NPCPartyStore party = new NPCPartyStore(npc);
