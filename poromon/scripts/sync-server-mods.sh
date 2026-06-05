@@ -24,7 +24,7 @@ DRY_RUN="${DRY_RUN:-1}"          # 1 = 출력만(기본). 0 = 실제 복사.
 INCLUDE_AMBIGUOUS="${INCLUDE_AMBIGUOUS:-0}"  # 1 = §3 애매/공용 후보도 포함.
 
 # ---------------------------------------------------------------------------
-# 서버 화이트리스트 (server_mod_separation.md §1+§2 = 19개) — 정확 파일명
+# 서버 화이트리스트 (server_mod_separation.md §1+§2 = 25개) — 정확 파일명
 # ---------------------------------------------------------------------------
 SERVER_WHITELIST=(
   # §1 서버 필수 (Cobblemon 스택 + 의존)
@@ -35,10 +35,16 @@ SERVER_WHITELIST=(
   "mega_showdown-fabric-1.8.4+1.7.3+1.21.1.jar"
   "SimpleTMs-fabric-2.3.3.jar"
   "eggs-cobblemon-addon-0.9.jar"
-  # "LegendaryMonuments-7.8.jar"  ── 1차 부팅 제외(보류): 하드 의존 chipped/cobblefurnies/
-  #   terrablender가 팩 80개에 없고 JIJ 번들도 아님 → 부팅 차단(결정 023 §2 예측 확인).
-  #   의존성 전략 확정 전까지 서버 화이트리스트에서 제외. server_mod_separation.md §1-LM 참조.
   "accessories-fabric-1.1.0-beta.53+1.21.1.jar"
+  # §1b Legendary Monuments + 하드 의존 체인 (최종 포함 확정 — 2026-06-05 프로필 추가)
+  #   LM 7.8 depends: chipped/cobblefurnies/terrablender. chipped/cobblefurnies→athena,
+  #   chipped→resourcefullib 추가 의존. 5종 모두 env="*"(서버 필요).
+  "LegendaryMonuments-7.8.jar"
+  "chipped-fabric-1.21.1-4.0.2.jar"
+  "CobbleFurnies-fabric-1.1.jar"
+  "TerraBlender-fabric-1.21.1-4.1.0.8.jar"
+  "athena-fabric-1.21.1-4.0.6.jar"
+  "resourcefullib-fabric-1.21-3.0.12.jar"
   # §2 서버 권장 (성능/운영 + 의존 lib)
   "lithium-fabric-0.15.1+mc1.21.1.jar"
   "krypton-0.2.8.jar"

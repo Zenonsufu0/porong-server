@@ -1,9 +1,9 @@
 # Server / Client Mod Separation (실제 jar 기준)
 
 > 대상: **PoroMon 0.1 Dev** (MC 1.21.1 / Fabric Loader 0.19.3)
-> 소스: **`modpack/client/mods/` 실제 jar 80개**(CurseForge 프로필에서 복사) + `reports/mod_classification.md`(1차 자동 분류) + `reports/client_mod_jars.txt`.
+> 소스: **`modpack/client/mods/` 실제 jar 85개**(CurseForge 프로필에서 복사) + `reports/mod_classification.md`(1차 자동 분류) + `reports/client_mod_jars.txt`.
 > 목적: 데디케이티드 서버(`.local/server/mods`)에 **서버용 후보만** 화이트리스트로 복사. **클라 전용은 제외.**
-> 갱신 이력: modlist 추정 → **실제 jar 80개 기준 재작성**(Legendary Monuments 포함, 결정 017).
+> 갱신 이력: modlist 추정 → 실제 jar 80개 기준 재작성(결정 017) → **LM 의존 5종 추가로 85개**(2026-06-05, LM 최종 포함).
 
 ## 0. 분류 원칙 (자동 분류 맹신 금지)
 1. 자동 보고서 `environment="client"` → **확정 클라 전용**(제외).
@@ -18,7 +18,7 @@
 
 ---
 
-## 1. 서버 필수 (Server Required) — 9개 (LM 1종 1차 부팅 **보류** → 활성 8)
+## 1. 서버 필수 (Server Required) — 9개
 Cobblemon 게임플레이 스택 + 필수 의존. 없으면 서버 미기동 또는 핵심 기능 불가.
 
 | jar | 역할 | 확인 |
@@ -30,11 +30,22 @@ Cobblemon 게임플레이 스택 + 필수 의존. 없으면 서버 미기동 또
 | `mega_showdown-fabric-1.8.4+1.7.3+1.21.1.jar` | 메가/테라 등(배틀 서버측) | 파서오류였음, 수동 |
 | `SimpleTMs-fabric-2.3.3.jar` | TM/TR(기술 부여 서버측) | — |
 | `eggs-cobblemon-addon-0.9.jar` | 알/부화(서버측) | — |
-| ~~`LegendaryMonuments-7.8.jar`~~ | 전설 구조물/소환(서버측) | 🚧 **1차 부팅 보류(제외)**: 하드 의존 `chipped`/`cobblefurnies`/`terrablender` 미충족으로 부팅 차단(2026-06-05 부팅테스트 확인). 의존성 전략 확정 전까지 화이트리스트 제외. ⚠️ 채택 시 **완전 비활성**(결정 023): worldgen/loot_table datapack 오버라이드. |
+| `LegendaryMonuments-7.8.jar` | 전설 구조물/소환(서버측) | ✅ **최종 포함**(의존 5종 확보, 2026-06-05 부팅 확인). ⚠️ 자체 소환은 PoroMonCore 전설 통제와 충돌 → **비활성/제한 datapack·config 별도 검토**(결정 023). |
 | `accessories-fabric-1.1.0-beta.53+1.21.1.jar` | MSD 착용 슬롯 의존 | depends 확인 |
 
-> ✅ **LM 하드 의존 JIJ 검증 결과(결정 023 §2 — 2026-06-05 부팅테스트로 확정)**: LM 7.8은 `chipped`·`cobblefurnies`·`terrablender`를 **하드 의존**하는데 팩 80개에 없고 **JIJ 번들도 아님**(`HARD_DEP_NO_CANDIDATE`). 따라서 LM jar 단독으로는 **서버 미기동** 확정 → LM을 **§1에서 1차 부팅 대상 제외(보류)**. 전설 추가 후보로는 유효하나 의존 3종 확보·정합 전략을 별도 확정해야 채택 가능(의존 3종 임의 다운로드 보류).
-> ℹ️ LM의 `accessories`·`mega_showdown` 의존은 팩 내 존재(충족).
+### 1b. LM 하드 의존 체인 (Server Required) — 5개
+LM 7.8 채택을 위해 추가. **CurseForge 프로필에 추가**(클라+서버 공통, 모두 `environment="*"`). 2026-06-05 부팅테스트로 의존 충족·정상 로드 확인.
+
+| jar | 역할 | 의존 |
+|---|---|---|
+| `chipped-fabric-1.21.1-4.0.2.jar` | LM 하드 의존(블록 변형) | → athena, resourcefullib, fabric-api |
+| `CobbleFurnies-fabric-1.1.jar` | LM 하드 의존(가구) | → athena, cobblemon, architectury |
+| `TerraBlender-fabric-1.21.1-4.1.0.8.jar` | LM 하드 의존(바이옴) | (fabric/mc만) |
+| `athena-fabric-1.21.1-4.0.6.jar` | chipped/cobblefurnies 의존 lib(env=*) | (fabric/mc만) |
+| `resourcefullib-fabric-1.21-3.0.12.jar` | chipped 의존 lib(env=*) | (fabric/mc만) |
+
+> ✅ **LM 하드 의존 결론(결정 023 §2 — 2026-06-05 확정)**: LM 7.8은 `chipped`·`cobblefurnies`·`terrablender`를 하드 의존하나 팩에 없고 JIJ 번들도 아니었음(`HARD_DEP_NO_CANDIDATE`로 1차 부팅 차단). → **3종을 CurseForge 프로필에 추가**(부수 lib `athena`·`resourcefullib` 동반, 총 5종) 후 LM **최종 포함**. (`accessories`·`mega_showdown` 의존은 기존 팩 내 충족.)
+> ⚠️ **후속(별도)**: LM 자체 구조물/소환이 PoroMonCore 전설 통제(조우권·사설룸)와 충돌하지 않도록 worldgen/loot_table 비활성 또는 제한 datapack·config 전략을 별도 검토·적용한다(이번 범위 아님).
 
 ## 2. 서버 권장 (Server Recommended) — 11개
 성능/운영 + 그 의존 라이브러리. (※ `prickle`은 권장이 아니라 OpenLoader **하드 의존**이라 사실상 필수.)
@@ -53,8 +64,8 @@ Cobblemon 게임플레이 스택 + 필수 의존. 없으면 서버 미기동 또
 | `OpenLoader-fabric-1.21.1-21.1.5.jar` | 외부 datapack/resource 로더(서버측 data) | dep prickle |
 | `prickle-fabric-1.21.1-21.1.11.jar` | Darkhax lib | **OpenLoader 하드 의존**(`prickle>=21.1.8`). §3→서버 필수 재분류(2026-06-05 부팅테스트) |
 
-> **서버 화이트리스트 = §1 활성 8 + §2 11 = 19개**(LM 1차 부팅 보류) → `scripts/sync-server-mods.sh`.
-> 스크립트는 화이트리스트로 DEST를 미러링(prune)하므로, 이전에 복사된 LM jar는 재동기화 시 자동 제거된다.
+> **서버 화이트리스트 = §1(9) + §1b(5) + §2(11) = 25개**(LM 최종 포함) → `scripts/sync-server-mods.sh`.
+> 스크립트는 화이트리스트로 DEST를 미러링(prune)하므로, 화이트리스트에 없는 stale jar는 재동기화 시 자동 제거된다.
 
 ## 3. 애매 / 공용 후보 (Conditional) — 4개
 양쪽 동작 가능, 서버 필수 아님. **기본 제외**, 부팅 시 `Missing dependency` 뜨거나 동작 필요 시 개별 추가.
@@ -68,6 +79,7 @@ Cobblemon 게임플레이 스택 + 필수 의존. 없으면 서버 미기동 또
 | `bookshelf-fabric-1.21.1-21.1.80.jar` | Darkhax lib. 이 팩 의존처가 대부분 클라(enchdesc 등) → 부팅 경고 시만 |
 
 ## 4. 클라이언트 전용 — 서버 제외 (56개)
+> (LM 의존 5종은 §1b 서버 필수이므로 제외 목록 아님. 클라 제외 수는 56개 유지.)
 **`.local/server/mods`에 넣지 않음.** (★ = 서버 진입점 크래시 위험 큰 순수 클라)
 
 ### 4-1. 자동 보고서 `environment=client` (확정 클라, 32개)
@@ -87,14 +99,15 @@ AmbientEnvironment · BHMenu · BetterPingDisplay · BetterThirdPerson · CraftP
 ## 5. 집계
 | 구분 | 수 |
 |---|---|
-| 서버 필수(§1) | 9 (LM 1종 1차 부팅 보류 → **활성 8**) |
+| 서버 필수(§1) | 9 (LM 포함) |
+| LM 의존 체인(§1b) | 5 (chipped·cobblefurnies·terrablender + athena·resourcefullib) |
 | 서버 권장(§2) | 11 (prickle 승격 포함) |
-| **서버 화이트리스트 합(1차 부팅)** | **19** (활성 8 + 11) |
+| **서버 화이트리스트 합** | **25** (9 + 5 + 11) |
 | 애매/공용(§3) | 4 |
 | 클라 전용 제외(§4) | 56 |
-| **총 jar** | **80** |
+| **총 jar** | **85** |
 
-> 1차 부팅 화이트리스트 = 19개(LM 제외, prickle 포함). LM 의존 전략 확정 후 채택 시 §1 활성 9 복귀.
+> 화이트리스트 = 25개(LM + 의존 5종 포함, prickle 포함). 2026-06-05 부팅테스트로 전 모드 정상 로드 확인.
 
 ---
 
@@ -104,21 +117,21 @@ AmbientEnvironment · BHMenu · BetterPingDisplay · BetterThirdPerson · CraftP
 - [ ] Fabric **server** (Loader 0.19.3 / MC 1.21.1) 설치
 - [ ] `.local/server/eula.txt` = `eula=true`
 - [ ] `server.properties`: `pvp=false`, `spawn-protection=<허브>`(결정 011/012)
-- [ ] `scripts/sync-server-mods.sh`로 **화이트리스트 19개만** 복사됨(클라 0개)
+- [ ] `scripts/sync-server-mods.sh`로 **화이트리스트 25개만** 복사됨(클라 0개)
 
 ### 6-2. 분리 검증
 - [ ] `.local/server/mods`에 Sodium/Iris/EMI/JEI/Xaero/FancyMenu/ETF/EMF/EntityCulling **0개** 확인
 - [ ] 클라 인스턴스(`modpack/client/mods`)는 그대로(서버 복사로 변경 X)
 
-### 6-3. 1차 기동(필수 9개만 권장)
-- [ ] `Done (..)! For help` 출력, 크래시 없음
-- [ ] Cobblemon 1.7.3 + Fabric Language Kotlin(JIJ) 로드 로그
+### 6-3. 1차 기동
+- [x] `Done (..)! For help` 출력, 크래시 없음 (2026-06-05 확인, LM 포함 25개)
+- [x] Cobblemon 1.7.3 + Fabric Language Kotlin(JIJ) 로드 로그
 - [ ] `Missing dependency`/`requires` 경고 없음 → 뜨면 §3에서 해당 lib만 추가(우선 owo/accessories/balm/almanac/bookshelf/prickle 순 점검)
 
 ### 6-4. 애드온 로드 확인
-- [ ] Mega Showdown / SimpleTMs / Eggs / Legendary Monuments 로드
-- [ ] **LM 하드 의존 해소 확인(결정 023 §2)**: `chipped`/`cobblefurnies`/`terrablender`가 JIJ로 로드되어 `Missing dependency` 경고 없음. 뜨면 해당 jar를 별도 확보·추가(아니면 LM 제외 재검토).
-- [ ] **LM 완전 비활성 검증(결정 023)**: 신규 청크에 LM 구조물(제단/trial spawner/shrine 등) **미생성**, 소환 아이템(항아리/피리/열쇠/구체 등) 야생/드롭 **미획득**. 실제 jar의 `data/legendarymonuments/worldgen/*`·`loot_table/*` 경로를 추출해 `overrides` datapack으로 비활성 후 재확인.
+- [x] Mega Showdown / SimpleTMs / Eggs / **Legendary Monuments** 로드 (2026-06-05 확인)
+- [x] **LM 하드 의존 해소 확인(결정 023 §2)**: `chipped`/`cobblefurnies`/`terrablender`(+lib athena/resourcefullib) **§1b로 명시 추가**해 `Missing dependency` 경고 없음.
+- [ ] **LM 자체 소환 통제(결정 023, 후속·별도)**: 신규 청크에 LM 구조물(제단/trial spawner/shrine 등) **미생성**, 소환 아이템(항아리/피리/열쇠/구체 등) 야생/드롭 **미획득**. 실제 jar의 `data/legendarymonuments/worldgen/*`·`loot_table/*` 경로를 추출해 `overrides` datapack(또는 config)으로 비활성/제한 후 재확인. → PoroMonCore 전설 통제와의 정합. **이번 범위 아님.**
 
 ### 6-5. 클라 접속 / 안정성
 - [ ] PoroMon 클라 모드팩 접속 성공(서버가 클라 전용 모드 요구 안 함)
