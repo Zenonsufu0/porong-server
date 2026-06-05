@@ -66,6 +66,7 @@
 - ✅ [config_structure.md](03_poromoncore/config_structure.md) — 설정 파일 스키마
 - ✅ [database_schema.md](03_poromoncore/database_schema.md) — 런타임 데이터 저장
 - ✅ [commands.md](03_poromoncore/commands.md) — `/poromon` 명령 트리
+- ✅ [menu_design.md](03_poromoncore/menu_design.md) — 리그 패스 아이템 정책 + 메뉴 GUI 레이아웃(결정 024 하이브리드)
 
 ### 04_game_design — 게임 설계
 - ✅ [hub_design.md](04_game_design/hub_design.md) — 허브 구성

@@ -58,7 +58,7 @@
 - 문서: `docs/README.md`(인덱스) / `docs/00_project/decisions.md`(결정 001~022) / `docs/00_project/roadmap.md`(Phase 0~7)
 - 모드팩 분석: `docs/01_modpack/{server_mod_separation.md, jar_feature_audit.md, modpack_list.md}`
 - 서버: `docs/02_server/{server_setup, world_policy, protection_policy, server_runbook}.md`
-- 코어 설계: `docs/03_poromoncore/{poromoncore_spec, module_structure, config_structure, database_schema, commands}.md`
+- 코어 설계: `docs/03_poromoncore/{poromoncore_spec, module_structure, config_structure, database_schema, commands, menu_design}.md`
 - 게임 설계: `docs/04_game_design/{hub, economy, shop_design, shop_catalog_0.1, gym_badge, league_season, legendary_encounter, encounter_pool, egg_pool, mega_tera_unlock}_*.md`
 - 운영: `docs/05_operations/localization_policy.md`
 - 실제 jar: `modpack/client/mods/`(80) · 감사 보고서: `reports/jar_inspection/`(6) + `reports/{jar_inspection_summary,mod_classification,client_mod_jars}`

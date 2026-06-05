@@ -176,6 +176,8 @@ Do not implement all endgame systems at once.
 
 ## Menu Item Design
 
+> 상세 정책·GUI 레이아웃: `docs/03_poromoncore/menu_design.md`.
+
 The player should receive a fixed menu item in hotbar slot 9.
 
 Suggested item name:
