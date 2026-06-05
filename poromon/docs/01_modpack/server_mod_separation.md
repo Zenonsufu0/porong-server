@@ -1,8 +1,8 @@
 # Server / Client Mod Separation (실제 jar 기준)
 
-> 대상: **PoroMon 0.1 Dev** (MC 1.21.1 / Fabric Loader 0.18.4)
+> 대상: **PoroMon 0.1 Dev** (MC 1.21.1 / Fabric Loader 0.19.3)
 > 소스: **`modpack/client/mods/` 실제 jar 80개**(CurseForge 프로필에서 복사) + `reports/mod_classification.md`(1차 자동 분류) + `reports/client_mod_jars.txt`.
-> 목적: 데디케이티드 서버(`server/run/mods`)에 **서버용 후보만** 화이트리스트로 복사. **클라 전용은 제외.**
+> 목적: 데디케이티드 서버(`.local/server/mods`)에 **서버용 후보만** 화이트리스트로 복사. **클라 전용은 제외.**
 > 갱신 이력: modlist 추정 → **실제 jar 80개 기준 재작성**(Legendary Monuments 포함, 결정 017).
 
 ## 0. 분류 원칙 (자동 분류 맹신 금지)
@@ -65,7 +65,7 @@ Cobblemon 게임플레이 스택 + 필수 의존. 없으면 서버 미기동 또
 | `prickle-fabric-1.21.1-21.1.11.jar` | Darkhax lib. 동일 |
 
 ## 4. 클라이언트 전용 — 서버 제외 (56개)
-**`server/run/mods`에 넣지 않음.** (★ = 서버 진입점 크래시 위험 큰 순수 클라)
+**`.local/server/mods`에 넣지 않음.** (★ = 서버 진입점 크래시 위험 큰 순수 클라)
 
 ### 4-1. 자동 보고서 `environment=client` (확정 클라, 32개)
 AmbientEnvironment · BHMenu · BetterPingDisplay · BetterThirdPerson · CraftPresence · InvMove · InvMoveCompats · UniLib · cherishedworlds · ★citresewn · enchdesc · enhanced_attack_indicator · ★entity_model_features · ★entity_texture_features · fallingleaves · ★iris · lambdynamiclights · language-reload · make_bubbles_pop · modmenu · ★particlerain · ★particular · ★reeses-sodium-options · ★sodium-extra · ★sodium · ★sodium-shadowy-path-blocks · ★sodiumextras · ★sodiumoptionsapi · tipsmod · tooltipfix · ★visuality · ★wakes
@@ -96,13 +96,13 @@ AmbientEnvironment · BHMenu · BetterPingDisplay · BetterThirdPerson · CraftP
 ## 6. 서버 구동 테스트 전 체크리스트
 ### 6-1. 준비
 - [ ] Java 21 (`java -version`)
-- [ ] Fabric **server** (Loader 0.18.4 / MC 1.21.1) 설치
-- [ ] `server/run/eula.txt` = `eula=true`
+- [ ] Fabric **server** (Loader 0.19.3 / MC 1.21.1) 설치
+- [ ] `.local/server/eula.txt` = `eula=true`
 - [ ] `server.properties`: `pvp=false`, `spawn-protection=<허브>`(결정 011/012)
 - [ ] `scripts/sync-server-mods.sh`로 **화이트리스트 19개만** 복사됨(클라 0개)
 
 ### 6-2. 분리 검증
-- [ ] `server/run/mods`에 Sodium/Iris/EMI/JEI/Xaero/FancyMenu/ETF/EMF/EntityCulling **0개** 확인
+- [ ] `.local/server/mods`에 Sodium/Iris/EMI/JEI/Xaero/FancyMenu/ETF/EMF/EntityCulling **0개** 확인
 - [ ] 클라 인스턴스(`modpack/client/mods`)는 그대로(서버 복사로 변경 X)
 
 ### 6-3. 1차 기동(필수 9개만 권장)
@@ -118,7 +118,7 @@ AmbientEnvironment · BHMenu · BetterPingDisplay · BetterThirdPerson · CraftP
 ### 6-5. 클라 접속 / 안정성
 - [ ] PoroMon 클라 모드팩 접속 성공(서버가 클라 전용 모드 요구 안 함)
 - [ ] 스폰/배틀/동기화 정상, 5~10분 TPS 안정
-- [ ] `server/run/logs/latest.log` ERROR 없음, `stop` 시 월드 정상 저장
+- [ ] `.local/server/logs/latest.log` ERROR 없음, `stop` 시 월드 정상 저장
 
 ## 7. 관련 문서
 - 동기화 스크립트: `../../scripts/sync-server-mods.sh`

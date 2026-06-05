@@ -4,7 +4,8 @@
 # ---------------------------------------------------------------------------
 # 목적:
 #   클라이언트 모드 폴더(modpack/client/mods)에서 "서버용 화이트리스트" jar만
-#   server/run/mods 로 복사한다. 클라 전용 모드는 절대 복사하지 않는다.
+#   .local/server/mods 로 복사한다. 클라 전용 모드는 절대 복사하지 않는다.
+#   (서버 실행 폴더 = poromon/.local/server, Git 비추적. RPG DL-130과 동치 표준.)
 #
 # 분류 근거: docs/01_modpack/server_mod_separation.md (§1 서버 필수 + §2 서버 권장 = 19개)
 #            reports/mod_classification.md (1차 자동) + 도메인 수동 보정.
@@ -15,9 +16,10 @@
 # ---------------------------------------------------------------------------
 set -euo pipefail
 
-ROOT="/home/zenonsufu1/dev/poro-server-poromon"
+# ROOT = 포로몬 worktree 프로젝트 폴더. 환경변수로 덮어쓸 수 있다.
+ROOT="${ROOT:-/home/zenonsufu1/dev/poro-work-poromon/poromon}"
 SRC_DIR="${SRC_DIR:-$ROOT/modpack/client/mods}"   # 실제 jar 원본(클라 프로필 복사본)
-DEST_DIR="${DEST_DIR:-$ROOT/server/run/mods}"
+DEST_DIR="${DEST_DIR:-$ROOT/.local/server/mods}"  # 서버 실행 폴더(.local/server)의 모드 디렉터리
 DRY_RUN="${DRY_RUN:-1}"          # 1 = 출력만(기본). 0 = 실제 복사.
 INCLUDE_AMBIGUOUS="${INCLUDE_AMBIGUOUS:-0}"  # 1 = §3 애매/공용 후보도 포함.
 
