@@ -1,0 +1,42 @@
+{
+  "speakers": {
+    "npc": {
+      "name": {
+        "type": "expression",
+        "expression": "q.npc.name"
+      },
+      "face": "q.npc.face(false);"
+    }
+  },
+  "pages": [
+    {
+      "id": "start",
+      "speaker": "npc",
+      "lines": [
+        "배틀타워에 도전하겠나?"
+      ],
+      "input": {
+        "type": "option",
+        "vertical": false,
+        "options": [
+          {
+            "text": "배틀",
+            "value": "battle",
+            "action": [
+              "q.dialogue.close();",
+              "q.npc.start_battle(q.player);"
+            ],
+            "isSelectable": "true"
+          },
+          {
+            "text": "취소",
+            "value": "cancel",
+            "action": [
+              "q.dialogue.close()"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

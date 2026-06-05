@@ -1,7 +1,15 @@
 {
   "hitbox": "player",
-  "names": ["타워 20층 — 첫 메가"],
-  "battleConfiguration": { "canChallenge": true },
+  "names": [
+    "타워 20층 — 첫 메가"
+  ],
+  "interaction": {
+    "type": "dialogue",
+    "dialogue": "poromon:battletower_start"
+  },
+  "battleConfiguration": {
+    "canChallenge": true
+  },
   "autoHealParty": false,
   "skill": 5,
   "party": {

@@ -1,7 +1,15 @@
 {
   "hitbox": "player",
-  "names": ["타워 1층"],
-  "battleConfiguration": { "canChallenge": true },
+  "names": [
+    "타워 1층"
+  ],
+  "interaction": {
+    "type": "dialogue",
+    "dialogue": "poromon:battletower_start"
+  },
+  "battleConfiguration": {
+    "canChallenge": true
+  },
   "autoHealParty": false,
   "skill": 3,
   "party": {
