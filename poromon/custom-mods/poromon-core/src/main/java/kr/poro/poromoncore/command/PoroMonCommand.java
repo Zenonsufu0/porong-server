@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import kr.poro.poromoncore.PoroMonCore;
+import kr.poro.poromoncore.battle.BattleTowerService;
 import kr.poro.poromoncore.data.PlayerProgress;
 import kr.poro.poromoncore.data.PoroMonState;
 import net.minecraft.command.argument.EntityArgumentType;
@@ -35,7 +36,11 @@ public final class PoroMonCommand {
                                 .then(CommandManager.literal("set")
                                         .then(CommandManager.argument("player", EntityArgumentType.player())
                                                 .then(CommandManager.argument("floor", IntegerArgumentType.integer(0, 50))
-                                                        .executes(PoroMonCommand::towerSet)))))));
+                                                        .executes(PoroMonCommand::towerSet))))
+                                .then(CommandManager.literal("start")
+                                        .then(CommandManager.argument("player", EntityArgumentType.player())
+                                                .then(CommandManager.argument("floor", IntegerArgumentType.integer(1, 50))
+                                                        .executes(PoroMonCommand::towerStart)))))));
     }
 
     private static int root(CommandContext<ServerCommandSource> ctx) {
@@ -71,6 +76,16 @@ public final class PoroMonCommand {
         ctx.getSource().sendFeedback(() -> Text.literal("§a[PoroMon]§r " + target.getGameProfile().getName()
                 + " 배틀타워 최고층 = " + floor + " (저장됨)"), true);
         return 1;
+    }
+
+    private static int towerStart(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity target = EntityArgumentType.getPlayer(ctx, "player");
+        int floor = IntegerArgumentType.getInteger(ctx, "floor");
+        boolean ok = BattleTowerService.startFloor(target, floor);
+        ctx.getSource().sendFeedback(() -> Text.literal(ok
+                ? "§a[PoroMon]§r 배틀타워 " + floor + "층 배틀 시작: " + target.getGameProfile().getName()
+                : "§c[PoroMon]§r 배틀 시작 실패(로그 확인) — " + target.getGameProfile().getName()), true);
+        return ok ? 1 : 0;
     }
 
     private static int reload(CommandContext<ServerCommandSource> ctx) {
