@@ -131,7 +131,8 @@ AmbientEnvironment · BHMenu · BetterPingDisplay · BetterThirdPerson · CraftP
 ### 6-4. 애드온 로드 확인
 - [x] Mega Showdown / SimpleTMs / Eggs / **Legendary Monuments** 로드 (2026-06-05 확인)
 - [x] **LM 하드 의존 해소 확인(결정 023 §2)**: `chipped`/`cobblefurnies`/`terrablender`(+lib athena/resourcefullib) **§1b로 명시 추가**해 `Missing dependency` 경고 없음.
-- [ ] **LM 자체 소환 통제(결정 023, 후속·별도)**: 신규 청크에 LM 구조물(제단/trial spawner/shrine 등) **미생성**, 소환 아이템(항아리/피리/열쇠/구체 등) 야생/드롭 **미획득**. 실제 jar의 `data/legendarymonuments/worldgen/*`·`loot_table/*` 경로를 추출해 `overrides` datapack(또는 config)으로 비활성/제한 후 재확인. → PoroMonCore 전설 통제와의 정합. **이번 범위 아님.**
+- [x] **LM 구조물 자연 생성 차단(결정 023)**: datapack `poromon_lm_control`(OpenLoader)로 `worldgen/structure_set/*` 21종을 빈 구조물 오버라이드. 2026-06-05 검증 — `/locate structure legendarymonuments:*` "Could not find". 추적: `modpack/overrides/config/openloader/packs/poromon_lm_control/`.
+- [ ] **LM 소환 통제 잔여(결정 023, 별도 패스)**: `loot_table/*` 드롭 차단 + 소환/제단접근 **아이템 제작 레시피 무력화**(예 `arc_phone` 바닐라 재료 제작). Fabric 조건부 레시피로 제거 가능. → PoroMonCore 전설 통제 정합. **이번 범위 제외(사용자 선택).**
 
 ### 6-5. 클라 접속 / 안정성
 - [ ] PoroMon 클라 모드팩 접속 성공(서버가 클라 전용 모드 요구 안 함)

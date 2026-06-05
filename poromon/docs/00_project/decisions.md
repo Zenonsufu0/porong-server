@@ -108,6 +108,12 @@ jar 감사 결과(`01_modpack/jar_feature_audit.md`, `reports/jar_inspection/Leg
 - terrablender 바이옴은 **코드 등록**이라 datapack 제거 난도 높음 → 서버 기동 로그로 생성 여부 확인, 필요 시 바이옴 weight 0/스폰 풀 제거로 게이트.
 - 검증: 서버 기동 후 신규 청크에 LM 구조물 미생성 + 소환 아이템 미획득(크리에이티브 외) 확인. (Phase 1 `task.md` §4 "LM 우회 동작 점검"으로 연계.)
 
+**구현 현황 (2026-06-05 — 서버 mods 배치 후 실제 적용·검증):**
+- ✅ **구조물 자연 생성 차단 적용** — datapack `poromon_lm_control`(OpenLoader `config/openloader/packs/`)로 LM `worldgen/structure_set/*` **21종을 빈 구조물(`"structures": []`)로 오버라이드**. 추적 소스: `modpack/overrides/config/openloader/packs/poromon_lm_control/`(클라/서버 공통). 런타임 배포: `.local/server/config/openloader/packs/`(비추적).
+  - 검증(2026-06-05 부팅): OpenLoader가 pack 자동 로드(`/datapack list` 활성 포함), `/locate structure legendarymonuments:{spear_pillar,southern_island,hall_of_origin}` 전부 **"Could not find ... nearby"** = 자연 생성 차단 확인. LM 본체·Cobblemon/MSD/SimpleTMs/Eggs 정상 유지.
+- 🚧 **잔여(미적용, 별도 패스)**: ① `loot_table/*` 비활성(소환·진행 아이템 드롭) ② **소환/제단접근 아이템 제작 레시피 무력화** — 예: `arc_phone`은 바닐라 재료(end_crystal+철+금+포켓덱스 태그)로 제작 가능 → 구조물 차단만으로는 자가 제작 경로 잔존. Fabric 조건부 레시피(`fabric:load_conditions` never-true)로 제거 가능(사용자 선택으로 이번 범위 제외).
+- ℹ️ terrablender 바이옴은 코드 등록이라 datapack 제거 난도 높음(현 부팅은 정상). 아이템 우클릭 소환 로직은 자바 하드코딩(제거 불가) — 획득 경로 차단으로 무력화하는 전략 유지.
+
 `legendary_encounter.md`(LM 섹션), `encounter_pool_design.md`(전설 단서/충돌 처리), `01_modpack/server_mod_separation.md` 반영. 실제 경로/ID·config key는 추측 금지(미확인 TODO).
 
 ### 024. 상점 구현 방식 = 하이브리드 / 골드 스케일 현 예시 기준선

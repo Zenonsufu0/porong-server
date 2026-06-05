@@ -1,0 +1,6 @@
+{
+  "pack": {
+    "pack_format": 48,
+    "description": "PoroMon LM control — disable Legendary Monuments natural structure generation (decision 023). Legendaries are controlled by PoroMonCore (tickets/private rooms) only."
+  }
+}
