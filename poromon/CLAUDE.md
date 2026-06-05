@@ -443,13 +443,24 @@ Do not:
 
 ## Current Next Steps
 
-1. Analyze exported PoroMon 0.1 Dev modpack
-2. Separate client-only and server-required mods
-3. Prepare server test folder under `server/run`
-4. Create Fabric 1.21.1 Gradle project under `custom-mods/poromon-core`
-5. Implement minimal `/poromon` command
-6. Implement 9th-slot League Pass item
-7. Implement basic right-click menu
-8. Add config scaffold
-9. Add player progress storage scaffold
-10. Test with Cobblemon and Mega Showdown installed
+> 세션 간 상세 핸드오프는 `task.md`가 단일 기준이다. 이 목록은 큰 그림 요약.
+
+**현재 단계: Phase 0(설계/문서) 거의 완료 → Phase 1(서버 최소구성 기동) 직전. 구현 코드 0줄.**
+
+완료 (✔):
+- ✔ PoroMon 0.1 Dev 모드팩 분석 + 실제 jar 80개 감사 (`docs/01_modpack/jar_feature_audit.md`)
+- ✔ 클라/서버 모드 분리 (서버 화이트리스트 19 / 애매 5 / 클라 제외 56)
+- ✔ 게임 설계 확정 (decisions 011~022), 조우권·상점·짐·리그 체계
+- ✔ 문서 체계 한글화 + 인덱스 (`docs/README.md`)
+
+다음 (Phase 1):
+1. **[BLOCKER] Legendary Monuments 처리 방향 결정** — 자체 전설 소환이 PoroMonCore 통제를
+   우회함(jar 확인). 비활성 vs 통제된 후반 콘텐츠 수용. (task.md §3)
+2. chipped / cobblefurnies / terrablender 서버 로드 검증 (LM 하드 의존, 별도 jar 없음)
+3. `server/run` 기동 파일 작성 (`eula.txt`, `server.properties` pvp=false, `start.sh` Java21)
+4. `DRY_RUN=0 ./scripts/sync-server-mods.sh` 로 서버 mods 19개 복사 (§3 결정 후)
+5. 서버 1차 기동 → Cobblemon/MSD/SimpleTMs/Eggs/LM 로드·의존성 경고 확인 → 클라 접속 테스트
+
+이후 (Phase 2+):
+6. `custom-mods/poromon-core` Fabric 1.21.1 Gradle 골격
+7. `/poromon` 명령 → 9번 슬롯 리그 패스 아이템 → 우클릭 메뉴 → config·진행도 저장 스캐폴드
