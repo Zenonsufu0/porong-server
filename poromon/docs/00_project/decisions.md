@@ -168,6 +168,6 @@ jar 전수 검증(`egg_pool_design.md §8`)으로 Eggs Addon(`diesse`)의 실제
 - **입장 조건 = 관장 8명(8배지) 전원 클리어로 상향**(기존 "배지 4개 이상"에서). 50층·Lv100·전설/메가 포함 엔드콘텐츠라 후반 게이트가 맞음. 반영: `league_season_design.md §2/§3`, `gym_badge_design.md §7`, `hub_design.md §6`, `battle_tower_design.md §0`.
 - **데이터 검증 통과(2026-06-05, jar 기준)**: 전 50층 파싱 — **종족 119종·기술 172종 매칭 실패 0**, 메가스톤 10·전용 아이템 전수·시그니처기 18종(dragonascent/psystrike/behemothblade·bash/precipiceblades/originpulse/thousandarrows 등) **전부 실재**. → "species/move/item 존재" 검증 완료.
 - **남은 검증 = 동작(실배틀 테스트)**: NPC 메가진화 발동 / NPC held item 전투 반영 / AI의 셋업·해저드·상태이상 운용. MSD에 npc·trainer 문자열 없음 = 코드/전투 시점 동작이라 정적 확인 불가. **최대 리스크 = NPC 메가 지원 여부**(20층부터 의존).
-- **후속 확인 필요(불일치)**: 초안 §0은 **전층 Lv.100 고정(정규화)**인데 `league_season_design.md §35`는 "실제 파티 레벨, 정규화 안 함 — TBD". 정합 결정 필요(현 미반영).
+- **레벨 설계(명확화 — 충돌 아님)**: 배틀타워 "Lv.100 고정"은 **NPC(상대) 파티 레벨**을 뜻한다. 플레이어는 **실제 레벨 그대로(정규화 없음)** — 엔드콘텐츠라 ~100까지 직접 육성해 도전하는 의도. `league_season §35`("정규화 안 함")와 일치(TBD 해소·확정). **정규리그(§4)만 Lv50 정규화**(레벨 무관 공평 대전) — 의도적으로 대비되는 별개 콘텐츠.
 
 `battle_tower_design.md`(신설), `league_season_design.md`, `gym_badge_design.md`, `hub_design.md` 반영.
