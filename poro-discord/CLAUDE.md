@@ -15,8 +15,12 @@
 
 ### 구현 스택
 - 언어: **Python 3.12 / discord.py 2.3** (실제 코드 기준).
-  - ⚠️ `docs/discord_bot_spec.md` DL-030 은 Node.js(Discord.js)로 기재돼 있으나 실제 구현은 Python 이다.
+  - ⚠️ `docs/domains/rpg.md` §8 DL-030 은 Node.js(Discord.js)로 기재돼 있으나 실제 구현은 Python 이다.
     충돌 시 실제 코드를 기준으로 하고, 마스터 docs 변경은 별도 합의 후 진행한다.
+
+문서 지도(상세는 `docs/index.md`): `docs/architecture.md`(구조) ·
+`docs/roles_and_permissions.md`(역할 정책 SoT) · `docs/notifications.md`(알림) ·
+`docs/domains/{rpg,poromon,common,admin}.md`(도메인별).
 
 ## 1. 수정 범위
 

@@ -1,11 +1,15 @@
-# 디스코드 봇 기능 명세
+# RPG 도메인 — 디스코드 봇 기능 명세
 
-> **[STATUS: DRAFT]** — 포로 서버 디스코드 봇 전체 기능 설계.
+> **[도메인: RPG]** — 이 문서는 중앙제어 봇의 **RPG 도메인**(`modules/rpg/`,
+> `integrations/rpg_api.py`) 명세다. 봇 전체 구조는 [`../architecture.md`],
+> 역할/권한 정책은 [`../roles_and_permissions.md`], 알림은 [`../notifications.md`] 참조.
 >
-> 기준일: 2026-05-23
+> **[STATUS: DRAFT]** — 기준일 2026-05-23. 봇 이름(가칭): 포로봇 / PoroBOT.
+> 데이터 경로: PoroRPG HTTP API(포트 8765) 연동, DB 직접 접근 없음.
 >
-> 봇 이름(가칭): 포로봇 / PoroBOT
-> 구현 위치: PoroRPG HTTP API(포트 8765) 연동. DB 직접 접근 없음.
+> ⚠️ 아래 §8 의 "봇 구현 언어 = Node.js(DL-030)" 는 **실제 코드(Python/discord.py)와
+> 불일치**한다. 실제 코드를 기준으로 하며, 마스터 docs 정정은 별도 합의 후 진행.
+> 또한 §1·§2 의 역할/온보딩 정책은 중앙제어 기준 [`../roles_and_permissions.md`] 가 우선한다.
 
 ---
 
