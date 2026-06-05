@@ -176,6 +176,8 @@ Do not implement all endgame systems at once.
 
 ## Menu Item Design
 
+> 상세 정책·GUI 레이아웃: `docs/03_poromoncore/menu_design.md`.
+
 The player should receive a fixed menu item in hotbar slot 9.
 
 Suggested item name:
@@ -202,6 +204,15 @@ GUI should eventually include:
 - Gym guide
 - League/Champion info
 - Server guide
+
+### 상점 접근 = 하이브리드 (결정 024)
+
+골드는 PoroMonCore 내부 잔액(EconomyBridge)이라 바닐라 주민 거래(에메랄드) 불가 → 모든 거래는 서버 검증 GUI 트랜잭션. 접근만 둘로 나눈다:
+
+- **9번 슬롯 메뉴(리그 패스) GUI — 어디서나**: 단순 매입(광물·농작물·베리 → 골드) + 일반 편의(볼·회복약). 위 진행도·배지 조회·허브 텔레포트와 같은 메뉴.
+- **허브 NPC/판매대 우클릭**: 핵심 통제 상점(성장·실전 육성·기술머신·알·메가 연구소·전설 제단). 배지·관장 클리어 게이트 판정은 허브에서 → 통제·해금 상품은 허브 회귀 유도.
+
+상세: `docs/04_game_design/economy_design.md §5`, `shop_design.md §5`, `hub_design.md §2`.
 
 ---
 
