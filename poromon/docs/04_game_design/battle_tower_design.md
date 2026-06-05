@@ -396,7 +396,9 @@
 - **배틀 진입**: `battleConfiguration.canChallenge:true` → 플레이어가 NPC에 말 걸면 배틀 시작.
 - **⇒ 구현 함의**: **배틀타워 = Cobblemon NPC class 프리셋 50개(층별) + PoroMonCore 오케스트레이션**(클리어 시 다음 층 NPC 소환/이동 + `highestClearedFloor` 저장 + 보상). 배틀 엔진을 자체 구현할 필요 없음.
 - **⚠️ 남은 실배틀 검증(헤드리스 불가 — 클라 필요)**: **NPC 메가 발동 여부.** MSD 메가는 "메가링(키스톤) 트레이너 + 메가스톤 포켓몬" 조건(툴팁) — NPC가 이 조건을 만족/발동하는지는 **실배틀로만** 확인.
-  - **수동 테스트 절차**: ① 메가스톤 보유 파티 NPC 프리셋 작성(예 `scizor level=100 held_item=mega_showdown:scizorite moves=bulletpunch,uturn,swordsdance,roost`) ② `/summon cobblemon:npc ~ ~ ~ {NPCClass:"<프리셋>"}` ③ 클라로 말 걸어 배틀 → **핫삼이 메가핫삼으로 변하는지** + AI가 Swords Dance(셋업) 쓰는지 관찰. 안 되면 메가는 PoroMonCore가 별도 트리거(MSD API/이벤트)해야 할 수 있음.
+  - **테스트 프리셋 작성 완료(2026-06-05)**: OpenLoader 팩 `poromon_battletower_test` — `poromon:floor_01`(1층, 메가 없음)·`poromon:floor_20`(20층, 핫삼@scizorite). 서버 기동 시 자동 로드 + 소환 성공 + **파티 파싱 경고 0**(scizorite·rotom wash·전 무브/아이템 정상). 소스: `modpack/overrides/config/openloader/packs/poromon_battletower_test/`.
+  - **수동 테스트 절차(클라 필요)**: ① 서버 접속 ② `/summon cobblemon:npc ~ ~ ~ {NPCClass:"poromon:floor_20"}` ③ "타워 20층" NPC에 우클릭→배틀 ④ 관찰: **핫삼이 메가핫삼으로 변하는지**(메가 발동) + AI가 Swords Dance(셋업)/U-turn 쓰는지. (1층 비교용 = `poromon:floor_01`.)
+  - **결과 해석**: 메가 발동 ✅ → 타워는 프리셋만으로 됨. 발동 ✗ → MSD가 트레이너 메가링(accessories)을 요구 → **PoroMonCore가 MSD 메가 API/이벤트로 강제 발동** 필요(설계 반영). 발견 시 본 문서·결정 028 갱신.
 
 ## 5. 구현 TODO
 
