@@ -38,8 +38,8 @@
 - 판매/해금: **배지 조건 후보**(해당 타입 관장 클리어 연계 가능).
 
 ## 7. 색이 다른 알(Shiny) / 전설 알 정책
-- **Shiny Egg(색이 다른 알)**: **일반 판매 비추천.** 이벤트/후반/초고가 후보로만. (이로치 가치 보호)
-- **전설 알**: **판매 금지.** 전설은 조우권+사설룸 루트로만(결정 008/013). 알로 전설 획득 불가.
+- **Shiny Egg(색이 다른 알)**: **일반 판매 비추천.** 이벤트/후반/초고가 후보로만. (이로치 가치 보호) — 야생 둥지에서는 ~5.9%로 나옴(§8-3), 상점 판매만 보류.
+- **전설 알**: **판매 금지.** 전설은 조우권+사설룸 루트로만(결정 008/013). ✅ **모드 알 풀에 전설/환상 0종 → 알로 전설 획득 원천 불가**(§8-3 검증). 커스텀 알 추가 시에도 전설 미포함 유지.
 
 ## 8. Eggs Addon 실제 동작 — jar 전수 검증 (2026-06-05)
 데이터팩형 모드(namespace `diesse`, **animated_java + mcfunction 기반**, 자바 아이템 모드 아님). 실제 구조:
@@ -68,7 +68,12 @@
 - **지급 함수 존재**: `function diesse:egg/give/{common,rare,shiny}` (또는 `egg/give/all`) → 플레이어에게 알 armor_stand 지급. **PoroMonCore 상점이 이 함수 호출로 알 지급 가능**(골드 차감 후).
 - **⚠️ 모드 자체 판매 = 골드 경제 우회**: `egg/villager_spawn.mcfunction`이 **방랑상인**을 스폰해 알을 **바닐라 화폐로 판매**(일반=금괴10, 희귀=다이아5, 색違=네더라이트1). PoroMon은 골드 단일 내부잔액(결정 014/024)이라 우회.
   - ✅ **비활성 적용·검증(2026-06-05, 결정 027)**: OpenLoader 팩 `poromon_egg_control`이 `data/diesse/function/egg/villager_spawn.mcfunction`을 **빈 함수로 오버라이드** → `egg/main`이 24000틱마다 호출해도 상인 미스폰. 서버 기동 검증: `datapack list`에 활성 + **eggs 모드보다 뒤 로드(우선순위 우위)**, `function diesse:egg/villager_spawn` 실행 시 빈 동작. 소스: `modpack/overrides/config/openloader/packs/poromon_egg_control/`(클라/서버 공통). → 알은 "야생 구매" 불가, 판매는 PoroMonCore 골드 상점 `egg/give/<등급>`만.
-- **둥지 자연 스폰**: `egg/nest/all.mcfunction` — `predicate diesse:spawn_nest` + 야생 cobblemon 근처 조건으로 둥지 자연 생성. 빈도/비활성은 해당 함수/predicate 오버라이드로 조정.
+- **둥지 자연 스폰(야생, 유지 — 결정 027)**: `egg/nest/all.mcfunction`. 검증된 동작/확률:
+  - **출현 게이트**: `predicate diesse:spawn_nest` = `random_chance 0.001`(틱당 0.1%/플레이어) + 반경 90블록 야생 cobblemon 필요 + `valid_spawn` 지면 + 공기 + **반경 120블록 내 기존 둥지 없을 때만**(근처 동시 1개). → 둥지 출현 빈도 낮음.
+  - **등급 분포**(`nest/summon`, `random 0..100`): **common ≈69.3%(0–69) / rare ≈24.8%(70–94) / shiny ≈5.9%(95–100)**. 부화시간 common 5분(6000틱)·rare 10분·shiny 15분.
+  - **전설/환상 = 0%**: 세 풀 전부 비전설(rare의 미뇽/애버라스/딥상어동 등은 유사전설일 뿐). **알로는 전설 절대 안 나옴** → "전설 알 금지"(§7) 모드 기본 충족.
+  - **특정 강종 확률**: rare 등급 ~25% × 26종 균등(zorua×2) ≈ **특정 종 0.9%**, shiny 특정종 ≈0.07%. 등급 자체는 보통이나 특정 종 체감 희귀도 높음.
+  - 빈도/비활성 조정은 `spawn_nest.json`(chance)·`nest/*` 오버라이드로 가능(현재는 야생 둥지 유지).
 
 ## 9. 등급별 정책 요약
 | 알 풀 | 판매 | 해금 | 가격 | 비고 |
