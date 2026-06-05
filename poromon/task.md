@@ -9,7 +9,7 @@
 ---
 
 ## 0. 현재 단계
-**Phase 0(설계/문서) 완료 + Phase 1(서버 기동) 통과 + Phase 2 착수.** **PoroMonCore 0.1 스캐폴드 빌드·로드 성공**(`custom-mods/poromon-core/`, 순수 Fabric, BUILD SUCCESSFUL, 서버 로드 `poromoncore 0.1.0` 확인, `/poromon` 명령 동작).
+**Phase 0(설계/문서) 완료 + Phase 1(서버 기동) 통과 + Phase 2 진행(배틀타워 핵심 완성).** PoroMonCore 0.1: 빌드·로드·`/poromon` 명령 + **진행도 영속화(실증)** + **배틀타워 실배틀**(pvn 명시파티)·**AI 공격**·**속도 8배**·**NPC 메가진화**·아이템드롭 차단 전부 **인게임 작동 확인**. → 상세 **§4b**. 다음 과업(메뉴/허브/상점/알/조우권) **§4c**.
 - 모드팩: PoroMon 0.1 Dev / MC 1.21.1 / **Fabric Loader 0.19.3** / Java 21.
 - 실제 jar **85개**를 `modpack/client/mods/`에 복사 완료 + jar 내부 감사 완료.
 - **서버 1차 기동 성공**(2026-06-05): `.local/server`(표준, 비추적)에서 화이트리스트 **25개** 로드, `Done` 출력, 크래시·실제 ERROR 없음. 2026-06-05 재기동 재확인(1.3s, 정상 stop).
@@ -53,7 +53,28 @@
 - [ ] LM 소환 통제 잔여(별도 패스): `loot_table/*` 차단 + `arc_phone` 등 소환아이템 제작 레시피 무력화(Fabric 조건부 레시피)
 - [ ] 실제 클라 접속 테스트(클라 인스턴스로 서버 접속 — 모드 불일치 거부 없음, 스폰/배틀/TPS)
 - [ ] 간편설치기 스펙 확정: T1/T2 토글 단위·의존성 자동해소(CurseForge/Modrinth 메타 재검증)
-- [ ] (이후) Phase 2: `custom-mods/poromon-core` Gradle 골격
+
+## 4b. Phase 2 — PoroMonCore 구현 (2026-06-06 세션, ✅ 배틀타워 핵심 완성)
+**위치**: `custom-mods/poromon-core/` (Fabric 1.21.1 / Java21 / 베이스 `kr.poro.poromoncore`). 빌드: `./gradlew build`(캐시 후 ~8초). 배포: `build/libs/poromon-core-0.1.0.jar` → `.local/server/mods/`. **서버 포트 25566**(RPG=25565).
+**의존**(compileOnly, 런타임은 서버 모드 제공): Cobblemon `com.cobblemon:fabric:1.7.3+1.21.1`(impactdev maven) + fabric-language-kotlin `1.13.6+kotlin.2.2.20` + **MSD 로컬 jar**(`modpack/client/mods/mega_showdown-*.jar`).
+
+- ✅ **스캐폴드**: `PoroMonCore`(ModInitializer)·`PlayerProgress`·`PoroMonState`(PersistentState 월드부속 NBT)·`PoroMonCommand`. BUILD SUCCESSFUL·로드 확인.
+- ✅ **진행도 영속화 실증**: `/poromon admin tower set <p> <floor>` → save-all → **재시작 → 디스크에서 복원 확인**(`world/data/poromoncore_progress.dat`). database_schema §1 PersistentState.
+- ✅ **배틀타워 실배틀**(`BattleTowerService`): 층 파티를 `PokemonProperties`로 코드 빌드 → NPC 생성(플레이어 3칸 앞·마주보게=NaN 회피) → **`BattleBuilder.INSTANCE.pvn(player, npc, …, party)` 명시 파티 주입**(getPartyForChallenge 우회). `/poromon admin tower start <p> <floor>`. **근본원인**: /summon NPC는 배틀 파티 미초기화→pvn NoPartyError(battle_tower §4-N).
+- ✅ **AI**: NPC `skill=1`(spawn 후). StrongBattleAI `checkSwitchOutSkill` 임계 skill5=1.0(무한 스위칭!)→skill1≈0 → 공격 위주(skill 5가 오히려 멍청한 역설).
+- ✅ **배틀 속도 8배**: `WaitDispatchMixin`(mixin) — `WaitDispatch(float)` 대기를 SCALE 0.12. 생성자 HEAD 주입이라 **static 핸들러** 필수. (교체 recall/send-out **모션**은 클라 애니=서버 불가.)
+- ✅ **NPC 메가진화**: tick(20틱)마다 NPC 활성 포켓몬이 메가스톤 보유 시 **`MegaGimmick.megaEvolveInBattle(p, bp)` 강제 발동**(MSD가 NPC 자동메가 미지원). `MEGA_DONE` 추적으로 무한 메가 애니 루프 방지. 레쿠쟈 제외 메가스톤 47종 범용. (NPC는 모션 없이 즉시 메가 = 의도대로 OK. 플레이어 메가는 MSD 기본 연출 정상.)
+- ✅ **아이템 드롭 차단**: tick에서 양측 활성 포켓몬 `setCanDropHeldItem$common(false)`.
+
+**커밋**: e5c6ee2(스캐폴드)·662da3f→ad5b306(검증ID)·8f9d8ab(pvn 배틀)·b82c6d2(속도/AI)·3405356(메가).
+
+## 4c. 다음 세션 과업 (우선순위)
+1. **메뉴 아이템/바**(9번 슬롯 리그패스 + 우클릭 GUI) — `menu_design.md`. MenuItemManager/MenuGuiManager.
+2. **허브 구성** — `hub_design.md`. 허브 텔레포트(`/poromon hub`) + 구역(짐/제단/메가연구소/마켓/배틀타워 입구).
+3. **상점 구조** — `shop_design.md`·`shop_catalog_0.1.md`(검증 ID 보유). 하이브리드(9번메뉴 매입/편의 + 허브 NPC 통제). EconomyBridge 골드.
+4. **알 구조** — `egg_pool_design.md`(결정 027). `egg/give/<등급>` 연동, 방랑상인 비활성(적용됨), 커스텀 알(드래곤/화석/타입별) mcfunction.
+5. **조우권 생성·구조** — `encounter_pool_design.md`·`legendary_pools.draft.yml`(검증 ID). EncounterTicket 커스텀아이템 + InstanceRoom + pvn으로 전설 소환(배틀타워와 동일 패턴 재사용 가능).
+> 배틀타워 잔여(저우선): 메가 연출(클라모드 필요), 다른 메가 47종 검증, 보상 지급(§3-R) 실제 연동(RewardManager), 진행도 ↔ 배틀 승리 연동(현재 set 명령만).
 
 ## 5. 진행 중 / 미해결 TODO (요약)
 - ✅ **species ID 검증 완료** → `01_modpack/jar_registry_reference.md`: 전설 71(restricted 27 / 준전설 44)·환상 23·UB 11·패러독스 20 실 ID 확정.
