@@ -7,8 +7,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-import config
-from api_client import PoroApiClient
+from integrations.rpg_api import PoroApiClient
 
 
 def _embed_from_card(data: dict, color: discord.Color = discord.Color.blurple()) -> discord.Embed:

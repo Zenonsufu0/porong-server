@@ -6,8 +6,8 @@ from __future__ import annotations
 import discord
 from discord.ext import commands
 
-import config
-from api_client import PoroApiClient
+from core import config
+from integrations.rpg_api import PoroApiClient
 
 
 # ─── 닉네임 입력 모달 ────────────────────────────────────────────

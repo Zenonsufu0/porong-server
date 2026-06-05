@@ -6,8 +6,8 @@ from __future__ import annotations
 import discord
 from discord.ext import commands, tasks
 
-import config
-from api_client import PoroApiClient
+from core import config
+from integrations.rpg_api import PoroApiClient
 
 # 필드 ID → 한글 표시명 매핑 (ExploreHubGui.Field 기준)
 FIELD_NAMES: dict[str, str] = {
