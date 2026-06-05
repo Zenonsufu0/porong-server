@@ -66,7 +66,8 @@
 ### 8-3. 알 아이템 & 획득 (★ 골드 경제 정합 핵심)
 - **알 아이템 = `minecraft:armor_stand` + 컴포넌트**(`custom_model_data` common=1/rare=2/shiny=3, `entity_data` tag `egg.<등급>.placed`, animated_java 디스플레이). 표준 등록 아이템 아님 → **TODO(알 아이템 ID) 해소.**
 - **지급 함수 존재**: `function diesse:egg/give/{common,rare,shiny}` (또는 `egg/give/all`) → 플레이어에게 알 armor_stand 지급. **PoroMonCore 상점이 이 함수 호출로 알 지급 가능**(골드 차감 후).
-- **⚠️ 모드 자체 판매 = 골드 경제 우회**: `egg/villager_spawn.mcfunction`이 **방랑상인**을 스폰해 알을 **바닐라 화폐로 판매**(일반=금괴10, 희귀=다이아5, 색違=네더라이트1). PoroMon은 골드 단일 내부잔액(결정 014/024)이므로 **이 방랑상인은 통제·비활성 대상**(LM 우회와 같은 패턴, 결정 027).
+- **⚠️ 모드 자체 판매 = 골드 경제 우회**: `egg/villager_spawn.mcfunction`이 **방랑상인**을 스폰해 알을 **바닐라 화폐로 판매**(일반=금괴10, 희귀=다이아5, 색違=네더라이트1). PoroMon은 골드 단일 내부잔액(결정 014/024)이라 우회.
+  - ✅ **비활성 적용·검증(2026-06-05, 결정 027)**: OpenLoader 팩 `poromon_egg_control`이 `data/diesse/function/egg/villager_spawn.mcfunction`을 **빈 함수로 오버라이드** → `egg/main`이 24000틱마다 호출해도 상인 미스폰. 서버 기동 검증: `datapack list`에 활성 + **eggs 모드보다 뒤 로드(우선순위 우위)**, `function diesse:egg/villager_spawn` 실행 시 빈 동작. 소스: `modpack/overrides/config/openloader/packs/poromon_egg_control/`(클라/서버 공통). → 알은 "야생 구매" 불가, 판매는 PoroMonCore 골드 상점 `egg/give/<등급>`만.
 - **둥지 자연 스폰**: `egg/nest/all.mcfunction` — `predicate diesse:spawn_nest` + 야생 cobblemon 근처 조건으로 둥지 자연 생성. 빈도/비활성은 해당 함수/predicate 오버라이드로 조정.
 
 ## 9. 등급별 정책 요약

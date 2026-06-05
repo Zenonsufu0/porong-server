@@ -1,0 +1,6 @@
+{
+  "pack": {
+    "pack_format": 48,
+    "description": "PoroMon egg control — disable Eggs Addon wandering trader spawn (decision 027). Eggs are sold only via PoroMonCore gold shop using function diesse:egg/give/<tier>."
+  }
+}

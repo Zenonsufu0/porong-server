@@ -156,7 +156,7 @@ jar 전수 검증(`egg_pool_design.md §8`)으로 Eggs Addon(`diesse`)의 실제
 - **메커니즘**: 부화 종족 = `data/diesse/function/egg/poke/{common,rare,shiny}.mcfunction`의 `spawnpokemon <cobblemon_id>` 인덱스 매핑. `loot_table/*`은 **난수 범위만**(rolls max) 제공(종 목록 아님). → **풀 커스텀 = mcfunction 오버라이드 + loot rolls.max 일치**, 가중치 = **인덱스 중복**.
 - **기본 풀**: common 56(전 세대 스타터+흔한 종)·rare 26(유사전설/강종, 희귀 조우권과 중복)·shiny 81(common+rare 이로치)·rides 소수. 화석/드래곤/타입별은 모드 미제공 → 커스텀 추가.
 - **알 아이템**: `minecraft:armor_stand`+컴포넌트(`custom_model_data` 1/2/3, tag `egg.<등급>.placed`, animated_java). 표준 아이템 아님. **지급 = `function diesse:egg/give/<등급>`**.
-- **통제(결정)**: 모드 자체 **방랑상인**(`egg/villager_spawn`)이 알을 **바닐라 화폐**(금괴/다이아/네더라이트)로 판매 → **PoroMon 골드 단일 경제(014/024) 우회**. ⇒ **방랑상인 비활성**(함수 오버라이드/미호출), 알 판매는 **PoroMonCore 상점이 골드 차감 후 `egg/give/<등급>` 호출**로 단일화. 둥지 자연 스폰(`egg/nest/all` + `predicate spawn_nest`)도 빈도 조정/비활성 검토. (LM 우회 차단(023)과 동일 패턴.)
+- **통제(결정 + 적용)**: 모드 자체 **방랑상인**(`egg/villager_spawn`)이 알을 **바닐라 화폐**(금괴/다이아/네더라이트)로 판매 → **PoroMon 골드 단일 경제(014/024) 우회**. ⇒ **방랑상인 비활성 적용·검증(2026-06-05)**: OpenLoader 팩 `poromon_egg_control`로 `diesse:egg/villager_spawn`을 빈 함수 오버라이드(소스 `modpack/overrides/config/openloader/packs/poromon_egg_control/`). 서버 기동 시 `datapack list` 활성 + eggs 모드보다 뒤 로드(우선순위 우위) 확인. 알 판매는 **PoroMonCore 상점이 골드 차감 후 `egg/give/<등급>` 호출**로 단일화. 둥지 자연 스폰(`egg/nest/all` + `predicate spawn_nest`)은 **미통제(별도 결정 필요)** — 현재 야생 둥지는 그대로. (LM 우회 차단(023)과 동일 OpenLoader 패턴.)
 - 전설 알 금지·Shiny 일반 판매 비추천 유지(`egg_pool_design.md §7`). 스타팅 알은 common 중복이라 기본 별도 등급 안 둠(필요 시 분리).
 
 `egg_pool_design.md`, `shop_catalog_0.1.md §3.5`, `01_modpack/jar_feature_audit.md §2` 반영.
