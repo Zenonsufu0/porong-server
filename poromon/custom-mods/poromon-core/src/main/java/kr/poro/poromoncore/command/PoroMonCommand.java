@@ -2,12 +2,18 @@ package kr.poro.poromoncore.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import kr.poro.poromoncore.PoroMonCore;
 import kr.poro.poromoncore.battle.BattleTowerService;
+import kr.poro.poromoncore.config.ConfigManager;
 import kr.poro.poromoncore.data.PlayerProgress;
 import kr.poro.poromoncore.data.PoroMonState;
+import kr.poro.poromoncore.economy.EconomyBridge;
+import kr.poro.poromoncore.hub.HubManager;
+import kr.poro.poromoncore.item.MenuItemManager;
+import kr.poro.poromoncore.menu.MenuGuiManager;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
@@ -26,12 +32,30 @@ public final class PoroMonCommand {
         dispatcher.register(CommandManager.literal("poromon")
                 .executes(PoroMonCommand::root)
                 .then(CommandManager.literal("progress").executes(PoroMonCommand::ownProgress))
+                .then(CommandManager.literal("menu").executes(PoroMonCommand::openMenu))
+                .then(CommandManager.literal("hub").executes(PoroMonCommand::hub))
+                .then(CommandManager.literal("home").executes(PoroMonCommand::home))
                 .then(CommandManager.literal("admin")
                         .requires(src -> src.hasPermissionLevel(2))
                         .then(CommandManager.literal("reload").executes(PoroMonCommand::reload))
+                        .then(CommandManager.literal("pass")
+                                .then(CommandManager.argument("player", EntityArgumentType.player())
+                                        .executes(PoroMonCommand::adminPass)))
                         .then(CommandManager.literal("progress")
                                 .then(CommandManager.argument("player", EntityArgumentType.player())
                                         .executes(PoroMonCommand::targetProgress)))
+                        .then(CommandManager.literal("economy")
+                                .then(CommandManager.literal("balance")
+                                        .then(CommandManager.argument("player", EntityArgumentType.player())
+                                                .executes(PoroMonCommand::economyBalance)))
+                                .then(CommandManager.literal("give")
+                                        .then(CommandManager.argument("player", EntityArgumentType.player())
+                                                .then(CommandManager.argument("amount", LongArgumentType.longArg(1))
+                                                        .executes(PoroMonCommand::economyGive))))
+                                .then(CommandManager.literal("set")
+                                        .then(CommandManager.argument("player", EntityArgumentType.player())
+                                                .then(CommandManager.argument("amount", LongArgumentType.longArg(0))
+                                                        .executes(PoroMonCommand::economySet)))))
                         .then(CommandManager.literal("tower")
                                 .then(CommandManager.literal("set")
                                         .then(CommandManager.argument("player", EntityArgumentType.player())
@@ -44,7 +68,7 @@ public final class PoroMonCommand {
     }
 
     private static int root(CommandContext<ServerCommandSource> ctx) {
-        ctx.getSource().sendFeedback(() -> Text.literal("§e[PoroMon]§r 0.1 — /poromon progress | /poromon admin …"), false);
+        ctx.getSource().sendFeedback(() -> Text.literal("§e[PoroMon]§r 0.1 — /poromon menu | hub | home | progress | admin …"), false);
         return 1;
     }
 
@@ -88,10 +112,73 @@ public final class PoroMonCommand {
         return ok ? 1 : 0;
     }
 
-    private static int reload(CommandContext<ServerCommandSource> ctx) {
-        // 0.1 스캐폴드: config 시스템은 추후. 자리표시 피드백.
-        ctx.getSource().sendFeedback(() -> Text.literal("§e[PoroMon]§r 리로드 (스캐폴드 — config 미구현)"), true);
+    private static int openMenu(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+        MenuGuiManager.open(player);
         return 1;
+    }
+
+    private static int hub(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+        return HubManager.teleportToHub(player) ? 1 : 0;
+    }
+
+    private static int home(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+        kr.poro.poromoncore.home.HomeMenu.open(player);
+        return 1;
+    }
+
+    private static int adminPass(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity target = EntityArgumentType.getPlayer(ctx, "player");
+        boolean has = MenuItemManager.ensure(target);
+        if (has) {
+            PoroMonState state = PoroMonState.get(target.getServer());
+            PlayerProgress p = state.getOrCreate(target.getUuid());
+            if (!p.leaguePassGiven) {
+                p.leaguePassGiven = true;
+                state.markDirty();
+            }
+        }
+        ctx.getSource().sendFeedback(() -> Text.literal(has
+                ? "§a[PoroMon]§r 리그 패스 지급/복원: " + target.getGameProfile().getName()
+                : "§c[PoroMon]§r 리그 패스 지급 실패(인벤 가득?) — " + target.getGameProfile().getName()), true);
+        return has ? 1 : 0;
+    }
+
+    private static int economyBalance(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity target = EntityArgumentType.getPlayer(ctx, "player");
+        String unit = ConfigManager.economy().currencyDisplay;
+        long bal = EconomyBridge.getBalance(target);
+        ctx.getSource().sendFeedback(() -> Text.literal("§e[PoroMon]§r " + target.getGameProfile().getName()
+                + " 잔액: §6" + bal + " " + unit), false);
+        return 1;
+    }
+
+    private static int economyGive(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity target = EntityArgumentType.getPlayer(ctx, "player");
+        long amount = LongArgumentType.getLong(ctx, "amount");
+        EconomyBridge.deposit(target, amount, "admin_give");
+        ctx.getSource().sendFeedback(() -> Text.literal("§a[PoroMon]§r " + target.getGameProfile().getName()
+                + " 에게 " + amount + " 지급 (잔액 " + EconomyBridge.getBalance(target) + ")"), true);
+        return 1;
+    }
+
+    private static int economySet(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity target = EntityArgumentType.getPlayer(ctx, "player");
+        long amount = LongArgumentType.getLong(ctx, "amount");
+        EconomyBridge.set(target, amount, "admin_set");
+        ctx.getSource().sendFeedback(() -> Text.literal("§a[PoroMon]§r " + target.getGameProfile().getName()
+                + " 잔액 = " + EconomyBridge.getBalance(target)), true);
+        return 1;
+    }
+
+    private static int reload(CommandContext<ServerCommandSource> ctx) {
+        boolean ok = ConfigManager.reload();
+        ctx.getSource().sendFeedback(() -> Text.literal(ok
+                ? "§a[PoroMon]§r 설정 리로드 완료 (core.json·economy.json / 아이템 등록성 변경은 재시작 필요)"
+                : "§c[PoroMon]§r 리로드 실패 — 기존 설정 유지(로그 확인)"), true);
+        return ok ? 1 : 0;
     }
 
     private static void sendProgress(ServerCommandSource src, String name, PlayerProgress p) {

@@ -171,3 +171,15 @@ jar 전수 검증(`egg_pool_design.md §8`)으로 Eggs Addon(`diesse`)의 실제
 - **레벨 설계(명확화 — 충돌 아님)**: 배틀타워 "Lv.100 고정"은 **NPC(상대) 파티 레벨**을 뜻한다. 플레이어는 **실제 레벨 그대로(정규화 없음)** — 엔드콘텐츠라 ~100까지 직접 육성해 도전하는 의도. `league_season §35`("정규화 안 함")와 일치(TBD 해소·확정). **정규리그(§4)만 Lv50 정규화**(레벨 무관 공평 대전) — 의도적으로 대비되는 별개 콘텐츠.
 
 `battle_tower_design.md`(신설), `league_season_design.md`, `gym_badge_design.md`, `hub_design.md` 반영.
+
+### 029. 메뉴 "야생 귀환" → 홈 등록/이동 시스템으로 대체
+
+메인 메뉴 슬롯20의 "야생 귀환(직전 위치 복귀)"을 폐기하고 **홈 등록/이동 시스템**으로 대체한다(인게임 제안·확정).
+
+- **슬롯 5칸**: 기본 1칸 개방(`freeSlots`), 나머지 4칸은 **골드 점진 해금**. 비용(표준 곡선, 메가팔찌 20k 앵커 대비): **2번째 10,000 / 3번째 30,000 / 4번째 70,000 / 5번째 150,000**(합계 260,000). 순차 해금만(이전 슬롯 먼저).
+- **등록/이동**: 각 칸에 현재 위치(차원+좌표+시선) 등록(덮어쓰기). 좌클릭=이동, 우클릭=재등록. 차원 간 이동 허용(네더/엔드 홈 가능).
+- **악용 방지 = 쿨다운 + 웜업(채널링)**: 이동 요청 시 `warmupSeconds`(기본 3초) 대기 후 이동, 대기 중 **이동(약 0.3블록↑) 또는 피격 시 취소**. 이동 후 `cooldownSeconds`(기본 30초) 재사용 대기.
+- **저장**: `PlayerProgress.homesUnlocked`(기본 1) + `homes[5]`(차원/좌표 NBT). **설정**: `core.json §home`(enabled/maxSlots/freeSlots/unlockCosts/warmup/cooldown/cancelOnMove/cancelOnDamage) — 값 하드코딩 금지.
+- **구현(2026-06-06)**: `home/HomeManager`(해금/등록/이동 웜업·쿨다운 매 틱 점검) + `home/HomeMenu`(5칸 GUI) + `data/Home`. 메뉴 슬롯20 = 홈, `/poromon home`. 골드는 `EconomyBridge`.
+
+`menu_design.md §3`(슬롯20 = 야생 귀환 → 홈), `config_structure.md §3 core.json`(home 섹션) 반영. 직전 위치 복귀형 "야생 귀환"은 폐기(필요 시 향후 재검토).

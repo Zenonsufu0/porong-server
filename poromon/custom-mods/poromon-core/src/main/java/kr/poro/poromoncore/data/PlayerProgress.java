@@ -22,6 +22,11 @@ public class PlayerProgress {
     public int battleTowerHighestClearedFloor = 0;
     public final TreeSet<Integer> battleTowerRewardedFloors = new TreeSet<>();
 
+    // 홈 (결정 029): 해금된 슬롯 수(기본 1) + 슬롯별 등록 위치(null=미등록)
+    public static final int HOME_MAX = 5;
+    public int homesUnlocked = 1;
+    public final Home[] homes = new Home[HOME_MAX];
+
     public NbtCompound writeNbt(NbtCompound nbt) {
         nbt.putInt("schemaVersion", SCHEMA_VERSION);
         nbt.putLong("firstJoinEpoch", firstJoinEpoch);
@@ -36,6 +41,13 @@ public class PlayerProgress {
         }
         tower.put("rewardedFloors", rewarded);
         nbt.put("battleTower", tower);
+
+        nbt.putInt("homesUnlocked", homesUnlocked);
+        NbtCompound homesNbt = new NbtCompound();
+        for (int i = 0; i < HOME_MAX; i++) {
+            if (homes[i] != null) homesNbt.put(Integer.toString(i), homes[i].writeNbt());
+        }
+        nbt.put("homes", homesNbt);
         return nbt;
     }
 
@@ -51,6 +63,19 @@ public class PlayerProgress {
             NbtList rewarded = tower.getList("rewardedFloors", NbtElement.INT_TYPE);
             for (int i = 0; i < rewarded.size(); i++) {
                 p.battleTowerRewardedFloors.add(rewarded.getInt(i));
+            }
+        }
+
+        if (nbt.contains("homesUnlocked", NbtElement.INT_TYPE)) {
+            p.homesUnlocked = Math.max(1, Math.min(HOME_MAX, nbt.getInt("homesUnlocked")));
+        }
+        if (nbt.contains("homes", NbtElement.COMPOUND_TYPE)) {
+            NbtCompound homesNbt = nbt.getCompound("homes");
+            for (int i = 0; i < HOME_MAX; i++) {
+                String key = Integer.toString(i);
+                if (homesNbt.contains(key, NbtElement.COMPOUND_TYPE)) {
+                    p.homes[i] = Home.readNbt(homesNbt.getCompound(key));
+                }
             }
         }
         return p;

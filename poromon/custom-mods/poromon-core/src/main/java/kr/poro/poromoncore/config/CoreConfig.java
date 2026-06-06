@@ -1,0 +1,63 @@
+package kr.poro.poromoncore.config;
+
+/**
+ * core.json 매핑 POJO (config_structure.md §3, 0.1 부분집합).
+ * 밸런스/규칙 값 하드코딩 금지 원칙(CLAUDE.md) → 메뉴 아이템·허브 좌표·로깅 토글은 여기로.
+ * Gson 기본 직렬화. 필드 기본값 = 파일 부재 시 생성되는 기본 설정.
+ */
+public class CoreConfig {
+    public int configVersion = 1;
+    public MenuItem menuItem = new MenuItem();
+    public Hub hub = new Hub();
+    public Home home = new Home();
+    public Logging logging = new Logging();
+
+    /** 9번 슬롯 리그 패스 아이템 정책 (menu_design.md §2). */
+    public static class MenuItem {
+        public boolean enabled = true;
+        public String itemId = "minecraft:clock";   // 베이스 아이템(임시 — 전용 모델 전)
+        public String displayName = "리그 패스";       // 표시명(한국어)
+        public int hotbarSlot = 8;                   // 0-based → 핫바 9번째 칸
+        public boolean giveOnFirstJoin = true;
+        public boolean restoreOnJoin = true;
+        public boolean restoreOnRespawn = true;
+        public boolean preventDrop = true;
+        public boolean lockSlot = true;              // 9번 칸 고정(이동/드롭 잠금)
+    }
+
+    /** 허브 텔레포트 목적지 (menu_design.md §3 슬롯 19, commands.md /poromon hub). */
+    public static class Hub {
+        public String world = "minecraft:overworld";
+        public Spawn spawn = new Spawn();
+        public boolean teleportCommandEnabled = true;
+    }
+
+    public static class Spawn {
+        public double x = 0.5;
+        public double y = 64.0;
+        public double z = 0.5;
+        public float yaw = 0.0f;
+        public float pitch = 0.0f;
+    }
+
+    /** 홈 등록/텔레포트 (결정 029, menu_design.md §3 슬롯20). */
+    public static class Home {
+        public boolean enabled = true;
+        public int maxSlots = 5;
+        public int freeSlots = 1;              // 기본 개방 슬롯 수
+        public long[] unlockCosts = {10000L, 30000L, 70000L, 150000L}; // 2~5번째 해금 비용
+        public int warmupSeconds = 3;          // 채널링(이동 전 대기)
+        public int cooldownSeconds = 30;       // 이동 후 재사용 대기
+        public boolean cancelOnMove = true;    // 채널링 중 이동 시 취소
+        public boolean cancelOnDamage = true;  // 채널링 중 피격 시 취소
+    }
+
+    /** 감사 로깅 토글 (0.1 일부만 사용). */
+    public static class Logging {
+        public boolean auditEnabled = true;
+        public boolean logTicketUse = true;
+        public boolean logRoomAssign = true;
+        public boolean logRewardGrant = true;
+        public boolean logAdminCommand = true;
+    }
+}

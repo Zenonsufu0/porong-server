@@ -9,7 +9,7 @@
 ---
 
 ## 0. 현재 단계
-**Phase 0(설계/문서) 완료 + Phase 1(서버 기동) 통과 + Phase 2 진행(배틀타워 핵심 완성).** PoroMonCore 0.1: 빌드·로드·`/poromon` 명령 + **진행도 영속화(실증)** + **배틀타워 실배틀**(pvn 명시파티)·**AI 공격**·**속도 8배**·**NPC 메가진화**·아이템드롭 차단 전부 **인게임 작동 확인**. → 상세 **§4b**. 다음 과업(메뉴/허브/상점/알/조우권) **§4c**.
+**Phase 0(설계/문서) 완료 + Phase 1(서버 기동) 통과 + Phase 2 진행(배틀타워 핵심 + 메뉴/GUI 0.1 완성).** PoroMonCore 0.1: 빌드·로드·`/poromon` 명령 + **진행도 영속화(실증)** + **배틀타워 실배틀**(pvn 명시파티)·**AI 공격**·**속도 8배**·**NPC 메가진화**·아이템드롭 차단 **인게임 작동 확인**(→ **§4b**) + **메뉴 아이템/GUI**(리그패스 지급·복원·드롭차단·우클릭 메뉴·허브TP·config 시스템) **헤드리스 검증 완료, 클라 클릭검증 대기**(→ **§4d**). + **상점(매입/편의)·골드(EconomyBridge)·홈 시스템(결정029)** 인게임 검증 완료(→ **§4e**). 다음 과업(허브/알/조우권) **§4c**.
 - 모드팩: PoroMon 0.1 Dev / MC 1.21.1 / **Fabric Loader 0.19.3** / Java 21.
 - 실제 jar **85개**를 `modpack/client/mods/`에 복사 완료 + jar 내부 감사 완료.
 - **서버 1차 기동 성공**(2026-06-05): `.local/server`(표준, 비추적)에서 화이트리스트 **25개** 로드, `Done` 출력, 크래시·실제 ERROR 없음. 2026-06-05 재기동 재확인(1.3s, 정상 stop).
@@ -69,12 +69,36 @@
 **커밋**: e5c6ee2(스캐폴드)·662da3f→ad5b306(검증ID)·8f9d8ab(pvn 배틀)·b82c6d2(속도/AI)·3405356(메가).
 
 ## 4c. 다음 세션 과업 (우선순위)
-1. **메뉴 아이템/바**(9번 슬롯 리그패스 + 우클릭 GUI) — `menu_design.md`. MenuItemManager/MenuGuiManager.
-2. **허브 구성** — `hub_design.md`. 허브 텔레포트(`/poromon hub`) + 구역(짐/제단/메가연구소/마켓/배틀타워 입구).
+1. ~~**메뉴 아이템/바**(9번 슬롯 리그패스 + 우클릭 GUI)~~ → **✅ 0.1 구현 완료(2026-06-06), §4d 참조.**
+2. **허브 구성** — `hub_design.md`. 허브 텔레포트(`/poromon hub`) + 구역(짐/제단/메가연구소/마켓/배틀타워 입구). ⚠️ TP 골격은 §4d에서 완성(core.json hub.spawn) — 남은 건 **실제 허브 빌드 + 구역 좌표 확정 후 core.json 값 채우기** + HubInteractionManager(NPC 상호작용).
 3. **상점 구조** — `shop_design.md`·`shop_catalog_0.1.md`(검증 ID 보유). 하이브리드(9번메뉴 매입/편의 + 허브 NPC 통제). EconomyBridge 골드.
 4. **알 구조** — `egg_pool_design.md`(결정 027). `egg/give/<등급>` 연동, 방랑상인 비활성(적용됨), 커스텀 알(드래곤/화석/타입별) mcfunction.
-5. **조우권 생성·구조** — `encounter_pool_design.md`·`legendary_pools.draft.yml`(검증 ID). EncounterTicket 커스텀아이템 + InstanceRoom + pvn으로 전설 소환(배틀타워와 동일 패턴 재사용 가능).
+5. **조우권 생성·구조** — `encounter_pool_design.md`·`legendary_pools.draft.yml`(검증 ID). EncounterTicket 커스텀아이템 + InstanceRoom + pvn으로 전설 소환(배틀타워와 동일 패턴 재사용 가능). ★ **이로치 조우권/확정권(idea_inbox IB-001)도 이 작업과 함께 구현 결정**(`Pokemon.setShiny`·`shiny=true` 검증됨).
 > 배틀타워 잔여(저우선): 메가 연출(클라모드 필요), 다른 메가 47종 검증, 보상 지급(§3-R) 실제 연동(RewardManager), 진행도 ↔ 배틀 승리 연동(현재 set 명령만).
+
+## 4d. Phase 2 — 메뉴 아이템/GUI 0.1 (2026-06-06 세션, ✅ 구현 완료)
+**위치**: `custom-mods/poromon-core/`. 빌드: `./gradlew build`. 배포: `build/libs/poromon-core-0.1.0.jar` → `.local/server/mods/`. 설계: `docs/03_poromoncore/menu_design.md §7`.
+
+- ✅ **config 시스템 착수**: `config/CoreConfig`(POJO) + `config/ConfigManager`(Gson). `config/poromoncore/core.json` 자동 생성·로드·`/poromon admin reload` 실동작. **부팅 시 core.json 기본값 생성 검증**(menuItem/hub/logging, config_structure.md §3 스키마 일치).
+- ✅ **리그 패스 아이템**(`item/MenuItemManager`): `minecraft:clock` 베이스 + `poromon_league_pass` CUSTOM_DATA 태그로 식별(위조/복제 방지) + 한글명/lore. `ensure()` = 중복 1개로 회수(안티-듀프) + 없으면 핫바 9번칸(또는 빈칸) 지급.
+- ✅ **지급/복원/보호 훅**(`PoroMonCore`): JOIN(최초=giveOnFirstJoin / 재접속=restoreOnJoin) · AFTER_RESPAWN(restoreOnRespawn) · `mixin/ServerPlayerEntityMixin`로 `dropSelectedItem` Q-드롭 차단(preventDrop). `leaguePassGiven` 진행도 연동.
+- ✅ **메인 메뉴 GUI**(`menu/MenuGuiManager` + `menu/LeaguePassMenuHandler`): 6×9 셰스트형(GENERIC_9X6). **서버 권위 읽기전용** — `onSlotClick` super 미호출 + `syncState()`로 모든 아이템 이동/추출 차단(듀프 방지), 디스플레이 클릭만 액션 라우팅. menu_design.md §3 슬롯 배치. **0.1 활성**: 19=허브TP · 10=진행도 채팅 · 49=닫기 · 4=플레이어 정보(읽기). 나머지는 "준비 중" placeholder.
+- ✅ **허브 TP**(`hub/HubManager`): core.json `hub.spawn`(월드/좌표/yaw·pitch)로 `player.teleport`. teleportCommandEnabled 게이트.
+- ✅ **명령**: `/poromon menu`(GUI) · `/poromon hub`(TP) · `/poromon admin pass <player>`(지급/복원) · `/poromon admin reload`(config 실리로드).
+- ✅ **헤드리스 부팅 검증**: Done(1.38s) · `[PoroMonCore] 0.1 초기화` · core.json 생성 · `poromon`/`admin reload` 콘솔 동작 · mixin 적용 오류 없음 · poromoncore ERROR/WARN 0 · 정상 stop.
+- ⚠️ **미검증(클라 접속 필요)**: 우클릭 메뉴 오픈/슬롯 클릭/허브 TP 실동작/드롭 차단/접속·리스폰 지급. 다음 클라 테스트 시 확인.
+- ⚠️ **잔여**: core.json hub.spawn 기본값=(0.5,64,0.5) 임시 → 허브 빌드 후 실좌표. 인벤 화면 밖 버리기·죽음 드롭(현재 복원으로 보완). lockSlot 미구현(0.3). 전용 패스 모델 CustomModelData(menu_design §8-1).
+
+## 4e. Phase 2 — 상점(매입/편의) + 홈 시스템 (2026-06-06 세션, ✅ 구현·인게임 검증)
+**위치**: `custom-mods/poromon-core/`. 설계: `menu_design.md`·`economy_design.md`·`shop_catalog_0.1.md`·decisions **029**. **인게임 실테스트 통과**(zenonsufu0, 포트 25566).
+
+- ✅ **EconomyBridge + economy.json**: 골드 잔액 API(입금/출금/설정, 출처 태그 로깅) — `economy/EconomyBridge`. `config/EconomyConfig`(sellPrices/buyPrices 단일 출처, 실 item id 검증: 광물·농작물 바닐라 + `<color>_apricorn` + 볼12·회복약11). `ConfigManager` 다중 파일(core+economy)로 일반화. `/poromon admin economy give|set|balance`.
+- ✅ **매입소(SellShopMenu)**: 인벤 판매가능 품목 자동 진열 → 클릭=그 종류 전부 판매 / 전부 팔기. **편의 상점(BuyShopMenu)**: 볼·회복약 좌클릭1/우클릭8 구매(잔액부족·인벤가득 안전·환불). `shop/ShopLayout` 공용 레이아웃.
+- ✅ **범용 메뉴 핸들러(ServerMenuHandler)**: LeaguePass 핸들러 일반화(읽기전용·안티듀프). **`show()` = 재오픈 없이 내용/콜백 교체 → 메뉴 전환 커서 점프 제거**(사용자 피드백 반영). 클릭 콜백에 shift 전달. `menu/MenuIcons` 공용 아이콘.
+- ✅ **홈 시스템(결정 029)**: `data/Home`(이름+차원+좌표) + `PlayerProgress.homesUnlocked/homes[5]`(NBT). `home/HomeManager`(해금 10k/30k/70k/150k·등록·이동: **쿨다운30s + 웜업3s 채널링**, 이동/피격 시 취소, **매 초 카운트다운 액션바**) + `home/HomeMenu`(5칸 GUI: 좌클릭 이동/우클릭 재등록/**쉬프트 이름변경**). 이름변경=`util/ChatInputManager`(다음 채팅 1줄 가로채기, `ServerMessageEvents.ALLOW_CHAT_MESSAGE`). 메뉴 슬롯20 "야생 귀환"→**홈**, `/poromon home`.
+- ✅ **리그 패스 보호 완성**: Q-드롭 차단(`ServerPlayerEntityMixin.dropSelectedItem`)이 서버는 막지만 클라 예측 잔상 → **취소 후 `syncState()` 재동기화로 해결**. 인벤 화면 이동/드롭/숫자키스왑 차단(`ScreenHandlerMixin.onSlotClick`) + 매 틱 슬롯 고정(`MenuItemManager.enforce`). lockSlot 기본 true.
+- ✅ **인게임 검증(zenonsufu0)**: 패스 우클릭 메뉴·드롭/이동 잠금·구매/판매/전부팔기·잔액 실시간 갱신·홈 등록/이동/해금/이름변경/카운트다운·커서 점프 제거 전부 정상.
+- ⚠️ **잔여**: 허브/홈 좌표 운영값(허브 빌드 후). 이로치 조우권/확정권 = §4c 5번과 함께(idea_inbox IB-001). 상점 가격은 economy.json 운영 튜닝(§6 지표).
 
 ## 5. 진행 중 / 미해결 TODO (요약)
 - ✅ **species ID 검증 완료** → `01_modpack/jar_registry_reference.md`: 전설 71(restricted 27 / 준전설 44)·환상 23·UB 11·패러독스 20 실 ID 확정.
