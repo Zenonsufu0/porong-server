@@ -17,3 +17,4 @@ bin/
 # 반드시 추적해야 빌드 jar에 포함되어 커스텀 배지 등이 배포된다.
 !src/main/resources/assets/
 !src/main/resources/assets/**
+badge_originals_1254/
