@@ -28,6 +28,13 @@ import java.util.List;
 public final class AltarMenu {
     private AltarMenu() {}
 
+    // 레이아웃(행 분리): 1행=5등급, 3·4행=컨셉 10(5+5)
+    private static final String[] TIER_POOLS = {
+            "rare_encounter_pool", "basic_legendary_ticket_pool", "intermediate_legendary_ticket_pool",
+            "advanced_legendary_ticket_pool", "apex_legendary_ticket_pool"};
+    private static final int[] TIER_SLOTS = {11, 12, 13, 14, 15};
+    private static final int[] CONCEPT_SLOTS = {29, 30, 31, 32, 33, 38, 39, 40, 41, 42};
+
     public static void open(ServerPlayerEntity player) {
         ServerMenuHandler.show(player, Text.literal("전설 제단").formatted(Formatting.DARK_PURPLE),
                 inv -> populate(inv, player), AltarMenu::onClick);
@@ -37,9 +44,19 @@ public final class AltarMenu {
         return PoroMonState.get(p.getServer()).getOrCreate(p.getUuid());
     }
 
-    /** 진열 순서 = legendary_pools.json 풀 순서. */
-    private static List<String> pools() {
-        return new ArrayList<>(ConfigManager.encounter().pools.keySet());
+    /** 슬롯 → poolId 매핑(등급 5 + 컨셉 10). populate·onClick 공용. */
+    private static java.util.Map<Integer, String> slotMap() {
+        java.util.Map<Integer, String> m = new java.util.LinkedHashMap<>();
+        var pools = ConfigManager.encounter().pools;
+        for (int i = 0; i < TIER_POOLS.length; i++) {
+            if (pools.containsKey(TIER_POOLS[i])) m.put(TIER_SLOTS[i], TIER_POOLS[i]);
+        }
+        List<String> concepts = new ArrayList<>();
+        for (var e : pools.entrySet()) if ("theme".equals(e.getValue().type)) concepts.add(e.getKey());
+        for (int i = 0; i < concepts.size() && i < CONCEPT_SLOTS.length; i++) {
+            m.put(CONCEPT_SLOTS[i], concepts.get(i));
+        }
+        return m;
     }
 
     private static void populate(Inventory inv, ServerPlayerEntity player) {
@@ -50,19 +67,18 @@ public final class AltarMenu {
 
         inv.setStack(ShopLayout.BALANCE_SLOT, MenuIcons.icon(Items.GOLD_NUGGET,
                 "§6잔액: " + EconomyBridge.getBalance(player) + " " + unit,
-                List.of("§7등급 제단을 먼저 해금해야 조우권 사용 가능", "§7보유 배지: §f" + badges)));
+                List.of("§7윗줄=등급, 아랫줄=컨셉. 제단 해금 후 조우권 사용", "§7보유 배지: §f" + badges)));
         inv.setStack(ShopLayout.BACK_SLOT, MenuIcons.icon(Items.ARROW, "§e← 메뉴로", List.of()));
 
-        List<String> list = pools();
-        int slotIdx = 0;
-        for (String poolId : list) {
-            if (poolId.equals("field_event_legendary_pool")) continue; // 제단 판매 제외
-            if (slotIdx >= ShopLayout.CONTENT_SLOTS.length) break;
+        for (var en : slotMap().entrySet()) {
+            int slot = en.getKey();
+            String poolId = en.getValue();
             EncounterConfig.Pool pool = ConfigManager.encounter().pools.get(poolId);
             if (pool == null) continue;
             String tier = pool.type;
-            boolean unlocked = pr.altarsUnlocked.contains(tier);
-            ShopEntry unlock = ConfigManager.economy().altarUnlock.get(tier);
+            String unlockKey = unlockKey(tier, poolId);
+            boolean unlocked = pr.altarsUnlocked.contains(unlockKey);
+            ShopEntry unlock = ConfigManager.economy().altarUnlock.get(unlockKey);
             Long use = ConfigManager.economy().ticketUse.get(tier);
             long usePrice = use == null ? 0 : use;
 
@@ -72,52 +88,44 @@ public final class AltarMenu {
                 lore.add("§a제단 해금됨 ✔");
                 lore.add("§7조우권: §6" + usePrice + " " + unit);
                 lore.add("§a클릭 — 조우권 사용 §7(이로치 " + ConfigManager.economy().shinyChancePercent + "%)");
-                inv.setStack(ShopLayout.CONTENT_SLOTS[slotIdx], MenuIcons.icon(icon(tier),
-                        "§d" + pool.displayNameKo, lore));
+                inv.setStack(slot, MenuIcons.icon(icon(tier), "§d" + pool.displayNameKo, lore));
             } else {
                 int needBadge = unlock == null ? 0 : unlock.minBadges;
                 long unlockPrice = unlock == null ? 0 : unlock.price;
                 boolean canUnlock = badges >= needBadge;
                 lore.add("§7제단 해금: §6" + unlockPrice + " " + unit + " §7(배지 " + needBadge + ")");
                 lore.add(canUnlock ? "§e클릭 — 제단 해금" : "§c배지 " + needBadge + "개 필요 (현재 " + badges + ")");
-                inv.setStack(ShopLayout.CONTENT_SLOTS[slotIdx], MenuIcons.icon(
-                        canUnlock ? Items.CHAIN : Items.IRON_BARS,
+                inv.setStack(slot, MenuIcons.icon(canUnlock ? Items.CHAIN : Items.IRON_BARS,
                         (canUnlock ? "§e" : "§8") + pool.displayNameKo + " §7(제단 잠김)", lore));
             }
-            slotIdx++;
         }
     }
 
     private static void onClick(ServerPlayerEntity player, int slot, int button, boolean shift) {
         if (slot == ShopLayout.BACK_SLOT) { MenuGuiManager.open(player); return; }
-        int contentIdx = ShopLayout.contentIndexOf(slot);
-        if (contentIdx < 0) return;
-
-        // 진열 순서(field_event 제외)와 동일하게 poolId 매핑
-        List<String> shown = new ArrayList<>();
-        for (String pid : pools()) if (!pid.equals("field_event_legendary_pool")) shown.add(pid);
-        if (contentIdx >= shown.size()) return;
-        String poolId = shown.get(contentIdx);
+        String poolId = slotMap().get(slot);
+        if (poolId == null) return;
         EncounterConfig.Pool pool = ConfigManager.encounter().pools.get(poolId);
         if (pool == null) return;
         String tier = pool.type;
+        String unlockKey = unlockKey(tier, poolId);
         PlayerProgress pr = progress(player);
 
-        if (!pr.altarsUnlocked.contains(tier)) {
-            // 제단 해금
-            ShopEntry unlock = ConfigManager.economy().altarUnlock.get(tier);
+        if (!pr.altarsUnlocked.contains(unlockKey)) {
+            // 제단 해금 (컨셉=개별 poolId, 일반=tier)
+            ShopEntry unlock = ConfigManager.economy().altarUnlock.get(unlockKey);
             if (unlock == null) return;
             if (pr.badges.size() < unlock.minBadges) {
                 player.sendMessage(Text.literal("§c[제단] 배지 " + unlock.minBadges + "개가 필요합니다."), true);
                 return;
             }
-            if (!EconomyBridge.withdraw(player, unlock.price, "altar_unlock:" + tier)) {
+            if (!EconomyBridge.withdraw(player, unlock.price, "altar_unlock:" + unlockKey)) {
                 player.sendMessage(Text.literal("§c[제단] 골드가 부족합니다 (필요 " + unlock.price + ")."), true);
                 return;
             }
-            pr.altarsUnlocked.add(tier);
+            pr.altarsUnlocked.add(unlockKey);
             PoroMonState.get(player.getServer()).markDirty();
-            player.sendMessage(Text.literal("§a[제단] " + pool.displayNameKo + " 등급 제단을 해금했습니다! 이제 조우권을 사용할 수 있습니다."), false);
+            player.sendMessage(Text.literal("§a[제단] " + pool.displayNameKo + " 제단을 해금했습니다! 이제 조우권을 사용할 수 있습니다."), false);
             open(player); // 갱신
             return;
         }
@@ -137,6 +145,11 @@ public final class AltarMenu {
         player.closeHandledScreen();
         boolean ok = EncounterService.start(player, poolId, shiny);
         if (!ok) EconomyBridge.deposit(player, price, "ticket_refund:" + tier);
+    }
+
+    /** 해금 단위 키: 컨셉(theme)=개별 poolId, 일반 등급=tier(type). */
+    private static String unlockKey(String tier, String poolId) {
+        return "theme".equals(tier) ? poolId : tier;
     }
 
     private static String examples(EncounterConfig.Pool pool) {

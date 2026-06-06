@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class EncounterService {
     private EncounterService() {}
 
-    private static final long DURATION_TICKS = 180L * 20L; // 3분
+    private static final long DURATION_TICKS = 600L * 20L; // 10분
 
     private record Session(int cell, BlockPos corner, String returnDim,
                            double rx, double ry, double rz, UUID pokemonUuid, long expireTick) {}
@@ -82,7 +82,7 @@ public final class EncounterService {
             ACTIVE.put(player.getUuid(), new Session(cell, corner, returnDim, rx, ry, rz, entity.getUuid(), expire));
 
             player.sendMessage(Text.literal("§d[조우] 야생 " + (shiny ? "§b✦이로치 " : "") + "§d"
-                    + pick.displayNameKo + " §d출현! 잡아보세요. §7(3분 제한)"), false);
+                    + pick.displayNameKo + " §d출현! 잡아보세요. §7(10분 제한)"), false);
             PoroMonCore.LOGGER.info("[Encounter] {} → {} ({}{} Lv{})", player.getGameProfile().getName(),
                     poolId, species, shiny ? " shiny" : "", level);
             return true;

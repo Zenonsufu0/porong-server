@@ -75,12 +75,17 @@ public class EconomyConfig {
 
     private static Map<String, ShopEntry> defaultAltarUnlock() {
         Map<String, ShopEntry> m = new LinkedHashMap<>();
+        // 일반 등급 = tier 키 (1회 해금)
         m.put("rare", new ShopEntry(5000, 0));
         m.put("basic", new ShopEntry(30000, 4));
         m.put("intermediate", new ShopEntry(50000, 6));
-        m.put("theme", new ShopEntry(70000, 8));
         m.put("advanced", new ShopEntry(80000, 8));
         m.put("apex", new ShopEntry(120000, 8));
+        // 컨셉 = poolId 키 (개별 해금, 균일 60k·배지8 — 결정031/A안)
+        for (String t : new String[]{"sky", "deep_sea", "earth", "time", "space",
+                "reverse", "light", "dragon_king", "guardian", "eternity"}) {
+            m.put("theme_" + t + "_pool", new ShopEntry(60000, 8));
+        }
         return m;
     }
 
