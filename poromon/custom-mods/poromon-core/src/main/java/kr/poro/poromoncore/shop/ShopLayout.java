@@ -6,6 +6,8 @@ public final class ShopLayout {
 
     public static final int BALANCE_SLOT = 4;   // 상단 중앙: 잔액 표시
     public static final int BACK_SLOT = 49;     // 하단 중앙: 메인 메뉴로
+    public static final int PREV_SLOT = 48;     // 이전 페이지
+    public static final int NEXT_SLOT = 50;     // 다음 페이지
     public static final int SELL_ALL_SLOT = 53; // (매입소) 전부 팔기
 
     /** 내용 슬롯(아이템 진열) — row 1..4 × col 1..7. */

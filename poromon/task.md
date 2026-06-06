@@ -109,6 +109,13 @@
 - ✅ **pvn 파티 버그 수정(중요)**: `BattleBuilder.pvn(...,party)`의 마지막 `PartyStore`는 **플레이어** 파티(바이트코드 확인). NPC 파티를 거기 넘겨서 플레이어가 상대 팀으로 싸우던 버그 → **플레이어 본인 파티(`Cobblemon.storage.getParty`)** 전달로 수정. **관장+배틀타워 양쪽** 적용.
 - ✅ **배지 커스텀 텍스처 기반(모드 내장 B안)**: 결정 — 리소스팩/http 불필요, 모드 jar `assets/`에 내장. `paper`+CustomModelData(81001~81008) 모델 분기(`paper.json` override + `badge_*.json` 8). `MenuIcons.iconModel`. ⚠️ **루트 .gitignore `assets/` 광역무시 → 모드 .gitignore 예외 추가**(추적 복구). 텍스처 8장(`assets/poromon/textures/item/badge_*.png`) **적용 완료**: 사용자 원본(1254² RGB 흰배경) → **64×64 리사이즈 + 모서리 흰배경 flood-fill 투명화** + Zone.Identifier 찌꺼기 제거 → BadgeMenu `iconModel(paper, 81000+order)` 전환. **서버+클라(PoroMon 0.1 Dev) 양쪽 배포·인게임 확인**. 원본은 `custom-mods/poromon-core/badge_originals_1254/`(gitignore). ⚠️ **커스텀 모델은 클라에도 PoroMonCore jar 필요** — 빌드 변경 시 서버+클라 동시 배포.
 
+## 4g. Phase 2 — sink 상점(성장·메가) (2026-06-06 세션)
+- ✅ **공용 `shop/CategoryShopMenu`**: 가격+배지게이트(minBadges)+**페이지네이션**(28/페이지, ◀▶) 구매 상점. 좌1/우8·환불·in-place 갱신. (제목·가격맵·태그)만 바꿔 재사용. `EconomyConfig.ShopEntry{price,minBadges}`.
+- ✅ **성장 상점**(메뉴 41): 이상한사탕·경험사탕XS~XL·행복알(배지1)·진화돌10·비타민6 = 23품목. `economy.json §growthShop`.
+- ✅ **메가 연구소**(메뉴 38): 메가팔찌(20k/배지4)+메가스톤47(기본43=8k/배지4, 고급 X/Y 4=25k/배지6) = 48품목 2페이지. `economy.json §megaShop`(jar에서 실 *ite ID 47 추출).
+- 둘 다 서버측 GUI(바닐라 cobblemon/MSD 아이템) → 서버만 배포. 인게임 확인.
+- ⚠️ **잔여**: 모드 아이템명 영어(클라 ko_kr 일부만) → 향후 `assets/<ns>/lang/ko_kr.json` 오버라이드 한글화 패스. 실전육성(민트/특성캡슐)·TM(SimpleTMs ID TODO)·알(Eggs ID TODO)·전설 제단(조우권)·메가팔찌 보유 게이트는 미구현.
+
 ## 5. 진행 중 / 미해결 TODO (요약)
 - ✅ **species ID 검증 완료** → `01_modpack/jar_registry_reference.md`: 전설 71(restricted 27 / 준전설 44)·환상 23·UB 11·패러독스 20 실 ID 확정.
 - ✅ **전설/환상 풀 배치 완료(결정 026)**: 조우권 적힌 전설=전수 실재(누락0). 미배치 28+마샤도 배치 — 박스전설4=최상급+컨셉, 준전설 그룹=등급/컨셉 분산, 환상13=이벤트/컨셉 분산(코스모움=폼 제외). 전설70+환상23 전수 배치 재검증.

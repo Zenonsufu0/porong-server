@@ -19,6 +19,72 @@ public class EconomyConfig {
     /** 편의 구매가: item id → 골드/개 (볼·회복약). */
     public Map<String, Long> buyPrices = defaultBuyPrices();
 
+    /** 카테고리 상점 품목: 가격 + 배지 게이트(minBadges). */
+    public static class ShopEntry {
+        public long price;
+        public int minBadges = 0;
+        public ShopEntry() {}
+        public ShopEntry(long price, int minBadges) { this.price = price; this.minBadges = minBadges; }
+    }
+
+    /** 성장 상점(이상한사탕·경험사탕·행복알·진화돌·비타민). shop_catalog_0.1 §3.2/3.3. */
+    public Map<String, ShopEntry> growthShop = defaultGrowthShop();
+
+    private static Map<String, ShopEntry> defaultGrowthShop() {
+        Map<String, ShopEntry> m = new LinkedHashMap<>();
+        // 레벨/경험치
+        m.put("cobblemon:rare_candy", new ShopEntry(800, 0));
+        m.put("cobblemon:exp_candy_xs", new ShopEntry(100, 0));
+        m.put("cobblemon:exp_candy_s", new ShopEntry(300, 0));
+        m.put("cobblemon:exp_candy_m", new ShopEntry(800, 0));
+        m.put("cobblemon:exp_candy_l", new ShopEntry(1500, 0));
+        m.put("cobblemon:exp_candy_xl", new ShopEntry(3000, 0));
+        m.put("cobblemon:lucky_egg", new ShopEntry(6000, 1));
+        // 진화의 돌 (기본/희귀 배지 게이트)
+        m.put("cobblemon:fire_stone", new ShopEntry(2000, 0));
+        m.put("cobblemon:water_stone", new ShopEntry(2000, 0));
+        m.put("cobblemon:thunder_stone", new ShopEntry(2000, 0));
+        m.put("cobblemon:leaf_stone", new ShopEntry(2000, 0));
+        m.put("cobblemon:ice_stone", new ShopEntry(2500, 2));
+        m.put("cobblemon:moon_stone", new ShopEntry(2500, 2));
+        m.put("cobblemon:sun_stone", new ShopEntry(2500, 2));
+        m.put("cobblemon:shiny_stone", new ShopEntry(3000, 2));
+        m.put("cobblemon:dusk_stone", new ShopEntry(3000, 2));
+        m.put("cobblemon:dawn_stone", new ShopEntry(3000, 2));
+        // EV 비타민
+        m.put("cobblemon:hp_up", new ShopEntry(2000, 0));
+        m.put("cobblemon:protein", new ShopEntry(2000, 0));
+        m.put("cobblemon:iron", new ShopEntry(2000, 0));
+        m.put("cobblemon:calcium", new ShopEntry(2000, 0));
+        m.put("cobblemon:zinc", new ShopEntry(2000, 0));
+        m.put("cobblemon:carbos", new ShopEntry(2000, 0));
+        return m;
+    }
+
+    /** 메가 연구소(메가팔찌 + 메가스톤 47). shop_catalog_0.1 §3.6 / mega_tera_unlock. */
+    public Map<String, ShopEntry> megaShop = defaultMegaShop();
+
+    private static Map<String, ShopEntry> defaultMegaShop() {
+        Map<String, ShopEntry> m = new LinkedHashMap<>();
+        m.put("mega_showdown:mega_bracelet", new ShopEntry(20000, 4)); // 앵커
+        // 기본 메가스톤 43종 (배지4 게이트, 8,000)
+        String[] basic = {
+                "abomasite", "absolite", "aerodactylite", "aggronite", "alakazite", "altarianite",
+                "ampharosite", "audinite", "banettite", "beedrillite", "blastoisinite", "blazikenite",
+                "cameruptite", "diancite", "galladite", "garchompite", "gardevoirite", "gengarite",
+                "glalitite", "gyaradosite", "heracronite", "houndoominite", "kangaskhanite", "latiasite",
+                "latiosite", "lopunnite", "lucarionite", "manectite", "mawilite", "medichamite",
+                "metagrossite", "pidgeotite", "pinsirite", "sablenite", "salamencite", "scizorite",
+                "sceptilite", "sharpedonite", "slowbronite", "steelixite", "swampertite", "tyranitarite",
+                "venusaurite"
+        };
+        for (String s : basic) m.put("mega_showdown:" + s, new ShopEntry(8000, 4));
+        // 고급 메가스톤(X/Y, 배지6 게이트, 25,000)
+        String[] advanced = {"charizardite_x", "charizardite_y", "mewtwonite_x", "mewtwonite_y"};
+        for (String s : advanced) m.put("mega_showdown:" + s, new ShopEntry(25000, 6));
+        return m;
+    }
+
     private static Map<String, Long> defaultSellPrices() {
         Map<String, Long> m = new LinkedHashMap<>();
         // 광물 (economy_design §9)
