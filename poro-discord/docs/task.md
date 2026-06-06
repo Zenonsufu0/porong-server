@@ -293,3 +293,32 @@ servers: { id, domain, season_no, display_name, state(준비|활성|종료),
 - ✅ **시즌 자산 = 아카이브 보존.** 시즌 카테고리·역할은 삭제하지 않고 아카이브(숨김) 처리해 기록·구조 보존.
   - 양립: 디스코드 카테고리/역할은 남되(채팅 히스토리·구조 보존), 봇 명령·토글은 완전 차단.
   - 함의: 종료 시즌이 누적됨 → 아카이브 카테고리 정리 정책(예: N시즌 경과분 수동 정리)은 운영 가이드에서 별도 결정.
+
+## 12. 설계 검토 결과 / 구현 가이드 (2026-06-07, implementation-reviewer)
+
+> 설계 패스(T12~T21) 독립 검토. 🔴 = 설계 반영 완료(아래 docs), 🟡 = 구현 시 선행/주의.
+
+### 12.1 설계 반영 완료 (🔴)
+- **`/역할부여` 권한상승 차단** — `PERMISSION_ROLE_IDS` 소속 역할 부여 거부([`domains/admin.md`](domains/admin.md) 보안원칙).
+- **제재 대상 보호** — operator 이상 권한자·Owner·봇상위 멤버 제재 거부([`moderation.md`](moderation.md) §1b).
+- **domain당 active 1개 강제** + 1차 멀티시즌 미사용([`data_model.md`](data_model.md) §2.1).
+
+### 12.2 구현 선행 / 주의 (🟡)
+- **전역 app command 에러 핸들러 선행**: 현행 `main.py`에 `on_app_command_error` 부재 → `requires_permission`·`requires_category` 거부가 유저에게 안내 안 됨. moderation/admin 착수 전 필수.
+- **`mod_log`+`#운영로그` 게시 헬퍼**를 moderation/admin/lifecycle보다 먼저(중복 방지).
+- **영구 View 영속화**: 신규 패널(서버선택·`/칭호`·티켓·FAQ)은 `auth.py` `TermsView`처럼 stable custom_id로 `add_view` 재등록 필수. 페이지네이션(`/리더보드`·`/도움말`)은 ephemeral timeout View로 영속화 회피.
+- **인바운드 aiohttp**: `web.run_app()` 금지(루프 충돌) → `AppRunner`+`TCPSite`를 봇 루프 task로 기동.
+- **명령 sync**: 단일 길드는 `tree.sync(guild=...)`로 즉시 반영(전역 sync는 최대 1h).
+- **aiosqlite 쓰기 직렬화**: 단일 커넥션에 여러 코루틴(on_message XP·voice tick·temp_roles tick·명령) 동시 쓰기 → statement autocommit 또는 쓰기 lock. on_message XP는 쿨다운 메모리 1차 판정 후에만 DB write(핫패스 방어).
+- **인바운드 계약 갭**(notifications ① 보강): 봇 다운 중 push 유실 = **게임서버 재시도/실패허용 책임**. 미등록 `(domain,kind)`는 graceful(로깅+200). per-domain 시크릿은 추후 고려.
+- **운영명령 상태검증 강제**: 매트릭스가 운영명령에 `requires_server_active`를 안 거니, `/서버시작`을 ended 행에 호출 등은 공용 `assert_state` 헬퍼로 명시 검증.
+
+### 12.3 1차 버전 권장
+- **닉 `[LV.nn]` prefix 보류** — 레이트리밋·상위역할 skip·base 파싱 리스크. 1차는 임베드/카드 표시만.
+- **서버선택 = reaction 대신 Select/Button(영구 View)** — 리액션 롤 중복/레이스 회피, 가시성 흐름과 정합.
+- **멀티시즌 동시운영 미사용** — domain당 active 1 강제. `api_env_key` 동적 베이스URL은 시즌 중첩 필요 시.
+- **게이팅 판정부 순수 함수화** `(category_id, registry_snapshot)->bool` — discord 없이 단위 테스트.
+- **상태변경 명령은 인터페이스까지**(DL-130 ⑤), 읽기 명령(`/서버목록`·`/레벨`·`/리더보드`·`/유저조회`) 먼저 구현·검증.
+
+### 12.4 stdlib 단위 테스트 가능(실길드 불필요)
+- 마이그레이션 러너 · XP→레벨 곡선 · HMAC+timestamp+idempotency · 게이팅 판정부 · 라우팅 lookup · 권한/역할부여 가드. 그 외(역할·닉·채널·View·voice·제재·인바운드 e2e)는 실길드/스테이징.

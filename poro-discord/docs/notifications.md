@@ -45,6 +45,11 @@
   3. **`X-Signature`** — `hex(HMAC-SHA256(raw_body, INBOUND_SECRET))` 불일치 시 `401`.
   4. **idempotency** — `idempotency_key` 기 수신이면 무시(dedup). 저장소 = 메모리 LRU(재시작 시 유실 허용) 또는 DB.
 - 통과 → 봉투 `{domain, kind, data}` 파싱 → `notifier.dispatch(domain, kind, data)`. 응답 `200 {"ok":true}` / 스키마 오류 `400`.
+- **전달 보증/엣지(검토 보강):**
+  - 봇 다운 중 push 는 **유실**(봇 측 큐·재시도 없음) → **게임서버가 재시도·실패허용 책임**(계약 명시).
+  - 미등록 `(domain, kind)`(스텁/오타) 수신 = graceful 처리(로깅 + `200`, 크래시 금지).
+  - `INBOUND_SECRET`은 현재 전 domain 공유 → 봉투 `domain` 스푸핑 가능(신뢰 경계 내 저위험). per-domain 시크릿은 추후 고려.
+  - 구현: `web.run_app()` 금지 → `AppRunner`+`TCPSite`를 봇 루프 task로 기동.
 - **인증 방식 결정:** **HMAC-SHA256 + timestamp**(권장안 채택). 단순 공유키 대비 본문 위변조·리플레이 방어. `.env`: `INBOUND_SECRET`.
 - `.env` 추가: `BOT_INBOUND_BASE`(또는 PORT) · `INBOUND_SECRET` · `INBOUND_ALLOW_IPS`(선택). placeholder만 `.env.example`.
 
