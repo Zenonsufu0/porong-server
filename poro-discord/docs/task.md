@@ -141,7 +141,24 @@
 
 ## 8. 세션 핸드오프 (다음 세션 이어가기)
 
-### 이번 세션 완료 (2026-06-05, feature/discord-dev)
+### 이번 세션 완료 (2026-06-06~07, feature/discord-dev) — 공통 확장 설계 패스 + 검토
+모두 **docs/설계만, 코드 변경 없음**(상태변경 구현은 DL-130 ⑤ 사용자 명시 요청 시). 10커밋:
+- `26017b7` 백로그 승격(T12~T21) + data_model.md + server_lifecycle.md
+- `ca924df` architecture.md core 계약(db·게이팅 헬퍼) · `f9d06b3` notifications.md T1(인바운드 HMAC·notifier)
+- `66292ce` community_level.md(T13, 칭호=코스메틱) · `c64ad8f` moderation.md(T15) · `6df1340` support.md(T16)
+- `91f25bb` 남은 설계(T14·T17·T18) + 트래커 🟡 · `a07d00a` 내 검토 4건 수정
+- `b4bf9c7` 독립검토(서브에이전트) 반영 — 권한구멍 3건 + 구현가이드 §12
+
+**산출 docs:** data_model · server_lifecycle · community_level · moderation · support (신규) + architecture·notifications·integration_contract·admin·common (확장). 설계 SoT = 각 docs, 트래커 = §0/§9~§12.
+
+**확정 추가 결정:** SQLite(디스코드 측만) · message_content 인텐트 미사용 · LLM/자동언어감지 제외 · 칭호=누적보유+장착1개(역할 아님) · 게이팅 3층(접근역할→카테고리→서버상태) · 인바운드 HMAC+timestamp · 서버 생애주기(종료=완전비활성·아카이브 보존, 새게임=코드/새시즌=데이터, domain당 active 1).
+
+**다음 세션 착수 후보:**
+1. **DL 동기화(미완·우선)** — 이번 결정 전부 디스코드 task.md에만 기록됨. RPG worktree에서 `decision_log.md` DL-135+ 로 동기화 필요(여기선 읽기전용).
+2. **구현 착수**(명시 요청 시) — §12.2 순서: 전역 에러 핸들러 → `core/db.py`(T12) → `mod_log` 헬퍼 → 읽기 명령(`/서버목록`·`/레벨`·`/리더보드`)부터. 상태변경 명령은 인터페이스까지.
+3. **남은 열린 결정**: XP 곡선 수치, 티켓 동시수/종료방식, FAQ 매칭 전략, 닉prefix 도입여부(1차 보류).
+
+### 이전 세션 완료 (2026-06-05, feature/discord-dev)
 설계 라인 정본화 — 모두 **docs/DL만, 코드 변경 없음**. 커밋 단위:
 - `c6d4124` DL-130~132 — 봇 구조 정본화(스택 Python, DL-030 SUPERSEDE) · task.md 신설 · 멀티서버 온보딩(공통 디스코드 인증 → 서버별 약관동의 → 서버별 화이트리스트) · 오라클 상시호스팅 · 카테고리 채널구조 + 이모지 서버선택(역할기반 가시성) · 운영자 전용 닉네임 변경.
 - `a17f9a2` DL-133 — 서버 구조 토폴로지 · 봇 관여 경계(봇=API 클라이언트, 게임상태 권위 아님) · 포로몬=HTTP API · 알림=게임서버→봇 push.
