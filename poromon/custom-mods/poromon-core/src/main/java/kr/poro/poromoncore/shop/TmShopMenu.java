@@ -40,7 +40,8 @@ public final class TmShopMenu {
 
     private static final int PER_PAGE = ShopLayout.CONTENT_SLOTS.length; // 28
     private static final int SEARCH_SLOT = 53;
-    private static final int STONE_SLOT = 45;   // 해금석 구매(구매 모드)
+    private static final int STONE_SLOT = 45;     // 해금석 구매(구매 모드)
+    private static final int MAKEOVER_SLOT = 47;  // 마개조 각인 진입(구매 모드)
 
     /** 마개조 각인 대상: player → pokemon UUID (해금석 우클릭 시 설정). 비어있으면 구매 모드. */
     private static final Map<UUID, UUID> TEACH = new HashMap<>();
@@ -86,9 +87,11 @@ public final class TmShopMenu {
         if (!teach) {
             TmShopConfig cfg = ConfigManager.economy().tmShop;
             inv.setStack(STONE_SLOT, MenuIcons.icon(Items.PAPER, "§d마개조 해금석",
-                    List.of("§7포켓몬에 우클릭 → learnset 무시 기술 1개 각인",
+                    List.of("§7포켓몬에 우클릭 → 그 포켓몬 영구 마개조 해제",
                             "§7가격: §6" + cfg.makeoverStonePrice + " " + ConfigManager.economy().currencyDisplay,
                             "§7배지 " + cfg.makeoverStoneBadges + "개 필요", "§e클릭 — 구매")));
+            inv.setStack(MAKEOVER_SLOT, MenuIcons.icon(Items.ENDER_EYE, "§d마개조 각인",
+                    List.of("§7마개조된 포켓몬에 배울 수 없는 기술 각인", "§7각인마다 골드(위력 등급가)", "§e클릭 — 포켓몬 선택")));
         }
 
         for (int i = 0; i < TmCatalog.TYPES.length && i < ShopLayout.CONTENT_SLOTS.length; i++) {
@@ -133,6 +136,7 @@ public final class TmShopMenu {
         }
         if (slot == SEARCH_SLOT) { promptSearch(player); return; }
         if (slot == STONE_SLOT && !teachMode(player)) { buyStone(player); return; }
+        if (slot == MAKEOVER_SLOT && !teachMode(player)) { openPokemonSelect(player); return; }
         int idx = ShopLayout.contentIndexOf(slot);
         if (idx < 0 || idx >= TmCatalog.TYPES.length) return;
         showList(player, "type:" + TmCatalog.TYPES[idx], 0);
@@ -255,39 +259,77 @@ public final class TmShopMenu {
         showList(player, source, page);
     }
 
-    // ===== 마개조 각인 =====
-    private static Pokemon findPartyPokemon(ServerPlayerEntity player, UUID id) {
-        if (id == null) return null;
-        for (Pokemon p : Cobblemon.INSTANCE.getStorage().getParty(player)) {
-            if (p != null && p.getUuid().equals(id)) return p;
-        }
-        return null;
+    // ===== 마개조 각인(메뉴 진입) =====
+    /** 마개조 각인: 파티 포켓몬 선택(마개조된 것만 클릭 가능). */
+    public static void openPokemonSelect(ServerPlayerEntity player) {
+        ServerMenuHandler.show(player, Text.literal("마개조 각인 — 포켓몬 선택").formatted(Formatting.LIGHT_PURPLE),
+                inv -> {
+                    for (int i = 0; i < ServerMenuHandler.DISPLAY_SIZE; i++) inv.setStack(i, MenuIcons.pane());
+                    inv.setStack(ShopLayout.BALANCE_SLOT, MenuIcons.icon(Items.PAPER, "§d마개조 각인",
+                            List.of("§7해금석으로 마개조된 포켓몬만 선택 가능", "§7각인마다 골드(위력 등급가)")));
+                    inv.setStack(ShopLayout.BACK_SLOT, MenuIcons.icon(Items.ARROW, "§e← 기술머신", List.of()));
+                    int[] slots = {11, 12, 13, 14, 15, 16};
+                    int i = 0;
+                    for (Pokemon pk : Cobblemon.INSTANCE.getStorage().getParty(player)) {
+                        if (pk == null || i >= slots.length) { i++; continue; }
+                        boolean mo = MakeoverService.isMakeover(player, pk);
+                        inv.setStack(slots[i], MenuIcons.icon(mo ? Items.ENDER_EYE : Items.IRON_BARS,
+                                (mo ? "§d" : "§8") + pk.getSpecies().getName() + " §7Lv." + pk.getLevel(),
+                                mo ? List.of("§a클릭 — 기술 각인") : List.of("§c미해제 §7(해금석 필요)")));
+                        i++;
+                    }
+                },
+                (p, slot, button, shift) -> {
+                    if (slot == ShopLayout.BACK_SLOT) { open(p); return; }
+                    int[] slots = {11, 12, 13, 14, 15, 16};
+                    int idx = -1;
+                    for (int k = 0; k < slots.length; k++) if (slots[k] == slot) { idx = k; break; }
+                    if (idx < 0) return;
+                    int i = 0;
+                    for (Pokemon pk : Cobblemon.INSTANCE.getStorage().getParty(p)) {
+                        if (i == idx) {
+                            if (pk != null && MakeoverService.isMakeover(p, pk)) openTeach(p, pk.getUuid());
+                            else p.sendMessage(Text.literal("§c[마개조] 해금석으로 먼저 해제하세요."), true);
+                            return;
+                        }
+                        i++;
+                    }
+                });
     }
 
     private static void teachMove(ServerPlayerEntity player, String moveName, String displayName) {
         UUID pid = TEACH.get(player.getUuid());
-        Pokemon pk = findPartyPokemon(player, pid);
+        Pokemon pk = MakeoverService.findPartyPokemon(player, pid);
         if (pk == null) {
             player.sendMessage(Text.literal("§c[마개조] 대상 포켓몬을 파티에서 찾을 수 없습니다."), true);
+            TEACH.remove(player.getUuid()); player.closeHandledScreen(); return;
+        }
+        if (!MakeoverService.isMakeover(player, pk)) {
+            player.sendMessage(Text.literal("§c[마개조] 해제되지 않은 포켓몬입니다."), true);
             TEACH.remove(player.getUuid()); player.closeHandledScreen(); return;
         }
         MoveTemplate tpl = Moves.getByName(moveName);
         if (tpl == null) { player.sendMessage(Text.literal("§c[마개조] 알 수 없는 기술."), true); return; }
         MoveSet ms = pk.getMoveSet();
         if (ms.hasSpace()) {
+            long price = ConfigManager.economy().tmShop.priceFor(tpl.getPower());
+            if (!EconomyBridge.withdraw(player, price, "makeover:" + moveName)) {
+                player.sendMessage(Text.literal("§c[마개조] 골드가 부족합니다 (필요 " + price + ")."), true);
+                return;
+            }
             List<Move> withNulls = ms.getMovesWithNulls();
             int free = -1;
             for (int i = 0; i < withNulls.size(); i++) if (withNulls.get(i) == null) { free = i; break; }
             if (free < 0) free = 0;
             ms.setMove(free, tpl.create());
-            finishTeach(player, pk, displayName);
+            finishTeach(player, pk, displayName, price);
         } else {
             PENDING.put(player.getUuid(), moveName);
             openSlotSelect(player, displayName);
         }
     }
 
-    /** 무브셋 가득 → 교체할 슬롯 선택. */
+    /** 무브셋 가득 → 교체할 슬롯 선택(확정 시 골드 차감). */
     private static void openSlotSelect(ServerPlayerEntity player, String displayName) {
         ServerMenuHandler.show(player, Text.literal("마개조 — 교체할 기술").formatted(Formatting.LIGHT_PURPLE),
                 inv -> {
@@ -295,7 +337,7 @@ public final class TmShopMenu {
                     inv.setStack(ShopLayout.BALANCE_SLOT, MenuIcons.icon(Items.PAPER,
                             "§d각인: " + displayName, List.of("§7교체할 기존 기술을 클릭하세요")));
                     inv.setStack(ShopLayout.BACK_SLOT, MenuIcons.icon(Items.ARROW, "§c취소", List.of()));
-                    Pokemon pk = findPartyPokemon(player, TEACH.get(player.getUuid()));
+                    Pokemon pk = MakeoverService.findPartyPokemon(player, TEACH.get(player.getUuid()));
                     if (pk != null) {
                         List<Move> moves = pk.getMoveSet().getMoves();
                         int[] slots = {20, 21, 22, 23};
@@ -314,29 +356,27 @@ public final class TmShopMenu {
                     for (int i = 0; i < slots.length; i++) if (slots[i] == slot) { idx = i; break; }
                     if (idx < 0) return;
                     String mn = PENDING.get(p.getUuid());
-                    Pokemon pk = findPartyPokemon(p, TEACH.get(p.getUuid()));
+                    Pokemon pk = MakeoverService.findPartyPokemon(p, TEACH.get(p.getUuid()));
                     MoveTemplate tpl = mn == null ? null : Moves.getByName(mn);
                     if (pk == null || tpl == null) { p.closeHandledScreen(); return; }
                     if (idx >= pk.getMoveSet().getMoves().size()) return;
+                    long price = ConfigManager.economy().tmShop.priceFor(tpl.getPower());
+                    if (!EconomyBridge.withdraw(p, price, "makeover:" + mn)) {
+                        p.sendMessage(Text.literal("§c[마개조] 골드가 부족합니다 (필요 " + price + ")."), true);
+                        return;
+                    }
                     pk.getMoveSet().setMove(idx, tpl.create());
                     PENDING.remove(p.getUuid());
-                    finishTeach(p, pk, displayName);
+                    finishTeach(p, pk, displayName, price);
                 });
     }
 
-    private static void finishTeach(ServerPlayerEntity player, Pokemon pk, String displayName) {
-        consumeStone(player);
-        TEACH.remove(player.getUuid());
-        player.closeHandledScreen();
+    private static void finishTeach(ServerPlayerEntity player, Pokemon pk, String displayName, long price) {
+        UUID pid = TEACH.get(player.getUuid());
         player.sendMessage(Text.literal("§a[마개조] " + pk.getSpecies().getName()
-                + " 에게 " + displayName + " 각인 완료!"), false);
-    }
-
-    private static void consumeStone(ServerPlayerEntity player) {
-        for (int i = 0; i < player.getInventory().size(); i++) {
-            ItemStack s = player.getInventory().getStack(i);
-            if (MakeoverStone.isStone(s)) { s.decrement(1); return; }
-        }
+                + " 에게 " + displayName + " 각인 완료 (-" + price + ")."), false);
+        if (pid != null) openTeach(player, pid); // 같은 포켓몬에 계속 각인 가능
+        else player.closeHandledScreen();
     }
 
     private static void buy(ServerPlayerEntity player, TmCatalog.Entry e) {

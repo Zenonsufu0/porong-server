@@ -46,13 +46,26 @@ public class PoroMonCore implements ModInitializer {
         // 야생 포켓몬 골드 보상(처치·포획)
         kr.poro.poromoncore.economy.WildRewardService.registerEvents();
 
-        // 마개조 해금석: 포켓몬 우클릭 → 기술 각인 메뉴(결정033)
+        // 마개조 해금석: 포켓몬 우클릭 → 그 포켓몬 영구 마개조 해제(소모). 각인은 기술머신 메뉴(결정033-a)
         net.fabricmc.fabric.api.event.player.UseEntityCallback.EVENT.register((p, world, hand, entity, hit) -> {
             if (world.isClient() || hand != net.minecraft.util.Hand.MAIN_HAND) return net.minecraft.util.ActionResult.PASS;
             if (!(p instanceof ServerPlayerEntity sp)) return net.minecraft.util.ActionResult.PASS;
-            if (!kr.poro.poromoncore.item.MakeoverStone.isStone(sp.getStackInHand(hand))) return net.minecraft.util.ActionResult.PASS;
+            net.minecraft.item.ItemStack held = sp.getStackInHand(hand);
+            if (!kr.poro.poromoncore.item.MakeoverStone.isStone(held)) return net.minecraft.util.ActionResult.PASS;
             if (!(entity instanceof com.cobblemon.mod.common.entity.pokemon.PokemonEntity pe)) return net.minecraft.util.ActionResult.PASS;
-            kr.poro.poromoncore.shop.TmShopMenu.openTeach(sp, pe.getPokemon().getUuid());
+            com.cobblemon.mod.common.pokemon.Pokemon target =
+                    kr.poro.poromoncore.shop.MakeoverService.findPartyPokemon(sp, pe.getPokemon().getUuid());
+            if (target == null) {
+                sp.sendMessage(net.minecraft.text.Text.literal("§c[마개조] 본인 파티 포켓몬에만 사용할 수 있습니다."), true);
+                return net.minecraft.util.ActionResult.SUCCESS;
+            }
+            if (!kr.poro.poromoncore.shop.MakeoverService.unlock(sp, target)) {
+                sp.sendMessage(net.minecraft.text.Text.literal("§e[마개조] 이미 해제된 포켓몬입니다."), true);
+                return net.minecraft.util.ActionResult.SUCCESS;
+            }
+            held.decrement(1);
+            sp.sendMessage(net.minecraft.text.Text.literal("§a[마개조] " + target.getSpecies().getName()
+                    + " 해제 완료! 기술머신 → 마개조 각인에서 기술을 배울 수 있습니다."), false);
             return net.minecraft.util.ActionResult.SUCCESS;
         });
 
