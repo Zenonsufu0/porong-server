@@ -125,6 +125,8 @@
   - ⚠️ **모델 이슈 해결**: Cobblemon 1.7.3은 다수 전설 모델 미구현(`implemented:false`→substitute 인형). **모드팩에 `complete-cobblemon-collection`(+EMF) 추가**(클라)로 모델 보충 → 설계 278종 전수 커버 확인. 풀 enabled=원설계 복원(서버는 렌더 무관, 클라만 컬렉션 필요). `legendary_pools.json` = (Cobblemon implemented ∪ 컬렉션 커버) 게이트로 생성(현재 전수 통과).
 - ✅ **4단계 전설 제단(`encounter/AltarMenu`, 슬롯37) + 결정031 재설계**: **등급(tier) 제단 1회 해금(선행)** → 그 등급 조우권 반복 사용(저가). `PlayerProgress.altarsUnlocked`. economy.json `altarUnlock`(해금 5k~120k·배지게이트)·`ticketUse`(사용 500~6000)·`shinyChancePercent`(이로치 5%). 컨셉 제단1=컨셉10. 소환 실패 환불. 아이콘 임시 바닐라(텍스처 추후 paper+CMD 82001~).
 - ✅ **이로치 = 조우권 사용 시 5% 확률 샤이니**(결정031, 별도 확정권 대체). (IB-001 보유변환 확정권은 보류.)
+- ✅ **조우 확률 표시**(`encounter/PoolInfoMenu`): 제단 풀 **우클릭 → 후보 한글명+출현 확률%+가중치**(페이지네이션). 좌클릭=해금/사용. 확률=weight/Σweight(0.1 stage_weight 미적용).
+- ⏳ **잔여**: 등급별 조우권 텍스처(paper+CMD 82001~), 밸런스 패스(stage_weight 적용·컨셉 차등/확률·apex 중복 차별화), 야생 처치/포획 골드 보상 연동.
 
 ## 5. 진행 중 / 미해결 TODO (요약)
 - ✅ **species ID 검증 완료** → `01_modpack/jar_registry_reference.md`: 전설 71(restricted 27 / 준전설 44)·환상 23·UB 11·패러독스 20 실 ID 확정.

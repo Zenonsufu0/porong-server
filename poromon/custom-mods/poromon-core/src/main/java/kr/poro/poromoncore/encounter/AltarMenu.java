@@ -84,6 +84,7 @@ public final class AltarMenu {
 
             List<String> lore = new ArrayList<>();
             lore.add("§7예시: §f" + examples(pool));
+            lore.add("§8우클릭 — 출현 확률 보기");
             if (unlocked) {
                 lore.add("§a제단 해금됨 ✔");
                 lore.add("§7조우권: §6" + usePrice + " " + unit);
@@ -107,6 +108,7 @@ public final class AltarMenu {
         if (poolId == null) return;
         EncounterConfig.Pool pool = ConfigManager.encounter().pools.get(poolId);
         if (pool == null) return;
+        if (button == 1) { PoolInfoMenu.open(player, poolId); return; } // 우클릭 = 확률 상세
         String tier = pool.type;
         String unlockKey = unlockKey(tier, poolId);
         PlayerProgress pr = progress(player);
