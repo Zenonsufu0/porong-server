@@ -35,3 +35,23 @@
 
 > 위 명령어의 RPG 측 상세(임베드 형식·예외 처리 등)는 [`rpg.md`](rpg.md) §3-2·§4 참조.
 > 본 문서는 중앙제어 권한/보안 관점의 정리다.
+
+## 서버 생애주기 명령 (T17·T21)
+
+서버 on/off·카테고리 템플릿 신설은 **서버 생애주기**의 일부다. 상세 = [`../server_lifecycle.md`](../server_lifecycle.md).
+
+| 명령어 | 기능 | 권한 |
+|---|---|---|
+| `/서버신설 <도메인> <시즌> <표시명>` | 레지스트리 `prep` 행 + 카테고리 템플릿 + 접근역할 생성 | admin |
+| `/서버시작 <id>` | prep→active (카테고리 가시화·이모지 패널 등록) | admin |
+| `/서버종료 <id> <사유>` | active→ended (아카이브·명령/토글 차단) | admin |
+| `/서버목록` · `/서버정보 <id>` | 서버 상태 조회 | admin |
+
+- 봇 길드 권한 필요: **Manage Channels / Roles**(템플릿 신설·가시성), **Manage Nicknames**(닉 prefix). 배포(T8)에서 봇 역할 권한 구성.
+- `/서버종료`는 **게임 서버를 끄지 않는다**(시즌 종료 의미). 게임 인스턴스 기동은 게임 호스팅 소관.
+
+## 운영 명령 공통 규약 (T15 연계)
+
+- 모든 상태 변경 명령은 `mod_log` 적재 + `#운영로그`(`CHANNEL_MODLOG_ID`) 게시 — [`../moderation.md`](../moderation.md) §3.
+- 게임서버 상태 변경(골드지급·닉네임변경·화이트리스트)은 API 경유(A-3) + 사용자 명시 요청 시 실구현 — [`../integration_contract.md`](../integration_contract.md) §A-3.
+- 제재(경고·타임아웃·추방·차단)는 [`../moderation.md`](../moderation.md).
