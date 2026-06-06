@@ -88,3 +88,41 @@
 - 조우권(커스텀 아이템): `../04_game_design/encounter_pool_design.md`
 - 배포 정책: `CLAUDE.md`(Modpack Policy) · 모드 목록: `../01_modpack/modpack_list.md`
 - 유저 설치: `user_install_guide.md`(TODO)
+
+---
+
+## 8. 실행 계획 — 2026-06-07 전수조사 반영 (구현 전, 계획만)
+
+### 8.1 전수조사 결과 (현황 갱신)
+- **클라 언어 = `ko_kr`** 확정(PoroMon 0.1 Dev `options.txt: lang:ko_kr`).
+- **Cobblemon / SimpleTMs / Mega Showdown 모두 ko_kr 내장** → 인게임 **인벤토리/툴팁**의 포켓몬명·기술명·볼·메가스톤·아이템은 **이미 한국어로 표시**됨(클라가 ko_kr 렌더).
+- Cobblemon 번역은 **Weblate 커뮤니티 번역**(lang.cobblemon.com, 한국어 프로젝트) → 빌드시점 스냅샷이라 **누락분은 영어 폴백** 가능. 포켓몬 공식 한글명 출처: Bulbapedia 한국어 포켓몬명 / 포켓몬코리아.
+- §4의 **Legendary Monuments 1순위·Eggs Addon 항목은 무효**: LM=완전 비활성(결정023, 표시 텍스트 노출 없음), Eggs=제거(결정032).
+
+### 8.2 진짜 남은 작업 = PoroMonCore GUI의 영어 "박제" 제거 (핵심)
+우리 서버 GUI는 모드 아이템 이름을 `item.getName().getString()`(=서버 locale, **영어**)로 **문자열 고정**해 CUSTOM_NAME에 넣는다 → 클라가 ko_kr여도 **우리 메뉴에서만 영어**로 보임. 박제 지점 **9곳**:
+| 파일 | 건수 |
+|---|---|
+| `shop/CategoryShopMenu.java` | 3 |
+| `shop/BuyShopMenu.java` | 2 |
+| `shop/SellShopMenu.java` | 2 |
+| `shop/EngineeringMenu.java` | 1 |
+| `shop/TmCatalog.java` | 1 (move displayName) |
+
+**해결 방향(구현 시):** `MenuIcons.icon`에 `Text` 이름을 받는 오버로드 추가 → `item.getName()`(translatable Text) 또는 `MoveTemplate.getDisplayName()`(translatable)을 **그대로** 전달(색은 `Text.empty().append(...)` 또는 styled prefix). 그러면 클라(ko_kr)가 자동 한글 렌더. **추가 번역 데이터 없이** GUI 한글화 완료.
+- 단, `EngineeringMenu`/`TmCatalog`의 **검색은 영문 키 기준** 유지(한글 검색은 별도) — displayName이 한글이 되면 한글 검색도 부분일치로 동작 가능(검토).
+
+### 8.3 누락 번역 처리 (필요 시)
+- 모드 ko_kr에 빠진 항목(영어로 뜨는 것)만 **자체 `ko_kr.json` 오버라이드**(공식 한국어 리소스팩 `PoroMon-Korean-Pack`)로 보완. 키는 해당 모드 `en_us.json`에서 추출.
+- 출처: ① 모드 Weblate ko 최신 ② 포켓몬/기술 공식 한글명(Bulbapedia/포켓몬코리아) ③ **사용자 제공 공식 번역본**.
+- PoroMonCore 커스텀(리그패스/정수/배지/조우권/메뉴/메시지)은 **이미 한국어 하드코딩** → 작업 불필요(영어 잔재만 점검).
+
+### 8.4 작업 순서 (구현 단계 — 승인 후)
+1. 인게임 ko_kr 캡처로 **실제 영어 잔존 지점 확정**(우리 GUI 9곳 + 혹시 영어로 뜨는 모드 항목 목록화).
+2. `MenuIcons` Text 오버로드 추가 → 9곳 translatable 전환 → 빌드/배포/인게임 검증.
+3. (있으면) 누락 모드 번역만 `PoroMon-Korean-Pack` ko_kr override 작성 → 모드팩 동봉.
+4. 검수 체크리스트: 메뉴 전체 / 상점(매입·편의·성장·실전·기술머신·메가·제단·포로공학) / 아이템 lore / 명령 응답.
+
+### 8.5 검증
+- 클라 ko_kr에서 각 GUI 캡처 → 영어 잔존 0 목표(핵심 동선 우선).
+- 누락은 en_us 폴백 허용하되 핵심 동선(상점/조우권/포로공학)은 한글 강제.
