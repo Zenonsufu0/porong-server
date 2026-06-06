@@ -44,6 +44,16 @@ public class PoroMonCore implements ModInitializer {
         // 관장 배틀 승리 이벤트 구독(Cobblemon)
         kr.poro.poromoncore.gym.GymBattleService.registerEvents();
 
+        // 서버 참조 캐시(이벤트 부스트용) + 경험치 부스트 훅
+        net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STARTED.register(
+                kr.poro.poromoncore.event.EventManager::setServer);
+        com.cobblemon.mod.common.api.events.CobblemonEvents.EXPERIENCE_GAINED_EVENT_PRE.subscribe(
+                com.cobblemon.mod.common.api.Priority.NORMAL, e -> {
+                    if (kr.poro.poromoncore.event.EventManager.isXpBoost()) {
+                        e.setExperience((int) (e.getExperience() * kr.poro.poromoncore.event.EventManager.xpMultiplier()));
+                    }
+                });
+
         // 명령 등록
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
                 PoroMonCommand.register(dispatcher));

@@ -21,6 +21,10 @@ public class PoroMonState extends PersistentState {
 
     private final Map<UUID, PlayerProgress> players = new HashMap<>();
 
+    // 전역 이벤트 부스트 (운영자 GUI 토글, 영속) — 결정/IB-002
+    public boolean xpBoost = false;
+    public boolean goldBoost = false;
+
     public static final PersistentState.Type<PoroMonState> TYPE = new PersistentState.Type<>(
             PoroMonState::new,
             PoroMonState::readNbt,
@@ -56,6 +60,8 @@ public class PoroMonState extends PersistentState {
             playersNbt.put(e.getKey().toString(), e.getValue().writeNbt(new NbtCompound()));
         }
         nbt.put("players", playersNbt);
+        nbt.putBoolean("xpBoost", xpBoost);
+        nbt.putBoolean("goldBoost", goldBoost);
         return nbt;
     }
 
@@ -71,6 +77,8 @@ public class PoroMonState extends PersistentState {
                 }
             }
         }
+        state.xpBoost = nbt.getBoolean("xpBoost");
+        state.goldBoost = nbt.getBoolean("goldBoost");
         return state;
     }
 }

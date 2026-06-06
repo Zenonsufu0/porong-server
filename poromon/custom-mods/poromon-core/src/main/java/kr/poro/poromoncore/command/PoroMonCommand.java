@@ -43,6 +43,7 @@ public final class PoroMonCommand {
                         .then(CommandManager.literal("deny").executes(PoroMonCommand::tpaDeny)))
                 .then(CommandManager.literal("admin")
                         .requires(src -> src.hasPermissionLevel(2))
+                        .then(CommandManager.literal("gui").executes(PoroMonCommand::adminGui))
                         .then(CommandManager.literal("reload").executes(PoroMonCommand::reload))
                         .then(CommandManager.literal("pass")
                                 .then(CommandManager.argument("player", EntityArgumentType.player())
@@ -247,6 +248,11 @@ public final class PoroMonCommand {
         EconomyBridge.set(target, amount, "admin_set");
         ctx.getSource().sendFeedback(() -> Text.literal("§a[PoroMon]§r " + target.getGameProfile().getName()
                 + " 잔액 = " + EconomyBridge.getBalance(target)), true);
+        return 1;
+    }
+
+    private static int adminGui(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        kr.poro.poromoncore.admin.AdminMenu.open(ctx.getSource().getPlayerOrThrow());
         return 1;
     }
 

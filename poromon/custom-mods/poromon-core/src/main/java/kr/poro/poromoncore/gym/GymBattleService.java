@@ -178,6 +178,14 @@ public final class GymBattleService {
         }
     }
 
+    /** 운영자 강제 해제: 관장 배틀 추적 제거 + NPC 정리. */
+    public static boolean forceEnd(ServerPlayerEntity player) {
+        Active a = ACTIVE.remove(player.getUuid());
+        if (a == null) return false;
+        discardNpc(player.getServer(), a.npcUuid());
+        return true;
+    }
+
     private static void onVictory(BattleVictoryEvent event) {
         try {
             for (BattleActor actor : event.getWinners()) resolve(actor, true);

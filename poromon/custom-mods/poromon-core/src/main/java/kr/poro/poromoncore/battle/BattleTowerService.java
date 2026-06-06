@@ -52,6 +52,11 @@ public final class BattleTowerService {
             "tyranitar level=100 held_item=cobblemon:leftovers nature=adamant moves=stoneedge,crunch,earthquake,thunderwave"
     };
 
+    /** 운영자 강제 해제: 배틀타워 추적 제거(배틀 종료는 호출측에서 battle.end). */
+    public static boolean forceEnd(ServerPlayerEntity player) {
+        return ACTIVE.remove(player.getUuid());
+    }
+
     /** 지정 층 배틀 시작(0.1: 20층만). 성공 시 true. */
     public static boolean startFloor(ServerPlayerEntity player, int floor) {
         try {

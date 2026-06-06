@@ -131,7 +131,7 @@ public final class SellShopMenu {
             }
         }
         if (count <= 0) return 0;
-        long gold = count * unitPrice;
+        long gold = Math.round(count * unitPrice * kr.poro.poromoncore.event.EventManager.goldMultiplier());
         EconomyBridge.deposit(player, gold, "sell:" + itemId);
         return gold;
     }

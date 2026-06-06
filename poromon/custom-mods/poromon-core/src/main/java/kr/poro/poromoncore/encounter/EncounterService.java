@@ -39,6 +39,25 @@ public final class EncounterService {
         return ACTIVE.containsKey(player.getUuid());
     }
 
+    /** 운영자 강제 해제: 조우방 정리 + 원위치 복귀. 세션 없으면 false. */
+    public static boolean forceEnd(ServerPlayerEntity player) {
+        Session s = ACTIVE.remove(player.getUuid());
+        if (s == null) return false;
+        MinecraftServer server = player.getServer();
+        ServerWorld arena = server.getOverworld();
+        Entity mon = arena.getEntity(s.pokemonUuid);
+        if (mon != null) mon.discard();
+        ArenaManager.clear(arena, s.corner);
+        ArenaManager.free(s.cell);
+        Identifier dimId = Identifier.tryParse(s.returnDim);
+        ServerWorld back = dimId == null ? arena
+                : server.getWorld(RegistryKey.of(RegistryKeys.WORLD, dimId));
+        if (back == null) back = arena;
+        player.teleport(back, s.rx, s.ry, s.rz, player.getYaw(), player.getPitch());
+        player.sendMessage(Text.literal("§e[조우] 운영자에 의해 종료되어 복귀했습니다."), false);
+        return true;
+    }
+
     /** 조우권 사용 — 풀에서 추첨해 개인 아레나에 전설 소환. 성공 시 true. */
     public static boolean start(ServerPlayerEntity player, String poolId, boolean shiny) {
         if (ACTIVE.containsKey(player.getUuid())) {
