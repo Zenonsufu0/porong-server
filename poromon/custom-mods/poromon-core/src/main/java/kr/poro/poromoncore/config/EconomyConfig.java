@@ -13,6 +13,15 @@ public class EconomyConfig {
     public String currencyDisplay = "골드";
     public long startingBalance = 0L;
 
+    /** 야생 포켓몬 보상 (economy_design §3): 야생만, 레벨 비례. */
+    public PokemonRewards pokemonRewards = new PokemonRewards();
+
+    public static class PokemonRewards {
+        public boolean enabled = true;
+        public int defeatPerLevel = 2;   // 처치: 레벨 × 2
+        public int capturePerLevel = 1;  // 포획: 레벨 × 1
+    }
+
     /** 매입가: item id → 골드/개 (광물·농작물·베리). */
     public Map<String, Long> sellPrices = defaultSellPrices();
 

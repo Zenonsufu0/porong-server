@@ -43,6 +43,8 @@ public class PoroMonCore implements ModInitializer {
 
         // 관장 배틀 승리 이벤트 구독(Cobblemon)
         kr.poro.poromoncore.gym.GymBattleService.registerEvents();
+        // 야생 포켓몬 골드 보상(처치·포획)
+        kr.poro.poromoncore.economy.WildRewardService.registerEvents();
 
         // 서버 참조 캐시(이벤트 부스트용) + 경험치 부스트 훅
         net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STARTED.register(

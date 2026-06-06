@@ -128,6 +128,11 @@
 - ✅ **조우 확률 표시**(`encounter/PoolInfoMenu`): 제단 풀 **우클릭 → 후보 한글명+출현 확률%+가중치**(페이지네이션). 좌클릭=해금/사용. 확률=weight/Σweight(0.1 stage_weight 미적용).
 - ⏳ **잔여**: 등급별 조우권 텍스처(paper+CMD 82001~), 밸런스 패스(stage_weight 적용·컨셉 차등/확률·apex 중복 차별화), 야생 처치/포획 골드 보상 연동.
 
+## 4i. Phase 2 — 운영자 GUI + 야생 보상 (2026-06-07 세션)
+- ✅ **운영자 GUI**(`/poromon admin gui`, `admin/{AdminMenu,PlayerAdminMenu,PlayerActionMenu}`): 이벤트 부스트(경험치×2·골드×2 토글, `event/EventManager`+PoroMonState 영속)·갇힘 강제해제(전체/개별)·플레이어 관리(골드/배지/패스/진행)·공지(채팅→방송). 훅: 경험치 EXPERIENCE_GAINED_EVENT_PRE, 매입가 ×배수.
+- ✅ **야생 골드 보상**(`economy/WildRewardService`, economy §3): 야생만(BATTLE_VICTORY loser=WILD 처치 레벨합×2 / POKEMON_CAPTURED 포획 레벨×1), 골드 부스트 반영. `economy.json pokemonRewards`. → 골드 부스트 완성.
+- ⏳ **잔여(운영 GUI 그룹)**: 조우 강제소환/보상지급, 경제 모니터(텔레메트리), 컨셉 최상급 확률×2(apex 플래깅=밸런스 패스). 조우권 등급/컨셉 텍스처(paper+CMD 82001~).
+
 ## 5. 진행 중 / 미해결 TODO (요약)
 - ✅ **species ID 검증 완료** → `01_modpack/jar_registry_reference.md`: 전설 71(restricted 27 / 준전설 44)·환상 23·UB 11·패러독스 20 실 ID 확정.
 - ✅ **전설/환상 풀 배치 완료(결정 026)**: 조우권 적힌 전설=전수 실재(누락0). 미배치 28+마샤도 배치 — 박스전설4=최상급+컨셉, 준전설 그룹=등급/컨셉 분산, 환상13=이벤트/컨셉 분산(코스모움=폼 제외). 전설70+환상23 전수 배치 재검증.
