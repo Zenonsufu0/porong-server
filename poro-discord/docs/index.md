@@ -20,6 +20,8 @@
 |---|---|
 | [`architecture.md`](architecture.md) | 모듈 구조(core/integrations/modules)·도메인 격리·서버구조·봇 관여 경계 |
 | [`integration_contract.md`](integration_contract.md) | **봇↔게임서버 통신 계약** — 요청 API + push 이벤트 스키마(DL-133/134) |
+| [`data_model.md`](data_model.md) | **봇 SQLite 스키마 SoT** — 디스코드 측 상태 저장(레벨·칭호·경고·티켓·서버 레지스트리), T12 |
+| [`server_lifecycle.md`](server_lifecycle.md) | **서버 생애주기 SoT** — 준비→활성→종료 상태머신·운영명령·게이팅 3층, T21 |
 | [`task.md`](task.md) | **작업 트래커** — 구현 작업 목록·우선순위(DL-130 연동) |
 | [`roles_and_permissions.md`](roles_and_permissions.md) | **역할 체계 SoT** — 온보딩·권한(수동)·알림(자동) 분리 |
 | [`notifications.md`](notifications.md) | 알림 시스템 — 채널·멘션·트리거(도메인별) |
