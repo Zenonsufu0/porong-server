@@ -53,6 +53,17 @@
 
 > `DiscordCardResponse` = 봇이 임베드로 그대로 렌더하는 카드 페이로드(게임서버가 표시용으로 구성).
 
+### A-2b. 버그제보 — RPG 🟡 (계약 추가, 미구현)
+`support.md` §1(T16)이 의존하는 게임서버 측 계약. 현재 `rpg_api.py`에 메서드 없음 → 신규.
+
+| 메서드 | 엔드포인트 | 요청 | 응답 |
+|---|---|---|---|
+| `create_bug_report` | `POST /bug-report` | `{discord_user_id, title, steps, expected_actual, severity}` | `{id}` (접수번호 `BUG-{id}`) |
+| `update_bug_status` | `POST /bug-report/{id}/status` | `{status, operator}` | — |
+
+> 게임 버그 데이터는 **게임 DB**(`bug_report` 테이블)에 저장, 봇 DB 비복제. 포로몬은 `poromon_api` 동형(API 확정 선행).
+> ⚠ 게임서버 측 엔드포인트 실제 구현은 RPG 워크스페이스 협의 필요(여기선 봇이 기대하는 계약).
+
 ### A-3. 운영 명령 — 🟡 (설계, 미구현)
 admin 명령의 게임서버 측 계약. 모두 상태 변경 → **API 경유 + 운영로그 + 권한 보호**(`@requires_permission`).
 실구현은 사용자 명시 요청 시(DL-130 ⑤).

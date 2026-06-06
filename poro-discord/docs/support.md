@@ -12,7 +12,7 @@
 ```
 
 - **라우팅(경계 유지 — 게임 버그는 게임 DB):**
-  - RPG: `rpg_api` → 게임 DB `bug_report` INSERT(기존) + RPG `#버그제보` 채널 embed `BUG-{id}`.
+  - RPG: `rpg_api.create_bug_report`([`integration_contract.md`](integration_contract.md) §A-2b, 신규 계약) → 게임 DB + RPG `#버그제보` 채널 embed `BUG-{id}`.
   - 포로몬: `poromon_api`(T4) 동형 — 포로몬 게임 DB + 포로몬 채널. **API 확정 선행**.
   - 기타·봇: 게임 API 없음 → **공통 `#버그제보` 채널 게시**(접수번호는 채널 메시지 기준). 봇 DB에 별도 저장 안 함.
 - 상태 버튼(접수/확인중/완료/기각) + 제보자 DM = 기존 rpg.md §4-3 재사용. 게임측 저장분 상태는 게임 API, 봇/기타분은 채널 임베드 갱신.

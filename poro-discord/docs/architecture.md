@@ -158,6 +158,26 @@ poro-discord/
 
 > 핵심: `requires_server_active` 는 **유저 대상 도메인 명령에만**. 운영 명령엔 걸지 않는다(종료 서버 정리·조회 필요) — 대신 명령 내부에서 상태를 직접 검증.
 
+## 신규 설정 키 집계 (구현 시 `core/config.py` + `.env.example` placeholder)
+
+> 이번 설계 패스(T12~T21)가 도입한 신규 키 모음. **실제 값은 `.env`(gitignored), `.env.example`엔 placeholder만.**
+> 채널/역할 ID·시크릿 하드코딩 금지. 구현 착수 시 이 목록을 config에 일괄 반영한다.
+
+| 키 | 용도 | 출처 docs |
+|---|---|---|
+| `BOT_DB_PATH` | SQLite 파일 경로 | data_model §1 |
+| `BOT_INBOUND_BASE`(또는 PORT) · `INBOUND_SECRET` · `INBOUND_ALLOW_IPS` | push 인바운드 수신·HMAC | notifications ① |
+| `CHANNEL_NOTICE_ID` | 공지/시즌보스/월드보스/점검/업데이트/이벤트 알림 | notifications ③ |
+| `CHANNEL_POROMON_NOTICE_ID` | 포로몬 알림 | notifications ③ |
+| `CHANNEL_LEVELUP_ID` | 레벨업·칭호 획득 공지 | community_level §3.3 |
+| `CHANNEL_MODLOG_ID` | **운영/감사 로그(=#운영로그, 정식 키)** | moderation §3 |
+| `VOICE_CREATE_HUB_ID` · `AFK_CHANNEL_ID` · `XP_EXCLUDE_CHANNEL_IDS` | 임시음성 허브·음성 XP 제외 | community_level §1·§8 |
+| XP 튜닝(`CHAT_XP_PER_MSG`·`CHAT_XP_COOLDOWN_SEC`·`VOICE_XP_PER_TICK`·`VOICE_TICK_SEC`·곡선 계수) | 레벨 밸런스 | community_level §6 |
+| `POROMON_API_URL` · `POROMON_API_KEY` | 포로몬 연동 | integration_contract §D |
+| 접근역할(`ROLE_RPG접근_ID`·`ROLE_포로몬접근_ID`…) | 카테고리 가시성 | roles §A-2(T10) |
+
+> `#운영로그`는 문서마다 이름으로 불렸으나 **정식 키 = `CHANNEL_MODLOG_ID`** 로 통일. server_lifecycle·admin의 "#운영로그"는 이 키를 가리킨다.
+
 ## 미설계/공백 (TODO)
 
 - `core/notifier.py` — 도메인 무관 알림 디스패처(채널 라우팅 + 멘션 + 트리거 인터페이스).
