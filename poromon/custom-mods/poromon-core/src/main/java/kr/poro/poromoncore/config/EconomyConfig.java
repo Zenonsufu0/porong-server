@@ -61,6 +61,24 @@ public class EconomyConfig {
         return m;
     }
 
+    /** 전설 조우권 가격/배지게이트: poolId → (가격, 배지). encounter_pool_design §9. */
+    public Map<String, ShopEntry> ticketPrices = defaultTicketPrices();
+
+    private static Map<String, ShopEntry> defaultTicketPrices() {
+        Map<String, ShopEntry> m = new LinkedHashMap<>();
+        m.put("rare_encounter_pool", new ShopEntry(3000, 0));
+        m.put("basic_legendary_ticket_pool", new ShopEntry(15000, 4));
+        m.put("intermediate_legendary_ticket_pool", new ShopEntry(25000, 6));
+        m.put("advanced_legendary_ticket_pool", new ShopEntry(40000, 8));
+        m.put("apex_legendary_ticket_pool", new ShopEntry(60000, 8));
+        // 컨셉 10종 (상급 < 컨셉 < 최상급)
+        for (String t : new String[]{"sky", "deep_sea", "earth", "time", "space",
+                "reverse", "light", "dragon_king", "guardian", "eternity"}) {
+            m.put("theme_" + t + "_pool", new ShopEntry(35000, 8));
+        }
+        return m;
+    }
+
     /** 메가 연구소(메가팔찌 + 메가스톤 47). shop_catalog_0.1 §3.6 / mega_tera_unlock. */
     public Map<String, ShopEntry> megaShop = defaultMegaShop();
 

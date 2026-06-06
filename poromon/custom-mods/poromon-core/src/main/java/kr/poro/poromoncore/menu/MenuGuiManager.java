@@ -90,7 +90,8 @@ public final class MenuGuiManager {
         inv.setStack(SLOT_CONVENIENCE, MenuIcons.icon(Items.SLIME_BALL, "§a편의 상점",
                 List.of("§7몬스터볼·회복약 구매", "§7클릭 — 편의 상점 열기")));
 
-        inv.setStack(SLOT_ALTAR, soon(Items.PURPLE_STAINED_GLASS, "§5전설 제단 안내"));
+        inv.setStack(SLOT_ALTAR, MenuIcons.icon(Items.END_CRYSTAL, "§5전설 제단",
+                List.of("§7조우권으로 전설/희귀 포켓몬 조우", "§7클릭 — 전설 제단 열기")));
         inv.setStack(SLOT_MEGA_LAB, MenuIcons.icon(Items.NETHER_STAR, "§d메가 연구소",
                 List.of("§7메가팔찌·메가스톤 (배지 게이트)", "§7클릭 — 메가 상점 열기")));
         inv.setStack(SLOT_TM, soon(Items.PAPER, "§b기술머신 안내"));
@@ -126,9 +127,10 @@ public final class MenuGuiManager {
             case SLOT_MEGA_LAB -> kr.poro.poromoncore.shop.CategoryShopMenu.open(player,
                     Text.literal("메가 연구소").formatted(Formatting.LIGHT_PURPLE),
                     ConfigManager.economy().megaShop, "mega");
+            case SLOT_ALTAR -> kr.poro.poromoncore.encounter.AltarMenu.open(player);
             case SLOT_CLOSE -> player.closeHandledScreen();
             case SLOT_PLAYER_INFO -> { /* 읽기 전용 */ }
-            case SLOT_ALTAR, SLOT_TM, SLOT_EGG ->
+            case SLOT_TM, SLOT_EGG ->
                     player.sendMessage(Text.literal("§e[PoroMon]§r 준비 중인 기능입니다 (0.1)."), true);
             default -> { /* 테두리/빈칸 무시 */ }
         }

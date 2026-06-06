@@ -123,8 +123,8 @@
 - ✅ **2단계 동적 아레나**(`encounter/ArenaManager`): 오버월드 공중(y250) grid 셀 배정→방(바닥 잔디+배리어벽/천장) 생성→TP, 종료 시 철거+셀 반납. **유저별 다른 방 격리**. 인게임 검증(방 생성·복귀).
 - ✅ **3단계 소환**(`encounter/EncounterService`): 풀 가중추첨→아레나 격리→야생 전설 스폰(shiny 옵션, 포획 가능)→3분/포획/도주 시 정리·복귀. 등급별 레벨. `/poromon admin encounter <pool> [shiny]`(테스트). 인게임 검증(소환·포획·복귀·이로치).
   - ⚠️ **모델 이슈 해결**: Cobblemon 1.7.3은 다수 전설 모델 미구현(`implemented:false`→substitute 인형). **모드팩에 `complete-cobblemon-collection`(+EMF) 추가**(클라)로 모델 보충 → 설계 278종 전수 커버 확인. 풀 enabled=원설계 복원(서버는 렌더 무관, 클라만 컬렉션 필요). `legendary_pools.json` = (Cobblemon implemented ∪ 컬렉션 커버) 게이트로 생성(현재 전수 통과).
-- ⏳ **4단계 전설 제단 메뉴**(37): 등급/컨셉 선택 GUI + 골드(ticketPrices) 차감 + 배지 게이트.
-- ⏳ **5단계 이로치 확정권**: 파티 선택 GUI→setShiny.
+- ✅ **4단계 전설 제단 메뉴**(`encounter/AltarMenu`, 슬롯37): 가상 제단(결정030, 블럭 없음). 15풀(5등급+컨셉10) 진열 → 배지 게이트 + 골드 차감(`economy.json ticketPrices`: 희귀3k/하급15k·배지4/중급25k·6/상급40k·8/컨셉35k·8/최상급60k·8) → EncounterService 조우 시작. 소환 실패 시 환불. 아이콘=임시 바닐라(등급별 조우권 텍스처는 추후 paper+CMD 82001~).
+- ⏳ **5단계 이로치 확정권**: 파티 선택 GUI→setShiny. (제단 이로치 조우권 옵션도 검토)
 
 ## 5. 진행 중 / 미해결 TODO (요약)
 - ✅ **species ID 검증 완료** → `01_modpack/jar_registry_reference.md`: 전설 71(restricted 27 / 준전설 44)·환상 23·UB 11·패러독스 20 실 ID 확정.
