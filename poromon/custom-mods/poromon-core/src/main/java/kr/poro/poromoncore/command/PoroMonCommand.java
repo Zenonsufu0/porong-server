@@ -62,6 +62,15 @@ public final class PoroMonCommand {
                                 .then(CommandManager.literal("clear")
                                         .then(CommandManager.argument("player", EntityArgumentType.player())
                                                 .executes(PoroMonCommand::badgeClear))))
+                        .then(CommandManager.literal("encounter")
+                                .then(CommandManager.argument("pool", StringArgumentType.string())
+                                        .suggests((c, b) -> {
+                                            ConfigManager.encounter().pools.keySet().forEach(b::suggest);
+                                            return b.buildFuture();
+                                        })
+                                        .executes(ctx -> encounter(ctx, false))
+                                        .then(CommandManager.literal("shiny")
+                                                .executes(ctx -> encounter(ctx, true)))))
                         .then(CommandManager.literal("economy")
                                 .then(CommandManager.literal("balance")
                                         .then(CommandManager.argument("player", EntityArgumentType.player())
@@ -205,6 +214,13 @@ public final class PoroMonCommand {
         ctx.getSource().sendFeedback(() -> Text.literal("§a[PoroMon]§r " + target.getGameProfile().getName()
                 + " 배지 전체 초기화"), true);
         return 1;
+    }
+
+    private static int encounter(CommandContext<ServerCommandSource> ctx, boolean shiny) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+        String pool = StringArgumentType.getString(ctx, "pool");
+        boolean ok = kr.poro.poromoncore.encounter.EncounterService.start(player, pool, shiny);
+        return ok ? 1 : 0;
     }
 
     private static int economyBalance(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {

@@ -120,8 +120,9 @@
 ## 4h. Phase 2 — 조우권+이로치 (2026-06-06~ 진행 중, 큰 작업)
 **결정(2026-06-06)**: 개인 조우방=**동적 아레나 자동생성** / 등급=**전부(5등급+컨셉10=16풀)** / 이로치=**조우권(shiny 옵션)+확정권(보유변환 IB-001)**. 조우권=메뉴 즉시구매·사용(결정030). 소환=야생 스폰(포획).
 - ✅ **1단계 풀 데이터 파이프라인**: `legendary_pools.draft.yml`(16풀 285후보) → `legendary_pools.json` 변환(camelCase, jar 번들 `resources/poromoncore/`). `EncounterConfig` POJO + `ConfigManager.loadOrCreateResource`(config 없으면 jar 번들 복사→로드). 부팅 검증: pools 16 로드·config 생성·reload OK.
-- ⏳ **2단계 동적 아레나**(ArenaManager): 먼 좌표 격리 방(바닥+벽) 생성→TP→정리.
-- ⏳ **3단계 소환**(EncounterService): 풀 가중추첨→야생 전설 스폰(shiny 옵션)→포획/타임아웃 정리.
+- ✅ **2단계 동적 아레나**(`encounter/ArenaManager`): 오버월드 공중(y250) grid 셀 배정→방(바닥 잔디+배리어벽/천장) 생성→TP, 종료 시 철거+셀 반납. **유저별 다른 방 격리**. 인게임 검증(방 생성·복귀).
+- ✅ **3단계 소환**(`encounter/EncounterService`): 풀 가중추첨→아레나 격리→야생 전설 스폰(shiny 옵션, 포획 가능)→3분/포획/도주 시 정리·복귀. 등급별 레벨. `/poromon admin encounter <pool> [shiny]`(테스트). 인게임 검증(소환·포획·복귀·이로치).
+  - ⚠️ **모델 이슈 해결**: Cobblemon 1.7.3은 다수 전설 모델 미구현(`implemented:false`→substitute 인형). **모드팩에 `complete-cobblemon-collection`(+EMF) 추가**(클라)로 모델 보충 → 설계 278종 전수 커버 확인. 풀 enabled=원설계 복원(서버는 렌더 무관, 클라만 컬렉션 필요). `legendary_pools.json` = (Cobblemon implemented ∪ 컬렉션 커버) 게이트로 생성(현재 전수 통과).
 - ⏳ **4단계 전설 제단 메뉴**(37): 등급/컨셉 선택 GUI + 골드(ticketPrices) 차감 + 배지 게이트.
 - ⏳ **5단계 이로치 확정권**: 파티 선택 GUI→setShiny.
 

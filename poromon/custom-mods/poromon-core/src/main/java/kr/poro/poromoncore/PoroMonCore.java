@@ -84,6 +84,7 @@ public class PoroMonCore implements ModInitializer {
             if (server.getTicks() % 20 == 0) {
                 BattleTowerService.tick(server);
                 kr.poro.poromoncore.gym.GymBattleService.tick(server);
+                kr.poro.poromoncore.encounter.EncounterService.tick(server);
                 kr.poro.poromoncore.tpa.TpaManager.cleanup(server.getTicks());
             }
         });
