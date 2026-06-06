@@ -29,8 +29,8 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * 포로공학 (결정 033-a). 해금석 구매 + off-learnset 기술 각인.
- * 해금석을 포켓몬에 우클릭 → 영구 해제(PoroMonCore). 여기선 해제된 포켓몬에 기술 각인(각인마다 골드).
+ * 포로공학 (결정 033-a). 정수 구매 + off-learnset 기술 각인.
+ * 정수를 포켓몬에 우클릭 → 영구 해제(PoroMonCore). 여기선 해제된 포켓몬에 기술 각인(각인마다 골드).
  * 기술 선택은 18타입 카테고리 + 검색. 일반 learnset 기술은 별도 '기술머신 상점'.
  */
 public final class EngineeringMenu {
@@ -67,9 +67,9 @@ public final class EngineeringMenu {
                     String unit = ConfigManager.economy().currencyDisplay;
                     inv.setStack(ShopLayout.BALANCE_SLOT, MenuIcons.icon(Items.GOLD_NUGGET,
                             "§6잔액: " + EconomyBridge.getBalance(player) + " " + unit,
-                            List.of("§7해금석으로 포켓몬을 해제 → 배울 수 없는 기술 각인")));
+                            List.of("§7정수로 포켓몬을 해제 → 배울 수 없는 기술 각인")));
                     inv.setStack(ShopLayout.BACK_SLOT, MenuIcons.icon(Items.ARROW, "§e← 메뉴로", List.of()));
-                    inv.setStack(STONE_SLOT, MenuIcons.icon(Items.PAPER, "§d포로공학 해금석",
+                    inv.setStack(STONE_SLOT, MenuIcons.icon(Items.PAPER, "§d포로공학 정수",
                             List.of("§7포켓몬에 우클릭 → 그 포켓몬 영구 해제",
                                     "§7가격: §6" + cfg.stonePrice + " " + unit,
                                     "§7배지 " + cfg.stoneBadges + "개 필요", "§e클릭 — 구매")));
@@ -87,7 +87,7 @@ public final class EngineeringMenu {
     private static void buyStone(ServerPlayerEntity player) {
         EngineeringConfig cfg = ConfigManager.economy().engineering;
         if (badgeCount(player) < cfg.stoneBadges) {
-            player.sendMessage(Text.literal("§c[포로공학] 해금석은 배지 " + cfg.stoneBadges + "개가 필요합니다."), true);
+            player.sendMessage(Text.literal("§c[포로공학] 정수는 배지 " + cfg.stoneBadges + "개가 필요합니다."), true);
             return;
         }
         if (!EconomyBridge.withdraw(player, cfg.stonePrice, "engineering_stone")) {
@@ -101,7 +101,7 @@ public final class EngineeringMenu {
             player.sendMessage(Text.literal("§e[포로공학] 인벤토리 공간 부족 — 환불."), true);
             return;
         }
-        player.sendMessage(Text.literal("§a[포로공학] 해금석 구매 (-" + cfg.stonePrice + "). 포켓몬에 우클릭하세요."), true);
+        player.sendMessage(Text.literal("§a[포로공학] 정수 구매 (-" + cfg.stonePrice + "). 포켓몬에 우클릭하세요."), true);
     }
 
     // ===== 포켓몬 선택 =====
@@ -119,7 +119,7 @@ public final class EngineeringMenu {
                         boolean mo = MakeoverService.isMakeover(player, pk);
                         inv.setStack(slots[i], MenuIcons.icon(mo ? Items.ENDER_EYE : Items.IRON_BARS,
                                 (mo ? "§d" : "§8") + pk.getSpecies().getName() + " §7Lv." + pk.getLevel(),
-                                mo ? List.of("§a클릭 — 기술 각인") : List.of("§c미해제 §7(해금석 필요)")));
+                                mo ? List.of("§a클릭 — 기술 각인") : List.of("§c미해제 §7(정수 필요)")));
                         i++;
                     }
                 },
@@ -133,7 +133,7 @@ public final class EngineeringMenu {
                     for (Pokemon pk : Cobblemon.INSTANCE.getStorage().getParty(p)) {
                         if (i == idx) {
                             if (pk != null && MakeoverService.isMakeover(p, pk)) openTeach(p, pk.getUuid());
-                            else p.sendMessage(Text.literal("§c[포로공학] 해금석으로 먼저 해제하세요."), true);
+                            else p.sendMessage(Text.literal("§c[포로공학] 정수로 먼저 해제하세요."), true);
                             return;
                         }
                         i++;

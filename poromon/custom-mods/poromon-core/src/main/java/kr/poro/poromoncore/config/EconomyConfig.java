@@ -146,8 +146,8 @@ public class EconomyConfig {
     public EngineeringConfig engineering = new EngineeringConfig();
 
     public static class EngineeringConfig {
-        public long stonePrice = 10000;    // 포로공학 해금석 가격
-        public int stoneBadges = 4;        // 해금석 구매 배지 게이트
+        public long stonePrice = 300000;   // 포로공학 정수 가격(초기: 매우 높게)
+        public int stoneBadges = 4;        // 정수 구매 배지 게이트
         public long priceStatus = 1000;    // 각인가: 위력 0 이하(변화기)
         public long priceWeak = 1500;      // 위력 ≤ 60
         public long priceMedium = 2500;    // 위력 61~90

@@ -26,8 +26,9 @@ public final class MakeoverStone {
         tag.putByte(TAG_KEY, (byte) 1);
         stack.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(tag));
         stack.set(DataComponentTypes.CUSTOM_NAME,
-                Text.literal("포로공학 해금석").formatted(Formatting.LIGHT_PURPLE, Formatting.BOLD));
+                Text.literal("포로공학 정수").formatted(Formatting.LIGHT_PURPLE, Formatting.BOLD));
         stack.set(DataComponentTypes.LORE, new LoreComponent(List.of(
+                Text.literal("포로공학의 기술력이 밀집된 정수이다").formatted(Formatting.AQUA, Formatting.ITALIC),
                 Text.literal("포켓몬에 우클릭 — 그 포켓몬 영구 해제").formatted(Formatting.GRAY),
                 Text.literal("이후 포로공학에서 배울 수 없는 기술 각인").formatted(Formatting.GRAY),
                 Text.literal("사용 시 소모").formatted(Formatting.DARK_GRAY)
