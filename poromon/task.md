@@ -72,7 +72,7 @@
 1. ~~**메뉴 아이템/바**(9번 슬롯 리그패스 + 우클릭 GUI)~~ → **✅ 0.1 구현 완료(2026-06-06), §4d 참조.**
 2. **허브 구성** — `hub_design.md`. 허브 텔레포트(`/poromon hub`) + 구역(짐/제단/메가연구소/마켓/배틀타워 입구). ⚠️ TP 골격은 §4d에서 완성(core.json hub.spawn) — 남은 건 **실제 허브 빌드 + 구역 좌표 확정 후 core.json 값 채우기** + HubInteractionManager(NPC 상호작용).
 3. **상점 구조** — `shop_design.md`·`shop_catalog_0.1.md`(검증 ID 보유). 하이브리드(9번메뉴 매입/편의 + 허브 NPC 통제). EconomyBridge 골드.
-4. **알 구조** — `egg_pool_design.md`(결정 027). `egg/give/<등급>` 연동, 방랑상인 비활성(적용됨), 커스텀 알(드래곤/화석/타입별) mcfunction. ⚠️ **알 상점은 커스텀 알 목록 확정 후 진행**(사용자 보류, 2026-06-06).
+4. ~~**알 구조**~~ → ⛔ **폐기(결정 032, 2026-06-07)**: Eggs Addon/알 시스템 제거(조우권 중복 + 리소스팩 의존). 모드 jar·OpenLoader egg 팩·메뉴 슬롯40 제거. egg_pool_design/shop §3.5 폐기.
 5. **조우권 생성·구조** — `encounter_pool_design.md`·`legendary_pools.draft.yml`(검증 ID). EncounterTicket 커스텀아이템 + InstanceRoom + pvn으로 전설 소환(배틀타워와 동일 패턴 재사용 가능). ★ **이로치 조우권/확정권(idea_inbox IB-001)도 이 작업과 함께 구현 결정**(`Pokemon.setShiny`·`shiny=true` 검증됨).
 > 배틀타워 잔여(저우선): 메가 연출(클라모드 필요), 다른 메가 47종 검증, 보상 지급(§3-R) 실제 연동(RewardManager), 진행도 ↔ 배틀 승리 연동(현재 set 명령만).
 

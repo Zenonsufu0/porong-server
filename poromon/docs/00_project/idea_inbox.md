@@ -27,3 +27,14 @@
 - 전설/환상에도 적용할지(레쿠쟈 샤이니 등) — 강한 제한 필요.
 
 **상태:** DRAFT. 조우권 시스템(§4c 5번) 구현 시 같이 검토. 확정 시 decisions 승격.
+
+## IB-002. 운영자 부스트/이벤트 GUI (2026-06-07 제안)
+
+운영자가 GUI로 토글하는 전역 부스트(이벤트). **전부 구현 가능 확인.**
+- **경험치 ×N**: `CobblemonEvents.EXPERIENCE_GAINED_EVENT_PRE` 구독 → 경험치 배수.
+- **골드 ×N (처치·상점 판매가)**: 전역 배수 — 매입소(SellShopMenu) 판매가 ×N, 야생 처치/포획 보상 ×N(처치 보상 미구현 → 구현 시 함께). EconomyBridge/RewardManager.
+- **컨셉 최상급 확률 ×N**: `EncounterService.weightedPick`에서 이벤트 활성 시 apex(type=apex) 후보 weight ×N.
+- **운영자 GUI**: 부스트 항목 토글/배수 설정 + 전역 상태(PersistentState `EventState`) 저장·영속. `/poromon admin event` 또는 메뉴.
+
+구현 방식: 전역 이벤트 상태(부스트 플래그/배수) + 각 시스템에 배수 적용 훅 + 운영자 GUI. SeasonManager/EventManager(향후) 모듈. 0.1 범위 밖이나 소규모로 추가 가능.
+상태: DRAFT. 야생 처치 골드 보상(economy_design §3)과 함께 구현하면 골드 부스트가 완성됨.

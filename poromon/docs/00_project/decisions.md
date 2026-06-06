@@ -208,3 +208,14 @@ jar 전수 검증(`egg_pool_design.md §8`)으로 Eggs Addon(`diesse`)의 실제
 - 구현: `encounter/{ArenaManager,EncounterService,AltarMenu}` + `EconomyConfig.altarUnlock/ticketUse/shinyChancePercent` + `PlayerProgress.altarsUnlocked`. 메뉴 슬롯37(가상 제단).
 
 `encounter_pool_design.md`(가격/게이트는 economy.json로 이관), `menu_design.md`(슬롯37) 반영. 조우권 커스텀 텍스처(등급별 paper+CMD 82001~)는 추후.
+
+### 032. Eggs Addon(알 시스템) 제거 — 결정 027 폐기
+
+알 시스템(Eggs - Cobblemon Addon, `mr_eggs_cobblemonaddon`)을 **모드팩에서 제거**한다. 결정 015(추가)·027(통합/통제)는 **폐기**.
+
+- **이유**: ① 조우권/제단으로 희귀·전설 획득 루트가 충분(알의 뽑기 역할과 중복) ② 알 모델은 별도 **리소스팩**(Animated Java export) 필요한데 mod jar에 assets 0개라 미설치 시 **맨 아머 스탠드**로 표시됨(리소스팩 의존 부담) ③ 야생 둥지 자연 스폰 통제 등 부가 관리 비용.
+- **제거 범위**: `eggs-cobblemon-addon-0.9.jar`(서버/모드팩/클라 인스턴스) + OpenLoader `poromon_egg_control` 팩(방랑상인·둥지 비활성 오버라이드, 이제 불필요) + 메뉴 슬롯40(알 상점 placeholder) 제거.
+- **잔재**: 기존 월드 level.dat의 datapack 참조로 `Missing data pack mr_eggs_cobblemonaddon` WARN(무해, 바닐라 무시). 신규 월드/정리 시 사라짐.
+- **폐기 문서**: `egg_pool_design.md`(전체 폐기), `shop_design.md §3.5`(알 상점 폐기), `shop_catalog_0.1.md §3.5`, `server_mod_separation.md`(모드 수 -1). 향후 알 재도입 시 리소스팩 확보 선행.
+
+`poromon/CLAUDE.md` 모드 목록에서 Eggs 제거.

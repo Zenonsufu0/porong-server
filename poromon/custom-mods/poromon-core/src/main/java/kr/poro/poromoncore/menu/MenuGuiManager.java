@@ -43,7 +43,6 @@ public final class MenuGuiManager {
     private static final int SLOT_ALTAR = 37;
     private static final int SLOT_MEGA_LAB = 38;
     private static final int SLOT_TM = 39;
-    private static final int SLOT_EGG = 40;
     private static final int SLOT_TRAINING = 41;
     private static final int SLOT_CLOSE = 49;
 
@@ -95,7 +94,6 @@ public final class MenuGuiManager {
         inv.setStack(SLOT_MEGA_LAB, MenuIcons.icon(Items.NETHER_STAR, "§d메가 연구소",
                 List.of("§7메가팔찌·메가스톤 (배지 게이트)", "§7클릭 — 메가 상점 열기")));
         inv.setStack(SLOT_TM, soon(Items.PAPER, "§b기술머신 안내"));
-        inv.setStack(SLOT_EGG, soon(Items.EGG, "§e알 상점 안내"));
         inv.setStack(SLOT_TRAINING, MenuIcons.icon(Items.EXPERIENCE_BOTTLE, "§a성장 상점",
                 List.of("§7이상한사탕·경험사탕·진화돌·비타민", "§7클릭 — 성장 상점 열기")));
 
@@ -130,7 +128,7 @@ public final class MenuGuiManager {
             case SLOT_ALTAR -> kr.poro.poromoncore.encounter.AltarMenu.open(player);
             case SLOT_CLOSE -> player.closeHandledScreen();
             case SLOT_PLAYER_INFO -> { /* 읽기 전용 */ }
-            case SLOT_TM, SLOT_EGG ->
+            case SLOT_TM ->
                     player.sendMessage(Text.literal("§e[PoroMon]§r 준비 중인 기능입니다 (0.1)."), true);
             default -> { /* 테두리/빈칸 무시 */ }
         }

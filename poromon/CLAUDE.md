@@ -68,7 +68,8 @@ git ls-files | grep -E '(^|/)(logs|crash-reports|world|world_nether|world_the_en
 - Java: JDK 21
 - Modpack Source: Cobblemon Official Modpack [Fabric] 1.7.3
 - Added Core Addon: Cobblemon: Mega Showdown
-- Added Addons: SimpleTMs (TMs/TRs for Cobblemon), Eggs - Cobblemon Addon, Cobblemon: Legendary Monuments
+- Added Addons: SimpleTMs (TMs/TRs for Cobblemon), Cobblemon: Legendary Monuments
+  - (~~Eggs - Cobblemon Addon~~ 제거 — 결정 032: 조우권과 중복 + 리소스팩 의존. 알 시스템 폐기.)
   - All are Cobblemon gameplay addons → required on **both client and server**. Item/Pokémon IDs, structures, and config keys must be verified from the actual jars/registry (do not guess).
   - **Legendary Monuments**: jar 감사 결과 자체 소환(아이템/구조물/바이옴)이 PoroMonCore 통제를 우회 확정 → **결정 023: 완전 비활성**(worldgen + loot_table datapack 오버라이드로 비활성, 소환 아이템 자연 획득 차단). 전설은 조우권/사설룸으로만. 실제 비활성 datapack은 서버 mods 배치 후 jar worldgen 경로 확인 필요(TODO).
 - Development Environment: WSL Ubuntu
@@ -339,7 +340,7 @@ Added:
 
 - Cobblemon: Mega Showdown
 - SimpleTMs: TMs and TRs for Cobblemon (dragomordor)
-- Eggs - Cobblemon Addon (Diesse)
+- (Eggs - Cobblemon Addon 제거됨 — 결정 032)
 - Cobblemon: Legendary Monuments (JorgaoMC) — 자체 소환이 통제 우회 확정 → **완전 비활성**(decision 023): worldgen/loot_table datapack 오버라이드로 차단, 전설은 조우권/사설룸만
 
 The modpack should be distributed as a single official PoroMon pack.
