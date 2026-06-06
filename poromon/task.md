@@ -72,7 +72,7 @@
 1. ~~**메뉴 아이템/바**(9번 슬롯 리그패스 + 우클릭 GUI)~~ → **✅ 0.1 구현 완료(2026-06-06), §4d 참조.**
 2. **허브 구성** — `hub_design.md`. 허브 텔레포트(`/poromon hub`) + 구역(짐/제단/메가연구소/마켓/배틀타워 입구). ⚠️ TP 골격은 §4d에서 완성(core.json hub.spawn) — 남은 건 **실제 허브 빌드 + 구역 좌표 확정 후 core.json 값 채우기** + HubInteractionManager(NPC 상호작용).
 3. **상점 구조** — `shop_design.md`·`shop_catalog_0.1.md`(검증 ID 보유). 하이브리드(9번메뉴 매입/편의 + 허브 NPC 통제). EconomyBridge 골드.
-4. **알 구조** — `egg_pool_design.md`(결정 027). `egg/give/<등급>` 연동, 방랑상인 비활성(적용됨), 커스텀 알(드래곤/화석/타입별) mcfunction.
+4. **알 구조** — `egg_pool_design.md`(결정 027). `egg/give/<등급>` 연동, 방랑상인 비활성(적용됨), 커스텀 알(드래곤/화석/타입별) mcfunction. ⚠️ **알 상점은 커스텀 알 목록 확정 후 진행**(사용자 보류, 2026-06-06).
 5. **조우권 생성·구조** — `encounter_pool_design.md`·`legendary_pools.draft.yml`(검증 ID). EncounterTicket 커스텀아이템 + InstanceRoom + pvn으로 전설 소환(배틀타워와 동일 패턴 재사용 가능). ★ **이로치 조우권/확정권(idea_inbox IB-001)도 이 작업과 함께 구현 결정**(`Pokemon.setShiny`·`shiny=true` 검증됨).
 > 배틀타워 잔여(저우선): 메가 연출(클라모드 필요), 다른 메가 47종 검증, 보상 지급(§3-R) 실제 연동(RewardManager), 진행도 ↔ 배틀 승리 연동(현재 set 명령만).
 
@@ -116,6 +116,14 @@
 - ✅ **메가 연구소**(메뉴 38): 메가팔찌(20k/배지4)+메가스톤47(기본43=8k/배지4, 고급 X/Y 4=25k/배지6) = 48품목 2페이지. `economy.json §megaShop`(jar에서 실 *ite ID 47 추출).
 - 둘 다 서버측 GUI(바닐라 cobblemon/MSD 아이템) → 서버만 배포. 인게임 확인.
 - ⚠️ **잔여**: 모드 아이템명 영어(클라 ko_kr 일부만) → 향후 `assets/<ns>/lang/ko_kr.json` 오버라이드 한글화 패스. 실전육성(민트/특성캡슐)·TM(SimpleTMs ID TODO)·알(Eggs ID TODO)·전설 제단(조우권)·메가팔찌 보유 게이트는 미구현.
+
+## 4h. Phase 2 — 조우권+이로치 (2026-06-06~ 진행 중, 큰 작업)
+**결정(2026-06-06)**: 개인 조우방=**동적 아레나 자동생성** / 등급=**전부(5등급+컨셉10=16풀)** / 이로치=**조우권(shiny 옵션)+확정권(보유변환 IB-001)**. 조우권=메뉴 즉시구매·사용(결정030). 소환=야생 스폰(포획).
+- ✅ **1단계 풀 데이터 파이프라인**: `legendary_pools.draft.yml`(16풀 285후보) → `legendary_pools.json` 변환(camelCase, jar 번들 `resources/poromoncore/`). `EncounterConfig` POJO + `ConfigManager.loadOrCreateResource`(config 없으면 jar 번들 복사→로드). 부팅 검증: pools 16 로드·config 생성·reload OK.
+- ⏳ **2단계 동적 아레나**(ArenaManager): 먼 좌표 격리 방(바닥+벽) 생성→TP→정리.
+- ⏳ **3단계 소환**(EncounterService): 풀 가중추첨→야생 전설 스폰(shiny 옵션)→포획/타임아웃 정리.
+- ⏳ **4단계 전설 제단 메뉴**(37): 등급/컨셉 선택 GUI + 골드(ticketPrices) 차감 + 배지 게이트.
+- ⏳ **5단계 이로치 확정권**: 파티 선택 GUI→setShiny.
 
 ## 5. 진행 중 / 미해결 TODO (요약)
 - ✅ **species ID 검증 완료** → `01_modpack/jar_registry_reference.md`: 전설 71(restricted 27 / 준전설 44)·환상 23·UB 11·패러독스 20 실 ID 확정.
