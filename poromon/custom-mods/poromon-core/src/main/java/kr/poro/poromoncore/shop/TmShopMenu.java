@@ -1,9 +1,16 @@
 package kr.poro.poromoncore.shop;
 
+import com.cobblemon.mod.common.Cobblemon;
+import com.cobblemon.mod.common.api.moves.Move;
+import com.cobblemon.mod.common.api.moves.MoveSet;
+import com.cobblemon.mod.common.api.moves.MoveTemplate;
+import com.cobblemon.mod.common.api.moves.Moves;
+import com.cobblemon.mod.common.pokemon.Pokemon;
 import kr.poro.poromoncore.config.ConfigManager;
 import kr.poro.poromoncore.config.EconomyConfig.TmShopConfig;
 import kr.poro.poromoncore.data.PoroMonState;
 import kr.poro.poromoncore.economy.EconomyBridge;
+import kr.poro.poromoncore.item.MakeoverStone;
 import kr.poro.poromoncore.menu.MenuGuiManager;
 import kr.poro.poromoncore.menu.MenuIcons;
 import kr.poro.poromoncore.menu.ServerMenuHandler;
@@ -18,8 +25,10 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * 마개조 기술머신 상점 (결정 033). 타입 그리드 → 타입별/검색 목록 → SimpleTMs TM 구매.
@@ -31,6 +40,12 @@ public final class TmShopMenu {
 
     private static final int PER_PAGE = ShopLayout.CONTENT_SLOTS.length; // 28
     private static final int SEARCH_SLOT = 53;
+    private static final int STONE_SLOT = 45;   // 해금석 구매(구매 모드)
+
+    /** 마개조 각인 대상: player → pokemon UUID (해금석 우클릭 시 설정). 비어있으면 구매 모드. */
+    private static final Map<UUID, UUID> TEACH = new HashMap<>();
+    /** 풀 무브셋 교체 대기: player → 각인할 기술명. */
+    private static final Map<UUID, String> PENDING = new HashMap<>();
 
     private static final Map<String, String> TYPE_KO = Map.ofEntries(
             Map.entry("normal", "노말"), Map.entry("fire", "불꽃"), Map.entry("water", "물"),
@@ -46,14 +61,35 @@ public final class TmShopMenu {
                 inv -> gridPopulate(inv, player), TmShopMenu::gridClick);
     }
 
+    /** 해금석 우클릭 → 대상 포켓몬 마개조 각인 모드로 진입. */
+    public static void openTeach(ServerPlayerEntity player, UUID pokemonUuid) {
+        TEACH.put(player.getUuid(), pokemonUuid);
+        ServerMenuHandler.show(player, Text.literal("마개조 — 기술 선택").formatted(Formatting.LIGHT_PURPLE),
+                inv -> gridPopulate(inv, player), TmShopMenu::gridClick);
+    }
+
+    private static boolean teachMode(ServerPlayerEntity player) {
+        return TEACH.containsKey(player.getUuid());
+    }
+
     private static void gridPopulate(Inventory inv, ServerPlayerEntity player) {
         for (int i = 0; i < ServerMenuHandler.DISPLAY_SIZE; i++) inv.setStack(i, MenuIcons.pane());
+        boolean teach = teachMode(player);
         inv.setStack(ShopLayout.BALANCE_SLOT, MenuIcons.icon(Items.GOLD_NUGGET,
                 "§6잔액: " + EconomyBridge.getBalance(player) + " " + ConfigManager.economy().currencyDisplay,
-                List.of("§7타입을 골라 기술머신 구매", "§7TM을 포켓몬에 사용 = 그 포켓몬만 학습")));
-        inv.setStack(ShopLayout.BACK_SLOT, MenuIcons.icon(Items.ARROW, "§e← 메뉴로", List.of()));
+                teach ? List.of("§d마개조 각인 모드", "§7타입/검색으로 각인할 기술 선택")
+                      : List.of("§7타입을 골라 기술머신 구매", "§7마개조는 해금석으로 포켓몬에 직접 각인")));
+        inv.setStack(ShopLayout.BACK_SLOT, MenuIcons.icon(Items.ARROW,
+                teach ? "§c취소" : "§e← 메뉴로", List.of()));
         inv.setStack(SEARCH_SLOT, MenuIcons.icon(Items.OAK_SIGN, "§b검색",
                 List.of("§7기술 이름으로 검색", "§e클릭 — 검색어 입력")));
+        if (!teach) {
+            TmShopConfig cfg = ConfigManager.economy().tmShop;
+            inv.setStack(STONE_SLOT, MenuIcons.icon(Items.PAPER, "§d마개조 해금석",
+                    List.of("§7포켓몬에 우클릭 → learnset 무시 기술 1개 각인",
+                            "§7가격: §6" + cfg.makeoverStonePrice + " " + ConfigManager.economy().currencyDisplay,
+                            "§7배지 " + cfg.makeoverStoneBadges + "개 필요", "§e클릭 — 구매")));
+        }
 
         for (int i = 0; i < TmCatalog.TYPES.length && i < ShopLayout.CONTENT_SLOTS.length; i++) {
             String type = TmCatalog.TYPES[i];
@@ -90,11 +126,36 @@ public final class TmShopMenu {
     }
 
     private static void gridClick(ServerPlayerEntity player, int slot, int button, boolean shift) {
-        if (slot == ShopLayout.BACK_SLOT) { MenuGuiManager.open(player); return; }
+        if (slot == ShopLayout.BACK_SLOT) {
+            if (teachMode(player)) { TEACH.remove(player.getUuid()); player.closeHandledScreen(); }
+            else MenuGuiManager.open(player);
+            return;
+        }
         if (slot == SEARCH_SLOT) { promptSearch(player); return; }
+        if (slot == STONE_SLOT && !teachMode(player)) { buyStone(player); return; }
         int idx = ShopLayout.contentIndexOf(slot);
         if (idx < 0 || idx >= TmCatalog.TYPES.length) return;
         showList(player, "type:" + TmCatalog.TYPES[idx], 0);
+    }
+
+    private static void buyStone(ServerPlayerEntity player) {
+        TmShopConfig cfg = ConfigManager.economy().tmShop;
+        if (badgeCount(player) < cfg.makeoverStoneBadges) {
+            player.sendMessage(Text.literal("§c[기술머신] 해금석은 배지 " + cfg.makeoverStoneBadges + "개가 필요합니다."), true);
+            return;
+        }
+        if (!EconomyBridge.withdraw(player, cfg.makeoverStonePrice, "makeover_stone")) {
+            player.sendMessage(Text.literal("§c[기술머신] 골드가 부족합니다 (필요 " + cfg.makeoverStonePrice + ")."), true);
+            return;
+        }
+        ItemStack stone = MakeoverStone.create();
+        player.getInventory().insertStack(stone);
+        if (!stone.isEmpty()) {
+            EconomyBridge.deposit(player, cfg.makeoverStonePrice, "makeover_stone_refund");
+            player.sendMessage(Text.literal("§e[기술머신] 인벤토리 공간 부족 — 환불."), true);
+            return;
+        }
+        player.sendMessage(Text.literal("§a[기술머신] 마개조 해금석 구매 (-" + cfg.makeoverStonePrice + "). 포켓몬에 우클릭하세요."), true);
     }
 
     private static void promptSearch(ServerPlayerEntity player) {
@@ -146,6 +207,7 @@ public final class TmShopMenu {
         if (page > 0) inv.setStack(ShopLayout.PREV_SLOT, MenuIcons.icon(Items.SPECTRAL_ARROW, "§e◀ 이전", List.of()));
         if (page < pages - 1) inv.setStack(ShopLayout.NEXT_SLOT, MenuIcons.icon(Items.SPECTRAL_ARROW, "§e다음 ▶", List.of()));
 
+        boolean teach = teachMode(player);
         int start = page * PER_PAGE;
         for (int i = 0; i < PER_PAGE && start + i < list.size(); i++) {
             TmCatalog.Entry e = list.get(start + i);
@@ -153,7 +215,10 @@ public final class TmShopMenu {
             if (item == null) continue;
             long price = cfg.priceFor(e.power());
             String powTxt = e.power() <= 0 ? "변화" : String.valueOf((int) e.power());
-            if (badges < cfg.minBadges) {
+            if (teach) {
+                inv.setStack(ShopLayout.CONTENT_SLOTS[i], MenuIcons.icon(item,
+                        "§d" + e.displayName(), List.of("§7위력: §f" + powTxt, "§a클릭 — 이 기술 각인")));
+            } else if (badges < cfg.minBadges) {
                 inv.setStack(ShopLayout.CONTENT_SLOTS[i], MenuIcons.icon(Items.IRON_BARS,
                         "§8" + e.displayName() + " §7(잠김)",
                         List.of("§7위력: §f" + powTxt, "§7가격: §6" + price + " " + unit,
@@ -168,7 +233,10 @@ public final class TmShopMenu {
     }
 
     private static void listClick(ServerPlayerEntity player, int slot, String source, int page) {
-        if (slot == ShopLayout.BACK_SLOT) { open(player); return; }
+        if (slot == ShopLayout.BACK_SLOT) {
+            if (teachMode(player)) openTeach(player, TEACH.get(player.getUuid())); else open(player);
+            return;
+        }
         if (slot == ShopLayout.PREV_SLOT) { showList(player, source, page - 1); return; }
         if (slot == ShopLayout.NEXT_SLOT) { showList(player, source, page + 1); return; }
         int idx = ShopLayout.contentIndexOf(slot);
@@ -177,6 +245,7 @@ public final class TmShopMenu {
         int globalIdx = page * PER_PAGE + idx;
         if (globalIdx >= list.size()) return;
         TmCatalog.Entry e = list.get(globalIdx);
+        if (teachMode(player)) { teachMove(player, e.moveName(), e.displayName()); return; }
         TmShopConfig cfg = ConfigManager.economy().tmShop;
         if (badgeCount(player) < cfg.minBadges) {
             player.sendMessage(Text.literal("§c[기술머신] 배지 " + cfg.minBadges + "개가 필요합니다."), true);
@@ -184,6 +253,90 @@ public final class TmShopMenu {
         }
         buy(player, e);
         showList(player, source, page);
+    }
+
+    // ===== 마개조 각인 =====
+    private static Pokemon findPartyPokemon(ServerPlayerEntity player, UUID id) {
+        if (id == null) return null;
+        for (Pokemon p : Cobblemon.INSTANCE.getStorage().getParty(player)) {
+            if (p != null && p.getUuid().equals(id)) return p;
+        }
+        return null;
+    }
+
+    private static void teachMove(ServerPlayerEntity player, String moveName, String displayName) {
+        UUID pid = TEACH.get(player.getUuid());
+        Pokemon pk = findPartyPokemon(player, pid);
+        if (pk == null) {
+            player.sendMessage(Text.literal("§c[마개조] 대상 포켓몬을 파티에서 찾을 수 없습니다."), true);
+            TEACH.remove(player.getUuid()); player.closeHandledScreen(); return;
+        }
+        MoveTemplate tpl = Moves.getByName(moveName);
+        if (tpl == null) { player.sendMessage(Text.literal("§c[마개조] 알 수 없는 기술."), true); return; }
+        MoveSet ms = pk.getMoveSet();
+        if (ms.hasSpace()) {
+            List<Move> withNulls = ms.getMovesWithNulls();
+            int free = -1;
+            for (int i = 0; i < withNulls.size(); i++) if (withNulls.get(i) == null) { free = i; break; }
+            if (free < 0) free = 0;
+            ms.setMove(free, tpl.create());
+            finishTeach(player, pk, displayName);
+        } else {
+            PENDING.put(player.getUuid(), moveName);
+            openSlotSelect(player, displayName);
+        }
+    }
+
+    /** 무브셋 가득 → 교체할 슬롯 선택. */
+    private static void openSlotSelect(ServerPlayerEntity player, String displayName) {
+        ServerMenuHandler.show(player, Text.literal("마개조 — 교체할 기술").formatted(Formatting.LIGHT_PURPLE),
+                inv -> {
+                    for (int i = 0; i < ServerMenuHandler.DISPLAY_SIZE; i++) inv.setStack(i, MenuIcons.pane());
+                    inv.setStack(ShopLayout.BALANCE_SLOT, MenuIcons.icon(Items.PAPER,
+                            "§d각인: " + displayName, List.of("§7교체할 기존 기술을 클릭하세요")));
+                    inv.setStack(ShopLayout.BACK_SLOT, MenuIcons.icon(Items.ARROW, "§c취소", List.of()));
+                    Pokemon pk = findPartyPokemon(player, TEACH.get(player.getUuid()));
+                    if (pk != null) {
+                        List<Move> moves = pk.getMoveSet().getMoves();
+                        int[] slots = {20, 21, 22, 23};
+                        for (int i = 0; i < moves.size() && i < 4; i++) {
+                            Move mv = moves.get(i);
+                            inv.setStack(slots[i], MenuIcons.icon(Items.PAPER,
+                                    "§f" + mv.getTemplate().getDisplayName().getString(),
+                                    List.of("§7클릭 — 이 기술을 교체")));
+                        }
+                    }
+                },
+                (p, slot, button, shift) -> {
+                    if (slot == ShopLayout.BACK_SLOT) { PENDING.remove(p.getUuid()); openTeach(p, TEACH.get(p.getUuid())); return; }
+                    int[] slots = {20, 21, 22, 23};
+                    int idx = -1;
+                    for (int i = 0; i < slots.length; i++) if (slots[i] == slot) { idx = i; break; }
+                    if (idx < 0) return;
+                    String mn = PENDING.get(p.getUuid());
+                    Pokemon pk = findPartyPokemon(p, TEACH.get(p.getUuid()));
+                    MoveTemplate tpl = mn == null ? null : Moves.getByName(mn);
+                    if (pk == null || tpl == null) { p.closeHandledScreen(); return; }
+                    if (idx >= pk.getMoveSet().getMoves().size()) return;
+                    pk.getMoveSet().setMove(idx, tpl.create());
+                    PENDING.remove(p.getUuid());
+                    finishTeach(p, pk, displayName);
+                });
+    }
+
+    private static void finishTeach(ServerPlayerEntity player, Pokemon pk, String displayName) {
+        consumeStone(player);
+        TEACH.remove(player.getUuid());
+        player.closeHandledScreen();
+        player.sendMessage(Text.literal("§a[마개조] " + pk.getSpecies().getName()
+                + " 에게 " + displayName + " 각인 완료!"), false);
+    }
+
+    private static void consumeStone(ServerPlayerEntity player) {
+        for (int i = 0; i < player.getInventory().size(); i++) {
+            ItemStack s = player.getInventory().getStack(i);
+            if (MakeoverStone.isStone(s)) { s.decrement(1); return; }
+        }
     }
 
     private static void buy(ServerPlayerEntity player, TmCatalog.Entry e) {

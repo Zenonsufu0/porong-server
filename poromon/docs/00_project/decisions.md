@@ -231,3 +231,11 @@ jar 전수 검증(`egg_pool_design.md §8`)으로 Eggs Addon(`diesse`)의 실제
 - 결정 032에서 선별 40종(고정 map)이었던 것을 전체+타입/검색으로 대체.
 
 `anyMovesLearnableTMs`는 `.local/server/config/simpletms/main.json` + `modpack/overrides/config/simpletms/main.json`(배포). CLAUDE.md/shop_design TM 항목 갱신.
+
+### 033-a. 마개조 = 해금석 게이트로 변경 (033 보완)
+
+전역 무료 해제(anyMovesLearnableTMs=true) 대신 **포켓몬별 골드 게이트**로 확정.
+- `anyMovesLearnableTMs=false`(되돌림) → 일반 SimpleTMs TM은 정규 learnset만 (밸런스 보존).
+- **마개조 해금석**(`item/MakeoverStone`, paper+태그, 신규 등록 불필요): TM 상점에서 골드 구매(기본 10k·배지4) → **포켓몬에 우클릭** → 기술 선택(타입/검색, teach 모드) → 그 포켓몬에 off-learnset 기술 1개 각인(`Pokemon.getMoveSet().setMove`, MoveSet 가득 시 교체 슬롯 선택) → 해금석 소모.
+- learnset 무시는 SimpleTMs가 아닌 **PoroMonCore가 MoveSet 직접 조작**으로 처리(전역 토글 무관). `PoroMonCore` UseEntityCallback로 우클릭 감지.
+- TM 상점: 일반 TM 구매(learnset용) + 해금석 구매(마개조용) 공존.

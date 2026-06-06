@@ -115,7 +115,7 @@
 - ✅ **성장 상점**(메뉴 41): 이상한사탕·경험사탕XS~XL·행복알(배지1)·진화돌10·비타민6 = 23품목. `economy.json §growthShop`.
 - ✅ **메가 연구소**(메뉴 38): 메가팔찌(20k/배지4)+메가스톤47(기본43=8k/배지4, 고급 X/Y 4=25k/배지6) = 48품목 2페이지. `economy.json §megaShop`(jar에서 실 *ite ID 47 추출).
 - 둘 다 서버측 GUI(바닐라 cobblemon/MSD 아이템) → 서버만 배포. 인게임 확인.
-- ✅ **마개조 기술머신**(메뉴39, 결정033, `shop/TmShopMenu`+`TmCatalog`): SimpleTMs 전체 632 TM을 18타입 카테고리+검색으로 판매. 타입/위력=Cobblemon Moves 런타임 조회. 가격=위력 자동등급(1k~6k). `anyMovesLearnableTMs=true`(전역, TM 사용한 포켓몬만 학습). SimpleTMs TM 텍스처 정상.
+- ✅ **마개조 기술머신**(메뉴39, 결정033/033-a, `shop/TmShopMenu`+`TmCatalog`): SimpleTMs 전체 632 TM을 18타입(양털 아이콘) 카테고리+검색으로 판매. 타입/위력=Cobblemon Moves 런타임 조회. 가격=위력 자동등급(1k~6k). 일반 TM=정규 learnset(전역 토글 OFF). **마개조=해금석 게이트**: `MakeoverStone`(paper+태그) 골드구매(10k·배지4)→포켓몬 우클릭→기술선택(teach)→`MoveSet.setMove` off-learnset 각인(가득 시 슬롯교체)→소모. UseEntityCallback. 그 포켓몬만 적용.
 - ✅ **실전 육성 상점**(메뉴40, 알 슬롯 폐기 자리, `trainingShop`): 성격 민트 21 + 특성캡슐(배지4)/패치(배지6). CategoryShopMenu 재사용.
 - ⚠️ **잔여**: 모드 아이템명 영어(클라 ko_kr 일부만) → 향후 `assets/<ns>/lang/ko_kr.json` 오버라이드 한글화 패스. 실전육성(민트/특성캡슐)·TM(SimpleTMs ID TODO)·알(Eggs ID TODO)·전설 제단(조우권)·메가팔찌 보유 게이트는 미구현.
 

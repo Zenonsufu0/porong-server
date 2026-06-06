@@ -46,6 +46,16 @@ public class PoroMonCore implements ModInitializer {
         // 야생 포켓몬 골드 보상(처치·포획)
         kr.poro.poromoncore.economy.WildRewardService.registerEvents();
 
+        // 마개조 해금석: 포켓몬 우클릭 → 기술 각인 메뉴(결정033)
+        net.fabricmc.fabric.api.event.player.UseEntityCallback.EVENT.register((p, world, hand, entity, hit) -> {
+            if (world.isClient() || hand != net.minecraft.util.Hand.MAIN_HAND) return net.minecraft.util.ActionResult.PASS;
+            if (!(p instanceof ServerPlayerEntity sp)) return net.minecraft.util.ActionResult.PASS;
+            if (!kr.poro.poromoncore.item.MakeoverStone.isStone(sp.getStackInHand(hand))) return net.minecraft.util.ActionResult.PASS;
+            if (!(entity instanceof com.cobblemon.mod.common.entity.pokemon.PokemonEntity pe)) return net.minecraft.util.ActionResult.PASS;
+            kr.poro.poromoncore.shop.TmShopMenu.openTeach(sp, pe.getPokemon().getUuid());
+            return net.minecraft.util.ActionResult.SUCCESS;
+        });
+
         // 서버 참조 캐시(이벤트 부스트용) + 경험치 부스트 훅
         net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STARTED.register(
                 kr.poro.poromoncore.event.EventManager::setServer);

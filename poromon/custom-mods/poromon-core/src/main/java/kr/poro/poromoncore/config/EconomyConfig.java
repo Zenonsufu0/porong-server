@@ -131,6 +131,8 @@ public class EconomyConfig {
 
     public static class TmShopConfig {
         public int minBadges = 0;          // 구매 배지 게이트
+        public long makeoverStonePrice = 10000; // 마개조 해금석 가격(off-learnset 1회 각인)
+        public int makeoverStoneBadges = 4;      // 해금석 구매 배지 게이트
         public long priceStatus = 1000;    // 위력 0 이하(변화기)
         public long priceWeak = 1500;      // 위력 ≤ 60
         public long priceMedium = 2500;    // 위력 61~90
