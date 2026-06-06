@@ -27,6 +27,8 @@ public final class AdminMenu {
     private static final int SLOT_RELEASE = 24;
     private static final int SLOT_PLAYERS = 30;
     private static final int SLOT_ANNOUNCE = 32;
+    private static final int SLOT_ENCOUNTER = 38;
+    private static final int SLOT_MONITOR = 42;
     private static final int SLOT_CLOSE = 49;
 
     public static void open(ServerPlayerEntity player) {
@@ -51,6 +53,10 @@ public final class AdminMenu {
                 List.of("§7골드·배지·패스·진행·강제해제", "§e클릭 — 접속자 목록")));
         inv.setStack(SLOT_ANNOUNCE, MenuIcons.icon(Items.OAK_SIGN, "§b공지 보내기",
                 List.of("§7전체 채팅 공지", "§e클릭 — 내용 입력")));
+        inv.setStack(SLOT_ENCOUNTER, MenuIcons.icon(Items.ENDER_EYE, "§d조우 강제 소환",
+                List.of("§7풀 선택 → 본인에게 소환(무료)", "§e클릭")));
+        inv.setStack(SLOT_MONITOR, MenuIcons.icon(Items.GOLD_BLOCK, "§6경제 모니터",
+                List.of("§7골드 유입/유출 통계", "§e클릭")));
         inv.setStack(SLOT_CLOSE, MenuIcons.icon(Items.BARRIER, "§c닫기", List.of()));
     }
 
@@ -62,6 +68,8 @@ public final class AdminMenu {
                 player.sendMessage(Text.literal("§a[운영자] 갇힘 강제 해제를 실행했습니다."), false); }
             case SLOT_PLAYERS -> PlayerAdminMenu.open(player);
             case SLOT_ANNOUNCE -> promptAnnounce(player);
+            case SLOT_ENCOUNTER -> EncounterAdminMenu.open(player);
+            case SLOT_MONITOR -> EconomyMonitorMenu.open(player);
             case SLOT_CLOSE -> player.closeHandledScreen();
             default -> { /* 무시 */ }
         }

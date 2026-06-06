@@ -131,7 +131,8 @@
 ## 4i. Phase 2 — 운영자 GUI + 야생 보상 (2026-06-07 세션)
 - ✅ **운영자 GUI**(`/poromon admin gui`, `admin/{AdminMenu,PlayerAdminMenu,PlayerActionMenu}`): 이벤트 부스트(경험치×2·골드×2 토글, `event/EventManager`+PoroMonState 영속)·갇힘 강제해제(전체/개별)·플레이어 관리(골드/배지/패스/진행)·공지(채팅→방송). 훅: 경험치 EXPERIENCE_GAINED_EVENT_PRE, 매입가 ×배수.
 - ✅ **야생 골드 보상**(`economy/WildRewardService`, economy §3): 야생만(BATTLE_VICTORY loser=WILD 처치 레벨합×2 / POKEMON_CAPTURED 포획 레벨×1), 골드 부스트 반영. `economy.json pokemonRewards`. → 골드 부스트 완성.
-- ⏳ **잔여(운영 GUI 그룹)**: 조우 강제소환/보상지급, 경제 모니터(텔레메트리), 컨셉 최상급 확률×2(apex 플래깅=밸런스 패스). 조우권 등급/컨셉 텍스처(paper+CMD 82001~).
+- ✅ **운영자 GUI 잔여**: 조우 강제소환(`admin/EncounterAdminMenu`, 풀 선택→본인 무료 소환, 우클릭 이로치) + 경제 모니터(`admin/EconomyMonitorMenu`, 출처 그룹별 골드 유입/유출 누적 — PoroMonState goldIn/goldOut, EconomyBridge 훅, economy §6 텔레메트리).
+- ⏳ **잔여**: 컨셉 최상급 확률×2(apex 플래깅=밸런스 패스), 조우권 등급/컨셉 텍스처(paper+CMD 82001~, README_TICKETS), 실전육성/TM/알 상점.
 
 ## 5. 진행 중 / 미해결 TODO (요약)
 - ✅ **species ID 검증 완료** → `01_modpack/jar_registry_reference.md`: 전설 71(restricted 27 / 준전설 44)·환상 23·UB 11·패러독스 20 실 ID 확정.

@@ -28,6 +28,7 @@ public final class EconomyBridge {
         PoroMonState state = PoroMonState.get(player.getServer());
         PlayerProgress p = state.getOrCreate(player.getUuid());
         p.balance += amount;
+        state.goldIn.merge(group(source), amount, Long::sum); // 텔레메트리
         state.markDirty();
         audit(player, "+" + amount, p.balance, source);
     }
@@ -39,6 +40,7 @@ public final class EconomyBridge {
         PlayerProgress p = state.getOrCreate(player.getUuid());
         if (p.balance < amount) return false;
         p.balance -= amount;
+        state.goldOut.merge(group(source), amount, Long::sum); // 텔레메트리
         state.markDirty();
         audit(player, "-" + amount, p.balance, source);
         return true;
@@ -51,6 +53,13 @@ public final class EconomyBridge {
         p.balance = Math.max(0, amount);
         state.markDirty();
         audit(player, "=" + p.balance, p.balance, source);
+    }
+
+    /** 출처 태그를 그룹키로(콜론 앞). 예 sell:minecraft:diamond → sell. */
+    private static String group(String source) {
+        if (source == null) return "기타";
+        int i = source.indexOf(':');
+        return i > 0 ? source.substring(0, i) : source;
     }
 
     private static void audit(ServerPlayerEntity player, String delta, long balance, String source) {

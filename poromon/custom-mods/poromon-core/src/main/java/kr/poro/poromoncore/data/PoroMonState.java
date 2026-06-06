@@ -25,6 +25,10 @@ public class PoroMonState extends PersistentState {
     public boolean xpBoost = false;
     public boolean goldBoost = false;
 
+    // 경제 텔레메트리 (economy_design §6): 출처 그룹별 골드 유입/유출 누적
+    public final Map<String, Long> goldIn = new java.util.LinkedHashMap<>();
+    public final Map<String, Long> goldOut = new java.util.LinkedHashMap<>();
+
     public static final PersistentState.Type<PoroMonState> TYPE = new PersistentState.Type<>(
             PoroMonState::new,
             PoroMonState::readNbt,
@@ -62,7 +66,19 @@ public class PoroMonState extends PersistentState {
         nbt.put("players", playersNbt);
         nbt.putBoolean("xpBoost", xpBoost);
         nbt.putBoolean("goldBoost", goldBoost);
+        nbt.put("goldIn", longMapToNbt(goldIn));
+        nbt.put("goldOut", longMapToNbt(goldOut));
         return nbt;
+    }
+
+    private static NbtCompound longMapToNbt(Map<String, Long> map) {
+        NbtCompound c = new NbtCompound();
+        for (Map.Entry<String, Long> e : map.entrySet()) c.putLong(e.getKey(), e.getValue());
+        return c;
+    }
+
+    private static void nbtToLongMap(NbtCompound c, Map<String, Long> map) {
+        for (String k : c.getKeys()) map.put(k, c.getLong(k));
     }
 
     public static PoroMonState readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
@@ -79,6 +95,8 @@ public class PoroMonState extends PersistentState {
         }
         state.xpBoost = nbt.getBoolean("xpBoost");
         state.goldBoost = nbt.getBoolean("goldBoost");
+        if (nbt.contains("goldIn", NbtElement.COMPOUND_TYPE)) nbtToLongMap(nbt.getCompound("goldIn"), state.goldIn);
+        if (nbt.contains("goldOut", NbtElement.COMPOUND_TYPE)) nbtToLongMap(nbt.getCompound("goldOut"), state.goldOut);
         return state;
     }
 }
