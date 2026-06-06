@@ -89,7 +89,7 @@ public final class AltarMenu {
                 lore.add("§a제단 해금됨 ✔");
                 lore.add("§7조우권: §6" + usePrice + " " + unit);
                 lore.add("§a클릭 — 조우권 사용 §7(이로치 " + ConfigManager.economy().shinyChancePercent + "%)");
-                inv.setStack(slot, MenuIcons.icon(icon(tier), "§d" + pool.displayNameKo, lore));
+                inv.setStack(slot, MenuIcons.iconModel(Items.PAPER, cmdFor(tier, poolId), "§d" + pool.displayNameKo, lore));
             } else {
                 int needBadge = unlock == null ? 0 : unlock.minBadges;
                 long unlockPrice = unlock == null ? 0 : unlock.price;
@@ -162,16 +162,20 @@ public final class AltarMenu {
         return names.isEmpty() ? "-" : String.join(", ", names) + " 등";
     }
 
-    private static Item icon(String type) {
-        if (type == null) return Items.ENDER_EYE;
-        return switch (type) {
-            case "rare" -> Items.SLIME_BALL;
-            case "basic" -> Items.IRON_INGOT;
-            case "intermediate" -> Items.GOLD_INGOT;
-            case "advanced" -> Items.DIAMOND;
-            case "apex" -> Items.NETHER_STAR;
-            case "theme" -> Items.END_CRYSTAL;
-            default -> Items.ENDER_EYE;
+    /** 조우권 텍스처 CustomModelData (paper override). 등급=type, 컨셉=theme suffix. */
+    private static int cmdFor(String tier, String poolId) {
+        if ("theme".equals(tier)) {
+            String k = poolId.replace("theme_", "").replace("_pool", "");
+            return switch (k) {
+                case "sky" -> 82011; case "deep_sea" -> 82012; case "earth" -> 82013;
+                case "time" -> 82014; case "space" -> 82015; case "reverse" -> 82016;
+                case "light" -> 82017; case "dragon_king" -> 82018; case "guardian" -> 82019;
+                case "eternity" -> 82020; default -> 82011;
+            };
+        }
+        return switch (tier) {
+            case "rare" -> 82001; case "basic" -> 82002; case "intermediate" -> 82003;
+            case "advanced" -> 82004; case "apex" -> 82005; default -> 82001;
         };
     }
 }

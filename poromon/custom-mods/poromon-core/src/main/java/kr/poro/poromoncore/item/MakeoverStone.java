@@ -25,6 +25,8 @@ public final class MakeoverStone {
         NbtCompound tag = new NbtCompound();
         tag.putByte(TAG_KEY, (byte) 1);
         stack.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(tag));
+        stack.set(DataComponentTypes.CUSTOM_MODEL_DATA,
+                new net.minecraft.component.type.CustomModelDataComponent(82030)); // 포로공학 정수 텍스처
         stack.set(DataComponentTypes.CUSTOM_NAME,
                 Text.literal("포로공학 정수").formatted(Formatting.LIGHT_PURPLE, Formatting.BOLD));
         stack.set(DataComponentTypes.LORE, new LoreComponent(List.of(

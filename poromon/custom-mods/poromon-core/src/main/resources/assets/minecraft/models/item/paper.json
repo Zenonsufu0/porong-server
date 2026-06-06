@@ -1,14 +1,152 @@
 {
   "parent": "minecraft:item/generated",
-  "textures": { "layer0": "minecraft:item/paper" },
+  "textures": {
+    "layer0": "minecraft:item/paper"
+  },
   "overrides": [
-    { "predicate": { "custom_model_data": 81001 }, "model": "poromon:item/badge_bug" },
-    { "predicate": { "custom_model_data": 81002 }, "model": "poromon:item/badge_rock" },
-    { "predicate": { "custom_model_data": 81003 }, "model": "poromon:item/badge_electric" },
-    { "predicate": { "custom_model_data": 81004 }, "model": "poromon:item/badge_grass" },
-    { "predicate": { "custom_model_data": 81005 }, "model": "poromon:item/badge_water" },
-    { "predicate": { "custom_model_data": 81006 }, "model": "poromon:item/badge_fire" },
-    { "predicate": { "custom_model_data": 81007 }, "model": "poromon:item/badge_psychic" },
-    { "predicate": { "custom_model_data": 81008 }, "model": "poromon:item/badge_dragon" }
+    {
+      "predicate": {
+        "custom_model_data": 81001
+      },
+      "model": "poromon:item/badge_bug"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 81002
+      },
+      "model": "poromon:item/badge_rock"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 81003
+      },
+      "model": "poromon:item/badge_electric"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 81004
+      },
+      "model": "poromon:item/badge_grass"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 81005
+      },
+      "model": "poromon:item/badge_water"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 81006
+      },
+      "model": "poromon:item/badge_fire"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 81007
+      },
+      "model": "poromon:item/badge_psychic"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 81008
+      },
+      "model": "poromon:item/badge_dragon"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82001
+      },
+      "model": "poromon:item/ticket_rare"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82002
+      },
+      "model": "poromon:item/ticket_basic"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82003
+      },
+      "model": "poromon:item/ticket_intermediate"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82004
+      },
+      "model": "poromon:item/ticket_advanced"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82005
+      },
+      "model": "poromon:item/ticket_apex"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82011
+      },
+      "model": "poromon:item/ticket_sky"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82012
+      },
+      "model": "poromon:item/ticket_deep_sea"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82013
+      },
+      "model": "poromon:item/ticket_earth"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82014
+      },
+      "model": "poromon:item/ticket_time"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82015
+      },
+      "model": "poromon:item/ticket_space"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82016
+      },
+      "model": "poromon:item/ticket_reverse"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82017
+      },
+      "model": "poromon:item/ticket_light"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82018
+      },
+      "model": "poromon:item/ticket_dragon_king"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82019
+      },
+      "model": "poromon:item/ticket_guardian"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82020
+      },
+      "model": "poromon:item/ticket_eternity"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82030
+      },
+      "model": "poromon:item/engineering_essence"
+    }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "poromon:item/badge/badge_psychic"
+    "layer0": "poromon:item/ticket/ticket_advanced"
   }
 }

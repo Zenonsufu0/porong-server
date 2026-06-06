@@ -1,4 +1,6 @@
 {
   "parent": "minecraft:item/generated",
-  "textures": { "layer0": "poromon:item/badge_electric" }
+  "textures": {
+    "layer0": "poromon:item/badge/badge_electric"
+  }
 }
