@@ -136,7 +136,21 @@
 - ✅ **운영자 GUI**(`/poromon admin gui`, `admin/{AdminMenu,PlayerAdminMenu,PlayerActionMenu}`): 이벤트 부스트(경험치×2·골드×2 토글, `event/EventManager`+PoroMonState 영속)·갇힘 강제해제(전체/개별)·플레이어 관리(골드/배지/패스/진행)·공지(채팅→방송). 훅: 경험치 EXPERIENCE_GAINED_EVENT_PRE, 매입가 ×배수.
 - ✅ **야생 골드 보상**(`economy/WildRewardService`, economy §3): 야생만(BATTLE_VICTORY loser=WILD 처치 레벨합×2 / POKEMON_CAPTURED 포획 레벨×1), 골드 부스트 반영. `economy.json pokemonRewards`. → 골드 부스트 완성.
 - ✅ **운영자 GUI 잔여**: 조우 강제소환(`admin/EncounterAdminMenu`, 풀 선택→본인 무료 소환, 우클릭 이로치) + 경제 모니터(`admin/EconomyMonitorMenu`, 출처 그룹별 골드 유입/유출 누적 — PoroMonState goldIn/goldOut, EconomyBridge 훅, economy §6 텔레메트리).
-- ⏳ **잔여**: 컨셉 최상급 확률×2(apex 플래깅=밸런스 패스), 조우권 등급/컨셉 텍스처(paper+CMD 82001~, README_TICKETS), 실전육성/TM/알 상점.
+- ⏳ **잔여**: 컨셉 최상급 확률×2(apex 플래깅=밸런스 패스).
+
+## 4j. Phase 2 — 상점/포로공학/텍스처/한글화계획 (2026-06-07 세션 마감)
+- ✅ **기술머신 상점**(메뉴39): 선별 40종 TM(CategoryShopMenu, `economy.tmShop`) — 정규 learnset.
+- ✅ **포로공학**(메뉴42, 결정033/a/b, `shop/EngineeringMenu`+`TmCatalog`+`MakeoverService`): 정수 구매(30만·배지4)→포켓몬 우클릭 영구 해제(`PlayerProgress.makeoverPokemon`)→메뉴서 해제 포켓몬 선택→18타입/검색→off-learnset 각인(각인마다 골드 위력등급 1k~6k, 가득 시 슬롯교체). 일반 TM은 정규 learnset(전역 OFF).
+- ✅ **알 시스템 제거**(결정032): Eggs Addon jar·OpenLoader egg팩·메뉴 슬롯40(알→실전육성으로 재사용). 사유=조우권 중복+리소스팩 의존. (재도입 시 Eggs 리소스팩 선행, IB.)
+- ✅ **조우권/정수 텍스처 배선**: 티켓15(`ticket/ticket_<key>`, CMD 82001~82020) + 포로공학 정수(`engineering_essence`, CMD 82030). 64×64 리사이즈·정수 투명화. paper.json override + 모델16. AltarMenu 해금 아이콘=티켓텍스처, MakeoverStone=정수텍스처. 배지 텍스처 badge/ 하위 이동 대응. **서버+클라 배포**(클라 재시작 시 렌더). 원본=texture_originals/(gitignore).
+- ✅ **한글화 계획 수립**(`localization_policy.md §8`, 구현 전): 클라 ko_kr+모드 ko_kr 내장→대부분 자동. 핵심 잔여=GUI `.getString()` 영어 박제 **9곳**(CategoryShop3·BuyShop2·SellShop2·Engineering1·TmCatalog1)→`MenuIcons` Text 오버로드+translatable 전환. 누락분만 자체 ko_kr override(출처 Weblate/Bulbapedia/사용자제공).
+
+### ▶ 다음 세션 과업 (우선순위)
+1. **텍스처 인게임 검증**(클라 재시작): 제단 티켓·포로공학 정수·배지 렌더 확인.
+2. **한글화 구현**: `MenuIcons` Text 오버로드 추가 → GUI 9곳 translatable 전환 → 인게임 영어 잔존 캡처 → 누락 ko_kr override. (`localization_policy.md §8.4` 순서)
+3. **IB-003 커스텀 메뉴 GUI 화면(배경)**: 바닐라 컨테이너 텍스처가 투박 → 방식 검토(B 타이틀 이미지-폰트 트릭 우선 / A 리소스팩 generic_54 전역 / C 클라 Screen). `idea_inbox IB-003`.
+4. **밸런스 패스**: 조우 stage_weight 적용·컨셉 차등/apex 중복 차별화·관장 후반 메가 검증.
+5. (선택) 운영자 GUI 컨셉 최상급 확률×2(apex 플래깅), 배지 텍스처 등.
 
 ## 5. 진행 중 / 미해결 TODO (요약)
 - ✅ **species ID 검증 완료** → `01_modpack/jar_registry_reference.md`: 전설 71(restricted 27 / 준전설 44)·환상 23·UB 11·패러독스 20 실 ID 확정.
