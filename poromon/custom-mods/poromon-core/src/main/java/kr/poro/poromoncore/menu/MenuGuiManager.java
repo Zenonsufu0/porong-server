@@ -45,6 +45,7 @@ public final class MenuGuiManager {
     private static final int SLOT_TM = 39;
     private static final int SLOT_PRACTICE = 40;  // 실전 육성(알 슬롯 폐기 자리)
     private static final int SLOT_TRAINING = 41;
+    private static final int SLOT_ENGINEERING = 42;  // 포로공학(off-learnset 각인)
     private static final int SLOT_CLOSE = 49;
 
     public static void open(ServerPlayerEntity player) {
@@ -95,7 +96,9 @@ public final class MenuGuiManager {
         inv.setStack(SLOT_MEGA_LAB, MenuIcons.icon(Items.NETHER_STAR, "§d메가 연구소",
                 List.of("§7메가팔찌·메가스톤 (배지 게이트)", "§7클릭 — 메가 상점 열기")));
         inv.setStack(SLOT_TM, MenuIcons.icon(Items.PAPER, "§b기술머신 상점",
-                List.of("§7SimpleTMs 선별 기술머신", "§7클릭 — TM 상점 열기")));
+                List.of("§7선별 기술머신(정규 습득 기술)", "§7클릭 — TM 상점 열기")));
+        inv.setStack(SLOT_ENGINEERING, MenuIcons.icon(Items.ENDER_EYE, "§d포로공학",
+                List.of("§7해금석으로 포켓몬 해제 → 배울 수 없는 기술 각인", "§7클릭 — 포로공학 열기")));
         inv.setStack(SLOT_PRACTICE, MenuIcons.icon(Items.POTION, "§d실전 육성 상점",
                 List.of("§7성격 민트·특성 캡슐/패치", "§7클릭 — 실전 육성 상점 열기")));
         inv.setStack(SLOT_TRAINING, MenuIcons.icon(Items.EXPERIENCE_BOTTLE, "§a성장 상점",
@@ -126,7 +129,10 @@ public final class MenuGuiManager {
             case SLOT_TRAINING -> kr.poro.poromoncore.shop.CategoryShopMenu.open(player,
                     Text.literal("성장 상점").formatted(Formatting.GREEN),
                     ConfigManager.economy().growthShop, "growth");
-            case SLOT_TM -> kr.poro.poromoncore.shop.TmShopMenu.open(player);
+            case SLOT_TM -> kr.poro.poromoncore.shop.CategoryShopMenu.open(player,
+                    Text.literal("기술머신 상점").formatted(Formatting.AQUA),
+                    ConfigManager.economy().tmShop, "tm");
+            case SLOT_ENGINEERING -> kr.poro.poromoncore.shop.EngineeringMenu.open(player);
             case SLOT_PRACTICE -> kr.poro.poromoncore.shop.CategoryShopMenu.open(player,
                     Text.literal("실전 육성 상점").formatted(Formatting.LIGHT_PURPLE),
                     ConfigManager.economy().trainingShop, "training");

@@ -56,16 +56,16 @@ public class PoroMonCore implements ModInitializer {
             com.cobblemon.mod.common.pokemon.Pokemon target =
                     kr.poro.poromoncore.shop.MakeoverService.findPartyPokemon(sp, pe.getPokemon().getUuid());
             if (target == null) {
-                sp.sendMessage(net.minecraft.text.Text.literal("§c[마개조] 본인 파티 포켓몬에만 사용할 수 있습니다."), true);
+                sp.sendMessage(net.minecraft.text.Text.literal("§c[포로공학] 본인 파티 포켓몬에만 사용할 수 있습니다."), true);
                 return net.minecraft.util.ActionResult.SUCCESS;
             }
             if (!kr.poro.poromoncore.shop.MakeoverService.unlock(sp, target)) {
-                sp.sendMessage(net.minecraft.text.Text.literal("§e[마개조] 이미 해제된 포켓몬입니다."), true);
+                sp.sendMessage(net.minecraft.text.Text.literal("§e[포로공학] 이미 해제된 포켓몬입니다."), true);
                 return net.minecraft.util.ActionResult.SUCCESS;
             }
             held.decrement(1);
-            sp.sendMessage(net.minecraft.text.Text.literal("§a[마개조] " + target.getSpecies().getName()
-                    + " 해제 완료! 기술머신 → 마개조 각인에서 기술을 배울 수 있습니다."), false);
+            sp.sendMessage(net.minecraft.text.Text.literal("§a[포로공학] " + target.getSpecies().getName()
+                    + " 해제 완료! 메뉴 → 포로공학에서 기술을 각인할 수 있습니다."), false);
             return net.minecraft.util.ActionResult.SUCCESS;
         });
 
