@@ -126,9 +126,7 @@ public final class MenuGuiManager {
             case SLOT_TRAINING -> kr.poro.poromoncore.shop.CategoryShopMenu.open(player,
                     Text.literal("성장 상점").formatted(Formatting.GREEN),
                     ConfigManager.economy().growthShop, "growth");
-            case SLOT_TM -> kr.poro.poromoncore.shop.CategoryShopMenu.open(player,
-                    Text.literal("기술머신 상점").formatted(Formatting.AQUA),
-                    ConfigManager.economy().tmShop, "tm");
+            case SLOT_TM -> kr.poro.poromoncore.shop.TmShopMenu.open(player);
             case SLOT_PRACTICE -> kr.poro.poromoncore.shop.CategoryShopMenu.open(player,
                     Text.literal("실전 육성 상점").formatted(Formatting.LIGHT_PURPLE),
                     ConfigManager.economy().trainingShop, "training");

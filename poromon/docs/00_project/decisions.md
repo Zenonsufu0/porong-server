@@ -219,3 +219,15 @@ jar 전수 검증(`egg_pool_design.md §8`)으로 Eggs Addon(`diesse`)의 실제
 - **폐기 문서**: `egg_pool_design.md`(전체 폐기), `shop_design.md §3.5`(알 상점 폐기), `shop_catalog_0.1.md §3.5`, `server_mod_separation.md`(모드 수 -1). 향후 알 재도입 시 리소스팩 확보 선행.
 
 `poromon/CLAUDE.md` 모드 목록에서 Eggs 제거.
+
+### 033. 마개조 기술머신 — learnset 해제 + 타입분류/검색 TM 상점
+
+기술머신을 "마개조"(자유 기술 부여)로 확장.
+
+- **learnset 해제**: SimpleTMs `anyMovesLearnableTMs=true`(+TRs). TM을 **사서 보관** → 원하는 포켓몬에 사용 = **그 포켓몬만** 그 기술 학습(다른 포켓몬 무관). 전역 토글이지만 적용은 사용한 포켓몬 단위. (포켓몬별 게이트 없음 = 구매 골드가 게이트.)
+- **TM 상점 재구성**(`shop/TmShopMenu`+`TmCatalog`): SimpleTMs 전체 TM(632)을 **18타입 카테고리 + 검색**(채팅 입력)으로 판매. TM 목록은 레지스트리에서 자동 수집(`simpletms:tm_*`), 타입/위력/표시명은 Cobblemon `Moves.getByName` 런타임 조회. 메뉴 슬롯39.
+- **가격 = 위력 자동 등급**(`economy.json tmShop`): 변화기1k/≤60 1.5k/≤90 2.5k/≤110 4k/111+ 6k. 632줄 수작업 불필요. (배지 게이트 minBadges=0 기본.)
+- **텍스처**: SimpleTMs TM은 타입색 디스크 모델/텍스처를 jar에 보유 → 정상 렌더(Eggs와 달리 추가 리소스팩 불필요).
+- 결정 032에서 선별 40종(고정 map)이었던 것을 전체+타입/검색으로 대체.
+
+`anyMovesLearnableTMs`는 `.local/server/config/simpletms/main.json` + `modpack/overrides/config/simpletms/main.json`(배포). CLAUDE.md/shop_design TM 항목 갱신.

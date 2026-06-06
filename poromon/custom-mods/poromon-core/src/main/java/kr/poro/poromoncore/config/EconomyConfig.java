@@ -123,21 +123,28 @@ public class EconomyConfig {
         return m;
     }
 
-    /** 기술머신 상점(SimpleTMs 선별 40). shop_catalog_0.1 §3.4. simpletms:tm_<기술>. */
-    public Map<String, ShopEntry> tmShop = defaultTmShop();
+    /**
+     * 기술머신 상점(마개조): SimpleTMs 전체 TM을 타입 분류 + 검색으로 판매. 결정 033.
+     * 가격은 기술 위력으로 자동 등급화(수작업 632줄 불필요). learnset 해제는 simpletms config.
+     */
+    public TmShopConfig tmShop = new TmShopConfig();
 
-    private static Map<String, ShopEntry> defaultTmShop() {
-        Map<String, ShopEntry> m = new LinkedHashMap<>();
-        String[] tms = {
-                "earthquake", "icebeam", "thunderbolt", "flamethrower", "shadowball", "calmmind",
-                "swordsdance", "dragondance", "nastyplot", "stealthrock", "spikes", "toxic",
-                "willowisp", "protect", "substitute", "uturn", "voltswitch", "knockoff",
-                "closecombat", "surf", "psychic", "energyball", "focusblast", "dazzlinggleam",
-                "icepunch", "firepunch", "thunderpunch", "trick", "taunt", "roost", "sludgebomb",
-                "scald", "flashcannon", "dragonpulse", "airslash", "rockslide", "stoneedge",
-                "ironhead", "playrough", "gigadrain"};
-        for (String t : tms) m.put("simpletms:tm_" + t, new ShopEntry(2000, 0));
-        return m;
+    public static class TmShopConfig {
+        public int minBadges = 0;          // 구매 배지 게이트
+        public long priceStatus = 1000;    // 위력 0 이하(변화기)
+        public long priceWeak = 1500;      // 위력 ≤ 60
+        public long priceMedium = 2500;    // 위력 61~90
+        public long priceStrong = 4000;    // 위력 91~110
+        public long pricePremium = 6000;   // 위력 111+
+
+        /** 위력 → 가격 등급. */
+        public long priceFor(double power) {
+            if (power <= 0) return priceStatus;
+            if (power <= 60) return priceWeak;
+            if (power <= 90) return priceMedium;
+            if (power <= 110) return priceStrong;
+            return pricePremium;
+        }
     }
 
     /** 메가 연구소(메가팔찌 + 메가스톤 47). shop_catalog_0.1 §3.6 / mega_tera_unlock. */
