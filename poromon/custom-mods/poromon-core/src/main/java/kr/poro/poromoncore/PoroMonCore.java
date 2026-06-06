@@ -7,6 +7,7 @@ import kr.poro.poromoncore.config.CoreConfig;
 import kr.poro.poromoncore.data.PlayerProgress;
 import kr.poro.poromoncore.data.PoroMonState;
 import kr.poro.poromoncore.home.HomeManager;
+import kr.poro.poromoncore.wild.WildManager;
 import kr.poro.poromoncore.item.MenuItemManager;
 import kr.poro.poromoncore.menu.MenuGuiManager;
 import kr.poro.poromoncore.util.ChatInputManager;
@@ -76,8 +77,10 @@ public class PoroMonCore implements ModInitializer {
                 MenuItemManager.enforce(p);
             }
             HomeManager.tickWarmups(server);
+            WildManager.tickWarmups(server);
             if (server.getTicks() % 20 == 0) {
                 BattleTowerService.tick(server);
+                kr.poro.poromoncore.tpa.TpaManager.cleanup(server.getTicks());
             }
         });
     }

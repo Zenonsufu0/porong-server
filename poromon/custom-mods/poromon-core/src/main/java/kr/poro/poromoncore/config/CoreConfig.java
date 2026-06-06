@@ -10,6 +10,7 @@ public class CoreConfig {
     public MenuItem menuItem = new MenuItem();
     public Hub hub = new Hub();
     public Home home = new Home();
+    public Wild wild = new Wild();
     public Logging logging = new Logging();
 
     /** 9번 슬롯 리그 패스 아이템 정책 (menu_design.md §2). */
@@ -50,6 +51,18 @@ public class CoreConfig {
         public int cooldownSeconds = 30;       // 이동 후 재사용 대기
         public boolean cancelOnMove = true;    // 채널링 중 이동 시 취소
         public boolean cancelOnDamage = true;  // 채널링 중 피격 시 취소
+    }
+
+    /** 야생 랜덤 이동 (결정 030: 허브 무중심 → 월드보더 안 완전 랜덤). */
+    public static class Wild {
+        public boolean enabled = true;
+        public int warmupSeconds = 3;     // 채널링(이동 전 대기)
+        public int cooldownSeconds = 30;
+        public boolean cancelOnMove = true;
+        public boolean cancelOnDamage = true;
+        public int maxAttempts = 24;      // 안전 착지 탐색 시도 횟수
+        public int minSurfaceY = 45;      // 이보다 낮은 지표(구덩이/공동)는 회피
+        public int edgeMargin = 16;       // 월드보더 가장자리 여유
     }
 
     /** 감사 로깅 토글 (0.1 일부만 사용). */

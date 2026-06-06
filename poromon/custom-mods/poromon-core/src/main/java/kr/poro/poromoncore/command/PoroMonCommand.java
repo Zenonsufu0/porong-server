@@ -37,6 +37,10 @@ public final class PoroMonCommand {
                 .then(CommandManager.literal("menu").executes(PoroMonCommand::openMenu))
                 .then(CommandManager.literal("hub").executes(PoroMonCommand::hub))
                 .then(CommandManager.literal("home").executes(PoroMonCommand::home))
+                .then(CommandManager.literal("wild").executes(PoroMonCommand::wild))
+                .then(CommandManager.literal("tpa")
+                        .then(CommandManager.literal("accept").executes(PoroMonCommand::tpaAccept))
+                        .then(CommandManager.literal("deny").executes(PoroMonCommand::tpaDeny)))
                 .then(CommandManager.literal("admin")
                         .requires(src -> src.hasPermissionLevel(2))
                         .then(CommandManager.literal("reload").executes(PoroMonCommand::reload))
@@ -82,7 +86,7 @@ public final class PoroMonCommand {
     }
 
     private static int root(CommandContext<ServerCommandSource> ctx) {
-        ctx.getSource().sendFeedback(() -> Text.literal("§e[PoroMon]§r 0.1 — /poromon menu | hub | home | progress | admin …"), false);
+        ctx.getSource().sendFeedback(() -> Text.literal("§e[PoroMon]§r 0.1 — /poromon menu | hub | home | wild | tpa | progress | admin …"), false);
         return 1;
     }
 
@@ -140,6 +144,21 @@ public final class PoroMonCommand {
     private static int home(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
         kr.poro.poromoncore.home.HomeMenu.open(player);
+        return 1;
+    }
+
+    private static int wild(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        kr.poro.poromoncore.wild.WildManager.requestTeleport(ctx.getSource().getPlayerOrThrow());
+        return 1;
+    }
+
+    private static int tpaAccept(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        kr.poro.poromoncore.tpa.TpaManager.accept(ctx.getSource().getPlayerOrThrow());
+        return 1;
+    }
+
+    private static int tpaDeny(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        kr.poro.poromoncore.tpa.TpaManager.deny(ctx.getSource().getPlayerOrThrow());
         return 1;
     }
 

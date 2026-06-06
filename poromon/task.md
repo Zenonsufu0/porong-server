@@ -104,7 +104,8 @@
 - ✅ **메뉴 조회 구현**: 배지(11)=컬렉션 뷰(4×2, 타입색/회색유리) · 관장 가이드(12)=정보 보드(4×2, 순서·타입·레벨캡·획득·순차게이트) · 리그/챔피언(13)·서버 가이드(14)=채팅 안내. "짐"→"관장" 표기. `gym/{GymInfo,BadgeMenu,GymBoardMenu}`, `PlayerProgress.badges`(NBT), `/poromon admin badge give|clear`. 인게임 검증.
 - ✅ **결정 030(허브 단순화)**: 허브=건축물+스폰/TP만, 모든 거래·해금·조우=메뉴 GUI 통합(결정 024 하이브리드 폐기). 메뉴 37–41=상점 GUI 직접 입구(구현 추후). 문서 정정: decisions 030 + menu/hub/shop/economy 배너.
 - ✅ **허브 맵 교체**: `factionsspawn`(302×289×85, 구형 MCEdit Alpha 포맷) 채택. 허브 좌표=현 위치(`core.json hub.spawn` -15.5/95/755.5 + setworldspawn). (이전 aetherfall 1001²는 과대로 폐기.)
-- ⏳ **진행 예정**: 월드보더 경계 + 야생 랜덤이동(허브 무중심화로 완전 랜덤 OK) + 메뉴 TPA(닉 입력→[수락][거절]).
+- ✅ **경계/야생/TPA 구현**: 월드보더(중심 -15.5/755.5, 지름 5000) + **야생 랜덤이동**(메뉴 슬롯21, 웜업3s+쿨다운30s, **비동기 청크 로드**로 멈춤 없이 안전 착지) + **TPA**(슬롯22, 닉 입력→대상에게 클릭 [수락][거절]→요청자 이동). `wild/WildManager`·`tpa/TpaManager`, `/poromon wild|tpa accept|deny`, core.json §wild. 인게임 검증.
+- ⏳ **다음**: 관장 실배틀(8관장 NPC pvn + 승리 시 배지 자동 지급, 배틀타워 패턴 재사용).
 
 ## 5. 진행 중 / 미해결 TODO (요약)
 - ✅ **species ID 검증 완료** → `01_modpack/jar_registry_reference.md`: 전설 71(restricted 27 / 준전설 44)·환상 23·UB 11·패러독스 20 실 ID 확정.

@@ -9,6 +9,9 @@ import kr.poro.poromoncore.home.HomeMenu;
 import kr.poro.poromoncore.hub.HubManager;
 import kr.poro.poromoncore.shop.BuyShopMenu;
 import kr.poro.poromoncore.shop.SellShopMenu;
+import kr.poro.poromoncore.tpa.TpaManager;
+import kr.poro.poromoncore.util.ChatInputManager;
+import kr.poro.poromoncore.wild.WildManager;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -33,6 +36,8 @@ public final class MenuGuiManager {
     private static final int SLOT_SERVER_GUIDE = 14;
     private static final int SLOT_HUB_TP = 19;
     private static final int SLOT_HOME = 20;
+    private static final int SLOT_WILD = 21;
+    private static final int SLOT_TPA = 22;
     private static final int SLOT_SELL_SHOP = 28;
     private static final int SLOT_CONVENIENCE = 29;
     private static final int SLOT_ALTAR = 37;
@@ -75,6 +80,10 @@ public final class MenuGuiManager {
                 List.of("§7클릭 — 허브로 텔레포트")));
         inv.setStack(SLOT_HOME, MenuIcons.icon(Items.RED_BED, "§a홈",
                 List.of("§7홈 등록/이동 (최대 5칸)", "§7클릭 — 홈 메뉴 열기")));
+        inv.setStack(SLOT_WILD, MenuIcons.icon(Items.GRASS_BLOCK, "§2야생 이동",
+                List.of("§7맵의 임의 위치로 순간이동", "§7클릭 — 야생으로")));
+        inv.setStack(SLOT_TPA, MenuIcons.icon(Items.COMPASS, "§b친구에게 (TPA)",
+                List.of("§7친구에게 순간이동 요청", "§7클릭 — 닉네임 입력")));
 
         inv.setStack(SLOT_SELL_SHOP, MenuIcons.icon(Items.CHEST, "§6매입소",
                 List.of("§7광물·농작물·베리를 " + unit + "로 매입", "§7클릭 — 매입소 열기")));
@@ -98,6 +107,11 @@ public final class MenuGuiManager {
             }
             case SLOT_PROGRESS -> sendProgress(player);
             case SLOT_HOME -> HomeMenu.open(player);
+            case SLOT_WILD -> {
+                player.closeHandledScreen();
+                WildManager.requestTeleport(player);
+            }
+            case SLOT_TPA -> promptTpa(player);
             case SLOT_BADGES -> BadgeMenu.open(player);
             case SLOT_GYM_GUIDE -> GymBoardMenu.open(player);
             case SLOT_LEAGUE -> sendLeagueInfo(player);
@@ -120,6 +134,18 @@ public final class MenuGuiManager {
                 "§e[PoroMon] 내 진행도§r — " + unit + ": §6" + p.balance
                         + " §r/ 배틀타워 최고층: §f" + p.battleTowerHighestClearedFloor
                         + " §r/ 리그패스: " + (p.leaguePassGiven ? "§a보유" : "§c없음")), false);
+    }
+
+    private static void promptTpa(ServerPlayerEntity player) {
+        player.closeHandledScreen();
+        player.sendMessage(Text.literal("§b[TPA] 순간이동할 친구의 닉네임을 채팅에 입력하세요. §7(취소: '취소')"), false);
+        ChatInputManager.await(player, input -> {
+            if (input.equals("취소") || input.isBlank()) {
+                player.sendMessage(Text.literal("§7[TPA] 취소했습니다."), false);
+            } else {
+                TpaManager.request(player, input);
+            }
+        });
     }
 
     private static void sendLeagueInfo(ServerPlayerEntity player) {
