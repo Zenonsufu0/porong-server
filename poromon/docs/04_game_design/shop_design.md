@@ -1,5 +1,7 @@
 # 상점 설계 (Shop Design)  — 초안(DRAFT)
 
+> ⚠️ **결정 030:** 상점 접근 = **전부 9번 메뉴 GUI 직접 거래**(하이브리드/허브 NPC 폐기). §5의 "허브 NPC 우클릭" 서술은 "메뉴 카테고리 GUI"로 대체해 읽을 것. 카테고리·가격·게이트 정책은 그대로 유지, 접근 경로만 메뉴 일원화.
+
 > 허브 상점의 설계 방향·정책·카테고리. **상세 판매 품목/아이템 ID 표는 `shop_catalog_0.1.md`.**
 > 연동: `RewardManager`/`EconomyBridge`/`EncounterTicketManager`/`MegaUnlockManager`/`GymBadgeManager`.
 > 화폐: **골드 단일제(결정 014)**. 추가 애드온: SimpleTMs / Eggs(결정 015). 리자몽나이트 X/Y = 메가스톤 카테고리(결정 016).

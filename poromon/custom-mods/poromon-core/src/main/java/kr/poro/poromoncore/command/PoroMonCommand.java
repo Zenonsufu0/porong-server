@@ -3,6 +3,7 @@ package kr.poro.poromoncore.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.LongArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import kr.poro.poromoncore.PoroMonCore;
@@ -11,6 +12,7 @@ import kr.poro.poromoncore.config.ConfigManager;
 import kr.poro.poromoncore.data.PlayerProgress;
 import kr.poro.poromoncore.data.PoroMonState;
 import kr.poro.poromoncore.economy.EconomyBridge;
+import kr.poro.poromoncore.gym.GymInfo;
 import kr.poro.poromoncore.hub.HubManager;
 import kr.poro.poromoncore.item.MenuItemManager;
 import kr.poro.poromoncore.menu.MenuGuiManager;
@@ -44,6 +46,18 @@ public final class PoroMonCommand {
                         .then(CommandManager.literal("progress")
                                 .then(CommandManager.argument("player", EntityArgumentType.player())
                                         .executes(PoroMonCommand::targetProgress)))
+                        .then(CommandManager.literal("badge")
+                                .then(CommandManager.literal("give")
+                                        .then(CommandManager.argument("player", EntityArgumentType.player())
+                                                .then(CommandManager.argument("gym", StringArgumentType.word())
+                                                        .suggests((c, b) -> {
+                                                            for (GymInfo.Gym g : GymInfo.GYMS) b.suggest(g.id());
+                                                            return b.buildFuture();
+                                                        })
+                                                        .executes(PoroMonCommand::badgeGive))))
+                                .then(CommandManager.literal("clear")
+                                        .then(CommandManager.argument("player", EntityArgumentType.player())
+                                                .executes(PoroMonCommand::badgeClear))))
                         .then(CommandManager.literal("economy")
                                 .then(CommandManager.literal("balance")
                                         .then(CommandManager.argument("player", EntityArgumentType.player())
@@ -144,6 +158,34 @@ public final class PoroMonCommand {
                 ? "§a[PoroMon]§r 리그 패스 지급/복원: " + target.getGameProfile().getName()
                 : "§c[PoroMon]§r 리그 패스 지급 실패(인벤 가득?) — " + target.getGameProfile().getName()), true);
         return has ? 1 : 0;
+    }
+
+    private static int badgeGive(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity target = EntityArgumentType.getPlayer(ctx, "player");
+        String gymId = StringArgumentType.getString(ctx, "gym");
+        GymInfo.Gym gym = GymInfo.byId(gymId);
+        if (gym == null) {
+            ctx.getSource().sendError(Text.literal("§c알 수 없는 관장 id: " + gymId));
+            return 0;
+        }
+        PoroMonState state = PoroMonState.get(target.getServer());
+        PlayerProgress p = state.getOrCreate(target.getUuid());
+        boolean added = p.badges.add(gym.id());
+        if (added) state.markDirty();
+        ctx.getSource().sendFeedback(() -> Text.literal("§a[PoroMon]§r " + target.getGameProfile().getName()
+                + " — " + gym.badgeKo() + (added ? " 지급" : " (이미 보유)") + " (배지 " + p.badges.size() + "/8)"), true);
+        return 1;
+    }
+
+    private static int badgeClear(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity target = EntityArgumentType.getPlayer(ctx, "player");
+        PoroMonState state = PoroMonState.get(target.getServer());
+        PlayerProgress p = state.getOrCreate(target.getUuid());
+        p.badges.clear();
+        state.markDirty();
+        ctx.getSource().sendFeedback(() -> Text.literal("§a[PoroMon]§r " + target.getGameProfile().getName()
+                + " 배지 전체 초기화"), true);
+        return 1;
     }
 
     private static int economyBalance(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {

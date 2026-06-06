@@ -1,5 +1,7 @@
 # 경제 설계 (Economy)  — 초안(DRAFT)
 
+> ⚠️ **결정 030:** §5의 "허브 NPC/판매대" 거래 경로는 폐기 → 모든 거래를 **9번 메뉴 GUI**로 통합(허브엔 NPC 없음). 가격·텔레메트리·정책은 유지, 접근 경로만 메뉴 일원화.
+
 > 허브 시장 구역(`hub_design.md` §2) + 짐/배틀타워 보상 + 티켓 구매를 잇는 재화 흐름.
 > 연동: `RewardManager` / `EconomyBridge` / `PlayerProgress`(`../03_poromoncore/database_schema.md`) / `economy.json`(`config_structure.md`).
 > ⚠️ 초안. `TBD`/`예시`는 검토·확정 대상.

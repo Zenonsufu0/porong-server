@@ -27,6 +27,9 @@ public class PlayerProgress {
     public int homesUnlocked = 1;
     public final Home[] homes = new Home[HOME_MAX];
 
+    // 관장 배지 (gym_badge_design): 획득한 배지(=관장) id 집합
+    public final java.util.Set<String> badges = new java.util.HashSet<>();
+
     public NbtCompound writeNbt(NbtCompound nbt) {
         nbt.putInt("schemaVersion", SCHEMA_VERSION);
         nbt.putLong("firstJoinEpoch", firstJoinEpoch);
@@ -48,6 +51,10 @@ public class PlayerProgress {
             if (homes[i] != null) homesNbt.put(Integer.toString(i), homes[i].writeNbt());
         }
         nbt.put("homes", homesNbt);
+
+        NbtList badgesNbt = new NbtList();
+        for (String b : badges) badgesNbt.add(net.minecraft.nbt.NbtString.of(b));
+        nbt.put("badges", badgesNbt);
         return nbt;
     }
 
@@ -77,6 +84,11 @@ public class PlayerProgress {
                     p.homes[i] = Home.readNbt(homesNbt.getCompound(key));
                 }
             }
+        }
+
+        if (nbt.contains("badges", NbtElement.LIST_TYPE)) {
+            NbtList badgesNbt = nbt.getList("badges", NbtElement.STRING_TYPE);
+            for (int i = 0; i < badgesNbt.size(); i++) p.badges.add(badgesNbt.getString(i));
         }
         return p;
     }
