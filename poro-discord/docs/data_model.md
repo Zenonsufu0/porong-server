@@ -64,10 +64,20 @@
 | id | INTEGER PK | |
 | key | TEXT UNIQUE | 내부 키 |
 | display_name | TEXT | 표시명 |
-| required_level | INTEGER NULL | 레벨 임계(자동 부여 조건) |
-| role_id | INTEGER NULL | 연동 디스코드 역할(보유=역할 부여) |
+| required_level | INTEGER NULL | 레벨 임계(자동 획득 조건) |
 
-- 보유/표시는 디스코드 역할로 표현(역할이 권위). "선택 표시 칭호" 도입 시 `user_titles`(user_id, title_id, selected) 추가.
+- **칭호는 디스코드 역할이 아니다.** 봇이 관리하는 순수 표시 데이터(코스메틱). 보유=`user_titles`, 장착(표시)=`user_titles.equipped`. 역할 부여·생성 없음(역할 난립 방지).
+
+### 2.3b `user_titles` — 보유/장착 칭호 (T13)
+| 컬럼 | 타입 | 설명 |
+|---|---|---|
+| discord_user_id | INTEGER | |
+| title_id | INTEGER | `titles.id` FK |
+| acquired_at | INTEGER | 획득 시각 |
+| equipped | INTEGER | 1=장착(표시), 0=보유만 |
+
+- `PRIMARY KEY(discord_user_id, title_id)`. 보유는 누적(회수 안 함). **유저당 equipped=1 은 최대 1개**(교체 시 기존 0으로).
+- 닉네임 `[LV.nn]` prefix 는 `community_xp.level` 파생(별도 저장 없음, 기존 닉을 base 로 재적용).
 
 ### 2.4 `warnings` — 경고 (T15)
 | 컬럼 | 타입 | 설명 |

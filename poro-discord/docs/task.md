@@ -34,6 +34,7 @@
 > T12~T18 은 §9 후보 기능 백로그에서 승격(2026-06-06). 상세 명세·근거는 §9. Tier3(초대추적·건의투표)는 §9에 보류 유지.
 > T19(클래스 RPG 이관)·T20(명령어 가시성)은 도메인 격리 후속 결정(2026-06-06). T20 설계 노트는 §10.
 > **T12 SQLite 스키마 1차안 = [`data_model.md`](data_model.md)** (servers 레지스트리 포함 — T21·T13~T16 공통 기반).
+> **T13 커뮤니티 레벨 상세 = [`community_level.md`](community_level.md)**, T21 생애주기 상세 = [`server_lifecycle.md`](server_lifecycle.md).
 
 ## 1. core (공통 인프라)
 
