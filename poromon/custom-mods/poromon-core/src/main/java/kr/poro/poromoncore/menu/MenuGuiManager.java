@@ -43,6 +43,7 @@ public final class MenuGuiManager {
     private static final int SLOT_ALTAR = 37;
     private static final int SLOT_MEGA_LAB = 38;
     private static final int SLOT_TM = 39;
+    private static final int SLOT_PRACTICE = 40;  // 실전 육성(알 슬롯 폐기 자리)
     private static final int SLOT_TRAINING = 41;
     private static final int SLOT_CLOSE = 49;
 
@@ -93,7 +94,10 @@ public final class MenuGuiManager {
                 List.of("§7조우권으로 전설/희귀 포켓몬 조우", "§7클릭 — 전설 제단 열기")));
         inv.setStack(SLOT_MEGA_LAB, MenuIcons.icon(Items.NETHER_STAR, "§d메가 연구소",
                 List.of("§7메가팔찌·메가스톤 (배지 게이트)", "§7클릭 — 메가 상점 열기")));
-        inv.setStack(SLOT_TM, soon(Items.PAPER, "§b기술머신 안내"));
+        inv.setStack(SLOT_TM, MenuIcons.icon(Items.PAPER, "§b기술머신 상점",
+                List.of("§7SimpleTMs 선별 기술머신", "§7클릭 — TM 상점 열기")));
+        inv.setStack(SLOT_PRACTICE, MenuIcons.icon(Items.POTION, "§d실전 육성 상점",
+                List.of("§7성격 민트·특성 캡슐/패치", "§7클릭 — 실전 육성 상점 열기")));
         inv.setStack(SLOT_TRAINING, MenuIcons.icon(Items.EXPERIENCE_BOTTLE, "§a성장 상점",
                 List.of("§7이상한사탕·경험사탕·진화돌·비타민", "§7클릭 — 성장 상점 열기")));
 
@@ -122,14 +126,18 @@ public final class MenuGuiManager {
             case SLOT_TRAINING -> kr.poro.poromoncore.shop.CategoryShopMenu.open(player,
                     Text.literal("성장 상점").formatted(Formatting.GREEN),
                     ConfigManager.economy().growthShop, "growth");
+            case SLOT_TM -> kr.poro.poromoncore.shop.CategoryShopMenu.open(player,
+                    Text.literal("기술머신 상점").formatted(Formatting.AQUA),
+                    ConfigManager.economy().tmShop, "tm");
+            case SLOT_PRACTICE -> kr.poro.poromoncore.shop.CategoryShopMenu.open(player,
+                    Text.literal("실전 육성 상점").formatted(Formatting.LIGHT_PURPLE),
+                    ConfigManager.economy().trainingShop, "training");
             case SLOT_MEGA_LAB -> kr.poro.poromoncore.shop.CategoryShopMenu.open(player,
                     Text.literal("메가 연구소").formatted(Formatting.LIGHT_PURPLE),
                     ConfigManager.economy().megaShop, "mega");
             case SLOT_ALTAR -> kr.poro.poromoncore.encounter.AltarMenu.open(player);
             case SLOT_CLOSE -> player.closeHandledScreen();
             case SLOT_PLAYER_INFO -> { /* 읽기 전용 */ }
-            case SLOT_TM ->
-                    player.sendMessage(Text.literal("§e[PoroMon]§r 준비 중인 기능입니다 (0.1)."), true);
             default -> { /* 테두리/빈칸 무시 */ }
         }
     }

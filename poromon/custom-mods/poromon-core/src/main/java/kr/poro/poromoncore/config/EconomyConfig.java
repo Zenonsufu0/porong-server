@@ -109,6 +109,37 @@ public class EconomyConfig {
         return m;
     }
 
+    /** 실전 육성 상점(성격 민트 21 + 특성 캡슐/패치). shop_catalog_0.1 §3.3. */
+    public Map<String, ShopEntry> trainingShop = defaultTrainingShop();
+
+    private static Map<String, ShopEntry> defaultTrainingShop() {
+        Map<String, ShopEntry> m = new LinkedHashMap<>();
+        String[] natures = {"adamant", "bold", "brave", "calm", "careful", "gentle", "hasty",
+                "impish", "jolly", "lax", "lonely", "mild", "modest", "naive", "naughty",
+                "quiet", "rash", "relaxed", "sassy", "serious", "timid"};
+        for (String n : natures) m.put("cobblemon:" + n + "_mint", new ShopEntry(3000, 0));
+        m.put("cobblemon:ability_capsule", new ShopEntry(8000, 4));
+        m.put("cobblemon:ability_patch", new ShopEntry(15000, 6));
+        return m;
+    }
+
+    /** 기술머신 상점(SimpleTMs 선별 40). shop_catalog_0.1 §3.4. simpletms:tm_<기술>. */
+    public Map<String, ShopEntry> tmShop = defaultTmShop();
+
+    private static Map<String, ShopEntry> defaultTmShop() {
+        Map<String, ShopEntry> m = new LinkedHashMap<>();
+        String[] tms = {
+                "earthquake", "icebeam", "thunderbolt", "flamethrower", "shadowball", "calmmind",
+                "swordsdance", "dragondance", "nastyplot", "stealthrock", "spikes", "toxic",
+                "willowisp", "protect", "substitute", "uturn", "voltswitch", "knockoff",
+                "closecombat", "surf", "psychic", "energyball", "focusblast", "dazzlinggleam",
+                "icepunch", "firepunch", "thunderpunch", "trick", "taunt", "roost", "sludgebomb",
+                "scald", "flashcannon", "dragonpulse", "airslash", "rockslide", "stoneedge",
+                "ironhead", "playrough", "gigadrain"};
+        for (String t : tms) m.put("simpletms:tm_" + t, new ShopEntry(2000, 0));
+        return m;
+    }
+
     /** 메가 연구소(메가팔찌 + 메가스톤 47). shop_catalog_0.1 §3.6 / mega_tera_unlock. */
     public Map<String, ShopEntry> megaShop = defaultMegaShop();
 
