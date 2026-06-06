@@ -135,4 +135,4 @@ admin 명령의 게임서버 측 계약. 모두 상태 변경 → **API 경유 +
 - 포로몬 엔드포인트·스키마 구체화 (PoroMonCore `../../poromon/docs/03_poromoncore/` 선행).
 - 필드보스 폴링 → push 이관 시점.
 - 운영 API(A-3) 실구현 시점·게임서버 측 엔드포인트 합의.
-- 인바운드 인증을 HMAC 서명으로 할지 단순 공유키로 할지 최종 택1(현 권장: HMAC+timestamp).
+- ✅ 인바운드 인증 = **HMAC-SHA256 + timestamp 확정**(2026-06-06). 검증 순서·`.env` = [`notifications.md`](notifications.md) ①.

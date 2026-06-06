@@ -156,7 +156,7 @@
 3. **운영(admin) 명령 상세** — A-3 운영 API 계약과 짝지어 권한·입력·운영로그 설계. (T3·T11)
 
 ### 착수 전 열린 결정 (정해지면 진행 빨라짐)
-- 인바운드 인증: HMAC+timestamp(권장) vs 단순 공유키 — 최종 택1.
+- ✅ 인바운드 인증: **HMAC+timestamp 확정**(2026-06-06). 상세 = notifications.md ①, T1 설계 반영.
 - 포로몬 API 포트·엔드포인트 계약: PoroMonCore(`../../poromon/docs/03_poromoncore/`) 설계 선행 — poromon 워크스페이스 영역.
 - 운영 API(A-3) 게임서버 측 엔드포인트: RPG 워크스페이스 협의 필요(여기선 읽기전용).
 - 필드보스 폴링 → push 이관 시점.
