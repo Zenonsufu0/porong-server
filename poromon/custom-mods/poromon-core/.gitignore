@@ -12,3 +12,8 @@ bin/
 
 # loom
 .fabric/
+
+# 루트 .gitignore의 광역 `assets/` 무시 예외 — 모드 소스 리소스(모델/텍스처/lang)는
+# 반드시 추적해야 빌드 jar에 포함되어 커스텀 배지 등이 배포된다.
+!src/main/resources/assets/
+!src/main/resources/assets/**

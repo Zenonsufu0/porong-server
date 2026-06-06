@@ -85,13 +85,15 @@ public final class BattleTowerService {
                 Pokemon pokemon = props.create();
                 if (party.add(pokemon)) added++;
             }
-            npc.setParty(party);
+            npc.setParty(party); // NPC(타워) 파티
             PoroMonCore.LOGGER.info("[BattleTower] 층 {} 파티 {}마리 빌드", floor, added);
 
-            // 3) pvn 호출(파티 명시 주입 → getPartyForChallenge 우회)
+            // 3) pvn 호출. ⚠️ 마지막 PartyStore = "플레이어" 파티 → 반드시 플레이어 본인 파티.
+            //    (NPC 파티를 넘기면 플레이어가 타워 팀으로 싸우는 버그). NPC 파티는 위 setParty로 전달.
             BattleFormat format = BattleFormat.Companion.getGEN_9_SINGLES();
             BattleStartResult result = BattleBuilder.INSTANCE.pvn(
-                    player, npc, npc.getUuid(), format, /*cloneParties*/ true, /*healFirst*/ true, party);
+                    player, npc, npc.getUuid(), format, /*cloneParties*/ true, /*healFirst*/ true,
+                    com.cobblemon.mod.common.Cobblemon.INSTANCE.getStorage().getParty(player));
 
             String type = result.getClass().getSimpleName();
             PoroMonCore.LOGGER.info("[BattleTower] pvn 결과: {}", type);

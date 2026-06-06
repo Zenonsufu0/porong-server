@@ -105,7 +105,9 @@
 - ✅ **결정 030(허브 단순화)**: 허브=건축물+스폰/TP만, 모든 거래·해금·조우=메뉴 GUI 통합(결정 024 하이브리드 폐기). 메뉴 37–41=상점 GUI 직접 입구(구현 추후). 문서 정정: decisions 030 + menu/hub/shop/economy 배너.
 - ✅ **허브 맵 교체**: `factionsspawn`(302×289×85, 구형 MCEdit Alpha 포맷) 채택. 허브 좌표=현 위치(`core.json hub.spawn` -15.5/95/755.5 + setworldspawn). (이전 aetherfall 1001²는 과대로 폐기.)
 - ✅ **경계/야생/TPA 구현**: 월드보더(중심 -15.5/755.5, 지름 5000) + **야생 랜덤이동**(메뉴 슬롯21, 웜업3s+쿨다운30s, **비동기 청크 로드**로 멈춤 없이 안전 착지) + **TPA**(슬롯22, 닉 입력→대상에게 클릭 [수락][거절]→요청자 이동). `wild/WildManager`·`tpa/TpaManager`, `/poromon wild|tpa accept|deny`, core.json §wild. 인게임 검증.
-- ⏳ **다음**: 관장 실배틀(8관장 NPC pvn + 승리 시 배지 자동 지급, 배틀타워 패턴 재사용).
+- ✅ **관장 실배틀**(`gym/GymBattleService`): 관장 보드(12)에서 도전 클릭 → 관장 NPC pvn(배틀타워 패턴) → **승리 감지(Cobblemon BATTLE_VICTORY 구독)** → 최초 승리 시 배지+골드(order×500) 자동 지급, 재도전 무보상. 8관장 타입별 파티(레벨=레벨캡). 순차 강제. 인게임 검증(승리 시 배지/골드 수령 확인).
+- ✅ **pvn 파티 버그 수정(중요)**: `BattleBuilder.pvn(...,party)`의 마지막 `PartyStore`는 **플레이어** 파티(바이트코드 확인). NPC 파티를 거기 넘겨서 플레이어가 상대 팀으로 싸우던 버그 → **플레이어 본인 파티(`Cobblemon.storage.getParty`)** 전달로 수정. **관장+배틀타워 양쪽** 적용.
+- ✅ **배지 커스텀 텍스처 기반(모드 내장 B안)**: 결정 — 리소스팩/http 불필요, 모드 jar `assets/`에 내장. `paper`+CustomModelData(81001~81008) 모델 분기(`paper.json` override + `badge_*.json` 8). `MenuIcons.iconModel`. ⚠️ **루트 .gitignore `assets/` 광역무시 → 모드 .gitignore 예외 추가**(추적 복구). 텍스처 8장(`assets/poromon/textures/item/badge_*.png`) 미작성 → **현재 배지는 타입색 유리판 유지**(회귀 방지), PNG 들어오면 BadgeMenu를 iconModel로 전환 + 서버·클라(PoroMon 0.1 Dev 인스턴스) 양쪽 배포.
 
 ## 5. 진행 중 / 미해결 TODO (요약)
 - ✅ **species ID 검증 완료** → `01_modpack/jar_registry_reference.md`: 전설 71(restricted 27 / 준전설 44)·환상 23·UB 11·패러독스 20 실 ID 확정.

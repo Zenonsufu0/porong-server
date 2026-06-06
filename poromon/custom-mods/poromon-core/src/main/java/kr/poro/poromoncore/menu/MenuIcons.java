@@ -19,6 +19,14 @@ public final class MenuIcons {
         return icon(Items.GRAY_STAINED_GLASS_PANE, " ", List.of());
     }
 
+    /** CustomModelData를 입힌 아이콘(커스텀 텍스처용 — 리소스/모드 모델 분기). */
+    public static ItemStack iconModel(Item item, int customModelData, String name, List<String> loreLines) {
+        ItemStack stack = icon(item, name, loreLines);
+        stack.set(net.minecraft.component.DataComponentTypes.CUSTOM_MODEL_DATA,
+                new net.minecraft.component.type.CustomModelDataComponent(customModelData));
+        return stack;
+    }
+
     public static ItemStack icon(Item item, String name, List<String> loreLines) {
         ItemStack stack = new ItemStack(item);
         stack.set(DataComponentTypes.CUSTOM_NAME, Text.literal(name));

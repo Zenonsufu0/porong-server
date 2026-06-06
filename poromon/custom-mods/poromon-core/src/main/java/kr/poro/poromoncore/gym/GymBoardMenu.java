@@ -50,35 +50,43 @@ public final class GymBoardMenu {
         for (int i = 0; i < gyms.size(); i++) {
             GymInfo.Gym g = gyms.get(i);
             boolean has = p.badges.contains(g.id());
-            String status;
             ItemStack icon;
             if (has) {
-                status = "§a✔ 클리어";
-                icon = MenuIcons.icon(Items.LIME_DYE, "§a" + g.order() + ". " + g.typeKo() + " 관장", gymLore(g, status));
+                icon = MenuIcons.icon(Items.LIME_DYE, "§a" + g.order() + ". " + g.typeKo() + " 관장",
+                        gymLore(g, "§a✔ 클리어", "§7클릭 — 재도전(보상 없음)"));
             } else if (prevCleared) {
-                status = "§e▶ 도전 가능";
-                icon = MenuIcons.icon(Items.YELLOW_DYE, "§e" + g.order() + ". " + g.typeKo() + " 관장", gymLore(g, status));
+                icon = MenuIcons.icon(Items.YELLOW_DYE, "§e" + g.order() + ". " + g.typeKo() + " 관장",
+                        gymLore(g, "§e▶ 도전 가능", "§a클릭 — 도전!"));
             } else {
-                status = "§8✖ 잠김 (이전 관장 먼저)";
-                icon = MenuIcons.icon(Items.GRAY_DYE, "§8" + g.order() + ". " + g.typeKo() + " 관장", gymLore(g, status));
+                icon = MenuIcons.icon(Items.GRAY_DYE, "§8" + g.order() + ". " + g.typeKo() + " 관장",
+                        gymLore(g, "§8✖ 잠김 (이전 관장 먼저)", null));
             }
             inv.setStack(GYM_SLOTS[i], icon);
             prevCleared = has;
         }
     }
 
-    private static List<String> gymLore(GymInfo.Gym g, String status) {
-        return List.of(
+    private static List<String> gymLore(GymInfo.Gym g, String status, String action) {
+        java.util.List<String> lore = new java.util.ArrayList<>(List.of(
                 "§7타입: §f" + g.typeKo(),
                 "§7레벨캡: §f" + g.levelCap(),
                 "§7배지: §f" + g.badgeKo(),
-                status);
+                status));
+        if (action != null) lore.add(action);
+        return lore;
     }
 
     private static void onClick(ServerPlayerEntity player, int slot, int button, boolean shift) {
         if (slot == BACK_SLOT) {
             MenuGuiManager.open(player);
+            return;
         }
-        // 관장 슬롯은 읽기 전용(0.1) — 실제 도전은 허브 입장구(추후)
+        for (int i = 0; i < GYM_SLOTS.length; i++) {
+            if (GYM_SLOTS[i] == slot) {
+                player.closeHandledScreen(); // 배틀 시작 → GUI 닫기
+                GymBattleService.startChallenge(player, GymInfo.GYMS.get(i).id());
+                return;
+            }
+        }
     }
 }

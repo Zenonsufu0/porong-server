@@ -41,6 +41,9 @@ public class PoroMonCore implements ModInitializer {
         // 설정 로드(없으면 기본값 생성)
         ConfigManager.load();
 
+        // 관장 배틀 승리 이벤트 구독(Cobblemon)
+        kr.poro.poromoncore.gym.GymBattleService.registerEvents();
+
         // 명령 등록
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
                 PoroMonCommand.register(dispatcher));
@@ -80,6 +83,7 @@ public class PoroMonCore implements ModInitializer {
             WildManager.tickWarmups(server);
             if (server.getTicks() % 20 == 0) {
                 BattleTowerService.tick(server);
+                kr.poro.poromoncore.gym.GymBattleService.tick(server);
                 kr.poro.poromoncore.tpa.TpaManager.cleanup(server.getTicks());
             }
         });

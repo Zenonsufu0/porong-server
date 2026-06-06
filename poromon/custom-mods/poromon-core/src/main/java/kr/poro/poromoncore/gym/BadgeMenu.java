@@ -6,7 +6,6 @@ import kr.poro.poromoncore.menu.MenuGuiManager;
 import kr.poro.poromoncore.menu.MenuIcons;
 import kr.poro.poromoncore.menu.ServerMenuHandler;
 import net.minecraft.inventory.Inventory;
-import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -50,6 +49,9 @@ public final class BadgeMenu {
             GymInfo.Gym g = gyms.get(i);
             boolean has = p.badges.contains(g.id());
             if (has) {
+                // TODO(배지 텍스처): 8장 PNG 추가되면 아래로 전환(모드 내장 커스텀 모델)
+                //   MenuIcons.iconModel(Items.PAPER, 81000 + g.order(), ...)
+                // 텍스처 전까지는 회귀 방지로 타입색 유리판 유지.
                 inv.setStack(BADGE_SLOTS[i], MenuIcons.icon(badgePane(g.typeKo()),
                         "§a" + g.badgeKo(),
                         List.of("§7" + g.order() + "번 · " + g.typeKo() + " 관장",
@@ -64,8 +66,8 @@ public final class BadgeMenu {
         }
     }
 
-    /** 타입별 배지 색(유리판). */
-    private static Item badgePane(String typeKo) {
+    /** 타입별 배지 색(유리판) — 텍스처 전 임시. */
+    private static net.minecraft.item.Item badgePane(String typeKo) {
         return switch (typeKo) {
             case "벌레" -> Items.LIME_STAINED_GLASS_PANE;
             case "바위" -> Items.BROWN_STAINED_GLASS_PANE;
