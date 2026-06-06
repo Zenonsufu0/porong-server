@@ -30,6 +30,9 @@ public class PlayerProgress {
     // 관장 배지 (gym_badge_design): 획득한 배지(=관장) id 집합
     public final java.util.Set<String> badges = new java.util.HashSet<>();
 
+    // 전설 제단 해금 (결정 031): 해금한 등급(tier) 집합 — 해당 등급 조우권 사용 선행조건
+    public final java.util.Set<String> altarsUnlocked = new java.util.HashSet<>();
+
     public NbtCompound writeNbt(NbtCompound nbt) {
         nbt.putInt("schemaVersion", SCHEMA_VERSION);
         nbt.putLong("firstJoinEpoch", firstJoinEpoch);
@@ -55,6 +58,10 @@ public class PlayerProgress {
         NbtList badgesNbt = new NbtList();
         for (String b : badges) badgesNbt.add(net.minecraft.nbt.NbtString.of(b));
         nbt.put("badges", badgesNbt);
+
+        NbtList altarsNbt = new NbtList();
+        for (String a : altarsUnlocked) altarsNbt.add(net.minecraft.nbt.NbtString.of(a));
+        nbt.put("altarsUnlocked", altarsNbt);
         return nbt;
     }
 
@@ -89,6 +96,10 @@ public class PlayerProgress {
         if (nbt.contains("badges", NbtElement.LIST_TYPE)) {
             NbtList badgesNbt = nbt.getList("badges", NbtElement.STRING_TYPE);
             for (int i = 0; i < badgesNbt.size(); i++) p.badges.add(badgesNbt.getString(i));
+        }
+        if (nbt.contains("altarsUnlocked", NbtElement.LIST_TYPE)) {
+            NbtList altarsNbt = nbt.getList("altarsUnlocked", NbtElement.STRING_TYPE);
+            for (int i = 0; i < altarsNbt.size(); i++) p.altarsUnlocked.add(altarsNbt.getString(i));
         }
         return p;
     }

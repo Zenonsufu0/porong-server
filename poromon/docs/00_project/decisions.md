@@ -196,3 +196,15 @@ jar 전수 검증(`egg_pool_design.md §8`)으로 Eggs Addon(`diesse`)의 실제
 - 유지: 골드 단일 화폐(014), 가격/풀 정책, 배지 게이트 수치 — 접근 경로만 메뉴로 일원화(어디서 거래하느냐만 바뀜).
 
 > 결정 024는 [폐기 → DL-030]. 야생 이동(허브 밖 랜덤)·경계는 새 맵 확정 후 별도 진행.
+
+### 031. 전설 제단 = 등급별 선행 해금 + 조우권 저가 반복 + 이로치 5%
+
+조우권 접근 구조를 정교화한다(결정 018~022/030 보완).
+
+- **전설 제단 = 등급(tier)별 1회 해금(선행조건).** 해당 등급 조우권을 사용하려면 그 등급 제단을 **골드(+배지 게이트)로 먼저 해금**해야 한다. 해금은 영구(`PlayerProgress.altarsUnlocked`). tier = 풀 type(rare/basic/intermediate/advanced/theme/apex). **컨셉(theme) 제단 1개 해금 = 컨셉 10종 전부 사용.**
+- **조우권 = 반복 사용·저가.** 메인 골드 sink는 제단 해금(큰 금액), 조우권 사용은 저렴. 기본값(economy.json): 해금 희귀5k/하급30k·배지4/중급50k·6/컨셉70k·8/상급80k·8/최상급120k·8, 사용 500/1500/2500/3500/4000/6000.
+- **이로치(샤이니) = 조우권 사용 시 확률 출현.** 별도 이로치 조우권/확정권 대신 **사용마다 `shinyChancePercent`(기본 5%)** 로 샤이니 전설 출현. (IB-001 보유변환 확정권은 보류/대체.)
+- **모델**: Cobblemon 1.7.3 미구현 전설은 모드팩 `complete-cobblemon-collection`(+EMF, 클라)로 모델 보충. 풀 enabled = (Cobblemon implemented ∪ 컬렉션 커버) 게이트.
+- 구현: `encounter/{ArenaManager,EncounterService,AltarMenu}` + `EconomyConfig.altarUnlock/ticketUse/shinyChancePercent` + `PlayerProgress.altarsUnlocked`. 메뉴 슬롯37(가상 제단).
+
+`encounter_pool_design.md`(가격/게이트는 economy.json로 이관), `menu_design.md`(슬롯37) 반영. 조우권 커스텀 텍스처(등급별 paper+CMD 82001~)는 추후.

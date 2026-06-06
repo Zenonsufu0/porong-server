@@ -61,21 +61,37 @@ public class EconomyConfig {
         return m;
     }
 
-    /** 전설 조우권 가격/배지게이트: poolId → (가격, 배지). encounter_pool_design §9. */
-    public Map<String, ShopEntry> ticketPrices = defaultTicketPrices();
+    /**
+     * 전설 제단 해금(등급 tier 1회) — 해당 등급 조우권 사용 선행조건 (결정 031).
+     * tier = 풀 type(rare/basic/intermediate/advanced/theme/apex). 큰 골드 + 배지 게이트.
+     */
+    public Map<String, ShopEntry> altarUnlock = defaultAltarUnlock();
 
-    private static Map<String, ShopEntry> defaultTicketPrices() {
+    /** 조우권 사용가(등급 tier, 반복·저가). 게이트는 제단 해금이 담당. */
+    public Map<String, Long> ticketUse = defaultTicketUse();
+
+    /** 조우권 사용 시 이로치(샤이니) 출현 확률 % (결정 031). */
+    public int shinyChancePercent = 5;
+
+    private static Map<String, ShopEntry> defaultAltarUnlock() {
         Map<String, ShopEntry> m = new LinkedHashMap<>();
-        m.put("rare_encounter_pool", new ShopEntry(3000, 0));
-        m.put("basic_legendary_ticket_pool", new ShopEntry(15000, 4));
-        m.put("intermediate_legendary_ticket_pool", new ShopEntry(25000, 6));
-        m.put("advanced_legendary_ticket_pool", new ShopEntry(40000, 8));
-        m.put("apex_legendary_ticket_pool", new ShopEntry(60000, 8));
-        // 컨셉 10종 (상급 < 컨셉 < 최상급)
-        for (String t : new String[]{"sky", "deep_sea", "earth", "time", "space",
-                "reverse", "light", "dragon_king", "guardian", "eternity"}) {
-            m.put("theme_" + t + "_pool", new ShopEntry(35000, 8));
-        }
+        m.put("rare", new ShopEntry(5000, 0));
+        m.put("basic", new ShopEntry(30000, 4));
+        m.put("intermediate", new ShopEntry(50000, 6));
+        m.put("theme", new ShopEntry(70000, 8));
+        m.put("advanced", new ShopEntry(80000, 8));
+        m.put("apex", new ShopEntry(120000, 8));
+        return m;
+    }
+
+    private static Map<String, Long> defaultTicketUse() {
+        Map<String, Long> m = new LinkedHashMap<>();
+        m.put("rare", 500L);
+        m.put("basic", 1500L);
+        m.put("intermediate", 2500L);
+        m.put("theme", 3500L);
+        m.put("advanced", 4000L);
+        m.put("apex", 6000L);
         return m;
     }
 
