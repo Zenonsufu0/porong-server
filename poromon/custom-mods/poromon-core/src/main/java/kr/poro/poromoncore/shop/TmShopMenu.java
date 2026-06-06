@@ -57,13 +57,36 @@ public final class TmShopMenu {
 
         for (int i = 0; i < TmCatalog.TYPES.length && i < ShopLayout.CONTENT_SLOTS.length; i++) {
             String type = TmCatalog.TYPES[i];
-            List<TmCatalog.Entry> list = TmCatalog.ofType(type);
+            int count = TmCatalog.ofType(type).size();
             String ko = TYPE_KO.getOrDefault(type, type);
-            Item icon = !list.isEmpty() ? resolve(list.get(0).itemId()) : null;
-            if (icon == null) icon = Items.PAPER;
-            inv.setStack(ShopLayout.CONTENT_SLOTS[i], MenuIcons.icon(icon,
-                    "§b" + ko + " §7타입", List.of("§7기술 §f" + list.size() + "종", "§e클릭 — 목록")));
+            inv.setStack(ShopLayout.CONTENT_SLOTS[i], MenuIcons.icon(typeIcon(type),
+                    "§b" + ko + " §f타입",
+                    List.of("§7" + ko + " 타입 기술머신이 모여 있습니다", "§7기술 §f" + count + "종", "§e클릭 — 목록 열기")));
         }
+    }
+
+    /** 타입별 양털 아이콘(타입 색감). TM 아이템을 쓰면 SimpleTMs 기술 설명이 딸려와 사용 안 함. */
+    private static Item typeIcon(String type) {
+        return switch (type) {
+            case "fire" -> Items.RED_WOOL;
+            case "water" -> Items.BLUE_WOOL;
+            case "electric" -> Items.YELLOW_WOOL;
+            case "grass" -> Items.LIME_WOOL;
+            case "ice" -> Items.LIGHT_BLUE_WOOL;
+            case "fighting" -> Items.ORANGE_WOOL;
+            case "poison" -> Items.PURPLE_WOOL;
+            case "ground" -> Items.BROWN_WOOL;
+            case "flying" -> Items.LIGHT_GRAY_WOOL;
+            case "psychic" -> Items.PINK_WOOL;
+            case "bug" -> Items.GREEN_WOOL;
+            case "rock" -> Items.GRAY_WOOL;
+            case "ghost" -> Items.MAGENTA_WOOL;
+            case "dragon" -> Items.CYAN_WOOL;
+            case "dark" -> Items.BLACK_WOOL;
+            case "steel" -> Items.IRON_BLOCK;
+            case "fairy" -> Items.PINK_WOOL;
+            default -> Items.WHITE_WOOL; // normal
+        };
     }
 
     private static void gridClick(ServerPlayerEntity player, int slot, int button, boolean shift) {
