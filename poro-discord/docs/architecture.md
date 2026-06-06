@@ -128,6 +128,36 @@ poro-discord/
   `modules/rpg/`(구현), `modules/poromon/`(TODO). 역할 정의는
   [`roles_and_permissions.md`](roles_and_permissions.md) §A(공통)·§D(서버별).
 
+## core 내부 계약 — DB 접근 + 게이팅 (T12·T20·T21)
+
+> 봇 영속화·게이팅을 도메인 모듈에 흩뿌리지 않기 위한 `core/` 계약. 스키마 = [`data_model.md`](data_model.md),
+> 생애주기 = [`server_lifecycle.md`](server_lifecycle.md), 가시성 정책 = [`task.md`](task.md) §10. 인터페이스 단계(구현 전).
+
+### `core/db.py` — 비동기 SQLite 접근 계층
+- **`aiosqlite`** 단일 커넥션(또는 경량 풀). 봇 기동 시 1회 연결 + 마이그레이션, 종료 시 close. 동기 `sqlite3` 금지(루프 블로킹).
+- 책임: 연결 수명관리 · 마이그레이션 실행 · 쿼리 헬퍼. **도메인 모듈은 raw SQL 을 직접 쓰지 않고** db 함수(또는 테이블별 리포지토리 함수) 경유.
+- 인터페이스(시그니처 수준):
+  - `async def init_db(path)` — 연결 + 마이그레이션까지.
+  - 저수준 `execute / fetchone / fetchall`, 또는 테이블별 함수(`servers_*`, `community_*`, `mod_log_*`, `ticket_*` …).
+  - 대부분 테이블이 도메인 비종속(레벨·경고·티켓·레지스트리)이라 **`core/` 집약이 자연스럽다**. 도메인 격리는 "타 도메인 *명령 모듈* 비import" 기준이지 db 공유는 위반 아님.
+- **마이그레이션:** `migrations` 리스트(버전→SQL), 기동 시 `schema_meta.version` 읽고 순차 적용. **전진 전용**(롤백 없음 — 시즌제·단일 인스턴스라 단순 유지).
+
+### 게이팅 헬퍼 — 문맥/상태 게이트 (운영권한과 별개)
+기존 `requires_permission`(운영 권한 역할)과 **별개**의 두 게이트를 `core/`(permissions.py 또는 gating.py)에 둔다:
+- **`requires_category(domain)`** — `interaction.channel.category_id == servers[domain].category_id` 아니면 ephemeral 거부. (가시성 2층)
+- **`requires_server_active(domain)`** — `servers` 에 `domain` 의 `active` 행 없으면 거부. (상태 3층, 종료 서버 차단)
+- 레지스트리는 자주 안 바뀜 → **메모리 캐시 + 상태 전이 시 무효화**(매 명령 DB 조회 회피).
+
+### 적용 매트릭스 — 어느 게이트를 어디에
+| 명령 유형 | requires_permission | requires_category | requires_server_active |
+|---|---|---|---|
+| 운영(서버시작/종료·제재) | ✅ | (운영로그 채널 한정 검토) | ✖ — 종료 서버도 운영·조회는 가능해야 함, 명령 내부에서 상태 검증 |
+| 도메인 플레이어 명령(/프로필 등) | ✖ | ✅ | ✅ |
+| 알림 토글(도메인) | ✖ | (해당 카테고리 한정 검토) | ✅ — 종료 서버 알림 토글 차단 |
+| 공통(/핑·레벨·출석) | ✖ | ✖ | ✖ — 도메인 무관 |
+
+> 핵심: `requires_server_active` 는 **유저 대상 도메인 명령에만**. 운영 명령엔 걸지 않는다(종료 서버 정리·조회 필요) — 대신 명령 내부에서 상태를 직접 검증.
+
 ## 미설계/공백 (TODO)
 
 - `core/notifier.py` — 도메인 무관 알림 디스패처(채널 라우팅 + 멘션 + 트리거 인터페이스).
