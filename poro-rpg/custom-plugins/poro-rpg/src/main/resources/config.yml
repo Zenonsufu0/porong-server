@@ -19,34 +19,29 @@ common:
 # 카테고리별 섹션 (material/block/cosmetic/special). 1차 시즌: material/block만 활성.
 shop:
   material:
-    golden-apple:
-      material: GOLDEN_APPLE
-      amount: 1
-      display-name: "§6황금 사과"
-      price: 2000
-      lore:
-        - "§7빠른 체력 회복 & 흡수 효과"
-    arrow:
-      material: ARROW
-      amount: 64
-      display-name: "§f화살 ×64"
-      price: 400
-      lore:
-        - "§7석궁 사용자 기본 탄약"
-    bread:
-      material: BREAD
-      amount: 16
-      display-name: "§e빵 ×16"
-      price: 100
-      lore:
-        - "§7허기 보충"
-    experience-bottle:
-      material: EXPERIENCE_BOTTLE
-      amount: 8
-      display-name: "§b경험치의 유리병 ×8"
-      price: 800
-      lore:
-        - "§7캐릭터 경험치 획득"
+    # ── 씨앗 (구매: 좌클릭 1개 / 우클릭 64개) ──
+    wheat-seeds:    { material: WHEAT_SEEDS,    amount: 1, price: 10, display-name: "§f밀 씨앗" }
+    beetroot-seeds: { material: BEETROOT_SEEDS, amount: 1, price: 20, display-name: "§f비트 씨앗" }
+    melon-seeds:    { material: MELON_SEEDS,    amount: 1, price: 30, display-name: "§f수박 씨앗" }
+    pumpkin-seeds:  { material: PUMPKIN_SEEDS,  amount: 1, price: 30, display-name: "§f호박 씨앗" }
+    # ── 감자·당근: 씨앗=작물 동일 아이템 → 구매(좌1/우64) + set(64) 판매 겸용 ──
+    potato: { material: POTATO, amount: 1, price: 15, sell-price: 25, sell-mode: set, display-name: "§f감자" }
+    carrot: { material: CARROT, amount: 1, price: 15, sell-price: 25, sell-mode: set, display-name: "§f당근" }
+    # ── 농작물 (set 64 판매전용) ──
+    wheat:       { material: WHEAT,       sell-price: 25, sell-mode: set, buyable: false, display-name: "§f밀" }
+    melon-slice: { material: MELON_SLICE, sell-price: 20, sell-mode: set, buyable: false, display-name: "§f수박" }
+    pumpkin:     { material: PUMPKIN,     sell-price: 20, sell-mode: set, buyable: false, display-name: "§f호박" }
+    # ── 광물 (낱개 좌1 / set 우64 판매전용) ──
+    coal:        { material: COAL,         sell-price: 2,  buyable: false, display-name: "§f석탄" }
+    copper:      { material: COPPER_INGOT, sell-price: 3,  buyable: false, display-name: "§f구리 주괴" }
+    redstone:    { material: REDSTONE,     sell-price: 4,  buyable: false, display-name: "§f레드스톤" }
+    iron:        { material: IRON_INGOT,   sell-price: 5,  buyable: false, display-name: "§f철 주괴" }
+    lapis:       { material: LAPIS_LAZULI, sell-price: 6,  buyable: false, display-name: "§f청금석" }
+    gold:        { material: GOLD_INGOT,   sell-price: 10, buyable: false, display-name: "§f금 주괴" }
+    diamond:     { material: DIAMOND,      sell-price: 18, buyable: false, display-name: "§b다이아몬드" }
+    emerald:     { material: EMERALD,      sell-price: 22, buyable: false, display-name: "§a에메랄드" }
+    # ── 전장의 파편 (재화 → 골드 환전, 낱개) ──
+    battle-shard: { material: PRISMARINE_SHARD, sell-price: 3, currency: mat_battle_shard, buyable: false, display-name: "§b전장의 파편" }
   # 블럭 탭 — gui_shop.md §7 블럭 상점 표 (목재 8종 + 기본 석재 6종 1차 등록)
   block:
     oak-planks:

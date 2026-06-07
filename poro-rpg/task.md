@@ -102,7 +102,19 @@
 1. ✅ 인게임 후속 6건 — 커밋 완료(`3d6b837`, master 반영).
 2. ✅ weaponType↔장착 어긋남 — **방향 A 적용 완료**(2026-06-05, ClassInitService 무기슬롯 무조건 장착). 빌드 OK, 인게임 검증 대기.
 3. (선택) 흔적풀 weight combat-balance 튜닝, 경매 2계정 구매 검증.
-- 서버: tmux `poro` 세션에서 기동(8080 리소스팩 http 별도). 배포 = `cp build/libs/poro-rpg-0.1.0.jar server/plugins/` → tmux `save-all`→`stop`→`start.sh`. ※ 인게임 검증은 server가 있는 원본 worktree에서.
+- 서버(DL-130 갱신): RPG = tmux **`pororpg`** 세션 / 런타임 `poro-rpg/.local/server`(`./start.sh` = paper.jar) / 포트 **25565** / 리소스팩 http 8080. 배포 = `cp build/libs/poro-rpg-0.1.0.jar .local/server/plugins/` → `stop`→`start.sh`. ⚠️ tmux 이름 `poro`는 **poromon 서버(25566)**가 쓰므로 충돌 주의 — RPG는 반드시 `pororpg`.
+
+### 🔻 다음 세션 인계 — 상점 판매 구현 (2026-06-06, 인게임 검증 대기)
+**상태: 코드+config 구현·빌드·배포·기동 완료 → 인게임 검증만 남음. 전부 미커밋.**
+
+- **구현(판매전용 + 고정가 + 모드별):** `ShopItem`에 `sell-price`·`sell-mode`(unit/set)·`currency`·`buyable` 추가. **매수 그리드=`buyables`**(구매가능만) / **판매GUI=`sellables`**(판매가 있는 것만)로 분리. 판매 차감 순서 **창고→인벤**(사장님 요청). 판매 버튼 "준비 중" 라벨 정상화. 30% 자동가 폐기→고정가.
+  - 농작물 = **set(64)만**(좌=1세트 / 우·Shift=전량세트, 64미만 잔량 판매불가). 광물 = 좌1/우64/Shift전량. 전장의 파편(`mat_battle_shard`) = 재화지갑 차감(`consumeCurrency`).
+  - 매수 = 씨앗·감자·당근 좌1/우64. **기존 소모품(황금사과·화살·빵·경험치병) 제거됨.**
+- **수정 파일(미커밋):** `market/ShopGui.java`, `listener/ShopGuiListener.java`, `custom-plugins/.../resources/config.yml`(shop.material 18종) + docs(`02_database_api_stats/shop_implementation_spec.md` 신규, `shop_pricing_proposal_draft.md`, `idea_inbox.md INBOX-015`).
+- **가격(경제 에이전트):** 농작물 밀·감자·당근 25/set, 수박·호박 20/set · 광물 석탄2 구리3 레드4 철5 청금6 금10 다이아18 에메랄드22(보수값) · 전장파편 3/개 · 씨앗 밀10 비트20 수박/호박30 감자/당근15. (비트루트 매입 불가.)
+- **⚠️ saveResource(replace=false) 함정:** 런타임 `.local/server/plugins/PoroRPG/config.yml`은 jar로 안 덮어써짐 → shop 항목 **수동 삽입**해 반영함. 재배포 시 런타임 config 재적용 필요.
+- **검증할 것(인게임):** ① 매수 그리드=씨앗+감자/당근만 ② 씨앗 좌1/우64 구매 ③ 판매: 농작물 64단위·광물 좌1/우64·전장파편 재화차감+골드 ④ 차감 **창고 먼저** ⑤ 판매전용(농작물·광물·파편)이 매수 화면에 안 뜸.
+- **2차(후속):** 블럭 42종+페이지네이션 · 치장 탭(리소스팩 `adventurer/carnivoret/vanquisher/wing_volt`, `setCosmeticMaterial`) · 특수권한 탭(island_settings, 50,000G) · `gui_shop.md`의 "판매 차감 인벤→창고" 표기를 **"창고→인벤"**으로 정정.
 
 ---
 

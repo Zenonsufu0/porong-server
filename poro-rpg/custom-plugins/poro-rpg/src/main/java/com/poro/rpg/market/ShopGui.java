@@ -46,12 +46,17 @@ public final class ShopGui {
     public enum Tab { MATERIAL, BLOCK, COSMETIC, SPECIAL }
 
     public record ShopItem(String key, Material material, int amount,
-                           String displayName, long price, List<String> lore) {
-        /** 1개당 판매가 = (1개당 구매가)의 30% (자동 계산, 최소 1G). */
-        public long unitSellPrice() {
-            long unitBuy = Math.max(1, price / Math.max(1, amount));
-            return Math.max(1, Math.round(unitBuy * 0.30));
-        }
+                           String displayName, long price, List<String> lore,
+                           long sellPrice, int sellBundle, boolean buyable, String currencyId) {
+        /** 판매 묶음 크기(1=낱개 광물 / 64=set 농작물). */
+        public int sellBundleSize() { return Math.max(1, sellBundle); }
+        /** 판매 1묶음당 골드(고정가 — config sell-price 그대로). */
+        public long bundleSellPrice() { return sellPrice; }
+        /** 표시용 1개당 환산가(낱개=sellPrice, set=묶음가/64 내림). */
+        public long unitSellPrice() { return sellPrice / sellBundleSize(); }
+        public boolean sellable()  { return sellPrice > 0; }
+        public boolean isBuyable() { return buyable && price > 0; }
+        public boolean isCurrency() { return currencyId != null && !currencyId.isBlank(); }
     }
 
     private static final List<ShopItem> MATERIAL_ITEMS = new ArrayList<>();
@@ -91,7 +96,11 @@ public final class ShopGui {
                 String name    = itemSec.getString("display-name", key);
                 long   price   = itemSec.getLong("price", 0);
                 List<String> lore = itemSec.getStringList("lore");
-                bucket.add(new ShopItem(key, mat, amount, name, price, lore));
+                long   sellPrice  = itemSec.getLong("sell-price", 0);
+                int    sellBundle = "set".equalsIgnoreCase(itemSec.getString("sell-mode", "unit")) ? 64 : 1;
+                boolean buyable   = itemSec.getBoolean("buyable", price > 0);
+                String currency   = itemSec.getString("currency", null);
+                bucket.add(new ShopItem(key, mat, amount, name, price, lore, sellPrice, sellBundle, buyable, currency));
             } catch (Exception e) {
                 plugin.getLogger().warning("[Shop] " + key + " 로드 실패: " + e.getMessage());
             }
@@ -106,6 +115,16 @@ public final class ShopGui {
         };
     }
 
+    /** 매수 그리드용 — 구매 가능 품목만(판매전용 작물·광물·재화 숨김). */
+    public static List<ShopItem> buyables(Tab tab) {
+        return items(tab).stream().filter(ShopItem::isBuyable).toList();
+    }
+
+    /** 판매 GUI용 — 고정 판매가가 있는 품목만(농작물·광물·전장의 파편). */
+    public static List<ShopItem> sellables(Tab tab) {
+        return items(tab).stream().filter(ShopItem::sellable).toList();
+    }
+
     public static void open(Player player, Tab activeTab) {
         Inventory inv = Bukkit.createInventory(null, 54, GuiTitles.SHOP);
         ItemStack gray = MainHubGui.icon(Material.GRAY_STAINED_GLASS_PANE, " ", List.of());
@@ -118,11 +137,11 @@ public final class ShopGui {
         inv.setItem(SLOT_TAB_COSMETIC, tabIcon(Tab.COSMETIC, activeTab, Material.DIAMOND,         "치장"));
         inv.setItem(SLOT_TAB_SPECIAL,  tabIcon(Tab.SPECIAL,  activeTab, Material.NETHER_STAR,     "특수"));
 
-        // 아이템 영역
-        List<ShopItem> items = items(activeTab);
+        // 아이템 영역 — 매수 가능 품목만(판매전용은 판매 GUI에서)
+        List<ShopItem> items = buyables(activeTab);
         if (items.isEmpty()) {
             inv.setItem(22, MainHubGui.icon(Material.BARRIER, "§7" + tabName(activeTab) + " 탭 §8[준비 중]",
-                    List.of("§7아이템이 등록되지 않았습니다.")));
+                    List.of("§7구매 가능한 아이템이 없습니다.")));
         } else {
             for (int i = 0; i < items.size() && i < 36; i++) {
                 ShopItem si = items.get(i);
@@ -131,8 +150,8 @@ public final class ShopGui {
         }
 
         // 액션·네비
-        inv.setItem(SLOT_SELL_BUTTON, MainHubGui.icon(Material.GOLD_INGOT, "§7판매 §8[준비 중]",
-                List.of("§7판매 기능은 §c준비 중§7입니다.")));
+        inv.setItem(SLOT_SELL_BUTTON, MainHubGui.icon(Material.GOLD_INGOT, "§e판매",
+                List.of("§7농작물·광물·전장의 파편 판매", "§7클릭 → 판매 GUI")));
         inv.setItem(SLOT_PREV_PAGE, MainHubGui.icon(Material.GRAY_DYE, "§8◀ 이전 페이지", List.of("§8첫 페이지입니다.")));
         inv.setItem(SLOT_PAGE_INFO, MainHubGui.icon(Material.PAPER,    "§f1 / 1", List.of()));
         inv.setItem(SLOT_NEXT_PAGE, MainHubGui.icon(Material.GRAY_DYE, "§8다음 페이지 ▶", List.of("§8마지막 페이지입니다.")));
@@ -144,7 +163,7 @@ public final class ShopGui {
     public static ShopItem itemAt(Tab tab, int rawSlot) {
         if (rawSlot < ITEM_AREA_START || rawSlot > ITEM_AREA_END) return null;
         int idx = rawSlot - ITEM_AREA_START;
-        List<ShopItem> items = items(tab);
+        List<ShopItem> items = buyables(tab);   // 매수 그리드와 동일 순서
         return idx < items.size() ? items.get(idx) : null;
     }
 
@@ -172,7 +191,11 @@ public final class ShopGui {
         lore.add(Component.text("§e1세트: §f" + si.price() + "G §7(" + si.amount() + "개)"));
         lore.add(Component.text("§7좌클릭  §f1세트 구매 §7(" + si.amount() + "개 / " + si.price() + "G)"));
         lore.add(Component.text("§7우클릭  §f" + rightSets + "세트 구매 §7(" + rightTotalItems + "개 / " + rightTotalCost + "G)"));
-        lore.add(Component.text("§2판매가: §f" + si.unitSellPrice() + "G §71개  §8(Shift+클릭 = 1개 판매)"));
+        if (si.sellable()) {  // 구매·판매 겸용(감자·당근 등)
+            lore.add(si.sellBundleSize() > 1
+                    ? Component.text("§2판매: §f" + si.bundleSellPrice() + "G §7/ " + si.sellBundleSize() + "개 §8(판매 GUI)")
+                    : Component.text("§2판매: §f" + si.unitSellPrice() + "G §71개 §8(판매 GUI)"));
+        }
         meta.lore(lore);
         stack.setItemMeta(meta);
         return stack;
@@ -186,24 +209,43 @@ public final class ShopGui {
     public static final int SLOT_SELL_ALL        = 45;
     public static final int SLOT_SELL_BACK       = 53;
 
-    /** 판매 GUI 슬롯에 표시할 ItemStack 빌더. inv/storage 카운트는 caller가 계산해서 전달. */
+    /** 판매 GUI 슬롯에 표시할 ItemStack 빌더. storageCount/invCount는 caller가 계산해서 전달
+     *  (재화 품목이면 invCount=재화지갑 보유, storageCount=0으로 넘겨줌). 차감 순서 = 창고→인벤. */
     public static ItemStack sellDisplayItem(ShopItem si, long invCount, long storageCount) {
         long total = invCount + storageCount;
-        long totalGold = total * si.unitSellPrice();
+        int bundle = si.sellBundleSize();
+        boolean setMode = bundle > 1;
+        long sets = total / bundle;                 // set 모드: 판매 가능한 묶음 수
+        long sellableQty = setMode ? sets * bundle : total;
+        long totalGold = setMode ? sets * si.bundleSellPrice() : total * si.unitSellPrice();
 
-        ItemStack stack = new ItemStack(si.material(), Math.max(1, Math.min((int) Math.min(total, 64), 64)));
+        ItemStack stack = new ItemStack(si.material(), Math.max(1, (int) Math.min(total, 64)));
         ItemMeta meta = stack.getItemMeta();
         meta.displayName(Component.text(si.displayName()));
         List<Component> lore = new ArrayList<>();
-        lore.add(Component.text("§2판매가: §f" + si.unitSellPrice() + "G §71개"));
+        lore.add(setMode
+                ? Component.text("§2판매가: §f" + si.bundleSellPrice() + "G §7/ " + bundle + "개(1세트)")
+                : Component.text("§2판매가: §f" + si.unitSellPrice() + "G §71개"));
         lore.add(Component.text("§7──────────────"));
-        lore.add(Component.text("§7인벤토리: §f" + invCount + "개"));
-        lore.add(Component.text("§7창고: §f" + storageCount + "개"));
-        lore.add(Component.text("§7합계: §f" + total + "개  →  §e" + totalGold + "G"));
-        lore.add(Component.text("§7──────────────"));
-        lore.add(Component.text("§7좌클릭    §f1개 판매"));
-        lore.add(Component.text("§7우클릭    §f64개 판매"));
-        lore.add(Component.text("§7Shift+클릭  §f전량 판매"));
+        if (si.isCurrency()) {
+            lore.add(Component.text("§7보유(재화): §f" + invCount + "개"));
+        } else {
+            lore.add(Component.text("§7창고: §f" + storageCount + "개"));
+            lore.add(Component.text("§7인벤토리: §f" + invCount + "개"));
+        }
+        if (setMode) {
+            lore.add(Component.text("§7판매가능: §f" + sets + "세트 §7(" + sellableQty + "개)  →  §e" + totalGold + "G"));
+            lore.add(Component.text("§7──────────────"));
+            lore.add(Component.text("§7좌클릭    §f1세트(" + bundle + "개) 판매"));
+            lore.add(Component.text("§7우클릭/Shift  §f전량(세트 단위) 판매"));
+            lore.add(Component.text("§8※ " + bundle + "개 미만 잔량은 판매 불가"));
+        } else {
+            lore.add(Component.text("§7합계: §f" + total + "개  →  §e" + totalGold + "G"));
+            lore.add(Component.text("§7──────────────"));
+            lore.add(Component.text("§7좌클릭    §f1개 판매"));
+            lore.add(Component.text("§7우클릭    §f64개 판매"));
+            lore.add(Component.text("§7Shift+클릭  §f전량 판매"));
+        }
         meta.lore(lore);
         stack.setItemMeta(meta);
         return stack;

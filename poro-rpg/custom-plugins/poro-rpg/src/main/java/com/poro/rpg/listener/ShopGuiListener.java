@@ -93,14 +93,9 @@ public final class ShopGuiListener implements Listener {
             case ShopGui.SLOT_SELL_BUTTON  -> { openSellGui(player, tab); return; }
         }
 
-        // 아이템 슬롯 — Shift+클릭은 1개 즉시 판매, 그 외 구매
+        // 아이템 슬롯 — 매수 전용(판매는 판매 버튼 → 판매 GUI). 좌=1세트 / 우=~64
         ShopGui.ShopItem item = ShopGui.itemAt(tab, slot);
-        if (item == null) return;
-        if (event.getClick().isShiftClick()) {
-            attemptSell(player, item, 1);
-            ShopGui.open(player, tab);  // 재화 반영 후 lore 갱신
-            return;
-        }
+        if (item == null || !item.isBuyable()) return;
         int sets = (event.getClick() == ClickType.RIGHT)
                 ? Math.max(1, 64 / Math.max(1, item.amount()))
                 : 1;
@@ -126,15 +121,14 @@ public final class ShopGuiListener implements Listener {
 
     private void renderSellGui(Player player, ShopGui.Tab tab) {
         Inventory inv = ShopGui.createSellInventory(player);
-        List<ShopGui.ShopItem> items = ShopGui.items(tab);
+        List<ShopGui.ShopItem> items = ShopGui.sellables(tab);   // 판매가 있는 품목만(농작물·광물·재화)
         long expectedTotal = 0;
 
         for (int i = 0; i < items.size() && i < (ShopGui.SELL_ITEM_AREA_END + 1); i++) {
             ShopGui.ShopItem si = items.get(i);
-            long invCount     = countInInventory(player, si.material());
-            long storageCount = islandStorageStore.getOrCreate(player.getUniqueId()).get(si.material().name());
-            long total = invCount + storageCount;
-            expectedTotal += total * si.unitSellPrice();
+            long invCount     = si.isCurrency() ? heldForSell(player, si) : countInInventory(player, si.material());
+            long storageCount = si.isCurrency() ? 0L : islandStorageStore.getOrCreate(player.getUniqueId()).get(si.material().name());
+            expectedTotal += sellGoldFor(si, heldForSell(player, si));
             inv.setItem(i, ShopGui.sellDisplayItem(si, invCount, storageCount));
         }
 
@@ -185,17 +179,25 @@ public final class ShopGuiListener implements Listener {
         }
         ShopGui.ShopItem si = items.get(slot);
 
-        long invCount     = countInInventory(player, si.material());
-        long storageCount = islandStorageStore.getOrCreate(uid).get(si.material().name());
-        long total = invCount + storageCount;
+        long held = heldForSell(player, si);
+        int bundle = si.sellBundleSize();
         long qty;
-        if (event.getClick().isShiftClick()) qty = total;
-        else if (event.getClick() == ClickType.RIGHT) qty = Math.min(64, total);
-        else qty = Math.min(1, total);
-
-        if (qty <= 0) {
-            player.sendMessage("§7[상점] §f" + si.displayName() + " §7보유량이 없습니다.");
-            return;
+        if (bundle > 1) {                       // set 모드(농작물): 세트(64) 단위만
+            long sets = held / bundle;
+            if (sets <= 0) {
+                player.sendMessage("§7[상점] §f" + si.displayName() + " §71세트(" + bundle + "개) 미만이라 판매할 수 없습니다.");
+                return;
+            }
+            boolean one = event.getClick() == ClickType.LEFT && !event.getClick().isShiftClick();
+            qty = (one ? 1 : sets) * bundle;    // 좌클릭=1세트 / 우클릭·Shift=전량 세트
+        } else {                                // unit 모드(광물·재화)
+            if (event.getClick().isShiftClick()) qty = held;
+            else if (event.getClick() == ClickType.RIGHT) qty = Math.min(64, held);
+            else qty = Math.min(1, held);
+            if (qty <= 0) {
+                player.sendMessage("§7[상점] §f" + si.displayName() + " §7보유량이 없습니다.");
+                return;
+            }
         }
         attemptSell(player, si, qty);
         renderSellGui(player, tab);
@@ -209,40 +211,69 @@ public final class ShopGuiListener implements Listener {
         }
         PlayerGrowthState growth = growthOpt.get();
 
-        // 인벤토리 → 창고 순서로 차감
-        long fromInv = removeFromInventory(player, item.material(), qty);
-        long remaining = qty - fromInv;
-        long fromStorage = 0;
-        if (remaining > 0) {
+        long actuallySold;
+        if (item.isCurrency()) {
+            // 재화(전장의 파편 등) — 재화지갑에서 차감
+            long take = Math.min(qty, growth.currency(item.currencyId()));
+            if (take <= 0 || !growth.consumeCurrency(item.currencyId(), take)) {
+                player.sendMessage("§7[상점] §f" + item.displayName() + " §7보유량이 없습니다.");
+                return;
+            }
+            actuallySold = take;
+        } else {
+            // 차감 순서: 창고 → 인벤토리
             IslandStorage storage = islandStorageStore.getOrCreate(player.getUniqueId());
-            fromStorage = storage.withdraw(item.material(), remaining);
-        }
-        long actuallySold = fromInv + fromStorage;
-        if (actuallySold <= 0) {
-            player.sendMessage("§7[상점] §f" + item.displayName() + " §7보유량이 없습니다.");
-            return;
+            long fromStorage = storage.withdraw(item.material(), qty);
+            long remaining = qty - fromStorage;
+            long fromInv = remaining > 0 ? removeFromInventory(player, item.material(), remaining) : 0;
+            actuallySold = fromStorage + fromInv;
+            if (actuallySold <= 0) {
+                player.sendMessage("§7[상점] §f" + item.displayName() + " §7보유량이 없습니다.");
+                return;
+            }
         }
 
-        long totalGold = actuallySold * item.unitSellPrice();
+        // 골드 = (판매수량 / 묶음) × 묶음가  (unit=낱개, set=64묶음)
+        long totalGold = (actuallySold / item.sellBundleSize()) * item.bundleSellPrice();
         growth.addCurrency("gold", totalGold);
         player.sendMessage("§a[상점] §f" + item.displayName() + " §a×" + actuallySold + "개 §7판매 (+" + totalGold + "G)");
         scoreboardService.refresh(player);
     }
 
+    /** 판매 보유량 — 재화면 재화지갑, 아니면 창고+인벤. */
+    private long heldForSell(Player player, ShopGui.ShopItem si) {
+        if (si.isCurrency()) {
+            return growthStateStore.get(player.getUniqueId()).map(g -> g.currency(si.currencyId())).orElse(0L);
+        }
+        long storage = islandStorageStore.getOrCreate(player.getUniqueId()).get(si.material().name());
+        return countInInventory(player, si.material()) + storage;
+    }
+
+    /** 보유량(held)을 모드에 맞춰 판매 시 받을 골드. set은 묶음 단위 내림. */
+    private long sellGoldFor(ShopGui.ShopItem si, long held) {
+        return (held / si.sellBundleSize()) * si.bundleSellPrice();
+    }
+
     private void executeSellAll(Player player, ShopGui.Tab tab) {
-        List<ShopGui.ShopItem> items = ShopGui.items(tab);
+        List<ShopGui.ShopItem> items = ShopGui.sellables(tab);
         long totalGold = 0;
         int kinds = 0;
         long totalCount = 0;
         for (ShopGui.ShopItem si : items) {
-            long invCount     = countInInventory(player, si.material());
-            long storageCount = islandStorageStore.getOrCreate(player.getUniqueId()).get(si.material().name());
-            long total = invCount + storageCount;
-            if (total <= 0) continue;
-            removeFromInventory(player, si.material(), invCount);
-            islandStorageStore.getOrCreate(player.getUniqueId()).withdraw(si.material(), storageCount);
-            totalGold += total * si.unitSellPrice();
-            totalCount += total;
+            long held = heldForSell(player, si);
+            long sellQty = (held / si.sellBundleSize()) * si.sellBundleSize();  // set는 묶음 단위 내림
+            if (sellQty <= 0) continue;
+            if (si.isCurrency()) {
+                growthStateStore.get(player.getUniqueId()).ifPresent(g -> g.consumeCurrency(si.currencyId(), sellQty));
+            } else {
+                // 창고 → 인벤 순서
+                IslandStorage storage = islandStorageStore.getOrCreate(player.getUniqueId());
+                long fromStorage = storage.withdraw(si.material(), sellQty);
+                long rem = sellQty - fromStorage;
+                if (rem > 0) removeFromInventory(player, si.material(), rem);
+            }
+            totalGold += (sellQty / si.sellBundleSize()) * si.bundleSellPrice();
+            totalCount += sellQty;
             kinds++;
         }
         if (totalGold > 0) {
