@@ -15,15 +15,13 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 전설 조우 (결정 018~026, 030). 풀 가중추첨 → 동적 아레나 격리 → 야생 전설 스폰(포획) → 정리.
- * 0.1: stage_weight 미적용(후보 weight 직접 추첨). 레벨=등급별 고정. 제한시간 후 자동 종료.
+ * 가중 = 2단계(stageWeight + B-cap), EncounterConfig가 단일 진실 공급원. 레벨=등급별 고정. 제한시간 후 자동 종료.
  */
 public final class EncounterService {
     private EncounterService() {}
@@ -147,18 +145,8 @@ public final class EncounterService {
     }
 
     private static EncounterConfig.Candidate weightedPick(ServerWorld world, EncounterConfig.Pool pool) {
-        List<EncounterConfig.Candidate> en = new ArrayList<>();
-        int total = 0;
-        for (EncounterConfig.Candidate c : pool.candidates) {
-            if (c.enabled && c.weight > 0) { en.add(c); total += c.weight; }
-        }
-        if (total <= 0) return null;
-        int r = world.getRandom().nextInt(total);
-        for (EncounterConfig.Candidate c : en) {
-            r -= c.weight;
-            if (r < 0) return c;
-        }
-        return en.get(en.size() - 1);
+        // 2단계 가중(stageWeight + B-cap)은 EncounterConfig가 단일 진실 공급원. 표시(PoolInfoMenu)와 동일 분포.
+        return EncounterConfig.weightedPick(pool, world.getRandom().nextDouble());
     }
 
     private static int levelFor(String type) {

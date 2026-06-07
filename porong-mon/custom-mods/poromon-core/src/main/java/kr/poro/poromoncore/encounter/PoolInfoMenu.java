@@ -16,12 +16,26 @@ import java.util.List;
 
 /**
  * 조우권 풀 상세(후보 포켓몬 + 출현 확률%) — 읽기 전용. 제단에서 풀 우클릭으로 진입.
- * 확률 = 후보 weight / 활성 weight 합 × 100. (0.1: stage_weight 미적용 = weight 직접)
+ * 확률 = EncounterConfig.probabilities(2단계 가중) — 실제 추첨 분포와 동일.
  */
 public final class PoolInfoMenu {
     private PoolInfoMenu() {}
 
     private static final int PER_PAGE = ShopLayout.CONTENT_SLOTS.length; // 28
+
+    // stage 키 → 한글 등급 표시
+    private static String stageKo(String stage) {
+        if (stage == null) return "";
+        return switch (stage) {
+            case "basic" -> "기본형";
+            case "middle" -> "중간진화";
+            case "final" -> "최종진화";
+            case "intermediate" -> "중급";
+            case "advanced" -> "상급";
+            case "apex" -> "최상급";
+            default -> stage;
+        };
+    }
 
     public static void open(ServerPlayerEntity player, String poolId) {
         open(player, poolId, 0);
@@ -34,20 +48,13 @@ public final class PoolInfoMenu {
                 (p, slot, button, shift) -> onClick(p, slot, poolId, page));
     }
 
-    private static List<EncounterConfig.Candidate> enabled(EncounterConfig.Pool pool) {
-        List<EncounterConfig.Candidate> list = new ArrayList<>();
-        for (EncounterConfig.Candidate c : pool.candidates) if (c.enabled && c.weight > 0) list.add(c);
-        return list;
-    }
-
     private static void populate(Inventory inv, String poolId, int page) {
         for (int i = 0; i < ServerMenuHandler.DISPLAY_SIZE; i++) inv.setStack(i, MenuIcons.pane());
         EncounterConfig.Pool pool = ConfigManager.encounter().pools.get(poolId);
         if (pool == null) return;
 
-        List<EncounterConfig.Candidate> list = enabled(pool);
-        long total = 0;
-        for (EncounterConfig.Candidate c : list) total += c.weight;
+        List<EncounterConfig.Candidate> list = EncounterConfig.enabled(pool);
+        java.util.Map<EncounterConfig.Candidate, Double> probs = EncounterConfig.probabilities(pool);
         int pages = Math.max(1, (list.size() + PER_PAGE - 1) / PER_PAGE);
         page = Math.max(0, Math.min(page, pages - 1));
 
@@ -61,11 +68,13 @@ public final class PoolInfoMenu {
         int start = page * PER_PAGE;
         for (int i = 0; i < PER_PAGE && start + i < list.size(); i++) {
             EncounterConfig.Candidate c = list.get(start + i);
-            double pct = total > 0 ? (c.weight * 100.0 / total) : 0;
+            double pct = probs.getOrDefault(c, 0.0) * 100.0;
+            String tier = stageKo(c.stage);
+            List<String> lore = new ArrayList<>();
+            lore.add("§7출현 확률: §e" + String.format("%.1f", pct) + "%");
+            if (!tier.isEmpty()) lore.add("§8등급 " + tier);
             inv.setStack(ShopLayout.CONTENT_SLOTS[i], MenuIcons.icon(Items.NAME_TAG,
-                    "§f" + c.displayNameKo,
-                    List.of("§7출현 확률: §e" + String.format("%.1f", pct) + "%",
-                            "§8가중치 " + c.weight)));
+                    "§f" + c.displayNameKo, lore));
         }
     }
 

@@ -255,3 +255,15 @@ jar 전수 검증(`egg_pool_design.md §8`)으로 Eggs Addon(`diesse`)의 실제
 - 특성 목록·한글검색: `shop/AbilityCatalog`(Cobblemon `ko_kr.json cobblemon.ability.<name>` 로드 → `Abilities.get` 유효분만, 표시는 `Text.translatable`로 ko_kr 자동). 무제한 변경.
 - 포로공학 메뉴(42): 기술(정수 구매 29 / 각인 33) + 특성(정수 구매 38 / 변경 42) 2트랙.
 - 특성 정수 텍스처는 임시(기술 정수 색조 변형) — 전용 원본 추후 교체(CMD 82031).
+
+### 035. 조우 풀 2단계 가중(stage/tier) + B 고정 cap + 심해/빛/용왕 보강
+
+조우권 풀의 가중을 설계 의도대로 코드/데이터에 반영(이전엔 후보 weight 직접 추첨 = stage/tier 미적용).
+- **2단계 가중**: `P(후보) = (stage 비중 / Σstage 비중) × (후보 weight / Σ동일 stage weight)`. 단일 진실 공급원 = `EncounterConfig.probabilities()` (추첨 `EncounterService` + 표시 `PoolInfoMenu` 양쪽이 사용 → 표시=실제 일치).
+- **stage 비중**: 희귀 풀 = 기본형70/중간20/최종10(evo stage). 컨셉 10풀 = 중급(intermediate)55/상급(advanced)35/최상급(apex)10.
+- **B 고정 cap**: 후보 없는 stage 비중은 "비중이 가장 큰 존재 stage"가 흡수 → **최상급 항상 ≤10%**(희소성 일관). 예: 반전(중급 0) = 상급90/최상10. (희귀는 전 stage 상시 존재라 재분배 없음.)
+- **tier 분류 권위** = 일반 등급 풀 멤버십: 최상급=apex풀 · 상급=advanced풀 · 중급=intermediate/하급전설풀 · 환상(미분류)=상급.
+- **풀 내 weight**: 중급·상급 균등 10. 최상급 = **시그니처 apex★ 20 / 부수(타 컨셉 교차등재) 5** → 도메인 대표 부각 + 중복 차별화. ★=레쿠쟈(하늘)·가이오가(심해)·그란돈(대지)·디아루가(시간)·펄기아(공간)·기라티나(반전)·테라파고스(빛)·레시라무/제크로무/큐레무/코라이돈/미라이돈(용왕)·자시안/자마젠타/버드렉스(수호자)·아르세우스(영원).
+- **후보 보강**(단독 독식 해소): 심해 +4(케르디오·무쇠보따리·굽이치는물결·볼케니온), 빛 +4(디안시·비크티니·코스모그·마기아나), 용왕 +5(라티아스·라티오스·날뛰는우레·꿰뚫는화염·포효의달 — 레지드래고 90%→18%). 신규 종은 미배치 패러독스 활용. 용왕은 최상급 多 의도 유지(B cap=최상급 10% 합).
+- 미반영(잔여): 필드이벤트 풀 하급70/중급30(별도), apex 시그니처 운영 토글(컨셉 최상급×2), within-tier 세부 weight 튜닝.
+- 설계 표: `04_game_design/encounter_balance_proposal_v1.md`. 구현: `EncounterConfig`·`EncounterService`·`PoolInfoMenu` + `legendary_pools.json`.
