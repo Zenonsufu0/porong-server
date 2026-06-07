@@ -346,3 +346,13 @@ jar 전수 검증(`egg_pool_design.md §8`)으로 Eggs Addon(`diesse`)의 실제
 - ✅ **자동 위치**(`buildHubAuto`): `/poromon admin netherhub` = 보더 중심(0,0) 근처 **안전한 공동 바닥 자동 탐색**(8칸 공기+주변 무용암) 후 건설 → **운영자가 위치 선정 불필요**(콘솔/어디서나 실행). `/poromon admin netherhub here` = 플레이어 위치 수동.
 - ✅ **허브 안전 강화**: 빌더가 21×21 플랫폼 + **둘레 벽(블랙스톤)+천장**(용암/몹 유입 차단) + **-Z 3×3 출입구**(네더 탐험 진출) + 귀환 포탈 + 블레이즈 스포너. 난간→벽으로 대체.
 - 검증: 헤드리스 콘솔 `/poromon admin netherhub` → (0,64,0) 자동 건설·좌표 저장·에러0.
+
+#### 039-d. 엔드 정책 구현 (5단계, 바깥섬 리다이렉트)
+- ✅ **드래곤 제거**(`EndManager.onEntityLoad`, ServerEntityEvents.ENTITY_LOAD): 엔더 드래곤 스폰/로드 시 discard → 드래곤전 없음.
+- ✅ **바깥섬 리다이렉트**(AFTER_PLAYER_CHANGE_WORLD): 오버월드→엔드 입장 = **엔드 허브(외곽 섬)로 TP**(중앙 섬/드래곤 우회 → 엔드시티 권역). 좌표 미안전 시 안전 표면 자동 탐색.
+- ✅ **`/poromon admin endhub`**: 외곽 엔드(반경 1100~2000) 안전한 섬 표면 자동 탐색 → 엔드 허브 좌표 저장(없으면 흑요석 플랫폼 강제). config 구동.
+- **복귀** = 기존 `/poromon hub`(오버월드 허브 TP) — 별도 엔드 귀환 포탈 불필요.
+- config = core.json `end`(enabled/removeDragon/hubRedirect/hubX/Y/Z/Yaw).
+- 검증: 헤드리스 콘솔 `/poromon admin endhub` → 외곽 섬 (0,57,1100) 자동 탐색·저장·에러0. ⚠️ 알파(엔드 입장): 드래곤 부재·바깥섬 도착·엔드시티 접근·`/poromon hub` 복귀.
+
+> 네더 정책(039-a~c) + 엔드 정책(039-d) = 차원 정책 전체 구현. 잔여 월드빌드 = 운영자 `/poromon admin netherhub`·`endhub` 1회 실행.

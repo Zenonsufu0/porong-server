@@ -53,6 +53,7 @@ public final class PoroMonCommand {
                         .then(CommandManager.literal("netherhub")
                                 .executes(PoroMonCommand::netherHubAuto)
                                 .then(CommandManager.literal("here").executes(PoroMonCommand::netherHubHere)))
+                        .then(CommandManager.literal("endhub").executes(PoroMonCommand::endHub))
                         .then(CommandManager.literal("pass")
                                 .then(CommandManager.argument("player", EntityArgumentType.player())
                                         .executes(PoroMonCommand::adminPass)))
@@ -196,6 +197,15 @@ public final class PoroMonCommand {
 
     private static int netherHubHere(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         return kr.poro.poromoncore.dimension.NetherManager.buildHubAt(ctx.getSource().getPlayerOrThrow()) ? 1 : 0;
+    }
+
+    private static int endHub(CommandContext<ServerCommandSource> ctx) {
+        net.minecraft.util.math.BlockPos pos =
+                kr.poro.poromoncore.dimension.EndManager.buildEndHubAuto(ctx.getSource().getServer());
+        ctx.getSource().sendFeedback(() -> net.minecraft.text.Text.literal(pos != null
+                ? "§a[엔드] 바깥섬 허브 설정 — (" + pos.getX() + ", " + pos.getY() + ", " + pos.getZ() + ")"
+                : "§c[엔드] 허브 설정 실패(엔드 차원 없음)."), true);
+        return pos != null ? 1 : 0;
     }
 
     private static int fieldEvent(CommandContext<ServerCommandSource> ctx) {

@@ -86,9 +86,15 @@ public class PoroMonCore implements ModInitializer {
             kr.poro.poromoncore.dimension.NetherManager.applyBorder(server);
         });
 
-        // 네더 포탈 리다이렉트: 오버월드→네더 허브 / 네더→오버월드 진입좌표 복귀 (결정 039)
-        net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register(
-                kr.poro.poromoncore.dimension.NetherManager::onChangeWorld);
+        // 차원 리다이렉트(결정 039): 네더=허브/진입좌표 복귀 · 엔드=바깥섬 허브
+        net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, dest) -> {
+            kr.poro.poromoncore.dimension.NetherManager.onChangeWorld(player, origin, dest);
+            kr.poro.poromoncore.dimension.EndManager.onChangeWorld(player, origin, dest);
+        });
+
+        // 엔드 드래곤 제거(드래곤전 비활성, 결정 039)
+        net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents.ENTITY_LOAD.register((entity, world) ->
+                kr.poro.poromoncore.dimension.EndManager.onEntityLoad(entity, world));
 
         // 네더 허브 보호: 허브 반경 내 블록 파괴 차단(포탈·블레이즈 스포너)
         net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents.BEFORE.register((world, player, pos, state, entity) -> {
