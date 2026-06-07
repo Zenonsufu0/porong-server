@@ -134,4 +134,6 @@ porong-work-rpg      [feature/rpg-dev]     ← sparse: poro-rpg
 > **브랜드 전환 메모(Poro → Porong):** worktree **디렉토리** 이름은 모두 `porong-*`로 전환 완료했다
 > (main 원본 폴더 포함 → `/home/zenonsufu1/dev/porong-server`). main 폴더는 `git worktree move`가
 > 지원하지 않아 `mv` + `git worktree repair`로 옮기고 worktree 연결을 검증했다.
-> 단 **in-repo 폴더 이름**(`poro-rpg`/`poromon`/`poro-discord`)과 **GitHub repo 이름**은 아직 `poro-` 접두사를 유지한다(미전환).
+> **GitHub repo 이름**도 `poro_server` → `porong-server`로 변경 완료했고, origin remote URL을
+> `https://github.com/Zenonsufu0/porong-server.git`로 갱신했다(전 worktree 공유).
+> 단 **in-repo 폴더 이름**(`poro-rpg`/`poromon`/`poro-discord`)은 아직 `poro-` 접두사를 유지한다(미전환).
