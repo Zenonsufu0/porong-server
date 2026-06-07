@@ -49,6 +49,7 @@ public final class PoroMonCommand {
                         .requires(src -> src.hasPermissionLevel(2))
                         .then(CommandManager.literal("gui").executes(PoroMonCommand::adminGui))
                         .then(CommandManager.literal("reload").executes(PoroMonCommand::reload))
+                        .then(CommandManager.literal("fieldevent").executes(PoroMonCommand::fieldEvent))
                         .then(CommandManager.literal("pass")
                                 .then(CommandManager.argument("player", EntityArgumentType.player())
                                         .executes(PoroMonCommand::adminPass)))
@@ -179,6 +180,13 @@ public final class PoroMonCommand {
     private static int leagueLeave(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         kr.poro.poromoncore.league.LeagueManager.leaveQueue(ctx.getSource().getPlayerOrThrow());
         return 1;
+    }
+
+    private static int fieldEvent(CommandContext<ServerCommandSource> ctx) {
+        boolean ok = kr.poro.poromoncore.encounter.FieldEventManager.spawnNow(ctx.getSource().getServer());
+        ctx.getSource().sendFeedback(() -> net.minecraft.text.Text.literal(
+                ok ? "§a[운영자] 전설 필드 이벤트를 발생시켰습니다." : "§e[운영자] 이미 진행 중인 필드 이벤트가 있습니다."), true);
+        return ok ? 1 : 0;
     }
 
     private static int tpaAccept(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {

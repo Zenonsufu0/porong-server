@@ -135,6 +135,7 @@ public class PoroMonCore implements ModInitializer {
                 BattleTowerService.tick(server);
                 kr.poro.poromoncore.gym.GymBattleService.tick(server);
                 kr.poro.poromoncore.encounter.EncounterService.tick(server);
+                kr.poro.poromoncore.encounter.FieldEventManager.tick(server);
                 kr.poro.poromoncore.tpa.TpaManager.cleanup(server.getTicks());
                 kr.poro.poromoncore.league.LeagueManager.tick(server);
             }

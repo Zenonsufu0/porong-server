@@ -11,6 +11,7 @@ public class CoreConfig {
     public Hub hub = new Hub();
     public Home home = new Home();
     public Wild wild = new Wild();
+    public FieldEvent fieldEvent = new FieldEvent();
     public Logging logging = new Logging();
 
     /** 9번 슬롯 리그 패스 아이템 정책 (menu_design.md §2). */
@@ -63,6 +64,18 @@ public class CoreConfig {
         public int maxAttempts = 24;      // 안전 착지 탐색 시도 횟수
         public int minSurfaceY = 45;      // 이보다 낮은 지표(구덩이/공동)는 회피
         public int edgeMargin = 16;       // 월드보더 가장자리 여유
+    }
+
+    /** 하급·중급 전설 필드 이벤트 (결정 019 → 038: 좌표 공개·30분). */
+    public static class FieldEvent {
+        public boolean enabled = true;
+        public int intervalMinutes = 120;   // 주기(2시간마다 1회)
+        public int durationMinutes = 30;    // 출현 후 디스폰까지
+        public String poolId = "field_event_legendary_pool"; // 하급70/중급30
+        public int level = 60;              // 출현 레벨
+        public int edgeMargin = 200;        // 월드보더 안쪽 여유
+        public int minSurfaceY = 50;        // 이보다 낮은 지표 회피
+        public int maxAttempts = 40;        // 안전 위치 탐색 횟수
     }
 
     /** 감사 로깅 토글 (0.1 일부만 사용). */
