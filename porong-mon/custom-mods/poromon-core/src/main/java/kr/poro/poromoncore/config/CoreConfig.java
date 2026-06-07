@@ -100,15 +100,14 @@ public class CoreConfig {
         public boolean opBypassProtect = true; // op(권한2)는 보호 무시(건설/유지보수)
     }
 
-    /** 엔드 차원 정책 (결정 039): 드래곤 제거 + 바깥섬 리다이렉트(엔드시티 탐험). */
+    /** 엔드 차원 정책 (결정 039): 드래곤 제거 + 입장 시 무작위 외곽 섬 착지(엔드시티 탐험). */
     public static class End {
         public boolean enabled = true;
         public boolean removeDragon = true;   // 엔더 드래곤 스폰 시 제거(드래곤전 없음)
-        public boolean hubRedirect = true;    // 입장 시 바깥섬으로 TP(중앙 섬/드래곤 우회)
-        public double hubX = 1536.5;          // ⚠️ endhub 명령으로 실 바깥섬 좌표 설정
-        public double hubY = 64.0;
-        public double hubZ = 0.5;
-        public float hubYaw = 0.0f;
+        public boolean randomLanding = true;  // 입장마다 무작위 외곽 섬으로(함선 고갈 완화)
+        public int minRadius = 1100;          // 중앙 섬 바깥(외곽 섬 시작)
+        public int maxRadius = 6000;          // 무작위 밴드 상한
+        public int maxAttempts = 12;          // 안전 섬 탐색 시도(청크 생성 비용 ↔ 성공률)
         // 복귀는 /poromon hub(오버월드 허브 TP) 사용 — 별도 엔드 귀환 포탈 불필요.
     }
 

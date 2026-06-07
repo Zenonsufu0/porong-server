@@ -356,3 +356,10 @@ jar 전수 검증(`egg_pool_design.md §8`)으로 Eggs Addon(`diesse`)의 실제
 - 검증: 헤드리스 콘솔 `/poromon admin endhub` → 외곽 섬 (0,57,1100) 자동 탐색·저장·에러0. ⚠️ 알파(엔드 입장): 드래곤 부재·바깥섬 도착·엔드시티 접근·`/poromon hub` 복귀.
 
 > 네더 정책(039-a~c) + 엔드 정책(039-d) = 차원 정책 전체 구현. 잔여 월드빌드 = 운영자 `/poromon admin netherhub`·`endhub` 1회 실행.
+
+#### 039-e. 엔드 = 무작위 외곽 섬 착지 (039-d 고정 허브 폐기)
+겉날개는 **엔드 함선당 1개 + 함선은 일부 시티에만 + 루팅 시 소멸** → 고정 허브 1곳은 근처 함선이 금방 고갈. 무한한 외곽 엔드를 활용해 **입장마다 무작위 외곽 섬으로 착지**(플레이어 분산 → 신선한 시티/함선).
+- `EndManager.onChangeWorld`: 오버월드→엔드 = 무작위 외곽 섬(반경 minRadius1100~maxRadius6000, 무작위 각도, 안전 표면 탐색, 실패 시 흑요석 플랫폼) 착지. 입장마다 다른 위치.
+- 고정 허브 좌표/`/poromon admin endhub` 폐기(불필요). config = `end`(removeDragon/randomLanding/minRadius/maxRadius/maxAttempts).
+- 드래곤 제거(039-d)·복귀 /poromon hub 유지. 청크 생성 비용은 입장당 최대 maxAttempts(12)회 — 엔드 입장 빈도 낮아 수용.
+- 검증: 헤드리스(end config 생성·에러0). ⚠️ 알파: 입장 시 무작위 외곽 섬 착지·시티 도달·함선 분산.
