@@ -33,8 +33,10 @@ public class PlayerProgress {
     // 전설 제단 해금 (결정 031): 해금한 등급(tier) 집합 — 해당 등급 조우권 사용 선행조건
     public final java.util.Set<String> altarsUnlocked = new java.util.HashSet<>();
 
-    // 마개조 해제 포켓몬 (결정 033-a): 해금석 사용한 포켓몬 UUID — off-learnset 각인 허용
+    // 마개조 해제 포켓몬 (결정 033-a): 정수·기술머신 사용한 포켓몬 UUID — off-learnset 각인 허용
     public final java.util.Set<String> makeoverPokemon = new java.util.HashSet<>();
+    // 특성 마개조 해제 포켓몬 (결정 034): 정수·특성 사용한 포켓몬 UUID — 임의 특성 강제 부여 허용
+    public final java.util.Set<String> abilityMakeoverPokemon = new java.util.HashSet<>();
 
     public NbtCompound writeNbt(NbtCompound nbt) {
         nbt.putInt("schemaVersion", SCHEMA_VERSION);
@@ -69,6 +71,10 @@ public class PlayerProgress {
         NbtList moNbt = new NbtList();
         for (String u : makeoverPokemon) moNbt.add(net.minecraft.nbt.NbtString.of(u));
         nbt.put("makeoverPokemon", moNbt);
+
+        NbtList aboNbt = new NbtList();
+        for (String u : abilityMakeoverPokemon) aboNbt.add(net.minecraft.nbt.NbtString.of(u));
+        nbt.put("abilityMakeoverPokemon", aboNbt);
         return nbt;
     }
 
@@ -111,6 +117,10 @@ public class PlayerProgress {
         if (nbt.contains("makeoverPokemon", NbtElement.LIST_TYPE)) {
             NbtList moNbt = nbt.getList("makeoverPokemon", NbtElement.STRING_TYPE);
             for (int i = 0; i < moNbt.size(); i++) p.makeoverPokemon.add(moNbt.getString(i));
+        }
+        if (nbt.contains("abilityMakeoverPokemon", NbtElement.LIST_TYPE)) {
+            NbtList aboNbt = nbt.getList("abilityMakeoverPokemon", NbtElement.STRING_TYPE);
+            for (int i = 0; i < aboNbt.size(); i++) p.abilityMakeoverPokemon.add(aboNbt.getString(i));
         }
         return p;
     }

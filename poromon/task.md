@@ -145,12 +145,44 @@
 - ✅ **조우권/정수 텍스처 배선**: 티켓15(`ticket/ticket_<key>`, CMD 82001~82020) + 포로공학 정수(`engineering_essence`, CMD 82030). 64×64 리사이즈·정수 투명화. paper.json override + 모델16. AltarMenu 해금 아이콘=티켓텍스처, MakeoverStone=정수텍스처. 배지 텍스처 badge/ 하위 이동 대응. **서버+클라 배포**(클라 재시작 시 렌더). 원본=texture_originals/(gitignore).
 - ✅ **한글화 계획 수립**(`localization_policy.md §8`, 구현 전): 클라 ko_kr+모드 ko_kr 내장→대부분 자동. 핵심 잔여=GUI `.getString()` 영어 박제 **9곳**(CategoryShop3·BuyShop2·SellShop2·Engineering1·TmCatalog1)→`MenuIcons` Text 오버로드+translatable 전환. 누락분만 자체 ko_kr override(출처 Weblate/Bulbapedia/사용자제공).
 
+## 4k. Phase 2 — 한글화 구현(GUI translatable 전환) (2026-06-07 세션, ✅ 구현·헤드리스 검증)
+**근거**: `localization_policy.md §8.4`. 서버 GUI가 모드 아이템/기술/종족명을 `getName().getString()`(서버 locale=영어)로 **문자열 박제** → 클라가 ko_kr여도 우리 메뉴만 영어. translatable `Text`를 그대로 넘기면 클라(ko_kr)가 자동 한글 렌더 → **추가 번역 데이터·클라 jar 불필요**.
+- ✅ **`MenuIcons` Text 오버로드 추가**: `icon(Item, Text, lore)` + `iconCount(Item, int, Text, lore)` + `named(Formatting, Text)`(빈 베이스에 색 부여→번역키 보존하며 자식 색 상속). 기존 String 오버로드는 Text 위임으로 통합.
+- ✅ **9곳 + 추가 박제 전환**: CategoryShop(잠김/판매 아이콘+구매채팅)·BuyShop(아이콘+채팅)·SellShop(아이콘+판매채팅)=`item.getName()` translatable. EngineeringMenu(교체기술 아이콘=`MoveTemplate.getDisplayName()`, 포켓몬 선택/각인완료=`Species.getTranslatedName()`, 각인 displayText 스레딩). PoroMonCore 포로공학 해제 채팅=`getTranslatedName()`.
+- ✅ **`TmCatalog.Entry`에 `displayText`(Text) 추가**: 정렬·검색은 기존 `displayName`(String) 유지, GUI 렌더만 translatable. EngineeringMenu 기술목록 아이콘+각인 메시지에 사용.
+- ✅ **잔여 박제 = 서버 로그 2곳뿐**(GymBattleService/BattleTowerService `LOGGER.info` NPC 메가 — 유저 비노출, 영어 유지 OK).
+- ✅ **빌드 BUILD SUCCESSFUL + 헤드리스 부팅 검증**: jar 서버 배포(.local/server/mods) → Done(1.342s)·`[PoroMonCore] 0.1 초기화`·poromoncore ERROR 0·정상 stop. (무해 WARN: 클라 클래스 프로빙·LM 리소스팩 경로·cobblemon README — 기존 동일.)
+- ⚠️ **미검증(클라 접속 필요)**: 실제 ko_kr 렌더 캡처(상점/포로공학 메뉴에서 영어 잔존 0 확인). **클라 jar 재배포 불필요**(translatable은 네트워크 전송→클라 lang 렌더).
+- ⚠️ **잔여**: 인게임 캡처로 모드 ko_kr 누락분 발견 시 §8.3 `PoroMon-Korean-Pack` ko_kr override(현재 미작성).
+
+## 4l. Phase 2 — 인게임 1차 피드백 반영 (2026-06-07 세션, 클라 검증분)
+사용자 클라 접속(PoroMon 0.1 Dev) 1차 검증 결과 반영:
+- ✅ **티켓 텍스처 렌더 확인**(82001~82020). 배지도 OK.
+- ✅ **기술머신 상점(메뉴39) 이름 한글화**: SimpleTMs `tm_<move>` 아이템은 **개별 번역키 없음**(영어/raw 키로 박제) → `CategoryShopMenu.shopName(item,itemId)` 헬퍼 추가: `simpletms:tm_` prefix면 Cobblemon `Moves.getByName(move).getDisplayName()`(translatable, ko_kr 자동)로 대체. 아이콘(정상/잠김)+구매채팅 적용. 포로공학(EngineeringMenu)과 표기 통일.
+- ✅ **포로공학 검색 한글 부분일치 지원**: 서버 locale=영어라 `getDisplayName().getString()`이 영어 → 검색 불가였음. `TmCatalog.loadKoMoveNames()`로 **Cobblemon `assets/cobblemon/lang/ko_kr.json` 직접 로드**(`cobblemon.move.<move>` 키, `.desc`/`.category.*` 제외) → `Entry.koName` 추가 → `search()`가 영문키·영문명·**한글명** 모두 부분일치. 로드 실패 graceful(빈 맵 + WARN).
+- ✅ **마스터볼 편의 상점 추가**: 바닐라 제작 가능 → `cobblemon:master_ball` **5000골드** (`EconomyConfig.defaultBuyPrices` luxury_ball 뒤 + 런타임 `economy.json buyPrices`). BuyShopMenu(편의)에 자동 진열.
+- ✅ **빌드 + 서버/클라 양쪽 jar 재배포**(해시 일치) + 서버 재기동(Done 1.389s). **포로공학 정수(82030) 종이 렌더 = 클라 jar 구버전 원인 → 최신 jar 클라 배포로 해결, 클라 재시작 후 렌더 확인 필요.**
+- ⚠️ **재검증 필요(클라 재시작)**: ① 포로공학 정수 텍스처 렌더 ② 기술머신 상점 기술명 한글 ③ 포로공학 한글 검색 동작 ④ 마스터볼 편의상점 노출/구매.
+
+## 4m. Phase 2 — 정수 텍스처/메뉴아이콘 + 특성 마개조 신설 (2026-06-07 세션)
+- ✅ **정수 메뉴 아이콘 버그 수정**: 포로공학 메뉴 정수 슬롯이 `icon()`(CMD 미부여)을 써서 종이로 보였음(티켓 AltarMenu는 `iconModel()` 사용). `iconModel(PAPER, 82030, …)`로 수정 → 메뉴 아이콘 렌더 정상.
+- ✅ **정수 텍스처 배경 투명화 재처리**: 흰 배경 잔여(가장자리 alpha 255/78)로 노이즈 → 원본(texture_originals/, 1254²)에서 **가장자리 flood-fill 투명화 + premultiplied LANCZOS 리사이즈**(흰 fringe 제거) → 64² 재생성. 코너/가장자리 alpha 0 확인.
+- ✅ **특성 마개조 신설(결정 034)**: 포로공학 정수 2종 분리.
+  - `MakeoverStone`: `Kind{TECH(82030, poromon_makeover_stone), ABILITY(82031, poromon_ability_stone)}` enum화. 기존 "포로공학 정수"→**"포로공학 정수 · 기술머신"**(lore 변경), 신규 **"포로공학 정수 · 특성"**.
+  - `PlayerProgress.abilityMakeoverPokemon`(NBT) + `MakeoverService.unlockAbility/isAbilityMakeover`. `PoroMonCore` 우클릭 = `kindOf`로 기술/특성 분기 해제.
+  - `shop/AbilityCatalog`(신규): Cobblemon `ko_kr.json cobblemon.ability.<name>` 로드 → `Abilities.get` 유효분만, 표시=`Text.translatable`(ko_kr 자동), 한글/영문 검색.
+  - `EngineeringMenu`: 특성 트랙 추가(정수 구매38 / 변경42 → 포켓몬 선택 → 목록·검색·페이지 → **`Pokemon.setAbility$common(new Ability(tpl, forced=true, Priority.NORMAL))`** 임의 강제 부여). 무제한 변경.
+  - 가격: 특성 정수 50만·배지6, 변경 1회 5만(`EconomyConfig.engineering.abilityStonePrice/abilityStoneBadges/abilityChangePrice` + 런타임 economy.json).
+  - 특성 정수 텍스처 = **임시(기술 정수 hue +120° 변형 = 황금/주황, CMD 82031)** → 전용 원본 추후 교체.
+- ✅ **빌드 BUILD SUCCESSFUL + 서버/클라 jar 재배포(해시 일치) + 서버 재기동(Done 1.468s)**, poromoncore 에러 0.
+- ⚠️ **클라 재시작 후 검증 필요**: ① 정수(기술/특성) 텍스처 렌더 ② 특성 정수 우클릭 해제 ③ 특성 변경 메뉴(목록/검색/부여) 동작·한글 ④ forced 특성 실제 전투 반영.
+- ⚠️ **잔여**: 특성 정수 전용 텍스처(사용자 원본) 교체. AbilityCatalog는 ko_kr에 있는 특성만(레지스트리 전수 아님 — 표시 한글 우선).
+
 ### ▶ 다음 세션 과업 (우선순위)
-1. **텍스처 인게임 검증**(클라 재시작): 제단 티켓·포로공학 정수·배지 렌더 확인.
-2. **한글화 구현**: `MenuIcons` Text 오버로드 추가 → GUI 9곳 translatable 전환 → 인게임 영어 잔존 캡처 → 누락 ko_kr override. (`localization_policy.md §8.4` 순서)
-3. **IB-003 커스텀 메뉴 GUI 화면(배경)**: 바닐라 컨테이너 텍스처가 투박 → 방식 검토(B 타이틀 이미지-폰트 트릭 우선 / A 리소스팩 generic_54 전역 / C 클라 Screen). `idea_inbox IB-003`.
-4. **밸런스 패스**: 조우 stage_weight 적용·컨셉 차등/apex 중복 차별화·관장 후반 메가 검증.
-5. (선택) 운영자 GUI 컨셉 최상급 확률×2(apex 플래깅), 배지 텍스처 등.
+1. **텍스처+한글화 인게임 검증**(클라 재시작): 제단 티켓·포로공학 정수·배지 렌더 + **상점/포로공학 GUI 한글 렌더(영어 잔존 0)** 확인. 잔존분만 ko_kr override.
+2. **IB-003 커스텀 메뉴 GUI 화면(배경)**: 바닐라 컨테이너 텍스처가 투박 → 방식 검토(B 타이틀 이미지-폰트 트릭 우선 / A 리소스팩 generic_54 전역 / C 클라 Screen). `idea_inbox IB-003`.
+3. **밸런스 패스**: 조우 stage_weight 적용·컨셉 차등/apex 중복 차별화·관장 후반 메가 검증.
+4. (선택) 운영자 GUI 컨셉 최상급 확률×2(apex 플래깅), 배지 텍스처 등.
 
 ## 5. 진행 중 / 미해결 TODO (요약)
 - ✅ **species ID 검증 완료** → `01_modpack/jar_registry_reference.md`: 전설 71(restricted 27 / 준전설 44)·환상 23·UB 11·패러독스 20 실 ID 확정.

@@ -30,11 +30,27 @@ public final class MakeoverService {
         return pr.makeoverPokemon.contains(pk.getUuid().toString());
     }
 
-    /** 해제(이미 해제면 false). */
+    /** 기술 해제(이미 해제면 false). */
     public static boolean unlock(ServerPlayerEntity player, Pokemon pk) {
         PoroMonState st = PoroMonState.get(player.getServer());
         PlayerProgress pr = st.getOrCreate(player.getUuid());
         boolean added = pr.makeoverPokemon.add(pk.getUuid().toString());
+        if (added) st.markDirty();
+        return added;
+    }
+
+    /** 특성 마개조 해제 여부 (결정 034). */
+    public static boolean isAbilityMakeover(ServerPlayerEntity player, Pokemon pk) {
+        if (pk == null) return false;
+        PlayerProgress pr = PoroMonState.get(player.getServer()).getOrCreate(player.getUuid());
+        return pr.abilityMakeoverPokemon.contains(pk.getUuid().toString());
+    }
+
+    /** 특성 해제(이미 해제면 false). */
+    public static boolean unlockAbility(ServerPlayerEntity player, Pokemon pk) {
+        PoroMonState st = PoroMonState.get(player.getServer());
+        PlayerProgress pr = st.getOrCreate(player.getUuid());
+        boolean added = pr.abilityMakeoverPokemon.add(pk.getUuid().toString());
         if (added) st.markDirty();
         return added;
     }

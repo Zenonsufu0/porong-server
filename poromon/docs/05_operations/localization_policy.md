@@ -119,8 +119,8 @@
 
 ### 8.4 작업 순서 (구현 단계 — 승인 후)
 1. 인게임 ko_kr 캡처로 **실제 영어 잔존 지점 확정**(우리 GUI 9곳 + 혹시 영어로 뜨는 모드 항목 목록화).
-2. `MenuIcons` Text 오버로드 추가 → 9곳 translatable 전환 → 빌드/배포/인게임 검증.
-3. (있으면) 누락 모드 번역만 `PoroMon-Korean-Pack` ko_kr override 작성 → 모드팩 동봉.
+2. ✅ **완료(2026-06-07)** `MenuIcons` Text 오버로드(`icon(Item,Text,lore)`·`iconCount`·`named(Formatting,Text)`) 추가 → 박제 9곳 + 추가 발견분(EngineeringMenu 종족/기술명, TmCatalog `displayText`) translatable 전환 → 빌드 성공 + 헤드리스 부팅 검증. **잔여 박제=서버 로그 2곳(유저 비노출)**. 상세=task.md §4k.
+3. (있으면) 누락 모드 번역만 `PoroMon-Korean-Pack` ko_kr override 작성 → 모드팩 동봉. **← 다음(클라 캡처로 잔존 확정 후)**
 4. 검수 체크리스트: 메뉴 전체 / 상점(매입·편의·성장·실전·기술머신·메가·제단·포로공학) / 아이템 lore / 명령 응답.
 
 ### 8.5 검증

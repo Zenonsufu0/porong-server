@@ -146,13 +146,17 @@ public class EconomyConfig {
     public EngineeringConfig engineering = new EngineeringConfig();
 
     public static class EngineeringConfig {
-        public long stonePrice = 300000;   // 포로공학 정수 가격(초기: 매우 높게)
-        public int stoneBadges = 4;        // 정수 구매 배지 게이트
+        public long stonePrice = 300000;   // 포로공학 정수·기술머신 가격(초기: 매우 높게)
+        public int stoneBadges = 4;        // 기술 정수 구매 배지 게이트
         public long priceStatus = 1000;    // 각인가: 위력 0 이하(변화기)
         public long priceWeak = 1500;      // 위력 ≤ 60
         public long priceMedium = 2500;    // 위력 61~90
         public long priceStrong = 4000;    // 위력 91~110
         public long pricePremium = 6000;   // 위력 111+
+        // 특성 마개조(완전 강제 부여 = 사기성 → 기술보다 비싸게, 배지 게이트 상향). 결정 034.
+        public long abilityStonePrice = 500000; // 포로공학 정수·특성 가격
+        public int abilityStoneBadges = 6;      // 특성 정수 구매 배지 게이트
+        public long abilityChangePrice = 50000; // 특성 1회 강제 부여 비용(단일가)
 
         /** 위력 → 각인 가격 등급. */
         public long priceFor(double power) {
@@ -233,6 +237,7 @@ public class EconomyConfig {
         m.put("cobblemon:timer_ball", 120L);
         m.put("cobblemon:repeat_ball", 120L);
         m.put("cobblemon:luxury_ball", 200L);
+        m.put("cobblemon:master_ball", 5000L); // 바닐라 제작 가능 → 편의 상점 고가 판매
         // 회복약
         m.put("cobblemon:potion", 30L);
         m.put("cobblemon:super_potion", 100L);

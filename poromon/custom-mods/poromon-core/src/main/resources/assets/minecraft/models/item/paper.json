@@ -146,7 +146,13 @@
       "predicate": {
         "custom_model_data": 82030
       },
-      "model": "poromon:item/engineering_essence"
+      "model": "poromon:item/engineering_tm_core"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82031
+      },
+      "model": "poromon:item/engineering_ability_core"
     }
   ]
 }

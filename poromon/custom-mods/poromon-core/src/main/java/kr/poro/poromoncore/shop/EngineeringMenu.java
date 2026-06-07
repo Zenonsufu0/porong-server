@@ -1,6 +1,10 @@
 package kr.poro.poromoncore.shop;
 
 import com.cobblemon.mod.common.Cobblemon;
+import com.cobblemon.mod.common.api.Priority;
+import com.cobblemon.mod.common.api.abilities.Abilities;
+import com.cobblemon.mod.common.api.abilities.Ability;
+import com.cobblemon.mod.common.api.abilities.AbilityTemplate;
 import com.cobblemon.mod.common.api.moves.Move;
 import com.cobblemon.mod.common.api.moves.MoveSet;
 import com.cobblemon.mod.common.api.moves.MoveTemplate;
@@ -38,8 +42,10 @@ public final class EngineeringMenu {
 
     private static final int PER_PAGE = ShopLayout.CONTENT_SLOTS.length;
     private static final int SEARCH_SLOT = 53;
-    private static final int STONE_SLOT = 29;
-    private static final int ENGRAVE_SLOT = 33;
+    private static final int STONE_SLOT = 20;          // 정수·기술머신 구매
+    private static final int ENGRAVE_SLOT = 24;        // 기술 각인
+    private static final int ABILITY_STONE_SLOT = 29;  // 정수·특성 구매 (결정 034)
+    private static final int ABILITY_SLOT = 33;        // 특성 변경 (결정 034)
 
     /** 각인 대상: player → pokemon UUID. */
     private static final Map<UUID, UUID> TARGET = new HashMap<>();
@@ -67,20 +73,31 @@ public final class EngineeringMenu {
                     String unit = ConfigManager.economy().currencyDisplay;
                     inv.setStack(ShopLayout.BALANCE_SLOT, MenuIcons.icon(Items.GOLD_NUGGET,
                             "§6잔액: " + EconomyBridge.getBalance(player) + " " + unit,
-                            List.of("§7정수로 포켓몬을 해제 → 배울 수 없는 기술 각인")));
+                            List.of("§7정수로 포켓몬을 해제 → 기술 각인 / 특성 변경")));
                     inv.setStack(ShopLayout.BACK_SLOT, MenuIcons.icon(Items.ARROW, "§e← 메뉴로", List.of()));
-                    inv.setStack(STONE_SLOT, MenuIcons.icon(Items.PAPER, "§d포로공학 정수",
+                    // 기술 트랙
+                    inv.setStack(STONE_SLOT, MenuIcons.iconModel(Items.PAPER, 82030, "§d포로공학 정수 · 기술머신",
                             List.of("§7포켓몬에 우클릭 → 그 포켓몬 영구 해제",
                                     "§7가격: §6" + cfg.stonePrice + " " + unit,
                                     "§7배지 " + cfg.stoneBadges + "개 필요", "§e클릭 — 구매")));
                     inv.setStack(ENGRAVE_SLOT, MenuIcons.icon(Items.ENDER_EYE, "§d기술 각인",
                             List.of("§7해제된 포켓몬에 배울 수 없는 기술 각인", "§7각인마다 골드(위력 등급가)",
                                     "§e클릭 — 포켓몬 선택")));
+                    // 특성 트랙 (결정 034)
+                    inv.setStack(ABILITY_STONE_SLOT, MenuIcons.iconModel(Items.PAPER, 82031, "§d포로공학 정수 · 특성",
+                            List.of("§7포켓몬에 우클릭 → 그 포켓몬 영구 해제",
+                                    "§7가격: §6" + cfg.abilityStonePrice + " " + unit,
+                                    "§7배지 " + cfg.abilityStoneBadges + "개 필요", "§e클릭 — 구매")));
+                    inv.setStack(ABILITY_SLOT, MenuIcons.icon(Items.NETHER_STAR, "§d특성 변경",
+                            List.of("§7해제된 포켓몬에 어떤 특성이든 강제 부여", "§7변경마다 §6" + cfg.abilityChangePrice + " " + unit,
+                                    "§e클릭 — 포켓몬 선택")));
                 },
                 (p, slot, button, shift) -> {
                     if (slot == ShopLayout.BACK_SLOT) MenuGuiManager.open(p);
                     else if (slot == STONE_SLOT) buyStone(p);
                     else if (slot == ENGRAVE_SLOT) openPokemonSelect(p);
+                    else if (slot == ABILITY_STONE_SLOT) buyAbilityStone(p);
+                    else if (slot == ABILITY_SLOT) openAbilityPokemonSelect(p);
                 });
     }
 
@@ -94,14 +111,34 @@ public final class EngineeringMenu {
             player.sendMessage(Text.literal("§c[포로공학] 골드가 부족합니다 (필요 " + cfg.stonePrice + ")."), true);
             return;
         }
-        ItemStack stone = MakeoverStone.create();
+        ItemStack stone = MakeoverStone.create(MakeoverStone.Kind.TECH);
         player.getInventory().insertStack(stone);
         if (!stone.isEmpty()) {
             EconomyBridge.deposit(player, cfg.stonePrice, "engineering_stone_refund");
             player.sendMessage(Text.literal("§e[포로공학] 인벤토리 공간 부족 — 환불."), true);
             return;
         }
-        player.sendMessage(Text.literal("§a[포로공학] 정수 구매 (-" + cfg.stonePrice + "). 포켓몬에 우클릭하세요."), true);
+        player.sendMessage(Text.literal("§a[포로공학] 정수·기술머신 구매 (-" + cfg.stonePrice + "). 포켓몬에 우클릭하세요."), true);
+    }
+
+    private static void buyAbilityStone(ServerPlayerEntity player) {
+        EngineeringConfig cfg = ConfigManager.economy().engineering;
+        if (badgeCount(player) < cfg.abilityStoneBadges) {
+            player.sendMessage(Text.literal("§c[포로공학] 특성 정수는 배지 " + cfg.abilityStoneBadges + "개가 필요합니다."), true);
+            return;
+        }
+        if (!EconomyBridge.withdraw(player, cfg.abilityStonePrice, "engineering_ability_stone")) {
+            player.sendMessage(Text.literal("§c[포로공학] 골드가 부족합니다 (필요 " + cfg.abilityStonePrice + ")."), true);
+            return;
+        }
+        ItemStack stone = MakeoverStone.create(MakeoverStone.Kind.ABILITY);
+        player.getInventory().insertStack(stone);
+        if (!stone.isEmpty()) {
+            EconomyBridge.deposit(player, cfg.abilityStonePrice, "engineering_ability_stone_refund");
+            player.sendMessage(Text.literal("§e[포로공학] 인벤토리 공간 부족 — 환불."), true);
+            return;
+        }
+        player.sendMessage(Text.literal("§a[포로공학] 정수·특성 구매 (-" + cfg.abilityStonePrice + "). 포켓몬에 우클릭하세요."), true);
     }
 
     // ===== 포켓몬 선택 =====
@@ -118,7 +155,9 @@ public final class EngineeringMenu {
                         if (pk == null || i >= slots.length) { i++; continue; }
                         boolean mo = MakeoverService.isMakeover(player, pk);
                         inv.setStack(slots[i], MenuIcons.icon(mo ? Items.ENDER_EYE : Items.IRON_BARS,
-                                (mo ? "§d" : "§8") + pk.getSpecies().getName() + " §7Lv." + pk.getLevel(),
+                                MenuIcons.named(mo ? Formatting.LIGHT_PURPLE : Formatting.DARK_GRAY,
+                                                pk.getSpecies().getTranslatedName())
+                                        .append(Text.literal(" Lv." + pk.getLevel()).formatted(Formatting.GRAY)),
                                 mo ? List.of("§a클릭 — 기술 각인") : List.of("§c미해제 §7(정수 필요)")));
                         i++;
                     }
@@ -223,7 +262,7 @@ public final class EngineeringMenu {
             long price = cfg.priceFor(e.power());
             String powTxt = e.power() <= 0 ? "변화" : String.valueOf((int) e.power());
             inv.setStack(ShopLayout.CONTENT_SLOTS[i], MenuIcons.icon(item,
-                    "§d" + e.displayName(),
+                    MenuIcons.named(Formatting.LIGHT_PURPLE, e.displayText()),
                     List.of("§7위력: §f" + powTxt, "§7각인가: §6" + price + " " + unit, "§a클릭 — 각인")));
         }
     }
@@ -237,11 +276,11 @@ public final class EngineeringMenu {
         List<TmCatalog.Entry> list = entriesFor(source);
         int globalIdx = page * PER_PAGE + idx;
         if (globalIdx >= list.size()) return;
-        engrave(player, list.get(globalIdx).moveName(), list.get(globalIdx).displayName());
+        engrave(player, list.get(globalIdx).moveName(), list.get(globalIdx).displayText());
     }
 
     // ===== 각인 =====
-    private static void engrave(ServerPlayerEntity player, String moveName, String displayName) {
+    private static void engrave(ServerPlayerEntity player, String moveName, Text displayText) {
         UUID pid = TARGET.get(player.getUuid());
         Pokemon pk = MakeoverService.findPartyPokemon(player, pid);
         if (pk == null) {
@@ -266,19 +305,20 @@ public final class EngineeringMenu {
             for (int i = 0; i < withNulls.size(); i++) if (withNulls.get(i) == null) { free = i; break; }
             if (free < 0) free = 0;
             ms.setMove(free, tpl.create());
-            finishEngrave(player, pk, displayName, price);
+            finishEngrave(player, pk, displayText, price);
         } else {
             PENDING.put(player.getUuid(), moveName);
-            openSlotSelect(player, displayName);
+            openSlotSelect(player, displayText);
         }
     }
 
-    private static void openSlotSelect(ServerPlayerEntity player, String displayName) {
+    private static void openSlotSelect(ServerPlayerEntity player, Text displayText) {
         ServerMenuHandler.show(player, Text.literal("포로공학 — 교체할 기술").formatted(Formatting.LIGHT_PURPLE),
                 inv -> {
                     for (int i = 0; i < ServerMenuHandler.DISPLAY_SIZE; i++) inv.setStack(i, MenuIcons.pane());
                     inv.setStack(ShopLayout.BALANCE_SLOT, MenuIcons.icon(Items.PAPER,
-                            "§d각인: " + displayName, List.of("§7교체할 기존 기술을 클릭하세요")));
+                            MenuIcons.named(Formatting.LIGHT_PURPLE, Text.literal("각인: ").append(displayText)),
+                            List.of("§7교체할 기존 기술을 클릭하세요")));
                     inv.setStack(ShopLayout.BACK_SLOT, MenuIcons.icon(Items.ARROW, "§c취소", List.of()));
                     Pokemon pk = MakeoverService.findPartyPokemon(player, TARGET.get(player.getUuid()));
                     if (pk != null) {
@@ -286,7 +326,7 @@ public final class EngineeringMenu {
                         int[] slots = {20, 21, 22, 23};
                         for (int i = 0; i < moves.size() && i < 4; i++) {
                             inv.setStack(slots[i], MenuIcons.icon(Items.PAPER,
-                                    "§f" + moves.get(i).getTemplate().getDisplayName().getString(),
+                                    MenuIcons.named(Formatting.WHITE, moves.get(i).getTemplate().getDisplayName()),
                                     List.of("§7클릭 — 이 기술을 교체")));
                         }
                     }
@@ -309,16 +349,145 @@ public final class EngineeringMenu {
                     }
                     pk.getMoveSet().setMove(idx, tpl.create());
                     PENDING.remove(p.getUuid());
-                    finishEngrave(p, pk, displayName, price);
+                    finishEngrave(p, pk, displayText, price);
                 });
     }
 
-    private static void finishEngrave(ServerPlayerEntity player, Pokemon pk, String displayName, long price) {
+    private static void finishEngrave(ServerPlayerEntity player, Pokemon pk, Text displayText, long price) {
         UUID pid = TARGET.get(player.getUuid());
-        player.sendMessage(Text.literal("§a[포로공학] " + pk.getSpecies().getName()
-                + " 에게 " + displayName + " 각인 완료 (-" + price + ")."), false);
+        player.sendMessage(Text.literal("§a[포로공학] ").append(pk.getSpecies().getTranslatedName())
+                .append(Text.literal(" §a에게 ")).append(displayText)
+                .append(Text.literal(" §a각인 완료 (-" + price + ").")), false);
         if (pid != null) openTeach(player, pid);
         else player.closeHandledScreen();
+    }
+
+    // ===== 특성 마개조 (결정 034) =====
+    public static void openAbilityPokemonSelect(ServerPlayerEntity player) {
+        ServerMenuHandler.show(player, Text.literal("특성 변경 — 포켓몬 선택").formatted(Formatting.LIGHT_PURPLE),
+                inv -> {
+                    for (int i = 0; i < ServerMenuHandler.DISPLAY_SIZE; i++) inv.setStack(i, MenuIcons.pane());
+                    inv.setStack(ShopLayout.BALANCE_SLOT, MenuIcons.icon(Items.NETHER_STAR, "§d특성 변경",
+                            List.of("§7특성 정수로 해제된 포켓몬만 선택 가능", "§7변경마다 골드")));
+                    inv.setStack(ShopLayout.BACK_SLOT, MenuIcons.icon(Items.ARROW, "§e← 포로공학", List.of()));
+                    int[] slots = {11, 12, 13, 14, 15, 16};
+                    int i = 0;
+                    for (Pokemon pk : Cobblemon.INSTANCE.getStorage().getParty(player)) {
+                        if (pk == null || i >= slots.length) { i++; continue; }
+                        boolean mo = MakeoverService.isAbilityMakeover(player, pk);
+                        inv.setStack(slots[i], MenuIcons.icon(mo ? Items.ENDER_EYE : Items.IRON_BARS,
+                                MenuIcons.named(mo ? Formatting.LIGHT_PURPLE : Formatting.DARK_GRAY,
+                                                pk.getSpecies().getTranslatedName())
+                                        .append(Text.literal(" Lv." + pk.getLevel()).formatted(Formatting.GRAY)),
+                                mo ? List.of("§7현재 특성: ", "§a클릭 — 특성 변경") : List.of("§c미해제 §7(특성 정수 필요)")));
+                        i++;
+                    }
+                },
+                (p, slot, button, shift) -> {
+                    if (slot == ShopLayout.BACK_SLOT) { open(p); return; }
+                    int[] slots = {11, 12, 13, 14, 15, 16};
+                    int idx = -1;
+                    for (int k = 0; k < slots.length; k++) if (slots[k] == slot) { idx = k; break; }
+                    if (idx < 0) return;
+                    int i = 0;
+                    for (Pokemon pk : Cobblemon.INSTANCE.getStorage().getParty(p)) {
+                        if (i == idx) {
+                            if (pk != null && MakeoverService.isAbilityMakeover(p, pk)) {
+                                TARGET.put(p.getUuid(), pk.getUuid());
+                                showAbilityList(p, "all", 0);
+                            } else {
+                                p.sendMessage(Text.literal("§c[포로공학] 특성 정수로 먼저 해제하세요."), true);
+                            }
+                            return;
+                        }
+                        i++;
+                    }
+                });
+    }
+
+    private static List<AbilityCatalog.Entry> abilityEntriesFor(String source) {
+        if (source.startsWith("q:")) return AbilityCatalog.search(source.substring(2));
+        return AbilityCatalog.all();
+    }
+
+    private static void showAbilityList(ServerPlayerEntity player, String source, int page) {
+        String title = source.startsWith("q:") ? "특성 검색: " + source.substring(2) : "특성 목록";
+        ServerMenuHandler.show(player, Text.literal(title).formatted(Formatting.LIGHT_PURPLE),
+                inv -> abilityListPopulate(inv, player, source, page),
+                (p, slot, button, shift) -> abilityListClick(p, slot, source, page));
+    }
+
+    private static void abilityListPopulate(Inventory inv, ServerPlayerEntity player, String source, int page) {
+        for (int i = 0; i < ServerMenuHandler.DISPLAY_SIZE; i++) inv.setStack(i, MenuIcons.pane());
+        String unit = ConfigManager.economy().currencyDisplay;
+        EngineeringConfig cfg = ConfigManager.economy().engineering;
+        List<AbilityCatalog.Entry> list = abilityEntriesFor(source);
+        int pages = Math.max(1, (list.size() + PER_PAGE - 1) / PER_PAGE);
+        page = Math.max(0, Math.min(page, pages - 1));
+
+        inv.setStack(ShopLayout.BALANCE_SLOT, MenuIcons.icon(Items.GOLD_NUGGET,
+                "§6잔액: " + EconomyBridge.getBalance(player) + " " + unit,
+                List.of("§7특성 §f" + list.size() + "종", "§7변경가: §6" + cfg.abilityChangePrice + " " + unit,
+                        "§7페이지 §f" + (page + 1) + " / " + pages)));
+        inv.setStack(ShopLayout.BACK_SLOT, MenuIcons.icon(Items.ARROW, "§e← 포켓몬 선택", List.of()));
+        inv.setStack(SEARCH_SLOT, MenuIcons.icon(Items.OAK_SIGN, "§b검색",
+                List.of("§7특성 이름으로 검색", "§e클릭 — 검색어 입력")));
+        if (page > 0) inv.setStack(ShopLayout.PREV_SLOT, MenuIcons.icon(Items.SPECTRAL_ARROW, "§e◀ 이전", List.of()));
+        if (page < pages - 1) inv.setStack(ShopLayout.NEXT_SLOT, MenuIcons.icon(Items.SPECTRAL_ARROW, "§e다음 ▶", List.of()));
+
+        int start = page * PER_PAGE;
+        for (int i = 0; i < PER_PAGE && start + i < list.size(); i++) {
+            AbilityCatalog.Entry e = list.get(start + i);
+            inv.setStack(ShopLayout.CONTENT_SLOTS[i], MenuIcons.icon(Items.ENCHANTED_BOOK,
+                    MenuIcons.named(Formatting.LIGHT_PURPLE, Text.translatable(e.translationKey())),
+                    List.of("§7변경가: §6" + cfg.abilityChangePrice + " " + unit, "§a클릭 — 이 특성 부여")));
+        }
+    }
+
+    private static void abilityListClick(ServerPlayerEntity player, int slot, String source, int page) {
+        if (slot == ShopLayout.BACK_SLOT) { openAbilityPokemonSelect(player); return; }
+        if (slot == SEARCH_SLOT) { promptAbilitySearch(player); return; }
+        if (slot == ShopLayout.PREV_SLOT) { showAbilityList(player, source, page - 1); return; }
+        if (slot == ShopLayout.NEXT_SLOT) { showAbilityList(player, source, page + 1); return; }
+        int idx = ShopLayout.contentIndexOf(slot);
+        if (idx < 0) return;
+        List<AbilityCatalog.Entry> list = abilityEntriesFor(source);
+        int globalIdx = page * PER_PAGE + idx;
+        if (globalIdx >= list.size()) return;
+        applyAbility(player, list.get(globalIdx));
+    }
+
+    private static void promptAbilitySearch(ServerPlayerEntity player) {
+        player.closeHandledScreen();
+        player.sendMessage(Text.literal("§b[포로공학] 검색할 특성 이름을 채팅에 입력하세요. §7(취소: '취소')"), false);
+        ChatInputManager.await(player, msg -> {
+            if (msg.equals("취소") || msg.isBlank()) { showAbilityList(player, "all", 0); return; }
+            showAbilityList(player, "q:" + msg.trim(), 0);
+        });
+    }
+
+    private static void applyAbility(ServerPlayerEntity player, AbilityCatalog.Entry entry) {
+        Pokemon pk = MakeoverService.findPartyPokemon(player, TARGET.get(player.getUuid()));
+        if (pk == null) {
+            player.sendMessage(Text.literal("§c[포로공학] 대상 포켓몬을 파티에서 찾을 수 없습니다."), true);
+            TARGET.remove(player.getUuid()); player.closeHandledScreen(); return;
+        }
+        if (!MakeoverService.isAbilityMakeover(player, pk)) {
+            player.sendMessage(Text.literal("§c[포로공학] 특성이 해제되지 않은 포켓몬입니다."), true);
+            TARGET.remove(player.getUuid()); player.closeHandledScreen(); return;
+        }
+        AbilityTemplate tpl = Abilities.get(entry.name());
+        if (tpl == null) { player.sendMessage(Text.literal("§c[포로공학] 알 수 없는 특성."), true); return; }
+        long price = ConfigManager.economy().engineering.abilityChangePrice;
+        if (!EconomyBridge.withdraw(player, price, "engineering_ability:" + entry.name())) {
+            player.sendMessage(Text.literal("§c[포로공학] 골드가 부족합니다 (필요 " + price + ")."), true);
+            return;
+        }
+        pk.setAbility$common(new Ability(tpl, true, Priority.NORMAL)); // forced=true → 임의 강제 부여
+        player.sendMessage(Text.literal("§a[포로공학] ").append(pk.getSpecies().getTranslatedName())
+                .append(Text.literal(" §a의 특성을 ")).append(Text.translatable(entry.translationKey()))
+                .append(Text.literal(" §a(으)로 변경 (-" + price + ").")), false);
+        showAbilityList(player, "all", 0);
     }
 
     private static Item resolve(String itemId) {

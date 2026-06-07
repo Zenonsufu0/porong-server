@@ -5,7 +5,9 @@ import net.minecraft.component.type.LoreComponent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,8 +30,16 @@ public final class MenuIcons {
     }
 
     public static ItemStack icon(Item item, String name, List<String> loreLines) {
+        return icon(item, Text.literal(name), loreLines);
+    }
+
+    /**
+     * translatable {@link Text} 이름 아이콘. 모드/포켓몬/기술명의 번역 Text를 그대로 넘기면
+     * 클라(ko_kr)가 자동으로 한글 렌더한다(서버 locale 영어 문자열로 박제하지 않음).
+     */
+    public static ItemStack icon(Item item, Text name, List<String> loreLines) {
         ItemStack stack = new ItemStack(item);
-        stack.set(DataComponentTypes.CUSTOM_NAME, Text.literal(name));
+        stack.set(DataComponentTypes.CUSTOM_NAME, name);
         if (!loreLines.isEmpty()) {
             List<Text> lore = new ArrayList<>(loreLines.size());
             for (String line : loreLines) lore.add(Text.literal(line));
@@ -43,5 +53,20 @@ public final class MenuIcons {
         ItemStack stack = icon(item, name, loreLines);
         stack.setCount(Math.max(1, Math.min(64, count)));
         return stack;
+    }
+
+    /** 수량 표시 + translatable 이름 아이콘. */
+    public static ItemStack iconCount(Item item, int count, Text name, List<String> loreLines) {
+        ItemStack stack = icon(item, name, loreLines);
+        stack.setCount(Math.max(1, Math.min(64, count)));
+        return stack;
+    }
+
+    /**
+     * 색(Formatting)을 입힌 translatable 이름. 빈 베이스에 색을 주고 번역 Text를 자식으로 붙여
+     * 자식이 색을 상속하도록 한다(번역 키는 보존). 추가 텍스트는 반환값에 append.
+     */
+    public static MutableText named(Formatting color, Text base) {
+        return Text.empty().append(base).formatted(color);
     }
 }

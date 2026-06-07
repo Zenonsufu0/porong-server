@@ -2,12 +2,20 @@ package kr.poro.poromoncore.shop;
 
 import com.cobblemon.mod.common.api.moves.MoveTemplate;
 import com.cobblemon.mod.common.api.moves.Moves;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import kr.poro.poromoncore.PoroMonCore;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -21,8 +29,14 @@ import java.util.Map;
 public final class TmCatalog {
     private TmCatalog() {}
 
-    /** 한 TM 항목. */
-    public record Entry(String itemId, String moveName, String displayName, String type, double power) {}
+    /**
+     * 한 TM 항목.
+     * - {@code displayName}: 정렬용 문자열(서버 locale, 보통 영어).
+     * - {@code displayText}: GUI 렌더용 translatable Text(클라 ko_kr 자동 한글).
+     * - {@code koName}: 한글 부분검색용(Cobblemon ko_kr.json에서 로드, 없으면 빈 문자열).
+     */
+    public record Entry(String itemId, String moveName, String displayName, Text displayText,
+                        String koName, String type, double power) {}
 
     private static List<Entry> all;                 // 전체(이름순)
     private static Map<String, List<Entry>> byType; // 타입 → 항목들
@@ -34,6 +48,7 @@ public final class TmCatalog {
 
     private static synchronized void ensureBuilt() {
         if (all != null) return;
+        Map<String, String> koNames = loadKoMoveNames();
         List<Entry> list = new ArrayList<>();
         for (Identifier id : Registries.ITEM.getIds()) {
             if (!id.getNamespace().equals("simpletms")) continue;
@@ -44,8 +59,11 @@ public final class TmCatalog {
             if (tpl == null) continue;
             String type = tpl.getElementalType().getName().toLowerCase(Locale.ROOT);
             String disp;
-            try { disp = tpl.getDisplayName().getString(); } catch (Throwable t) { disp = move; }
-            list.add(new Entry(id.toString(), move, disp, type, tpl.getPower()));
+            Text dispText;
+            try { Text t = tpl.getDisplayName(); dispText = t; disp = t.getString(); }
+            catch (Throwable t) { disp = move; dispText = Text.literal(move); }
+            String ko = koNames.getOrDefault(move, "");
+            list.add(new Entry(id.toString(), move, disp, dispText, ko, type, tpl.getPower()));
         }
         list.sort(Comparator.comparing(Entry::displayName));
         Map<String, List<Entry>> map = new LinkedHashMap<>();
@@ -62,14 +80,47 @@ public final class TmCatalog {
         return byType.getOrDefault(type, List.of());
     }
 
-    /** 이름/기술ID 부분일치 검색(대소문자 무시). */
+    /** 이름/기술ID 부분일치 검색(영문 키·영문명·한글명 모두, 대소문자 무시). */
     public static List<Entry> search(String query) {
         ensureBuilt();
         String q = query.toLowerCase(Locale.ROOT).trim();
         List<Entry> r = new ArrayList<>();
         for (Entry e : all) {
-            if (e.moveName().contains(q) || e.displayName().toLowerCase(Locale.ROOT).contains(q)) r.add(e);
+            if (e.moveName().contains(q)
+                    || e.displayName().toLowerCase(Locale.ROOT).contains(q)
+                    || (!e.koName().isEmpty() && e.koName().contains(q))) {
+                r.add(e);
+            }
         }
         return r;
+    }
+
+    /**
+     * Cobblemon ko_kr.json에서 기술 한글명 맵({@code move → 한글})을 로드.
+     * 서버 locale이 영어라 {@code getDisplayName().getString()}는 영어 → 한글 검색용으로 별도 로드.
+     * 키 {@code cobblemon.move.<move>}만 사용(`.desc`/`.category.*` 등 하위 키 제외). 실패 시 빈 맵.
+     */
+    private static Map<String, String> loadKoMoveNames() {
+        Map<String, String> m = new HashMap<>();
+        String prefix = "cobblemon.move.";
+        try (InputStream in = Moves.class.getClassLoader()
+                .getResourceAsStream("assets/cobblemon/lang/ko_kr.json")) {
+            if (in == null) {
+                PoroMonCore.LOGGER.warn("[TmCatalog] cobblemon ko_kr.json 없음 — 한글 검색 비활성");
+                return m;
+            }
+            JsonObject obj = JsonParser.parseReader(
+                    new InputStreamReader(in, StandardCharsets.UTF_8)).getAsJsonObject();
+            for (Map.Entry<String, com.google.gson.JsonElement> e : obj.entrySet()) {
+                String k = e.getKey();
+                if (!k.startsWith(prefix)) continue;
+                String tail = k.substring(prefix.length());
+                if (tail.indexOf('.') >= 0) continue; // .desc / .category.* 제외
+                m.put(tail, e.getValue().getAsString());
+            }
+        } catch (Throwable t) {
+            PoroMonCore.LOGGER.warn("[TmCatalog] ko_kr.json 로드 실패 — 한글 검색 비활성: {}", t.toString());
+        }
+        return m;
     }
 }

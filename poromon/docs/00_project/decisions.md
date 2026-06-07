@@ -246,3 +246,12 @@ jar 전수 검증(`egg_pool_design.md §8`)으로 Eggs Addon(`diesse`)의 실제
 - **기술머신 상점**(메뉴39): 선별 40종 TM 아이템 판매(`economy.json tmShop`, CategoryShopMenu). 정규 learnset 기술용(SimpleTMs, anyMovesLearnableTMs=false).
 - **포로공학**(메뉴42, `shop/EngineeringMenu`): 해금석 구매 + off-learnset 기술 각인. 해금석 우클릭→포켓몬 영구 해제, 메뉴에서 해제된 포켓몬에 기술(타입/검색) 각인(각인마다 골드, `economy.json engineering`). 전체 632 기술 대상.
 - 해금석 표시명 "포로공학 해금석"(태그 키·내부 식별자 makeover/MakeoverService는 유지).
+
+### 034. 포로공학 정수 2종 분리(기술머신/특성) + 특성 완전 마개조
+
+포로공학 정수를 트랙별로 분리하고, 특성 마개조(임의 특성 강제 부여)를 신설. 특성 변경은 종족값 변형급 사기성이라 기술과 **별도 정수·별도 해제 트랙**으로 격리.
+- **정수·기술머신**(기존 "포로공학 정수" 리네임, CMD 82030, 태그 `poromon_makeover_stone`): 기술 각인 트랙. lore "포로공학의 정수이다 / 모든 기술머신을 배울 수 있게 된다". 가격 30만·배지4.
+- **정수·특성**(신규, CMD 82031, 태그 `poromon_ability_stone`): 특성 마개조 트랙. 우클릭→포켓몬 영구 해제(`PlayerProgress.abilityMakeoverPokemon`) → 메뉴서 해제 포켓몬 선택 → 특성 목록/검색 → **`Pokemon.setAbility$common(new Ability(tpl, forced=true, NORMAL))`** 로 종족 무관 임의 특성 강제 부여(`Abilities.get`). 가격 50만·배지6, 변경 1회 5만(`economy.json engineering.abilityStonePrice/abilityStoneBadges/abilityChangePrice`).
+- 특성 목록·한글검색: `shop/AbilityCatalog`(Cobblemon `ko_kr.json cobblemon.ability.<name>` 로드 → `Abilities.get` 유효분만, 표시는 `Text.translatable`로 ko_kr 자동). 무제한 변경.
+- 포로공학 메뉴(42): 기술(정수 구매 29 / 각인 33) + 특성(정수 구매 38 / 변경 42) 2트랙.
+- 특성 정수 텍스처는 임시(기술 정수 색조 변형) — 전용 원본 추후 교체(CMD 82031).

@@ -75,7 +75,7 @@ public final class SellShopMenu {
         for (int i = 0; i < list.size() && i < ShopLayout.CONTENT_SLOTS.length; i++) {
             Holding h = list.get(i);
             inv.setStack(ShopLayout.CONTENT_SLOTS[i], MenuIcons.iconCount(h.item, h.count,
-                    "§f" + h.item.getName().getString(),
+                    MenuIcons.named(Formatting.WHITE, h.item.getName()),
                     List.of("§7보유: §f" + h.count + "개",
                             "§7개당: §6" + h.unitPrice + " " + unit,
                             "§7합계: §6" + (h.count * h.unitPrice) + " " + unit,
@@ -100,8 +100,8 @@ public final class SellShopMenu {
         Holding h = list.get(idx);
         long gained = sellType(player, h.itemId, h.unitPrice);
         if (gained > 0) {
-            player.sendMessage(Text.literal("§a[매입소] " + h.item.getName().getString()
-                    + " 판매 (+" + gained + ")."), true);
+            player.sendMessage(Text.literal("§a[매입소] ").append(h.item.getName())
+                    .append(Text.literal(" §a판매 (+" + gained + ").")), true);
         }
         open(player); // show()=재오픈 없이 진열·잔액 갱신(커서 유지)
     }

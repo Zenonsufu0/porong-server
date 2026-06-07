@@ -1,5 +1,7 @@
 package kr.poro.poromoncore.shop;
 
+import com.cobblemon.mod.common.api.moves.MoveTemplate;
+import com.cobblemon.mod.common.api.moves.Moves;
 import kr.poro.poromoncore.config.ConfigManager;
 import kr.poro.poromoncore.config.EconomyConfig.ShopEntry;
 import kr.poro.poromoncore.data.PoroMonState;
@@ -14,6 +16,7 @@ import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
@@ -70,12 +73,13 @@ public final class CategoryShopMenu {
             ShopEntry se = e.getValue();
             if (badges < se.minBadges) {
                 inv.setStack(ShopLayout.CONTENT_SLOTS[i], MenuIcons.icon(Items.IRON_BARS,
-                        "§8" + item.getName().getString() + " §7(잠김)",
+                        MenuIcons.named(Formatting.DARK_GRAY, shopName(item, e.getKey()))
+                                .append(Text.literal(" (잠김)").formatted(Formatting.GRAY)),
                         List.of("§7가격: §6" + se.price + " " + unit,
                                 "§c배지 " + se.minBadges + "개 필요 §7(현재 " + badges + ")")));
             } else {
                 inv.setStack(ShopLayout.CONTENT_SLOTS[i], MenuIcons.icon(item,
-                        "§f" + item.getName().getString(),
+                        MenuIcons.named(Formatting.WHITE, shopName(item, e.getKey())),
                         List.of("§7가격: §6" + se.price + " " + unit + "§7/개",
                                 "§a좌클릭 1개 §8| §a우클릭 " + BUY_RIGHT_QTY + "개")));
             }
@@ -125,9 +129,21 @@ public final class CategoryShopMenu {
         }
         int bought = qty - stack.getCount();
         if (bought > 0) {
-            player.sendMessage(Text.literal("§a[상점] " + item.getName().getString() + " " + bought
-                    + "개 구매 (-" + (unitPrice * bought) + ")."), true);
+            player.sendMessage(Text.literal("§a[상점] ").append(shopName(item, itemId))
+                    .append(Text.literal(" §a" + bought + "개 구매 (-" + (unitPrice * bought) + ").")), true);
         }
+    }
+
+    /**
+     * 표시 이름. SimpleTMs TM 아이템(`simpletms:tm_<move>`)은 개별 번역키가 없어 raw 키/영어로 뜨므로
+     * Cobblemon 기술명(MoveTemplate, ko_kr 자동)으로 대체. 그 외는 아이템 기본 이름(translatable).
+     */
+    private static Text shopName(Item item, String itemId) {
+        if (itemId.startsWith("simpletms:tm_")) {
+            MoveTemplate tpl = Moves.getByName(itemId.substring("simpletms:tm_".length()));
+            if (tpl != null) return tpl.getDisplayName();
+        }
+        return item.getName();
     }
 
     private static Item resolve(String itemId) {

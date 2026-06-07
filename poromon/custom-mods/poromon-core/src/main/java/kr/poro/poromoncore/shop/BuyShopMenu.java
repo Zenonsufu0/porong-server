@@ -55,7 +55,7 @@ public final class BuyShopMenu {
             Item item = resolve(e.getKey());
             if (item == null) continue;
             inv.setStack(ShopLayout.CONTENT_SLOTS[i], MenuIcons.icon(item,
-                    "§f" + item.getName().getString(),
+                    MenuIcons.named(Formatting.WHITE, item.getName()),
                     List.of("§7가격: §6" + e.getValue() + " " + unit + "§7/개",
                             "§a좌클릭 1개 §8| §a우클릭 " + BUY_RIGHT_QTY + "개")));
         }
@@ -98,8 +98,8 @@ public final class BuyShopMenu {
         }
         int bought = qty - stack.getCount();
         if (bought > 0) {
-            player.sendMessage(Text.literal("§a[상점] " + item.getName().getString() + " " + bought
-                    + "개 구매 (-" + (unitPrice * bought) + ")."), true);
+            player.sendMessage(Text.literal("§a[상점] ").append(item.getName())
+                    .append(Text.literal(" §a" + bought + "개 구매 (-" + (unitPrice * bought) + ").")), true);
         }
     }
 

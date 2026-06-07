@@ -51,7 +51,9 @@ public class PoroMonCore implements ModInitializer {
             if (world.isClient() || hand != net.minecraft.util.Hand.MAIN_HAND) return net.minecraft.util.ActionResult.PASS;
             if (!(p instanceof ServerPlayerEntity sp)) return net.minecraft.util.ActionResult.PASS;
             net.minecraft.item.ItemStack held = sp.getStackInHand(hand);
-            if (!kr.poro.poromoncore.item.MakeoverStone.isStone(held)) return net.minecraft.util.ActionResult.PASS;
+            kr.poro.poromoncore.item.MakeoverStone.Kind kind =
+                    kr.poro.poromoncore.item.MakeoverStone.kindOf(held);
+            if (kind == null) return net.minecraft.util.ActionResult.PASS;
             if (!(entity instanceof com.cobblemon.mod.common.entity.pokemon.PokemonEntity pe)) return net.minecraft.util.ActionResult.PASS;
             com.cobblemon.mod.common.pokemon.Pokemon target =
                     kr.poro.poromoncore.shop.MakeoverService.findPartyPokemon(sp, pe.getPokemon().getUuid());
@@ -59,13 +61,20 @@ public class PoroMonCore implements ModInitializer {
                 sp.sendMessage(net.minecraft.text.Text.literal("§c[포로공학] 본인 파티 포켓몬에만 사용할 수 있습니다."), true);
                 return net.minecraft.util.ActionResult.SUCCESS;
             }
-            if (!kr.poro.poromoncore.shop.MakeoverService.unlock(sp, target)) {
+            boolean ability = kind == kr.poro.poromoncore.item.MakeoverStone.Kind.ABILITY;
+            boolean unlocked = ability
+                    ? kr.poro.poromoncore.shop.MakeoverService.unlockAbility(sp, target)
+                    : kr.poro.poromoncore.shop.MakeoverService.unlock(sp, target);
+            if (!unlocked) {
                 sp.sendMessage(net.minecraft.text.Text.literal("§e[포로공학] 이미 해제된 포켓몬입니다."), true);
                 return net.minecraft.util.ActionResult.SUCCESS;
             }
             held.decrement(1);
-            sp.sendMessage(net.minecraft.text.Text.literal("§a[포로공학] " + target.getSpecies().getName()
-                    + " 해제 완료! 메뉴 → 포로공학에서 기술을 각인할 수 있습니다."), false);
+            String tail = ability ? " §a해제 완료! 메뉴 → 포로공학에서 특성을 새길 수 있습니다."
+                                  : " §a해제 완료! 메뉴 → 포로공학에서 기술을 각인할 수 있습니다.";
+            sp.sendMessage(net.minecraft.text.Text.literal("§a[포로공학] ")
+                    .append(target.getSpecies().getTranslatedName())
+                    .append(net.minecraft.text.Text.literal(tail)), false);
             return net.minecraft.util.ActionResult.SUCCESS;
         });
 
