@@ -285,3 +285,12 @@ jar 전수 검증(`egg_pool_design.md §8`)으로 Eggs Addon(`diesse`)의 실제
 
 #### 036-a. 정규리그 동적 아레나 (방/이동 로직 추가)
 매칭 성사 시 제자리 배틀이 아니라 **동적 아레나로 격리**(조우 `ArenaManager` 재사용). 매칭 → 셀 할당·방 생성 → 양쪽 원위치(차원+좌표) 저장 → 11×11 방 양 끝(z+2/z+8, x중앙)에 **마주보게 텔레포트** → pvp1v1. 종료(`onVictory`)·강제해제(`forceEnd`, releaseAll 연동)·접속종료(`onDisconnect`) 시 **양쪽 원위치 복귀 + 방 철거·셀 반납**. 대전 중 끊긴 플레이어는 `PENDING`에 원위치 저장 → **재접속 시 복귀**(허공 로그인 방지). 동시 다중 매치는 셀이 격리. 빌드+헤드리스 검증(에러0). 인게임 미검증(2인): 텔레포트·마주봄·복귀.
+
+### 037. 서버 전역 메가-온리 기믹 게이트 (룰셋)
+
+기믹 정책을 **서버 전역 메가 전용**으로 확정. 테라스탈·(거)다이맥스·Z무브·울트라버스트 **off**. 리그뿐 아니라 야생·관장 등 전 배틀 공통(MSD 기믹 토글이 전역 static이라 per-battle 분리 불가 + 설계 정책이 본래 "메가만 허용").
+- 구현 = **MSD config**(`config/mega_showdown/config.json`, 코드 불필요): `mega:true` / `teralization:false` / `dynamax:false` / `zMoves:false` / `outSideUltraBurst:false` / `teraShardDropRate:0` / `stellarShardDropRate:0`. `outSideMega:true`(메가는 필드에서도 허용) 유지.
+- 소스: `modpack/overrides/config/mega_showdown/config.json`(추적). 런타임: `.local/server/config/`(비추적, 동기화).
+- 검증: 헤드리스 부팅 — MSD가 값 로드·유지(되쓰기 없음), 에러0.
+- 정합: 메가 연구소 상점은 메가 장비만 판매(테라오브/다이맥스밴드/Z링 미판매)와 일치. 정규/챔피언스 리그 룰셋(league §11) 자동 충족.
+- 잔여: 이미 보유한 테라오브 등 아이템은 기믹 off로 무효(아이템 회수/정리는 운영 판단).

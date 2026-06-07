@@ -4,6 +4,8 @@
 
 단, 접근은 PoroMonCore가 진행도 기반으로 게이트한다.
 
+> ✅ **기믹 정책 확정(2026-06-07, 결정 037)**: 서버 전역 **메가 전용**. 테라스탈·(거)다이맥스·Z무브·울트라버스트 **off**(MSD `config/mega_showdown/config.json`: teralization/dynamax/zMoves/outSideUltraBurst=false, teraShard 드롭 0). 전 배틀(리그·야생·관장) 공통. 아래 "테라" 관련 서술은 보류/미적용.
+
 ## 일반 정책
 
 - 메가 진화 허용
