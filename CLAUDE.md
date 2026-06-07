@@ -1,13 +1,17 @@
 # Poro Server 모노레포 — 전역 규칙
 
 - 기본 응답 언어: 한국어.
-- 이 저장소는 포로 서버 프로젝트 모노레포다. 3개 독립 프로젝트로 분리돼 있으며, 코드 공유는 거의 없다.
+- 이 저장소는 Porong(포롱) 서버 프로젝트 모노레포다. 독립 프로젝트로 분리돼 있으며(활성 3 + 구상 2), 코드 공유는 거의 없다.
 
-| 프로젝트 | 폴더 | 규칙 / 설계 docs |
-|---|---|---|
-| **porong-rpg** | `porong-rpg/` | Paper 플러그인 RPG 서버 (전투·성장·영지·보스·DB/API). → `porong-rpg/CLAUDE.md`, `porong-rpg/docs/` |
-| **porong-mon** | `porong-mon/` | 모드 서버/모드팩. → `porong-mon/CLAUDE.md`, `porong-mon/docs/` |
-| **porong-discord** | `porong-discord/` | 디스코드 온보딩/운영 봇 (Python). |
+| 프로젝트 | 폴더 | 단계 | 규칙 / 설계 docs |
+|---|---|---|---|
+| **porong-rpg** | `porong-rpg/` | 활성 | Paper 플러그인 RPG 서버 (전투·성장·영지·보스·DB/API). → `porong-rpg/CLAUDE.md`, `porong-rpg/docs/` |
+| **porong-mon** | `porong-mon/` | 활성 | 모드 서버/모드팩. → `porong-mon/CLAUDE.md`, `porong-mon/docs/` |
+| **porong-discord** | `porong-discord/` | 활성 | 디스코드 온보딩/운영 봇 (Python). |
+| **porong-economy** | `porong-economy/` | 구상 | 경제/거래/생산/시장 중심 후보 서버. → `porong-economy/docs/` |
+| **porong-gun** | `porong-gun/` | 구상 | 총기/전술/생존 후보 서버(컨셉 미확정). → `porong-gun/docs/` |
+
+- **구상 단계 프로젝트(`porong-economy`/`porong-gun`)는 문서만 있다.** 런타임·빌드 산출물·플랫폼 템플릿(Gradle/Fabric/Paper)을 만들지 않는다. 착수는 사용자 명시 요청 시에만.
 
 - 프로젝트 전역 단일 진실 공급원(SoT): **`porong-rpg/docs/final_master_plan.md`** (충돌 시 최우선). 결정 기록: `porong-rpg/docs/decision_log.md` (DL-NNN), 미확정 인박스: `porong-rpg/docs/idea_inbox.md`, 아카이브: `porong-rpg/docs/_archive/`.
 - 작업을 시작하기 전, 대상 프로젝트의 `CLAUDE.md`와 관련 docs를 먼저 읽는다.

@@ -3322,3 +3322,22 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 **후속:** (1) feature 브랜치(`feature/*-dev`)는 아직 옛 폴더명 — 각 브랜치에 본 rename 머지 후 worktree sparse-checkout을 새 이름으로 재설정(worktree_policy §3 전환기 주의). (2) `porong-mon/scripts/*`·`server_runbook.md` 등의 옛 절대경로(`poro-server-poromon`)는 별도 stale 정리 대상.
 
 **관련:** DL-130(런타임 위치 표준화), `docs/worktree_policy.md`(§2·§3·§7).
+
+---
+
+### DL-137 (2026-06-07) — 구상 단계 프로젝트 `porong-economy`/`porong-gun` 등록
+
+**무엇:** 향후 후보 서버 2종을 in-repo 최상위 **구상(아이디어 보관/기획용) 폴더**로 등록.
+- `porong-economy/` — 경제/거래/생산/시장 중심 후보 서버.
+- `porong-gun/` — 총기/전술/생존 후보 서버(세부 컨셉 미확정).
+- 각 폴더는 `README.md` + `docs/concept.md` + `docs/idea_inbox.md` **문서 3종만** 둔다.
+
+**아닌 것(명시):** 확정된 개발 착수가 **아니다.** 아이디어·컨셉을 모으는 단계다.
+- 런타임(`.local/server`)·서버 데이터(world/logs/jar)·빌드 산출물·플랫폼 템플릿(Gradle/Fabric/Paper)은 **생성하지 않았다.**
+- worktree(`porong-work-economy`/`porong-work-gun`)도 아직 만들지 않았다. 착수 결정 시 worktree_policy §6 절차로 생성.
+
+**왜:** 후보 서버 아이디어를 채팅이 아닌 추적 가능한 문서로 보관하고, README/구조에서 활성/구상 단계를 명확히 구분하기 위함.
+
+**번호 메모:** master 기준 직전 DL은 131이나, `feature/discord-dev`가 DL-132~136을 선점(미머지)했으므로 충돌 회피로 **DL-137**을 부여.
+
+**관련:** README.md(서버별 컨셉·단계 구분), `docs/worktree_policy.md`(§2 구조·§3 예정 worktree·§7), `porong-economy/docs/`, `porong-gun/docs/`.

@@ -35,6 +35,8 @@ porong-server/
 ├─ porong-rpg/      RPG 서버 + 전역 설계 문서(docs/ SoT)
 ├─ porong-mon/       모드 서버/모드팩
 ├─ porong-discord/  디스코드 봇
+├─ porong-economy/  경제 서버 (구상 — 문서만)
+├─ porong-gun/      총기/전술/생존 서버 (구상 — 문서만)
 ├─ scripts/       레포 전역 보조 스크립트 (공용)
 ├─ docs/          레포 전역 운영 문서 (이 파일 포함, 공용)
 ├─ CLAUDE.md / AGENTS.md / README.md / LICENSE  (공용)
@@ -75,14 +77,19 @@ git sparse-checkout set porong-discord porong-rpg/docs porong-mon/docs
 | `porong-work-mon` | `porong-mon` | |
 | `porong-work-discord` | `porong-discord` `porong-rpg/docs` `porong-mon/docs` | docs는 참조 전용. RPG/PoroMon 코드는 안 가져옴 |
 
+**예정(구상 — 아직 worktree 미생성):** 착수가 결정되면 §6 절차로 만든다.
+
+| worktree (예정) | 브랜치 | sparse 대상 |
+|---|---|---|
+| `porong-work-economy` | `feature/economy-dev` | `porong-economy` |
+| `porong-work-gun` | `feature/gun-dev` | `porong-gun` |
+
 > sparse-checkout 설정은 **worktree-local**(`.git/worktrees/<name>/sparse-checkout`)이며
 > 커밋되지 않는다. 새 클론/새 worktree에서는 매번 다시 설정한다.
 >
-> ⚠️ **rename 전환기 주의:** 위 sparse 대상(`porong-rpg`/`porong-mon`/`porong-discord`)은
-> **master 기준** 새 폴더명이다. feature 브랜치(`feature/rpg-dev`/`feature/poromon-dev`/`feature/discord-dev`)에는
-> 아직 이번 rename이 머지되지 않아 옛 폴더명(`poro-rpg`/`poromon`/`poro-discord`)이 그대로다.
-> 각 worktree의 실제 `git sparse-checkout set …`을 새 이름으로 바꾸는 것은 **해당 feature 브랜치에
-> 이번 rename이 머지된 뒤**에 한다(미리 바꾸면 빈 worktree가 됨).
+> ℹ️ **rename 전환 완료(2026-06-07):** 세 feature 브랜치(`feature/rpg-dev`/`feature/poromon-dev`/`feature/discord-dev`)
+> 모두 `poro-`→`porong-` rename(DL-131)을 머지했고, 각 worktree sparse-checkout도 새 폴더명으로 재설정 완료했다.
+> 즉 위 표의 sparse 대상이 master·feature 양쪽에서 동일하게 유효하다.
 
 ---
 
@@ -144,5 +151,8 @@ porong-work-rpg      [feature/rpg-dev]     ← sparse: porong-rpg
 > `https://github.com/Zenonsufu0/porong-server.git`로 갱신했다(전 worktree 공유).
 > **in-repo 폴더 이름**도 `poro-rpg`/`poromon`/`poro-discord` → `porong-rpg`/`porong-mon`/`porong-discord`로
 > rename 완료했다(2026-06-07, master, DL-131). Java 패키지·mod id·assets 네임스페이스·Gradle 내부명·item id/config key는
-> **변경하지 않았다.** feature 브랜치(`feature/*-dev`)는 아직 옛 폴더명이며, 머지 후 각 worktree sparse-checkout을
-> 새 이름으로 재설정한다(§3 전환기 주의 참조).
+> **변경하지 않았다.** 세 feature 브랜치(`feature/*-dev`)도 모두 rename을 머지하고 sparse-checkout을 새 이름으로
+> 재설정 완료했다(전환 종료).
+
+> **구상 단계 추가(2026-06-07):** `porong-economy`/`porong-gun` 폴더를 **문서만** 추가했다(구상 — 개발 미착수).
+> worktree(`porong-work-economy`/`porong-work-gun`)는 **아직 만들지 않았다.** 착수 결정 시 §6 절차로 생성한다.
