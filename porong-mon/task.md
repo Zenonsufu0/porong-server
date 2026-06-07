@@ -1,6 +1,6 @@
 # PoroMon 작업 기록 / 다음 세션 핸드오프
 
-> 최종 업데이트: 2026-06-07 (폴더 rename 머지 누락분 복구 — 아래 ▶ 참조)
+> 최종 업데이트: 2026-06-08 (세션 마감 — 아래 ◎ 2026-06-08 세션 마감 참조)
 > 이 파일은 세션 간 작업 연속성을 위한 핸드오프 노트다. 다음 세션은 이 파일부터 읽고 이어서 진행한다.
 >
 > **▶ 2026-06-07 rename 머지 복구(9b26ec8):** cc8c42d 머지가 feature 전용 작업물을 옛 `poromon/`에 고아로 남겼던 것을 발견·복구. `custom-mods/poromon-core`(모드 소스 114) + modpack config 27(`poromon_lm_control`·`poromon_battletower_test`·`simpletms/main.json`)을 `porong-mon/`으로 git mv(순수 rename). 이제 단일 트리 통합, sparse-checkout(`/porong-mon/`)로 정상 노출. ⚠️ **런타임 미복구**: `modpack/client/mods/*.jar`(빌드 의존, gitignore)·`.local/server`(서버 런타임)는 rename 후 사라짐 → 빌드/기동 전 재구성 필요(Windows `PoroMon 0.1 Dev/mods` 86개에서 복원 가능).
@@ -248,6 +248,26 @@
 
 **특성 마개조/텍스처/한글화 (§세션마감 ①~⑥):**
 - [ ] 정수 텍스처(기술=시안/특성=DNA) 렌더 · 특성 정수 우클릭 해제 · 특성 변경 메뉴(목록/검색/부여)·**forced 특성 전투 반영** · 마스터볼 편의상점 · 기술머신 한글명/한글검색
+
+## ◎ 2026-06-08 세션 마감
+
+**이번 세션 작업(결정 035~041 + rename 복구, origin 푸쉬 완료):**
+- **rename 머지 복구**: cc8c42d 머지 누락분(모드 소스·config) `poromon/`→`porong-mon/` 이전. 런타임 재구성(jar 86·.local/server) + 빌드·헤드리스 정상화.
+- **결정 035 밸런스 패스**: 조우 2단계 가중(stage/tier)+B 고정 cap(최상급≤10%)·심해/빛/용왕 보강·필드이벤트 70/30·apex 운영토글·within-tier 균등 유지. 단일 진실 `EncounterConfig.probabilities()`.
+- **결정 036 정규리그**: 점수 래더+실시간 큐 매칭+lvl50(`BattleFormat.adjustLevel`)+동적 아레나(텔레포트·복귀·접속종료 PENDING). 036-a 아레나.
+- **결정 037 기믹 게이트**: 서버 전역 메가-온리(MSD config: 테라/다이맥스/Z/울트라버스트 off, 테라샤드 드롭0).
+- **결정 038 전설 필드 이벤트**: 하급/중급 2시간 주기 통제 스폰(좌표 공개·30분·월드보더 안·no-op Despawner 영속)+운영자 주기2배 토글(038-a). 전설 자연스폰(013)=Cobblemon 기본 0종으로 충족 확인.
+- **결정 039 차원 정책**: 네더 보더5000·고정 허브(포탈 리다이렉트·오버월드 복귀·허브 자동건설·블록보호)·엔드(드래곤 제거·**입장 시 무작위 외곽 섬 착지**=겉날개 고갈 완화).
+- **결정 040 챔피언스리그**: `/poromon admin champions start` 랜덤 토너먼트(대진 공지·1분 카운트·순차 매치·관전석 TP·Cobblemon 네이티브 관전·챔피언 홀 영속).
+- **결정 041 디스코드 인증(MC 측)**: `/인증` 코드 → 봇 HTTP API(`/auth/verify`, JDK HttpServer 무의존) verify → 화이트리스트. 미인증=허브 감금+메뉴 잠금(인증하기만). 계약=`05_operations/discord_auth_integration.md`.
+
+**▶ 다음 세션 과업 (우선순위):**
+1. **디스코드 봇 측 인증 구현** — `porong-work-discord` 워크트리에서 `/인증코드 <code>` → `poromon_api.verify_code` → `/auth/verify` 호출 → 역할 부여. 계약: `docs/05_operations/discord_auth_integration.md`. (사용자가 직접 진행 예정.)
+2. **운영 셋업**: core.json `discordAuth.apiKey` 변경 / `/poromon admin netherhub`·(엔드는 자동) / 허브 spawn 실좌표.
+3. **2인+ / 인게임 알파 검증** — `★ 알파 테스트 검증 과제` 섹션 전수(정규리그·챔스·네더/엔드·인증·기믹·특성마개조 등).
+4. (선택) 챔피언 홀 전시 GUI·동상, 브래킷 시각 UI, 정규리그 룰셋 기믹 게이트 세부.
+
+> ⚠️ 봇 측은 별도 워크트리(`porong-work-discord`, feature/discord-dev) — 이 워크트리(porong-mon)에선 수정 금지.
 
 ## 5. 진행 중 / 미해결 TODO (요약)
 - ✅ **전설 스폰 정리(2026-06-07, 결정 038)**: ① **하급·중급 필드 이벤트 구현** — `encounter/FieldEventManager`(2시간 주기·30분 디스폰·좌표 공개 채팅 공지·월드보더 안·동시 1마리·no-op Despawner로 영속). `/poromon admin fieldevent` 테스트. 헤드리스 검증(아그놈 Lv60 출현·공지·중복거부·에러0). **운영자 토글(038-a)**: AdminMenu 슬롯34 "전설 출현 주기 ×2 단축"(120→60분, PoroMonState.fieldEventFast 영속, 즉시 반영). ② **Cobblemon 기본 전설 자연스폰 차단(결정 013) = 기본값으로 이미 충족** — jar 검증 결과 Cobblemon 1.7.3은 전설/환상/UB/패러독스 spawn_pool_world **0종**(자연 스폰 안 함) + LM 비활성 → 차단 datapack 불필요. (이전 "바닐라 전설이 뜰 수 있음" 기록은 오판이었음.)
