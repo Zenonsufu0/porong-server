@@ -29,6 +29,7 @@ public final class AdminMenu {
     private static final int SLOT_ANNOUNCE = 32;
     private static final int SLOT_ENCOUNTER = 38;
     private static final int SLOT_APEX = 40;
+    private static final int SLOT_FIELD_FAST = 34;
     private static final int SLOT_MONITOR = 42;
     private static final int SLOT_CLOSE = 49;
 
@@ -60,6 +61,13 @@ public final class AdminMenu {
         inv.setStack(SLOT_APEX, MenuIcons.icon(apex ? Items.NETHER_STAR : Items.ENDER_PEARL,
                 (apex ? "§a컨셉 최상급 ×2 ON" : "§7컨셉 최상급 ×2 OFF"),
                 List.of("§7컨셉 조우권 최상급 가중 2배 이벤트", "§8(제단 확률 표시도 반영)", "§e클릭 — 토글")));
+        boolean fieldFast = EventManager.isFieldEventFast();
+        int baseMin = kr.poro.poromoncore.config.ConfigManager.core().fieldEvent.intervalMinutes;
+        inv.setStack(SLOT_FIELD_FAST, MenuIcons.icon(fieldFast ? Items.CLOCK : Items.COMPASS,
+                (fieldFast ? "§a전설 출현 주기 ×2 단축 ON" : "§7전설 출현 주기 ×2 단축 OFF"),
+                List.of("§7전설 필드 이벤트 주기 절반",
+                        "§7현재 주기: §f" + (fieldFast ? baseMin / 2 : baseMin) + "분 §8(기본 " + baseMin + "분)",
+                        "§e클릭 — 토글")));
         inv.setStack(SLOT_MONITOR, MenuIcons.icon(Items.GOLD_BLOCK, "§6경제 모니터",
                 List.of("§7골드 유입/유출 통계", "§e클릭")));
         inv.setStack(SLOT_CLOSE, MenuIcons.icon(Items.BARRIER, "§c닫기", List.of()));
@@ -70,6 +78,7 @@ public final class AdminMenu {
             case SLOT_XP -> { EventManager.toggleXp(); open(player); }
             case SLOT_GOLD -> { EventManager.toggleGold(); open(player); }
             case SLOT_APEX -> { EventManager.toggleApex(); open(player); }
+            case SLOT_FIELD_FAST -> { EventManager.toggleFieldEventFast(); open(player); }
             case SLOT_RELEASE -> { releaseAll(player.getServer());
                 player.sendMessage(Text.literal("§a[운영자] 갇힘 강제 해제를 실행했습니다."), false); }
             case SLOT_PLAYERS -> PlayerAdminMenu.open(player);

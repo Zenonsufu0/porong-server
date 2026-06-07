@@ -34,6 +34,11 @@ public final class EventManager {
         return s != null && s.apexBoost;
     }
 
+    public static boolean isFieldEventFast() {
+        PoroMonState s = state();
+        return s != null && s.fieldEventFast;
+    }
+
     public static double xpMultiplier() { return isXpBoost() ? BOOST : 1.0; }
     public static double goldMultiplier() { return isGoldBoost() ? BOOST : 1.0; }
     public static double apexMultiplier() { return isApexBoost() ? BOOST : 1.0; }
@@ -51,5 +56,10 @@ public final class EventManager {
     public static void toggleApex() {
         PoroMonState s = state();
         if (s != null) { s.apexBoost = !s.apexBoost; s.markDirty(); }
+    }
+
+    public static void toggleFieldEventFast() {
+        PoroMonState s = state();
+        if (s != null) { s.fieldEventFast = !s.fieldEventFast; s.markDirty(); }
     }
 }

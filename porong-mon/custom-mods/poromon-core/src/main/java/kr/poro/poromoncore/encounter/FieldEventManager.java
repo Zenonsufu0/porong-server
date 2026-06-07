@@ -32,7 +32,7 @@ public final class FieldEventManager {
     private record Active(String displayKo, UUID entityUuid, long expireTick) {}
     private static volatile Active active = null;
     private static volatile boolean spawning = false;
-    private static long nextSpawnTick = -1L;
+    private static long idleSinceTick = -1L;   // 마지막 이벤트 종료(또는 서버 시작) 시각 = 다음 주기 기준점
 
     public static boolean isActive() { return active != null; }
 
@@ -42,7 +42,7 @@ public final class FieldEventManager {
         if (!cfg.enabled) return;
         ServerWorld world = server.getOverworld();
         long now = server.getTicks();
-        if (nextSpawnTick < 0) nextSpawnTick = now + intervalTicks(cfg);
+        if (idleSinceTick < 0) idleSinceTick = now;
 
         if (active != null) {
             Entity e = world.getEntity(active.entityUuid());
@@ -54,10 +54,11 @@ public final class FieldEventManager {
                     ? "§7[전설] 야생의 §f" + active.displayKo() + "§7 이(가) 자취를 감췄습니다."
                     : "§7[전설] 시간이 다 되어 §f" + active.displayKo() + "§7 이(가) 사라졌습니다.");
             active = null;
-            nextSpawnTick = now + intervalTicks(cfg);
+            idleSinceTick = now;
             return;
         }
-        if (spawning || now < nextSpawnTick) return;
+        // 동적 주기: idle 기준점 + interval(부스트 시 절반) — 토글이 즉시 반영됨
+        if (spawning || now < idleSinceTick + intervalTicks(cfg)) return;
         spawnEvent(server, cfg);
     }
 
@@ -68,8 +69,10 @@ public final class FieldEventManager {
         return true;
     }
 
+    /** 주기(틱). 운영자 "주기 2배 단축" 부스트 활성 시 절반. */
     private static long intervalTicks(CoreConfig.FieldEvent cfg) {
-        return Math.max(1, cfg.intervalMinutes) * 1200L; // 분 × 1200틱
+        long base = Math.max(1, cfg.intervalMinutes) * 1200L; // 분 × 1200틱
+        return kr.poro.poromoncore.event.EventManager.isFieldEventFast() ? Math.max(1200L, base / 2) : base;
     }
 
     private static void spawnEvent(MinecraftServer server, CoreConfig.FieldEvent cfg) {

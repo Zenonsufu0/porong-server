@@ -306,3 +306,6 @@ jar 전수 검증(`egg_pool_design.md §8`)으로 Eggs Addon(`diesse`)의 실제
 
 **② Cobblemon 기본 전설 자연스폰 차단(결정 013) = 기본값 충족 확인**:
 - jar 검증: Cobblemon 1.7.3 `spawn_pool_world`에 전설 71·환상 23·UB 11·패러독스 20 **전부 스폰 데이터 0종** → 바닐라가 전설을 자연 스폰하지 않음. LM은 결정 023으로 비활성. ⇒ **차단 datapack 불필요**(결정 013 자동 충족). 전설 입수 = 조우권(개인 아레나) + 필드 이벤트(①)로 단일화.
+
+#### 038-a. 운영자 토글: 전설 출현 주기 ×2 단축
+운영자 GUI(AdminMenu 슬롯34)에 **전설 필드 이벤트 주기 절반** 토글 추가(xp/gold/apex 부스트와 동일 패턴). `PoroMonState.fieldEventFast`(영속) + `EventManager.isFieldEventFast/toggleFieldEventFast`. `FieldEventManager`는 기준점(idleSinceTick) + 동적 interval로 리팩터 → 토글 즉시 반영(현재 주기: 기본 120분, ON 시 60분). 헤드리스 검증(core.json fieldEvent 생성, 에러0).
