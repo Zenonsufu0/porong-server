@@ -46,12 +46,12 @@
 
 | worktree 디렉토리 | 브랜치 | sparse-checkout | 용도 |
 |---|---|---|---|
-| `poro-server` (이 폴더) | `master` | (전체) | 합본 · merge · 기록 |
-| `poro-work-rpg` | `feature/rpg-dev` | `poro-rpg` | RPG 개발/실행 |
-| `poro-work-poromon` | `feature/poromon-dev` | `poromon` | PoroMon 개발/실행 |
-| `poro-work-discord` | `feature/discord-dev` | `poro-discord` `poro-rpg/docs` `poromon/docs` | Discord 봇 개발/실행 |
+| `porong-server` (이 폴더) | `master` | (전체) | 합본 · merge · 기록 |
+| `porong-work-rpg` | `feature/rpg-dev` | `poro-rpg` | RPG 개발/실행 |
+| `porong-work-mon` | `feature/poromon-dev` | `poromon` | PoroMon 개발/실행 |
+| `porong-work-discord` | `feature/discord-dev` | `poro-discord` `poro-rpg/docs` `poromon/docs` | Discord 봇 개발/실행 |
 
-- in-repo 폴더 이름(`poro-rpg/` 등)은 SoT 경로·문서가 참조하므로 rename하지 않는다. worktree **디렉토리** 이름(`poro-work-*`)은 별개 레이어다.
+- in-repo 폴더 이름(`poro-rpg/` 등)은 SoT 경로·문서가 참조하므로 rename하지 않는다. worktree **디렉토리** 이름(`porong-work-*`)은 별개 레이어다.
 - 새 서버/하위 프로젝트는 새 폴더 + 새 worktree + 해당 폴더만 sparse-checkout. 절차는 정책 문서 참고.
 
 ---
