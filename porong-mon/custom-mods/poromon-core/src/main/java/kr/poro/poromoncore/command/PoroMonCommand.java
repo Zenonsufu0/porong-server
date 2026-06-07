@@ -50,6 +50,7 @@ public final class PoroMonCommand {
                         .then(CommandManager.literal("gui").executes(PoroMonCommand::adminGui))
                         .then(CommandManager.literal("reload").executes(PoroMonCommand::reload))
                         .then(CommandManager.literal("fieldevent").executes(PoroMonCommand::fieldEvent))
+                        .then(CommandManager.literal("netherhub").executes(PoroMonCommand::netherHub))
                         .then(CommandManager.literal("pass")
                                 .then(CommandManager.argument("player", EntityArgumentType.player())
                                         .executes(PoroMonCommand::adminPass)))
@@ -180,6 +181,10 @@ public final class PoroMonCommand {
     private static int leagueLeave(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         kr.poro.poromoncore.league.LeagueManager.leaveQueue(ctx.getSource().getPlayerOrThrow());
         return 1;
+    }
+
+    private static int netherHub(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        return kr.poro.poromoncore.dimension.NetherManager.buildHubAt(ctx.getSource().getPlayerOrThrow()) ? 1 : 0;
     }
 
     private static int fieldEvent(CommandContext<ServerCommandSource> ctx) {

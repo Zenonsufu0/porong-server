@@ -44,6 +44,17 @@ public final class ConfigManager {
         return FabricLoader.getInstance().getConfigDir().resolve("poromoncore").resolve(name);
     }
 
+    /** 현재 core 설정을 디스크에 저장(런타임 변경 영속화 — 예: 네더 허브 좌표). */
+    public static void saveCore() {
+        Path file = file("core.json");
+        try {
+            Files.createDirectories(file.getParent());
+            Files.writeString(file, GSON.toJson(core));
+        } catch (Exception e) {
+            PoroMonCore.LOGGER.error("[Config] core.json 저장 실패", e);
+        }
+    }
+
     /** 최초 로드(없으면 기본값 생성). onInitialize 에서 1회. */
     public static void load() {
         core = loadOrCreate("core.json", CoreConfig.class, CoreConfig::new);

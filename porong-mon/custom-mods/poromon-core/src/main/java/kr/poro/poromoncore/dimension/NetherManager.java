@@ -86,6 +86,28 @@ public final class NetherManager {
         }
     }
 
+    /** 운영자: 플레이어 현재 네더 위치에 허브 건설 + config 좌표 저장. (결정 039 3단계) */
+    public static boolean buildHubAt(ServerPlayerEntity player) {
+        if (player.getServerWorld().getRegistryKey() != World.NETHER) {
+            player.sendMessage(Text.literal("§c[네더] 네더에서 실행하세요."), false);
+            return false;
+        }
+        ServerWorld nether = player.getServerWorld();
+        BlockPos arrival = NetherHubBuilder.build(nether, player.getBlockPos());
+        CoreConfig.Nether cfg = ConfigManager.core().nether;
+        cfg.hubX = arrival.getX() + 0.5;
+        cfg.hubY = arrival.getY();
+        cfg.hubZ = arrival.getZ() + 0.5;
+        cfg.hubYaw = player.getYaw();
+        ConfigManager.saveCore();
+        player.teleport(nether, cfg.hubX, cfg.hubY, cfg.hubZ, cfg.hubYaw, 0.0f);
+        player.sendMessage(Text.literal("§a[네더] 허브 건설 완료 — 좌표 ("
+                + arrival.getX() + ", " + arrival.getY() + ", " + arrival.getZ()
+                + ") 저장. 반경 " + cfg.protectRadius + " 보호 활성."), false);
+        PoroMonCore.LOGGER.info("[Nether] 허브 건설/설정: ({}, {}, {})", arrival.getX(), arrival.getY(), arrival.getZ());
+        return true;
+    }
+
     /** 허브 좌표가 안전하면 그 좌표, 아니면 같은 x/z에서 안전한 지표 Y 탐색(허브 미건설 대비). */
     private static BlockPos safeHub(ServerWorld nether, CoreConfig.Nether cfg) {
         int x = (int) Math.floor(cfg.hubX);
