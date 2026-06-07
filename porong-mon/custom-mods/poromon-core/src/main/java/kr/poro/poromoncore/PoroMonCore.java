@@ -98,9 +98,9 @@ public class PoroMonCore implements ModInitializer {
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) ->
                 onJoin(server, handler.player));
 
-        // 접속 종료: 정규리그 큐/진행 정리(노카운트)
+        // 접속 종료: 정규리그 큐/진행 정리(노카운트 + 아레나 철거·상대 복귀)
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) ->
-                kr.poro.poromoncore.league.LeagueManager.onDisconnect(handler.player.getUuid()));
+                kr.poro.poromoncore.league.LeagueManager.onDisconnect(server, handler.player.getUuid()));
 
         // 리스폰: 리그 패스 복원
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
@@ -165,5 +165,8 @@ public class PoroMonCore implements ModInitializer {
             }
         }
         if (changed) state.markDirty();
+
+        // 정규리그 대전 중 끊겼던 경우 원위치 복귀(허공 로그인 방지)
+        kr.poro.poromoncore.league.LeagueManager.checkPendingReturn(player);
     }
 }

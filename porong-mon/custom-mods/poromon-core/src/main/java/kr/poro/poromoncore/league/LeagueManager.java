@@ -14,9 +14,15 @@ import kr.poro.poromoncore.config.ConfigManager;
 import kr.poro.poromoncore.config.SeasonConfig;
 import kr.poro.poromoncore.data.PlayerProgress;
 import kr.poro.poromoncore.data.PoroMonState;
+import kr.poro.poromoncore.encounter.ArenaManager;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -37,10 +43,16 @@ public final class LeagueManager {
 
     /** 큐: 플레이어 → 큐 진입 틱. */
     private static final Map<UUID, Long> QUEUE = new ConcurrentHashMap<>();
-    /** 진행 중 리그 배틀: 플레이어 → 상대(양방향 기록). */
-    private static final Map<UUID, UUID> ACTIVE = new ConcurrentHashMap<>();
+    /** 진행 중 리그 배틀: 플레이어 → 대전 정보(상대·아레나·원위치). 양쪽 모두 등록. */
+    private static final Map<UUID, BoutSide> BOUTS = new ConcurrentHashMap<>();
+    /** 대전 중 접속종료자 → 재접속 시 복귀할 원위치. */
+    private static final Map<UUID, ReturnLoc> PENDING = new ConcurrentHashMap<>();
     /** 재대전 쿨다운: 플레이어 → (상대 → 마지막 대전 틱). */
     private static final Map<UUID, Map<UUID, Long>> RECENT = new ConcurrentHashMap<>();
+
+    private record ReturnLoc(String dim, double x, double y, double z) {}
+    /** 한 플레이어 입장의 대전 정보(아레나 cell/corner는 양쪽 동일). */
+    private record BoutSide(UUID opponent, int cell, BlockPos corner, ReturnLoc origin) {}
 
     public static void registerEvents() {
         CobblemonEvents.BATTLE_VICTORY.subscribe(Priority.NORMAL, LeagueManager::onVictory);
@@ -59,7 +71,7 @@ public final class LeagueManager {
                     + "개 필요 (현재 " + p.badges.size() + "개)."), false);
             return;
         }
-        if (ACTIVE.containsKey(player.getUuid())) {
+        if (BOUTS.containsKey(player.getUuid())) {
             player.sendMessage(Text.literal("§e[정규리그] 이미 리그 배틀 중입니다."), false);
             return;
         }
@@ -89,11 +101,33 @@ public final class LeagueManager {
         }
     }
 
-    /** 접속 종료: 큐 제거 + 진행 중이면 노카운트로 정리(상대도 해제). */
-    public static void onDisconnect(UUID uuid) {
+    /**
+     * 접속 종료: 큐 제거 + 진행 중이면 노카운트 정리. 아레나 철거 + 온라인 상대 복귀,
+     * 끊은 쪽은 PENDING에 원위치 저장(재접속 시 복귀 — 아레나가 철거돼 허공에 로그인하는 것 방지).
+     */
+    public static void onDisconnect(MinecraftServer server, UUID uuid) {
         QUEUE.remove(uuid);
-        UUID opp = ACTIVE.remove(uuid);
-        if (opp != null) ACTIVE.remove(opp);
+        BoutSide side = BOUTS.get(uuid);
+        if (side == null) return;
+        PENDING.put(uuid, side.origin());                 // 끊은 쪽: 재접속 시 복귀
+        ServerPlayerEntity opp = server.getPlayerManager().getPlayer(side.opponent());
+        endBout(server, uuid, side.opponent(), side.cell(), side.corner(), opp);
+    }
+
+    /** 재접속 시 대전 중 끊겼던 플레이어를 원위치로 복귀(허공 로그인 방지). */
+    public static void checkPendingReturn(ServerPlayerEntity player) {
+        ReturnLoc loc = PENDING.remove(player.getUuid());
+        if (loc != null) teleportBack(player.getServer(), player, loc);
+    }
+
+    /** 운영자 강제 해제: 큐/대전 정리 + 양쪽 원위치 복귀 + 아레나 철거. 처리 시 true. */
+    public static boolean forceEnd(ServerPlayerEntity player) {
+        BoutSide side = BOUTS.get(player.getUuid());
+        if (side == null) return QUEUE.remove(player.getUuid()) != null;
+        MinecraftServer server = player.getServer();
+        ServerPlayerEntity opp = server.getPlayerManager().getPlayer(side.opponent());
+        endBout(server, player.getUuid(), side.opponent(), side.cell(), side.corner(), opp);
+        return true;
     }
 
     // ── 매칭 틱 (PoroMonCore에서 1초마다) ───────────────────────────
@@ -152,29 +186,45 @@ public final class LeagueManager {
         RECENT.computeIfAbsent(b, k -> new ConcurrentHashMap<>()).put(a, now);
     }
 
-    // ── 배틀 시작 ────────────────────────────────────────────────
+    // ── 배틀 시작 (동적 아레나: 방 생성 → 양쪽 마주보게 텔레포트 → pvp1v1) ──────────
     private static boolean startBattle(MinecraftServer server, UUID aUuid, UUID bUuid) {
         ServerPlayerEntity a = server.getPlayerManager().getPlayer(aUuid);
         ServerPlayerEntity b = server.getPlayerManager().getPlayer(bUuid);
         if (a == null || b == null) return false;
+
+        SeasonConfig.RankedLeague cfg = ConfigManager.season().rankedLeague;
+        ServerWorld arena = server.getOverworld();
+        int cell = ArenaManager.allocate();
+        BlockPos corner = ArenaManager.corner(arena, cell);
+        ReturnLoc oa = origin(a), ob = origin(b);
         try {
-            SeasonConfig.RankedLeague cfg = ConfigManager.season().rankedLeague;
+            ArenaManager.build(arena, corner);
+            // 11×11 방 중앙축(x+5) 양 끝(z+2 / z+8)에 마주보게 배치
+            double cx = corner.getX() + 5 + 0.5;
+            double y = corner.getY() + 1;
+            double za = corner.getZ() + 2 + 0.5, zb = corner.getZ() + 8 + 0.5;
+            a.teleport(arena, cx, y, za, 0.0f, 0.0f);     // +Z(남) 바라봄 → 상대 방향
+            b.teleport(arena, cx, y, zb, 180.0f, 0.0f);   // −Z(북) 바라봄
+
             // GEN_9_SINGLES 복제 후 레벨 정규화(싱글톤 보호: copy로 새 인스턴스).
             // 생성자 순서 = (mod, battleType, ruleSet, gen, adjustLevel) — adjustLevel만 cfg로 교체.
             BattleFormat base = BattleFormat.Companion.getGEN_9_SINGLES();
             BattleFormat format = base.copy(base.getMod(), base.getBattleType(),
                     new HashSet<>(base.getRuleSet()), base.getGen(), cfg.adjustLevel);
-
             BattleStartResult result = BattleBuilder.INSTANCE.pvp1v1(a, b, null, null, format);
             boolean ok = result.getClass().getSimpleName().toLowerCase().contains("success");
             if (!ok) {
-                // 시작 실패: 둘 다 큐에 남겨두고 다음 틱 재시도(스팸 방지 위해 메시지 없음)
+                // 시작 실패: 원위치 복귀 + 아레나 철거, 둘 다 큐에 남겨 다음 틱 재시도(메시지 없음)
+                teleportBack(server, a, oa);
+                teleportBack(server, b, ob);
+                ArenaManager.clear(arena, corner);
+                ArenaManager.free(cell);
                 return false;
             }
             QUEUE.remove(aUuid);
             QUEUE.remove(bUuid);
-            ACTIVE.put(aUuid, bUuid);
-            ACTIVE.put(bUuid, aUuid);
+            BOUTS.put(aUuid, new BoutSide(bUuid, cell, corner, oa));
+            BOUTS.put(bUuid, new BoutSide(aUuid, cell, corner, ob));
             recordRecent(aUuid, bUuid, server.getTicks());
             int sa = PoroMonState.get(server).getOrCreate(aUuid).rankedScore;
             int sb = PoroMonState.get(server).getOrCreate(bUuid).rankedScore;
@@ -184,9 +234,39 @@ public final class LeagueManager {
                     + " §7(점수 " + sa + ") §8· Lv" + cfg.adjustLevel + " 정규화"), false);
             return true;
         } catch (Throwable t) {
+            teleportBack(server, a, oa);
+            teleportBack(server, b, ob);
+            ArenaManager.clear(arena, corner);
+            ArenaManager.free(cell);
             PoroMonCore.LOGGER.error("[League] 배틀 시작 실패", t);
             return false;
         }
+    }
+
+    private static ReturnLoc origin(ServerPlayerEntity p) {
+        return new ReturnLoc(p.getServerWorld().getRegistryKey().getValue().toString(),
+                p.getX(), p.getY(), p.getZ());
+    }
+
+    private static void teleportBack(MinecraftServer server, ServerPlayerEntity p, ReturnLoc loc) {
+        if (p == null || loc == null) return;
+        Identifier dimId = Identifier.tryParse(loc.dim());
+        ServerWorld back = dimId == null ? server.getOverworld()
+                : server.getWorld(RegistryKey.of(RegistryKeys.WORLD, dimId));
+        if (back == null) back = server.getOverworld();
+        p.teleport(back, loc.x(), loc.y(), loc.z(), p.getYaw(), p.getPitch());
+    }
+
+    /** 대전 종료 공통: 양쪽 BOUTS 해제 + 온라인 플레이어 원위치 복귀 + 아레나 철거·반납. */
+    private static void endBout(MinecraftServer server, UUID u1, UUID u2, int cell, BlockPos corner,
+                               ServerPlayerEntity online2) {
+        BoutSide s1 = BOUTS.remove(u1);
+        BoutSide s2 = BOUTS.remove(u2);
+        ServerPlayerEntity p1 = server.getPlayerManager().getPlayer(u1);
+        if (p1 != null && s1 != null) teleportBack(server, p1, s1.origin());
+        if (online2 != null && s2 != null) teleportBack(server, online2, s2.origin());
+        ArenaManager.clear(server.getOverworld(), corner);
+        ArenaManager.free(cell);
     }
 
     // ── 결과 처리 ────────────────────────────────────────────────
@@ -197,13 +277,12 @@ public final class LeagueManager {
             if (winner == null || loser == null) return; // pvn/단측이면 리그 아님
 
             UUID w = winner.getUuid(), l = loser.getUuid();
-            UUID wOpp = ACTIVE.get(w);
-            if (wOpp == null || !wOpp.equals(l)) return; // 우리 리그 배틀 아님
-            ACTIVE.remove(w);
-            ACTIVE.remove(l);
+            BoutSide bw = BOUTS.get(w);
+            if (bw == null || !bw.opponent().equals(l)) return; // 우리 리그 배틀 아님
 
+            MinecraftServer server = winner.getServer();
             SeasonConfig.RankedLeague cfg = ConfigManager.season().rankedLeague;
-            PoroMonState state = PoroMonState.get(winner.getServer());
+            PoroMonState state = PoroMonState.get(server);
             PlayerProgress pw = state.getOrCreate(w);
             PlayerProgress pl = state.getOrCreate(l);
             pw.rankedScore += cfg.winDelta;
@@ -211,6 +290,9 @@ public final class LeagueManager {
             pl.rankedScore = Math.max(cfg.scoreFloor, pl.rankedScore + cfg.lossDelta);
             pl.rankedLosses++;
             state.markDirty();
+
+            // 아레나 철거 + 양쪽 원위치 복귀(약간의 결과 확인 여유 없이 즉시 — 배틀 UI는 이미 종료)
+            endBout(server, w, l, bw.cell(), bw.corner(), loser);
 
             winner.sendMessage(Text.literal("§a[정규리그] 승리! §e+" + cfg.winDelta
                     + " §7→ 점수 §e" + pw.rankedScore + " §7(" + pw.rankedWins + "승 " + pw.rankedLosses + "패)"), false);

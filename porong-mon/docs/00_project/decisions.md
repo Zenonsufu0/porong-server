@@ -282,3 +282,6 @@ jar 전수 검증(`egg_pool_design.md §8`)으로 Eggs Addon(`diesse`)의 실제
 - **config**: `seasons.json`(`SeasonConfig.rankedLeague`) — 하드코딩 금지. 접속종료 = 큐/진행 정리(노카운트).
 - **0.1 미구현(TBD)**: 짜고지기 방지, 무효배틀 세부 처리(현재 노카운트), 룰셋 기믹 게이트(메가만 허용=테라/다이맥스/Z off 강제), 챔피언스리그 토너먼트, 시즌 리셋.
 - 구현: `LeagueManager`·`LeagueMenu`·`SeasonConfig`·`PlayerProgress`(ranked)·`PoroMonState.all()` + 코어/명령/메뉴 배선. 검증: 빌드 + 헤드리스(seasons.json 생성·로드, 에러0). **인게임 미검증(2인 필요)**: 매칭·lvl50 정규화·점수.
+
+#### 036-a. 정규리그 동적 아레나 (방/이동 로직 추가)
+매칭 성사 시 제자리 배틀이 아니라 **동적 아레나로 격리**(조우 `ArenaManager` 재사용). 매칭 → 셀 할당·방 생성 → 양쪽 원위치(차원+좌표) 저장 → 11×11 방 양 끝(z+2/z+8, x중앙)에 **마주보게 텔레포트** → pvp1v1. 종료(`onVictory`)·강제해제(`forceEnd`, releaseAll 연동)·접속종료(`onDisconnect`) 시 **양쪽 원위치 복귀 + 방 철거·셀 반납**. 대전 중 끊긴 플레이어는 `PENDING`에 원위치 저장 → **재접속 시 복귀**(허공 로그인 방지). 동시 다중 매치는 셀이 격리. 빌드+헤드리스 검증(에러0). 인게임 미검증(2인): 텔레포트·마주봄·복귀.

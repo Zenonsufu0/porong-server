@@ -139,7 +139,8 @@
 ## 4n. Phase 2 — 정규리그 코어 (2026-06-07 세션, 결정 036)
 - ✅ **정규리그 구현**(league §4): 점수제 래더(시작1000·승+10/패−7·하한0) + **실시간 큐 매칭**(윈도우 ±50→초당+2.5→±400, 재대전 쿨다운600s) + **lvl50 정규화**(§7 해소: `BattleFormat.adjustLevel=50` + `BattleBuilder.pvp1v1`). 자격 배지8.
   - 모듈: `league/{LeagueManager,LeagueMenu}` · `config/SeasonConfig`+`seasons.json` · `PlayerProgress`(rankedInit/Score/Wins/Losses NBT) · `PoroMonState.all()` · 메뉴 슬롯13→LeagueMenu(큐/전적/순위표Top5/챔피언 안내) · `/poromon league [queue|leave]` · 접속종료=노카운트 정리.
-  - 승리감지 `BATTLE_VICTORY`: 양측 PlayerBattleActor+ACTIVE쌍일 때만 리그 인정(pvn/관장/타워 오인 없음).
+  - 승리감지 `BATTLE_VICTORY`: 양측 PlayerBattleActor+대전쌍일 때만 리그 인정(pvn/관장/타워 오인 없음).
+  - ✅ **동적 아레나(결정 036-a)**: 매칭→`ArenaManager` 방 생성→양쪽 원위치 저장→11×11 방 양끝 마주보게 텔레포트→pvp1v1. 종료/강제해제/접속종료 시 원위치 복귀+철거. 끊긴 자는 PENDING→재접속 복귀. (조우방과 동일 격리 패턴.)
   - 빌드+헤드리스 검증(seasons.json 생성·로드 season v1, 에러0). ⚠️ **인게임 미검증(2인 필요)**: 매칭·lvl50 정규화·점수 반영.
   - **잔여(TBD)**: 짜고지기 방지, 무효배틀 세부, 룰셋 기믹 게이트(메가만=테라/다이맥스/Z off 강제), 챔피언스리그 토너먼트, 시즌 리셋.
 - **남은 잔여(리그 외) = 인게임 클라 검증뿐.**

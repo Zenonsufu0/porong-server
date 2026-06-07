@@ -105,6 +105,7 @@ public final class AdminMenu {
             GymBattleService.forceEnd(p);
             BattleTowerService.forceEnd(p);
             EncounterService.forceEnd(p);
+            kr.poro.poromoncore.league.LeagueManager.forceEnd(p);
         }
     }
 }
