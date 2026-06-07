@@ -268,5 +268,5 @@ jar 전수 검증(`egg_pool_design.md §8`)으로 Eggs Addon(`diesse`)의 실제
 - ✅ **필드이벤트 70/30(2026-06-07)**: `field_event_legendary_pool` stageWeight {low:70, mid:30} + 후보 stage(하급12/중급16, basic/intermediate 풀 멤버십 기준). 결정 019 반영.
 - ✅ **apex 운영 토글(2026-06-07)**: 컨셉 최상급 가중 ×2 이벤트. `PoroMonState.apexBoost`(영속) + `EventManager.apexMultiplier()` + 운영자 GUI(AdminMenu 슬롯40) + `EncounterConfig.probabilities(pool, apexMult)`. 추첨·제단 확률표시 양쪽 반영(레쿠쟈 10%→18.2%). 일반 apex 티켓 풀은 stageWeight 없어 무영향.
 - **within-tier 세부 weight = 균등 유지(2026-06-07 결정)**: 같은 tier 내 후보는 균등 가중(중급·상급 10). 환상 희소화 안은 검토 후 **보류**(예측 가능성·단순성 우선). 필요 시 재검토.
-- 잔여(별개 트랙): 등급별 조우권 텍스처, 야생 처치/포획 골드 보상 연동.
+- 연관 기완료(별개 세션): 조우권 텍스처 15종(§4j, 일반5+컨셉10), 야생 처치/포획 골드 보상(§4i `WildRewardService`). → 밸런스 패스로 추가 작업 없음.
 - 설계 표: `04_game_design/encounter_balance_proposal_v1.md`. 구현: `EncounterConfig`·`EncounterService`·`PoolInfoMenu`·`EventManager`·`PoroMonState`·`AdminMenu` + `legendary_pools.json`.
