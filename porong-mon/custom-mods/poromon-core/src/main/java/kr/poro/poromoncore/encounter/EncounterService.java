@@ -146,7 +146,9 @@ public final class EncounterService {
 
     private static EncounterConfig.Candidate weightedPick(ServerWorld world, EncounterConfig.Pool pool) {
         // 2단계 가중(stageWeight + B-cap)은 EncounterConfig가 단일 진실 공급원. 표시(PoolInfoMenu)와 동일 분포.
-        return EncounterConfig.weightedPick(pool, world.getRandom().nextDouble());
+        // apexMultiplier = 이벤트 시 컨셉 최상급 가중 부스트(평소 1.0).
+        return EncounterConfig.weightedPick(pool, world.getRandom().nextDouble(),
+                kr.poro.poromoncore.event.EventManager.apexMultiplier());
     }
 
     private static int levelFor(String type) {

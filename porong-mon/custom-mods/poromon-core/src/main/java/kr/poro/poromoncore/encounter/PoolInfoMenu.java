@@ -33,6 +33,8 @@ public final class PoolInfoMenu {
             case "intermediate" -> "중급";
             case "advanced" -> "상급";
             case "apex" -> "최상급";
+            case "low" -> "하급";       // 필드이벤트
+            case "mid" -> "중급";        // 필드이벤트
             default -> stage;
         };
     }
@@ -54,13 +56,17 @@ public final class PoolInfoMenu {
         if (pool == null) return;
 
         List<EncounterConfig.Candidate> list = EncounterConfig.enabled(pool);
-        java.util.Map<EncounterConfig.Candidate, Double> probs = EncounterConfig.probabilities(pool);
+        double apexMult = kr.poro.poromoncore.event.EventManager.apexMultiplier();
+        java.util.Map<EncounterConfig.Candidate, Double> probs = EncounterConfig.probabilities(pool, apexMult);
         int pages = Math.max(1, (list.size() + PER_PAGE - 1) / PER_PAGE);
         page = Math.max(0, Math.min(page, pages - 1));
 
+        List<String> headLore = new ArrayList<>();
+        headLore.add("§7후보 §f" + list.size() + "종");
+        headLore.add("§7페이지 §f" + (page + 1) + " / " + pages);
+        if (apexMult > 1.0) headLore.add("§c✦ 최상급 부스트 이벤트 진행 중");
         inv.setStack(ShopLayout.BALANCE_SLOT, MenuIcons.icon(Items.WRITABLE_BOOK,
-                "§d" + pool.displayNameKo + " §7출현 확률",
-                List.of("§7후보 §f" + list.size() + "종", "§7페이지 §f" + (page + 1) + " / " + pages)));
+                "§d" + pool.displayNameKo + " §7출현 확률", headLore));
         inv.setStack(ShopLayout.BACK_SLOT, MenuIcons.icon(Items.ARROW, "§e← 제단으로", List.of()));
         if (page > 0) inv.setStack(ShopLayout.PREV_SLOT, MenuIcons.icon(Items.SPECTRAL_ARROW, "§e◀ 이전", List.of()));
         if (page < pages - 1) inv.setStack(ShopLayout.NEXT_SLOT, MenuIcons.icon(Items.SPECTRAL_ARROW, "§e다음 ▶", List.of()));

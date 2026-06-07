@@ -45,6 +45,14 @@ public class EncounterConfig {
 
     /** 후보 → 확률(0~1). 입력 순서(풀 정의 순서)를 보존. */
     public static Map<Candidate, Double> probabilities(Pool pool) {
+        return probabilities(pool, 1.0);
+    }
+
+    /**
+     * 후보 → 확률(0~1). apexMult = "apex" stage 가중 배수(이벤트 최상급 부스트, 보통 1.0).
+     * 입력 순서(풀 정의 순서)를 보존.
+     */
+    public static Map<Candidate, Double> probabilities(Pool pool, double apexMult) {
         Map<Candidate, Double> out = new LinkedHashMap<>();
         List<Candidate> en = enabled(pool);
         if (en.isEmpty()) return out;
@@ -62,7 +70,7 @@ public class EncounterConfig {
             String s = c.stage == null ? "" : c.stage;
             stageWsum.merge(s, (double) c.weight, Double::sum);
         }
-        Map<String, Double> eff = effectiveStageWeights(pool.stageWeight, stageWsum.keySet());
+        Map<String, Double> eff = effectiveStageWeights(pool.stageWeight, stageWsum.keySet(), apexMult);
         double swTot = 0;
         for (double v : eff.values()) swTot += v;
 
@@ -75,13 +83,14 @@ public class EncounterConfig {
         return out;
     }
 
-    /** B-cap: 후보 없는 stage 비중을 "비중이 가장 큰 존재 stage"가 흡수. */
-    private static Map<String, Double> effectiveStageWeights(Map<String, Integer> canonical, java.util.Set<String> present) {
+    /** B-cap: 후보 없는 stage 비중을 "비중이 가장 큰 존재 stage"가 흡수. apex stage는 apexMult 적용. */
+    private static Map<String, Double> effectiveStageWeights(Map<String, Integer> canonical, java.util.Set<String> present, double apexMult) {
         Map<String, Double> eff = new LinkedHashMap<>();
         String floor = null;
         double floorW = -1;
         for (String s : present) {
             double w = canonical.getOrDefault(s, 0).doubleValue();
+            if ("apex".equals(s)) w *= apexMult;
             eff.put(s, w);
             if (w > floorW) { floorW = w; floor = s; }
         }
@@ -94,7 +103,11 @@ public class EncounterConfig {
 
     /** 가중 추첨. r∈[0,1). probabilities()와 동일 분포. */
     public static Candidate weightedPick(Pool pool, double r) {
-        Map<Candidate, Double> probs = probabilities(pool);
+        return weightedPick(pool, r, 1.0);
+    }
+
+    public static Candidate weightedPick(Pool pool, double r, double apexMult) {
+        Map<Candidate, Double> probs = probabilities(pool, apexMult);
         if (probs.isEmpty()) return null;
         double acc = 0;
         Candidate last = null;

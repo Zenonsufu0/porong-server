@@ -265,5 +265,7 @@ jar 전수 검증(`egg_pool_design.md §8`)으로 Eggs Addon(`diesse`)의 실제
 - **tier 분류 권위** = 일반 등급 풀 멤버십: 최상급=apex풀 · 상급=advanced풀 · 중급=intermediate/하급전설풀 · 환상(미분류)=상급.
 - **풀 내 weight**: 중급·상급 균등 10. 최상급 = **시그니처 apex★ 20 / 부수(타 컨셉 교차등재) 5** → 도메인 대표 부각 + 중복 차별화. ★=레쿠쟈(하늘)·가이오가(심해)·그란돈(대지)·디아루가(시간)·펄기아(공간)·기라티나(반전)·테라파고스(빛)·레시라무/제크로무/큐레무/코라이돈/미라이돈(용왕)·자시안/자마젠타/버드렉스(수호자)·아르세우스(영원).
 - **후보 보강**(단독 독식 해소): 심해 +4(케르디오·무쇠보따리·굽이치는물결·볼케니온), 빛 +4(디안시·비크티니·코스모그·마기아나), 용왕 +5(라티아스·라티오스·날뛰는우레·꿰뚫는화염·포효의달 — 레지드래고 90%→18%). 신규 종은 미배치 패러독스 활용. 용왕은 최상급 多 의도 유지(B cap=최상급 10% 합).
-- 미반영(잔여): 필드이벤트 풀 하급70/중급30(별도), apex 시그니처 운영 토글(컨셉 최상급×2), within-tier 세부 weight 튜닝.
-- 설계 표: `04_game_design/encounter_balance_proposal_v1.md`. 구현: `EncounterConfig`·`EncounterService`·`PoolInfoMenu` + `legendary_pools.json`.
+- ✅ **필드이벤트 70/30(2026-06-07)**: `field_event_legendary_pool` stageWeight {low:70, mid:30} + 후보 stage(하급12/중급16, basic/intermediate 풀 멤버십 기준). 결정 019 반영.
+- ✅ **apex 운영 토글(2026-06-07)**: 컨셉 최상급 가중 ×2 이벤트. `PoroMonState.apexBoost`(영속) + `EventManager.apexMultiplier()` + 운영자 GUI(AdminMenu 슬롯40) + `EncounterConfig.probabilities(pool, apexMult)`. 추첨·제단 확률표시 양쪽 반영(레쿠쟈 10%→18.2%). 일반 apex 티켓 풀은 stageWeight 없어 무영향.
+- 미반영(잔여): within-tier 세부 weight 튜닝(검토 중 — 같은 tier 내 환상 희소화 안).
+- 설계 표: `04_game_design/encounter_balance_proposal_v1.md`. 구현: `EncounterConfig`·`EncounterService`·`PoolInfoMenu`·`EventManager`·`PoroMonState`·`AdminMenu` + `legendary_pools.json`.

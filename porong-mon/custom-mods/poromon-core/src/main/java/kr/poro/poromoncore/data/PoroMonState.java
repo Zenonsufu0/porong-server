@@ -24,6 +24,7 @@ public class PoroMonState extends PersistentState {
     // 전역 이벤트 부스트 (운영자 GUI 토글, 영속) — 결정/IB-002
     public boolean xpBoost = false;
     public boolean goldBoost = false;
+    public boolean apexBoost = false;   // 컨셉 조우 최상급 가중 ×2 (결정 035, 이벤트)
 
     // 경제 텔레메트리 (economy_design §6): 출처 그룹별 골드 유입/유출 누적
     public final Map<String, Long> goldIn = new java.util.LinkedHashMap<>();
@@ -66,6 +67,7 @@ public class PoroMonState extends PersistentState {
         nbt.put("players", playersNbt);
         nbt.putBoolean("xpBoost", xpBoost);
         nbt.putBoolean("goldBoost", goldBoost);
+        nbt.putBoolean("apexBoost", apexBoost);
         nbt.put("goldIn", longMapToNbt(goldIn));
         nbt.put("goldOut", longMapToNbt(goldOut));
         return nbt;
@@ -95,6 +97,7 @@ public class PoroMonState extends PersistentState {
         }
         state.xpBoost = nbt.getBoolean("xpBoost");
         state.goldBoost = nbt.getBoolean("goldBoost");
+        state.apexBoost = nbt.getBoolean("apexBoost");
         if (nbt.contains("goldIn", NbtElement.COMPOUND_TYPE)) nbtToLongMap(nbt.getCompound("goldIn"), state.goldIn);
         if (nbt.contains("goldOut", NbtElement.COMPOUND_TYPE)) nbtToLongMap(nbt.getCompound("goldOut"), state.goldOut);
         return state;

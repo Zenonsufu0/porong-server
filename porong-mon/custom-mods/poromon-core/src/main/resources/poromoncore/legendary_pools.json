@@ -1023,171 +1023,203 @@
           "species": "cobblemon:articuno",
           "displayNameKo": "프리져",
           "weight": 10,
-          "enabled": true
+          "enabled": true,
+          "stage": "low"
         },
         {
           "species": "cobblemon:zapdos",
           "displayNameKo": "썬더",
           "weight": 10,
-          "enabled": true
+          "enabled": true,
+          "stage": "low"
         },
         {
           "species": "cobblemon:moltres",
           "displayNameKo": "파이어",
           "weight": 10,
-          "enabled": true
+          "enabled": true,
+          "stage": "low"
         },
         {
           "species": "cobblemon:raikou",
           "displayNameKo": "라이코",
           "weight": 10,
-          "enabled": true
+          "enabled": true,
+          "stage": "low"
         },
         {
           "species": "cobblemon:entei",
           "displayNameKo": "앤테이",
           "weight": 10,
-          "enabled": true
+          "enabled": true,
+          "stage": "low"
         },
         {
           "species": "cobblemon:suicune",
           "displayNameKo": "스이쿤",
           "weight": 10,
-          "enabled": true
+          "enabled": true,
+          "stage": "low"
         },
         {
           "species": "cobblemon:regirock",
           "displayNameKo": "레지락",
           "weight": 10,
-          "enabled": true
+          "enabled": true,
+          "stage": "low"
         },
         {
           "species": "cobblemon:regice",
           "displayNameKo": "레지아이스",
           "weight": 10,
-          "enabled": true
+          "enabled": true,
+          "stage": "low"
         },
         {
           "species": "cobblemon:registeel",
           "displayNameKo": "레지스틸",
           "weight": 10,
-          "enabled": true
+          "enabled": true,
+          "stage": "low"
         },
         {
           "species": "cobblemon:uxie",
           "displayNameKo": "유크시",
           "weight": 10,
-          "enabled": true
+          "enabled": true,
+          "stage": "low"
         },
         {
           "species": "cobblemon:mesprit",
           "displayNameKo": "엠라이트",
           "weight": 10,
-          "enabled": true
+          "enabled": true,
+          "stage": "low"
         },
         {
           "species": "cobblemon:azelf",
           "displayNameKo": "아그놈",
           "weight": 10,
-          "enabled": true
+          "enabled": true,
+          "stage": "low"
         },
         {
           "species": "cobblemon:latias",
           "displayNameKo": "라티아스",
-          "weight": 6,
-          "enabled": true
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
         },
         {
           "species": "cobblemon:latios",
           "displayNameKo": "라티오스",
-          "weight": 6,
-          "enabled": true
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
         },
         {
           "species": "cobblemon:heatran",
           "displayNameKo": "히드런",
-          "weight": 6,
-          "enabled": true
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
         },
         {
           "species": "cobblemon:cresselia",
           "displayNameKo": "크레세리아",
-          "weight": 6,
-          "enabled": true
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
         },
         {
           "species": "cobblemon:regigigas",
           "displayNameKo": "레지기가스",
-          "weight": 5,
-          "enabled": true
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
         },
         {
           "species": "cobblemon:regieleki",
           "displayNameKo": "레지에레키",
-          "weight": 5,
-          "enabled": true
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
         },
         {
           "species": "cobblemon:regidrago",
           "displayNameKo": "레지드래고",
-          "weight": 5,
-          "enabled": true
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
         },
         {
           "species": "cobblemon:cobalion",
           "displayNameKo": "코바르온",
-          "weight": 6,
-          "enabled": true
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
         },
         {
           "species": "cobblemon:terrakion",
           "displayNameKo": "테라키온",
-          "weight": 6,
-          "enabled": true
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
         },
         {
           "species": "cobblemon:virizion",
           "displayNameKo": "비리디온",
-          "weight": 6,
-          "enabled": true
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
         },
         {
           "species": "cobblemon:cosmog",
           "displayNameKo": "코스모그",
-          "weight": 4,
-          "enabled": true
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
         },
         {
           "species": "cobblemon:okidogi",
           "displayNameKo": "조타구",
-          "weight": 5,
-          "enabled": true
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
         },
         {
           "species": "cobblemon:munkidori",
           "displayNameKo": "이야후",
-          "weight": 5,
-          "enabled": true
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
         },
         {
           "species": "cobblemon:fezandipiti",
           "displayNameKo": "기로치",
-          "weight": 5,
-          "enabled": true
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
         },
         {
           "species": "cobblemon:typenull",
           "displayNameKo": "타입:널",
-          "weight": 4,
-          "enabled": true
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
         },
         {
           "species": "cobblemon:silvally",
           "displayNameKo": "실버디",
-          "weight": 3,
-          "enabled": true
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
         }
-      ]
+      ],
+      "stageWeight": {
+        "low": 70,
+        "mid": 30
+      }
     },
     "theme_sky_pool": {
       "type": "theme",
