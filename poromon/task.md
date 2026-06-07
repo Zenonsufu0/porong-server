@@ -1,6 +1,6 @@
 # PoroMon 작업 기록 / 다음 세션 핸드오프
 
-> 최종 업데이트: 2026-06-05
+> 최종 업데이트: 2026-06-07 (세션 마감 — §4m 끝 '세션 마감' 참조, 폴더명 변경 예정)
 > 이 파일은 세션 간 작업 연속성을 위한 핸드오프 노트다. 다음 세션은 이 파일부터 읽고 이어서 진행한다.
 > 권위 규칙: `CLAUDE.md` · 문서 인덱스: `docs/README.md` · 결정 기록: `docs/00_project/decisions.md`(001~028)
 >
@@ -173,16 +173,26 @@
   - `shop/AbilityCatalog`(신규): Cobblemon `ko_kr.json cobblemon.ability.<name>` 로드 → `Abilities.get` 유효분만, 표시=`Text.translatable`(ko_kr 자동), 한글/영문 검색.
   - `EngineeringMenu`: 특성 트랙 추가(정수 구매38 / 변경42 → 포켓몬 선택 → 목록·검색·페이지 → **`Pokemon.setAbility$common(new Ability(tpl, forced=true, Priority.NORMAL))`** 임의 강제 부여). 무제한 변경.
   - 가격: 특성 정수 50만·배지6, 변경 1회 5만(`EconomyConfig.engineering.abilityStonePrice/abilityStoneBadges/abilityChangePrice` + 런타임 economy.json).
-  - 특성 정수 텍스처 = **임시(기술 정수 hue +120° 변형 = 황금/주황, CMD 82031)** → 전용 원본 추후 교체.
-- ✅ **빌드 BUILD SUCCESSFUL + 서버/클라 jar 재배포(해시 일치) + 서버 재기동(Done 1.468s)**, poromoncore 에러 0.
-- ⚠️ **클라 재시작 후 검증 필요**: ① 정수(기술/특성) 텍스처 렌더 ② 특성 정수 우클릭 해제 ③ 특성 변경 메뉴(목록/검색/부여) 동작·한글 ④ forced 특성 실제 전투 반영.
-- ⚠️ **잔여**: 특성 정수 전용 텍스처(사용자 원본) 교체. AbilityCatalog는 ko_kr에 있는 특성만(레지스트리 전수 아님 — 표시 한글 우선).
+  - **정수 전용 텍스처 적용**(사용자 원본): 기술머신=`engineering_tm_core`(시안 회로형, 82030) / 특성=`engineering_ability_core`(보라·핑크 DNA형, 82031). 가장자리 flood-fill 투명화+premult 리사이즈. 기존 `engineering_essence`는 **보관**(미참조, 나중 재사용). 임시 hue변형본 제거.
+  - **포로공학 메뉴 슬롯 한 행 상향**: 기술(정수20/각인24=행2) · 특성(정수29/변경33=행3).
+- ✅ **텍스처 원본 폴더 통일**: 배지 원본을 `badge_originals_1254/`(별도) → `texture_originals/item/badge/`로 이동. 이제 원본은 `texture_originals/item/{badge,ticket,poro_engineering}/` 한곳. (모드 사용 텍스처는 `src/.../textures/item/{badge/,...}` 그대로, git 추적.) Windows Zone.Identifier 찌꺼기 정리.
+- ✅ **이번 세션 커밋**: `d850b01` "feat(poromon): 상점/포로공학 한글화 + 특성 마개조 신설 + 마스터볼" (21파일 +543/-67). working tree clean. **origin 대비 56커밋 ahead — push 미실행.**
+- ⚠️ **클라 검증 미완(다음 세션 1순위)**: ① 정수(기술=시안/특성=DNA) 텍스처 렌더 ② 특성 정수 우클릭 해제 ③ 특성 변경 메뉴(목록/검색/부여) 동작·한글 ④ **forced 특성 실제 전투 반영** ⑤ 마스터볼 편의상점 노출/구매 ⑥ 기술머신 한글명·한글검색.
+- ⚠️ **잔여**: AbilityCatalog는 ko_kr에 있는 특성만 노출(레지스트리 전수 아님 — 표시 한글 우선). 특성 변경 메뉴에 "현재 특성" 표시 미구현(lore 빈 줄).
+
+---
+
+## ◎ 세션 마감 (2026-06-07) — 폴더명 변경 예정
+**여기까지 커밋 완료(d850b01), 서버 정상 정지.** 사용자가 **워크트리 폴더명을 변경할 예정** → 다음 세션 재진입 시:
+- ⚠️ WSL worktree 경로(`/home/zenonsufu1/dev/poro-work-poromon/...`)가 **바뀔 수 있음**. 다음 세션 시작 시 실제 경로 재확인(pwd/git rev-parse). CLAUDE.md·메모리의 옛 경로 표기 주의.
+- 클라 배포 경로 `/mnt/c/Users/User/curseforge/.../PoroMon 0.1 Dev/mods/`는 **Windows쪽이라 폴더명 변경과 무관**(그대로).
+- `.local/server`(런타임, 비추적)도 worktree 내부라 함께 이동됨 — 재기동만 하면 됨.
 
 ### ▶ 다음 세션 과업 (우선순위)
-1. **텍스처+한글화 인게임 검증**(클라 재시작): 제단 티켓·포로공학 정수·배지 렌더 + **상점/포로공학 GUI 한글 렌더(영어 잔존 0)** 확인. 잔존분만 ko_kr override.
-2. **IB-003 커스텀 메뉴 GUI 화면(배경)**: 바닐라 컨테이너 텍스처가 투박 → 방식 검토(B 타이틀 이미지-폰트 트릭 우선 / A 리소스팩 generic_54 전역 / C 클라 Screen). `idea_inbox IB-003`.
-3. **밸런스 패스**: 조우 stage_weight 적용·컨셉 차등/apex 중복 차별화·관장 후반 메가 검증.
-4. (선택) 운영자 GUI 컨셉 최상급 확률×2(apex 플래깅), 배지 텍스처 등.
+1. **특성 마개조 + 텍스처 클라 검증**(클라 재시작): 위 ⚠️ ①~⑥ 전수 확인. 이상 시 수정.
+2. **밸런스 패스**: 조우 stage_weight 적용·컨셉 차등/apex 중복 차별화·관장 후반 메가 검증.
+3. **IB-003 커스텀 메뉴 GUI 화면(배경)**: 바닐라 컨테이너 텍스처 투박 → 방식 검토(B 타이틀 이미지-폰트 트릭 우선 / A 리소스팩 generic_54 / C 클라 Screen). `idea_inbox IB-003`.
+4. (선택) push(origin 56커밋 ahead) · 특성 정수 "현재 특성" 표시 · 운영자 GUI apex 확률×2.
 
 ## 5. 진행 중 / 미해결 TODO (요약)
 - ✅ **species ID 검증 완료** → `01_modpack/jar_registry_reference.md`: 전설 71(restricted 27 / 준전설 44)·환상 23·UB 11·패러독스 20 실 ID 확정.
