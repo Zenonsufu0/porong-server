@@ -1,7 +1,9 @@
 # PoroMon 작업 기록 / 다음 세션 핸드오프
 
-> 최종 업데이트: 2026-06-07 (세션 마감 — §4m 끝 '세션 마감' 참조, 폴더명 변경 예정)
+> 최종 업데이트: 2026-06-07 (폴더 rename 머지 누락분 복구 — 아래 ▶ 참조)
 > 이 파일은 세션 간 작업 연속성을 위한 핸드오프 노트다. 다음 세션은 이 파일부터 읽고 이어서 진행한다.
+>
+> **▶ 2026-06-07 rename 머지 복구(9b26ec8):** cc8c42d 머지가 feature 전용 작업물을 옛 `poromon/`에 고아로 남겼던 것을 발견·복구. `custom-mods/poromon-core`(모드 소스 114) + modpack config 27(`poromon_lm_control`·`poromon_battletower_test`·`simpletms/main.json`)을 `porong-mon/`으로 git mv(순수 rename). 이제 단일 트리 통합, sparse-checkout(`/porong-mon/`)로 정상 노출. ⚠️ **런타임 미복구**: `modpack/client/mods/*.jar`(빌드 의존, gitignore)·`.local/server`(서버 런타임)는 rename 후 사라짐 → 빌드/기동 전 재구성 필요(Windows `PoroMon 0.1 Dev/mods` 86개에서 복원 가능).
 > 권위 규칙: `CLAUDE.md` · 문서 인덱스: `docs/README.md` · 결정 기록: `docs/00_project/decisions.md`(001~028)
 >
 > **2026-06-05 모노레포 구조 정리:** poromon 자체 폴더/파일은 **변경 없음**. 다만 레포 레벨에서 RPG 자산과 프로젝트 전역 docs가 `porong-rpg/`로 통합되고 루트 `docs/`가 폐지됨. 포로몬은 계속 `porong-mon/`(자체 `docs/`·`server/`·`custom-mods/`) 안에서 독립적으로 작업한다.
