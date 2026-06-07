@@ -87,3 +87,10 @@
 - 엔드도 동일 허브화할지(현재 엔드는 드래곤 없음+엔드시티 탐험).
 
 상태: DRAFT. 결정 039 확정분 + 본 구현계획. 큰 작업(포탈·월드빌드·보호) → 단계 분할 + 사전 승인.
+
+### IB-004 보강 (2026-06-08): 관전 메커니즘 확인
+- ✅ **Cobblemon 네이티브 관전 존재**: `/spectatebattle` 명령 + 인터랙트 휠 "관전" + `PokemonBattle.getSpectators()`/`sendSpectatorUpdate()` + 배틀 테마. config `allowSpectating=true`(이미 활성), `battleSpectateMaxDistance=64`.
+- 게이트: 관전자는 **전투 64칸 내 + 참가자 타겟** 필요(SpectateBattleHandler: allowSpectating + 거리 체크 → getSpectators().add).
+- **완전 자동 강제관전은 비권장**: 관전 시작 패킷 흐름(spectateBattle 등)이 private → 재구현 취약.
+- **채택 방식**: 챔스 매치 시작 시 비참가자 전원을 **아레나 근처 관전석으로 TP**(64칸 내) → 내장 관전 사용(우클릭/휠) + 안내 메시지. 필요 시 battleSpectateMaxDistance 상향.
+- 구현 = `ChampionsManager`(브래킷 상태머신) + LeagueManager 아레나/pvp1v1/onVictory 재사용. 큰 작업 → 별도 패스.
