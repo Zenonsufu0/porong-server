@@ -47,6 +47,8 @@ public class PoroMonCore implements ModInitializer {
         kr.poro.poromoncore.economy.WildRewardService.registerEvents();
         // 정규리그 승리 이벤트 구독(점수 반영)
         kr.poro.poromoncore.league.LeagueManager.registerEvents();
+        // 챔피언스리그 승리 이벤트 구독(토너먼트 진행)
+        kr.poro.poromoncore.league.ChampionsManager.registerEvents();
 
         // 마개조 해금석: 포켓몬 우클릭 → 그 포켓몬 영구 마개조 해제(소모). 각인은 기술머신 메뉴(결정033-a)
         net.fabricmc.fabric.api.event.player.UseEntityCallback.EVENT.register((p, world, hand, entity, hit) -> {
@@ -157,6 +159,7 @@ public class PoroMonCore implements ModInitializer {
                 kr.poro.poromoncore.encounter.FieldEventManager.tick(server);
                 kr.poro.poromoncore.tpa.TpaManager.cleanup(server.getTicks());
                 kr.poro.poromoncore.league.LeagueManager.tick(server);
+                kr.poro.poromoncore.league.ChampionsManager.tick(server);
                 kr.poro.poromoncore.dimension.NetherManager.trackOverworld(server);
             }
         });

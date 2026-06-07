@@ -50,6 +50,9 @@ public final class PoroMonCommand {
                         .then(CommandManager.literal("gui").executes(PoroMonCommand::adminGui))
                         .then(CommandManager.literal("reload").executes(PoroMonCommand::reload))
                         .then(CommandManager.literal("fieldevent").executes(PoroMonCommand::fieldEvent))
+                        .then(CommandManager.literal("champions")
+                                .then(CommandManager.literal("start").executes(PoroMonCommand::championsStart))
+                                .then(CommandManager.literal("cancel").executes(PoroMonCommand::championsCancel)))
                         .then(CommandManager.literal("netherhub")
                                 .executes(PoroMonCommand::netherHubAuto)
                                 .then(CommandManager.literal("here").executes(PoroMonCommand::netherHubHere)))
@@ -196,6 +199,20 @@ public final class PoroMonCommand {
 
     private static int netherHubHere(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         return kr.poro.poromoncore.dimension.NetherManager.buildHubAt(ctx.getSource().getPlayerOrThrow()) ? 1 : 0;
+    }
+
+    private static int championsStart(CommandContext<ServerCommandSource> ctx) {
+        boolean ok = kr.poro.poromoncore.league.ChampionsManager.start(ctx.getSource().getServer());
+        ctx.getSource().sendFeedback(() -> net.minecraft.text.Text.literal(ok
+                ? "§a[운영자] 챔피언스리그를 시작했습니다."
+                : "§e[운영자] 시작 불가(이미 진행 중이거나 접속자 2명 미만)."), true);
+        return ok ? 1 : 0;
+    }
+
+    private static int championsCancel(CommandContext<ServerCommandSource> ctx) {
+        kr.poro.poromoncore.league.ChampionsManager.cancel(ctx.getSource().getServer());
+        ctx.getSource().sendFeedback(() -> net.minecraft.text.Text.literal("§7[운영자] 챔피언스리그 취소."), true);
+        return 1;
     }
 
     private static int fieldEvent(CommandContext<ServerCommandSource> ctx) {

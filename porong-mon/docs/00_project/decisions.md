@@ -363,3 +363,15 @@ jar 전수 검증(`egg_pool_design.md §8`)으로 Eggs Addon(`diesse`)의 실제
 - 고정 허브 좌표/`/poromon admin endhub` 폐기(불필요). config = `end`(removeDragon/randomLanding/minRadius/maxRadius/maxAttempts).
 - 드래곤 제거(039-d)·복귀 /poromon hub 유지. 청크 생성 비용은 입장당 최대 maxAttempts(12)회 — 엔드 입장 빈도 낮아 수용.
 - 검증: 헤드리스(end config 생성·에러0). ⚠️ 알파: 입장 시 무작위 외곽 섬 착지·시티 도달·함선 분산.
+
+### 040. 챔피언스리그 — 즉석 토너먼트 (IB-004 승격)
+
+운영자 `/poromon admin champions start` → 그 순간 접속자로 **랜덤 단일 토너먼트**.
+- `ChampionsManager`(상태머신: COUNTDOWN→FIGHTING→INTERMISSION): 참가자 셔플 → 대진표 공지 → **1분 카운트다운** → 왼쪽부터 순차 매치 → 승자 진출(라운드 반복) → 결승 → 챔피언.
+- 매치 = **오버월드 보더중심 y250 개방 경기장(25×25)** 빌드(시작 시 1회, 종료 시 철거). 두 선수 중앙 마주보게 TP + **비참가자 전원 경기장 가장자리(관전석)로 TP**(64칸 내) → `pvp1v1`(LeagueManager.leagueFormat, lvl50, 메가-온리 전역).
+- **관전 = Cobblemon 네이티브**(관전석에서 인터랙트 휠) — 안내 broadcast. 강제관전 미구현(IB-004 결정).
+- 승리 감지 = `BATTLE_VICTORY`(현재 매치 쌍 검증, 정규리그와 분리). 부전승/오프라인 자동 진출, 매치 타임아웃(5분) 안전.
+- **챔피언 홀**: `PoroMonState.championHistory`(영속) 등재. (전시 GUI는 후속.)
+- `/poromon admin champions cancel`. 룰셋 = lvl50 메가-온리(정규리그 공통). 정규리그 점수 미반영(별도 1회성).
+- 검증: 빌드 + 헤드리스(명령 등록·접속자<2 graceful·save-all·에러0). ⚠️ 알파(2인+): 대진·카운트다운·매치 진행·관전·챔피언 기록.
+- 잔여: 챔피언 홀 전시 GUI/동상, 자격(현재 전체 접속자 → 정규리그 참가자 한정 옵션), 브래킷 시각 UI(현재 채팅).

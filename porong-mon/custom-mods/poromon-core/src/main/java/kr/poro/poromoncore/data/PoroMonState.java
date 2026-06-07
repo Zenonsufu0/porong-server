@@ -2,6 +2,7 @@ package kr.poro.poromoncore.data;
 
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
@@ -26,6 +27,9 @@ public class PoroMonState extends PersistentState {
     public boolean goldBoost = false;
     public boolean apexBoost = false;   // 컨셉 조우 최상급 가중 ×2 (결정 035, 이벤트)
     public boolean fieldEventFast = false; // 전설 필드 이벤트 주기 2배 단축 (결정 038, 이벤트)
+
+    // 챔피언스리그 역대 챔피언 (결정 040, 챔피언 홀): "이름" 순서대로
+    public final java.util.List<String> championHistory = new java.util.ArrayList<>();
 
     // 경제 텔레메트리 (economy_design §6): 출처 그룹별 골드 유입/유출 누적
     public final Map<String, Long> goldIn = new java.util.LinkedHashMap<>();
@@ -77,6 +81,9 @@ public class PoroMonState extends PersistentState {
         nbt.putBoolean("fieldEventFast", fieldEventFast);
         nbt.put("goldIn", longMapToNbt(goldIn));
         nbt.put("goldOut", longMapToNbt(goldOut));
+        NbtList champs = new NbtList();
+        for (String c : championHistory) champs.add(net.minecraft.nbt.NbtString.of(c));
+        nbt.put("championHistory", champs);
         return nbt;
     }
 
@@ -108,6 +115,10 @@ public class PoroMonState extends PersistentState {
         state.fieldEventFast = nbt.getBoolean("fieldEventFast");
         if (nbt.contains("goldIn", NbtElement.COMPOUND_TYPE)) nbtToLongMap(nbt.getCompound("goldIn"), state.goldIn);
         if (nbt.contains("goldOut", NbtElement.COMPOUND_TYPE)) nbtToLongMap(nbt.getCompound("goldOut"), state.goldOut);
+        if (nbt.contains("championHistory", NbtElement.LIST_TYPE)) {
+            NbtList champs = nbt.getList("championHistory", NbtElement.STRING_TYPE);
+            for (int i = 0; i < champs.size(); i++) state.championHistory.add(champs.getString(i));
+        }
         return state;
     }
 }

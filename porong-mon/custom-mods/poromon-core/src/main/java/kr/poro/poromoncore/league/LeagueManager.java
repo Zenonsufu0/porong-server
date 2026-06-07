@@ -186,6 +186,14 @@ public final class LeagueManager {
         RECENT.computeIfAbsent(b, k -> new ConcurrentHashMap<>()).put(a, now);
     }
 
+    /** lvl50 정규화 싱글 포맷(싱글톤 보호 복제). 정규리그·챔피언스리그 공용. */
+    public static BattleFormat leagueFormat() {
+        SeasonConfig.RankedLeague cfg = ConfigManager.season().rankedLeague;
+        BattleFormat base = BattleFormat.Companion.getGEN_9_SINGLES();
+        return base.copy(base.getMod(), base.getBattleType(),
+                new HashSet<>(base.getRuleSet()), base.getGen(), cfg.adjustLevel);
+    }
+
     // ── 배틀 시작 (동적 아레나: 방 생성 → 양쪽 마주보게 텔레포트 → pvp1v1) ──────────
     private static boolean startBattle(MinecraftServer server, UUID aUuid, UUID bUuid) {
         ServerPlayerEntity a = server.getPlayerManager().getPlayer(aUuid);
@@ -206,12 +214,7 @@ public final class LeagueManager {
             a.teleport(arena, cx, y, za, 0.0f, 0.0f);     // +Z(남) 바라봄 → 상대 방향
             b.teleport(arena, cx, y, zb, 180.0f, 0.0f);   // −Z(북) 바라봄
 
-            // GEN_9_SINGLES 복제 후 레벨 정규화(싱글톤 보호: copy로 새 인스턴스).
-            // 생성자 순서 = (mod, battleType, ruleSet, gen, adjustLevel) — adjustLevel만 cfg로 교체.
-            BattleFormat base = BattleFormat.Companion.getGEN_9_SINGLES();
-            BattleFormat format = base.copy(base.getMod(), base.getBattleType(),
-                    new HashSet<>(base.getRuleSet()), base.getGen(), cfg.adjustLevel);
-            BattleStartResult result = BattleBuilder.INSTANCE.pvp1v1(a, b, null, null, format);
+            BattleStartResult result = BattleBuilder.INSTANCE.pvp1v1(a, b, null, null, leagueFormat());
             boolean ok = result.getClass().getSimpleName().toLowerCase().contains("success");
             if (!ok) {
                 // 시작 실패: 원위치 복귀 + 아레나 철거, 둘 다 큐에 남겨 다음 틱 재시도(메시지 없음)
