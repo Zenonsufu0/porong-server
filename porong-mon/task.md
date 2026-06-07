@@ -134,7 +134,15 @@
 - ✅ **조우 확률 표시**(`encounter/PoolInfoMenu`): 제단 풀 **우클릭 → 후보 한글명+출현 확률%+가중치**(페이지네이션). 좌클릭=해금/사용. 확률=weight/Σweight(0.1 stage_weight 미적용).
 - ✅ **밸런스 패스 1차(2026-06-07, 결정 035)**: 2단계 가중(stage/tier)+B 고정 cap(최상급≤10%) 코드/데이터 반영. 희귀 70/20/10·컨셉 55/35/10. 최상급 시그니처★20/부수5. 심해·빛·용왕 후보 보강(레지드래고 90%→18%). 단일 진실=`EncounterConfig.probabilities()`(추첨·표시 일치). 빌드+헤드리스 검증(pools 16, 에러0). 표=`encounter_balance_proposal_v1.md`.
 - ✅ **밸런스 패스 B(2026-06-07)**: 필드이벤트 70/30(low/mid stage) + **apex 운영 토글**(컨셉 최상급×2 이벤트, `PoroMonState.apexBoost`+AdminMenu 슬롯40, 추첨·제단표시 반영). 빌드+헤드리스 재검증.
-- ✅ **밸런스 패스 C(2026-06-07)**: within-tier 세부 weight = **균등 유지 결정**(환상 희소화 안 보류, 예측가능성 우선). 코드/데이터 변경 없음. → 밸런스 패스 A·B·C 완료. (조우권 텍스처 §4j·야생 골드 보상 §4i는 **이미 완료** — 밸런스 패스 추가 작업 없음.) **남은 잔여 = 인게임 클라 검증뿐.**
+- ✅ **밸런스 패스 C(2026-06-07)**: within-tier 세부 weight = **균등 유지 결정**(환상 희소화 안 보류, 예측가능성 우선). 코드/데이터 변경 없음. → 밸런스 패스 A·B·C 완료. (조우권 텍스처 §4j·야생 골드 보상 §4i는 **이미 완료** — 밸런스 패스 추가 작업 없음.)
+
+## 4n. Phase 2 — 정규리그 코어 (2026-06-07 세션, 결정 036)
+- ✅ **정규리그 구현**(league §4): 점수제 래더(시작1000·승+10/패−7·하한0) + **실시간 큐 매칭**(윈도우 ±50→초당+2.5→±400, 재대전 쿨다운600s) + **lvl50 정규화**(§7 해소: `BattleFormat.adjustLevel=50` + `BattleBuilder.pvp1v1`). 자격 배지8.
+  - 모듈: `league/{LeagueManager,LeagueMenu}` · `config/SeasonConfig`+`seasons.json` · `PlayerProgress`(rankedInit/Score/Wins/Losses NBT) · `PoroMonState.all()` · 메뉴 슬롯13→LeagueMenu(큐/전적/순위표Top5/챔피언 안내) · `/poromon league [queue|leave]` · 접속종료=노카운트 정리.
+  - 승리감지 `BATTLE_VICTORY`: 양측 PlayerBattleActor+ACTIVE쌍일 때만 리그 인정(pvn/관장/타워 오인 없음).
+  - 빌드+헤드리스 검증(seasons.json 생성·로드 season v1, 에러0). ⚠️ **인게임 미검증(2인 필요)**: 매칭·lvl50 정규화·점수 반영.
+  - **잔여(TBD)**: 짜고지기 방지, 무효배틀 세부, 룰셋 기믹 게이트(메가만=테라/다이맥스/Z off 강제), 챔피언스리그 토너먼트, 시즌 리셋.
+- **남은 잔여(리그 외) = 인게임 클라 검증뿐.**
 
 ## 4i. Phase 2 — 운영자 GUI + 야생 보상 (2026-06-07 세션)
 - ✅ **운영자 GUI**(`/poromon admin gui`, `admin/{AdminMenu,PlayerAdminMenu,PlayerActionMenu}`): 이벤트 부스트(경험치×2·골드×2 토글, `event/EventManager`+PoroMonState 영속)·갇힘 강제해제(전체/개별)·플레이어 관리(골드/배지/패스/진행)·공지(채팅→방송). 훅: 경험치 EXPERIENCE_GAINED_EVENT_PRE, 매입가 ×배수.

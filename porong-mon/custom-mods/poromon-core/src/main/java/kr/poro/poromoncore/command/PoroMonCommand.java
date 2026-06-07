@@ -38,6 +38,10 @@ public final class PoroMonCommand {
                 .then(CommandManager.literal("hub").executes(PoroMonCommand::hub))
                 .then(CommandManager.literal("home").executes(PoroMonCommand::home))
                 .then(CommandManager.literal("wild").executes(PoroMonCommand::wild))
+                .then(CommandManager.literal("league")
+                        .executes(PoroMonCommand::league)
+                        .then(CommandManager.literal("queue").executes(PoroMonCommand::leagueQueue))
+                        .then(CommandManager.literal("leave").executes(PoroMonCommand::leagueLeave)))
                 .then(CommandManager.literal("tpa")
                         .then(CommandManager.literal("accept").executes(PoroMonCommand::tpaAccept))
                         .then(CommandManager.literal("deny").executes(PoroMonCommand::tpaDeny)))
@@ -159,6 +163,21 @@ public final class PoroMonCommand {
 
     private static int wild(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         kr.poro.poromoncore.wild.WildManager.requestTeleport(ctx.getSource().getPlayerOrThrow());
+        return 1;
+    }
+
+    private static int league(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        kr.poro.poromoncore.league.LeagueMenu.open(ctx.getSource().getPlayerOrThrow());
+        return 1;
+    }
+
+    private static int leagueQueue(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        kr.poro.poromoncore.league.LeagueManager.joinQueue(ctx.getSource().getPlayerOrThrow());
+        return 1;
+    }
+
+    private static int leagueLeave(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        kr.poro.poromoncore.league.LeagueManager.leaveQueue(ctx.getSource().getPlayerOrThrow());
         return 1;
     }
 

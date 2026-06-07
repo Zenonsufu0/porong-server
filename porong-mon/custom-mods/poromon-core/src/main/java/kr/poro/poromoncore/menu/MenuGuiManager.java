@@ -122,7 +122,7 @@ public final class MenuGuiManager {
             case SLOT_TPA -> promptTpa(player);
             case SLOT_BADGES -> BadgeMenu.open(player);
             case SLOT_GYM_GUIDE -> GymBoardMenu.open(player);
-            case SLOT_LEAGUE -> sendLeagueInfo(player);
+            case SLOT_LEAGUE -> kr.poro.poromoncore.league.LeagueMenu.open(player);
             case SLOT_SERVER_GUIDE -> sendServerGuide(player);
             case SLOT_SELL_SHOP -> SellShopMenu.open(player);     // 매입소(아이콘 슬롯 28)
             case SLOT_CONVENIENCE -> BuyShopMenu.open(player);   // 편의 상점(슬롯 29)

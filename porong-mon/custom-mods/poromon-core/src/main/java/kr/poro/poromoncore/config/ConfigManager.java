@@ -22,6 +22,7 @@ public final class ConfigManager {
     private static volatile CoreConfig core = new CoreConfig();
     private static volatile EconomyConfig economy = new EconomyConfig();
     private static volatile EncounterConfig encounter = new EncounterConfig();
+    private static volatile SeasonConfig season = new SeasonConfig();
 
     public static CoreConfig core() {
         return core;
@@ -35,6 +36,10 @@ public final class ConfigManager {
         return encounter;
     }
 
+    public static SeasonConfig season() {
+        return season;
+    }
+
     private static Path file(String name) {
         return FabricLoader.getInstance().getConfigDir().resolve("poromoncore").resolve(name);
     }
@@ -45,6 +50,7 @@ public final class ConfigManager {
         economy = loadOrCreate("economy.json", EconomyConfig.class, EconomyConfig::new);
         encounter = loadOrCreateResource("legendary_pools.json", EncounterConfig.class,
                 "/poromoncore/legendary_pools.json", EncounterConfig::new);
+        season = loadOrCreate("seasons.json", SeasonConfig.class, SeasonConfig::new);
     }
 
     /** 디스크에서 전체 재로드(/poromon admin reload). 실패 시 해당 파일 기존 값 유지. */
@@ -53,9 +59,10 @@ public final class ConfigManager {
         economy = loadOrCreate("economy.json", EconomyConfig.class, EconomyConfig::new);
         encounter = loadOrCreateResource("legendary_pools.json", EncounterConfig.class,
                 "/poromoncore/legendary_pools.json", EncounterConfig::new);
+        season = loadOrCreate("seasons.json", SeasonConfig.class, SeasonConfig::new);
         int poolCount = encounter.pools == null ? 0 : encounter.pools.size();
-        PoroMonCore.LOGGER.info("[Config] 전체 리로드 완료 (core v{}, economy v{}, pools {})",
-                core.configVersion, economy.configVersion, poolCount);
+        PoroMonCore.LOGGER.info("[Config] 전체 리로드 완료 (core v{}, economy v{}, pools {}, season v{})",
+                core.configVersion, economy.configVersion, poolCount, season.configVersion);
         return true;
     }
 

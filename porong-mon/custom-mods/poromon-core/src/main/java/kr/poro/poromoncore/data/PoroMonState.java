@@ -58,6 +58,11 @@ public class PoroMonState extends PersistentState {
         return players.get(uuid);
     }
 
+    /** 전체 플레이어 진행(읽기용 — 순위표 등). */
+    public java.util.Map<UUID, PlayerProgress> all() {
+        return java.util.Collections.unmodifiableMap(players);
+    }
+
     @Override
     public NbtCompound writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
         NbtCompound playersNbt = new NbtCompound();

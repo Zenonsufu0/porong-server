@@ -22,6 +22,12 @@ public class PlayerProgress {
     public int battleTowerHighestClearedFloor = 0;
     public final TreeSet<Integer> battleTowerRewardedFloors = new TreeSet<>();
 
+    // 정규리그 (league_season_design §4): 점수제 래더. rankedInit=false면 미참가(점수 표시 안 함)
+    public boolean rankedInit = false;
+    public int rankedScore = 0;
+    public int rankedWins = 0;
+    public int rankedLosses = 0;
+
     // 홈 (결정 029): 해금된 슬롯 수(기본 1) + 슬롯별 등록 위치(null=미등록)
     public static final int HOME_MAX = 5;
     public int homesUnlocked = 1;
@@ -52,6 +58,13 @@ public class PlayerProgress {
         }
         tower.put("rewardedFloors", rewarded);
         nbt.put("battleTower", tower);
+
+        NbtCompound ranked = new NbtCompound();
+        ranked.putBoolean("init", rankedInit);
+        ranked.putInt("score", rankedScore);
+        ranked.putInt("wins", rankedWins);
+        ranked.putInt("losses", rankedLosses);
+        nbt.put("rankedLeague", ranked);
 
         nbt.putInt("homesUnlocked", homesUnlocked);
         NbtCompound homesNbt = new NbtCompound();
@@ -91,6 +104,14 @@ public class PlayerProgress {
             for (int i = 0; i < rewarded.size(); i++) {
                 p.battleTowerRewardedFloors.add(rewarded.getInt(i));
             }
+        }
+
+        if (nbt.contains("rankedLeague", NbtElement.COMPOUND_TYPE)) {
+            NbtCompound ranked = nbt.getCompound("rankedLeague");
+            p.rankedInit = ranked.getBoolean("init");
+            p.rankedScore = ranked.getInt("score");
+            p.rankedWins = ranked.getInt("wins");
+            p.rankedLosses = ranked.getInt("losses");
         }
 
         if (nbt.contains("homesUnlocked", NbtElement.INT_TYPE)) {

@@ -270,3 +270,15 @@ jar 전수 검증(`egg_pool_design.md §8`)으로 Eggs Addon(`diesse`)의 실제
 - **within-tier 세부 weight = 균등 유지(2026-06-07 결정)**: 같은 tier 내 후보는 균등 가중(중급·상급 10). 환상 희소화 안은 검토 후 **보류**(예측 가능성·단순성 우선). 필요 시 재검토.
 - 연관 기완료(별개 세션): 조우권 텍스처 15종(§4j, 일반5+컨셉10), 야생 처치/포획 골드 보상(§4i `WildRewardService`). → 밸런스 패스로 추가 작업 없음.
 - 설계 표: `04_game_design/encounter_balance_proposal_v1.md`. 구현: `EncounterConfig`·`EncounterService`·`PoolInfoMenu`·`EventManager`·`PoroMonState`·`AdminMenu` + `legendary_pools.json`.
+
+### 036. 정규리그 코어 구현 (league_season §4)
+
+정규리그(점수제 래더 + 실시간 큐 매칭 + lvl50 정규화)를 구현. 챔피언스리그/시즌 운영은 후속(Phase 6).
+- **§7 레벨50 정규화 블로커 해소(옵션 A 채택)**: Cobblemon `BattleFormat.adjustLevel` 확인 → GEN_9_SINGLES 복제 후 adjustLevel=50. `BattleBuilder.pvp1v1`로 플레이어 간 대전(pvn 패턴과 동일).
+- **점수제**: 시작 1000, 승 +10 / 패 −7, 하한 0. `PlayerProgress.rankedInit/rankedScore/rankedWins/rankedLosses`(NBT). 첫 큐 참가 시 startScore로 초기화.
+- **실시간 큐 매칭(AI 없음)**: `LeagueManager` 큐 + 1초 틱 매칭. 윈도우 ±50 시작, 초당 +2.5 확대, 상한 ±400. 동일 상대 재대전 쿨다운 600초(파밍 방지). 매칭 성사 → pvp1v1(lvl50).
+- **승리 처리**: `BATTLE_VICTORY` 구독 — 양측 모두 PlayerBattleActor이고 ACTIVE 등록쌍일 때만 리그로 인정(pvn/관장/타워/친선 오인 없음). 점수 반영 + 쿨다운 기록.
+- **UI/명령**: 메뉴 슬롯13(리그/챔피언) → `LeagueMenu`(큐 참가·취소·내 전적·순위표 Top5·챔피언스리그 안내). `/poromon league [queue|leave]`. 자격 = 배지 8.
+- **config**: `seasons.json`(`SeasonConfig.rankedLeague`) — 하드코딩 금지. 접속종료 = 큐/진행 정리(노카운트).
+- **0.1 미구현(TBD)**: 짜고지기 방지, 무효배틀 세부 처리(현재 노카운트), 룰셋 기믹 게이트(메가만 허용=테라/다이맥스/Z off 강제), 챔피언스리그 토너먼트, 시즌 리셋.
+- 구현: `LeagueManager`·`LeagueMenu`·`SeasonConfig`·`PlayerProgress`(ranked)·`PoroMonState.all()` + 코어/명령/메뉴 배선. 검증: 빌드 + 헤드리스(seasons.json 생성·로드, 에러0). **인게임 미검증(2인 필요)**: 매칭·lvl50 정규화·점수.

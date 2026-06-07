@@ -4,6 +4,7 @@
 > 연동: `SeasonManager` / `PlayerProgress` / `seasons.json`(`config_structure.md`).
 > 전제: **모든 대전은 Cobblemon 포켓몬 배틀**(인간 PvP 아님, 결정 011).
 > ⚠️ 초안. `TBD`/`예시`는 검토·확정 대상.
+> ✅ **정규리그 코어 구현 완료(2026-06-07, 결정 036)**: §4 점수제+실시간 큐 매칭+lvl50 정규화 구현. **§7 블로커 해소(옵션 A)** — `BattleFormat.adjustLevel=50` + `BattleBuilder.pvp1v1`. 구현 모듈명은 설계의 `SeasonManager` 대신 **`LeagueManager`**(+`LeagueMenu`·`SeasonConfig`·`seasons.json`). 챔피언스리그(§6)·시즌 리셋(§8)은 후속. **인게임 미검증(2인 필요)**: 매칭/lvl50/점수.
 
 ## 1. 목표 / 원칙
 - 짐 진행 이후의 **경쟁형/도전형 엔드게임**.
@@ -79,7 +80,9 @@
 
 > "서버 마지막날" = 이 시즌/서버 라인의 종료 이벤트. 월드 와이프와는 분리(`world_policy.md` §6). 챔피언 이력은 다음 시즌으로 영구 보존.
 
-## 7. 레벨 50 정규화 — 구현 옵션 (검증 필요)
+## 7. 레벨 50 정규화 — ✅ 해소(옵션 A 채택, 결정 036)
+> Cobblemon `BattleFormat.adjustLevel`(int) 확인 → GEN_9_SINGLES 복제 후 `adjustLevel=50`, `pvp1v1`에 전달. 아래는 검토 당시 옵션.
+
 정규리그/챔피언스리그는 lvl50 고정이 목표. Cobblemon 월드 배틀이 기본적으로 실제 레벨을 쓰므로 구현 방식 확정 필요:
 | 옵션 | 설명 | 확인 |
 |---|---|---|
