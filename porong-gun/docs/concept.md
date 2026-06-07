@@ -68,6 +68,9 @@
   내부 Mixin 지양(공개 API만), 착수 전 테스트 검증 필수. 비공개 내부 사용이라 배포 의무는 실무상 무관.
 - **PvE/습격 모드 후보(가져다 씀):** 좀비 블록 파괴 = **Zombies Break & Build / Apocalypse / Improved Mobs(Fabric)**,
   호드 나이트 = **Undead Nights / Horde Nights / Defend Your Base**. (1.21.1 정확 버전·호환은 착수 시 검증.)
+- **스캐브(적 NPC) = TaCZ 애드온 활용 ⭐:** **[TACZ] NPCs**(플레이어처럼 TaCZ 총 발사, **랭크별 Rookie→Expert 방어구·루트**) /
+  TaCZ: Simple Enemy / Insurgents. → 진짜 총 쏘는 인간형 스캐브(바닐라 몹+총 타협 불필요). POI 티어와 연결(저티어=Rookie, 고티어=Expert).
+- **전술 이동 = TaCZ 애드온:** **Tactical Movement Renewed**(구 TACtical Movement 후속) — **린(코너 빼꼼)·프론(히트박스 축소)·슬라이딩·3인칭 장전 애니메이션.** TaCZ 본체는 총 애니만, 전술 이동은 이 애드온.
 - **POI/구조물 모드 후보(가져다 씀):** **The Lost Cities**(포스트아포칼립스 도시 생성), **ChaosZPack [Lost Cities]**(좀비 아포칼립스 +
   **TaCZ 연동** 군사/병원/마천루 — 컨셉 일치 1순위), **Underground Bunkers**(군사 벙커). (Lost Cities Fabric은 1.20.1 beta 확인됨 → 1.21.1 검증 필요.)
 - **중심 모드: `porongun-core`** (group `kr.porong.gun` 예정). 총·좀비AI·습격은 기존 모드가 담당,
