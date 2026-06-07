@@ -375,3 +375,13 @@ jar 전수 검증(`egg_pool_design.md §8`)으로 Eggs Addon(`diesse`)의 실제
 - `/poromon admin champions cancel`. 룰셋 = lvl50 메가-온리(정규리그 공통). 정규리그 점수 미반영(별도 1회성).
 - 검증: 빌드 + 헤드리스(명령 등록·접속자<2 graceful·save-all·에러0). ⚠️ 알파(2인+): 대진·카운트다운·매치 진행·관전·챔피언 기록.
 - 잔여: 챔피언 홀 전시 GUI/동상, 자격(현재 전체 접속자 → 정규리그 참가자 한정 옵션), 브래킷 시각 UI(현재 채팅).
+
+### 041. 디스코드 인증/화이트리스트 연동
+
+포롱 디스코드 멤버가 MC 접속 → **인증 전까지 허브 감금 + 메뉴 잠금**(인증하기만) → `/인증` 코드를 디스코드 봇에 입력 → 화이트리스트(인증) 완료. 12시간 유예는 **제거**(허브가 물리적으로 폐쇄라 감금만으로 충분 — 사용자 결정).
+- **통신 = MC HTTP API**(봇 stub `poromon_api.py`의 aiohttp+API키 패턴과 일치): `auth/AuthHttpServer`(JDK 내장 HttpServer, 무의존) `POST /auth/verify`(X-API-Key) + `GET /auth/ping`.
+- **코드**: `/인증`·`/auth`·메뉴 "인증하기" → 6자리(혼동문자 제외) 발급, 기본 10분. `auth/AuthManager`(SecureRandom, HTTP 스레드 검증→상태변경은 `server.execute`로 서버 스레드 위임).
+- **상태**: `PlayerProgress.discordVerified/discordId`(영속, UUID↔디스코드 연결).
+- **미인증 제약**: 메뉴 = `AuthMenu`(인증하기만) / 텔레포트 명령(hub·home·wild·league·tpa accept) 차단 / 허브 반경(confineRadius100) 밖·타차원이면 허브 복귀. config `core.json discordAuth`(enabled/bindAddress/httpPort/apiKey/codeExpiry/confine/confineRadius).
+- **봇 측(porong-discord, 별도 워크트리·여기 수정 금지)**: `/인증코드 <code>` → `/auth/verify` 호출 → 역할 부여. 계약 = `05_operations/discord_auth_integration.md`.
+- 검증: 빌드 + 헤드리스(HTTP ping 200·잘못된 키 401·없는 코드 404·config 생성·에러0). ⚠️ 알파(플레이어): /인증 발급·실제 verify·감금·메뉴 잠금. ⚠️ 운영: apiKey 기본값(CHANGE_ME) 반드시 변경.

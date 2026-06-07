@@ -49,6 +49,11 @@ public final class MenuGuiManager {
     private static final int SLOT_CLOSE = 49;
 
     public static void open(ServerPlayerEntity player) {
+        // 디스코드 미인증자는 인증 메뉴(인증하기만)로 (결정 041)
+        if (!kr.poro.poromoncore.auth.AuthManager.isVerified(player)) {
+            kr.poro.poromoncore.auth.AuthMenu.open(player);
+            return;
+        }
         ServerMenuHandler.show(player, Text.literal("포로몬 메뉴").formatted(Formatting.DARK_AQUA),
                 inv -> populate(inv, player), MenuGuiManager::handleClick);
     }

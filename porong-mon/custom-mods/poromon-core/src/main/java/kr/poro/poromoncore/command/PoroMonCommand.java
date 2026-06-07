@@ -31,6 +31,10 @@ public final class PoroMonCommand {
     private PoroMonCommand() {}
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
+        // 디스코드 인증 (결정 041): /인증 · /auth
+        dispatcher.register(CommandManager.literal("인증").executes(PoroMonCommand::authIssue));
+        dispatcher.register(CommandManager.literal("auth").executes(PoroMonCommand::authIssue));
+
         dispatcher.register(CommandManager.literal("poromon")
                 .executes(PoroMonCommand::root)
                 .then(CommandManager.literal("progress").executes(PoroMonCommand::ownProgress))
@@ -157,24 +161,35 @@ public final class PoroMonCommand {
         return 1;
     }
 
+    private static int authIssue(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        kr.poro.poromoncore.auth.AuthMenu.issueCode(ctx.getSource().getPlayerOrThrow());
+        return 1;
+    }
+
     private static int hub(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+        if (kr.poro.poromoncore.auth.AuthManager.blockIfUnverified(player)) return 0;
         return HubManager.teleportToHub(player) ? 1 : 0;
     }
 
     private static int home(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+        if (kr.poro.poromoncore.auth.AuthManager.blockIfUnverified(player)) return 0;
         kr.poro.poromoncore.home.HomeMenu.open(player);
         return 1;
     }
 
     private static int wild(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        kr.poro.poromoncore.wild.WildManager.requestTeleport(ctx.getSource().getPlayerOrThrow());
+        ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+        if (kr.poro.poromoncore.auth.AuthManager.blockIfUnverified(player)) return 0;
+        kr.poro.poromoncore.wild.WildManager.requestTeleport(player);
         return 1;
     }
 
     private static int league(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        kr.poro.poromoncore.league.LeagueMenu.open(ctx.getSource().getPlayerOrThrow());
+        ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+        if (kr.poro.poromoncore.auth.AuthManager.blockIfUnverified(player)) return 0;
+        kr.poro.poromoncore.league.LeagueMenu.open(player);
         return 1;
     }
 
@@ -223,7 +238,9 @@ public final class PoroMonCommand {
     }
 
     private static int tpaAccept(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        kr.poro.poromoncore.tpa.TpaManager.accept(ctx.getSource().getPlayerOrThrow());
+        ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+        if (kr.poro.poromoncore.auth.AuthManager.blockIfUnverified(player)) return 0;
+        kr.poro.poromoncore.tpa.TpaManager.accept(player);
         return 1;
     }
 

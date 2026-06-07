@@ -28,6 +28,10 @@ public class PlayerProgress {
     public int rankedWins = 0;
     public int rankedLosses = 0;
 
+    // 디스코드 인증 (결정 041): 봇 코드 검증 완료 시 true + 연결된 디스코드 ID
+    public boolean discordVerified = false;
+    public String discordId = "";
+
     // 네더 복귀 좌표 (결정 039/IB-005): 오버월드→네더 진입 시 저장, 네더→오버월드 복귀에 사용
     public boolean netherReturnSet = false;
     public double netherReturnX = 0.0;
@@ -55,6 +59,8 @@ public class PlayerProgress {
         nbt.putLong("firstJoinEpoch", firstJoinEpoch);
         nbt.putBoolean("leaguePassGiven", leaguePassGiven);
         nbt.putLong("balance", balance);
+        nbt.putBoolean("discordVerified", discordVerified);
+        nbt.putString("discordId", discordId);
 
         NbtCompound tower = new NbtCompound();
         tower.putInt("highestClearedFloor", battleTowerHighestClearedFloor);
@@ -110,6 +116,8 @@ public class PlayerProgress {
         p.firstJoinEpoch = nbt.getLong("firstJoinEpoch");
         p.leaguePassGiven = nbt.getBoolean("leaguePassGiven");
         p.balance = nbt.getLong("balance");
+        p.discordVerified = nbt.getBoolean("discordVerified");
+        p.discordId = nbt.getString("discordId");
 
         if (nbt.contains("battleTower", NbtElement.COMPOUND_TYPE)) {
             NbtCompound tower = nbt.getCompound("battleTower");

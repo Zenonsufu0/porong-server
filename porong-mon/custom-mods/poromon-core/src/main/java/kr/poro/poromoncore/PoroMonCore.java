@@ -86,7 +86,12 @@ public class PoroMonCore implements ModInitializer {
         net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             kr.poro.poromoncore.event.EventManager.setServer(server);
             kr.poro.poromoncore.dimension.NetherManager.applyBorder(server);
+            kr.poro.poromoncore.auth.AuthManager.setServer(server);
+            kr.poro.poromoncore.auth.AuthHttpServer.start();
         });
+        // 디스코드 인증 HTTP API 정리
+        net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STOPPING.register(server ->
+                kr.poro.poromoncore.auth.AuthHttpServer.stop());
 
         // 차원 리다이렉트(결정 039): 네더=허브/진입좌표 복귀 · 엔드=바깥섬 허브
         net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, dest) -> {
@@ -161,6 +166,7 @@ public class PoroMonCore implements ModInitializer {
                 kr.poro.poromoncore.league.LeagueManager.tick(server);
                 kr.poro.poromoncore.league.ChampionsManager.tick(server);
                 kr.poro.poromoncore.dimension.NetherManager.trackOverworld(server);
+                kr.poro.poromoncore.auth.AuthManager.tickConfine(server);
             }
         });
     }
@@ -192,5 +198,11 @@ public class PoroMonCore implements ModInitializer {
 
         // 정규리그 대전 중 끊겼던 경우 원위치 복귀(허공 로그인 방지)
         kr.poro.poromoncore.league.LeagueManager.checkPendingReturn(player);
+
+        // 디스코드 미인증 안내(결정 041): 인증 전 허브 감금
+        if (!kr.poro.poromoncore.auth.AuthManager.isVerified(player)) {
+            player.sendMessage(net.minecraft.text.Text.literal(
+                    "§6§l[디스코드 인증 필요] §r§7인증 전에는 허브만 이용할 수 있습니다. §e/인증 §7으로 코드를 발급받으세요."), false);
+        }
     }
 }

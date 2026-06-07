@@ -14,6 +14,7 @@ public class CoreConfig {
     public FieldEvent fieldEvent = new FieldEvent();
     public Nether nether = new Nether();
     public End end = new End();
+    public DiscordAuth discordAuth = new DiscordAuth();
     public Logging logging = new Logging();
 
     /** 9번 슬롯 리그 패스 아이템 정책 (menu_design.md §2). */
@@ -109,6 +110,17 @@ public class CoreConfig {
         public int maxRadius = 6000;          // 무작위 밴드 상한
         public int maxAttempts = 12;          // 안전 섬 탐색 시도(청크 생성 비용 ↔ 성공률)
         // 복귀는 /poromon hub(오버월드 허브 TP) 사용 — 별도 엔드 귀환 포탈 불필요.
+    }
+
+    /** 디스코드 인증/화이트리스트 (결정 041): /인증 코드 → 봇이 HTTP API로 검증. 미인증=허브 감금. */
+    public static class DiscordAuth {
+        public boolean enabled = true;
+        public String bindAddress = "127.0.0.1";  // 봇이 같은 호스트면 localhost. 원격이면 0.0.0.0+방화벽
+        public int httpPort = 25580;               // PoroMonCore 인증 API 포트
+        public String apiKey = "CHANGE_ME";        // 봇 호출 시 X-API-Key 헤더(반드시 변경)
+        public int codeExpiryMinutes = 10;         // /인증 코드 유효시간
+        public boolean confine = true;             // 미인증자 허브 감금(반경 밖 복귀)
+        public int confineRadius = 100;            // 허브 spawn 기준 감금 반경
     }
 
     /** 감사 로깅 토글 (0.1 일부만 사용). */
