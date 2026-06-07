@@ -5,11 +5,11 @@
 
 | 프로젝트 | 폴더 | 규칙 / 설계 docs |
 |---|---|---|
-| **poro-rpg** | `poro-rpg/` | Paper 플러그인 RPG 서버 (전투·성장·영지·보스·DB/API). → `poro-rpg/CLAUDE.md`, `poro-rpg/docs/` |
-| **poromon** | `poromon/` | 모드 서버/모드팩. → `poromon/CLAUDE.md`, `poromon/docs/` |
-| **poro-discord** | `poro-discord/` | 디스코드 온보딩/운영 봇 (Python). |
+| **porong-rpg** | `porong-rpg/` | Paper 플러그인 RPG 서버 (전투·성장·영지·보스·DB/API). → `porong-rpg/CLAUDE.md`, `porong-rpg/docs/` |
+| **porong-mon** | `porong-mon/` | 모드 서버/모드팩. → `porong-mon/CLAUDE.md`, `porong-mon/docs/` |
+| **porong-discord** | `porong-discord/` | 디스코드 온보딩/운영 봇 (Python). |
 
-- 프로젝트 전역 단일 진실 공급원(SoT): **`poro-rpg/docs/final_master_plan.md`** (충돌 시 최우선). 결정 기록: `poro-rpg/docs/decision_log.md` (DL-NNN), 미확정 인박스: `poro-rpg/docs/idea_inbox.md`, 아카이브: `poro-rpg/docs/_archive/`.
+- 프로젝트 전역 단일 진실 공급원(SoT): **`porong-rpg/docs/final_master_plan.md`** (충돌 시 최우선). 결정 기록: `porong-rpg/docs/decision_log.md` (DL-NNN), 미확정 인박스: `porong-rpg/docs/idea_inbox.md`, 아카이브: `porong-rpg/docs/_archive/`.
 - 작업을 시작하기 전, 대상 프로젝트의 `CLAUDE.md`와 관련 docs를 먼저 읽는다.
 
 ## 안전 / 범위
@@ -27,13 +27,13 @@
 
 | 분류 | 조건 | 반영 위치 |
 |---|---|---|
-| CANON 반영 | 확정된 공식 기준 변경 | 관련 프로젝트 docs의 `CANON.md` + `poro-rpg/docs/decision_log.md` |
-| 결정 기록 | 이유 있는 설계 결정 | `poro-rpg/docs/decision_log.md` (DL-NNN) |
-| DRAFT 보관 | 미확정·검토 필요 | `poro-rpg/docs/idea_inbox.md` |
-| 폐기 기록 | 대체·폐기된 내용 | `poro-rpg/docs/decision_log.md` 또는 `poro-rpg/docs/_archive/`에 이유 기록 |
+| CANON 반영 | 확정된 공식 기준 변경 | 관련 프로젝트 docs의 `CANON.md` + `porong-rpg/docs/decision_log.md` |
+| 결정 기록 | 이유 있는 설계 결정 | `porong-rpg/docs/decision_log.md` (DL-NNN) |
+| DRAFT 보관 | 미확정·검토 필요 | `porong-rpg/docs/idea_inbox.md` |
+| 폐기 기록 | 대체·폐기된 내용 | `porong-rpg/docs/decision_log.md` 또는 `porong-rpg/docs/_archive/`에 이유 기록 |
 | 미반영 | 위 어디에도 해당 안 됨 | 보고 시 "미반영 이유" 명시 |
 
-`poro-rpg/docs/idea_inbox.md`: 확정 시 CANON 반영 + decision_log 기록 + inbox 항목에 `[PROMOTED → DL-NNN]`. 폐기 시 `[폐기 — 이유]`. 불확실하면 inbox에라도 기록하고 비워두지 않는다.
+`porong-rpg/docs/idea_inbox.md`: 확정 시 CANON 반영 + decision_log 기록 + inbox 항목에 `[PROMOTED → DL-NNN]`. 폐기 시 `[폐기 — 이유]`. 불확실하면 inbox에라도 기록하고 비워두지 않는다.
 
 ## 작업 완료 보고 형식
 
