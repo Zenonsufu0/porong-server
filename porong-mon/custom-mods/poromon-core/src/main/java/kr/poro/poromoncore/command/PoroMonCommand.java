@@ -50,7 +50,9 @@ public final class PoroMonCommand {
                         .then(CommandManager.literal("gui").executes(PoroMonCommand::adminGui))
                         .then(CommandManager.literal("reload").executes(PoroMonCommand::reload))
                         .then(CommandManager.literal("fieldevent").executes(PoroMonCommand::fieldEvent))
-                        .then(CommandManager.literal("netherhub").executes(PoroMonCommand::netherHub))
+                        .then(CommandManager.literal("netherhub")
+                                .executes(PoroMonCommand::netherHubAuto)
+                                .then(CommandManager.literal("here").executes(PoroMonCommand::netherHubHere)))
                         .then(CommandManager.literal("pass")
                                 .then(CommandManager.argument("player", EntityArgumentType.player())
                                         .executes(PoroMonCommand::adminPass)))
@@ -183,7 +185,16 @@ public final class PoroMonCommand {
         return 1;
     }
 
-    private static int netherHub(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+    private static int netherHubAuto(CommandContext<ServerCommandSource> ctx) {
+        net.minecraft.util.math.BlockPos pos =
+                kr.poro.poromoncore.dimension.NetherManager.buildHubAuto(ctx.getSource().getServer());
+        ctx.getSource().sendFeedback(() -> net.minecraft.text.Text.literal(pos != null
+                ? "§a[네더] 허브 자동 건설 완료 — (" + pos.getX() + ", " + pos.getY() + ", " + pos.getZ() + ")"
+                : "§c[네더] 허브 건설 실패(네더 차원 없음)."), true);
+        return pos != null ? 1 : 0;
+    }
+
+    private static int netherHubHere(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         return kr.poro.poromoncore.dimension.NetherManager.buildHubAt(ctx.getSource().getPlayerOrThrow()) ? 1 : 0;
     }
 

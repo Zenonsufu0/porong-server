@@ -27,7 +27,7 @@ public final class NetherHubBuilder {
     public static BlockPos build(ServerWorld nether, BlockPos center) {
         int cx = center.getX(), fy = center.getY(), cz = center.getZ();
 
-        // 1) 플랫폼(블랙스톤 바닥) + 머리 위 공기 + 가장자리 1칸 난간(낙하 방지)
+        // 1) 플랫폼(블랙스톤 바닥) + 머리 위 공기
         for (int dx = -HALF; dx <= HALF; dx++) {
             for (int dz = -HALF; dz <= HALF; dz++) {
                 nether.setBlockState(new BlockPos(cx + dx, fy - 1, cz + dz), Blocks.BLACKSTONE.getDefaultState());
@@ -36,14 +36,24 @@ public final class NetherHubBuilder {
                 }
             }
         }
+        // 1-1) 둘레 벽(블랙스톤, 천장 1칸까지) — 용암/몹 유입 차단. -Z면 중앙에 3×3 출입구.
         for (int dx = -HALF; dx <= HALF; dx++) {
-            placeRail(nether, cx + dx, fy, cz - HALF);
-            placeRail(nether, cx + dx, fy, cz + HALF);
+            for (int dy = 0; dy <= CLEAR_H; dy++) {
+                wall(nether, cx + dx, fy + dy, cz + HALF);
+                boolean door = (dx >= -1 && dx <= 1) && (dy <= 2);   // -Z 벽 출입구
+                if (!door) wall(nether, cx + dx, fy + dy, cz - HALF);
+            }
         }
         for (int dz = -HALF; dz <= HALF; dz++) {
-            placeRail(nether, cx - HALF, fy, cz + dz);
-            placeRail(nether, cx + HALF, fy, cz + dz);
+            for (int dy = 0; dy <= CLEAR_H; dy++) {
+                wall(nether, cx - HALF, fy + dy, cz + dz);
+                wall(nether, cx + HALF, fy + dy, cz + dz);
+            }
         }
+        // 천장(블랙스톤) — 위쪽 용암/몹 차단
+        for (int dx = -HALF; dx <= HALF; dx++)
+            for (int dz = -HALF; dz <= HALF; dz++)
+                nether.setBlockState(new BlockPos(cx + dx, fy + CLEAR_H, cz + dz), Blocks.BLACKSTONE.getDefaultState());
 
         // 2) 귀환 네더 포탈(오른쪽). AXIS=X, 내부 2×3, 외곽 흑요석.
         buildPortal(nether, new BlockPos(cx + 6, fy, cz));
@@ -61,8 +71,8 @@ public final class NetherHubBuilder {
         return new BlockPos(cx, fy, cz);
     }
 
-    private static void placeRail(ServerWorld w, int x, int y, int z) {
-        w.setBlockState(new BlockPos(x, y, z), Blocks.BLACKSTONE_WALL.getDefaultState());
+    private static void wall(ServerWorld w, int x, int y, int z) {
+        w.setBlockState(new BlockPos(x, y, z), Blocks.BLACKSTONE.getDefaultState());
     }
 
     /** base = 포탈 내부 좌하단. 내부 2(x)×3(y), z 고정. 외곽 흑요석 프레임 + 내부 NETHER_PORTAL. */

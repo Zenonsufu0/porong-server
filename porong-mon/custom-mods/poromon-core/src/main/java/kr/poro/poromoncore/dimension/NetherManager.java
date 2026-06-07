@@ -93,19 +93,68 @@ public final class NetherManager {
             return false;
         }
         ServerWorld nether = player.getServerWorld();
-        BlockPos arrival = NetherHubBuilder.build(nether, player.getBlockPos());
         CoreConfig.Nether cfg = ConfigManager.core().nether;
-        cfg.hubX = arrival.getX() + 0.5;
-        cfg.hubY = arrival.getY();
-        cfg.hubZ = arrival.getZ() + 0.5;
-        cfg.hubYaw = player.getYaw();
-        ConfigManager.saveCore();
+        BlockPos arrival = finalizeHub(nether, cfg, player.getBlockPos(), player.getYaw());
         player.teleport(nether, cfg.hubX, cfg.hubY, cfg.hubZ, cfg.hubYaw, 0.0f);
         player.sendMessage(Text.literal("§a[네더] 허브 건설 완료 — 좌표 ("
                 + arrival.getX() + ", " + arrival.getY() + ", " + arrival.getZ()
                 + ") 저장. 반경 " + cfg.protectRadius + " 보호 활성."), false);
-        PoroMonCore.LOGGER.info("[Nether] 허브 건설/설정: ({}, {}, {})", arrival.getX(), arrival.getY(), arrival.getZ());
         return true;
+    }
+
+    /**
+     * 운영자: 보더 중심 근처에서 안전한 자리를 자동 탐색해 허브 건설(위치 선정 불필요).
+     * 플레이어/콘솔 어디서나 실행 가능. 성공 시 도착 좌표, 실패 시 null.
+     */
+    public static BlockPos buildHubAuto(MinecraftServer server) {
+        ServerWorld nether = server.getWorld(World.NETHER);
+        if (nether == null) return null;
+        CoreConfig.Nether cfg = ConfigManager.core().nether;
+        int cx0 = (int) cfg.borderCenterX, cz0 = (int) cfg.borderCenterZ;
+
+        BlockPos spot = null;
+        outer:
+        for (int r = 0; r <= 96 && spot == null; r += 16) {
+            for (int dx = -r; dx <= r; dx += 16) {
+                for (int dz = -r; dz <= r; dz += 16) {
+                    if (r > 0 && Math.abs(dx) != r && Math.abs(dz) != r) continue; // 링 둘레만
+                    int x = cx0 + dx, z = cz0 + dz;
+                    nether.getChunk(x >> 4, z >> 4); // 동기 로드
+                    for (int y = 100; y > 12; y--) {
+                        if (isStandable(nether, x, y, z) && clearAndDry(nether, x, y, z)) {
+                            spot = new BlockPos(x, y, z);
+                            break outer;
+                        }
+                    }
+                }
+            }
+        }
+        if (spot == null) spot = new BlockPos(cx0, 40, cz0); // 폴백: 강제 카브
+        return finalizeHub(nether, cfg, spot, cfg.hubYaw);
+    }
+
+    /** 후보 위치 위로 8칸이 공기이고 주변/내부에 용암이 없는지(허브 카브 안전). */
+    private static boolean clearAndDry(ServerWorld w, int x, int y, int z) {
+        for (int dy = 0; dy < 8; dy++) {
+            BlockState bs = w.getBlockState(new BlockPos(x, y + dy, z));
+            if (!bs.isAir()) return false;
+        }
+        for (int dx = -2; dx <= 2; dx++)
+            for (int dz = -2; dz <= 2; dz++)
+                for (int dy = -1; dy < 6; dy++)
+                    if (!w.getBlockState(new BlockPos(x + dx, y + dy, z + dz)).getFluidState().isEmpty()) return false;
+        return true;
+    }
+
+    private static BlockPos finalizeHub(ServerWorld nether, CoreConfig.Nether cfg, BlockPos center, float yaw) {
+        BlockPos arrival = NetherHubBuilder.build(nether, center);
+        cfg.hubX = arrival.getX() + 0.5;
+        cfg.hubY = arrival.getY();
+        cfg.hubZ = arrival.getZ() + 0.5;
+        cfg.hubYaw = yaw;
+        ConfigManager.saveCore();
+        PoroMonCore.LOGGER.info("[Nether] 허브 건설/설정: ({}, {}, {})", arrival.getX(), arrival.getY(), arrival.getZ());
+        return arrival;
     }
 
     /** 허브 좌표가 안전하면 그 좌표, 아니면 같은 x/z에서 안전한 지표 Y 탐색(허브 미건설 대비). */
