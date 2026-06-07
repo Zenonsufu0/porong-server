@@ -28,6 +28,12 @@ public class PlayerProgress {
     public int rankedWins = 0;
     public int rankedLosses = 0;
 
+    // 네더 복귀 좌표 (결정 039/IB-005): 오버월드→네더 진입 시 저장, 네더→오버월드 복귀에 사용
+    public boolean netherReturnSet = false;
+    public double netherReturnX = 0.0;
+    public double netherReturnY = 0.0;
+    public double netherReturnZ = 0.0;
+
     // 홈 (결정 029): 해금된 슬롯 수(기본 1) + 슬롯별 등록 위치(null=미등록)
     public static final int HOME_MAX = 5;
     public int homesUnlocked = 1;
@@ -65,6 +71,14 @@ public class PlayerProgress {
         ranked.putInt("wins", rankedWins);
         ranked.putInt("losses", rankedLosses);
         nbt.put("rankedLeague", ranked);
+
+        if (netherReturnSet) {
+            NbtCompound nr = new NbtCompound();
+            nr.putDouble("x", netherReturnX);
+            nr.putDouble("y", netherReturnY);
+            nr.putDouble("z", netherReturnZ);
+            nbt.put("netherReturn", nr);
+        }
 
         nbt.putInt("homesUnlocked", homesUnlocked);
         NbtCompound homesNbt = new NbtCompound();
@@ -112,6 +126,14 @@ public class PlayerProgress {
             p.rankedScore = ranked.getInt("score");
             p.rankedWins = ranked.getInt("wins");
             p.rankedLosses = ranked.getInt("losses");
+        }
+
+        if (nbt.contains("netherReturn", NbtElement.COMPOUND_TYPE)) {
+            NbtCompound nr = nbt.getCompound("netherReturn");
+            p.netherReturnSet = true;
+            p.netherReturnX = nr.getDouble("x");
+            p.netherReturnY = nr.getDouble("y");
+            p.netherReturnZ = nr.getDouble("z");
         }
 
         if (nbt.contains("homesUnlocked", NbtElement.INT_TYPE)) {

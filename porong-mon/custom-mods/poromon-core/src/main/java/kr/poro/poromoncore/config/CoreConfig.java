@@ -12,6 +12,7 @@ public class CoreConfig {
     public Home home = new Home();
     public Wild wild = new Wild();
     public FieldEvent fieldEvent = new FieldEvent();
+    public Nether nether = new Nether();
     public Logging logging = new Logging();
 
     /** 9번 슬롯 리그 패스 아이템 정책 (menu_design.md §2). */
@@ -76,6 +77,26 @@ public class CoreConfig {
         public int edgeMargin = 200;        // 월드보더 안쪽 여유
         public int minSurfaceY = 50;        // 이보다 낮은 지표 회피
         public int maxAttempts = 40;        // 안전 위치 탐색 횟수
+    }
+
+    /** 네더 차원 정책 (결정 039, IB-005): 경계 + 고정 허브 포탈 + 허브 보호. */
+    public static class Nether {
+        public boolean enabled = true;
+        public int borderDiameter = 5000;   // 네더 월드보더(÷8 비적용)
+        public double borderCenterX = 0.0;
+        public double borderCenterZ = 0.0;
+
+        // 고정 허브 포탈: 오버월드→네더 = 허브 도착 / 네더→오버월드 = 플레이어별 복귀 좌표
+        public boolean hubRedirect = true;
+        public double hubX = 0.5;            // ⚠️ 허브 건설 후 실좌표로 교체
+        public double hubY = 64.0;
+        public double hubZ = 0.5;
+        public float hubYaw = 0.0f;
+
+        // 허브 보호: 중심 기준 반경(체비셰프). 10 → 21×21 (포탈·블레이즈 스포너 파괴 방지)
+        public boolean protectHub = true;
+        public int protectRadius = 10;
+        public boolean opBypassProtect = true; // op(권한2)는 보호 무시(건설/유지보수)
     }
 
     /** 감사 로깅 토글 (0.1 일부만 사용). */

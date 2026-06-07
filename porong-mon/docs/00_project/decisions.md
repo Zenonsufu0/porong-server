@@ -328,3 +328,10 @@ jar 전수 검증(`egg_pool_design.md §8`)으로 Eggs Addon(`diesse`)의 실제
 - **접근 차단 확정**(결정 023 정합). LM 입장 아이템(arc_phone 등) 자연 획득 차단으로 사실상 봉쇄 → 잔여 획득 경로(제작 레시피) 점검·차단 검증 필요(TODO).
 
 > 차원 경계는 차원별 독립(MC) → PoroMonCore 시작 시 차원별 보더 설정(config 구동) 또는 운영 명령. 구현 = IB-005/별도 패스.
+
+#### 039-a. 네더 정책 구현 (1·2·4단계)
+- ✅ **네더 월드보더**(`NetherManager.applyBorder`, SERVER_STARTED): 중심(0,0) 지름 5000. core.json `nether` 구동.
+- ✅ **포탈 리다이렉트**(`ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD`): 오버월드→네더 = 고정 허브 도착(좌표 미안전 시 안전 지표 자동 탐색) + 진입 좌표를 `PlayerProgress.netherReturn`에 저장 / 네더→오버월드 = 그 좌표로 복귀. 오버월드 위치는 매 틱 추적.
+- ✅ **허브 보호**(`PlayerBlockBreakEvents.BEFORE`): 네더 허브 중심 반경(기본10=21×21) 내 블록 파괴 차단(포탈·블레이즈 스포너). op(권한2) 우회 가능.
+- ⚠️ **미완(3단계 월드빌드)**: 고정 허브 좌표(core.json hubX/Y/Z)는 임시(0.5/64/0.5) — **요새 인접 네더랙 허브 + 블레이즈 스포너 물리 건설 후 실좌표 설정** 필요. 그 전엔 리다이렉트가 (0,0) 근처 안전지표로 보냄.
+- 검증: 빌드 + 헤드리스(보더 적용 로그·nether config 생성·에러0). ⚠️ 알파(포탈 통과 필요): 허브 도착·복귀 좌표·블록파괴 차단.
