@@ -83,17 +83,17 @@ public class PoroMonCore implements ModInitializer {
         // 서버 참조 캐시(이벤트 부스트용) + 네더 월드보더 적용 + 경험치 부스트 훅
         net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             kr.poro.poromoncore.event.EventManager.setServer(server);
-            kr.poro.poromoncore.world.NetherManager.applyBorder(server);
+            kr.poro.poromoncore.dimension.NetherManager.applyBorder(server);
         });
 
         // 네더 포탈 리다이렉트: 오버월드→네더 허브 / 네더→오버월드 진입좌표 복귀 (결정 039)
         net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register(
-                kr.poro.poromoncore.world.NetherManager::onChangeWorld);
+                kr.poro.poromoncore.dimension.NetherManager::onChangeWorld);
 
         // 네더 허브 보호: 허브 반경 내 블록 파괴 차단(포탈·블레이즈 스포너)
         net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents.BEFORE.register((world, player, pos, state, entity) -> {
             if (player instanceof ServerPlayerEntity sp)
-                return !kr.poro.poromoncore.world.NetherManager.isProtectedBreak(world, sp, pos);
+                return !kr.poro.poromoncore.dimension.NetherManager.isProtectedBreak(world, sp, pos);
             return true;
         });
         com.cobblemon.mod.common.api.events.CobblemonEvents.EXPERIENCE_GAINED_EVENT_PRE.subscribe(
@@ -151,7 +151,7 @@ public class PoroMonCore implements ModInitializer {
                 kr.poro.poromoncore.encounter.FieldEventManager.tick(server);
                 kr.poro.poromoncore.tpa.TpaManager.cleanup(server.getTicks());
                 kr.poro.poromoncore.league.LeagueManager.tick(server);
-                kr.poro.poromoncore.world.NetherManager.trackOverworld(server);
+                kr.poro.poromoncore.dimension.NetherManager.trackOverworld(server);
             }
         });
     }

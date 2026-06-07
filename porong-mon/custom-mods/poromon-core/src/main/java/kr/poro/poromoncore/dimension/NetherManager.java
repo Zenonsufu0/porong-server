@@ -1,0 +1,121 @@
+package kr.poro.poromoncore.dimension;
+
+import kr.poro.poromoncore.PoroMonCore;
+import kr.poro.poromoncore.config.ConfigManager;
+import kr.poro.poromoncore.config.CoreConfig;
+import kr.poro.poromoncore.data.PlayerProgress;
+import kr.poro.poromoncore.data.PoroMonState;
+import net.minecraft.block.BlockState;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraft.world.border.WorldBorder;
+
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
+/**
+ * 네더 차원 정책 (결정 039, IB-005):
+ *  - 시작 시 네더 월드보더 설정(지름 5000, ÷8 비적용).
+ *  - 고정 허브 포탈: 오버월드→네더 = 허브 도착 / 네더→오버월드 = 플레이어별 진입 좌표 복귀.
+ *  - 허브 보호: 중심 반경(체비셰프) 내 블록 파괴 차단(포탈·블레이즈 스포너).
+ * 진입 좌표는 매 틱 마지막 오버월드 위치를 추적해 네더 진입 시 PlayerProgress에 저장.
+ */
+public final class NetherManager {
+    private NetherManager() {}
+
+    /** 매 틱 갱신: 오버월드에 있는 플레이어의 마지막 좌표(네더 복귀용). */
+    private static final Map<UUID, double[]> LAST_OVERWORLD = new ConcurrentHashMap<>();
+
+    /** 서버 시작 시(SERVER_STARTED) 네더 월드보더 적용. */
+    public static void applyBorder(MinecraftServer server) {
+        CoreConfig.Nether cfg = ConfigManager.core().nether;
+        if (!cfg.enabled) return;
+        ServerWorld nether = server.getWorld(World.NETHER);
+        if (nether == null) return;
+        WorldBorder wb = nether.getWorldBorder();
+        wb.setCenter(cfg.borderCenterX, cfg.borderCenterZ);
+        wb.setSize(cfg.borderDiameter);
+        PoroMonCore.LOGGER.info("[Nether] 월드보더 적용: 중심({}, {}) 지름 {}",
+                cfg.borderCenterX, cfg.borderCenterZ, cfg.borderDiameter);
+    }
+
+    /** 매 틱(20틱): 오버월드 플레이어 위치 추적. */
+    public static void trackOverworld(MinecraftServer server) {
+        for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {
+            if (p.getServerWorld().getRegistryKey() == World.OVERWORLD) {
+                LAST_OVERWORLD.put(p.getUuid(), new double[]{p.getX(), p.getY(), p.getZ()});
+            }
+        }
+    }
+
+    /** 차원 변경 직후(AFTER_PLAYER_CHANGE_WORLD) 포탈 리다이렉트. */
+    public static void onChangeWorld(ServerPlayerEntity player, ServerWorld origin, ServerWorld dest) {
+        CoreConfig.Nether cfg = ConfigManager.core().nether;
+        if (!cfg.enabled || !cfg.hubRedirect) return;
+        var originKey = origin.getRegistryKey();
+        var destKey = dest.getRegistryKey();
+
+        // 오버월드 → 네더: 진입 좌표 저장 후 고정 허브로
+        if (originKey == World.OVERWORLD && destKey == World.NETHER) {
+            double[] last = LAST_OVERWORLD.get(player.getUuid());
+            PoroMonState state = PoroMonState.get(player.getServer());
+            PlayerProgress pp = state.getOrCreate(player.getUuid());
+            if (last != null) {
+                pp.netherReturnSet = true;
+                pp.netherReturnX = last[0]; pp.netherReturnY = last[1]; pp.netherReturnZ = last[2];
+                state.markDirty();
+            }
+            BlockPos hub = safeHub(dest, cfg);
+            if (hub != null) {
+                player.teleport(dest, hub.getX() + 0.5, hub.getY(), hub.getZ() + 0.5, cfg.hubYaw, 0.0f);
+            }
+            return;
+        }
+        // 네더 → 오버월드: 저장된 진입 좌표로 복귀
+        if (originKey == World.NETHER && destKey == World.OVERWORLD) {
+            PlayerProgress pp = PoroMonState.get(player.getServer()).getOrCreate(player.getUuid());
+            if (pp.netherReturnSet) {
+                player.teleport(dest, pp.netherReturnX, pp.netherReturnY, pp.netherReturnZ,
+                        player.getYaw(), player.getPitch());
+            }
+        }
+    }
+
+    /** 허브 좌표가 안전하면 그 좌표, 아니면 같은 x/z에서 안전한 지표 Y 탐색(허브 미건설 대비). */
+    private static BlockPos safeHub(ServerWorld nether, CoreConfig.Nether cfg) {
+        int x = (int) Math.floor(cfg.hubX);
+        int z = (int) Math.floor(cfg.hubZ);
+        int hy = (int) Math.floor(cfg.hubY);
+        if (isStandable(nether, x, hy, z)) return new BlockPos(x, hy, z);
+        // 네더 천장(123) 아래부터 하강 탐색
+        for (int y = Math.min(122, Math.max(hy + 8, 100)); y > 5; y--) {
+            if (isStandable(nether, x, y, z)) return new BlockPos(x, y, z);
+        }
+        PoroMonCore.LOGGER.warn("[Nether] 허브 안전 좌표 탐색 실패 (x{} z{}) — 리다이렉트 생략", x, z);
+        return null;
+    }
+
+    private static boolean isStandable(ServerWorld w, int x, int y, int z) {
+        BlockState ground = w.getBlockState(new BlockPos(x, y - 1, z));
+        BlockState feet = w.getBlockState(new BlockPos(x, y, z));
+        BlockState head = w.getBlockState(new BlockPos(x, y + 1, z));
+        return !ground.isAir() && ground.getFluidState().isEmpty()
+                && feet.isAir() && head.isAir();
+    }
+
+    /** 허브 보호: 네더 허브 반경 내 블록 파괴 금지. op 우회 가능. true=보호(차단). */
+    public static boolean isProtectedBreak(World world, ServerPlayerEntity player, BlockPos pos) {
+        CoreConfig.Nether cfg = ConfigManager.core().nether;
+        if (!cfg.enabled || !cfg.protectHub) return false;
+        if (world.getRegistryKey() != World.NETHER) return false;
+        if (cfg.opBypassProtect && player != null && player.hasPermissionLevel(2)) return false;
+        int dx = Math.abs(pos.getX() - (int) Math.floor(cfg.hubX));
+        int dz = Math.abs(pos.getZ() - (int) Math.floor(cfg.hubZ));
+        return dx <= cfg.protectRadius && dz <= cfg.protectRadius;
+    }
+}
