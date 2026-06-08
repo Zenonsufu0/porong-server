@@ -20,7 +20,7 @@
 | T9 | 포로몬 서버별 약관동의+화이트리스트 온보딩 (봇측 구현) | poromon | T7, T4 | 🟡 |
 | T10 | 이모지 서버선택 → 카테고리 접근 역할 → 역할기반 가시성 | roles/onboarding | — | 🔴 |
 | T11 | 운영자 닉네임 변경 명령(`/닉네임변경`·`/닉네임재입력`) | admin | API | 🟡 |
-| T12 | SQLite 저장 계층 도입(봇 영속 DB) — community/moderation/support 공통 선행 | core | — | 🟡 |
+| T12 | SQLite 저장 계층 도입(봇 영속 DB) — community/moderation/support 공통 선행 | core | — | 🟢 |
 | T13 | community 모듈(레벨·칭호·리더보드·임시음성) | community | T12 | 🟡 |
 | T14 | community 확장(출석·일일보상·임시역할 자동만료) | community | T13 | 🟡 |
 | T15 | moderation 모듈(제재·추방·경고 + 운영/감사로그) | moderation | T12 | 🟡 |
@@ -36,6 +36,7 @@
 > T12~T18 은 §9 후보 기능 백로그에서 승격(2026-06-06). 상세 명세·근거는 §9. Tier3(초대추적·건의투표)는 §9에 보류 유지.
 > T19(클래스 RPG 이관)·T20(명령어 가시성)은 도메인 격리 후속 결정(2026-06-06). T20 설계 노트는 §10.
 > **T12 SQLite 스키마 1차안 = [`data_model.md`](data_model.md)** (servers 레지스트리 포함 — T21·T13~T16 공통 기반).
+> **T12 기반 구현(2026-06-08): `core/db.py`** = aiosqlite 단일커넥션 + 쓰기 lock + `schema_meta` 증분 마이그레이션 러너. v1 = `servers` 테이블(§2.1, domain당 active 1 부분유니크). `BOT_DB_PATH`(.env). 나머지 테이블(community_xp·warnings·tickets…)은 각 기능 구현 시 v2+ 마이그레이션으로 추가. main.py 가 기동 시 연결→`bot.db`.
 > **T13 커뮤니티 레벨 상세 = [`community_level.md`](community_level.md)**, T21 생애주기 상세 = [`server_lifecycle.md`](server_lifecycle.md).
 > **T15 모더레이션 상세 = [`moderation.md`](moderation.md)**, **T16 지원/문의 상세 = [`support.md`](support.md)**.
 
@@ -120,8 +121,8 @@
 - **인증 UI = 버튼+모달** (`/인증코드` 슬래시 아님). 인증 채널에 영구 버튼 → 모달 코드 입력칸 → verify. 채팅에 메시지 안 남김(깔끔). RPG `auth.py`의 `약관동의 버튼→NicknameModal` 패턴 재사용. 현 포로몬 `/인증코드` 슬래시·DM은 폴백(또는 제거).
 - **채널 가시성 = 읽기전용 + 봇 게이트 2중**: 약관·인증 채널은 임시/인증전 역할에 대해 `send_messages=False` **+ `use_application_commands=False`**(슬래시까지 차단). 버튼/모달은 읽기전용에서도 작동. 봇 측 약관동의 역할 체크는 우회 방어로 병행.
 - **약관동의 게이트 = 역할 기반(1차)**: 동의 시 `<서버>_인증전` 역할 부여 → 인증 버튼/모달이 그 역할 확인. DB 없이 디스코드 역할만으로 동작. (DB 기록(b)은 T12 도입 시 얹기)
-- **닉네임 1회 입력 폐기**: 인게임 발급 방향 → verify 응답이 `uuid`+**`name`** 반환 → 봇이 `discord_id ↔ {uuid, name}` 저장(T12). 유저 닉 타이핑 단계 제거. DL-131 닉 입력 단계 폐기 → DL 동기화 시 SUPERSEDE 기록.
-  > ⚠ API 계약 추가: 게임서버 verify 응답에 `name` 포함 필요. 현 포로몬 `verify_code`는 `uuid`만 읽음(저장 없이 로깅) → name 반환·DB 적재는 T12와 함께.
+- **닉네임 1회 입력 폐기**: 인게임 발급 방향 → verify 응답이 `uuid`+**`name`** 반환 → 봇이 신원 확보. 유저 닉 타이핑 단계 제거. DL-131 닉 입력 단계 폐기(RPG worktree decision_log 동기화 완료, DL-132 라인) → SUPERSEDE.
+  > ⚠ 매핑은 봇 DB에 **저장 안 함**(권위=게임서버, `data_model.md` §3). `name`은 표시/로깅용. API 계약 추가: 게임서버 verify 응답에 `name` 포함 필요(현 `verify_code`는 uuid+name 모두 읽음).
 
 **남은 열린 결정:**
 - **공통화(T7)**: 버튼+모달·약관동의·게이팅·역할전이를 도메인 모듈 중복 대신 `core/` 공통 온보딩으로 추출. 현재 포로몬 전용 구현(`modules/poromon/commands.py`)이 그 시드.
@@ -132,7 +133,7 @@
   - 🟢 도메인 비종속 약관 게이트 + 인증 버튼/모달 패널 + 3단계 역할 전이(접근→인증전→플레이어) 구현. 서버 레지스트리 = `core/config.ONBOARDING_SERVERS`(코드 기반, DB 전).
   - 🟢 verify 라우팅(도메인→API)·약관 게이트(인증전 역할 확인)·운영자 `/온보딩패널 <서버>` 게시 명령.
   - ⬜ RPG 이관(아래) 후 RPG 도 레지스트리 등록 → `auth.py` 공통부 흡수.
-  - ⬜ 영속 저장(T12): verify 응답 `uuid`+`name` → `discord_id ↔ {uuid,name}` (현재 로깅만).
+  - ✅ 매핑 비저장 확정: verify 응답 `uuid`+`name`은 표시/로깅용, 봇 DB 미저장(data_model §3). 영속 상태=부여된 디스코드 역할.
 - 🟢 RPG 서버별 단계: 약관동의 + 인게임 `/연동` 코드 → RPG 화이트리스트 + `인증유저`. **(현행 — 구 코드방향, 이관 대상)**
 - 🟡 **T9. 포로몬 서버별 단계:** 인게임 `/인증` 발급 → 봇 인증 버튼/모달 verify → `포로몬플레이어` 승급.
   - 🟢 봇 측 = `poromon_api.verify_code` + 공통 온보딩 패널로 구현. env(`ROLE_포로몬접근/인증전/플레이어_ID`, `CHANNEL_포로몬약관/인증_ID`) 추가.
