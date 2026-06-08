@@ -36,6 +36,7 @@ log = logging.getLogger(__name__)
 _MSG_TERMS_OK = "✅ 약관에 동의했습니다. 이제 **인증 채널**에서 인증코드를 입력해주세요."
 _MSG_SUCCESS = "✅ 인증이 완료되었습니다! 이제 서버에서 정상적으로 활동할 수 있습니다."
 _MSG_NOT_FOUND = "코드가 올바르지 않거나 만료되었습니다. 인게임에서 코드를 다시 발급해주세요."
+_MSG_RATE_LIMITED = "인증 시도가 너무 많습니다. 잠시 후 다시 시도해주세요."
 _MSG_ERROR = "인증 처리 중 오류가 발생했습니다. 잠시 후 다시 시도하거나 운영진에게 문의해주세요."
 _MSG_EMPTY = "인증 코드를 입력해주세요."
 _MSG_NEED_TERMS = "먼저 약관에 동의해주세요. (약관 채널의 동의 버튼)"
@@ -193,6 +194,8 @@ class OnboardingCog(commands.Cog):
             return _MSG_ERROR
 
         if not result.get("ok"):
+            if result.get("reason") == "rate_limited":
+                return _MSG_RATE_LIMITED
             return _MSG_NOT_FOUND
 
         await self._promote(domain, guild, user)

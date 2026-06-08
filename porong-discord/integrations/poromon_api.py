@@ -60,10 +60,11 @@ class PoromonApiClient:
 
         헤더 `X-API-Key`, 바디 `{"code", "discordId"}` (PoroMonCore 계약).
 
-        반환:
+        반환 (계약 = RPG AuthApiHandler DL-138 레퍼런스와 동일):
           {"ok": True,  "uuid": <MC UUID 또는 None>, "name": <MC 닉 또는 None>}
-                                                      — 200 인증 성공
-          {"ok": False, "reason": "not_found"}        — 404 코드 만료/없음
+                                                       — 200 인증 성공
+          {"ok": False, "reason": "not_found"}         — 404 코드 만료/없음
+          {"ok": False, "reason": "rate_limited"}      — 429 시도 과다(잠시 후 재시도)
 
         예외:
           PoromonAuthError — 401(키 불일치)·네트워크 실패·예상치 못한 응답.
@@ -74,7 +75,7 @@ class PoromonApiClient:
 
         url = f"{config.POROMON_AUTH_URL}/auth/verify"
         headers = {
-            "X-API-Key": config.POROMON_AUTH_KEY,
+            "X-Api-Key": config.POROMON_AUTH_KEY,  # HTTP 헤더는 대소문자 무관, 코드베이스 통일
             "Content-Type": "application/json",
         }
         payload = {"code": code, "discordId": str(discord_id)}
@@ -86,6 +87,8 @@ class PoromonApiClient:
                     return {"ok": True, "uuid": data.get("uuid"), "name": data.get("name")}
                 if resp.status == 404:
                     return {"ok": False, "reason": "not_found"}
+                if resp.status == 429:
+                    return {"ok": False, "reason": "rate_limited"}
                 if resp.status == 401:
                     raise PoromonAuthError("포로몬 인증 API 키 불일치(401)")
                 text = await resp.text()
