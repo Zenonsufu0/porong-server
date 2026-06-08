@@ -5,10 +5,17 @@
 > **설계 작업 공간:** `docs/design/economy.md` (#1 제작법 / #2 가격표).
 >
 > **🖥️ dev 서버 (Git 비추적 런타임 — `porong-gun/.local/server/`):**
-> - **Forge 1.20.1 (47.4.10 recommended)** 설치·부팅 검증 완료(`Done (8.2s)`). Java 21로 구동(17 권장이나 21 OK). 포트 **25567**, difficulty=hard, whitelist on, max 30.
-> - 기동: `porong-gun/.local/server/start.sh`. 월드는 모드 설치 후 첫 부팅 시 생성(Lost Cities 등 worldgen 반영 위해 테스트 월드 삭제됨).
-> - **🔜 모드는 사용자가 `mods/`에 다운로드**(CurseForge — Forge 1.20.1판). 목록 = `docs/platform.md` 모드 표. **NeoForge 아님(Forge).**
-> - ⚠️ 설치 후 통합 게이트(모드 함께 부팅 충돌·성능) → 그 다음 #1 제작법(실레시피 확인).
+> - **Forge 1.20.1 (47.4.10)** / Java 21 구동 / 포트 **25567** / hard / whitelist / max 30. 기동: `.local/server/start.sh`.
+> - **모드팩 = "Escape From Porong 0.1.0"**(사용자 CF 매니페스트, 35개). CF 웹 API로 jar 자동 다운로드 완료.
+>
+> **✅ 통합 게이트(착수 0순위) 통과 — `Done (2.6s)`, 34개 서버 모드 정상.** 2건 수정:
+> 1. **Tactical Movement Renewed = 클라이언트 전용**(데디 서버서 LocalPlayer 로드 크래시) → `.local/client-mods/`로 분리. **플레이어가 클라에만 설치.**
+> 2. **TaCZ Weapon Blueprints 1.0.2 ✗ TaCZ 1.1.8**(GunSmithTableRecipe Mixin 실패) → **1.0.3-beta7로 교체**해 해결(beta7이 1.1.8 호환).
+> - 잔여 ERROR 10건 = 무해(클라 클래스 probe·Vulkan 없음·worldgen hanging-entity 노이즈).
+> - Undead Nights config 확인: `demolition_zombie`(6%, TNT로 방벽 폭파)·`elite_zombie`(3%) = 결전 좀비 매핑 OK.
+>
+> **⚠️ 팩에 설계 외 추가됨(확인 필요):** Create(+Deco) — 대형 테크 모드, 우리 설계(타르코프 생존)와 결 다름 / Vic's Point Blank(TaCZ와 총 모드 중복) / Furniture·Immersive Weathering·Horror Elements·MineTraps·Survival Instinct·Keerdm Essentials. 잘 맞는 것: Bandits(스캐브↑)·Underground Bunkers·ChaosZPack Structures·Doomsday Deco·LC2H(LostCities 멀티스레드).
+> - 🔜 다음: #1 제작법(서버 떠서 TaCZ 작업대·First Aid·Tactical Armor 실레시피 확인) → `docs/design/economy.md`.
 > **브랜치:** `feature/gun-dev` (worktree `porong-work-gun`).
 > 2026-06-08 세션에 결전·연합·이월·와이프·부상·의료·경제·전체검토(A1~A3) 진행. decision_log는 정식 착수 확정 시 일괄 기록 예정(아직 구상).
 
