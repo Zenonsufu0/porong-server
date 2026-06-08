@@ -12,7 +12,8 @@
   - 코드 방향 = 인게임 `/인증` 발급 → 봇 검증.
   - UI = 버튼+모달(슬래시 아님) → 채팅 깔끔. 모달 입력은 본인만 보임.
   - 약관동의 게이트 = 역할 기반 1차(인증전 역할 확인). DB(T12) 불필요.
-  - 닉 입력 폐기 → verify 응답 uuid+name 으로 봇이 신원 확보(영속 저장은 T12).
+  - 닉 입력 폐기 → verify 응답 uuid+name 으로 봇이 신원 확보. 매핑은 봇 DB 에
+    저장하지 않는다(권위=게임서버, data_model.md §3) — name 은 표시/로깅 용도.
 
 채널은 읽기전용(send + use_application_commands 차단) 권장. 버튼/모달은
 읽기전용에서도 작동한다. 봇 측 역할 게이트는 우회 방어로 병행한다.
@@ -195,7 +196,8 @@ class OnboardingCog(commands.Cog):
             return _MSG_NOT_FOUND
 
         await self._promote(domain, guild, user)
-        # TODO(T12): discord_id ↔ {uuid, name} 영속 저장 (현재는 로깅만)
+        # 매핑(discord_id↔mc)은 봇 DB 에 저장하지 않음 — 권위=게임서버(data_model.md §3).
+        # name 은 로깅/표시 용도로만 사용(영속 상태 = 부여된 디스코드 역할).
         log.info(
             "온보딩 인증 완료: domain=%s discord=%s uuid=%s name=%s",
             domain, user.id, result.get("uuid"), result.get("name"),

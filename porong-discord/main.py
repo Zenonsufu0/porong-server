@@ -15,7 +15,9 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+from core import config
 from core.config import DISCORD_TOKEN
+from core.db import Database
 
 log = logging.getLogger(__name__)
 
@@ -77,10 +79,17 @@ async def on_app_command_error(
 
 
 async def main() -> None:
-    async with bot:
-        for ext in EXTENSIONS:
-            await bot.load_extension(ext)
-        await bot.start(DISCORD_TOKEN)
+    # SQLite 접근 계층(T12) 기동 — 확장 로드 전에 연결해 Cog 들이 bot.db 사용 가능.
+    db = Database(config.BOT_DB_PATH)
+    await db.connect()
+    bot.db = db  # type: ignore[attr-defined]
+    try:
+        async with bot:
+            for ext in EXTENSIONS:
+                await bot.load_extension(ext)
+            await bot.start(DISCORD_TOKEN)
+    finally:
+        await db.close()
 
 
 if __name__ == "__main__":

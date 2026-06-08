@@ -18,6 +18,10 @@ POROMON_AUTH_URL: str = os.getenv("POROMON_AUTH_URL", "http://127.0.0.1:25580")
 POROMON_AUTH_KEY: str = os.getenv("POROMON_AUTH_KEY", "")
 
 GUILD_ID: int = int(os.environ["GUILD_ID"])
+
+# ─── 봇 SQLite (T12, 인스턴스 로컬 — gitignored) ─────────────────────
+BOT_DB_PATH: str = os.getenv("BOT_DB_PATH", "poro_bot.sqlite3")
+
 CHANNEL_AUTH_ID: int = int(os.environ["CHANNEL_AUTH_ID"])
 CHANNEL_FIELD_BOSS_ID: int = int(os.environ["CHANNEL_FIELD_BOSS_ID"])
 TERMS_MESSAGE_ID: int | None = int(os.environ["TERMS_MESSAGE_ID"]) if os.getenv("TERMS_MESSAGE_ID") else None
