@@ -1,13 +1,13 @@
 # porong-gun 작업 노트 (다음 세션 이어가기용)
 
 > **상태:** 구상 — 컨셉 설계 진행 중. 코드/런타임 없음(문서만).
-> **SoT:** [`docs/concept.md`](docs/concept.md) · 아이디어 이력: [`docs/idea_inbox.md`](docs/idea_inbox.md) (INBOX-001~022)
-> **브랜치:** `feature/gun-dev` (worktree `porong-work-gun`). 마지막 커밋: `80708d2`.
-> 최근 세션(2026-06-08)에 컨셉 13커밋 진행. decision_log는 정식 착수 확정 시 일괄 기록 예정(아직 구상).
+> **SoT:** [`docs/concept.md`](docs/concept.md) · 아이디어 이력: [`docs/idea_inbox.md`](docs/idea_inbox.md) (INBOX-001~029)
+> **브랜치:** `feature/gun-dev` (worktree `porong-work-gun`).
+> 2026-06-08 세션에 결전·연합·이월·와이프·부상·의료·경제·전체검토(A1~A3) 진행. decision_log는 정식 착수 확정 시 일괄 기록 예정(아직 구상).
 
 ## 한 줄 컨셉
 마크형 **"러스트 + 타르코프"** — 경계 있는 영속 월드에서 기지 짓고, POI 파밍하고, 서로 약탈하고,
-밤을 버티는 **비정한 자유 총기 서바이벌**. 시즌(와이프) 운영. Fabric 1.21.1 / 1인 개발·운영.
+밤을 버티는 **비정한 자유 총기 서바이벌**. 시즌(와이프) 운영. **1.20.1 Forge**(전환) / 1인 개발·운영.
 
 ## ✅ 지금까지 확정된 것 (concept.md에 반영됨)
 - **정체성·톤:** 비정한 자유 서바이벌(다크앤다커/타르코프/DayZ) — 신뢰는 선택, 나머지는 적.
@@ -23,7 +23,7 @@
 - **월드:** 2000², 최대 동접 ~30명. Y25 이하 매일 초기화(손 탄 청크만, 강제 텔포 안전장치).
 - **POI:** 자동 생성 구조물 모드 메인(맵 직접 제작 안 함), POI 티어로 폭약 재료·청사진 통제.
 - **경제:** 커스텀 화폐(드랍), 메뉴 아이템(9번 칸) 상점=기지 안에서만, 총=기본 제작/고급 청사진 해금, 온보딩(격리 로비→디스코드 인증→랜덤 스폰).
-- **경제 보강:** 의료템(Vitality Aids 약품)=핵심 소모재(상점·드랍·제작, 화폐 싱크). 농사·채굴 환금(작물·광물 판매)=자급(은신처 안 안전)/잉여(밖 리스크) 트레이드오프. **난이도=어려움 고정**(배고픔 빨리↓→식량 관리=활동 강제).
+- **경제 보강:** 의료템(First Aid 약품)=핵심 소모재(상점·드랍·제작, 화폐 싱크). 농사·채굴 환금(작물·광물 판매)=자급(은신처 안 안전)/잉여(밖 리스크) 트레이드오프. **난이도=어려움 고정**(배고픔 빨리↓→식량 관리=활동 강제).
 - **밸런스(A1 해소):** 환경 가혹함 유지=비제로섬과 양립(공동의 적), 완충은 PvP눈덩이+신규진입만. **신규 보호막**(최초 1회 실시간 12h PvP면역, 선공 시 해제, PvE 미적용) + **기본 보급**(코어+총·탄약+의료·식량).
 
 ## 🔜 다음 세션 — 이어서 할 것
@@ -33,12 +33,12 @@
 3. (선택) 정밀 부위 데미지 도입 여부 — "깊은 게 더 재밌다" 판단 시.
 4. (선택) 칭호 외 추가 이월(다음 시즌 소량 부트스트랩) 여부 — 와이프 철학 확정 시.
 
-## ⚠️ 착수 시 1순위 검증 (1.21.1 Fabric 호환·충돌)
-- **🚧 0순위 = 스택 통합 검증(단일 게이트):** 아래 모든 핵심 모드를 *함께* 1.21.1 Fabric에 올려 충돌·성능 1회 검증 → 통합 실패 시 Fabric vs NeoForge 결정. 빌드 착수는 이 게이트 통과 후. (A3 — INBOX-028)
-- **총기:** TaCZ: Refabricated(메인, 0.7.0/2026-05 활발). 백업 Vic's=총만 되는 fallback(애드온 상실), 진짜 생태계 fallback=NeoForge. GPLv3·experimental → 테스트 필수.
-- **스캐브:** [TACZ] NPCs / TaCZ: Simple Enemy / Insurgents. **전술 이동:** Tactical Movement Renewed.
+## ⚠️ 착수 시 1순위 검증 (1.20.1 Forge 호환·충돌)
+- **🚧 0순위 = 스택 통합 검증(단일 게이트, 로더 최종 확정):** 아래 모든 핵심 모드를 *함께* **1.20.1 Forge**에 올려 충돌·성능 1회 검증 → 통합 실패 시에만 대안 재검토. 빌드 착수는 이 게이트 통과 후. (A3/로더 전환 — INBOX-028·029)
+- **총기:** TaCZ 원조(Forge). 백업 Vic's=총만 되는 fallback(애드온 상실). GPLv3·experimental → 테스트 필수.
+- **스캐브:** [TACZ] NPCs(1.2.0/1.20.1) / TaCZ: Simple Enemy / Insurgents. **전술 이동:** Tactical Movement Renewed(1.20.1). ← **로더를 1.20.1로 내린 핵심 이유(1.21.1엔 없음).**
 - **PvE/습격:** Zombies Break & Build / Apocalypse / Improved Mobs / Undead Nights / Horde Nights.
-- **부위 데미지·의료:** **Vitality Aids**(First Aid의 Fabric판, 1.21.1 1.0.4 존재 확인) — 부위 HP·의료템·다리 둔화. 안정성·TaCZ 충돌 검증. (TaCZ: Bleeding은 1.20.1 Forge라 제외.)
+- **부위 데미지·의료:** **First Aid**(원조, Forge) — 부위 HP·의료템·다리 둔화. TaCZ 충돌 검증. (Vitality Aids는 Fabric 시절 후보였음.)
 - **POI:** The Lost Cities / **ChaosZPack [Lost Cities]**(TaCZ 연동, 컨셉 겹침 → 최우선 확인) / Underground Bunkers.
 - **청사진:** TaCZ Weapon Blueprints (루트 드랍 해금, /gg clearRecipes 시즌 리셋).
 - **기타:** 클레임 모드(기지 보호 베이스) + 커스텀 관통 폭약 / 폭발물 모드(More Explosives 등) / resetchunks(Y25 초기화 베이스).
