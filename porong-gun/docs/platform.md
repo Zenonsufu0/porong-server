@@ -29,6 +29,16 @@
 
 - **PvE 강화(선택):** Improved Mobs / Apocalypse — 좀비 외 몹 강화. 스캐브와 역할 충돌 주의(좀비에 갑옷·총은 지양).
 
+### 🔫 무기 확장 (gun pack — 선택)
+- **본판 TaCZ에 기본 gun pack 포함** → 없어도 총 나옴. MVP엔 **base pack만**으로 충분(총 종류 통제 = 청사진/티어 설계 단순).
+- 더 원하면 테마 맞는 **1개**만: **Apocalypse Gun Pack**(포스트아포칼립스 정합) / Modern Warfare / **LesRaisins Append Pack**(총+갑옷+전술템, 3.8M DL — 단 이건 코드 모드라 mods/에). Perseus·ARIPS·Weapons and Tactics 등 다수.
+- ⚠️ gun pack은 대개 **TaCZ 팩(데이터)** = mods/ 아닌 TaCZ 팩 폴더로 들어감(CurseForge 분류 'Addons/Customization'). LesRaisins처럼 'mc-mods'면 코드 모드. 종류 구분해서 배치.
+- **QoL(선택):** `TaCZ addon`(MerrySnow, 5.9M DL) — 부착물·탄약 호환 표시·필터.
+
+### ⚠️ 버전 정합 (통합 게이트 1순위)
+- **애드온은 TaCZ 본판 버전에 묶임.** 본판 `tacz-1.20.1-1.1.8` 기준 → 모든 애드온도 그에 호환되는 1.20.1 버전으로(예: Weapon Blueprints 1.0.3+ = TaCZ 1.1.4+).
+- **의존성:** ChaosZPack → The Lost Cities 필요. 일부 애드온은 라이브러리(KubeJS 등) 요구 가능 → 설치 시 누락 의존 로그 확인.
+
 ## 중심 모드 — `porongun-core` (Forge, group `kr.porong.gun` 예정)
 총·좀비AI·습격·갑옷·총 청사진은 기존 모드가 담당. 우리는 **서바이벌 시스템 + 룰 + 오케스트레이션**을 만든다.
 - **"오케스트레이션만"은 과소평가** — 실제 커스텀 표면이 묵직: 무게 점유칸+유리 GUI · 상자 식별 GUI · 조건부 기지 보호(OPaC hook+관통 폭약) · Y25 부분 리셋 · 화폐+상점·메뉴 GUI · 신규 보호막 · 결전 오케스트레이션 · 무게/부위 합산 · 탈출 청사진 테크.
