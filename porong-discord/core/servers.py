@@ -59,3 +59,17 @@ async def create_prep_server(
         "VALUES(?, ?, ?, 'prep', ?, ?, ?, ?)",
         (domain, season_no, display_name, category_id, access_role_id, api_env_key, now),
     )
+
+
+async def set_state(db: Database, server_id: int, new_state: str, *, ended_at: int | None = None) -> None:
+    """서버 상태 전이. 전이 유효성(prep→active→ended)은 호출부가 검증한다.
+
+    domain당 active 1개 부분 유니크 인덱스에 의해, 같은 domain에 active가 이미 있으면
+    prep→active UPDATE 시 sqlite3.IntegrityError 가 전파된다(호출부에서 처리).
+    """
+    if new_state not in VALID_STATES:
+        raise ValueError(f"invalid state: {new_state}")
+    await db.execute(
+        "UPDATE servers SET state = ?, ended_at = ? WHERE id = ?",
+        (new_state, ended_at, server_id),
+    )
