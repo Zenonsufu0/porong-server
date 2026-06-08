@@ -262,10 +262,12 @@
 - **결정 041 디스코드 인증(MC 측)**: `/인증` 코드 → 봇 HTTP API(`/auth/verify`, JDK HttpServer 무의존) verify → 화이트리스트. 미인증=허브 감금+메뉴 잠금(인증하기만). 계약=`05_operations/discord_auth_integration.md`.
 
 **▶ 다음 세션 과업 (우선순위):**
-1. **디스코드 봇 측 인증 구현** — `porong-work-discord` 워크트리에서 `/인증코드 <code>` → `poromon_api.verify_code` → `/auth/verify` 호출 → 역할 부여. 계약: `docs/05_operations/discord_auth_integration.md`. (사용자가 직접 진행 예정.)
-2. **운영 셋업**: core.json `discordAuth.apiKey` 변경 / `/poromon admin netherhub`·(엔드는 자동) / 허브 spawn 실좌표.
-3. **2인+ / 인게임 알파 검증** — `★ 알파 테스트 검증 과제` 섹션 전수(정규리그·챔스·네더/엔드·인증·기믹·특성마개조 등).
+1. **디스코드 봇 측 인증 구현** — `porong-work-discord` 워크트리에서 `/인증코드 <code>` → `poromon_api.verify_code` → `/auth/verify` 호출 → 역할 부여. 계약: `docs/05_operations/discord_auth_integration.md`. (사용자가 직접 진행 예정.) **봇 .env에 MC apiKey 동일값 + base `http://127.0.0.1:25580` 넣을 것**(MC측 키는 런타임 core.json에 이미 주입됨, 비커밋).
+2. **운영 셋업(런북 §9)**: ✅ apiKey 강한 키 생성·런타임 주입(2026-06-08) / ✅ 데이터팩 로딩 수정(결정 043) / ⬜ `/poromon admin netherhub`(엔드는 자동) / ⬜ **허브 spawn 실좌표** ← 아래 ★.
+3. **2인+ / 인게임 알파 검증** — `★ 알파 테스트 검증 과제` 섹션 전수(정규리그·챔스·네더/엔드·**인증 흐름**·기믹·특성마개조·**레쿠쟈 메가 발동**·**상점 메가스톤/키스톤 골드지급 정합**). 인증/2인 필요 항목은 알파에서.
 4. (선택) 챔피언 홀 전시 GUI·동상, 브래킷 시각 UI, 정규리그 룰셋 기믹 게이트 세부.
+
+> ★ **허브 spawn 좌표 — 사용자 입력 대기(2026-06-08)**: 정책=「월드 스폰=허브 중심」(`protection_policy.md`). 현재 `core.json hub.spawn`=기본 `0.5/64/0.5`(월드 스폰 0,0 플레이스홀더). **인게임 sethub 명령 없음** → 사용자가 접속해 실제 허브 빌드 위치 `x/y/z(+yaw)` 알려주면 core.json 직접 반영 + `/setworldspawn`로 정렬. (사용자: "내가 들어가면 알려줄게")
 
 > ⚠️ 봇 측은 별도 워크트리(`porong-work-discord`, feature/discord-dev) — 이 워크트리(porong-mon)에선 수정 금지.
 
