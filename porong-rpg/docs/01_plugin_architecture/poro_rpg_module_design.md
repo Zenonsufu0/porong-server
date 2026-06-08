@@ -478,9 +478,10 @@ Component.text("").font(Key.key("poro","gui"))
 | GET | `/api/v1/boss/{boss_id}/stats` | 단일 보스 상세 통계 | ✅ |
 | GET | `/api/v1/boss/{boss_id}/weekly` | 주차별 클리어율 추이 | ✅ |
 | GET | `/api/v1/boss/{boss_id}/party-spec` | 클리어 파티 스펙 분포 | ✅ |
-| POST | `/auth/pending` | Discord 봇 → 인증 코드 생성 요청 | Phase 7 |
-| GET | `/auth/role-queue` | 역할 부여 큐 조회 | Phase 7 |
-| POST | `/auth/role-granted` | 역할 부여 완료 확인 | Phase 7 |
+| POST | `/auth/verify` | Discord 봇 → 인게임 발급 코드 검증 (헤더 `X-API-Key`, 바디 `{code, discordId}` → `200 {ok, uuid, name}`/`404`/`401`) | Phase 7 (DL-132) |
+| ~~POST~~ | ~~`/auth/pending`~~ | ~~Discord 봇 → 인증 코드 생성 요청~~ — **DL-132 폐기**(인게임 발급으로 전환) | — |
+| ~~GET~~ | ~~`/auth/role-queue`~~ | ~~역할 부여 큐 조회~~ — **DL-132 폐기**(동기 verify로 전환) | — |
+| ~~POST~~ | ~~`/auth/role-granted`~~ | ~~역할 부여 완료 확인~~ — **DL-132 폐기** | — |
 | GET | `/field-status` | 현재 필드보스 스폰 상태 | Phase 7 |
 | GET | `/operations/admin/dashboard` | 관리자 대시보드 데이터 | Phase 7 |
 | GET | `/admin/players/{userId}` | 개별 플레이어 상세 | Phase 7 |
@@ -542,31 +543,37 @@ HUD 아이콘(경험치 바, 체력 이름 위 표시)은 `HealthHudListener`와
 
 ---
 
-## 12. 인증 흐름
+## 12. 인증 흐름 (DL-132 — 인게임 발급 → 봇 검증)
+
+> **방향 전환(DL-132, 2026-06-08):** 구 "봇 발급(`/auth/pending`) → 인게임 `/연동` 입력 → role-queue 폴링" 은 폐기. 코드는 **인게임에서 발급**하고 봇이 **동기 `/auth/verify`** 로 검증한다. 신원을 양측에서 권위화(서버 = 로그인된 MC `uuid`, 봇 = `discord_id`)하고, 닉네임 1회 입력은 verify 응답 `name`으로 대체한다. (설계만 — 코드 구현은 사용자 명시 요청 시.)
 
 ```
-Discord 봇: POST /auth/pending { discordId, mcNickname }
+플레이어: 마크 서버 접속(미인증 = 제한 로비 허용) → 인게임 /인증
     │
-AuthService.createPendingCode(discordId, mcNickname)
-    ├── 6자리 코드 생성
-    ├── PendingAuth DB 저장 (10분 만료)
-    └── 응답: { code: "ABC123" }
+AuthService.issueCode(player)
+    ├── 코드 생성 (충분한 엔트로피)
+    ├── PendingAuth DB 저장 — 로그인된 player.uuid 바인드, 짧은 TTL·1회용
+    └── 플레이어에게 코드 표시
 
-플레이어: 마크 서버 접속 → /연동 ABC123
+Discord 봇: 약관동의(<서버>_인증전 역할) 확인 후
+            인증 버튼/모달에 코드 입력
     │
-VerifyCommand → AuthService.verify(player, "ABC123")
-    ├── PendingAuth 조회 (만료 검사)
-    ├── 닉네임 일치 검사
-    ├── AuthRepository.link(discordId, playerUUID)
-    └── 역할 부여 큐 추가
-
-Discord 봇: GET /auth/role-queue
+    POST /auth/verify
+        헤더 X-API-Key: <서버별 키>
+        바디  { code, discordId }
     │
-    역할 부여 실행
+HttpApiServer → AuthService.verify(code, discordId)
+    ├── PendingAuth 조회 (만료·1회용 검사)  → 없음/만료: 404
+    ├── X-API-Key 불일치                    → 401
+    ├── AuthRepository.link(discordId, uuid) — 코드 즉시 소모
+    ├── 화이트리스트 확정(플레이 권한)
+    └── 응답 200 { ok: true, uuid, name }
     │
-Discord 봇: POST /auth/role-granted
-    └── 큐에서 제거
+봇: 응답 name으로 discord_id ↔ {uuid, name} 저장 + <서버>_플레이어 역할 부여
 ```
+
+> 보안: 짧은 TTL + 1회용 + 충분한 엔트로피 + verify rate-limit. 코드는 `mc_uuid` 단일 바인드(먼저 친 사람이 링크 차지).
+> 봇 측(닉 모달 제거·약관 버튼 = 역할 부여)은 디스코드 worktree에서 별도 이관. 디스코드 측 계약은 `integration_contract.md` A-1.
 
 ---
 

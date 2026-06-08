@@ -38,9 +38,8 @@ GET /api/player/{uuid}/island
 GET /api/boss/timers
 GET /api/ranking
 GET /api/admin/stats
-POST /auth/pending
-GET /auth/role-queue
-POST /auth/role-granted
+POST /auth/verify          # 인게임 발급 코드 검증 (X-API-Key, {code, discordId} → {ok, uuid, name}). DL-132
+# 폐기(DL-132): POST /auth/pending, GET /auth/role-queue, POST /auth/role-granted
 ```
 
 ## 통계 목표

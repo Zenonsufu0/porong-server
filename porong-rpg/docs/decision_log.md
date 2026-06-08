@@ -3322,3 +3322,43 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 **후속:** (1) feature 브랜치(`feature/*-dev`)는 아직 옛 폴더명 — 각 브랜치에 본 rename 머지 후 worktree sparse-checkout을 새 이름으로 재설정(worktree_policy §3 전환기 주의). (2) `porong-mon/scripts/*`·`server_runbook.md` 등의 옛 절대경로(`poro-server-poromon`)는 별도 stale 정리 대상.
 
 **관련:** DL-130(런타임 위치 표준화), `docs/worktree_policy.md`(§2·§3·§7).
+
+---
+
+### DL-132 (2026-06-08) — 디스코드 인증 코드 방향 전 서버 통일 = "인게임 발급 → 봇 검증" (구 "봇 발급 → 인게임 `/연동`" SUPERSEDE)
+
+**배경:** 디스코드 worktree(`feature/discord-dev`)에서 멀티서버 온보딩/인증 방향을 확정하고 봇 측을 구현했다(discord `task.md §5`, 2026-06-08). 이 결정이 디스코드 task.md에만 있고 전역 SoT(`decision_log.md`)에 미반영이라 동기화한다. ※디스코드 task.md가 인용하는 "DL-131/132/133"은 **디스코드 worktree 자체의 DL 번호**로, 이 RPG 원장의 DL과 별개다(혼동 주의).
+
+**무엇 (확정 4종 — 전 서버 RPG·포로몬 공통):**
+1. **코드 방향 = 인게임 발급 → 봇 검증.**
+   - 인게임 `/인증` 실행 → 게임서버가 코드 발급(로그인된 MC `uuid` 바인드, 짧은 TTL·1회용·충분한 엔트로피).
+   - 봇이 코드를 받아 게임서버 `POST /auth/verify`(헤더 `X-API-Key`, 바디 `{code, discordId}`) 호출.
+   - 응답 `200 {ok:true, uuid, name}` / `404`(만료·없음) / `401`(키 불일치).
+2. **인증 UI = 디스코드 버튼+모달**(슬래시 아님). 약관/인증 채널은 읽기전용 권장 — `send_messages` + `use_application_commands` 차단(슬래시까지 막되 버튼/모달은 동작).
+3. **약관동의 게이트 = 역할 기반(`<서버>_인증전`) 1차** — 동의 전에는 봇이 코드 제출을 거부. DB 없이 디스코드 역할만으로 동작(감사 이력용 DB 기록은 후속).
+4. **닉네임 1회 입력 폐기** — verify 응답의 `name`으로 대체. 유저가 닉을 타이핑하는 단계 제거.
+
+**왜:** 신원을 양측에서 권위화한다(게임서버 = 로그인된 MC `uuid`, 봇 = interaction `discord_id`). 유저가 자기 마크 닉을 받아쓰던 단계는 오타·사칭 여지가 있어 제거하고, 코드를 `mc_uuid`에 바인드(먼저 친 사람이 링크를 차지)해 사칭을 막는다. 온보딩 단계도 축소된다.
+
+**SUPERSEDE (구 방향 폐기):**
+- 구 흐름 "디스코드 입장 → 약관 → **마크 닉네임 입력** → 임시 화이트리스트 → 마크 접속 → `/연동`(봇 발급 코드 입력) → 인증유저" 는 별도 DL 번호 없이 베이스라인 설계로 박혀 있었다(`final_master_plan §3`, `module_design §12`, `02_database_api_stats/index`, `10_development_roadmap/index` Phase 2, `09_terms_and_policy/index`). 본 DL로 SUPERSEDE.
+- **폐기 단계:** 마크 닉네임 1회 입력(모달). (디스코드 task.md가 "DL-131 닉 입력 단계 폐기"로 칭한 부분 = RPG 측에선 위 베이스라인 §3/§12의 닉네임 입력 단계에 해당. RPG 원장 DL-131은 폴더 rename이며 무관.)
+- **폐기 엔드포인트:** `POST /auth/pending`(create_pending) · `GET /auth/role-queue` · `POST /auth/role-granted`(역할 부여 큐 폴링 방식).
+- **대체:** `/연동`(봇 발급 코드 입력) 명령 → `/인증`(게임서버 코드 발급). role-queue 폴링 → 동기 `POST /auth/verify` 응답.
+
+**통신 계약 (`POST /auth/verify`):**
+- 요청: `{code, discordId}` + 헤더 `X-API-Key: <서버별 키>`, `Content-Type: application/json`.
+- 응답: `200 {ok:true, uuid, name}` / `404`(코드 만료·없음) / `401`(API 키 불일치).
+- 코드 보안: 짧은 TTL + 1회용(검증 성공 시 즉시 소모) + 충분한 엔트로피 + verify rate-limit. `mc_uuid` 단일 바인드.
+- **전제:** 미인증 인게임 접속 허용 — 바닐라 화이트리스트로 *접속 자체*를 막지 않는다(`/인증`을 치려면 접속이 돼 있어야 함). 미인증자는 제한 로비/대기 영역까지 진입해 `/인증`만 가능하고, 화이트리스트는 *플레이 권한*으로 분리한다.
+
+**RPG 플러그인 마이그레이션 (설계/계획만 — 코드 구현은 사용자 명시 요청 시):**
+- **신설 예정:** 인게임 `/인증`(코드 발급, `uuid` 바인드·TTL·1회용) + `POST /auth/verify`(`name` 반환).
+- **폐기 예정:** `POST /auth/pending`(create_pending) + role-queue 폴링(`GET /auth/role-queue`, `POST /auth/role-granted`).
+- 봇 `auth.py` 이관(닉 모달 제거, 약관 버튼 = `인증전` 역할 부여)은 **디스코드 worktree에서 별도 진행**(이 RPG worktree 범위 밖).
+
+**문서 반영:** `final_master_plan §3`, `module_design §9/§12`, `02_database_api_stats/index`, `10_development_roadmap/index`(Phase 2·7), `09_terms_and_policy/index` 를 새 방향으로 갱신하고 폐기 엔드포인트를 명시. 디스코드 측 `integration_contract.md` A-1(현재 create_pending/role-queue를 🟢로 표기)은 디스코드 worktree에서 동기화 필요(이 worktree에선 읽기전용).
+
+**근거:** 사용자 확인 (2026-06-08), discord `task.md §5`. `final_master_plan §3`과 충돌하던 부분을 본 DL로 정정.
+
+**관련:** DL-030(디스코드 봇 설계 3종), `01_plugin_architecture/poro_rpg_module_design.md §9·§12`, 디스코드 worktree `integration_contract.md` A-1.
