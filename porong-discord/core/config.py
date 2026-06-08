@@ -10,6 +10,13 @@ load_dotenv()
 DISCORD_TOKEN: str = os.environ["DISCORD_TOKEN"]
 PORO_API_URL: str = os.getenv("PORO_API_URL", "http://localhost:8765")
 PORO_API_KEY: str = os.environ["PORO_API_KEY"]
+
+# ─── 포로몬 인증 API (RPG 와 분리된 별도 연동) ──────────────────────
+# 봇·MC 동일 호스트 전제 → 루프백(127.0.0.1) 바인드. 키는 secret 으로만 로드.
+# POROMON_AUTH_KEY 미설정(빈 값)이면 /인증코드 는 운영자 오류로 응답한다.
+POROMON_AUTH_URL: str = os.getenv("POROMON_AUTH_URL", "http://127.0.0.1:25580")
+POROMON_AUTH_KEY: str = os.getenv("POROMON_AUTH_KEY", "")
+
 GUILD_ID: int = int(os.environ["GUILD_ID"])
 CHANNEL_AUTH_ID: int = int(os.environ["CHANNEL_AUTH_ID"])
 CHANNEL_FIELD_BOSS_ID: int = int(os.environ["CHANNEL_FIELD_BOSS_ID"])
