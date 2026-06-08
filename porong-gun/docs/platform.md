@@ -17,11 +17,12 @@
 |---|---|---|---|
 | ⭐ 총기 | **Timeless and Classics Zero (TaCZ 원조)** | ✅ | Forge판(Refabricated/NeoForge 포트 아님). 백업 = Vic's Point Blank(총만). GPLv3 — 내부 Mixin 지양·공개 API만. |
 | ⭐ 스캐브 | **[TACZ] NPCs** (1.2.0) | ✅ | 랭크별 Rookie→Expert 총 쏘는 인간형. 보조 = TaCZ: Simple Enemy / Insurgents. **← 1.20.1 전환 핵심 이유.** |
-| ⭐ 전술 이동 | **Tactical Movement Renewed** | ✅ | 린·프론·슬라이딩·3인칭 장전 애니. **← 동일 전환 이유.** |
+| ⭐ 전술 이동 | **Tactical Movement Renewed** | ✅ **클라 전용** | 린·프론·슬라이딩·3인칭 장전 애니. **← 동일 전환 이유.** ⚠️ **데디 서버 X**(LocalPlayer 크래시) → 플레이어가 *클라에만* 설치(`.local/client-mods/`). |
 | ⭐ 부위 데미지·의료 | **First Aid (원조)** | ✅ | 부위별 8영역 HP·자연재생 제거·붕대/부목/모르핀·다리 둔화. 부위 데미지 모드의 원전. |
 | ⭐ 방어구 | **[TaCZ] Tactical 3D Armor** | ✅ | Light/Medium/Heavy 방탄 등급. 스캐브 약탈·무게·First Aid 부위 보호와 연동. |
-| ⭐ 무기 청사진 | **TaCZ Weapon Blueprints** (1.0.3) | ✅ | 루트 드랍 해금·레시피 영구 학습·`/gg clearRecipes`(시즌 리셋). *총만* 해금(탈출 청사진은 커스텀). |
-| ⭐ POI/구조물 | **The Lost Cities** + **ChaosZPack [Lost Cities]** | ✅ | 폐도시·군사·병원·통신탑·마천루(TaCZ 연동). Lost Cities rarity 조정. 보조 = Underground Bunkers. |
+| ⭐ 무기 청사진 | **TaCZ Weapon Blueprints** (**1.0.3-beta7**) | ✅ | 루트 드랍 해금·레시피 영구 학습·`/gg clearRecipes`(시즌 리셋). *총만* 해금(탈출 청사진은 커스텀). ⚠️ **1.0.2는 TaCZ 1.1.8과 Mixin 충돌 → beta7 필수.** |
+| ⭐ POI/구조물 | **The Lost Cities** (+ **Underground Bunkers**) | ✅ | 폐도시·건물 자동 생성(POI 본체). rarity 조정해 드문 폐도시로. 고티어 지정 = 우리 루트 티어링. **← ❌ ChaosZPack 드랍**(Create 등 8모드 강제 의존 → 경제·톤 충돌, 아래). |
+| 적 보강(선택) | **ChaosZProject: Bandits!** | ✅ | TaCZ 총 든 약탈자(독립 애드온, ChaosZPack 의존 X) = 스캐브 외 적 다양화. |
 | 좀비 블록 파괴 | **Zombies Break & Build** (forge-1.20.1-1.5.0) | ✅ **핀** | 타겟까지 경로 블록 파괴(히트박스 기반) = 우리 기지 습격 설계와 정확히 일치. (Improved Mobs는 과해서 선택지로만.) |
 | 호드 나이트 | **Undead Nights** (2.0.4) | ✅ **핀** | 설정 풍부(규모·캡·간격). **Demolition Zombies(TNT로 방벽 폭파) + Elite Zombies** 내장 = 결전 특수/강화 좀비에 매핑. porongun-core가 config/명령으로 상시 야간+결전 오케스트레이션. |
 | 클레임·파티 | **Open Parties and Claims (OPaC)** | ✅ **핀** | **API**(porongun-core가 보호 룰 hook) + **파티 = 정식 연합(권한 그룹)에 매핑.** 보호 *기하*(코어 반경·Y30·다중방벽·레벨)는 porongun-core 커스텀. |
@@ -35,18 +36,18 @@
 - ⚠️ gun pack은 대개 **TaCZ 팩(데이터)** = mods/ 아닌 TaCZ 팩 폴더로 들어감(CurseForge 분류 'Addons/Customization'). LesRaisins처럼 'mc-mods'면 코드 모드. 종류 구분해서 배치.
 - **QoL(선택):** `TaCZ addon`(MerrySnow, 5.9M DL) — 부착물·탄약 호환 표시·필터.
 
-### ⚠️ 버전 정합 (통합 게이트 1순위)
-- **애드온은 TaCZ 본판 버전에 묶임.** 본판 `tacz-1.20.1-1.1.8` 기준 → 모든 애드온도 그에 호환되는 1.20.1 버전으로(예: Weapon Blueprints 1.0.3+ = TaCZ 1.1.4+).
-- **의존성:** ChaosZPack → The Lost Cities 필요. 일부 애드온은 라이브러리(KubeJS 등) 요구 가능 → 설치 시 누락 의존 로그 확인.
+### ⚠️ 버전 정합 / 의존성 (통합 검증서 확인됨)
+- **애드온은 TaCZ 본판 버전에 묶임.** 본판 `tacz-1.20.1-1.1.8` → **Weapon Blueprints 1.0.2는 Mixin 충돌(GunSmithTableRecipe), 1.0.3-beta7로 해결.**
+- **❌ ChaosZPack은 Create·Furniture·Horror·MineTraps·Survival Instinct·Doomsday·Immersive Weathering를 *필수 의존*으로 강제** → Create 자동화가 우리 경제(희소성·노출 리스크)를 무력화 + 톤 충돌 → **드랍.** POI는 Lost Cities(+Underground Bunkers)로 충분.
 
 ## 중심 모드 — `porongun-core` (Forge, group `kr.porong.gun` 예정)
 총·좀비AI·습격·갑옷·총 청사진은 기존 모드가 담당. 우리는 **서바이벌 시스템 + 룰 + 오케스트레이션**을 만든다.
 - **"오케스트레이션만"은 과소평가** — 실제 커스텀 표면이 묵직: 무게 점유칸+유리 GUI · 상자 식별 GUI · 조건부 기지 보호(OPaC hook+관통 폭약) · Y25 부분 리셋 · 화폐+상점·메뉴 GUI · 신규 보호막 · 결전 오케스트레이션 · 무게/부위 합산 · 탈출 청사진 테크.
 - **📌 포트폴리오 관점:** 이 프로젝트는 포트폴리오 성격도 있어 묵직한 porongun-core(커스텀 GUI·시스템)는 *부담이 아니라 실력 증명 자산.* 리스크는 "무겁다"가 아니라 **"1인이 한 번에 다 못 푸니 MVP 순서가 필요"**일 뿐 → 단계적 출시로 해소(concept 「스코프 원칙」).
 
-## 🚧 착수 0순위 = 스택 통합 검증 (단일 게이트, 로더 최종 확정)
-빌드 착수 *전에* **모든 핵심 모드를 함께** 1.20.1 Forge에 올려 충돌·성능을 1회 검증.
-- 대상 = TaCZ + [TACZ] NPCs + Tactical Movement Renewed + TaCZ Weapon Blueprints + First Aid + Tactical 3D Armor + Lost Cities/ChaosZPack + Zombies Break & Build + Undead Nights + OPaC.
-- **TaCZ 생태계 버전 정합**(원조 TaCZ ↔ NPCs ↔ Tactical Movement ↔ Blueprints ↔ Tactical 3D Armor)이 1순위.
-- **통합 실패 시에만** 대안(NeoForge 1.20.1 / 일부 기능 희생) 재검토. = 가장 큰 단일 리스크를 앞단에서 소거 + 로더 잠정 확정을 정식 확정으로 승격.
-- 추가 검증 포인트: Tactical 3D Armor × First Aid 부위 보호 연동, OPaC API로 관통 폭약 hook 가능 여부, Undead Nights config로 결전 구동 가능 여부.
+## ✅ 통합 검증 결과 (착수 0순위 — 통과)
+**2026-06-08, dev 서버(`.local/server/`)에 실제로 올려 부팅 검증 — `Done (9.3s)`.** 로더 **1.20.1 Forge 정식 확정.**
+- **최종 스택 = 서버 19 모드 + 클라 1(Tactical Movement).** (모드팩 "Escape From Porong 0.1.0" → ChaosZPack 클러스터 15개 드랍 후 린 스택.)
+- **서버 핵심:** TaCZ 1.1.8 · TACZ NPCs · TaCZ Weapon Blueprints(beta7) · Tactical 3D Armor · TaCZ addon · First Aid · Lost Cities · LC²H · Underground Bunkers · Undead Nights · Zombies Break & Build · OPaC · Bandits · Vic's Point Blank · (libs: GeckoLib·Kotlin·SmartBrainLib·Fzzy Config·Quantified).
+- **확인된 작동:** Lost Cities POI 프로파일 생성 / Undead Nights `demolition_zombie`(6%)·`elite_zombie`(3%) = 결전 좀비 / Blueprints·Bandits init.
+- **남은 검증 포인트(런타임서):** Tactical 3D Armor × First Aid 부위 보호 연동, OPaC API로 관통 폭약 hook, Undead Nights config로 결전 구동, Vic's Point Blank를 TaCZ와 병행할지(둘 다 총 모드 — 거취 미정).

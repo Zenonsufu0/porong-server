@@ -14,7 +14,8 @@
 > - 잔여 ERROR 10건 = 무해(클라 클래스 probe·Vulkan 없음·worldgen hanging-entity 노이즈).
 > - Undead Nights config 확인: `demolition_zombie`(6%, TNT로 방벽 폭파)·`elite_zombie`(3%) = 결전 좀비 매핑 OK.
 >
-> **⚠️ 팩에 설계 외 추가됨(확인 필요):** Create(+Deco) — 대형 테크 모드, 우리 설계(타르코프 생존)와 결 다름 / Vic's Point Blank(TaCZ와 총 모드 중복) / Furniture·Immersive Weathering·Horror Elements·MineTraps·Survival Instinct·Keerdm Essentials. 잘 맞는 것: Bandits(스캐브↑)·Underground Bunkers·ChaosZPack Structures·Doomsday Deco·LC2H(LostCities 멀티스레드).
+> **✅ ChaosZPack 클러스터 드랍 → 린 스택 19개(+클라 1) 재검증 `Done (9.3s)`.** 원인: ChaosZPack이 Create·Furniture·Horror·MineTraps·Survival Instinct·Doomsday·Weathering를 *필수 의존*으로 강제(사용자가 추가한 게 아님). Create 자동화가 경제 무력화·톤 충돌 → 드랍. POI는 Lost Cities(+Underground Bunkers)+우리 루트 티어링. 제거분 = `.local/_removed-chaoszpack/`(15개).
+> - 유지: TaCZ스택·First Aid·Lost Cities·LC2H·Undead Nights·Zombies B&B·OPaC·Bandits(독립 적 보강)·Vic's(거취 미정)·libs.
 > - 🔜 다음: #1 제작법(서버 떠서 TaCZ 작업대·First Aid·Tactical Armor 실레시피 확인) → `docs/design/economy.md`.
 > **브랜치:** `feature/gun-dev` (worktree `porong-work-gun`).
 > 2026-06-08 세션에 결전·연합·이월·와이프·부상·의료·경제·전체검토(A1~A3) 진행. decision_log는 정식 착수 확정 시 일괄 기록 예정(아직 구상).
