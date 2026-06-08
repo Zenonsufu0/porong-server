@@ -178,6 +178,33 @@
 
 ## 8. 세션 핸드오프 (다음 세션 이어가기)
 
+### 이번 세션 완료 (2026-06-08~09, feature/discord-dev) — 인증·온보딩·DB·서버레지스트리 구현 패스
+설계만이던 영역을 **실코드로 구현**. 상태변경 명령은 사용자 명시 요청받아 진행. 핵심 흐름:
+포로몬 인증(verify) → 공통 온보딩(약관게이트+버튼/모달) → SQLite 계층(core/db.py) → 서버 레지스트리/생애주기(T21).
+
+**구현 산출:**
+- **포로몬 인증** `integrations/poromon_api.py` `verify_code`(POST /auth/verify, X-Api-Key, {code,discordId} → 200{ok,uuid,name}/404/429/401).
+- **공통 온보딩** `modules/onboarding/panels.py` — 약관동의 버튼(접근→인증전 역할) + 인증 버튼/모달 → verify → 플레이어 승급. 서버 레지스트리 `core/config.ONBOARDING_SERVERS`(포로몬 등록). `main.py` 전역 `on_app_command_error` 추가.
+- **DB 계층(T12)** `core/db.py` — aiosqlite 단일커넥션 + 쓰기 lock + `schema_meta` 증분 마이그레이션. v1 = `servers` 테이블. `BOT_DB_PATH`. `bot.db` 배선.
+- **서버 레지스트리/생애주기(T21)** `core/servers.py` + `core/gating.py` + `modules/server_lifecycle/commands.py` — `/서버목록`·`/서버정보`·`/서버신설`·`/서버시작`(prep→active)·`/서버종료`(active→ended) + 카테고리 가시성 + 게이팅 3층 헬퍼.
+
+**확정/정정:**
+- 코드방향 통일(인게임 발급→봇 검증) = RPG **DL-138** 동기화 완료. RPG가 `/인증`+`/auth/verify` 실구현(레퍼런스 계약). 닉입력 폐기, name 반환.
+- **매핑 비저장** 확정(권위=게임서버, data_model §3) — uuid/name 은 표시/로깅용, 봇 DB 미저장.
+- DL 번호 132→**138** 정정(브랜치 선점 충돌, 전 브랜치 확인 후 부여).
+
+**주의/함정 기록:**
+- `.gitignore` `server/`(런타임)에 걸려 모듈 폴더는 `modules/server_lifecycle/`로 명명(루트 .gitignore 수정 불가).
+- master 머지는 **합본 원본**(`porong-server`)에서(worktree_policy). 디스코드 워크트리에서 강행 시 루트 CLAUDE.md가 rpg용으로 덮어써짐 → **B(master 동기화) 미완**, 합본 원본에서 수행 필요.
+
+**다음 세션 착수 후보:**
+1. **mod_log 인프라**(§12.2 순서) — v2 마이그레이션 + `#운영로그` 게시 헬퍼. 붙이면 `/서버시작`·`종료`·`신설` 등 전이가 운영로그에 남음(moderation/admin 공통 선행).
+2. **RPG auth 이관**(DL-138 지정) — RPG를 `ONBOARDING_SERVERS`에 등록(verify 엔드포인트 준비됨) + `modules/rpg/auth.py` 구 흐름(닉 모달·create_pending·role-queue 폴링) 정리.
+3. **B: master 동기화** — 합본 원본에서 `feature/discord-dev`에 origin/master 머지(decision_log 충돌=theirs, 루트 CLAUDE.md 디스코드용 정리).
+4. **남은 열린 결정**: 약관동의 DB기록(b) 시점, T17 카테고리 자동생성, 이모지 서버선택 패널, XP 곡선·티켓·FAQ.
+
+> 미push 주의: 세션 종료 시점에 T21 상태전이 2커밋(`ee170d3`·`0919642`)이 origin 미반영일 수 있음 — 다음 세션 시작 시 `git log origin/feature/discord-dev..HEAD` 확인.
+
 ### 이번 세션 완료 (2026-06-06~07, feature/discord-dev) — 공통 확장 설계 패스 + 검토
 모두 **docs/설계만, 코드 변경 없음**(상태변경 구현은 DL-130 ⑤ 사용자 명시 요청 시). 10커밋:
 - `26017b7` 백로그 승격(T12~T21) + data_model.md + server_lifecycle.md
