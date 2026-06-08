@@ -108,6 +108,10 @@
   장기 정출 의지 생기면 그때 NeoForge 신규 시작.
 - **총기 모드: TaCZ: Refabricated(메인) / Vic's Point Blank(백업).** GPLv3·experimental →
   내부 Mixin 지양(공개 API만), 착수 전 테스트 검증 필수. 비공개 내부 사용이라 배포 의무는 실무상 무관.
+  - **신뢰도(2026-06 확인):** Refabricated 1.21.1 **활발히 유지**(최신 0.7.0/2026-05, 179k+ DL, 1년+ 버전 진화) → 메인 경로 탄탄. "experimental"은 표준 주의 문구.
+  - **⚠️ A3 — TaCZ 의존 집중 리스크:** 스캐브([TACZ] NPCs)·전술이동(Tactical Movement Renewed)·청사진(TaCZ Weapon Blueprints)이 **전부 TaCZ 애드온** → TaCZ가 1.21.1에서 통합 실패하면 *생태계 통째 증발*.
+    - **백업 재정의:** Vic's Point Blank = **총만 되는** fallback(애드온 생태계 상실 → 스캐브는 거부했던 "바닐라몹+총" 타협으로 후퇴). **진짜 생태계 fallback = NeoForge**(TaCZ+애드온 1급, Fabric 포트보다 성숙 — "장기 정출 시 NeoForge"와 연결).
+    - **완화 = 단일 게이트로 집중:** 착수 전 **스택 통합 검증**(아래) 1회에 TaCZ 전체 스택을 함께 테스트 → 통합 실패 시 그 시점에 Fabric vs NeoForge 결정. 빌드 착수는 이 게이트 통과 후.
 - **PvE/습격 모드 후보(가져다 씀):** 좀비 블록 파괴 = **Zombies Break & Build / Apocalypse / Improved Mobs(Fabric)**,
   호드 나이트 = **Undead Nights / Horde Nights / Defend Your Base**. (1.21.1 정확 버전·호환은 착수 시 검증.)
 - **스캐브(적 NPC) = TaCZ 애드온 활용 ⭐:** **[TACZ] NPCs**(플레이어처럼 TaCZ 총 발사, **랭크별 Rookie→Expert 방어구·루트**) /
@@ -118,6 +122,7 @@
   **TaCZ 연동** 군사/병원/마천루 — 컨셉 일치 1순위), **Underground Bunkers**(군사 벙커). (Lost Cities Fabric은 1.20.1 beta 확인됨 → 1.21.1 검증 필요.)
 - **중심 모드: `porongun-core`** (group `kr.porong.gun` 예정). 총·좀비AI·습격은 기존 모드가 담당,
   우리는 **서바이벌 시스템(기지·파밍·손실·무게·부위) + 룰 + 오케스트레이션(상시 야간·최후의 결전·약탈·손실·보상 엮기)**만 만든다.
+- **🚧 착수 0순위 = 스택 통합 검증 (단일 게이트):** 빌드 착수 *전에* **모든 핵심 모드를 함께** 1.21.1 Fabric에 올려 충돌·성능을 1회 검증. 대상 = TaCZ Refabricated + [TACZ] NPCs + Tactical Movement Renewed + TaCZ Weapon Blueprints + Vitality Aids + Lost Cities/ChaosZPack + PvE/습격 모드 + 클레임·폭약 모드. **통합 실패 시 그 시점에 Fabric 유지 vs NeoForge 전환을 결정**(개별 모드 검증을 다 통과해도 *함께* 안 돌면 의미 없음). = 가장 큰 단일 리스크를 앞단에서 소거.
 
 ## 운영 전제
 - **시즌(와이프) 운영.** 기본 2주, 유저 원하면 연장. 시즌 종료=와이프+시즌2 보강.

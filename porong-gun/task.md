@@ -34,7 +34,8 @@
 4. (선택) 칭호 외 추가 이월(다음 시즌 소량 부트스트랩) 여부 — 와이프 철학 확정 시.
 
 ## ⚠️ 착수 시 1순위 검증 (1.21.1 Fabric 호환·충돌)
-- **총기:** TaCZ: Refabricated(메인)/Vic's Point Blank(백업). GPLv3·experimental → 테스트 필수.
+- **🚧 0순위 = 스택 통합 검증(단일 게이트):** 아래 모든 핵심 모드를 *함께* 1.21.1 Fabric에 올려 충돌·성능 1회 검증 → 통합 실패 시 Fabric vs NeoForge 결정. 빌드 착수는 이 게이트 통과 후. (A3 — INBOX-028)
+- **총기:** TaCZ: Refabricated(메인, 0.7.0/2026-05 활발). 백업 Vic's=총만 되는 fallback(애드온 상실), 진짜 생태계 fallback=NeoForge. GPLv3·experimental → 테스트 필수.
 - **스캐브:** [TACZ] NPCs / TaCZ: Simple Enemy / Insurgents. **전술 이동:** Tactical Movement Renewed.
 - **PvE/습격:** Zombies Break & Build / Apocalypse / Improved Mobs / Undead Nights / Horde Nights.
 - **부위 데미지·의료:** **Vitality Aids**(First Aid의 Fabric판, 1.21.1 1.0.4 존재 확인) — 부위 HP·의료템·다리 둔화. 안정성·TaCZ 충돌 검증. (TaCZ: Bleeding은 1.20.1 Forge라 제외.)
