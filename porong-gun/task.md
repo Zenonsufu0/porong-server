@@ -1,7 +1,8 @@
 # porong-gun 작업 노트 (다음 세션 이어가기용)
 
 > **상태:** 구상 — 컨셉 설계 진행 중. 코드/런타임 없음(문서만).
-> **SoT:** [`docs/concept.md`](docs/concept.md) · 아이디어 이력: [`docs/idea_inbox.md`](docs/idea_inbox.md) (INBOX-001~029)
+> **SoT:** [`docs/concept.md`](docs/concept.md)(비전+인덱스) + `docs/platform.md` + `docs/design/`(finale·base_raid·survival·world·economy). 아이디어 이력: [`docs/idea_inbox.md`](docs/idea_inbox.md) (INBOX-001~036)
+> **설계 작업 공간:** `docs/design/economy.md` (#1 제작법 / #2 가격표).
 > **브랜치:** `feature/gun-dev` (worktree `porong-work-gun`).
 > 2026-06-08 세션에 결전·연합·이월·와이프·부상·의료·경제·전체검토(A1~A3) 진행. decision_log는 정식 착수 확정 시 일괄 기록 예정(아직 구상).
 
@@ -44,7 +45,8 @@
 - **🚧 0순위 = 스택 통합 검증(단일 게이트, 로더 최종 확정):** 아래 모든 핵심 모드를 *함께* **1.20.1 Forge**에 올려 충돌·성능 1회 검증 → 통합 실패 시에만 대안 재검토. 빌드 착수는 이 게이트 통과 후. (A3/로더 전환 — INBOX-028·029)
 - **총기:** TaCZ 원조(Forge). 백업 Vic's=총만 되는 fallback(애드온 상실). GPLv3·experimental → 테스트 필수.
 - **스캐브:** [TACZ] NPCs(1.2.0/1.20.1) / TaCZ: Simple Enemy / Insurgents. **전술 이동:** Tactical Movement Renewed(1.20.1). ← **로더를 1.20.1로 내린 핵심 이유(1.21.1엔 없음).**
-- **PvE/습격:** Zombies Break & Build / Apocalypse / Improved Mobs / Undead Nights / Horde Nights.
+- **좀비 블록 파괴:** **Zombies Break & Build**(핀, forge-1.20.1-1.5.0). **호드 나이트:** **Undead Nights**(핀, 2.0.4 — Demolition/Elite 좀비).
+- **클레임·파티:** **Open Parties and Claims(OPaC)**(핀 — API+파티=연합). **관통 폭약:** porongun-core 커스텀(확정).
 - **부위 데미지·의료:** **First Aid**(원조, Forge) — 부위 HP·의료템·다리 둔화. TaCZ 충돌 검증. (Vitality Aids는 Fabric 시절 후보였음.)
 - **방어구:** **[TaCZ] Tactical 3D Armor**(Forge) — Light/Medium/Heavy 방탄. First Aid 부위 보호 연동 검증.
 - **POI:** The Lost Cities / **ChaosZPack [Lost Cities]**(TaCZ 연동, 컨셉 겹침 → 최우선 확인) / Underground Bunkers.
