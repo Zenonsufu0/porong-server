@@ -47,7 +47,8 @@
 
 ## ✅ 통합 검증 결과 (착수 0순위 — 통과)
 **2026-06-08, dev 서버(`.local/server/`)에 실제로 올려 부팅 검증 — `Done (9.3s)`.** 로더 **1.20.1 Forge 정식 확정.**
-- **최종 스택 = 서버 19 모드 + 클라 1(Tactical Movement).** (모드팩 "Escape From Porong 0.1.0" → ChaosZPack 클러스터 15개 드랍 후 린 스택.)
-- **서버 핵심:** TaCZ 1.1.8 · TACZ NPCs · TaCZ Weapon Blueprints(beta7) · Tactical 3D Armor · TaCZ addon · First Aid · Lost Cities · LC²H · Underground Bunkers · Undead Nights · Zombies Break & Build · OPaC · Bandits · Vic's Point Blank · (libs: GeckoLib·Kotlin·SmartBrainLib·Fzzy Config·Quantified).
+- **최종 스택 = 서버 18 모드 + 클라 1(Tactical Movement).** (모드팩 "Escape From Porong 0.1.0" → ChaosZPack 클러스터 15개 + Vic's Point Blank 드랍 후 린 스택, `Done (10s)`.)
+- **서버 핵심:** TaCZ 1.1.8 · TACZ NPCs · TaCZ Weapon Blueprints(beta7) · Tactical 3D Armor · TaCZ addon · First Aid · Lost Cities · LC²H · Underground Bunkers · Undead Nights · Zombies Break & Build · OPaC · Bandits · (libs: GeckoLib·Kotlin·SmartBrainLib·Fzzy Config·Quantified).
+- **Vic's Point Blank 제거** — "백업"은 TaCZ 실패 시 *대체*용이지 병행 아님. TaCZ 정상이라 불필요(총 모드 중복).
 - **확인된 작동:** Lost Cities POI 프로파일 생성 / Undead Nights `demolition_zombie`(6%)·`elite_zombie`(3%) = 결전 좀비 / Blueprints·Bandits init.
-- **남은 검증 포인트(런타임서):** Tactical 3D Armor × First Aid 부위 보호 연동, OPaC API로 관통 폭약 hook, Undead Nights config로 결전 구동, Vic's Point Blank를 TaCZ와 병행할지(둘 다 총 모드 — 거취 미정).
+- **남은 검증 포인트(런타임서):** Tactical 3D Armor × First Aid 부위 보호 연동, OPaC API로 관통 폭약 hook, Undead Nights config로 결전 구동.
