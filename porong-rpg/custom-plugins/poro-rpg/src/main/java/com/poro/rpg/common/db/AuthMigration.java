@@ -8,7 +8,7 @@ import java.sql.Connection;
 import java.sql.Statement;
 import java.util.Objects;
 
-/** 디스코드 인증 테이블 DDL 적용 (DL-132). idempotent. */
+/** 디스코드 인증 테이블 DDL 적용 (DL-138). idempotent. */
 public final class AuthMigration implements MigrationEntryPoint {
     private final DomainLogger logger;
 

@@ -836,7 +836,7 @@ public final class PoroRPGPlugin extends JavaPlugin {
             }
         }
 
-        // 디스코드 인증 (/인증) — 인게임 코드 발급, 봇 POST /auth/verify 검증 (DL-132)
+        // 디스코드 인증 (/인증) — 인게임 코드 발급, 봇 POST /auth/verify 검증 (DL-138)
         if (operationsQueryRuntime != null && operationsQueryRuntime.authService() != null) {
             var authCmd = getCommand("인증");
             if (authCmd != null) {

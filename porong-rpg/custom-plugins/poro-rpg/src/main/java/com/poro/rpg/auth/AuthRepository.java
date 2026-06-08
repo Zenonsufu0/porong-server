@@ -11,7 +11,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * 디스코드 인증 저장소 (DL-132). {@code auth_pending_code} 발급/소모 + {@code discord_link} 확정.
+ * 디스코드 인증 저장소 (DL-138). {@code auth_pending_code} 발급/소모 + {@code discord_link} 확정.
  *
  * <p>verify는 {@link #consumeAndLink}로 <b>원자적</b>으로 처리한다(읽기→삭제→링크 1트랜잭션).
  * 코드 삭제 성공(1행)한 호출만 링크를 확정하므로 1회용·동시요청 경합이 안전하다.

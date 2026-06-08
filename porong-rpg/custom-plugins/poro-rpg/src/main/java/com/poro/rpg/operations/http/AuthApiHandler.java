@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * {@code POST /auth/verify} — 봇이 인게임 발급 코드를 검증 (DL-132).
+ * {@code POST /auth/verify} — 봇이 인게임 발급 코드를 검증 (DL-138).
  *
  * <pre>
  *   요청: 헤더 X-Api-Key: &lt;키&gt; · 바디 {"code":"...","discordId":"..."}
@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *         429 {"error":"rate limited"}     — verify rate-limit 초과
  * </pre>
  *
- * <p>코드 보안(DL-132): 짧은 TTL·1회용·충분한 엔트로피는 {@link AuthService}가, verify rate-limit은
+ * <p>코드 보안(DL-138): 짧은 TTL·1회용·충분한 엔트로피는 {@link AuthService}가, verify rate-limit은
  * 본 핸들러가 담당(discord_id 단위 슬라이딩 윈도우).
  */
 public final class AuthApiHandler implements HttpHandler {

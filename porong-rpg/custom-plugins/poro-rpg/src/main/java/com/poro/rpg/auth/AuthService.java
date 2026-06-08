@@ -7,7 +7,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * 디스코드 인증 코어 (DL-132 — 인게임 발급 → 봇 검증).
+ * 디스코드 인증 코어 (DL-138 — 인게임 발급 → 봇 검증).
  *
  * <ul>
  *   <li>{@link #issueCode} — 인게임 {@code /인증}이 호출. 로그인된 MC uuid에 바인드된 1회용 코드 발급.

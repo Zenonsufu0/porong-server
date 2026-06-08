@@ -478,10 +478,10 @@ Component.text("").font(Key.key("poro","gui"))
 | GET | `/api/v1/boss/{boss_id}/stats` | 단일 보스 상세 통계 | ✅ |
 | GET | `/api/v1/boss/{boss_id}/weekly` | 주차별 클리어율 추이 | ✅ |
 | GET | `/api/v1/boss/{boss_id}/party-spec` | 클리어 파티 스펙 분포 | ✅ |
-| POST | `/auth/verify` | Discord 봇 → 인게임 발급 코드 검증 (헤더 `X-Api-Key`, 바디 `{code, discordId}` → `200 {ok, uuid, name}`/`404`/`401`) | ✅ 구현 (DL-132, e2e 검증 전) |
-| ~~POST~~ | ~~`/auth/pending`~~ | ~~Discord 봇 → 인증 코드 생성 요청~~ — **DL-132 폐기**(인게임 발급으로 전환) | — |
-| ~~GET~~ | ~~`/auth/role-queue`~~ | ~~역할 부여 큐 조회~~ — **DL-132 폐기**(동기 verify로 전환) | — |
-| ~~POST~~ | ~~`/auth/role-granted`~~ | ~~역할 부여 완료 확인~~ — **DL-132 폐기** | — |
+| POST | `/auth/verify` | Discord 봇 → 인게임 발급 코드 검증 (헤더 `X-Api-Key`, 바디 `{code, discordId}` → `200 {ok, uuid, name}`/`404`/`401`) | ✅ 구현 (DL-138, e2e 검증 전) |
+| ~~POST~~ | ~~`/auth/pending`~~ | ~~Discord 봇 → 인증 코드 생성 요청~~ — **DL-138 폐기**(인게임 발급으로 전환) | — |
+| ~~GET~~ | ~~`/auth/role-queue`~~ | ~~역할 부여 큐 조회~~ — **DL-138 폐기**(동기 verify로 전환) | — |
+| ~~POST~~ | ~~`/auth/role-granted`~~ | ~~역할 부여 완료 확인~~ — **DL-138 폐기** | — |
 | GET | `/field-status` | 현재 필드보스 스폰 상태 | Phase 7 |
 | GET | `/operations/admin/dashboard` | 관리자 대시보드 데이터 | Phase 7 |
 | GET | `/admin/players/{userId}` | 개별 플레이어 상세 | Phase 7 |
@@ -543,9 +543,9 @@ HUD 아이콘(경험치 바, 체력 이름 위 표시)은 `HealthHudListener`와
 
 ---
 
-## 12. 인증 흐름 (DL-132 — 인게임 발급 → 봇 검증)
+## 12. 인증 흐름 (DL-138 — 인게임 발급 → 봇 검증)
 
-> **방향 전환(DL-132, 2026-06-08):** 구 "봇 발급(`/auth/pending`) → 인게임 `/연동` 입력 → role-queue 폴링" 은 폐기. 코드는 **인게임에서 발급**하고 봇이 **동기 `/auth/verify`** 로 검증한다. 신원을 양측에서 권위화(서버 = 로그인된 MC `uuid`, 봇 = `discord_id`)하고, 닉네임 1회 입력은 verify 응답 `name`으로 대체한다. (설계만 — 코드 구현은 사용자 명시 요청 시.)
+> **방향 전환(DL-138, 2026-06-08):** 구 "봇 발급(`/auth/pending`) → 인게임 `/연동` 입력 → role-queue 폴링" 은 폐기. 코드는 **인게임에서 발급**하고 봇이 **동기 `/auth/verify`** 로 검증한다. 신원을 양측에서 권위화(서버 = 로그인된 MC `uuid`, 봇 = `discord_id`)하고, 닉네임 1회 입력은 verify 응답 `name`으로 대체한다. (설계만 — 코드 구현은 사용자 명시 요청 시.)
 
 ```
 플레이어: 마크 서버 접속(미인증 = 제한 로비 허용) → 인게임 /인증

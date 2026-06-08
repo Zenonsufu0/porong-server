@@ -1,7 +1,7 @@
 package com.poro.rpg.common.db;
 
 /**
- * 디스코드 인증 DDL (DL-132 — 인게임 발급 → 봇 검증).
+ * 디스코드 인증 DDL (DL-138 — 인게임 발급 → 봇 검증).
  *
  * <ul>
  *   <li>{@code auth_pending_code} — 인게임 {@code /인증}이 발급한 1회용 코드. MC uuid에 바인드, 짧은 TTL.

@@ -90,7 +90,7 @@ public final class OperationsQueryBootstrap {
             httpLogger.warn("common.api-secret-key not configured — HTTP API will reject all requests with 503.");
         }
 
-        // 디스코드 인증 (DL-132): 인게임 /인증 발급 → 봇 POST /auth/verify 검증. 코드 TTL 5분.
+        // 디스코드 인증 (DL-138): 인게임 /인증 발급 → 봇 POST /auth/verify 검증. 코드 TTL 5분.
         com.poro.rpg.auth.AuthService authService = new com.poro.rpg.auth.AuthService(
                 new com.poro.rpg.auth.AuthRepository(
                         foundationContext.connectionProvider(), foundationContext.logger().domain("auth")),

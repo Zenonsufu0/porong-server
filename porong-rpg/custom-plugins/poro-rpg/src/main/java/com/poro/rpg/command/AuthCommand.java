@@ -11,7 +11,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * 인게임 {@code /인증} — 디스코드 인증 코드 발급 (DL-132, 인게임 발급 → 봇 검증).
+ * 인게임 {@code /인증} — 디스코드 인증 코드 발급 (DL-138, 인게임 발급 → 봇 검증).
  *
  * <p>로그인된 플레이어의 uuid·name에 바인드된 1회용 코드를 발급하고, 디스코드 인증 버튼/모달에
  * 입력하도록 안내한다. 봇이 {@code POST /auth/verify}로 검증한다.
