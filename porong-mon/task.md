@@ -283,10 +283,11 @@
 - ✅ **PoroMonCore 0.1 스캐폴드 생성·빌드·로드(Phase 2 착수)**: `custom-mods/poromon-core/`(Fabric 1.21.1/Java21, 순수 Fabric). `PoroMonCore`(ModInitializer)·`PlayerProgress`·`PoroMonState`(PersistentState 월드부속 NBT)·`PoroMonCommand`. **BUILD SUCCESSFUL** → jar 서버 배포 → `poromoncore 0.1.0` 로드 + 초기화 로그 + `/poromon` 명령 동작 확인. `/poromon admin tower set <player> <floor>`로 진행도 영속화 테스트 가능(클라 접속 시). **다음: Cobblemon 의존 추가 + 배틀타워 pvn 오케스트레이션.**
 - ✅ **MSD 핵심 아이템 ID 검증**: 키스톤·메가링·메가스톤 47·주홍/쪽빛구슬·Z링·테라오브·다이맥스밴드 실 ID+한글명 확정. ko_kr 기본 포함.
 - ✅ **상점 카탈로그 ID 채움(#2)**: §3.1~3.3·3.6 TODO→실 ID. Cobblemon 볼12+마스터·회복약·진화돌11·비타민6·민트25·특성캡슐/패치·사탕류 + 메가스톤47 전수(오타0 검증). Exp Share=미존재 확인. 잔여=SimpleTMs 개별TM·Eggs 알 ID.
-- ⚠️ 잔여: **SimpleTMs 개별 기술 TM ID**(lang 1:1 부재 → 동적 합성 추정, 컴포넌트 방식 확인 필요), **Eggs 알 아이템 ID**·둥지 스폰 비활성 여부.
-- ⚠️ 레쿠쟈 메가 해금 방식(MSD에 `rayquazite` 미발견 — 기술/전용처리 추정, 추가 확인).
-- keystone/메가스톤 월드 획득 경로(메가팔찌 골드 독점 관련) 확인.
-- config 포맷: 0.1 JSON vs legendary_pools/events YAML 혼용 결정.
+- ✅ **SimpleTMs 개별 TM ID = 동적 합성 확정**: 별도 ID 박을 필요 없음. `TmCatalog.java`(L53~74)가 런타임에 레지스트리에서 `simpletms:tm_*` 632종 전수 수집 + Cobblemon Moves API로 타입/위력/한글명 매핑. 코드 완성(미해결 없음).
+- ✅ **Eggs 알 ID·둥지 스폰 = 폐기(결정 032)**: 알 시스템 자체를 모드팩에서 제거(조우권 중복+리소스팩 의존) → 알 아이템 ID·야생 둥지 스폰 논의 불필요.
+- ✅ **레쿠쟈 메가 = 기술기반·엔드게임 분리(설계 확정)**: `rayquazite` 부재 확정(MSD lang 메가스톤47 전수에 없음). 원작대로 **Dragon Ascent(용의숨결) 보유 시 메가**(기술18종 실재 검증됨). 레쿠쟈는 결정 020 "하늘 조우권" 엔드게임이라 일반 메가 게이트와 분리 → 운영부담 낮음. ⚠️ MSD jar의 트리거 방식(기술명 매칭 vs 전용코드)은 jar 내부라 미확인 — **알파 때 인게임 1회 발동 확인**이면 충분(별도 구현 불필요).
+- ✅ **keystone/메가스톤 월드 획득 차단(결정 042)**: MSD 기본이 골드 독점을 우회(레시피180·구조물5·광석2). 베이스 재료(mega_stone←mega_stone_crystal / keystone←keystone_ore)는 구조물 내부에만 생성(광맥 feature 없음) → OpenLoader 팩 `poromon_mega_control`로 MSD 구조물 5종 structure_set `structures:[]` 차단 = 공급 100% 차단. ⚠️ 헤드리스 검증(datapack list·/locate 실패) + 상점 골드지급 정합 확인 잔여.
+- ✅ **config 포맷 = JSON 통일 확정**: 실제 코드는 JSON 100%(`ConfigManager`=Gson만, SnakeYAML/Jackson 의존성 0). `core.json`·`economy.json`·`legendary_pools.json`·`seasons.json` 전부 JSON 로드. `legendary_pools.draft.yml`은 **docs 드래프트일 뿐 런타임 미사용**(혼용 문제 없음). 정리: 설계용 YAML 초안 → 구현 시 JSON 번들로 변환하는 현 방식 유지. (`config_structure.md:27`의 미정 TODO를 "JSON 통일"로 확정.)
 
 ## 6. 파일/디렉터리 맵
 - 규칙/핸드오프: `CLAUDE.md`, `task.md`(이 파일)

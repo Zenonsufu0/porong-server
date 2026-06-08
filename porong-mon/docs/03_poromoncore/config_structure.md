@@ -20,11 +20,11 @@
 | `rewards.json` | ❌ 향후 | 보상 테이블 |
 | `gyms.json` | ❌ 향후 | 짐/배지 정의 |
 | `unlocks.json` | ❌ 향후 | 메가/테라/다이맥스 해금 조건 |
-| `legendary_pools.yml` | ❌ 향후 | 조우권 등급·필드 이벤트·컨셉 10종 풀 (§8) |
-| `legendary_events.yml` | ❌ 향후 | 하급+중급 2시간 필드 이벤트 설정 (§8) |
+| `legendary_pools.json` | ✅ 구현 | 조우권 등급·필드 이벤트·컨셉 10종 풀 (§8). 설계 드래프트=`legendary_pools.draft.yml` |
+| `legendary_events.json` | ❌ 향후 | 하급+중급 2시간 필드 이벤트 설정 (§8) |
 | `seasons.json` | ❌ 향후 | 시즌/리그 설정 |
 
-> ⚠️ **포맷 일관성 TODO:** 0.1 기본 config는 **JSON**(`core/tickets/rooms.json`)인데, 전설 풀/이벤트는 가독성·주석을 위해 **YAML 후보**로 제안됨(사용자 사양). 최종 구현 전 **JSON 통일 vs YAML 혼용**을 결정할 것(파서 의존성 영향).
+> ✅ **포맷 = JSON 통일(확정):** 실제 구현은 JSON 100%(`ConfigManager`=Gson만, SnakeYAML/Jackson 미사용). `core.json`·`economy.json`·`legendary_pools.json`·`seasons.json` 전부 JSON 로드. 위 표의 `*.yml` 표기는 **설계 드래프트(docs)일 뿐 런타임은 JSON**으로 번들·로드한다(예: `legendary_pools.draft.yml` → `legendary_pools.json`). 혼용 파서 불필요. (전설 풀/이벤트도 JSON으로 통일.)
 
 > 0.1은 `core.json` + `tickets.json` + `rooms.json` **스키마만 확정**하고 일부는 빈/예시 값으로 시작.
 

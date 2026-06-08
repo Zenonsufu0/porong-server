@@ -385,3 +385,19 @@ jar 전수 검증(`egg_pool_design.md §8`)으로 Eggs Addon(`diesse`)의 실제
 - **미인증 제약**: 메뉴 = `AuthMenu`(인증하기만) / 텔레포트 명령(hub·home·wild·league·tpa accept) 차단 / 허브 반경(confineRadius100) 밖·타차원이면 허브 복귀. config `core.json discordAuth`(enabled/bindAddress/httpPort/apiKey/codeExpiry/confine/confineRadius).
 - **봇 측(porong-discord, 별도 워크트리·여기 수정 금지)**: `/인증코드 <code>` → `/auth/verify` 호출 → 역할 부여. 계약 = `05_operations/discord_auth_integration.md`.
 - 검증: 빌드 + 헤드리스(HTTP ping 200·잘못된 키 401·없는 코드 404·config 생성·에러0). ⚠️ 알파(플레이어): /인증 발급·실제 verify·감금·메뉴 잠금. ⚠️ 운영: apiKey 기본값(CHANGE_ME) 반드시 변경.
+
+### 042. 메가스톤/키스톤 월드 자연획득 차단 (골드 독점 정합)
+
+메가스톤·키스톤·메가팔찌는 **상점 골드 판매가 유일 경로**(mega_tera_unlock·economy_design·shop_design 확정)인데, Mega Showdown(MSD) 기본 상태가 이를 우회시킴을 jar 감사로 확인 → **차단 데이터팩 추가**(결정 023 LM 차단과 동일 패턴).
+
+**MSD 기본 우회 경로(jar 검증, 전부 기본 활성):**
+- **크래프팅 레시피 180개**(`data/mega_showdown/recipe/`): 각 메가스톤 = `mega_showdown:mega_stone`(베이스) + 포켓몬 재료(예: charizardite_x = dragon_fang+철+다이아). keystone↔keystone_block 순환.
+- **구조물 자연생성 5종**(overworld 흔함, advancement `find_*_structure`로 탐색 유도): `mega_site`(지하)·`megaroid`(지하)·`observatory`(정글)·`archaeological_site`(사막)·`wishing_weald`(spooky). spacing 30~42 / frequency 0.25~0.5.
+- **광석 채굴**: `keystone_ore`→keystone, `mega_stone_crystal`→mega_stone. **이 두 블록은 configured/placed_feature(광맥) 없음 = 구조물 내부에만 존재.**
+- **config 토글 없음**: `MegaShowdownConfig` 필드 전수 확인 — worldgen/ore/structure/recipe 비활성 옵션 자체가 없음 → config로 차단 불가.
+
+**공급망 단일 병목 = 구조물:** 베이스 `mega_stone`은 레시피 없음(오직 mega_stone_crystal), `keystone`은 순환 레시피뿐(실출처 keystone_ore). 두 광석 모두 구조물 내부에만 생성 + chest/몹 loot에 키스톤·메가스톤 **없음**(블록 loot 3개가 전부). ⇒ **구조물 5종 생성 차단 = 베이스 재료 공급 100% 차단 → 레시피는 입력이 없어 자동 무력화**(레시피를 hacky하게 막을 필요 없음).
+
+**구현:** OpenLoader 팩 `poromon_mega_control`(`modpack/overrides/config/openloader/packs/`) — MSD 5개 `worldgen/structure_set/*.json`을 `structures:[]` 빈 배열로 오버라이드(결정 023 LM 팩과 동일 방식). `.local/server`에도 미러.
+- 검증: JSON 유효성 OK(6파일). ⚠️ 헤드리스/알파: 서버 기동 후 `datapack list` 활성·`/locate structure mega_showdown:mega_site` 실패(생성 차단) 확인 필요. ⚠️ 정합: PoroMonCore 상점이 메가스톤47·키스톤·메가팔찌를 실제 골드 지급하는지 확인(상점이 유일 경로가 되므로).
+- 비차단(의도): 레시피·광석 블록·아이템 자체는 그대로 둠(입력원 차단으로 무력). 운영자가 `/give`로 지급하는 경로는 정상 유지.
