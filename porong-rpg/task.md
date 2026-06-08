@@ -18,6 +18,33 @@
 
 ---
 
+## §20 디스코드 인증 코드방향 통일 + 인게임 `/인증`·`POST /auth/verify` 구현 — 완료 (DL-138, 2026-06-08~09, master 머지됨)
+
+> **방향(DL-138):** 디스코드 인증 코드 = **인게임 발급 → 봇 검증**으로 전 서버 통일. 구 "봇 발급(`/auth/pending`) → 인게임 `/연동` → role-queue 폴링"·마크 닉네임 1회 입력 폐기. 신원 양측 권위화(서버=MC `uuid`, 봇=`discord_id`), verify 응답 `name` 사용.
+> ⚠ **봇 연동·인게임 e2e 검증 미실시** (코드/빌드만 통과). 다음 재개 시 검증 필요.
+
+### 문서/DL (커밋 1: docs 동기화)
+- DL-138 신규 + SUPERSEDE(구 베이스라인) 기록. `final_master_plan §3`·`module_design §9/§12`·`02_database_api_stats/index`·`10_development_roadmap/index`(Phase 2·7)·`09_terms_and_policy/index` 새 방향으로 갱신, 폐기 엔드포인트 명시.
+- ⚠ **DL 번호 교훈**: 처음 DL-132로 부여했으나 디스코드 브랜치가 DL-132~136, master가 DL-137 선점 → **DL-138로 재번호**. 새 DL은 전 브랜치(master+`feature/*`) grep 후 부여할 것.
+
+### 플러그인 구현 (커밋 2: 신규 — 기존 `/auth/pending`·AuthService는 설계만·미구현이었음)
+- DB: `common/db/AuthDdl`·`AuthMigration` — 테이블 `auth_pending_code`(코드·uuid·name·created/expires)·`discord_link`(discord_id↔uuid,name). `CommonFoundationBootstrap` composite 등록.
+- 코어: `auth/AuthRepository`(발급/원자적 소모+링크) · `auth/AuthService`(SecureRandom 30자 8자리 ≈39bit·TTL **5분**·uuid당 활성 1개).
+- 인게임: `command/AuthCommand`(`/인증`) + plugin.yml `인증`(poro.use) + `PoroRPGPlugin.registerCommands` 배선(`operationsQueryRuntime.authService()`).
+- HTTP: `operations/http/AuthApiHandler`(`POST /auth/verify`: `X-Api-Key`→401, `{code,discordId}`, `200{ok,uuid,name}`/`404`(없음·만료)/`429`(rate-limit discord_id 10/60s)) + `PoroHttpServer` 컨텍스트 + `OperationsQueryBootstrap`/`OperationsQueryRuntime` 배선.
+- 코드 만료 정책(사용자 확인): 만료=즉시 사용불가, DB 행 물리삭제는 **지연**(verify 시도/재발급 시점에만). 미사용 만료행 누적 허용, 별도 sweeper 없음.
+
+### 재개 시 검증 포인트
+- ① `/인증` → 코드 표시(5분·1회용) ② 봇/`curl`로 `POST /auth/verify`(X-Api-Key+`{code,discordId}`) → `200{ok,uuid,name}` ③ 만료/오타 코드 → 404 ④ 잘못된 키 → 401 ⑤ 동일 discord_id 11회/분 → 429 ⑥ 같은 uuid 재발급 시 구 코드 무효.
+- 후속: 봇 `auth.py` 이관(닉 모달 제거·약관버튼=역할부여)은 **디스코드 worktree**에서. 디스코드 `integration_contract.md` A-1(현재 create_pending/role-queue 🟢 표기)도 그쪽에서 동기화. 운영자 재링크/언링크(`/admin/relink`)·AuthService 단위테스트 미구현.
+
+### 핵심 파일
+- `custom-plugins/poro-rpg/src/main/java/com/poro/rpg/auth/{AuthService,AuthRepository}.java`
+- `.../command/AuthCommand.java` · `.../operations/http/AuthApiHandler.java` · `.../common/db/{AuthDdl,AuthMigration}.java`
+- 배선: `PoroRPGPlugin.java`(registerCommands) · `CommonFoundationBootstrap.java` · `OperationsQueryBootstrap.java` · `PoroHttpServer.java` · `plugin.yml`
+
+---
+
 ## ★ 다음 세션 작업 — 장비의 흔적 "개별 인스턴스화" (DL-129#37에서 방향 확정, 2026-06-04)
 
 > **사용자 확정 방향**: 흔적을 장비처럼 **등급 + 세부스탯을 가진 개별 인스턴스**로. 드랍 시 등급+세부스탯이 롤되어 표시되고, 전승 시 그 흔적의 등급·세부스탯이 장비로 이전. **멀티-시스템 재설계 = 큰 작업.** 단계별로 배포·검증하며 진행.
