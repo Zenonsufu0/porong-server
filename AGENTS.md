@@ -4,6 +4,7 @@
 - Default response language is Korean.
 - Keep changes minimal and targeted.
 - Do not modify unrelated areas.
+- `porong-economy/`·`porong-gun/`는 **구상 단계(개발 미착수)** 프로젝트다. 문서만 존재하며 런타임·빌드 산출물·플랫폼 템플릿(Gradle/Fabric/Paper)을 만들지 않는다. 착수는 사용자 명시 요청 시에만.
 
 ## Forbidden paths unless explicitly requested
 - `porong-rpg/server/`

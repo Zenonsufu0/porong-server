@@ -3325,6 +3325,25 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 
 ---
 
+### DL-137 (2026-06-07) — 구상 단계 프로젝트 `porong-economy`/`porong-gun` 등록
+
+**무엇:** 향후 후보 서버 2종을 in-repo 최상위 **구상(아이디어 보관/기획용) 폴더**로 등록.
+- `porong-economy/` — 경제/거래/생산/시장 중심 후보 서버.
+- `porong-gun/` — 총기/전술/생존 후보 서버(세부 컨셉 미확정).
+- 각 폴더는 `README.md` + `docs/concept.md` + `docs/idea_inbox.md` **문서 3종만** 둔다.
+
+**아닌 것(명시):** 확정된 개발 착수가 **아니다.** 아이디어·컨셉을 모으는 단계다.
+- 런타임(`.local/server`)·서버 데이터(world/logs/jar)·빌드 산출물·플랫폼 템플릿(Gradle/Fabric/Paper)은 **생성하지 않았다.**
+- worktree(`porong-work-economy`/`porong-work-gun`)도 아직 만들지 않았다. 착수 결정 시 worktree_policy §6 절차로 생성.
+
+**왜:** 후보 서버 아이디어를 채팅이 아닌 추적 가능한 문서로 보관하고, README/구조에서 활성/구상 단계를 명확히 구분하기 위함.
+
+**번호 메모:** master 기준 직전 DL은 131이나, `feature/discord-dev`가 DL-132~136을 선점(미머지)했으므로 충돌 회피로 **DL-137**을 부여.
+
+**관련:** README.md(서버별 컨셉·단계 구분), `docs/worktree_policy.md`(§2 구조·§3 예정 worktree·§7), `porong-economy/docs/`, `porong-gun/docs/`.
+
+---
+
 ### DL-138 (2026-06-08) — 디스코드 인증 코드 방향 전 서버 통일 = "인게임 발급 → 봇 검증" (구 "봇 발급 → 인게임 `/연동`" SUPERSEDE)
 
 **배경:** 디스코드 worktree(`feature/discord-dev`)에서 멀티서버 온보딩/인증 방향을 확정하고 봇 측을 구현했다(discord `task.md §5`, 2026-06-08). 이 결정이 디스코드 task.md에만 있고 전역 SoT(`decision_log.md`)에 미반영이라 동기화한다.
