@@ -61,7 +61,8 @@ class PoromonApiClient:
         헤더 `X-API-Key`, 바디 `{"code", "discordId"}` (PoroMonCore 계약).
 
         반환:
-          {"ok": True,  "uuid": <MC UUID 또는 None>}  — 200 인증 성공
+          {"ok": True,  "uuid": <MC UUID 또는 None>, "name": <MC 닉 또는 None>}
+                                                      — 200 인증 성공
           {"ok": False, "reason": "not_found"}        — 404 코드 만료/없음
 
         예외:
@@ -82,7 +83,7 @@ class PoromonApiClient:
             async with self._get_session().post(url, json=payload, headers=headers) as resp:
                 if resp.status == 200:
                     data = await resp.json()
-                    return {"ok": True, "uuid": data.get("uuid")}
+                    return {"ok": True, "uuid": data.get("uuid"), "name": data.get("name")}
                 if resp.status == 404:
                     return {"ok": False, "reason": "not_found"}
                 if resp.status == 401:

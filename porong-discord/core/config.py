@@ -62,3 +62,25 @@ NOTIFY_ROLE_IDS: dict[str, int] = {
     "점검알림":     int(os.getenv("ROLE_점검알림_ID",     "0") or "0"),
     "업데이트알림": int(os.getenv("ROLE_업데이트알림_ID", "0") or "0"),
 }
+
+
+def _role(name: str) -> int:
+    return int(os.getenv(name, "0") or "0")
+
+
+# ─── 멀티서버 온보딩 레지스트리 (1차: 코드 기반 — DB(T12) 도입 전) ─────
+# 서버(도메인)별 3단계 역할 상태머신 + 약관/인증 채널.
+#   접근(임시, 서버 선택) → 인증전(약관 동의) → 플레이어(인증 완료)
+# 미설정(0)인 항목/서버는 해당 패널·전이가 비활성. 채널/역할 ID 는 .env 에서만 채운다.
+# verify 라우팅(도메인→API 클라이언트)은 modules/onboarding 에서 코드로 매핑한다.
+ONBOARDING_SERVERS: dict[str, dict[str, int | str]] = {
+    "poromon": {
+        "display_name": "포로몬",
+        "access_role":  _role("ROLE_포로몬접근_ID"),
+        "pending_role": _role("ROLE_포로몬인증전_ID"),
+        "player_role":  _role("ROLE_포로몬플레이어_ID"),
+        "terms_channel": _role("CHANNEL_포로몬약관_ID"),
+        "auth_channel":  _role("CHANNEL_포로몬인증_ID"),
+    },
+    # "rpg": { ... }  # RPG 는 코드방향 이관(auth.py) 후 등록 — 현재 기존 흐름 유지
+}

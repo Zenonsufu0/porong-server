@@ -9,11 +9,15 @@
   modules.<도메인>.<cog>
 """
 import asyncio
+import logging
 
 import discord
+from discord import app_commands
 from discord.ext import commands
 
 from core.config import DISCORD_TOKEN
+
+log = logging.getLogger(__name__)
 
 # ─── 로드할 확장 목록 (모듈 네임스페이스 단위) ──────────────────────
 # 활성: 실제 구현·동작하는 모듈
@@ -28,6 +32,8 @@ EXTENSIONS: list[str] = [
     "modules.rpg.role_poll",
     # 역할(권한·알림 분리)
     "modules.roles.role_commands",
+    # 공통 온보딩(약관 게이트 + 인증 버튼/모달 패널)
+    "modules.onboarding.panels",
     # ── 아래는 스텁: 설계/인터페이스 단계. 구현 전까지 명령어 없음 ──
     "modules.poromon.commands",
     "modules.event.commands",
@@ -45,6 +51,29 @@ async def on_ready() -> None:
     print(f"Poro Bot ready: {bot.user}")
     await bot.tree.sync()
     print("Slash commands synced.")
+
+
+@bot.tree.error
+async def on_app_command_error(
+    interaction: discord.Interaction, error: app_commands.AppCommandError
+) -> None:
+    """전역 app command 에러 핸들러.
+
+    권한/체크 실패(requires_permission 등)는 사유를 ephemeral 로 안내하고,
+    그 외 예외는 일반 오류 안내 + 로깅한다(거부가 조용히 묻히지 않도록).
+    """
+    if isinstance(error, app_commands.CheckFailure):
+        msg = str(error) or "이 명령어를 실행할 권한이 없습니다."
+    else:
+        log.exception("app command 오류: %s", error)
+        msg = "명령 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
+    try:
+        if interaction.response.is_done():
+            await interaction.followup.send(msg, ephemeral=True)
+        else:
+            await interaction.response.send_message(msg, ephemeral=True)
+    except discord.HTTPException:
+        pass
 
 
 async def main() -> None:
