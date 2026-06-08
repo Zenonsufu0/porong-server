@@ -1,8 +1,14 @@
 # porong-gun 작업 노트 (다음 세션 이어가기용)
 
-> **상태:** 구상 — 컨셉 설계 진행 중. 코드/런타임 없음(문서만).
+> **상태:** 설계 진입 + **dev 서버 환경 구축**(2026-06-08).
 > **SoT:** [`docs/concept.md`](docs/concept.md)(비전+인덱스) + `docs/platform.md` + `docs/design/`(finale·base_raid·survival·world·economy). 아이디어 이력: [`docs/idea_inbox.md`](docs/idea_inbox.md) (INBOX-001~036)
 > **설계 작업 공간:** `docs/design/economy.md` (#1 제작법 / #2 가격표).
+>
+> **🖥️ dev 서버 (Git 비추적 런타임 — `porong-gun/.local/server/`):**
+> - **Forge 1.20.1 (47.4.10 recommended)** 설치·부팅 검증 완료(`Done (8.2s)`). Java 21로 구동(17 권장이나 21 OK). 포트 **25567**, difficulty=hard, whitelist on, max 30.
+> - 기동: `porong-gun/.local/server/start.sh`. 월드는 모드 설치 후 첫 부팅 시 생성(Lost Cities 등 worldgen 반영 위해 테스트 월드 삭제됨).
+> - **🔜 모드는 사용자가 `mods/`에 다운로드**(CurseForge — Forge 1.20.1판). 목록 = `docs/platform.md` 모드 표. **NeoForge 아님(Forge).**
+> - ⚠️ 설치 후 통합 게이트(모드 함께 부팅 충돌·성능) → 그 다음 #1 제작법(실레시피 확인).
 > **브랜치:** `feature/gun-dev` (worktree `porong-work-gun`).
 > 2026-06-08 세션에 결전·연합·이월·와이프·부상·의료·경제·전체검토(A1~A3) 진행. decision_log는 정식 착수 확정 시 일괄 기록 예정(아직 구상).
 
