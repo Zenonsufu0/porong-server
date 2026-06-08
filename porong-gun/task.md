@@ -26,6 +26,9 @@
 - **경제 보강:** 의료템(First Aid 약품)=핵심 소모재(상점·드랍·제작, 화폐 싱크). 농사·채굴 환금(작물·광물 판매)=자급(은신처 안 안전)/잉여(밖 리스크) 트레이드오프. **난이도=어려움 고정**(배고픔 빨리↓→식량 관리=활동 강제).
 - **밸런스(A1 해소):** 환경 가혹함 유지=비제로섬과 양립(공동의 적), 완충은 PvP눈덩이+신규진입만. **신규 보호막**(최초 1회 실시간 12h PvP면역, 선공 시 해제, PvE 미적용) + **기본 보급**(코어+총·탄약+의료·식량).
 - **차원(B3):** 오버월드 단일 월드 — 네더·엔더 전부 봉쇄(단일 경계 월드·현대 폐허 테마·1인 운영). 네더 자원은 상점/POI 대체.
+- **연합 2단:** 정식 연합(기지 공유·권한, 진짜 안전, 배신=탈퇴 예고) / 구두 연합(시스템 밖, 기습 백스탭 자유=비정한 톤).
+- **방어구:** 전술 모드 갑옷 `[TaCZ] Tactical 3D Armor`(Light/Medium/Heavy, 스캐브 약탈·무게·First Aid 부위 연동). 바닐라 갑옷 아님.
+- **porongun-core:** "오케스트레이션만"은 과소평가, 실제 커스텀 묵직 — 포트폴리오 성격이라 OK(실력 자산), 단 MVP 순서 필요.
 - **음식/의료(B1):** 음식=굶주림 방지, 의료=부위 HP 회복(First Aid 정합). **결전 약탈(B4):** 동기=티켓 부품 강탈/이월용/좌석 경쟁, 데스박스 식별 단축.
 - **전체검토(C) 완료:** 7기둥=초기 골격 표기·스캐브 스폰 정정, 난이도 메모 1.20.1 스택 반영, **무게 시각화+속도 도입 확정**(시즌2+ 미루기 폐기), 굶주림 효과(스프린트 불가·데미지) 명시.
 
@@ -42,6 +45,7 @@
 - **스캐브:** [TACZ] NPCs(1.2.0/1.20.1) / TaCZ: Simple Enemy / Insurgents. **전술 이동:** Tactical Movement Renewed(1.20.1). ← **로더를 1.20.1로 내린 핵심 이유(1.21.1엔 없음).**
 - **PvE/습격:** Zombies Break & Build / Apocalypse / Improved Mobs / Undead Nights / Horde Nights.
 - **부위 데미지·의료:** **First Aid**(원조, Forge) — 부위 HP·의료템·다리 둔화. TaCZ 충돌 검증. (Vitality Aids는 Fabric 시절 후보였음.)
+- **방어구:** **[TaCZ] Tactical 3D Armor**(Forge) — Light/Medium/Heavy 방탄. First Aid 부위 보호 연동 검증.
 - **POI:** The Lost Cities / **ChaosZPack [Lost Cities]**(TaCZ 연동, 컨셉 겹침 → 최우선 확인) / Underground Bunkers.
 - **청사진:** TaCZ Weapon Blueprints (루트 드랍 해금, /gg clearRecipes 시즌 리셋).
 - **기타:** 클레임 모드(기지 보호 베이스) + 커스텀 관통 폭약 / 폭발물 모드(More Explosives 등) / resetchunks(Y25 초기화 베이스).
