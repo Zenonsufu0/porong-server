@@ -121,9 +121,12 @@ tar xzf server/backups/world-<TS>.tar.gz -C server/run
 ### 9-4. 엔드 (결정 039-e)
 - **자동.** 명령/건설 불필요(입장 시 드래곤 부재 + 무작위 외곽 섬 착지).
 
-### 9-5. 데이터팩 활성 확인
-- `datapack list` → `poromon_lm_control`(전설 차단)·`poromon_mega_control`(메가스톤 차단)·`poromon_battletower_test` 활성 확인.
-- 차단 검증: `/locate structure mega_showdown:mega_site` **실패**(생성 차단) / LM 구조물도 동일.
+### 9-5. 데이터팩 활성 확인 (⚠️ 결정 043 — 반드시 실로드 확인)
+- **전제(결정 043)**: OpenLoader 팩은 `config/openloader/**data**/`(packs/ 아님)에 두고, `config/openloader/options.json`의 `load_data_packs.value = true`여야 로드됨. JSON 유효성만으론 부족 — 기동 후 아래로 실제 로드 확인.
+- 기동 로그: `Found new data pack openloader/.../poromon_{lm_control,mega_control,battletower_test}, loading it automatically`.
+- `datapack list` → `poromon_lm_control`(전설 차단)·`poromon_mega_control`(메가스톤 차단)·`poromon_battletower_test` **enabled** 확인.
+- 차단 검증: `/locate structure mega_showdown:mega_site` **"Could not find"**(생성 차단) / LM(`legendarymonuments:spear_pillar` 등)도 동일.
+- ⚠️ 이미 생성된 청크엔 차단 전 구조물이 남음 — 알파/운영 월드는 차단 적용 **후** 생성해야 깨끗함.
 
 ### 9-6. 정합 점검
 - [ ] 상점이 메가스톤47·키스톤·메가팔찌를 골드로 지급(차단 후 유일 경로 — 결정 042).

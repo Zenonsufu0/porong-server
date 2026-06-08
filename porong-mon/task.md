@@ -286,7 +286,8 @@
 - ✅ **SimpleTMs 개별 TM ID = 동적 합성 확정**: 별도 ID 박을 필요 없음. `TmCatalog.java`(L53~74)가 런타임에 레지스트리에서 `simpletms:tm_*` 632종 전수 수집 + Cobblemon Moves API로 타입/위력/한글명 매핑. 코드 완성(미해결 없음).
 - ✅ **Eggs 알 ID·둥지 스폰 = 폐기(결정 032)**: 알 시스템 자체를 모드팩에서 제거(조우권 중복+리소스팩 의존) → 알 아이템 ID·야생 둥지 스폰 논의 불필요.
 - ✅ **레쿠쟈 메가 = 기술기반·엔드게임 분리(설계 확정)**: `rayquazite` 부재 확정(MSD lang 메가스톤47 전수에 없음). 원작대로 **Dragon Ascent(용의숨결) 보유 시 메가**(기술18종 실재 검증됨). 레쿠쟈는 결정 020 "하늘 조우권" 엔드게임이라 일반 메가 게이트와 분리 → 운영부담 낮음. ⚠️ MSD jar의 트리거 방식(기술명 매칭 vs 전용코드)은 jar 내부라 미확인 — **알파 때 인게임 1회 발동 확인**이면 충분(별도 구현 불필요).
-- ✅ **keystone/메가스톤 월드 획득 차단(결정 042)**: MSD 기본이 골드 독점을 우회(레시피180·구조물5·광석2). 베이스 재료(mega_stone←mega_stone_crystal / keystone←keystone_ore)는 구조물 내부에만 생성(광맥 feature 없음) → OpenLoader 팩 `poromon_mega_control`로 MSD 구조물 5종 structure_set `structures:[]` 차단 = 공급 100% 차단. ⚠️ 헤드리스 검증(datapack list·/locate 실패) + 상점 골드지급 정합 확인 잔여.
+- ✅ **keystone/메가스톤 월드 획득 차단(결정 042, 헤드리스 검증완료)**: MSD 기본이 골드 독점을 우회(레시피180·구조물5·광석2). 베이스 재료(mega_stone←mega_stone_crystal / keystone←keystone_ore)는 구조물 내부에만 생성(광맥 feature 없음) → OpenLoader 팩 `poromon_mega_control`로 MSD 구조물 5종 structure_set `structures:[]` 차단 = 공급 100% 차단. 검증: `datapack list` enabled + mega/LM `/locate` 전부 "Could not find". ⚠️ 잔여: 상점 골드지급 정합(알파).
+- 🔴 **결정 043 — OpenLoader 데이터팩 미로딩 발견·수정**: 위 검증 중 OpenLoader 팩이 **전혀 로드 안 됨** 발견(LM 023·메가 042·배틀타워 전부 영향, 전설 통제 전제가 깨져 있었음). 원인 ① `options.json load_data_packs=false` ② 팩이 `config/openloader/packs/`(미인식, `data/`여야 함). 수정: 플래그 true + `packs/`→`data/` git mv + `additional_locations`에 `config/openloader/data` 추가. 재기동 검증 통과. **데이터팩 통제는 기동 후 `datapack list`로 실로드 확인 필수.**
 - ✅ **config 포맷 = JSON 통일 확정**: 실제 코드는 JSON 100%(`ConfigManager`=Gson만, SnakeYAML/Jackson 의존성 0). `core.json`·`economy.json`·`legendary_pools.json`·`seasons.json` 전부 JSON 로드. `legendary_pools.draft.yml`은 **docs 드래프트일 뿐 런타임 미사용**(혼용 문제 없음). 정리: 설계용 YAML 초안 → 구현 시 JSON 번들로 변환하는 현 방식 유지. (`config_structure.md:27`의 미정 TODO를 "JSON 통일"로 확정.)
 
 ## 6. 파일/디렉터리 맵

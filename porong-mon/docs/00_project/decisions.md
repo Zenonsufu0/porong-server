@@ -398,6 +398,19 @@ jar 전수 검증(`egg_pool_design.md §8`)으로 Eggs Addon(`diesse`)의 실제
 
 **공급망 단일 병목 = 구조물:** 베이스 `mega_stone`은 레시피 없음(오직 mega_stone_crystal), `keystone`은 순환 레시피뿐(실출처 keystone_ore). 두 광석 모두 구조물 내부에만 생성 + chest/몹 loot에 키스톤·메가스톤 **없음**(블록 loot 3개가 전부). ⇒ **구조물 5종 생성 차단 = 베이스 재료 공급 100% 차단 → 레시피는 입력이 없어 자동 무력화**(레시피를 hacky하게 막을 필요 없음).
 
-**구현:** OpenLoader 팩 `poromon_mega_control`(`modpack/overrides/config/openloader/packs/`) — MSD 5개 `worldgen/structure_set/*.json`을 `structures:[]` 빈 배열로 오버라이드(결정 023 LM 팩과 동일 방식). `.local/server`에도 미러.
-- 검증: JSON 유효성 OK(6파일). ⚠️ 헤드리스/알파: 서버 기동 후 `datapack list` 활성·`/locate structure mega_showdown:mega_site` 실패(생성 차단) 확인 필요. ⚠️ 정합: PoroMonCore 상점이 메가스톤47·키스톤·메가팔찌를 실제 골드 지급하는지 확인(상점이 유일 경로가 되므로).
+**구현:** OpenLoader 팩 `poromon_mega_control`(`modpack/overrides/config/openloader/data/`) — MSD 5개 `worldgen/structure_set/*.json`을 `structures:[]` 빈 배열로 오버라이드(결정 023 LM 팩과 동일 방식). `.local/server`에도 미러.
+- ✅ 검증(헤드리스 2026-06-08): `datapack list`에 `poromon_mega_control` enabled + `/locate structure mega_showdown:{mega_site,observatory,megaroid}` 전부 "Could not find"(차단 전엔 mega_site가 832블록 거리 생성). LM(`spear_pillar`·`hall_of_origin`)도 동일 차단 확인. **단, 이 검증 과정에서 결정 043(OpenLoader 미로딩) 발견 — 그걸 고친 뒤에야 차단이 실제 작동.**
+- ⚠️ 정합(알파): PoroMonCore 상점이 메가스톤47·키스톤·메가팔찌를 실제 골드 지급하는지 확인(상점이 유일 경로가 되므로).
 - 비차단(의도): 레시피·광석 블록·아이템 자체는 그대로 둠(입력원 차단으로 무력). 운영자가 `/give`로 지급하는 경로는 정상 유지.
+
+### 043. OpenLoader 데이터팩 미로딩 근본원인 + 수정 (LM 023·메가 042·배틀타워 전부 영향)
+
+**증상(헤드리스 2026-06-08):** 메가 차단 검증 중 `datapack list`에 OpenLoader 팩이 **하나도 없고** `mega_showdown:mega_site`가 여전히 생성됨 발견. → LM 차단(결정 023)·배틀타워 NPC 데이터팩도 **처음부터 로드된 적 없음**(전설 통제 전제가 깨져 있었음).
+
+**근본원인 2가지(darkhax OpenLoader 21.1.5):**
+1. `config/openloader/options.json` → **`load_data_packs.value = false`** (데이터팩 로딩 자체 OFF). 모드팩 소스(overrides)·런타임 양쪽 동일.
+2. 팩이 `config/openloader/**packs**/`에 있었음 — OpenLoader는 `config/openloader/**data**/`(+ `additional_locations`)를 스캔. `packs/`는 미인식.
+
+**수정:** ① `load_data_packs.value = true` ② 팩 `packs/` → `data/` 이동(git mv) ③ `additional_locations`에 `config/openloader/data` 명시. overrides + `.local/server` 양쪽 적용.
+- ✅ 검증: 재기동 시 `Found new data pack openloader/.../poromon_{battletower_test,lm_control,mega_control}, loading it automatically` 로그 + `datapack list` 15팩(3 openloader enabled) + 메가/LM 구조물 `/locate` 전부 "Could not find".
+- 교훈: 데이터팩 기반 통제(LM·메가)는 **서버 기동 후 `datapack list`로 실제 로드 확인 필수**(JSON 유효성만으론 불충분). 클라(`modpack/client`)는 worldgen 서버권한이라 미적용 유지.

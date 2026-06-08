@@ -7,7 +7,7 @@
   "load_data_packs": {
     "//": "Determines if OpenLoader should load data packs.",
     "//default": true,
-    "value": false
+    "value": true
   },
   "additional_locations": {
     "//": [
@@ -17,7 +17,10 @@
       "absolute paths.                                                                 "
     ],
     "//default": [],
-    "value": ["config/openloader/resources"]
+    "value": [
+      "config/openloader/data",
+      "config/openloader/resources"
+    ]
   },
   "load_datapacks_dir": {
     "//": [
