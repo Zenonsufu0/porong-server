@@ -478,7 +478,7 @@ Component.text("").font(Key.key("poro","gui"))
 | GET | `/api/v1/boss/{boss_id}/stats` | 단일 보스 상세 통계 | ✅ |
 | GET | `/api/v1/boss/{boss_id}/weekly` | 주차별 클리어율 추이 | ✅ |
 | GET | `/api/v1/boss/{boss_id}/party-spec` | 클리어 파티 스펙 분포 | ✅ |
-| POST | `/auth/verify` | Discord 봇 → 인게임 발급 코드 검증 (헤더 `X-API-Key`, 바디 `{code, discordId}` → `200 {ok, uuid, name}`/`404`/`401`) | Phase 7 (DL-132) |
+| POST | `/auth/verify` | Discord 봇 → 인게임 발급 코드 검증 (헤더 `X-Api-Key`, 바디 `{code, discordId}` → `200 {ok, uuid, name}`/`404`/`401`) | ✅ 구현 (DL-132, e2e 검증 전) |
 | ~~POST~~ | ~~`/auth/pending`~~ | ~~Discord 봇 → 인증 코드 생성 요청~~ — **DL-132 폐기**(인게임 발급으로 전환) | — |
 | ~~GET~~ | ~~`/auth/role-queue`~~ | ~~역할 부여 큐 조회~~ — **DL-132 폐기**(동기 verify로 전환) | — |
 | ~~POST~~ | ~~`/auth/role-granted`~~ | ~~역할 부여 완료 확인~~ — **DL-132 폐기** | — |

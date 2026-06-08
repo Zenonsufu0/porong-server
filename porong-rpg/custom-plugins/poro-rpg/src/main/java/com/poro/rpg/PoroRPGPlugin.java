@@ -836,6 +836,18 @@ public final class PoroRPGPlugin extends JavaPlugin {
             }
         }
 
+        // 디스코드 인증 (/인증) — 인게임 코드 발급, 봇 POST /auth/verify 검증 (DL-132)
+        if (operationsQueryRuntime != null && operationsQueryRuntime.authService() != null) {
+            var authCmd = getCommand("인증");
+            if (authCmd != null) {
+                authCmd.setExecutor(new com.poro.rpg.command.AuthCommand(operationsQueryRuntime.authService()));
+            } else {
+                getLogger().warning("커맨드 /인증 plugin.yml 미등록 — 건너뜀.");
+            }
+        } else {
+            getLogger().warning("operationsQueryRuntime/authService 미초기화 — /인증 등록 건너뜀.");
+        }
+
         // 운용자 전용 한글 커맨드
         ClassAdminCommand classAdminCommand = new ClassAdminCommand(classInitService, playerDataManager);
         var setClassCmd = getCommand("poro-setclass");

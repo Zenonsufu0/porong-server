@@ -1,6 +1,7 @@
 package com.poro.rpg.common.config;
 
 import com.poro.rpg.common.db.AuctionMigration;
+import com.poro.rpg.common.db.AuthMigration;
 import com.poro.rpg.common.db.BossSessionMigration;
 import com.poro.rpg.common.db.BossSessionMigrationV2;
 import com.poro.rpg.common.db.BossSessionPlayerMigrationV3;
@@ -59,6 +60,7 @@ public final class CommonFoundationBootstrap {
                     new BossSessionMigrationV2(logger.domain("db.migration.boss-session-v2")),
                     new BossSessionPlayerMigrationV3(logger.domain("db.migration.boss-session-v3")),
                     new AuctionMigration(logger.domain("db.migration.auction")),
+                    new AuthMigration(logger.domain("db.migration.auth")),
                     new PvpMigration(logger.domain("db.migration.pvp")),
                     new PvpMatchLogMigrationV2(logger.domain("db.migration.pvp-v2")),
                     new IslandSettingsMigration(logger.domain("db.migration.island-settings")),

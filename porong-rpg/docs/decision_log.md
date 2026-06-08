@@ -3361,4 +3361,11 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 
 **근거:** 사용자 확인 (2026-06-08), discord `task.md §5`. `final_master_plan §3`과 충돌하던 부분을 본 DL로 정정.
 
+**구현 (2026-06-08 — custom-plugins/poro-rpg, 인게임 검증 전):** 신규 직접 구현(기존 `/auth/pending`·AuthService 등은 설계만 있었고 미구현 상태였음 → 마이그레이션 아닌 신규 작성).
+- DB: `common/db/AuthDdl`·`AuthMigration`(테이블 `auth_pending_code`·`discord_link`, `CommonFoundationBootstrap` composite에 등록).
+- 코어: `auth/AuthRepository`(발급/원자적 소모+링크)·`auth/AuthService`(SecureRandom 30자 8자리 코드·TTL 5분·uuid당 1개).
+- 인게임: `command/AuthCommand`(`/인증`, plugin.yml + `PoroRPGPlugin.registerCommands` 등록).
+- HTTP: `operations/http/AuthApiHandler`(`POST /auth/verify`, X-Api-Key·discord_id rate-limit 10/60s, `PoroHttpServer`·`OperationsQueryBootstrap` 배선).
+- 빌드: `./gradlew build` BUILD SUCCESSFUL. ⚠ 봇 연동·인게임 e2e 검증 미실시.
+
 **관련:** DL-030(디스코드 봇 설계 3종), `01_plugin_architecture/poro_rpg_module_design.md §9·§12`, 디스코드 worktree `integration_contract.md` A-1.

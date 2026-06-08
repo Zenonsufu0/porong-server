@@ -25,6 +25,7 @@ public record OperationsQueryRuntime(
         AdminApiEndpointLayer adminApiEndpointLayer,
         DiscordCommandQueryAdapter discordCommandQueryAdapter,
         BossSessionRepository bossSessionRepository,
-        PoroHttpServer httpServer
+        PoroHttpServer httpServer,
+        com.poro.rpg.auth.AuthService authService
 ) {
 }

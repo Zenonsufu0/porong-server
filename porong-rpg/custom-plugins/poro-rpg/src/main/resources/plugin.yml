@@ -34,6 +34,10 @@ commands:
     description: 메인 GUI 열기
     usage: /메뉴
     permission: poro.use
+  인증:
+    description: 디스코드 인증 코드 발급 (봇 verify 검증, DL-132)
+    usage: /인증
+    permission: poro.use
 
   # 장비 계열
   장비:

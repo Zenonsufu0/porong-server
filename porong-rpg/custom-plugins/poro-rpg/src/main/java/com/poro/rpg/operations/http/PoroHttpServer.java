@@ -33,6 +33,7 @@ public final class PoroHttpServer {
             EconomyApiHandler economyApiHandler,
             PvpApiHandler pvpApiHandler,
             GrowthApiHandler growthApiHandler,
+            AuthApiHandler authApiHandler,
             String bindHost,
             DomainLogger logger) throws Exception {
         Objects.requireNonNull(bossApiHandler, "bossApiHandler");
@@ -41,6 +42,7 @@ public final class PoroHttpServer {
         Objects.requireNonNull(economyApiHandler, "economyApiHandler");
         Objects.requireNonNull(pvpApiHandler, "pvpApiHandler");
         Objects.requireNonNull(growthApiHandler, "growthApiHandler");
+        Objects.requireNonNull(authApiHandler, "authApiHandler");
         Objects.requireNonNull(logger, "logger");
         String host = (bindHost == null || bindHost.isBlank()) ? "127.0.0.1" : bindHost;
 
@@ -53,6 +55,7 @@ public final class PoroHttpServer {
         server.createContext("/player/by-nick", playerApiHandler);
         server.createContext("/island/by-nick", playerApiHandler);
         server.createContext("/boss-history/by-nick", playerApiHandler);
+        server.createContext("/auth/verify", authApiHandler);
         ExecutorService executor = Executors.newFixedThreadPool(2, r -> {
             Thread t = new Thread(r, "poro-http");
             t.setDaemon(true);
