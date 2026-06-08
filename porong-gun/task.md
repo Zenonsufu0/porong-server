@@ -35,6 +35,7 @@
 - **총기:** TaCZ: Refabricated(메인)/Vic's Point Blank(백업). GPLv3·experimental → 테스트 필수.
 - **스캐브:** [TACZ] NPCs / TaCZ: Simple Enemy / Insurgents. **전술 이동:** Tactical Movement Renewed.
 - **PvE/습격:** Zombies Break & Build / Apocalypse / Improved Mobs / Undead Nights / Horde Nights.
+- **부위 데미지·의료:** **Vitality Aids**(First Aid의 Fabric판, 1.21.1 1.0.4 존재 확인) — 부위 HP·의료템·다리 둔화. 안정성·TaCZ 충돌 검증. (TaCZ: Bleeding은 1.20.1 Forge라 제외.)
 - **POI:** The Lost Cities / **ChaosZPack [Lost Cities]**(TaCZ 연동, 컨셉 겹침 → 최우선 확인) / Underground Bunkers.
 - **청사진:** TaCZ Weapon Blueprints (루트 드랍 해금, /gg clearRecipes 시즌 리셋).
 - **기타:** 클레임 모드(기지 보호 베이스) + 커스텀 관통 폭약 / 폭발물 모드(More Explosives 등) / resetchunks(Y25 초기화 베이스).
