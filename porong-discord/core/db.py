@@ -45,6 +45,22 @@ _MIGRATIONS: list[str] = [
     CREATE UNIQUE INDEX IF NOT EXISTS idx_servers_active_per_domain
         ON servers(domain) WHERE state = 'active';
     """,
+    # v2 — mod_log 운영/감사 로그 (data_model.md §2.5, T15)
+    # 모든 제재·서버 생애주기·운영명령의 단일 적재처. #운영로그 게시는 core/mod_log.py.
+    """
+    CREATE TABLE IF NOT EXISTS mod_log (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        action      TEXT    NOT NULL,
+        target_id   INTEGER,
+        operator_id INTEGER NOT NULL,
+        reason      TEXT,
+        detail      TEXT,
+        created_at  INTEGER NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_mod_log_target  ON mod_log(target_id);
+    CREATE INDEX IF NOT EXISTS idx_mod_log_action  ON mod_log(action);
+    CREATE INDEX IF NOT EXISTS idx_mod_log_created ON mod_log(created_at);
+    """,
 ]
 
 

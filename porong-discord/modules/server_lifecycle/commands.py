@@ -15,8 +15,8 @@
 게이팅 3층 = core/gating.py(도메인 명령에 부착).
 
 모든 명령 `@requires_permission("admin")`. 응답 ephemeral.
-TODO: 전이/신설 시 mod_log 적재 + #운영로그 게시(§2) — mod_log 인프라 도입 후.
-      이모지 서버선택 패널 항목 추가/제거(§3) — 패널 구현 후.
+신설/시작/종료 전이는 core/mod_log.record() 로 운영로그(mod_log + #운영로그)에 적재한다(§2).
+TODO: 이모지 서버선택 패널 항목 추가/제거(§3) — 패널 구현 후.
 """
 from __future__ import annotations
 
@@ -28,7 +28,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from core import servers
+from core import mod_log, servers
 from core.permissions import requires_permission
 
 log = logging.getLogger(__name__)
@@ -131,6 +131,12 @@ class ServerLifecycleCog(commands.Cog):
             "서버 신설(prep): #%d %s (%s S%d) by %s",
             sid, display_name, domain, season_no, interaction.user.id,
         )
+        await mod_log.record(
+            self.bot,
+            action="server_create",
+            operator_id=interaction.user.id,
+            detail={"server_id": sid, "domain": domain, "season": season_no, "display_name": display_name},
+        )
         await interaction.response.send_message(
             f"✅ 서버 `#{sid}` 신설(🟡 준비): **{display_name}** — `{domain}` S{season_no}.\n"
             "다음: `/서버시작 {0}` 로 활성화.".format(sid),
@@ -194,6 +200,12 @@ class ServerLifecycleCog(commands.Cog):
             return
         note = await self._set_category_visibility(interaction.guild, row, visible=True) if interaction.guild else "길드 없음"
         log.info("서버 시작: #%d (%s) by %s", server_id, row["domain"], interaction.user.id)
+        await mod_log.record(
+            self.bot,
+            action="server_start",
+            operator_id=interaction.user.id,
+            detail={"server_id": server_id, "domain": row["domain"], "display_name": row["display_name"]},
+        )
         await interaction.response.send_message(
             f"🟢 서버 `#{server_id}` **{row['display_name']}** 활성화 완료. ({note})", ephemeral=True
         )
@@ -221,6 +233,13 @@ class ServerLifecycleCog(commands.Cog):
         log.info(
             "서버 종료: #%d (%s) reason=%r by %s",
             server_id, row["domain"], reason, interaction.user.id,
+        )
+        await mod_log.record(
+            self.bot,
+            action="server_end",
+            operator_id=interaction.user.id,
+            reason=reason,
+            detail={"server_id": server_id, "domain": row["domain"], "display_name": row["display_name"]},
         )
         await interaction.response.send_message(
             f"⚫ 서버 `#{server_id}` **{row['display_name']}** 종료(아카이브). 사유: {reason} ({note})",

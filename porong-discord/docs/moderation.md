@@ -41,6 +41,7 @@
 - 모든 액션(경고·타임아웃·추방·차단·서버 생애주기·XP보정 등) → `mod_log`:
   `{action, target_id, operator_id, reason, detail, created_at}`.
 - 동시에 `#운영로그`(`CHANNEL_MODLOG_ID`, 신규 `.env`) 임베드 게시.
+- 🟢 **인프라 구현(2026-06-09): `core/mod_log.py` `record(bot, *, action, operator_id, target_id, reason, detail)`** — DB 적재 보장 + `#운영로그` 게시 best-effort(채널 미설정/실패여도 적재). 모더레이션 명령은 이 헬퍼만 호출(raw INSERT 금지). action 코드 라벨 매핑 = `_ACTION_META`(경고=`warn`·타임아웃=`timeout`·추방=`kick`·차단=`ban`·서버전이=`server_*` 등).
 - 봇이 멤버 역할/상태 변경 시 항상 `reason` 기록(roles_and_permissions §보안메모).
 
 ## 4. DM 통보

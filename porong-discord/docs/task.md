@@ -31,7 +31,7 @@
 | T20 | 도메인 명령어 가시성 정책 — 접근역할 제한(1차) + 카테고리 가드 헬퍼(2차) | core | T10 | 🟡 |
 | T21 | 서버 레지스트리 + 생애주기(준비→활성→종료) 상태머신 + `/서버시작`·`/서버종료`·`/서버목록` | core/admin | T12 | 🟢 |
 
-> **T21 구현(2026-06-08, `modules/server_lifecycle/commands.py` + `core/servers.py` + `core/gating.py`):** 🟢 `/서버목록`·`/서버정보`(읽기), `/서버신설`(prep 행 + 카테고리/역할 선택 연결), `/서버시작`(prep→active)·`/서버종료`(active→ended) 상태전이 + 카테고리 가시성(공개/[종료] 아카이브). domain당 active 1 = 부분유니크 인덱스 강제. 게이팅 3층 헬퍼 `core/gating.py`(순수 판정 + `requires_category`/`requires_server_active` 데코레이터 — 도메인 명령 부착 대기). ⬜ 후속: 카테고리/역할 자동생성(T17), mod_log 적재+#운영로그(§2), 이모지 서버선택 패널(§3).
+> **T21 구현(2026-06-08, `modules/server_lifecycle/commands.py` + `core/servers.py` + `core/gating.py`):** 🟢 `/서버목록`·`/서버정보`(읽기), `/서버신설`(prep 행 + 카테고리/역할 선택 연결), `/서버시작`(prep→active)·`/서버종료`(active→ended) 상태전이 + 카테고리 가시성(공개/[종료] 아카이브). domain당 active 1 = 부분유니크 인덱스 강제. 게이팅 3층 헬퍼 `core/gating.py`(순수 판정 + `requires_category`/`requires_server_active` 데코레이터 — 도메인 명령 부착 대기). ✅ mod_log 적재+#운영로그(§2) 배선 완료(2026-06-09). ⬜ 후속: 카테고리/역할 자동생성(T17), 이모지 서버선택 패널(§3).
 
 > T12~T18·T20·T21 = **🟡 설계 완료·구현 전**(상세 docs 작성됨). T19 = ⬜ 코드 이관(설계 불필요). 실구현은 사용자 명시 요청 시.
 
@@ -177,6 +177,24 @@
 - commit · merge · push는 사용자 승인 후에만. master 직접 merge 금지.
 
 ## 8. 세션 핸드오프 (다음 세션 이어가기)
+
+### 이번 세션 완료 (2026-06-09, feature/discord-dev) — mod_log 운영로그 인프라
+moderation/admin/lifecycle 공통 선행(§12.2)인 운영/감사 로그 인프라를 구현. 붙은 효과: `/서버신설`·`/서버시작`·`/서버종료` 전이가 mod_log + `#운영로그`에 남음.
+
+**구현 산출:**
+- **v2 마이그레이션** `core/db.py` `_MIGRATIONS[1]` = `mod_log` 테이블(§2.5) + 인덱스(target/action/created). append-only 규약 준수(v1 미변경).
+- **`core/mod_log.py`** = `record(bot, *, action, operator_id, target_id, reason, detail)` — ① mod_log 적재(보장) ② `#운영로그`(`CHANNEL_MODLOG_ID`) 임베드 게시(best-effort, 미설정/실패여도 적재). `_ACTION_META` action 라벨 매핑. `created_at`=`strftime('%s','now')`(DB측 시각).
+- **배선** `modules/server_lifecycle/commands.py` — 신설(`server_create`)·시작(`server_start`)·종료(`server_end`, reason 포함) 전이에 `record()` 호출.
+- **설정** `core/config.CHANNEL_MODLOG_ID`(0=게시 생략) + `.env.example`.
+
+**검증:** stdlib sqlite3로 v1·v2 executescript + mod_log INSERT(strftime) + 인덱스 생성 확인. `compileall` 통과. (aiosqlite 미설치 환경이라 봇 e2e는 스테이징 대상.)
+
+**주의:** `warnings`(§2.4)는 T15 모더레이션 모듈과 함께 **v3**로 추가 예정(이번엔 mod_log만). moderation/admin 명령은 raw INSERT 금지, `mod_log.record()`만 호출.
+
+**다음 세션 착수 후보:**
+1. **moderation(T15) 본체** — v3(`warnings`) + `/경고`·`/경고목록`·`/경고취소`·`/타임아웃`·`/추방`·`/차단`. 대상 보호 가드(§1b) + `mod_log.record()` 재사용.
+2. **RPG auth 이관**(DL-138) — RPG를 `ONBOARDING_SERVERS` 등록 + `modules/rpg/auth.py` 구 흐름 정리.
+3. **B: master 동기화** — 합본 원본(`porong-server`)에서 수행(디스코드 워크트리 불가).
 
 ### 이번 세션 완료 (2026-06-08~09, feature/discord-dev) — 인증·온보딩·DB·서버레지스트리 구현 패스
 설계만이던 영역을 **실코드로 구현**. 상태변경 명령은 사용자 명시 요청받아 진행. 핵심 흐름:
@@ -386,7 +404,7 @@ servers: { id, domain, season_no, display_name, state(준비|활성|종료),
 
 ### 12.2 구현 선행 / 주의 (🟡)
 - **전역 app command 에러 핸들러 선행**: 현행 `main.py`에 `on_app_command_error` 부재 → `requires_permission`·`requires_category` 거부가 유저에게 안내 안 됨. moderation/admin 착수 전 필수.
-- **`mod_log`+`#운영로그` 게시 헬퍼**를 moderation/admin/lifecycle보다 먼저(중복 방지).
+- ✅ **`mod_log`+`#운영로그` 게시 헬퍼** 구현 완료(2026-06-09): v2 마이그레이션(`mod_log` 테이블) + `core/mod_log.py` `record()`(DB 적재 보장 + `#운영로그` best-effort 게시) + `CHANNEL_MODLOG_ID`. 서버 생애주기(신설·시작·종료) 배선됨. moderation/admin 명령은 이 헬퍼만 호출.
 - **영구 View 영속화**: 신규 패널(서버선택·`/칭호`·티켓·FAQ)은 `auth.py` `TermsView`처럼 stable custom_id로 `add_view` 재등록 필수. 페이지네이션(`/리더보드`·`/도움말`)은 ephemeral timeout View로 영속화 회피.
 - **인바운드 aiohttp**: `web.run_app()` 금지(루프 충돌) → `AppRunner`+`TCPSite`를 봇 루프 task로 기동.
 - **명령 sync**: 단일 길드는 `tree.sync(guild=...)`로 즉시 반영(전역 sync는 최대 1h).
