@@ -124,6 +124,29 @@ _MIGRATIONS: list[str] = [
     );
     CREATE INDEX IF NOT EXISTS idx_community_xp_xp ON community_xp(xp DESC);
     """,
+    # v9 — titles / user_titles 칭호 (data_model.md §2.3·2.3b, T13)
+    # 칭호 = 디스코드 역할 아님(순수 표시 데이터). 레벨 임계 도달 시 보유 추가, 장착 1개.
+    """
+    CREATE TABLE IF NOT EXISTS titles (
+        id             INTEGER PRIMARY KEY AUTOINCREMENT,
+        key            TEXT    UNIQUE NOT NULL,
+        display_name   TEXT    NOT NULL,
+        required_level INTEGER
+    );
+    CREATE TABLE IF NOT EXISTS user_titles (
+        discord_user_id INTEGER NOT NULL,
+        title_id        INTEGER NOT NULL,
+        acquired_at     INTEGER NOT NULL,
+        equipped        INTEGER NOT NULL DEFAULT 0,
+        PRIMARY KEY (discord_user_id, title_id)
+    );
+    INSERT OR IGNORE INTO titles(key, display_name, required_level) VALUES
+        ('newbie',  '🌱 새내기',     5),
+        ('regular', '💬 단골',      10),
+        ('veteran', '🔥 터줏대감',   20),
+        ('elder',   '⭐ 포로 원로',  30),
+        ('legend',  '👑 포로 레전드', 50);
+    """,
 ]
 
 

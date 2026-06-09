@@ -95,6 +95,7 @@
 
 - `PRIMARY KEY(discord_user_id, title_id)`. 보유는 누적(회수 안 함). **유저당 equipped=1 은 최대 1개**(교체 시 기존 0으로).
 - 닉네임 `[LV.nn]` prefix 는 `community_xp.level` 파생(별도 저장 없음, 기존 닉을 base 로 재적용).
+- 🟢 **구현(2026-06-09, v9): `core/titles.py`** — 카탈로그 시드 5종(Lv5~50), 레벨업 시 `newly_eligible`→`grant_title` 자동 획득, `/칭호`(Select 장착, equipped 유일), `/레벨` 카드 표시. 칭호=역할 아님(코스메틱).
 
 ### 2.4 `warnings` — 경고 (T15)
 | 컬럼 | 타입 | 설명 |
