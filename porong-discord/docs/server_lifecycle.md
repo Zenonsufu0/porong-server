@@ -41,7 +41,7 @@
 |---|---|
 | 신설 (→prep) | 카테고리 생성(템플릿: 약관·접속정보·잡담 등) · 접근역할 생성 · 채널 권한=접근역할에게만 가시 · 접근역할은 아직 미배포(운영자/봇만) |
 
-> 🟢 **T17 구현(2026-06-09): `modules/server_lifecycle/templates.py` `provision()`** — `/서버신설 자동생성:True`(기본)가 접근역할(`<표시명> 접근`) + 카테고리 + 채널 세트(`_DEFAULT_TEMPLATE`=공지·약관·인증·가이드·자유채팅·스크린샷·파티모집·건의-버그제보·음성-1·음성-2, `_DOMAIN_TEMPLATES`로 도메인별 오버라이드 — 평소엔 공통 하나만 관리)를 **prep=비공개**(@everyone·접근역할 view=False)로 생성하고 그 ID를 `servers` 행에 기록. 채널은 카테고리 권한 상속(synced) → `/서버시작`의 카테고리 가시성 변경이 전파. 실패/중복(`UNIQUE`) 시 `cleanup()`으로 롤백. `자동생성:False` 또는 수동 `category` 지정 시 자동전개 생략. ⚠ 생성된 약관/인증 채널의 온보딩 패널 배선은 후속(ONBOARDING_SERVERS는 현행 env ID 기반).
+> 🟢 **T17 구현(2026-06-09): `modules/server_lifecycle/templates.py` `provision()`** — `/서버신설 자동생성:True`(기본)가 접근역할(`<표시명> 접근`) + 카테고리 + 채널 세트(`_DEFAULT_TEMPLATE`=공지·약관·인증·가이드·자유채팅·스크린샷·파티모집·건의-버그제보·`➕ 음성방 만들기`(임시음성 허브, T13), `_DOMAIN_TEMPLATES`로 도메인별 오버라이드 — 평소엔 공통 하나만 관리)를 **prep=비공개**(@everyone·접근역할 view=False)로 생성하고 그 ID를 `servers` 행에 기록. 채널은 카테고리 권한 상속(synced) → `/서버시작`의 카테고리 가시성 변경이 전파. 실패/중복(`UNIQUE`) 시 `cleanup()`으로 롤백. `자동생성:False` 또는 수동 `category` 지정 시 자동전개 생략. ⚠ 생성된 약관/인증 채널의 온보딩 패널 배선은 후속(ONBOARDING_SERVERS는 현행 env ID 기반).
 | 시작 (prep→active) | 카테고리 가시성 ON · 서버선택 이모지 패널에 항목 추가 · `state=active` |
 | 종료 (active→ended) | 카테고리를 아카이브 처리(이름 `[종료]` 프리픽스 또는 아카이브 카테고리로 이동, 가시성 제거하되 채널·역할 **보존**) · 이모지 패널에서 제거 · `state=ended, ended_at=now` |
 

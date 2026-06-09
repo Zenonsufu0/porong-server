@@ -171,7 +171,7 @@ porong-discord/
 | `CHANNEL_POROMON_NOTICE_ID` | 포로몬 알림 | notifications ③ |
 | `CHANNEL_LEVELUP_ID` | 레벨업·칭호 획득 공지 | community_level §3.3 |
 | `CHANNEL_MODLOG_ID` | **운영/감사 로그(=#운영로그, 정식 키)** | moderation §3 |
-| `VOICE_CREATE_HUB_ID` · `AFK_CHANNEL_ID` · `XP_EXCLUDE_CHANNEL_IDS` | 임시음성 허브·음성 XP 제외 | community_level §1·§8 |
+| 임시음성 허브(카테고리별 다중 — 템플릿 생성 `➕ 음성방 만들기`) · `AFK_CHANNEL_ID` · `XP_EXCLUDE_CHANNEL_IDS` | 임시음성 허브·음성 XP 제외 | community_level §1·§8 |
 | XP 튜닝(`CHAT_XP_PER_MSG`·`CHAT_XP_COOLDOWN_SEC`·`VOICE_XP_PER_TICK`·`VOICE_TICK_SEC`·곡선 계수) | 레벨 밸런스 | community_level §6 |
 | `POROMON_API_URL` · `POROMON_API_KEY` | 포로몬 연동 | integration_contract §D |
 | 접근역할(`ROLE_RPG접근_ID`·`ROLE_포로몬접근_ID`…) | 카테고리 가시성 | roles §A-2(T10) |
