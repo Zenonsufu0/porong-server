@@ -47,7 +47,8 @@ _ROLE_SPEC: list[tuple[str, str]] = [
 #   channels  = [(이름, "text"|"voice")] — 생성 순서 = 배치 순서
 _TEMPLATE_GROUPS: list[dict] = [
     {
-        "key": "onboarding", "suffix": "온보딩", "audience": "onboarding",
+        # 온보딩 카테고리("<표시명> · 임시") — 약관+인증. 인증 완료(플레이어) 시 사라짐.
+        "key": "onboarding", "suffix": "임시", "audience": "onboarding",
         "channels": [("약관", "text"), ("인증", "text")],
     },
     {

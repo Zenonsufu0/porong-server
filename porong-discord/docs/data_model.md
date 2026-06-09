@@ -58,6 +58,7 @@
 - `PRIMARY KEY(server_id, group_key)`. 자동전개(`/서버신설`)가 그룹별 카테고리 1개씩 적재.
 - 게이팅 2층(`requires_category`)은 `get_active_category_ids`(단수 `category_id` ∪ 이 테이블)로 **집합 매칭**.
 - 게이팅 3층의 ③서버상태가 이 `state`를 참조. `ended` = 모든 명령·토글 거부(완전 비활성, 확정).
+- 🟢 **v6(2026-06-09): 전역 active 1개 강제** — `idx_servers_single_active`(UNIQUE ON `state` WHERE `state='active'`). RPG·포로몬 통틀어 항상 한 서버만 active(task.md §5 전역 단일 모델). 기존 per-domain 인덱스는 포섭됨.
 - 🔴 **domain당 `active` 최대 1개 강제**(부분 유니크 인덱스 `WHERE state='active'` 또는 앱 가드). `requires_category(domain)`/`requires_server_active(domain)`이 **domain당 카테고리·active 단수**를 가정하므로, 같은 domain active 2개(예 S2 종료중 + S3 오픈)면 게이팅이 어느 카테고리를 기준할지 모호해짐.
   - **1차: 멀티시즌 동시운영 미사용**(시즌은 순차 — S2 `ended` 후 S3 `active`). 시즌 중첩 운영이 필요해지면 게이팅 키를 `domain`이 아니라 `category_id` 기준으로 재설계.
 

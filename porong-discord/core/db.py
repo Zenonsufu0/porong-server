@@ -98,6 +98,13 @@ _MIGRATIONS: list[str] = [
         updated_at INTEGER NOT NULL
     );
     """,
+    # v6 — 전역 active 서버 1개 강제 (2026-06-09, task.md §5)
+    # RPG·포로몬 통틀어 active 는 최대 1행. state='active' 인 행끼리 state(상수) 유니크.
+    # 기존 per-domain 인덱스(v1)는 이 전역 인덱스에 포섭(중복이나 무해).
+    """
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_servers_single_active
+        ON servers(state) WHERE state = 'active';
+    """,
 ]
 
 

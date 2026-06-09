@@ -38,6 +38,11 @@ async def get_active(db: Database, domain: str):
     )
 
 
+async def get_any_active(db: Database):
+    """전역 단일 active 서버 행(없으면 None). 전역 active 1 모델(task.md §5)."""
+    return await db.fetchone("SELECT * FROM servers WHERE state = 'active' LIMIT 1")
+
+
 async def create_prep_server(
     db: Database,
     domain: str,

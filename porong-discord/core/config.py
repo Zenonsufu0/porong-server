@@ -26,6 +26,12 @@ CHANNEL_AUTH_ID: int = int(os.environ["CHANNEL_AUTH_ID"])
 CHANNEL_FIELD_BOSS_ID: int = int(os.environ["CHANNEL_FIELD_BOSS_ID"])
 # 운영/감사 로그 채널 (mod_log 게시 대상). 미설정(0)이면 DB 적재만, 게시 생략.
 CHANNEL_MODLOG_ID: int = int(os.getenv("CHANNEL_MODLOG_ID", "0") or "0")
+
+# ─── 전역 단일 active 서버 모델 (2026-06-09, task.md §5) ────────────────
+# 시즌 사이 공백 역할 + 통합(공지·채팅) 카테고리. 운영자 사전 구성.
+# 미설정(0)이면 생애주기 일괄 역할 전이가 해당 부분을 graceful skip 한다.
+ROLE_서버준비_ID: int = int(os.getenv("ROLE_서버준비_ID", "0") or "0")
+CATEGORY_통합_ID: int = int(os.getenv("CATEGORY_통합_ID", "0") or "0")
 TERMS_MESSAGE_ID: int | None = int(os.environ["TERMS_MESSAGE_ID"]) if os.getenv("TERMS_MESSAGE_ID") else None
 
 # ─── 온보딩 권한 역할 (시스템 자동 — 인증 단계 승급) ────────────────

@@ -30,7 +30,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from core import mod_log, servers
+from core import config, mod_log, servers
 from core.permissions import requires_permission
 from modules.server_lifecycle import templates
 
@@ -54,6 +54,63 @@ class ServerLifecycleCog(commands.Cog):
             await interaction.followup.send(content, ephemeral=True)
         else:
             await interaction.response.send_message(content, ephemeral=True)
+
+    # ─── 전역 단일 active 모델 — 입장 자동배정 / 일괄 역할 전이 (task.md §5) ──
+
+    @commands.Cog.listener()
+    async def on_member_join(self, member: discord.Member) -> None:
+        """입장 시 자동 배정: active 서버 있으면 그 서버 임시(접근)역할, 없으면 서버준비."""
+        if member.bot:
+            return
+        active = await servers.get_any_active(self.db)
+        role_id = active["access_role_id"] if active else config.ROLE_서버준비_ID
+        role = member.guild.get_role(role_id or 0)
+        if role is None:
+            return
+        try:
+            await member.add_roles(role, reason="입장 자동 배정(전역 단일 active 모델)")
+        except discord.Forbidden:
+            log.warning("입장 자동배정 권한 부족: member=%s role=%s", member.id, role_id)
+
+    async def _bulk_transition(
+        self,
+        guild: discord.Guild,
+        *,
+        remove_role_ids: list[int],
+        add_role_id: int,
+        reason: str,
+    ) -> int:
+        """전체 멤버 순회 — remove_role_ids 회수 + add_role_id 부여. 부여한 인원 수 반환.
+
+        ⚠ 인원 많으면 레이트리밋으로 수십초~분 소요(호출부에서 defer 필수).
+        """
+        add_role = guild.get_role(add_role_id) if add_role_id else None
+        remove_roles = [r for r in (guild.get_role(rid) for rid in remove_role_ids if rid) if r]
+        granted = 0
+        for m in guild.members:
+            if m.bot:
+                continue
+            try:
+                to_remove = [r for r in remove_roles if r in m.roles]
+                if to_remove:
+                    await m.remove_roles(*to_remove, reason=reason)
+                if add_role is not None and add_role not in m.roles:
+                    await m.add_roles(add_role, reason=reason)
+                    granted += 1
+            except discord.Forbidden:
+                continue
+        return granted
+
+    async def _integrated_set(self, guild: discord.Guild, role_id: int, *, visible: bool) -> None:
+        """통합 카테고리(공지·채팅)에 대한 역할 가시성 토글(베스트에포트)."""
+        cat = guild.get_channel(config.CATEGORY_통합_ID) if config.CATEGORY_통합_ID else None
+        role = guild.get_role(role_id) if role_id else None
+        if not isinstance(cat, discord.CategoryChannel) or role is None:
+            return
+        try:
+            await cat.set_permissions(role, view_channel=visible, reason="통합 카테고리 가시성")
+        except discord.Forbidden:
+            log.warning("통합 카테고리 권한 부족: role=%s", role_id)
 
     # ─── 조회 (읽기) ──────────────────────────────────────────────
 
@@ -269,27 +326,51 @@ class ServerLifecycleCog(commands.Cog):
                 "종료된 서버는 재시작할 수 없습니다(새 시즌은 새로 신설).", ephemeral=True
             )
             return
-        # prep → active. domain당 active 1개 = 부분 유니크 인덱스가 강제.
-        try:
-            await servers.set_state(self.db, server_id, "active")
-        except sqlite3.IntegrityError:
-            active = await servers.get_active(self.db, row["domain"])
+        # 전역 단일 active 강제(v6) — 다른 active 서버가 있으면 먼저 종료.
+        other = await servers.get_any_active(self.db)
+        if other is not None:
             await interaction.response.send_message(
-                f"`{row['domain']}` 도메인에 이미 활성 시즌이 있습니다"
-                f"(`#{active['id'] if active else '?'}`). 먼저 종료하세요.",
+                f"이미 활성 서버가 있습니다: `#{other['id']}` **{other['display_name']}**. "
+                "전역 1개만 운영합니다 — 먼저 `/서버종료` 하세요.",
                 ephemeral=True,
             )
             return
+
+        # 일괄 역할 전이는 시간이 걸릴 수 있어 defer.
+        await interaction.response.defer(ephemeral=True)
+        try:
+            await servers.set_state(self.db, server_id, "active")
+        except sqlite3.IntegrityError:
+            await interaction.followup.send(
+                "활성화 실패 — 이미 다른 활성 서버가 있습니다(전역 1개).", ephemeral=True
+            )
+            return
+
         note = await self._set_category_visibility(interaction.guild, row, visible=True) if interaction.guild else "길드 없음"
-        log.info("서버 시작: #%d (%s) by %s", server_id, row["domain"], interaction.user.id)
+        granted = 0
+        if interaction.guild:
+            # 통합 카테고리를 이 시즌 플레이어 역할에 공개(인증 완료자가 통합도 보이도록).
+            await self._integrated_set(interaction.guild, row["player_role_id"] or 0, visible=True)
+            # 서버준비 회수 + 시즌 임시(접근)역할 일괄 부여 → 온보딩 재시작.
+            granted = await self._bulk_transition(
+                interaction.guild,
+                remove_role_ids=[config.ROLE_서버준비_ID],
+                add_role_id=row["access_role_id"] or 0,
+                reason=f"서버시작 #{server_id} — 임시역할 일괄 부여",
+            )
+
+        log.info("서버 시작: #%d (%s) granted=%d by %s", server_id, row["domain"], granted, interaction.user.id)
         await mod_log.record(
             self.bot,
             action="server_start",
             operator_id=interaction.user.id,
-            detail={"server_id": server_id, "domain": row["domain"], "display_name": row["display_name"]},
+            detail={"server_id": server_id, "domain": row["domain"],
+                    "display_name": row["display_name"], "임시부여": granted},
         )
-        await interaction.response.send_message(
-            f"🟢 서버 `#{server_id}` **{row['display_name']}** 활성화 완료. ({note})", ephemeral=True
+        await interaction.followup.send(
+            f"🟢 서버 `#{server_id}` **{row['display_name']}** 활성화 완료. ({note})\n"
+            f"임시역할 일괄 부여: **{granted}명** (서버준비 회수).",
+            ephemeral=True,
         )
 
     @app_commands.command(name="서버종료", description="활성 서버를 종료합니다(active→ended, 아카이브).")
@@ -310,21 +391,43 @@ class ServerLifecycleCog(commands.Cog):
                 "준비(prep) 상태는 종료 대상이 아닙니다(prep→active→ended).", ephemeral=True
             )
             return
+
+        # 일괄 역할 전이는 시간이 걸릴 수 있어 defer.
+        await interaction.response.defer(ephemeral=True)
         await servers.set_state(self.db, server_id, "ended", ended_at=int(time.time()))
         note = await self._set_category_visibility(interaction.guild, row, visible=False, archive=True) if interaction.guild else "길드 없음"
+        granted = 0
+        if interaction.guild:
+            # 통합 카테고리에서 이 시즌 플레이어 역할 가시성 제거 + 서버준비에게 통합 공개.
+            await self._integrated_set(interaction.guild, row["player_role_id"] or 0, visible=False)
+            await self._integrated_set(interaction.guild, config.ROLE_서버준비_ID, visible=True)
+            # 시즌 3역할 일괄 회수 + 서버준비 일괄 부여 → 시즌 사이 대기 상태.
+            granted = await self._bulk_transition(
+                interaction.guild,
+                remove_role_ids=[
+                    row["access_role_id"] or 0,
+                    row["pending_role_id"] or 0,
+                    row["player_role_id"] or 0,
+                ],
+                add_role_id=config.ROLE_서버준비_ID,
+                reason=f"서버종료 #{server_id} — 시즌 역할 회수·서버준비 부여",
+            )
+
         log.info(
-            "서버 종료: #%d (%s) reason=%r by %s",
-            server_id, row["domain"], reason, interaction.user.id,
+            "서버 종료: #%d (%s) reason=%r granted=%d by %s",
+            server_id, row["domain"], reason, granted, interaction.user.id,
         )
         await mod_log.record(
             self.bot,
             action="server_end",
             operator_id=interaction.user.id,
             reason=reason,
-            detail={"server_id": server_id, "domain": row["domain"], "display_name": row["display_name"]},
+            detail={"server_id": server_id, "domain": row["domain"],
+                    "display_name": row["display_name"], "서버준비부여": granted},
         )
-        await interaction.response.send_message(
-            f"⚫ 서버 `#{server_id}` **{row['display_name']}** 종료(아카이브). 사유: {reason} ({note})",
+        await interaction.followup.send(
+            f"⚫ 서버 `#{server_id}` **{row['display_name']}** 종료(아카이브). 사유: {reason} ({note})\n"
+            f"서버준비 일괄 부여: **{granted}명** (시즌 역할 회수).",
             ephemeral=True,
         )
 
