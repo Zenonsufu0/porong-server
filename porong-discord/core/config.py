@@ -34,6 +34,19 @@ CHANNEL_MODLOG_ID: int = int(os.getenv("CHANNEL_MODLOG_ID", "0") or "0")
 # 미설정(0)이면 생애주기 일괄 역할 전이가 해당 부분을 graceful skip 한다.
 ROLE_서버준비_ID: int = int(os.getenv("ROLE_서버준비_ID", "0") or "0")
 CATEGORY_통합_ID: int = int(os.getenv("CATEGORY_통합_ID", "0") or "0")
+
+# ─── 커뮤니티 레벨 (T13, community_level.md §6) ─────────────────────────
+# 채팅·음성 활동 XP 튜닝. 레벨업 알림 채널 + XP 제외 채널/AFK.
+CHAT_XP_PER_MSG: int      = int(os.getenv("CHAT_XP_PER_MSG", "15") or "15")
+CHAT_XP_COOLDOWN_SEC: int = int(os.getenv("CHAT_XP_COOLDOWN_SEC", "60") or "60")
+VOICE_XP_PER_TICK: int    = int(os.getenv("VOICE_XP_PER_TICK", "5") or "5")
+VOICE_TICK_SEC: int       = int(os.getenv("VOICE_TICK_SEC", "60") or "60")
+CHANNEL_LEVELUP_ID: int   = int(os.getenv("CHANNEL_LEVELUP_ID", "0") or "0")
+AFK_CHANNEL_ID: int       = int(os.getenv("AFK_CHANNEL_ID", "0") or "0")
+# XP 제외 채널(명령/음성-텍스트 등) — 쉼표 구분 ID 목록.
+XP_EXCLUDE_CHANNEL_IDS: set[int] = {
+    int(x) for x in os.getenv("XP_EXCLUDE_CHANNEL_IDS", "").replace(" ", "").split(",") if x
+}
 # [DEPRECATED] TERMS_MESSAGE_ID — 구 RPG 약관 메시지 ID(폐기). 미참조.
 TERMS_MESSAGE_ID: int | None = int(os.environ["TERMS_MESSAGE_ID"]) if os.getenv("TERMS_MESSAGE_ID") else None
 

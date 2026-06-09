@@ -73,6 +73,7 @@
 | updated_at | INTEGER | |
 
 - XP는 길드 전역(디스코드 활동 기준), 도메인 무관. **메시지 내용 미열람** — 작성자·채널·voice state만 집계.
+- 🟢 **구현(2026-06-09, v8): `core/community.py`(곡선·접근) + `modules/community/level.py`** — 채팅(쿨다운)·음성(tick, mute/AFK/혼자 제외) XP, `/레벨`·`/리더보드`, 레벨업 알림(`CHANNEL_LEVELUP_ID`). 곡선 = `5L²+50L+100`. 칭호(§2.3)·XP보정은 후속.
 
 ### 2.3 `titles` — 칭호 카탈로그 (T13)
 | 컬럼 | 타입 | 설명 |

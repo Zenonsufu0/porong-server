@@ -111,6 +111,19 @@ _MIGRATIONS: list[str] = [
     ALTER TABLE servers ADD COLUMN connect_address   TEXT;
     ALTER TABLE servers ADD COLUMN status_message_id INTEGER;
     """,
+    # v8 — community_xp 커뮤니티 레벨 (data_model.md §2.2, T13)
+    # 디스코드 활동(채팅·음성) XP → 레벨. 길드 전역(도메인 무관). 메시지 내용 미열람.
+    """
+    CREATE TABLE IF NOT EXISTS community_xp (
+        discord_user_id INTEGER PRIMARY KEY,
+        xp              INTEGER NOT NULL DEFAULT 0,
+        level           INTEGER NOT NULL DEFAULT 0,
+        last_message_ts INTEGER NOT NULL DEFAULT 0,
+        voice_seconds   INTEGER NOT NULL DEFAULT 0,
+        updated_at      INTEGER NOT NULL DEFAULT 0
+    );
+    CREATE INDEX IF NOT EXISTS idx_community_xp_xp ON community_xp(xp DESC);
+    """,
 ]
 
 
