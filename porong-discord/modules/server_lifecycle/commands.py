@@ -6,8 +6,9 @@
 
 구현(§1 상태머신 prep→active→ended):
   - 🟢 /서버목록 · /서버정보            (조회)
-  - 🟢 /서버신설                        (prep 행 생성. 카테고리/역할은 선택 인자로 수동 연결,
-                                          자동 생성=T17 후속)
+  - 🟢 /서버신설                        (prep 행 생성 + T17 템플릿 자동 전개:
+                                          접근역할 + 카테고리 + 채널 세트 생성, prep=비공개.
+                                          수동 category 지정 시 자동전개 생략·기존 연결)
   - 🟢 /서버시작(prep→active) · /서버종료(active→ended)  (상태 전이 + 카테고리 가시성)
 
 카테고리 가시성: 행에 category_id·access_role_id 가 있으면 시작=접근역할에 공개,
@@ -30,6 +31,7 @@ from discord.ext import commands
 
 from core import mod_log, servers
 from core.permissions import requires_permission
+from modules.server_lifecycle import templates
 
 log = logging.getLogger(__name__)
 
@@ -43,6 +45,14 @@ class ServerLifecycleCog(commands.Cog):
     @property
     def db(self):
         return self.bot.db  # type: ignore[attr-defined]
+
+    @staticmethod
+    async def _reply(interaction: discord.Interaction, content: str, *, deferred: bool) -> None:
+        """defer 여부에 맞춰 응답(자동전개는 defer 후 followup, 그 외 즉시 response)."""
+        if deferred:
+            await interaction.followup.send(content, ephemeral=True)
+        else:
+            await interaction.response.send_message(content, ephemeral=True)
 
     # ─── 조회 (읽기) ──────────────────────────────────────────────
 
@@ -91,13 +101,14 @@ class ServerLifecycleCog(commands.Cog):
 
     # ─── 신설 (레지스트리 행 생성 — 카테고리/역할 자동생성은 T17) ─────
 
-    @app_commands.command(name="서버신설", description="새 서버(시즌)를 prep 상태로 레지스트리에 등록합니다.")
+    @app_commands.command(name="서버신설", description="새 서버(시즌)를 prep 상태로 등록 + 카테고리/채널/역할 자동 생성(T17).")
     @app_commands.describe(
         domain="게임 도메인 (예: rpg, poromon)",
         season_no="시즌 번호",
         display_name="표시명 (예: RPG 시즌3)",
-        category=" (선택) 연결할 디스코드 카테고리 — 미지정 시 T17 자동생성 전까지 가시성 전이 없음",
-        access_role=" (선택) 접근(가시성) 역할",
+        자동생성="템플릿으로 카테고리·채널·접근역할 자동 생성(기본 True). category 수동 지정 시 무시됨",
+        category=" (선택) 기존 카테고리 수동 연결 — 지정 시 자동생성 안 함",
+        access_role=" (선택) 기존 접근(가시성) 역할 수동 연결",
     )
     @requires_permission("admin")
     async def server_create(
@@ -106,6 +117,7 @@ class ServerLifecycleCog(commands.Cog):
         domain: str,
         season_no: int,
         display_name: str,
+        자동생성: bool = True,
         category: discord.CategoryChannel | None = None,
         access_role: discord.Role | None = None,
     ) -> None:
@@ -115,32 +127,72 @@ class ServerLifecycleCog(commands.Cog):
                 f"이미 존재합니다: `{domain}` S{season_no} (`#{existing['id']}`).", ephemeral=True
             )
             return
+
+        # 자동전개 = 자동생성 ON + 수동 연결(category/access_role) 미지정 + 길드 컨텍스트.
+        auto = 자동생성 and category is None and access_role is None and interaction.guild is not None
+        created_role: discord.Role | None = None
+        created_category: discord.CategoryChannel | None = None
+        if auto:
+            await interaction.response.defer(ephemeral=True)  # 생성은 수 초 소요 가능
+            try:
+                created_role, created_category = await templates.provision(
+                    interaction.guild, domain=domain, display_name=display_name
+                )
+            except discord.Forbidden:
+                await interaction.followup.send(
+                    "봇 권한 부족(Manage Channels/Roles)으로 자동 생성 실패. "
+                    "권한 부여 후 재시도하거나 `자동생성:False` 로 레지스트리만 등록하세요.",
+                    ephemeral=True,
+                )
+                return
+            except discord.HTTPException:
+                log.exception("T17 템플릿 전개 실패: %s S%d", domain, season_no)
+                await interaction.followup.send("카테고리/채널 생성 중 오류가 발생했습니다.", ephemeral=True)
+                return
+
+        cat_obj = created_category or category
+        role_obj = created_role or access_role
         try:
             sid = await servers.create_prep_server(
                 self.db, domain, season_no, display_name,
-                category_id=category.id if category else None,
-                access_role_id=access_role.id if access_role else None,
+                category_id=cat_obj.id if cat_obj else None,
+                access_role_id=role_obj.id if role_obj else None,
             )
         except sqlite3.IntegrityError:
-            await interaction.response.send_message(
-                f"중복 등록 거부: `{domain}` S{season_no} 는 이미 존재합니다.", ephemeral=True
+            # 레이스로 중복 등록 거부 — 자동 생성한 자산이 있으면 롤백(잔재 방지).
+            if created_role or created_category:
+                await templates.cleanup(created_role, created_category)
+            await self._reply(
+                interaction, f"중복 등록 거부: `{domain}` S{season_no} 는 이미 존재합니다.", deferred=auto
             )
             return
 
         log.info(
-            "서버 신설(prep): #%d %s (%s S%d) by %s",
-            sid, display_name, domain, season_no, interaction.user.id,
+            "서버 신설(prep): #%d %s (%s S%d) auto=%s by %s",
+            sid, display_name, domain, season_no, auto, interaction.user.id,
         )
         await mod_log.record(
             self.bot,
             action="server_create",
             operator_id=interaction.user.id,
-            detail={"server_id": sid, "domain": domain, "season": season_no, "display_name": display_name},
+            detail={
+                "server_id": sid, "domain": domain, "season": season_no,
+                "display_name": display_name, "auto_provisioned": bool(auto),
+            },
         )
-        await interaction.response.send_message(
-            f"✅ 서버 `#{sid}` 신설(🟡 준비): **{display_name}** — `{domain}` S{season_no}.\n"
-            "다음: `/서버시작 {0}` 로 활성화.".format(sid),
-            ephemeral=True,
+        if auto:
+            ch_count = len(templates.template_for(domain))
+            extra = (
+                f"\n📁 카테고리 **{display_name}**(비공개) + 채널 {ch_count}개 + 접근역할 "
+                f"**{role_obj.name}** 자동 생성. `/서버시작` 시 접근역할에게 공개됩니다."
+            )
+        else:
+            extra = "\n(레지스트리만 등록 — 카테고리/역할 미연결)" if not cat_obj else ""
+        await self._reply(
+            interaction,
+            f"✅ 서버 `#{sid}` 신설(🟡 준비): **{display_name}** — `{domain}` S{season_no}.{extra}\n"
+            f"다음: `/서버시작 {sid}` 로 활성화.",
+            deferred=auto,
         )
 
     # ─── 상태 전이 (prep→active→ended) ───────────────────────────────
