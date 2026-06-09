@@ -277,11 +277,14 @@
   - ⚠️ **남은 실행**: ① CF 프로필 재익스포트(manifest 자동 갱신, collection이 Modrinth-only면 (b)전환) ② PoroMonCore 빌드→overrides 번들 ③ `extract-curseforge-pack.sh` ROOT 경로 stale 수정 ④ 깨끗한 런처 설치 검증.
 - **디스코드 봇 인증 계약 보강**: `discord_auth_integration.md`에 봇측 구현 체크리스트(.env·poromon_api·명령·보안·검증 B1~B5) 추가. ⚠️ 실제 봇 코드는 `porong-work-discord` 워크트리에서(여기선 수정 금지).
 
-**▶ 다음(실행 단계, 별도 세션):**
-1. 설치기 §3-1 manifest 정합 실측(86 대조·6갭·fileID 채취) + loader 정정.
-2. PoroMonCore 빌드→overrides 번들 + 클라 export 필터(openloader/data 제외) 스크립트화(§6).
-3. 깨끗한 런처 설치 검증(`client_pack_policy.md` §7 체크리스트, 클라 필요).
-4. (봇·사용자) `porong-work-discord`에서 B1~B5 구현.
+**▶ 다음 세션 시작점 (간편설치기 실행 — `client_pack_policy.md` 기준):**
+> ✅ 완료: 결정 044(구성 86/25)·045(설치기 모델)·봇 계약 보강·**manifest 갭 실측(§3-1)**·loader 0.19.3 정정. (커밋 5ba0952·6346911)
+1. **CF 프로필 재익스포트**(사용자/CurseForge 앱): manifest에 (a) 7개 자동 포함 + eggs 자동 제거. ⚠️ collection이 Modrinth-only면 (b) 번들로 전환. → `extract-curseforge-pack.sh`로 반영.
+2. **`extract-curseforge-pack.sh` ROOT 경로 stale 수정**(`poro-server-poromon`→현 워크트리) — 클로드 가능.
+3. **PoroMonCore 빌드→`overrides/mods/` 번들 + 클라 export 필터(openloader/data 제외) 스크립트화**(§6) — 클로드 가능.
+4. **깨끗한 런처 설치 검증**(`client_pack_policy.md` §7, 클라 필요) — 사용자.
+5. (봇·사용자) `porong-work-discord`에서 봇 인증 B1~B5 구현(`discord_auth_integration.md`).
+> 클로드 단독 가능 = 2·3(스크립트). 1·4·5 = 사용자/외부 도구 필요.
 
 
 
