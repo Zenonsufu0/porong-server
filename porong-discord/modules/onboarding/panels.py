@@ -310,22 +310,11 @@ class OnboardingCog(commands.Cog):
 
     # ─── 운영자: 패널 게시 (active 서버의 온보딩 채널) ────────────
 
-    @app_commands.command(
-        name="온보딩패널", description="진행 중 서버의 온보딩(약관/인증) 패널을 게시합니다."
-    )
-    @requires_permission("admin")
-    async def post_panels(self, interaction: discord.Interaction) -> None:
-        guild = interaction.guild
-        if guild is None:
-            await interaction.response.send_message("길드에서만 사용할 수 있습니다.", ephemeral=True)
-            return
-        row = await servers.get_any_active(self.db)
-        if row is None:
-            await interaction.response.send_message(
-                "진행 중(active)인 서버가 없습니다. `/서버시작` 후 사용하세요.", ephemeral=True
-            )
-            return
+    async def publish_panels(self, guild: discord.Guild, row) -> list[str]:
+        """active 서버 row 의 온보딩 약관/인증 채널에 패널 게시. 게시한 곳 목록 반환.
 
+        /온보딩패널(수동)·서버시작(자동) 공용. 채널 없으면 그 항목 skip.
+        """
         name = row["display_name"]
         domain = row["domain"]
         posted: list[str] = []
@@ -359,7 +348,24 @@ class OnboardingCog(commands.Cog):
             )
             await auth_ch.send(embed=embed, view=AuthPanelView(self))
             posted.append(f"인증(<#{auth_ch.id}>)")
+        return posted
 
+    @app_commands.command(
+        name="온보딩패널", description="진행 중 서버의 온보딩(약관/인증) 패널을 게시합니다."
+    )
+    @requires_permission("admin")
+    async def post_panels(self, interaction: discord.Interaction) -> None:
+        guild = interaction.guild
+        if guild is None:
+            await interaction.response.send_message("길드에서만 사용할 수 있습니다.", ephemeral=True)
+            return
+        row = await servers.get_any_active(self.db)
+        if row is None:
+            await interaction.response.send_message(
+                "진행 중(active)인 서버가 없습니다. `/서버시작` 후 사용하세요.", ephemeral=True
+            )
+            return
+        posted = await self.publish_panels(guild, row)
         if not posted:
             await interaction.response.send_message(
                 "약관/인증 채널을 찾지 못했습니다(온보딩 카테고리의 `약관`·`인증` 채널 확인).",

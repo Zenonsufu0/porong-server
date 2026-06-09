@@ -359,6 +359,19 @@ class ServerLifecycleCog(commands.Cog):
                 reason=f"서버시작 #{server_id} — 임시역할 일괄 부여",
             )
 
+        # 온보딩 패널 자동 게시(약관·인증) — OnboardingCog 위임(있을 때).
+        panel_note = ""
+        onb = self.bot.get_cog("OnboardingCog")
+        if onb is not None and interaction.guild:
+            try:
+                fresh = await servers.get_server(self.db, server_id)  # state=active 반영본
+                posted = await onb.publish_panels(interaction.guild, fresh)  # type: ignore[attr-defined]
+                panel_note = f"\n온보딩 패널 게시: {', '.join(posted)}" if posted else \
+                    "\n⚠ 온보딩 약관/인증 채널을 찾지 못해 패널 미게시."
+            except discord.HTTPException:
+                log.exception("온보딩 패널 자동 게시 실패: #%d", server_id)
+                panel_note = "\n⚠ 온보딩 패널 게시 실패(권한/오류) — `/온보딩패널` 재시도."
+
         log.info("서버 시작: #%d (%s) granted=%d by %s", server_id, row["domain"], granted, interaction.user.id)
         await mod_log.record(
             self.bot,
@@ -369,7 +382,7 @@ class ServerLifecycleCog(commands.Cog):
         )
         await interaction.followup.send(
             f"🟢 서버 `#{server_id}` **{row['display_name']}** 활성화 완료. ({note})\n"
-            f"임시역할 일괄 부여: **{granted}명** (서버준비 회수).",
+            f"임시역할 일괄 부여: **{granted}명** (서버준비 회수).{panel_note}",
             ephemeral=True,
         )
 
