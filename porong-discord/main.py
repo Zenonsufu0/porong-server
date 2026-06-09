@@ -27,11 +27,9 @@ log = logging.getLogger(__name__)
 EXTENSIONS: list[str] = [
     # 공통
     "modules.common.general",
-    # RPG
-    "modules.rpg.auth",
+    # RPG (auth·role_poll = 구방향 폐기, DL-138 — 온보딩은 modules.onboarding 으로 통일)
     "modules.rpg.player_commands",
     "modules.rpg.field_boss",
-    "modules.rpg.role_poll",
     # 역할(권한·알림 분리)
     "modules.roles.role_commands",
     # 공통 온보딩(약관 게이트 + 인증 버튼/모달 패널)

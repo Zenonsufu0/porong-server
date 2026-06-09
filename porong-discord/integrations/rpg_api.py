@@ -62,40 +62,8 @@ class PoroApiClient:
         except aiohttp.ClientError as e:
             raise RpgAuthError(f"RPG 인증 API 네트워크 오류: {e}") from e
 
-    async def create_pending(self, discord_user_id: str, minecraft_nick: str) -> dict:
-        """POST /auth/pending → {code, expires_in}"""
-        url = f"{PORO_API_URL}/auth/pending"
-        async with self._get_session().post(
-            url,
-            json={"discord_user_id": discord_user_id, "minecraft_nick": minecraft_nick},
-            headers=self._headers,
-        ) as resp:
-            resp.raise_for_status()
-            return await resp.json()
-
-    async def get_auth_status(self, minecraft_nick: str) -> dict:
-        """GET /auth/status/{nick} → {verified, discord_user_id}"""
-        url = f"{PORO_API_URL}/auth/status/{minecraft_nick}"
-        async with self._get_session().get(url, headers=self._headers) as resp:
-            resp.raise_for_status()
-            return await resp.json()
-
-    async def poll_role_queue(self) -> list:
-        """GET /auth/role-queue → [{discord_user_id, minecraft_nick}, ...]"""
-        url = f"{PORO_API_URL}/auth/role-queue"
-        async with self._get_session().get(url, headers=self._headers) as resp:
-            resp.raise_for_status()
-            return await resp.json()
-
-    async def acknowledge_role_granted(self, discord_user_id: str) -> None:
-        """POST /auth/role-granted"""
-        url = f"{PORO_API_URL}/auth/role-granted"
-        async with self._get_session().post(
-            url,
-            json={"discord_user_id": discord_user_id},
-            headers=self._headers,
-        ) as resp:
-            resp.raise_for_status()
+    # 구방향(create_pending·get_auth_status·poll_role_queue·acknowledge_role_granted)은
+    # DL-138 코드방향 통일로 폐기(2026-06-09). 신방향 = verify_code(인게임 발급→봇 검증).
 
     # ─── 필드보스 ────────────────────────────────────────────────
 

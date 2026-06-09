@@ -34,17 +34,15 @@
 | 메서드 | 엔드포인트 | 요청 | 응답 |
 |---|---|---|---|
 | `verify_code` 🟢 | `POST /auth/verify` | `{code, discordId}` (헤더 `X-Api-Key`) | 200 `{uuid, name}` / 404 / 429 / 401 |
-| `create_pending` ⚠구방향 | `POST /auth/pending` | `{discord_user_id, minecraft_nick}` | `{code, expires_in}` |
-| `get_auth_status` ⚠구방향 | `GET /auth/status/{nick}` | — | `{verified, discord_user_id}` |
-| `poll_role_queue` ⚠구방향 | `GET /auth/role-queue` | — | `[{discord_user_id, minecraft_nick}, …]` |
-| `acknowledge_role_granted` ⚠구방향 | `POST /auth/role-granted` | `{discord_user_id}` | — |
 
 > 🟢 **신방향(DL-138 코드방향 통일, 2026-06-09 봇측 구현): `verify_code`** — 인게임 `/인증` 발급 코드를
 > 봇이 검증. 봇 클라이언트 = `rpg_api.verify_code`(포로몬과 동일 계약). 온보딩 `_verifiers["rpg"]` 등록.
 > RPG 게임서버 `/auth/verify` = DL-138로 준비됨. ⚠ 필드명(`discordId` camelCase)은 레퍼런스 기준 — RPG
 > AuthApiHandler 실계약과 다르면 맞출 것(RPG worktree 확인).
-> ⚠ **구방향(create_pending·role-queue 폴링)은 SUPERSEDE 대상** — `modules/rpg/auth.py` 구 흐름 정리 시 제거 예정.
-> 화이트리스트: 인게임 `/인증` 성공 시 게임서버가 확정(봇은 직접 쓰지 않음).
+> ❌ **구방향 제거됨(2026-06-09, DL-138):** `create_pending`·`get_auth_status`·`poll_role_queue`·
+> `acknowledge_role_granted`(`POST /auth/pending`·`GET /auth/status`·`GET /auth/role-queue`·`POST /auth/role-granted`)
+> + `modules/rpg/auth.py`(닉 모달·약관 메시지)·`modules/rpg/role_poll.py`(role-queue 폴러) 삭제. 온보딩은
+> `modules/onboarding`(약관동의 버튼·인증 모달·verify)로 통일. 화이트리스트는 인게임 `/인증` 성공 시 게임서버가 확정.
 
 ### A-2. 조회 — RPG 🟢 (구현)
 

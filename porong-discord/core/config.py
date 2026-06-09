@@ -22,7 +22,9 @@ GUILD_ID: int = int(os.environ["GUILD_ID"])
 # ─── 봇 SQLite (T12, 인스턴스 로컬 — gitignored) ─────────────────────
 BOT_DB_PATH: str = os.getenv("BOT_DB_PATH", "poro_bot.sqlite3")
 
-CHANNEL_AUTH_ID: int = int(os.environ["CHANNEL_AUTH_ID"])
+# [DEPRECATED] CHANNEL_AUTH_ID — 구 RPG 단일서버 약관 채널(modules/rpg/auth.py 폐기, DL-138).
+# 신 온보딩은 active 서버의 온보딩 카테고리 채널을 사용(panels.py). optional 로 완화.
+CHANNEL_AUTH_ID: int = int(os.getenv("CHANNEL_AUTH_ID", "0") or "0")
 CHANNEL_FIELD_BOSS_ID: int = int(os.environ["CHANNEL_FIELD_BOSS_ID"])
 # 운영/감사 로그 채널 (mod_log 게시 대상). 미설정(0)이면 DB 적재만, 게시 생략.
 CHANNEL_MODLOG_ID: int = int(os.getenv("CHANNEL_MODLOG_ID", "0") or "0")
@@ -32,13 +34,15 @@ CHANNEL_MODLOG_ID: int = int(os.getenv("CHANNEL_MODLOG_ID", "0") or "0")
 # 미설정(0)이면 생애주기 일괄 역할 전이가 해당 부분을 graceful skip 한다.
 ROLE_서버준비_ID: int = int(os.getenv("ROLE_서버준비_ID", "0") or "0")
 CATEGORY_통합_ID: int = int(os.getenv("CATEGORY_통합_ID", "0") or "0")
+# [DEPRECATED] TERMS_MESSAGE_ID — 구 RPG 약관 메시지 ID(폐기). 미참조.
 TERMS_MESSAGE_ID: int | None = int(os.environ["TERMS_MESSAGE_ID"]) if os.getenv("TERMS_MESSAGE_ID") else None
 
-# ─── 온보딩 권한 역할 (시스템 자동 — 인증 단계 승급) ────────────────
-# 인증 플로우(약관 동의 → 코드 인증)에 따라 봇이 자동 승급한다.
+# ─── [DEPRECATED] 구 RPG 단일서버 온보딩 역할 (미인증→접속대기→인증유저) ──────
+# modules/rpg/auth.py·role_poll.py 폐기(DL-138). 신 온보딩 3역할은 서버별 DB 생성
+# (servers.access/pending/player_role_id, panels.py). 미참조 — optional 로 완화.
 ROLE_미인증_ID: int  = int(os.getenv("ROLE_미인증_ID",  "0") or "0")
-ROLE_접속대기_ID: int = int(os.environ["ROLE_접속대기_ID"])
-ROLE_인증유저_ID: int = int(os.environ["ROLE_인증유저_ID"])
+ROLE_접속대기_ID: int = int(os.getenv("ROLE_접속대기_ID", "0") or "0")
+ROLE_인증유저_ID: int = int(os.getenv("ROLE_인증유저_ID", "0") or "0")
 
 # ─── 운영 권한 역할 (수동 지급 전용 — 봇 자동 지급 금지) ─────────────
 # Owner/Admin/매니저/Support 는 절대 버튼·이모지·자동 로직으로 지급하지 않는다.
