@@ -5,7 +5,10 @@
 ## POI (전리품 거점) — 낮 파밍의 목적지
 테마 = **현대 폐허**(버려진 연구소·군사시설·폐도시). 마크 기본 구조물(고대도시·정글사원)은 **판타지라 테마 불일치** → 비추.
 
-- **📐 Lost Cities 실측 (jar 2026-06-09):** 빌딩 **34종**(1동=16×16(1청크)×다층, building1=9층+ 고층) + **대형 복합빌딩 13종**(멀티청크) + 흩어진 구조 3 + 거리·하이웨이·**지하철(raildungeon)**. 상자 = 층(part)당 **~1~2개** → 고층 1동 **~10개+**(상자당 2~4 아이템). → **POI 후보 풀에 충분**(빌딩 상자 자리 흡수). **티어링:** 단독 빌딩=저티어 / 멀티빌딩·지하철=고티어 POI. 도시 밀도 = rarity 조정(드문 폐도시).
+- **📐 Lost Cities 실측 (jar 2026-06-09):** 빌딩 **34종**(1동=16×16(1청크)×다층, building1=9층+ 고층) + **대형 복합빌딩 13종**(멀티청크) + 흩어진 구조 3 + 거리·하이웨이·**지하철(raildungeon)**. 상자 = 층(part)당 **~1~2개** → 고층 1동 **~10개+**(상자당 2~4 아이템). → **POI 후보 풀에 충분**(빌딩 상자 자리 흡수). 도시 밀도 = rarity 조정(드문 폐도시).
+- **🎯 테마 빌딩 보유 → 컨셉 분류·부품 POI 매핑 가능(다른 모드 거의 불필요):** generic(building1~8) 외에 **테마 빌딩 존재** — `radiotower`(통신탑)·`oilrig`(시추선)·`library`(도서관)·`shopping`·`townhall`·`center` + Underground Bunkers(군사). **탈출 부품 POI가 실제 테마에 자연 매핑:** 📡무선=**radiotower** / ⛽연료=**oilrig** / 💾데이터=**library** / 🪖군사=**Bunkers** ([`finale.md`](finale.md)).
+  - **POI 티어링:** T1=building1~8·town·cabin / T2=shopping·library(저층) / T3=radiotower·oilrig·library·center(테마=부품) / T4=multibuilding(huge1/2)·Bunkers·지하철·townhall.
+  - **충분성:** 구조 양·분위기·테마 다 커버 → **추가 구조물 모드 비추**(통합 게이트 재부담 + Create 의존류 위험). 더 깊게 원하면 Lost Cities **datapack**(citystyle로 생성 비율 조정·커스텀 빌딩 추가)이나 시그니처 schem — 단 part 블록맵 제작=맵 노동이라 후순위·선택.
 - **구현 = 자동 생성 메인 (맵 직접 제작은 안 함):**
   - **자동 생성 모드 = The Lost Cities(본체) + Underground Bunkers** = 세계의 **양·분위기**를 깔아줌(폐도시·건물·벙커 흩뿌림). 노동 0.
     - ❌ **ChaosZPack 드랍**(통합 검증서 Create 등 8모드 강제 의존 → 경제·톤 충돌, [`../platform.md`](../platform.md)). 테마 구조물은 잃지만 Lost Cities 건물에 **우리 루트 티어링**으로 대체.
