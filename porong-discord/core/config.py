@@ -35,6 +35,9 @@ CHANNEL_MODLOG_ID: int = int(os.getenv("CHANNEL_MODLOG_ID", "0") or "0")
 ROLE_서버준비_ID: int = int(os.getenv("ROLE_서버준비_ID", "0") or "0")
 CATEGORY_통합_ID: int = int(os.getenv("CATEGORY_통합_ID", "0") or "0")
 
+# 티켓(1:1 문의) 생성 카테고리 (T16). 미설정(0)이면 카테고리 없이 생성.
+CATEGORY_티켓_ID: int = int(os.getenv("CATEGORY_티켓_ID", "0") or "0")
+
 # ─── 커뮤니티 레벨 (T13, community_level.md §6) ─────────────────────────
 # 채팅·음성 활동 XP 튜닝. 레벨업 알림 채널 + XP 제외 채널/AFK.
 CHAT_XP_PER_MSG: int      = int(os.getenv("CHAT_XP_PER_MSG", "15") or "15")

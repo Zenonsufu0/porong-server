@@ -31,6 +31,8 @@ EXTENSIONS: list[str] = [
     # 커뮤니티 (T13)
     "modules.community.temp_voice",
     "modules.community.level",
+    # 지원 (T16)
+    "modules.support.tickets",
     # RPG (auth·role_poll = 구방향 폐기, DL-138 — 온보딩은 modules.onboarding 으로 통일)
     "modules.rpg.player_commands",
     "modules.rpg.field_boss",

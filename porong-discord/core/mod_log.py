@@ -37,6 +37,8 @@ _ACTION_META: dict[str, tuple[str, discord.Color]] = {
     "terms_update":  ("📜 약관수정",    discord.Color.teal()),
     "xp_grant":      ("✨ XP지급",      discord.Color.green()),
     "xp_revoke":     ("➖ XP회수",      discord.Color.orange()),
+    "ticket_open":   ("🎫 문의개설",    discord.Color.blurple()),
+    "ticket_close":  ("🔒 문의종료",    discord.Color.light_grey()),
 }
 
 

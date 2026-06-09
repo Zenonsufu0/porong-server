@@ -24,6 +24,7 @@
 - 채널 내 운영진과 대화. `/티켓종료`(개설자 또는 운영자) → 채널 정리 + `state=closed, closed_at, closed_by`.
 - **유저당 동시 오픈 1개 제한**(중복 방지) — 미확정(아래 §4).
 - 모든 개설/종료 `mod_log` 기록(선택) + 운영 가시.
+- 🟢 **구현(2026-06-09): `modules/support/tickets.py` + db v10 `tickets` + `core/tickets.py`.** `/문의`(동시 1개 제한, @everyone 숨김+개설자/admin/support 가시) · `/티켓종료`·[종료] 영구버튼(개설자/운영) · 종료=**잠금·아카이브**(채널 삭제 X, `[종료]` 프리픽스 + 개설자 접근 해제 — §5 삭제vs아카이브 = 아카이브 채택, 생애주기 정합). 생성 카테고리 = `CATEGORY_티켓_ID`(.env, 미설정 시 무카테고리). mod_log(ticket_open/close).
 
 ## 3. FAQ
 

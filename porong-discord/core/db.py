@@ -147,6 +147,21 @@ _MIGRATIONS: list[str] = [
         ('elder',   '⭐ 포로 원로',  30),
         ('legend',  '👑 포로 레전드', 50);
     """,
+    # v10 — tickets 1:1 문의 (data_model.md §2.6, T16)
+    """
+    CREATE TABLE IF NOT EXISTS tickets (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        channel_id  INTEGER NOT NULL,
+        opener_id   INTEGER NOT NULL,
+        domain      TEXT,
+        state       TEXT    NOT NULL DEFAULT 'open' CHECK(state IN ('open','closed')),
+        created_at  INTEGER NOT NULL,
+        closed_at   INTEGER,
+        closed_by   INTEGER
+    );
+    CREATE INDEX IF NOT EXISTS idx_tickets_opener  ON tickets(opener_id, state);
+    CREATE INDEX IF NOT EXISTS idx_tickets_channel ON tickets(channel_id);
+    """,
 ]
 
 
