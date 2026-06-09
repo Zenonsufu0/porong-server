@@ -89,6 +89,15 @@ _MIGRATIONS: list[str] = [
     );
     CREATE INDEX IF NOT EXISTS idx_server_categories_cat ON server_categories(category_id);
     """,
+    # v5 — terms 서버별 약관 (온보딩 약관 채널 게시용). 하드코딩 대신 봇 입력/DB 저장.
+    """
+    CREATE TABLE IF NOT EXISTS terms (
+        domain     TEXT PRIMARY KEY,
+        content    TEXT    NOT NULL,
+        updated_by INTEGER,
+        updated_at INTEGER NOT NULL
+    );
+    """,
 ]
 
 

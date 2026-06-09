@@ -34,6 +34,7 @@ _ACTION_META: dict[str, tuple[str, discord.Color]] = {
     "server_start":  ("🟢 서버시작",    discord.Color.green()),
     "server_end":    ("⚫ 서버종료",    discord.Color.dark_grey()),
     "relink":        ("🔁 닉네임재인증", discord.Color.blue()),
+    "terms_update":  ("📜 약관수정",    discord.Color.teal()),
 }
 
 

@@ -26,7 +26,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from core import config
+from core import config, mod_log, terms
 from core.permissions import requires_permission
 from integrations.poromon_api import PoromonApiClient, PoromonAuthError
 
@@ -85,6 +85,28 @@ class TermsAgreeView(discord.ui.View):
             return
 
         await interaction.response.send_message(_MSG_TERMS_OK, ephemeral=True)
+
+
+# ─── 약관 입력/수정 모달 (운영자) ────────────────────────────────
+
+class TermsEditModal(discord.ui.Modal, title="약관 설정"):
+    """운영자가 서버 약관 내용을 입력/수정. 저장은 core.terms(DB)."""
+
+    def __init__(self, domain: str, existing: str | None, cog: "OnboardingCog") -> None:
+        super().__init__()
+        self.domain = domain
+        self.cog = cog
+        self.content: discord.ui.TextInput = discord.ui.TextInput(
+            label=f"{domain} 약관 내용"[:45],
+            style=discord.TextStyle.paragraph,
+            default=existing or "",
+            max_length=4000,
+            required=True,
+        )
+        self.add_item(self.content)
+
+    async def on_submit(self, interaction: discord.Interaction) -> None:
+        await self.cog.save_terms(self.domain, interaction, self.content.value)
 
 
 # ─── 인증코드 입력: 버튼 → 모달 ──────────────────────────────────
@@ -234,6 +256,49 @@ class OnboardingCog(commands.Cog):
         except discord.Forbidden:
             log.warning("승급 역할 부여 권한 없음 (domain=%s discord=%s)", domain, user.id)
 
+    # ─── 운영자: 약관 입력/조회 ───────────────────────────────────
+
+    @app_commands.command(name="약관설정", description="서버 약관 내용을 입력/수정합니다(모달).")
+    @app_commands.describe(server="서버 도메인 (예: rpg, poromon)")
+    @requires_permission("admin")
+    async def set_terms_cmd(self, interaction: discord.Interaction, server: str) -> None:
+        existing = await terms.get_terms(self.bot.db, server)  # type: ignore[attr-defined]
+        await interaction.response.send_modal(TermsEditModal(server, existing, self))
+
+    async def save_terms(
+        self, domain: str, interaction: discord.Interaction, content: str
+    ) -> None:
+        """모달 제출 콜백 — 약관 저장 + 운영로그 적재."""
+        content = (content or "").strip()
+        if not content:
+            await interaction.response.send_message("약관 내용이 비어 있습니다.", ephemeral=True)
+            return
+        await terms.set_terms(self.bot.db, domain, content, interaction.user.id)  # type: ignore[attr-defined]
+        await mod_log.record(
+            self.bot, action="terms_update", operator_id=interaction.user.id,
+            detail={"domain": domain, "length": len(content)},
+        )
+        await interaction.response.send_message(
+            f"✅ `{domain}` 약관 저장({len(content)}자). `/온보딩패널 {domain}` 으로 게시·갱신하세요.",
+            ephemeral=True,
+        )
+
+    @app_commands.command(name="약관보기", description="저장된 서버 약관을 확인합니다(본인만).")
+    @app_commands.describe(server="서버 도메인 (예: rpg, poromon)")
+    @requires_permission("admin")
+    async def view_terms_cmd(self, interaction: discord.Interaction, server: str) -> None:
+        content = await terms.get_terms(self.bot.db, server)  # type: ignore[attr-defined]
+        if not content:
+            await interaction.response.send_message(
+                f"`{server}` 약관이 아직 설정되지 않았습니다. `/약관설정 {server}` 로 입력하세요.",
+                ephemeral=True,
+            )
+            return
+        embed = discord.Embed(
+            title=f"{server} 약관 (저장본)", description=content[:4096], color=discord.Color.teal()
+        )
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+
     # ─── 운영자: 패널 게시 ────────────────────────────────────────
 
     @app_commands.command(
@@ -260,12 +325,20 @@ class OnboardingCog(commands.Cog):
 
         terms_ch = guild.get_channel(int(cfg.get("terms_channel", 0) or 0))
         if isinstance(terms_ch, discord.TextChannel):
+            stored = await terms.get_terms(self.bot.db, server)  # type: ignore[attr-defined]
+            guide = (
+                "\n\n— 아래 **약관 동의** 버튼을 누르면 인증 단계로 넘어갑니다. "
+                "동의 후 인증 채널에서 인게임 `/인증` 코드를 입력해주세요."
+            )
+            if stored:
+                description = stored[: 4096 - len(guide)] + guide
+            else:
+                description = (
+                    f"⚠ 약관이 아직 설정되지 않았습니다(`/약관설정 {server}`).{guide}"
+                )
             embed = discord.Embed(
                 title=f"{name} 서버 약관 동의",
-                description=(
-                    "아래 **약관 동의** 버튼을 누르면 인증 단계로 넘어갑니다.\n"
-                    "동의 후 인증 채널에서 인게임 `/인증` 코드를 입력해주세요."
-                ),
+                description=description,
                 color=discord.Color.green(),
             )
             await terms_ch.send(embed=embed, view=TermsAgreeView(server))

@@ -178,6 +178,25 @@
 
 ## 8. 세션 핸드오프 (다음 세션 이어가기)
 
+### 이번 세션 완료 (2026-06-09, feature/discord-dev) — T17 다중 카테고리/3역할 + 약관 저장
+T17 서버 신설을 프리픽스 카테고리 4그룹 + 온보딩 3역할 자동 전개로 확장하고, 약관을 DB 저장/입력으로 전환.
+
+**구현 산출:**
+- **T17 구조**(commit `0fa6a7d`): `templates.py` provision(3역할 access·pending·player + 카테고리 4그룹[온보딩·정보·커뮤니티·지원·음성] + 채널, prep=비공개)/apply_visibility(약관→접근/인증→인증전/그외→플레이어)/cleanup. db v4(`pending_role_id`·`player_role_id`+`server_categories`), servers 다중카테고리 헬퍼, gating 집합 매칭(`get_active_category_ids`). 구조 결정 = B안 프리픽스, 중첩 시즌/서버 미운영.
+- **약관 저장**(이번): db **v5 `terms`** + `core/terms.py`(get/set upsert) + `/약관설정`(모달 4000자)·`/약관보기`(`modules/onboarding/panels.py`). `/온보딩패널`이 저장된 약관을 약관 채널 임베드로 게시. 약관 수정 = `mod_log(terms_update)`.
+
+**검증:** compileall + stdlib sqlite v1~v5 + terms upsert. 실길드 e2e(역할/카테고리/모달/패널)는 스테이징.
+
+**주의/다음 — 온보딩 배선 잔여(이번 미구현):**
+- ⬜ **온보딩 레지스트리 DB화**: 현 `ONBOARDING_SERVERS`는 .env 코드 기반(poromon만). 자동 생성 서버(3역할은 DB 저장됨)를 연결하려면 **약관/인증 채널 ID 저장 보강 필요**(현재 카테고리 ID만 `server_categories`에 저장, 개별 채널 ID 미저장 → 이름 매칭 or 저장).
+- ⬜ **verify 라우팅**: 새 서버→게임서버 API 매핑(`api_env_key` 활용) 설계 필요. RPG는 DL-138 준비됨, 신규 서버 매핑은 미설계.
+- ⬜ 접속정보 라이브 상태(T18), FAQ/문의(T16), 임시음성 허브 실동작(T13).
+
+**다음 세션 착수 후보:**
+1. **온보딩 배선 계속** — 채널 ID 저장 보강 → 자동 서버를 온보딩에 연결 → 패널 자동 게시 + 역할 전이.
+2. **verify 라우팅 설계** — `api_env_key`로 도메인별 게임서버 API 선택.
+3. **RPG auth 이관**(DL-138).
+
 ### 이번 세션 완료 (2026-06-09, feature/discord-dev) — moderation T15 (경고계 + 제재)
 mod_log 인프라 위에 경고계 + 상태변경 제재까지 구현(제재는 사용자 명시 승인하 진행).
 
