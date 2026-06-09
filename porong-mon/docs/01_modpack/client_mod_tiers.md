@@ -22,7 +22,7 @@
 
 ---
 
-## 1. T0 — 코어 필수 (14, 강제·서버 일치)
+## 1. T0 — 코어 필수 (14, 강제·서버 일치) — 결정 044 갱신(2026-06-09)
 
 게임플레이 콘텐츠 + 그 하드 의존 라이브러리. **레지스트리(블록·아이템·엔티티·바이옴)를 추가하므로 서버와 반드시 동일.** 설치기에서 끌 수 없다.
 
@@ -35,7 +35,8 @@
 | `Cobblemon-*` | 포켓몬 엔진(코어) | ★게임플레이 |
 | `mega_showdown-*` | 메가/테라/배틀 기믹 | ★게임플레이 |
 | `SimpleTMs-*` | TM/TR | ★게임플레이 |
-| `eggs-cobblemon-addon-*` | 알/부화 | ★게임플레이 |
+| **`poromon-core-*`** | **PoroMonCore 서버 규칙 엔진 + 커스텀 텍스처/모델(배지·조우권·정수)** | ★**커스텀(자체 빌드)**. CurseForge 메타 해소 불가 → overrides 직접 번들. 결정 044 |
+| ~~`eggs-cobblemon-addon-*`~~ | ~~알/부화~~ | ❌ **제거(결정 032)** — 알 시스템 폐기 |
 | `LegendaryMonuments-*` | 전설 구조물/소환(비활성됐어도 **레지스트리 일치 필요**) | ★게임플레이·결정 023 |
 | `chipped-*` | LM 하드 의존(블록 변형, 레지스트리) | LM 체인 |
 | `CobbleFurnies-*` | LM 하드 의존(가구, 레지스트리) | LM 체인 |
@@ -43,7 +44,8 @@
 | `athena-*` | chipped/cobblefurnies 의존 lib | LM 체인 lib |
 | `resourcefullib-*` | chipped 의존 lib | LM 체인 lib |
 
-> 14개 = `server_mod_separation.md` §1(9) + §1b(5)와 동일 집합. **클라·서버 공통 코어.**
+> 14개 = `server_mod_separation.md` §1(8, eggs 제거) + §1c(1, PoroMonCore) + §1b(5)와 동일 집합. **클라·서버 공통 코어.** (eggs −1, poromon-core +1 → 합계 14 유지.)
+> ⚠️ **PoroMonCore는 CustomModelData 텍스처를 클라가 렌더해야 하므로 T0**(끌 수 없음). 빌드 변경 시 서버+클라 동시 재배포. CurseForge/Modrinth에 없어 **설치기가 overrides로 직접 동봉**한다.
 
 ---
 
@@ -62,6 +64,13 @@
 | `ferritecore-*` | 메모리 절감 | (서버에도 포함) |
 | `lithium-fabric-*` | 틱/AI 최적화 | (서버에도 포함, 클라도 이득) |
 | `krypton-*` | 네트워크 최적화 | (서버에도 포함, 접속 이득) |
+
+### 2-1b. 전설 모델 보충 (강권장 — 결정 044)
+| jar | 역할 | 의존 |
+|---|---|---|
+| `complete-cobblemon-collection-myths-and-legends-compat-*` | Cobblemon 1.7.3 **미구현 전설/환상 모델·렌더 보충**(없으면 다수 전설이 substitute 인형으로 보임) | EMF(`entity_model_features`) 권장 동반 |
+
+> ⚠️ 레지스트리를 추가하지 않아 **접속엔 불필요(T0 아님)**하지만, 조우권 콘텐츠가 핵심이라 **기본 ON 강권장**. 끄면 전설 조우 시 모델이 인형으로 표시(게임 동작은 정상). EMF/ETF는 §3 T2이나 이 모델팩과 함께 쓰면 렌더 품질↑.
 
 ### 2-2. 정보/아이템 뷰어 (플레이 편의 큼)
 | jar | 역할 | 의존 |
@@ -174,13 +183,14 @@
 
 | 구분 | 수 | 설치기 |
 |---|---|---|
-| T0 코어(강제) | 14 | 항상 |
-| T1 권장 편의 | 38 | 기본 ON |
+| T0 코어(강제) | 14 | 항상 (eggs −1, **poromon-core +1**) |
+| T1 권장 편의 | 39 | 기본 ON (**complete-cobblemon-collection +1**, 강권장) |
 | T2 선택 취향 | 18 | 기본 OFF |
 | L 라이브러리(자동) | 위와 일부 중복 | 의존 해소 |
 | (S) 서버전용(클라 제외 후보) | 5 | 선택 |
 
-> 합계는 라이브러리 중복 귀속 때문에 단순 합 ≠ 85. **분류 1차 초안** — 간편설치기 스펙 확정 시 토글 단위(개별 vs 묶음)와 정확 개수 재고정 필요(TODO). 의존성 자동 해소는 CurseForge/Modrinth 메타로 검증.
+> 합계는 라이브러리 중복 귀속 때문에 단순 합 ≠ 86(실측 클라 jar). **분류 1차 초안** — 간편설치기 스펙 확정 시 토글 단위(개별 vs 묶음)와 정확 개수 재고정 필요(TODO). 의존성 자동 해소는 CurseForge/Modrinth 메타로 검증.
+> **결정 044(2026-06-09) 반영**: 실측 클라 86개 = 이전 85 − eggs + poromon-core + complete-cobblemon-collection. T0에 PoroMonCore(커스텀, 끌 수 없음·overrides 번들), T1에 collection(강권장) 추가.
 
 ---
 

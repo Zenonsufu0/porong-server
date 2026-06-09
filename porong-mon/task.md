@@ -1,6 +1,6 @@
 # PoroMon 작업 기록 / 다음 세션 핸드오프
 
-> 최종 업데이트: 2026-06-09 (세션 마감 — 아래 ◎ 2026-06-09 세션 마감 참조)
+> 최종 업데이트: 2026-06-09 (이어서 — 배포/인증 계획 정리, 결정 044·045. 아래 ◎ 2026-06-09 (이어서) 참조)
 > 이 파일은 세션 간 작업 연속성을 위한 핸드오프 노트다. 다음 세션은 이 파일부터 읽고 이어서 진행한다.
 >
 > **▶ 2026-06-07 rename 머지 복구(9b26ec8):** cc8c42d 머지가 feature 전용 작업물을 옛 `poromon/`에 고아로 남겼던 것을 발견·복구. `custom-mods/poromon-core`(모드 소스 114) + modpack config 27(`poromon_lm_control`·`poromon_battletower_test`·`simpletms/main.json`)을 `porong-mon/`으로 git mv(순수 rename). 이제 단일 트리 통합, sparse-checkout(`/porong-mon/`)로 정상 노출. ⚠️ **런타임 미복구**: `modpack/client/mods/*.jar`(빌드 의존, gitignore)·`.local/server`(서버 런타임)는 rename 후 사라짐 → 빌드/기동 전 재구성 필요(Windows `PoroMon 0.1 Dev/mods` 86개에서 복원 가능).
@@ -266,6 +266,20 @@
 6. 🟢 **그 후 2인 알파 검증** — 정규리그·챔스·네더/엔드·인증흐름·기믹·제단확률·후반관장 메가·레쿠쟈 메가·상점 메가스톤 골드정합.
 
 > 추천 순서(이 워크트리): **2(LM 소환템) → 3(특성마개조 점검)**. 1(봇)·4(허브좌표)는 병행/사용자.
+
+## ◎ 2026-06-09 (이어서) — 배포/인증 계획 정리 (결정 044·045)
+
+**이번 작업(계획 문서 위주, 커밋 미실행):**
+- **결정 044 모드팩 구성 확정**: 실측 **클라 86 / 서버 25** 재고정. eggs 제거(032 반영) − PoroMonCore 양쪽 추가 + complete-cobblemon-collection 클라 전용 추가. `server_mod_separation.md`(§1c PoroMonCore·§4-3 collection·§5 재집계) + `client_mod_tiers.md`(§1 T0·§2-1b 강권장·§6) 갱신.
+- **결정 045 간편설치기 배포·제작 모델**: 1차=CurseForge 공식 팩 + overrides, 0.1 단일 풀 프로필(토글은 0.2+), PoroMonCore 영구 overrides 번들. `client_pack_policy.md` 신설(빈 파일→계획서: 배포모델·패키지구성·번들·빌드 파이프라인·검증·오픈질문).
+  - ⚠️ **실측 갭(다음 실행 단계)**: ① manifest 80 ≠ 실제 86 → 6개 갭 정합(각 (a)CF추가/(b)overrides번들 분류 + projectID/fileID 채취) ② ✅ manifest loader `fabric-0.18.4`→`0.19.3` **정정 완료** ③ `extract-curseforge-pack.sh` ROOT 경로 stale 수정.
+- **디스코드 봇 인증 계약 보강**: `discord_auth_integration.md`에 봇측 구현 체크리스트(.env·poromon_api·명령·보안·검증 B1~B5) 추가. ⚠️ 실제 봇 코드는 `porong-work-discord` 워크트리에서(여기선 수정 금지).
+
+**▶ 다음(실행 단계, 별도 세션):**
+1. 설치기 §3-1 manifest 정합 실측(86 대조·6갭·fileID 채취) + loader 정정.
+2. PoroMonCore 빌드→overrides 번들 + 클라 export 필터(openloader/data 제외) 스크립트화(§6).
+3. 깨끗한 런처 설치 검증(`client_pack_policy.md` §7 체크리스트, 클라 필요).
+4. (봇·사용자) `porong-work-discord`에서 B1~B5 구현.
 
 
 

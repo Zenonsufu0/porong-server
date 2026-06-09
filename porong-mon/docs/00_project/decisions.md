@@ -414,3 +414,34 @@ jar 전수 검증(`egg_pool_design.md §8`)으로 Eggs Addon(`diesse`)의 실제
 **수정:** ① `load_data_packs.value = true` ② 팩 `packs/` → `data/` 이동(git mv) ③ `additional_locations`에 `config/openloader/data` 명시. overrides + `.local/server` 양쪽 적용.
 - ✅ 검증: 재기동 시 `Found new data pack openloader/.../poromon_{battletower_test,lm_control,mega_control}, loading it automatically` 로그 + `datapack list` 15팩(3 openloader enabled) + 메가/LM 구조물 `/locate` 전부 "Could not find".
 - 교훈: 데이터팩 기반 통제(LM·메가)는 **서버 기동 후 `datapack list`로 실제 로드 확인 필수**(JSON 유효성만으론 불충분). 클라(`modpack/client`)는 worldgen 서버권한이라 미적용 유지.
+
+### 044. 모드팩 구성 확정 + 서버/클라 분리 갱신 (2026-06-09)
+
+이전 분리 문서(2026-06-05)는 jar 85개 기준이었으나, 이후 변동분을 반영해 **실측 클라 86 / 서버 25**로 재고정한다.
+
+**구성 변화(이전 85 → 86):**
+- ❌ **`eggs-cobblemon-addon` 제거**(결정 032 반영) — 알 시스템 폐기. 클라/서버 양쪽 jar 삭제. (서버 §1이 9→8.)
+- ➕ **`poromon-core`(PoroMonCore) 양쪽 추가** — 자체 빌드 커스텀 모드. **서버 필수 + 클라 필수.** 클라 필수 이유: 배지·조우권·정수 CustomModelData 텍스처/모델이 jar `assets/`에 내장 → 클라 jar 없으면 종이로 렌더(translatable 텍스트는 네트워크 전송이라 무관). 빌드 변경 시 **서버+클라 동시 재배포(해시 일치)**.
+- ➕ **`complete-cobblemon-collection-myths-and-legends-compat` 클라 전용 추가** — Cobblemon 1.7.3 미구현 전설/환상 **모델 보충**(없으면 substitute 인형). 서버 제외(렌더 무관). EMF 동반. (task.md §4h)
+
+**집계 재고정:** 서버 25 = §1(8) + §1c(PoroMonCore 1) + §1b(LM 의존 5) + §2(권장 11). eggs 빠진 자리를 PoroMonCore가 채워 합계 25 동일하나 **구성이 다름**. 클라 86 = 85 − eggs + poromon-core + collection.
+
+**티어 영향:** T0 코어 14 유지(eggs −1, poromon-core +1). PoroMonCore는 **T0(끌 수 없음, overrides 번들)**, collection은 **T1 강권장**.
+- 반영: `server_mod_separation.md`(§1c·§4-3·§5 갱신), `client_mod_tiers.md`(§1·§2-1b·§6 갱신).
+
+### 045. 간편설치기 배포·제작 모델 (2026-06-09)
+
+"유저 수동 설치 금지, 런처 1클릭"(`CLAUDE.md`)을 위한 배포 모델을 확정한다.
+
+**결정:**
+- **1차 배포 = CurseForge 공식 팩**("PoroMon Official Pack"). manifest(자동 해소) + overrides(나머지). 보조로 packwiz 소스 트리를 단일 진실화(향후 CF/Modrinth 양쪽 export).
+- **0.1 = 단일 풀 프로필**(전부 포함, 토글 없음). **T1/T2 토글 설치기는 0.2 이후**(알파 후 수요 확인). 0.1 우선순위 = 재현 가능한 단일 클라.
+- **PoroMonCore는 영구 overrides 번들** — CurseForge/Modrinth에 등재 불가(자체 모드)이므로 어떤 방식이든 `overrides/mods/`에 직접 동봉. 서버와 **동일 해시**.
+
+**확인된 핵심 갭(실측 2026-06-09):**
+- manifest.json = CurseForge 80개 ≠ 실제 클라 86개 → **6개 갭** 정합 필요(각 모드 (a)CF있음=manifest추가 / (b)CF없음=overrides번들 분류, projectID/fileID 채취 TODO).
+- manifest 로더 `fabric-0.18.4`(stale) → ✅ **`0.19.3` 정정 완료**(2026-06-09, 실제 런타임 무오류 확인).
+- `scripts/extract-curseforge-pack.sh` ROOT 경로 stale(`poro-server-poromon`) → 현 워크트리로 수정 필요.
+
+**산출:** `client_pack_policy.md`(배포 모델·패키지 구성·PoroMonCore 번들·빌드 파이프라인·검증·오픈 질문). 실제 빌드/익스포트는 별도 세션.
+- 오픈 질문(미확정): 재배포 라이선스, JEI/EMI 택1, 한글팩 번들 여부, CF 단독 vs CF+Modrinth → `client_pack_policy.md` §8.

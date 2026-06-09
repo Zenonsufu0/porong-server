@@ -3,7 +3,9 @@
 > 대상: **PoroMon 0.1 Dev** (MC 1.21.1 / Fabric Loader 0.19.3)
 > 소스: **`modpack/client/mods/` 실제 jar 85개**(CurseForge 프로필에서 복사) + `reports/mod_classification.md`(1차 자동 분류) + `reports/client_mod_jars.txt`.
 > 목적: 데디케이티드 서버(`.local/server/mods`)에 **서버용 후보만** 화이트리스트로 복사. **클라 전용은 제외.**
-> 갱신 이력: modlist 추정 → 실제 jar 80개 기준 재작성(결정 017) → **LM 의존 5종 추가로 85개**(2026-06-05, LM 최종 포함).
+> 갱신 이력: modlist 추정 → 실제 jar 80개 기준 재작성(결정 017) → **LM 의존 5종 추가로 85개**(2026-06-05, LM 최종 포함) → **구성 갱신(결정 044, 2026-06-09)**: `eggs-cobblemon-addon` 제거(결정 032) − `PoroMonCore` 커스텀 모드 양쪽 추가 + `complete-cobblemon-collection`(클라 전용 모델팩) 추가 → **클라 86 / 서버 25**(아래 §5 재집계).
+>
+> ⚠️ **2026-06-09 현재 실측**: `modpack/client/mods/*.jar` = **86개**, `.local/server/mods/*.jar` = **25개**. 본 문서 표가 열거하는 개별 jar 이름은 구버전(eggs 포함) 잔재가 있을 수 있으니 §1c·§4-3·§5의 갱신분을 우선한다.
 
 ## 0. 분류 원칙 (자동 분류 맹신 금지)
 1. 자동 보고서 `environment="client"` → **확정 클라 전용**(제외).
@@ -29,7 +31,7 @@ Cobblemon 게임플레이 스택 + 필수 의존. 없으면 서버 미기동 또
 | `Cobblemon-fabric-1.7.3+1.21.1.jar` | 포켓몬 엔진(코어) | — |
 | `mega_showdown-fabric-1.8.4+1.7.3+1.21.1.jar` | 메가/테라 등(배틀 서버측) | 파서오류였음, 수동 |
 | `SimpleTMs-fabric-2.3.3.jar` | TM/TR(기술 부여 서버측) | — |
-| `eggs-cobblemon-addon-0.9.jar` | 알/부화(서버측) | — |
+| ~~`eggs-cobblemon-addon-0.9.jar`~~ | ~~알/부화(서버측)~~ | ❌ **제거됨(결정 032)** — 알 시스템 폐기(조우권 중복+리소스팩 의존). 클라/서버 양쪽 jar 삭제. |
 | `LegendaryMonuments-7.8.jar` | 전설 구조물/소환(서버측) | ✅ **최종 포함**(의존 5종 확보, 2026-06-05 부팅 확인). ⚠️ 자체 소환은 PoroMonCore 전설 통제와 충돌 → **비활성/제한 datapack·config 별도 검토**(결정 023). |
 | `accessories-fabric-1.1.0-beta.53+1.21.1.jar` | MSD 착용 슬롯 의존 | depends 확인 |
 
@@ -46,6 +48,16 @@ LM 7.8 채택을 위해 추가. **CurseForge 프로필에 추가**(클라+서버
 
 > ✅ **LM 하드 의존 결론(결정 023 §2 — 2026-06-05 확정)**: LM 7.8은 `chipped`·`cobblefurnies`·`terrablender`를 하드 의존하나 팩에 없고 JIJ 번들도 아니었음(`HARD_DEP_NO_CANDIDATE`로 1차 부팅 차단). → **3종을 CurseForge 프로필에 추가**(부수 lib `athena`·`resourcefullib` 동반, 총 5종) 후 LM **최종 포함**. (`accessories`·`mega_showdown` 의존은 기존 팩 내 충족.)
 > ⚠️ **후속(별도)**: LM 자체 구조물/소환이 PoroMonCore 전설 통제(조우권·사설룸)와 충돌하지 않도록 worldgen/loot_table 비활성 또는 제한 datapack·config 전략을 별도 검토·적용한다(이번 범위 아님).
+
+### 1c. PoroMonCore 커스텀 모드 (Server Required + Client Required) — 1개
+서버 규칙 엔진. CurseForge/Modrinth에 없는 **자체 빌드 모드**(`custom-mods/poromon-core/`). 배포 산출물 `poromon-core-0.1.0.jar`.
+
+| jar | 역할 | 배치 |
+|---|---|---|
+| `poromon-core-0.1.0.jar` | 진행도·메뉴·상점·조우·리그·인증 등 서버 규칙 엔진 | **서버 필수** + **클라 필수** |
+
+> ⚠️ **양쪽 배포 필수**: 서버 로직은 물론, **클라에도 동일 jar 필요**(배지·조우권·정수 커스텀 텍스처/모델이 jar `assets/`에 내장 — CustomModelData 모델 분기를 클라가 렌더하려면 jar가 있어야 함, task.md §4f·§4j). translatable 텍스트는 네트워크 전송이라 클라 lang으로 자동 렌더되지만, **CustomModelData 텍스처는 클라 jar 없으면 종이로 보임**.
+> ⚠️ **빌드 변경 시 서버+클라 동시 재배포**(해시 일치 확인). 간편설치기는 이 jar를 CurseForge 메타로 해소 불가 → **overrides에 직접 번들**해야 한다(`client_pack_policy.md` §간편설치기 참조).
 
 ## 2. 서버 권장 (Server Recommended) — 11개
 성능/운영 + 그 의존 라이브러리. (※ `prickle`은 권장이 아니라 OpenLoader **하드 의존**이라 사실상 필수.)
@@ -94,20 +106,44 @@ AmbientEnvironment · BHMenu · BetterPingDisplay · BetterThirdPerson · CraftP
 
 > 특히 **Sodium 패밀리 전부 · Iris · ETF/EMF · EMI/JEI(+애드온) · Xaero · FancyMenu/Konkrete/Melody** 는 절대 서버 금지(작업 지시 명시).
 
+### 4-3. 추가 클라 전용(2026-06-09, 결정 044) — 1개
+| jar | 역할 | 서버 |
+|---|---|---|
+| `complete-cobblemon-collection-myths-and-legends-compat-2.0.1.jar` | Cobblemon 1.7.3 미구현 전설/환상 **모델·렌더 보충**(조우권 설계 278종 전수 렌더 커버) | **제외** — 서버는 렌더 무관(스폰은 Cobblemon 종 데이터로 처리). 클라만 필요. EMF(`entity_model_features`)와 함께 동작. (task.md §4h) |
+
+> **클라 전용 합계 = 56 + 1(collection) = 57.** (eggs 제거로 양쪽에서 −1, 하지만 eggs는 §1 서버필수였지 §4 클라전용 목록은 아니었으므로 §4 카운트엔 영향 없음.)
+
 ---
 
-## 5. 집계
+## 5. 집계 (결정 044 갱신, 2026-06-09)
+
+### 5-1. 현행(실측 기준)
+| 구분 | 수 | 비고 |
+|---|---|---|
+| 서버 필수(§1) | **8** | LM 포함, **eggs 제거(−1)** |
+| PoroMonCore 커스텀(§1c) | **1** | `poromon-core` (양쪽 필수) |
+| LM 의존 체인(§1b) | 5 | chipped·cobblefurnies·terrablender + athena·resourcefullib |
+| 서버 권장(§2) | 11 | prickle 승격 포함 |
+| **서버 화이트리스트 합** | **25** | 8 + 1 + 5 + 11 |
+| 애매/공용(§3) | 4 | 기본 제외 |
+| 클라 전용 제외(§4) | **57** | 56 + complete-cobblemon-collection(§4-3) |
+| **총 클라 jar** | **86** | (이전 85 → eggs −1, poromon-core +1, collection +1) |
+
+> **서버 25** = §1(8) + §1c(1, PoroMonCore) + §1b(5) + §2(11). eggs 빠진 자리를 PoroMonCore가 채워 합계는 25로 동일하나 **구성이 다름**.
+> **클라 86** = 서버 공통 게임플레이/lib + 클라 전용(57) + PoroMonCore + 애매(클라엔 일부 동봉).
+> ⚠️ 데이터팩 통제(LM·메가)는 **서버측 OpenLoader `config/openloader/data/`**로만 적용(결정 043). 클라는 worldgen 서버권한이라 미적용 — 클라 jar 구성과 무관.
+
+### 5-2. 이전(2026-06-05, 참고)
 | 구분 | 수 |
 |---|---|
-| 서버 필수(§1) | 9 (LM 포함) |
-| LM 의존 체인(§1b) | 5 (chipped·cobblefurnies·terrablender + athena·resourcefullib) |
-| 서버 권장(§2) | 11 (prickle 승격 포함) |
-| **서버 화이트리스트 합** | **25** (9 + 5 + 11) |
-| 애매/공용(§3) | 4 |
+| 서버 필수(§1) | 9 (eggs 포함, LM 포함) |
+| LM 의존 체인(§1b) | 5 |
+| 서버 권장(§2) | 11 |
+| **서버 화이트리스트 합** | **25** |
 | 클라 전용 제외(§4) | 56 |
 | **총 jar** | **85** |
 
-> 화이트리스트 = 25개(LM + 의존 5종 포함, prickle 포함). 2026-06-05 부팅테스트로 전 모드 정상 로드 확인.
+> 화이트리스트 25개는 2026-06-05 부팅테스트로 정상 로드 확인. 이후 eggs↔PoroMonCore 교체는 헤드리스 재기동(2026-06-08~09)으로 확인(task.md §4k 등).
 
 ---
 
