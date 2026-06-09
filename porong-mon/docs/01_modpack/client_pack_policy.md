@@ -17,7 +17,7 @@
 | manifest 로더 | `fabric-0.19.3` (✅ 2026-06-09 정정) | 실제 런타임 일치(이전 0.18.4 stale 수정) |
 | PoroMonCore | `poromon-core-0.1.0.jar` (커스텀) | `custom-mods/poromon-core/build/libs/` |
 
-> **핵심 갭 1 — manifest(80) ≠ 실제(86)**: CurseForge 자동 해소는 manifest의 80개만 커버. 나머지 **6개**(수동 추가 모드 + PoroMonCore)는 manifest에 없어 자동 설치가 안 됨 → §3·§4에서 해소.
+> **핵심 갭 1 — manifest(80) ≠ 실제(86)**: manifest는 stale 옛 export. 실측(§3-1) = **manifest에 없는 실제 jar 8개**(LM 의존 5 + collection + swingthrough + PoroMonCore) + **manifest에만 있는 폐기분 1개**(eggs). 8개 중 7개는 CF 재익스포트로 자동 해소, PoroMonCore만 영구 번들 → §3·§4.
 > **핵심 갭 2 — PoroMonCore는 CurseForge에 존재하지 않음** → 어떤 배포 방식이든 **overrides에 직접 번들**해야 한다(§4).
 
 ---
@@ -63,13 +63,33 @@ PoroMon-0.1.zip
     └── ...                  # showdown/, xaero/, fancymenu_data/ 등 기존 overrides
 ```
 
-### 3-1. manifest(80) ↔ 실제(86) 정합 작업 (필수)
-실제 86 − manifest 80 = **6개 갭**. 각 모드를 두 갈래로 분류:
-- **(a) CurseForge에 있음** → manifest에 projectID/fileID 추가(자동 해소). 예: 수동 추가했던 `complete-cobblemon-collection`, `swingthrough`, LM 의존(chipped/cobblefurnies/terrablender/athena/resourcefullib) 중 manifest 누락분 등.
-- **(b) CurseForge에 없음** → `overrides/mods/`에 jar 직접 동봉. 최소 **PoroMonCore**가 여기 해당.
+### 3-1. manifest(80) ↔ 실제(86) 정합 — 실측 결과(2026-06-09)
 
-> ⚠️ **TODO(실측)**: 86개를 manifest 80과 대조해 6개 갭의 정확한 목록 + 각 (a)/(b) 판정 + (a)의 CF projectID/fileID 채취. 현 시점 확정분: PoroMonCore=(b). (b)에 들어가는 모드는 **재배포 라이선스 확인** 필수(§8).
-> ✅ **loader 버전 정정 완료(2026-06-09)**: manifest `fabric-0.18.4` → **`fabric-0.19.3`**(실제 런타임 일치).
+실제 86 jar를 `modlist.html`(80 앵커/79 슬러그)와 정밀 대조(별칭 보정: BHMenu=bisecthosting, xaerominimap=xaeros-minimap 등). **결론: manifest.json은 LM 의존 추가·collection·swingthrough 이전 + eggs 포함 시점의 stale 옛 export.**
+
+**(A) manifest/modlist에 없는 실제 jar = 8개**
+
+| jar | CF 등재 | 분류 | 처리 |
+|---|---|---|---|
+| `chipped-fabric` | ✅ CF | (a) | manifest 추가 |
+| `CobbleFurnies-fabric` | ✅ CF | (a) | manifest 추가 |
+| `TerraBlender-fabric` | ✅ CF | (a) | manifest 추가 |
+| `athena-fabric` | ✅ CF | (a) | manifest 추가 |
+| `resourcefullib-fabric` | ✅ CF | (a) | manifest 추가 |
+| `complete-cobblemon-collection-myths-and-legends-compat` | CF 추정(확인) | (a) | manifest 추가 (CF 아니면 (b) 번들) |
+| `swingthrough` | ✅ CF | (a) | manifest 추가 |
+| `poromon-core` | ❌ 없음(자체) | **(b)** | **overrides/mods 번들** |
+
+> (a) 7개 = LM 의존 5 + collection + swingthrough → 모두 CF 자동해소 후보. (b) 1개 = PoroMonCore(영구 번들).
+
+**(B) modlist에만 있고 jar 없음 = 1개** → manifest에서 제거
+- `eggs-cobblemon-addon` (결정 032 폐기).
+
+**권장 처리 = manifest 재익스포트(가장 안전)**: 현재 CurseForge 프로필에는 이미 (a) 7개가 추가돼 있을 것이므로, **프로필에서 팩을 새로 export**하면 manifest가 자동으로 (a) 전부 포함 + eggs 제거됨. 그러면 남는 건 **PoroMonCore 번들(b)** 하나뿐. → `extract-curseforge-pack.sh`로 재반영.
+- 대안(수동): 위 (a) 7개의 projectID/fileID를 CF에서 채취해 manifest에 추가 + eggs 항목 삭제. ⚠️ fileID는 정확한 버전 필요 → 재익스포트가 오류 적음.
+
+> ⚠️ **재익스포트 시 확인**: ① collection이 CF가 아니라 Modrinth-only면 manifest에 안 잡힘 → (b) 번들로 전환 ② loader가 export에서 다시 `0.18.4`로 돌아오면 재정정.
+> ✅ **loader 버전 정정 완료(2026-06-09)**: manifest `fabric-0.18.4` → **`fabric-0.19.3`**(실제 런타임 일치, 무오류 확인).
 
 ### 3-2. overrides에 들어가는 것
 - `mods/poromon-core-0.1.0.jar`(필수) + (b) 판정 모드들.

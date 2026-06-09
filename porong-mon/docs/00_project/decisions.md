@@ -439,7 +439,7 @@ jar 전수 검증(`egg_pool_design.md §8`)으로 Eggs Addon(`diesse`)의 실제
 - **PoroMonCore는 영구 overrides 번들** — CurseForge/Modrinth에 등재 불가(자체 모드)이므로 어떤 방식이든 `overrides/mods/`에 직접 동봉. 서버와 **동일 해시**.
 
 **확인된 핵심 갭(실측 2026-06-09):**
-- manifest.json = CurseForge 80개 ≠ 실제 클라 86개 → **6개 갭** 정합 필요(각 모드 (a)CF있음=manifest추가 / (b)CF없음=overrides번들 분류, projectID/fileID 채취 TODO).
+- manifest.json = CurseForge 80개(stale 옛 export) ≠ 실제 클라 86개. **실측 정합 완료(2026-06-09)**: manifest에 없는 실제 jar **8개**(LM 의존 5: chipped·cobblefurnies·terrablender·athena·resourcefullib + complete-cobblemon-collection + swingthrough + poromon-core) / manifest에만 있는 폐기분 **1개**(eggs). 8개 중 **7개=(a)CF 재익스포트로 자동해소**, **poromon-core만 (b)영구 overrides 번들**. 권장 처리=CurseForge 프로필 재익스포트(manifest 자동 갱신+eggs 제거). 상세 표=`client_pack_policy.md` §3-1.
 - manifest 로더 `fabric-0.18.4`(stale) → ✅ **`0.19.3` 정정 완료**(2026-06-09, 실제 런타임 무오류 확인).
 - `scripts/extract-curseforge-pack.sh` ROOT 경로 stale(`poro-server-poromon`) → 현 워크트리로 수정 필요.
 

@@ -272,7 +272,9 @@
 **이번 작업(계획 문서 위주, 커밋 미실행):**
 - **결정 044 모드팩 구성 확정**: 실측 **클라 86 / 서버 25** 재고정. eggs 제거(032 반영) − PoroMonCore 양쪽 추가 + complete-cobblemon-collection 클라 전용 추가. `server_mod_separation.md`(§1c PoroMonCore·§4-3 collection·§5 재집계) + `client_mod_tiers.md`(§1 T0·§2-1b 강권장·§6) 갱신.
 - **결정 045 간편설치기 배포·제작 모델**: 1차=CurseForge 공식 팩 + overrides, 0.1 단일 풀 프로필(토글은 0.2+), PoroMonCore 영구 overrides 번들. `client_pack_policy.md` 신설(빈 파일→계획서: 배포모델·패키지구성·번들·빌드 파이프라인·검증·오픈질문).
-  - ⚠️ **실측 갭(다음 실행 단계)**: ① manifest 80 ≠ 실제 86 → 6개 갭 정합(각 (a)CF추가/(b)overrides번들 분류 + projectID/fileID 채취) ② ✅ manifest loader `fabric-0.18.4`→`0.19.3` **정정 완료** ③ `extract-curseforge-pack.sh` ROOT 경로 stale 수정.
+  - ✅ **manifest 갭 실측 완료(2026-06-09)**: manifest(80, stale) vs 실제(86) → 없는 jar 8개(LM의존5 + collection + swingthrough + poromon-core), 폐기분 1개(eggs). **7개=(a)CF재익스포트 자동해소 / poromon-core만 (b)영구번들**. 권장=CF 프로필 재익스포트. (client_pack_policy §3-1 표)
+  - ✅ **manifest loader `fabric-0.18.4`→`0.19.3` 정정 완료**.
+  - ⚠️ **남은 실행**: ① CF 프로필 재익스포트(manifest 자동 갱신, collection이 Modrinth-only면 (b)전환) ② PoroMonCore 빌드→overrides 번들 ③ `extract-curseforge-pack.sh` ROOT 경로 stale 수정 ④ 깨끗한 런처 설치 검증.
 - **디스코드 봇 인증 계약 보강**: `discord_auth_integration.md`에 봇측 구현 체크리스트(.env·poromon_api·명령·보안·검증 B1~B5) 추가. ⚠️ 실제 봇 코드는 `porong-work-discord` 워크트리에서(여기선 수정 금지).
 
 **▶ 다음(실행 단계, 별도 세션):**
