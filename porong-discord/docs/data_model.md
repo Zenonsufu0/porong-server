@@ -91,6 +91,8 @@
 | created_at | INTEGER | |
 | active | INTEGER | 1=유효, 0=철회 |
 
+- 🟢 **구현(2026-06-09): v3 마이그레이션 = `warnings` 테이블**(`core/db.py`) + **`core/warnings.py`** 접근 계층(add/list/count_active/get/revoke). `/경고`·`/경고목록`·`/경고취소`(`modules/moderation/`)에서 사용. 철회=`active=0`(행 보존).
+
 ### 2.5 `mod_log` — 운영/감사 로그 (T15)
 | 컬럼 | 타입 | 설명 |
 |---|---|---|

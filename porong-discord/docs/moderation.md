@@ -12,9 +12,9 @@
 
 | 명령 | 입력 | 효과 | 권한 |
 |---|---|---|---|
-| `/경고` | `유저, 사유` | `warnings` 추가 + DM 통보 + 누적 경고수 안내 | admin·support |
-| `/경고목록` | `유저` | 경고 이력(활성/철회) 조회 | admin·support |
-| `/경고취소` | `경고_id` | `warnings.active=0` | admin·support |
+| `/경고` 🟢 | `유저, 사유` | `warnings` 추가 + DM 통보 + 누적 경고수 안내 | admin·support |
+| `/경고목록` 🟢 | `유저` | 경고 이력(활성/철회) 조회 | admin·support |
+| `/경고취소` 🟢 | `경고_id` | `warnings.active=0` | admin·support |
 | `/타임아웃` | `유저, 기간, 사유` | 디스코드 timeout(최대 28일) + DM | admin·support |
 | `/타임아웃해제` | `유저` | timeout 해제 | admin·support |
 | `/추방` | `유저, 사유` | kick + DM(사전 발송) | admin |
@@ -26,6 +26,7 @@
 
 ### 1b. 대상 보호 (필수 가드)
 - **operator보다 같거나 높은 권한 보유자·Owner는 제재 대상에서 제외.** admin이 다른 admin/owner를 추방·차단·타임아웃하는 것을 코드에서 차단.
+- 🟢 **구현(2026-06-09): `permissions.permission_rank(member)`**(owner100·admin80·매니저50·support40·미보유0) + `modules/moderation/_target_reject_reason()` — 봇·자기자신·`target_rank >= operator_rank` 거부. 경고계에 부착(제재 명령도 동일 헬퍼 재사용 예정).
 - 봇은 **자기 역할보다 상위 멤버를 제재 불가**(디스코드 제약) → 사전 검사 후 정중히 거부.
 - 자기 자신·봇 대상 거부.
 

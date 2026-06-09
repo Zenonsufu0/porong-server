@@ -23,7 +23,7 @@
 | T12 | SQLite 저장 계층 도입(봇 영속 DB) — community/moderation/support 공통 선행 | core | — | 🟢 |
 | T13 | community 모듈(레벨·칭호·리더보드·임시음성) | community | T12 | 🟡 |
 | T14 | community 확장(출석·일일보상·임시역할 자동만료) | community | T13 | 🟡 |
-| T15 | moderation 모듈(제재·추방·경고 + 운영/감사로그) | moderation | T12 | 🟡 |
+| T15 | moderation 모듈(제재·추방·경고 + 운영/감사로그) | moderation | T12 | 🟡 (경고계 🟢 / 제재 ⬜) |
 | T16 | support 모듈(버그제보·티켓·FAQ→운영진문의) | support | T12 | 🟡 |
 | T17 | admin 확장(서버 on/off·카테고리 템플릿 신설) | admin | 봇 길드권한 | 🟡 |
 | T18 | common 확장(`/도움말`·`/서버상태`) | common | T4(서버상태) | 🟡 |
@@ -177,6 +177,26 @@
 - commit · merge · push는 사용자 승인 후에만. master 직접 merge 금지.
 
 ## 8. 세션 핸드오프 (다음 세션 이어가기)
+
+### 이번 세션 완료 (2026-06-09, feature/discord-dev) — moderation 경고계(T15 1차)
+mod_log 인프라 위에 경고계(기록계) 명령을 구현. 상태변경 제재(timeout/kick/ban)는 보안상 다음 슬라이스로 분리.
+
+**구현 산출:**
+- **v3 마이그레이션** `core/db.py` = `warnings` 테이블(§2.4) + `idx_warnings_user`.
+- **`core/warnings.py`** = add_warning/list_warnings/count_active/get_warning/revoke_warning(철회=active=0, 행 보존).
+- **`permissions.permission_rank()`** = 대상 보호 서열(owner100·admin80·매니저50·support40·0). §1b 구현.
+- **`modules/moderation/commands.py`** = `/경고`(warnings+DM 베스트에포트+활성수 안내)·`/경고목록`(이력 임베드)·`/경고취소`(철회). 전부 `@requires_permission("admin","support")` + `_target_reject_reason`(봇·자기자신·동급이상 거부) + `mod_log.record()` 적재. `main.py` 등록.
+
+**검증:** stdlib sqlite3로 v3 + 경고 추가/집계/철회 흐름 검증. compileall 통과. (DM·임베드 e2e는 스테이징.)
+
+**주의/다음:**
+- 제재 명령(`/타임아웃`·`/타임아웃해제`·`/추방`·`/차단`·`/차단해제`)은 디스코드 상태변경 → **명시 승인 시** 구현. `_target_reject_reason`·`mod_log.record()` 그대로 재사용. 봇 길드권한(Moderate/Kick/Ban Members) 필요(§1c, 배포 T8).
+- 경고 임계 자동 에스컬레이션 = 미도입(1차 수동 권고, moderation.md §2·§5).
+
+**다음 세션 착수 후보:**
+1. **moderation 제재 명령**(명시 승인 시) — timeout/kick/ban + 사전 DM. 가드·로그 인프라 준비됨.
+2. **RPG auth 이관**(DL-138) — RPG를 `ONBOARDING_SERVERS` 등록 + `modules/rpg/auth.py` 구 흐름 정리.
+3. **B: master 동기화** — 합본 원본(`porong-server`)에서 수행(디스코드 워크트리 불가).
 
 ### 이번 세션 완료 (2026-06-09, feature/discord-dev) — mod_log 운영로그 인프라
 moderation/admin/lifecycle 공통 선행(§12.2)인 운영/감사 로그 인프라를 구현. 붙은 효과: `/서버신설`·`/서버시작`·`/서버종료` 전이가 mod_log + `#운영로그`에 남음.

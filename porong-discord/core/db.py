@@ -61,6 +61,19 @@ _MIGRATIONS: list[str] = [
     CREATE INDEX IF NOT EXISTS idx_mod_log_action  ON mod_log(action);
     CREATE INDEX IF NOT EXISTS idx_mod_log_created ON mod_log(created_at);
     """,
+    # v3 — warnings 경고 (data_model.md §2.4, T15)
+    # 디스코드 측 수동 경고. active=0 = 철회(이력 보존, 삭제 안 함).
+    """
+    CREATE TABLE IF NOT EXISTS warnings (
+        id              INTEGER PRIMARY KEY AUTOINCREMENT,
+        discord_user_id INTEGER NOT NULL,
+        reason          TEXT,
+        operator_id     INTEGER NOT NULL,
+        created_at      INTEGER NOT NULL,
+        active          INTEGER NOT NULL DEFAULT 1
+    );
+    CREATE INDEX IF NOT EXISTS idx_warnings_user ON warnings(discord_user_id);
+    """,
 ]
 
 

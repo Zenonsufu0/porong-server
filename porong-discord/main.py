@@ -38,6 +38,8 @@ EXTENSIONS: list[str] = [
     "modules.onboarding.panels",
     # 서버 레지스트리 / 생애주기 (T21)
     "modules.server_lifecycle.commands",
+    # 모더레이션 — 경고계 (T15)
+    "modules.moderation.commands",
     # ── 아래는 스텁: 설계/인터페이스 단계. 구현 전까지 명령어 없음 ──
     "modules.poromon.commands",
     "modules.event.commands",
