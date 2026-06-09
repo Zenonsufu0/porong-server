@@ -7,13 +7,14 @@
 구현(§1 상태머신 prep→active→ended):
   - 🟢 /서버목록 · /서버정보            (조회)
   - 🟢 /서버신설                        (prep 행 생성 + T17 템플릿 자동 전개:
-                                          접근역할 + 카테고리 + 채널 세트 생성, prep=비공개.
-                                          수동 category 지정 시 자동전개 생략·기존 연결)
+                                          온보딩 3역할 + 프리픽스 카테고리 4그룹 + 채널 세트,
+                                          전부 prep=비공개. 수동 category 지정 시 자동전개 생략)
   - 🟢 /서버시작(prep→active) · /서버종료(active→ended)  (상태 전이 + 카테고리 가시성)
 
-카테고리 가시성: 행에 category_id·access_role_id 가 있으면 시작=접근역할에 공개,
-종료=숨김(아카이브, 채널·역할 보존 + 이름 `[종료]` 프리픽스). 미지정이면 상태만 전이.
-게이팅 3층 = core/gating.py(도메인 명령에 부착).
+카테고리 가시성(templates.apply_visibility): 자동전개면 약관→접근 / 인증→인증전 /
+그 외 카테고리→플레이어 에게 시작 시 공개, 종료 시 전부 숨김 + `[종료]` 프리픽스(채널·역할 보존).
+수동연결(단수 category_id+access_role_id)은 단일 카테고리 접근역할 토글(폴백).
+게이팅 3층 = core/gating.py(다중 카테고리 집합 매칭). 도메인 명령에 부착.
 
 모든 명령 `@requires_permission("admin")`. 응답 ephemeral.
 신설/시작/종료 전이는 core/mod_log.record() 로 운영로그(mod_log + #운영로그)에 적재한다(§2).
@@ -91,22 +92,33 @@ class ServerLifecycleCog(commands.Cog):
             title=f"서버 #{r['id']} — {r['display_name']}",
             color=discord.Color.blurple(),
         )
+        cats = await servers.get_categories(self.db, server_id)
         embed.add_field(name="도메인", value=f"`{r['domain']}`", inline=True)
         embed.add_field(name="시즌", value=str(r["season_no"]), inline=True)
         embed.add_field(name="상태", value=_STATE_LABEL.get(r["state"], r["state"]), inline=True)
-        embed.add_field(name="카테고리 ID", value=str(r["category_id"] or "—"), inline=True)
-        embed.add_field(name="접근역할 ID", value=str(r["access_role_id"] or "—"), inline=True)
+        if cats:  # 자동전개 — 다중 카테고리 + 3역할
+            cat_str = ", ".join(f"{c['group_key']}=`{c['category_id']}`" for c in cats)
+            embed.add_field(name=f"카테고리({len(cats)})", value=cat_str[:1024], inline=False)
+            embed.add_field(
+                name="온보딩 역할",
+                value=f"접근=`{r['access_role_id'] or '—'}` 인증전=`{r['pending_role_id'] or '—'}` "
+                      f"플레이어=`{r['player_role_id'] or '—'}`",
+                inline=False,
+            )
+        else:  # 수동연결 — 단수
+            embed.add_field(name="카테고리 ID", value=str(r["category_id"] or "—"), inline=True)
+            embed.add_field(name="접근역할 ID", value=str(r["access_role_id"] or "—"), inline=True)
         embed.add_field(name="API env key", value=str(r["api_env_key"] or "—"), inline=True)
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
     # ─── 신설 (레지스트리 행 생성 — 카테고리/역할 자동생성은 T17) ─────
 
-    @app_commands.command(name="서버신설", description="새 서버(시즌)를 prep 상태로 등록 + 카테고리/채널/역할 자동 생성(T17).")
+    @app_commands.command(name="서버신설", description="새 서버(시즌)를 prep 등록 + 카테고리 4그룹·채널·온보딩 3역할 자동 생성(T17).")
     @app_commands.describe(
         domain="게임 도메인 (예: rpg, poromon)",
         season_no="시즌 번호",
         display_name="표시명 (예: RPG 시즌3)",
-        자동생성="템플릿으로 카테고리·채널·접근역할 자동 생성(기본 True). category 수동 지정 시 무시됨",
+        자동생성="템플릿으로 카테고리 4그룹·채널·온보딩 3역할 자동 생성(기본 True). category 수동 지정 시 무시됨",
         category=" (선택) 기존 카테고리 수동 연결 — 지정 시 자동생성 안 함",
         access_role=" (선택) 기존 접근(가시성) 역할 수동 연결",
     )
@@ -130,13 +142,13 @@ class ServerLifecycleCog(commands.Cog):
 
         # 자동전개 = 자동생성 ON + 수동 연결(category/access_role) 미지정 + 길드 컨텍스트.
         auto = 자동생성 and category is None and access_role is None and interaction.guild is not None
-        created_role: discord.Role | None = None
-        created_category: discord.CategoryChannel | None = None
+        created_roles: dict[str, discord.Role] = {}
+        created_categories: dict[str, discord.CategoryChannel] = {}
         if auto:
             await interaction.response.defer(ephemeral=True)  # 생성은 수 초 소요 가능
             try:
-                created_role, created_category = await templates.provision(
-                    interaction.guild, domain=domain, display_name=display_name
+                created_roles, created_categories = await templates.provision(
+                    interaction.guild, display_name=display_name
                 )
             except discord.Forbidden:
                 await interaction.followup.send(
@@ -150,22 +162,27 @@ class ServerLifecycleCog(commands.Cog):
                 await interaction.followup.send("카테고리/채널 생성 중 오류가 발생했습니다.", ephemeral=True)
                 return
 
-        cat_obj = created_category or category
-        role_obj = created_role or access_role
+        # 레지스트리 행: 자동전개면 3역할, 수동연결이면 access만. 단수 category_id=수동연결용.
         try:
             sid = await servers.create_prep_server(
                 self.db, domain, season_no, display_name,
-                category_id=cat_obj.id if cat_obj else None,
-                access_role_id=role_obj.id if role_obj else None,
+                category_id=category.id if category else None,
+                access_role_id=(created_roles["access"].id if created_roles else (access_role.id if access_role else None)),
+                pending_role_id=created_roles["pending"].id if created_roles else None,
+                player_role_id=created_roles["player"].id if created_roles else None,
             )
         except sqlite3.IntegrityError:
             # 레이스로 중복 등록 거부 — 자동 생성한 자산이 있으면 롤백(잔재 방지).
-            if created_role or created_category:
-                await templates.cleanup(created_role, created_category)
+            if created_roles or created_categories:
+                await templates.cleanup(created_roles, created_categories)
             await self._reply(
                 interaction, f"중복 등록 거부: `{domain}` S{season_no} 는 이미 존재합니다.", deferred=auto
             )
             return
+
+        # 자동전개 카테고리들을 server_categories 에 연결.
+        for group_key, cat in created_categories.items():
+            await servers.add_category(self.db, sid, group_key, cat.id)
 
         log.info(
             "서버 신설(prep): #%d %s (%s S%d) auto=%s by %s",
@@ -181,13 +198,13 @@ class ServerLifecycleCog(commands.Cog):
             },
         )
         if auto:
-            ch_count = len(templates.template_for(domain))
             extra = (
-                f"\n📁 카테고리 **{display_name}**(비공개) + 채널 {ch_count}개 + 접근역할 "
-                f"**{role_obj.name}** 자동 생성. `/서버시작` 시 접근역할에게 공개됩니다."
+                f"\n📁 카테고리 {templates.group_count()}개(온보딩·정보·커뮤니티·지원·음성) + "
+                f"채널 {templates.channel_count()}개 + 온보딩 3역할(접근·인증전·플레이어) 자동 생성(비공개).\n"
+                "`/서버시작` 시 약관→접근 / 인증→인증전 / 그 외→플레이어 에게 공개됩니다."
             )
         else:
-            extra = "\n(레지스트리만 등록 — 카테고리/역할 미연결)" if not cat_obj else ""
+            extra = "\n(레지스트리만 등록 — 카테고리/역할 미연결)" if not category else ""
         await self._reply(
             interaction,
             f"✅ 서버 `#{sid}` 신설(🟡 준비): **{display_name}** — `{domain}` S{season_no}.{extra}\n"
@@ -198,12 +215,28 @@ class ServerLifecycleCog(commands.Cog):
     # ─── 상태 전이 (prep→active→ended) ───────────────────────────────
 
     async def _set_category_visibility(
-        self, guild: discord.Guild, row, *, visible: bool
+        self, guild: discord.Guild, row, *, visible: bool, archive: bool = False
     ) -> str:
-        """행의 category_id·access_role_id 로 카테고리 가시성 토글.
+        """서버 카테고리 가시성 토글. 반환 = 사용자 안내용 짧은 문구.
 
-        반환 = 사용자 안내용 짧은 상태 문구. (미지정/권한없음도 전이 자체는 진행)
+        자동전개(다중 카테고리 + 3역할) = templates.apply_visibility(약관→접근/인증→인증전/그외→플레이어).
+        수동연결(단수 category_id + access_role_id) = 단일 카테고리 접근역할 토글(구 동작).
         """
+        cats = await servers.get_categories(self.db, row["id"])
+        if cats:  # 자동전개 — 다중 카테고리 그룹
+            return await templates.apply_visibility(
+                guild,
+                category_ids={r["group_key"]: r["category_id"] for r in cats},
+                role_ids={
+                    "access": row["access_role_id"] or 0,
+                    "pending": row["pending_role_id"] or 0,
+                    "player": row["player_role_id"] or 0,
+                },
+                visible=visible,
+                archive=archive,
+            )
+
+        # 수동연결 폴백 — 단일 카테고리 + 접근역할
         category_id = row["category_id"]
         access_role_id = row["access_role_id"]
         if not category_id or not access_role_id:
@@ -213,11 +246,8 @@ class ServerLifecycleCog(commands.Cog):
         if not isinstance(category, discord.CategoryChannel) or role is None:
             return "카테고리/역할 객체 없음(상태만 전이)"
         try:
-            await category.set_permissions(
-                role, view_channel=visible, reason="서버 생애주기 전이"
-            )
-            # 종료 시 [종료] 프리픽스로 아카이브 표식(채널·역할은 보존)
-            if not visible and not category.name.startswith("[종료]"):
+            await category.set_permissions(role, view_channel=visible, reason="서버 생애주기 전이")
+            if archive and not visible and not category.name.startswith("[종료]"):
                 await category.edit(name=f"[종료] {category.name}", reason="서버 종료 아카이브")
             return "카테고리 가시성 갱신 완료"
         except discord.Forbidden:
@@ -281,7 +311,7 @@ class ServerLifecycleCog(commands.Cog):
             )
             return
         await servers.set_state(self.db, server_id, "ended", ended_at=int(time.time()))
-        note = await self._set_category_visibility(interaction.guild, row, visible=False) if interaction.guild else "길드 없음"
+        note = await self._set_category_visibility(interaction.guild, row, visible=False, archive=True) if interaction.guild else "길드 없음"
         log.info(
             "서버 종료: #%d (%s) reason=%r by %s",
             server_id, row["domain"], reason, interaction.user.id,

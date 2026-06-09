@@ -41,7 +41,13 @@
 |---|---|
 | 신설 (→prep) | 카테고리 생성(템플릿: 약관·접속정보·잡담 등) · 접근역할 생성 · 채널 권한=접근역할에게만 가시 · 접근역할은 아직 미배포(운영자/봇만) |
 
-> 🟢 **T17 구현(2026-06-09): `modules/server_lifecycle/templates.py` `provision()`** — `/서버신설 자동생성:True`(기본)가 접근역할(`<표시명> 접근`) + 카테고리 + 채널 세트(`_DEFAULT_TEMPLATE`=공지·접속정보·약관·인증·가이드·FAQ·자유채팅·스크린샷·파티모집·건의-문의-버그제보·`➕ 음성방 만들기`(임시음성 허브, T13), `_DOMAIN_TEMPLATES`로 도메인별 오버라이드 — 평소엔 공통 하나만 관리). 접속정보=서버IP·실시간 상태(T18 후속), FAQ·문의=지원 T16 배선를 **prep=비공개**(@everyone·접근역할 view=False)로 생성하고 그 ID를 `servers` 행에 기록. 채널은 카테고리 권한 상속(synced) → `/서버시작`의 카테고리 가시성 변경이 전파. 실패/중복(`UNIQUE`) 시 `cleanup()`으로 롤백. `자동생성:False` 또는 수동 `category` 지정 시 자동전개 생략. ⚠ 생성된 약관/인증 채널의 온보딩 패널 배선은 후속(ONBOARDING_SERVERS는 현행 env ID 기반).
+> 🟢 **T17 구현(2026-06-09): `modules/server_lifecycle/templates.py`** — `/서버신설 자동생성:True`(기본)가 다음을 **prep=비공개**(@everyone·3역할 view=False)로 생성:
+> - **온보딩 3역할**: `<표시명> 접근`(access)·`인증전`(pending)·`플레이어`(player). 역할 부여 전이는 온보딩 흐름(T7/T9, 후속) 담당.
+> - **프리픽스 카테고리 4그룹**(B안, 중첩 불가 → `<표시명> · <그룹>` 나란히): `온보딩`(약관·인증) · `정보`(공지·접속정보·가이드·FAQ) · `커뮤니티`(자유채팅·스크린샷·파티모집) · `지원·음성`(건의-문의-버그제보·`➕ 음성방 만들기`(임시음성 허브 T13)).
+>   - 접속정보=서버IP·실시간 상태(T18 후속), FAQ·문의=지원 T16, 약관·인증=온보딩 패널(후속) 배선 대상.
+> - 역할/카테고리 ID는 `servers`(3역할) + `server_categories`(그룹별 카테고리)에 기록. 채널은 카테고리 권한 상속(synced).
+> - **가시성 전이 `apply_visibility`**: 시작=약관→접근/인증→인증전/그 외 카테고리→플레이어 공개. 종료=전부 숨김 + `[종료]` 프리픽스(채널·역할 보존). 실패/중복(`UNIQUE`) 시 `cleanup()` 롤백.
+> - 공통 템플릿 1개 운영(`_TEMPLATE_GROUPS`). 도메인별 분기 필요 시 후속 확장. `자동생성:False`/수동 `category` 지정 시 자동전개 생략(단수 폴백).
 | 시작 (prep→active) | 카테고리 가시성 ON · 서버선택 이모지 패널에 항목 추가 · `state=active` |
 | 종료 (active→ended) | 카테고리를 아카이브 처리(이름 `[종료]` 프리픽스 또는 아카이브 카테고리로 이동, 가시성 제거하되 채널·역할 **보존**) · 이모지 패널에서 제거 · `state=ended, ended_at=now` |
 
@@ -51,7 +57,7 @@
 
 명령 실행 시 순서대로 통과해야 동작:
 1. **접근역할(가시성)** — 디스코드 측. 운영자 Integrations 설정으로 접근역할 없으면 명령 자체가 목록에 안 보임.
-2. **카테고리 가드** — `core` 헬퍼 `requires_category(domain)`: `interaction.channel.category_id`가 그 domain의 `servers.category_id`와 일치하는지. 아니면 ephemeral 거부.
+2. **카테고리 가드** — `core` 헬퍼 `requires_category(domain)`: `interaction.channel.category_id`가 그 domain의 **카테고리 집합**(`get_active_category_ids` = 단수 `category_id` ∪ `server_categories`) 중 하나인지. 아니면 ephemeral 거부. (T17 다중 카테고리 대응 — 집합 매칭, 2026-06-09)
 3. **서버 상태** — `core` 헬퍼 `requires_server_active(domain)`: 해당 domain의 active 시즌 행이 있는지. 없으면(prep/ended) 거부.
 
 > 둘 다 접근한 유저가 엉뚱한 카테고리에서 호출 → 2층에서 차단(§10 확정). 종료 서버 → 3층에서 차단.

@@ -23,13 +23,23 @@ from core import servers
 # ─── 순수 판정 함수 (단위 테스트 대상) ──────────────────────────────
 
 def category_matches(channel_category_id: int | None, server_category_id: int | None) -> bool:
-    """호출 채널의 카테고리가 서버 카테고리와 일치하는가.
+    """호출 채널의 카테고리가 서버 카테고리와 일치하는가(단수 — 수동연결용).
 
     둘 중 하나라도 미지정(None/0)이면 False(가드 통과 불가 — 보수적).
     """
     if not channel_category_id or not server_category_id:
         return False
     return channel_category_id == server_category_id
+
+
+def category_in(channel_category_id: int | None, server_category_ids: set[int]) -> bool:
+    """호출 채널의 카테고리가 서버의 카테고리 집합(다중)에 속하는가.
+
+    채널 카테고리 미지정(None/0)이거나 집합이 비면 False(보수적).
+    """
+    if not channel_category_id or not server_category_ids:
+        return False
+    return channel_category_id in server_category_ids
 
 
 def is_active(server_row) -> bool:
@@ -61,13 +71,11 @@ def requires_server_active(domain: str):
 
 
 def requires_category(domain: str):
-    """호출 채널이 domain 의 active 시즌 카테고리가 아니면 거부."""
+    """호출 채널이 domain 의 active 시즌 카테고리(다중) 중 하나가 아니면 거부."""
     async def predicate(interaction: discord.Interaction) -> bool:
         db = interaction.client.db  # type: ignore[attr-defined]
-        row = await servers.get_active(db, domain)
-        if not is_active(row) or not category_matches(
-            _channel_category_id(interaction), row["category_id"]
-        ):
+        category_ids = await servers.get_active_category_ids(db, domain)
+        if not category_in(_channel_category_id(interaction), category_ids):
             raise app_commands.CheckFailure("이 채널에서는 사용할 수 없는 명령입니다.")
         return True
 

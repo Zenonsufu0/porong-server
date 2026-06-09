@@ -74,6 +74,21 @@ _MIGRATIONS: list[str] = [
     );
     CREATE INDEX IF NOT EXISTS idx_warnings_user ON warnings(discord_user_id);
     """,
+    # v4 — 서버 다중 카테고리 + 온보딩 3역할 (T17 프리픽스 카테고리 그룹)
+    # servers.category_id/access_role_id(단수, 수동연결 경로 유지)에 더해:
+    #   pending_role_id·player_role_id = 온보딩 3역할(접근=access_role_id / 인증전 / 플레이어)
+    #   server_categories = 자동전개 다중 카테고리(group_key 별 1개). 게이팅은 집합 매칭.
+    """
+    ALTER TABLE servers ADD COLUMN pending_role_id INTEGER;
+    ALTER TABLE servers ADD COLUMN player_role_id  INTEGER;
+    CREATE TABLE IF NOT EXISTS server_categories (
+        server_id   INTEGER NOT NULL,
+        group_key   TEXT    NOT NULL,
+        category_id INTEGER NOT NULL,
+        PRIMARY KEY (server_id, group_key)
+    );
+    CREATE INDEX IF NOT EXISTS idx_server_categories_cat ON server_categories(category_id);
+    """,
 ]
 
 

@@ -42,8 +42,21 @@
 | api_env_key | TEXT | API URL/키가 담긴 `.env` 키 이름(값 자체는 저장 X) |
 | created_at | INTEGER | epoch |
 | ended_at | INTEGER NULL | 종료 시각 |
+| pending_role_id | INTEGER NULL | 온보딩 인증전 역할(v4, 자동전개 시) |
+| player_role_id | INTEGER NULL | 온보딩 플레이어 역할(v4, 자동전개 시) |
 
 - `UNIQUE(domain, season_no)`. 새 시즌 = 행 추가(코드 변경 0). 새 게임 종류 = 모듈 코드 추가 필요(§11).
+- 🟢 **v4(2026-06-09): 온보딩 3역할 + 다중 카테고리(T17 프리픽스 그룹).** `access_role_id`(=접근)·`pending_role_id`·`player_role_id` 3역할 + 아래 `server_categories`. 단수 `category_id`는 수동연결 경로 유지. 중첩 시즌/서버 미운영 확정(domain당 active 1)이라 프리픽스 카테고리 충돌 없음.
+
+### 2.1b `server_categories` — 서버 다중 카테고리 (T17, v4)
+| 컬럼 | 타입 | 설명 |
+|---|---|---|
+| server_id | INTEGER | `servers.id` |
+| group_key | TEXT | `onboarding`/`info`/`community`/`support` (템플릿 그룹) |
+| category_id | INTEGER | 디스코드 카테고리 ID |
+
+- `PRIMARY KEY(server_id, group_key)`. 자동전개(`/서버신설`)가 그룹별 카테고리 1개씩 적재.
+- 게이팅 2층(`requires_category`)은 `get_active_category_ids`(단수 `category_id` ∪ 이 테이블)로 **집합 매칭**.
 - 게이팅 3층의 ③서버상태가 이 `state`를 참조. `ended` = 모든 명령·토글 거부(완전 비활성, 확정).
 - 🔴 **domain당 `active` 최대 1개 강제**(부분 유니크 인덱스 `WHERE state='active'` 또는 앱 가드). `requires_category(domain)`/`requires_server_active(domain)`이 **domain당 카테고리·active 단수**를 가정하므로, 같은 domain active 2개(예 S2 종료중 + S3 오픈)면 게이팅이 어느 카테고리를 기준할지 모호해짐.
   - **1차: 멀티시즌 동시운영 미사용**(시즌은 순차 — S2 `ended` 후 S3 `active`). 시즌 중첩 운영이 필요해지면 게이팅 키를 `domain`이 아니라 `category_id` 기준으로 재설계.

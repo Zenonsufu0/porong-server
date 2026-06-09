@@ -419,7 +419,10 @@ servers: { id, domain, season_no, display_name, state(준비|활성|종료),
 - ✅ **기존 길드 내 "게임/시즌 세트" 자동 생성 = 가능 (채택 방향 = T17).** 카테고리 + 채널들 + 접근역할(+온보딩 약관/인증 채널)을 봇이 `create_category`/`create_text_channel`/`create_role` 로 한 번에 생성(`Manage Channels/Roles` 권한). "봇에 저장한 템플릿" = 코드/설정에 채널·역할 구조를 **템플릿 정의**해두고 `/서버신설` 시 그대로 전개.
 - **구현 그림:** 현 `/서버신설`(레지스트리 prep 행만 생성) → T17에서 템플릿 인자(또는 도메인 기본 템플릿) 받아 카테고리/채널/역할 세트 생성 후 그 ID들을 servers 행(category_id·access_role_id)에 기록. 생성도 `mod_log.record(action="server_create", detail=...)`에 남김. 멱등성(중복 생성 방지)·실패 롤백(부분 생성 정리) 주의.
 - 분류: 기존 T17을 **사전정의 템플릿 방식으로 구체화**.
-- 🟢 **구현 완료(2026-06-09): `modules/server_lifecycle/templates.py` `provision()`/`cleanup()` + `/서버신설 자동생성`.** 상세 = server_lifecycle.md §3. 디스코드 워크트리 읽기전용이라 DL 동기화는 RPG worktree에서 후속(확정 결정 아님 — 기존 T17 설계의 구현이므로 새 DL 불필요 판단).
+- 🟢 **구현 완료(2026-06-09): `modules/server_lifecycle/templates.py` `provision()`/`apply_visibility()`/`cleanup()` + `/서버신설 자동생성`.** 상세 = server_lifecycle.md §3.
+- ✅ **구조 결정(2026-06-09): B안 프리픽스 카테고리 4그룹 + 온보딩 3역할 자동 생성.** 디스코드 카테고리 중첩 불가 → `<표시명> · 온보딩/정보/커뮤니티/지원·음성` 4개가 나란히. **중첩 시즌/중첩 서버 미운영**(domain당 active 1, 기존 결정과 정합) 전제라 프리픽스 충돌 없음. v4 마이그레이션(`pending_role_id`·`player_role_id` + `server_categories`), 게이팅 2층 집합 매칭(`get_active_category_ids`)으로 확장. 가시성=약관→접근/인증→인증전/그외→플레이어.
+- 후속: 약관/인증 채널 온보딩 패널 배선(역할 전이 흐름 T7/T9 — 역할은 생성됨), 접속정보 라이브 상태(T18), FAQ/문의 지원(T16).
+- DL 동기화: 디스코드 워크트리 읽기전용 → RPG worktree에서 후속(기존 T17 설계의 구현이므로 새 DL 불필요 판단).
 
 ### 확정 결정 (2026-06-06)
 - ✅ **종료 서버 = 완전 비활성.** 조회성 명령 포함 모든 명령·토글 차단(과거 시즌 기록 조회도 봇 명령으론 불가).
