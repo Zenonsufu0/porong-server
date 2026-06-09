@@ -1,21 +1,29 @@
 """
-모더레이션 — 경고계 (T15) — moderation.md §1 구현(1차: 경고만).
+모더레이션 (T15) — moderation.md §1 구현.
 
-이번 슬라이스 = 디스코드 상태를 바꾸지 않는 **기록계** 명령만:
+기록계(경고):
   - 🟢 /경고        (유저, 사유)  — warnings 추가 + DM(베스트에포트) + 누적 활성 경고수 안내
   - 🟢 /경고목록    (유저)        — 경고 이력(활성/철회) 조회
   - 🟢 /경고취소    (경고_id)     — warnings.active=0(철회, 이력 보존)
 
-상태변경 제재(/타임아웃·/추방·/차단)는 보안 영향이 커 다음 슬라이스(명시 승인 시).
+상태변경 제재(디스코드 멤버 상태 변경 — 사용자 명시 승인하 구현, 2026-06-09):
+  - 🟢 /타임아웃     (유저, 기간, 단위, 사유) — 디스코드 timeout(최대 28일) + 사전 DM
+  - 🟢 /타임아웃해제 (유저)                   — timeout 해제
+  - 🟢 /추방         (유저, 사유)             — kick + 사전 DM
+  - 🟢 /차단         (유저, 사유)             — ban + 사전 DM
+  - 🟢 /차단해제     (유저_id)               — unban(대상은 길드에 없음 → id 입력)
 
 공통 규약:
-  - 권한: @requires_permission("admin", "support"). Owner 항상 통과.
-  - 대상 보호(§1b): 봇·자기 자신·operator와 같거나 상위 권한자는 거부.
+  - 권한: 경고·타임아웃 = admin·support / 추방·차단·차단해제 = admin. Owner 항상 통과.
+  - 대상 보호(§1b): 봇·자기 자신·서버 소유자·operator와 같거나 상위 권한자 거부
+    + 디스코드 역할 위계상 봇보다 상위면 거부(_bot_hierarchy_reject).
+  - DM: 추방/차단은 길드 제거 전 발송(이후 공유 서버 없어 DM 불가). 모두 베스트에포트.
   - 적재: core.mod_log.record() 만 사용(raw INSERT 금지). 응답 ephemeral.
 """
 from __future__ import annotations
 
 import logging
+from datetime import timedelta
 
 import discord
 from discord import app_commands
@@ -23,6 +31,10 @@ from discord.ext import commands
 
 from core import mod_log, permissions, warnings
 from core.permissions import requires_permission
+
+# 타임아웃 단위 → 분 환산. 디스코드 timeout 상한 = 28일.
+_UNIT_MINUTES = {"m": 1, "h": 60, "d": 1440}
+_TIMEOUT_MAX_MINUTES = 28 * 1440
 
 log = logging.getLogger(__name__)
 
@@ -40,9 +52,24 @@ def _target_reject_reason(
         return "봇은 제재 대상이 아닙니다."
     if target.id == operator.id:
         return "자기 자신은 제재할 수 없습니다."
+    if target.id == target.guild.owner_id:
+        return "서버 소유자는 제재할 수 없습니다."
     t_rank = permissions.permission_rank(target)
     if t_rank and t_rank >= permissions.permission_rank(operator):
         return "대상이 본인과 같거나 상위 권한자입니다. 제재할 수 없습니다."
+    return None
+
+
+def _bot_hierarchy_reject(guild: discord.Guild, target: discord.Member) -> str | None:
+    """디스코드 역할 위계상 봇이 대상에 조치 가능한지(§1b). 불가면 사유.
+
+    봇의 최상위 역할이 대상보다 높아야 timeout/kick/ban 이 가능하다(디스코드 제약).
+    """
+    me = guild.me
+    if me is None:
+        return "봇 멤버 정보를 찾을 수 없습니다."
+    if target.top_role >= me.top_role:
+        return "대상의 역할이 봇과 같거나 높아 조치할 수 없습니다(봇 역할을 상위로 올려주세요)."
     return None
 
 
@@ -158,7 +185,173 @@ class ModerationCog(commands.Cog):
             allowed_mentions=discord.AllowedMentions.none(),
         )
 
+    # ─── /타임아웃 ────────────────────────────────────────────────
+    @app_commands.command(name="타임아웃", description="유저를 일정 시간 타임아웃합니다(최대 28일).")
+    @app_commands.describe(유저="대상", 기간="숫자", 단위="시간 단위", 사유="사유")
+    @app_commands.choices(단위=[
+        app_commands.Choice(name="분", value="m"),
+        app_commands.Choice(name="시간", value="h"),
+        app_commands.Choice(name="일", value="d"),
+    ])
+    @requires_permission("admin", "support")
+    async def timeout(
+        self,
+        interaction: discord.Interaction,
+        유저: discord.Member,
+        기간: app_commands.Range[int, 1, 40320],
+        단위: app_commands.Choice[str],
+        사유: str,
+    ) -> None:
+        reject = self._guard(interaction, 유저)
+        if reject:
+            await interaction.response.send_message(reject, ephemeral=True)
+            return
+        minutes = 기간 * _UNIT_MINUTES[단위.value]
+        if minutes > _TIMEOUT_MAX_MINUTES:
+            await interaction.response.send_message(
+                "타임아웃은 최대 28일까지만 가능합니다.", ephemeral=True
+            )
+            return
+
+        # 사전 DM(베스트에포트) → 적용
+        await self._dm(
+            유저, f"⏲ {minutes}분 동안 타임아웃되었습니다.\n**사유:** {사유}"
+        )
+        try:
+            await 유저.timeout(timedelta(minutes=minutes), reason=f"{interaction.user}: {사유}")
+        except discord.Forbidden:
+            await interaction.response.send_message(
+                "봇 권한 부족(Moderate Members) 또는 위계 문제로 타임아웃 실패.", ephemeral=True
+            )
+            return
+        except discord.HTTPException:
+            await interaction.response.send_message("타임아웃 처리 중 오류가 발생했습니다.", ephemeral=True)
+            return
+
+        await mod_log.record(
+            self.bot, action="timeout", operator_id=interaction.user.id,
+            target_id=유저.id, reason=사유, detail={"minutes": minutes},
+        )
+        await interaction.response.send_message(
+            f"⏲ {유저.mention} {minutes}분 타임아웃 완료. 사유: {사유}",
+            ephemeral=True, allowed_mentions=discord.AllowedMentions.none(),
+        )
+
+    # ─── /타임아웃해제 ────────────────────────────────────────────
+    @app_commands.command(name="타임아웃해제", description="유저의 타임아웃을 해제합니다.")
+    @app_commands.describe(유저="대상")
+    @requires_permission("admin", "support")
+    async def timeout_clear(self, interaction: discord.Interaction, 유저: discord.Member) -> None:
+        if 유저.timed_out_until is None:
+            await interaction.response.send_message("해당 유저는 타임아웃 상태가 아닙니다.", ephemeral=True)
+            return
+        try:
+            await 유저.timeout(None, reason=f"{interaction.user}: 타임아웃 해제")
+        except discord.Forbidden:
+            await interaction.response.send_message("봇 권한/위계 문제로 해제 실패.", ephemeral=True)
+            return
+        except discord.HTTPException:
+            await interaction.response.send_message("처리 중 오류가 발생했습니다.", ephemeral=True)
+            return
+        await mod_log.record(
+            self.bot, action="timeout_clear", operator_id=interaction.user.id, target_id=유저.id,
+        )
+        await interaction.response.send_message(
+            f"⏲ {유저.mention} 타임아웃 해제 완료.",
+            ephemeral=True, allowed_mentions=discord.AllowedMentions.none(),
+        )
+
+    # ─── /추방 ────────────────────────────────────────────────────
+    @app_commands.command(name="추방", description="유저를 서버에서 추방(kick)합니다.")
+    @app_commands.describe(유저="대상", 사유="사유")
+    @requires_permission("admin")
+    async def kick(self, interaction: discord.Interaction, 유저: discord.Member, 사유: str) -> None:
+        reject = self._guard(interaction, 유저)
+        if reject:
+            await interaction.response.send_message(reject, ephemeral=True)
+            return
+        # 추방 전 DM(이후 공유 서버 없어 DM 불가)
+        await self._dm(유저, f"👢 서버에서 추방되었습니다.\n**사유:** {사유}")
+        try:
+            await 유저.kick(reason=f"{interaction.user}: {사유}")
+        except discord.Forbidden:
+            await interaction.response.send_message(
+                "봇 권한 부족(Kick Members) 또는 위계 문제로 추방 실패.", ephemeral=True
+            )
+            return
+        except discord.HTTPException:
+            await interaction.response.send_message("추방 처리 중 오류가 발생했습니다.", ephemeral=True)
+            return
+        await mod_log.record(
+            self.bot, action="kick", operator_id=interaction.user.id, target_id=유저.id, reason=사유,
+        )
+        await interaction.response.send_message(
+            f"👢 {유저} 추방 완료. 사유: {사유}", ephemeral=True,
+        )
+
+    # ─── /차단 ────────────────────────────────────────────────────
+    @app_commands.command(name="차단", description="유저를 서버에서 차단(ban)합니다.")
+    @app_commands.describe(유저="대상", 사유="사유")
+    @requires_permission("admin")
+    async def ban(self, interaction: discord.Interaction, 유저: discord.Member, 사유: str) -> None:
+        reject = self._guard(interaction, 유저)
+        if reject:
+            await interaction.response.send_message(reject, ephemeral=True)
+            return
+        await self._dm(유저, f"🔨 서버에서 차단되었습니다.\n**사유:** {사유}")
+        try:
+            await interaction.guild.ban(
+                유저, reason=f"{interaction.user}: {사유}", delete_message_seconds=0
+            )
+        except discord.Forbidden:
+            await interaction.response.send_message(
+                "봇 권한 부족(Ban Members) 또는 위계 문제로 차단 실패.", ephemeral=True
+            )
+            return
+        except discord.HTTPException:
+            await interaction.response.send_message("차단 처리 중 오류가 발생했습니다.", ephemeral=True)
+            return
+        await mod_log.record(
+            self.bot, action="ban", operator_id=interaction.user.id, target_id=유저.id, reason=사유,
+        )
+        await interaction.response.send_message(
+            f"🔨 {유저} 차단 완료. 사유: {사유}", ephemeral=True,
+        )
+
+    # ─── /차단해제 ────────────────────────────────────────────────
+    @app_commands.command(name="차단해제", description="차단된 유저를 해제(unban)합니다.")
+    @app_commands.describe(유저_id="차단 해제할 유저의 디스코드 ID")
+    @requires_permission("admin")
+    async def unban(self, interaction: discord.Interaction, 유저_id: str) -> None:
+        try:
+            uid = int(유저_id)
+        except ValueError:
+            await interaction.response.send_message("유저 ID는 숫자여야 합니다.", ephemeral=True)
+            return
+        try:
+            await interaction.guild.unban(discord.Object(id=uid), reason=f"{interaction.user}: 차단해제")
+        except discord.NotFound:
+            await interaction.response.send_message("차단 목록에 없는 유저입니다.", ephemeral=True)
+            return
+        except discord.Forbidden:
+            await interaction.response.send_message("봇 권한 부족(Ban Members)으로 해제 실패.", ephemeral=True)
+            return
+        except discord.HTTPException:
+            await interaction.response.send_message("처리 중 오류가 발생했습니다.", ephemeral=True)
+            return
+        await mod_log.record(
+            self.bot, action="unban", operator_id=interaction.user.id, target_id=uid,
+        )
+        await interaction.response.send_message(f"🔓 `{uid}` 차단 해제 완료.", ephemeral=True)
+
     # ─── 내부 헬퍼 ────────────────────────────────────────────────
+    def _guard(self, interaction: discord.Interaction, target: discord.Member) -> str | None:
+        """제재 공통 가드: 대상 보호(§1b) + 봇 위계. 거부 사유, 통과면 None."""
+        return (
+            _target_reject_reason(interaction.user, target, self.bot.user)  # type: ignore[arg-type]
+            or _bot_hierarchy_reject(interaction.guild, target)
+        )
+
     @staticmethod
     async def _dm(member: discord.Member, content: str) -> bool:
         """대상에게 DM(베스트에포트). 성공 여부 반환(차단/실패=False)."""

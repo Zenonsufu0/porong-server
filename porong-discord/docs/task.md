@@ -23,7 +23,7 @@
 | T12 | SQLite 저장 계층 도입(봇 영속 DB) — community/moderation/support 공통 선행 | core | — | 🟢 |
 | T13 | community 모듈(레벨·칭호·리더보드·임시음성) | community | T12 | 🟡 |
 | T14 | community 확장(출석·일일보상·임시역할 자동만료) | community | T13 | 🟡 |
-| T15 | moderation 모듈(제재·추방·경고 + 운영/감사로그) | moderation | T12 | 🟡 (경고계 🟢 / 제재 ⬜) |
+| T15 | moderation 모듈(제재·추방·경고 + 운영/감사로그) | moderation | T12 | 🟢 (경고·타임아웃·추방·차단 + mod_log) |
 | T16 | support 모듈(버그제보·티켓·FAQ→운영진문의) | support | T12 | 🟡 |
 | T17 | admin 확장(서버 on/off·카테고리 템플릿 신설) | admin | 봇 길드권한 | 🟡 |
 | T18 | common 확장(`/도움말`·`/서버상태`) | common | T4(서버상태) | 🟡 |
@@ -178,23 +178,27 @@
 
 ## 8. 세션 핸드오프 (다음 세션 이어가기)
 
-### 이번 세션 완료 (2026-06-09, feature/discord-dev) — moderation 경고계(T15 1차)
-mod_log 인프라 위에 경고계(기록계) 명령을 구현. 상태변경 제재(timeout/kick/ban)는 보안상 다음 슬라이스로 분리.
+### 이번 세션 완료 (2026-06-09, feature/discord-dev) — moderation T15 (경고계 + 제재)
+mod_log 인프라 위에 경고계 + 상태변경 제재까지 구현(제재는 사용자 명시 승인하 진행).
 
 **구현 산출:**
 - **v3 마이그레이션** `core/db.py` = `warnings` 테이블(§2.4) + `idx_warnings_user`.
 - **`core/warnings.py`** = add_warning/list_warnings/count_active/get_warning/revoke_warning(철회=active=0, 행 보존).
-- **`permissions.permission_rank()`** = 대상 보호 서열(owner100·admin80·매니저50·support40·0). §1b 구현.
-- **`modules/moderation/commands.py`** = `/경고`(warnings+DM 베스트에포트+활성수 안내)·`/경고목록`(이력 임베드)·`/경고취소`(철회). 전부 `@requires_permission("admin","support")` + `_target_reject_reason`(봇·자기자신·동급이상 거부) + `mod_log.record()` 적재. `main.py` 등록.
+- **`permissions.permission_rank()`** = 대상 보호 서열(owner100·admin80·매니저50·support40·0). §1b.
+- **`modules/moderation/commands.py`**:
+  - 경고계: `/경고`(warnings+DM+활성수)·`/경고목록`(이력 임베드)·`/경고취소`(철회).
+  - 제재: `/타임아웃`(분/시간/일 단위, ≤28일)·`/타임아웃해제`·`/추방`·`/차단`·`/차단해제`.
+  - 공통 가드 `_guard()` = `_target_reject_reason`(봇·자기자신·서버소유자·동급이상) + `_bot_hierarchy_reject`(봇 위계). `discord.Forbidden`/`HTTPException` graceful. 추방/차단=길드 제거 전 DM.
+  - 권한: 경고·타임아웃=admin·support / 추방·차단·차단해제=admin. 전부 `mod_log.record()` 적재. `main.py` 등록.
 
-**검증:** stdlib sqlite3로 v3 + 경고 추가/집계/철회 흐름 검증. compileall 통과. (DM·임베드 e2e는 스테이징.)
+**검증:** stdlib sqlite3로 v3 + 경고 추가/집계/철회 검증. compileall 통과. discord.py 2.3 API 시그니처(timeout/kick/ban/unban) 확인. (실제 멤버 상태변경·DM·임베드 e2e는 스테이징.)
 
-**주의/다음:**
-- 제재 명령(`/타임아웃`·`/타임아웃해제`·`/추방`·`/차단`·`/차단해제`)은 디스코드 상태변경 → **명시 승인 시** 구현. `_target_reject_reason`·`mod_log.record()` 그대로 재사용. 봇 길드권한(Moderate/Kick/Ban Members) 필요(§1c, 배포 T8).
+**주의:**
+- 봇 길드 권한(**Moderate/Kick/Ban Members**)은 **배포 T8에서 부여 필요** — 미부여 시 Forbidden 안내로 안전 실패.
 - 경고 임계 자동 에스컬레이션 = 미도입(1차 수동 권고, moderation.md §2·§5).
 
 **다음 세션 착수 후보:**
-1. **moderation 제재 명령**(명시 승인 시) — timeout/kick/ban + 사전 DM. 가드·로그 인프라 준비됨.
+1. **T17 템플릿 신설** — `/서버신설`을 카테고리+채널+접근역할 세트 자동생성으로 확장(§11 "T17 템플릿 신설" 노트, 사용자 아이디어 반영). T21 생애주기와 연결.
 2. **RPG auth 이관**(DL-138) — RPG를 `ONBOARDING_SERVERS` 등록 + `modules/rpg/auth.py` 구 흐름 정리.
 3. **B: master 동기화** — 합본 원본(`porong-server`)에서 수행(디스코드 워크트리 불가).
 
@@ -406,6 +410,14 @@ servers: { id, domain, season_no, display_name, state(준비|활성|종료),
 ### 연계
 - T17(서버 on/off·템플릿 신설)은 이 생애주기의 일부로 흡수 — on/off = 상태 전이, 템플릿 신설 = `준비` 행 생성 + 카테고리 생성.
 - 새 시즌 = 레지스트리 행 추가 + 카테고리 템플릿(T17) + `/서버시작`. 코드 변경 0.
+
+### T17 템플릿 신설 — 디스코드 역량 조사 + 방향 (2026-06-09, 사용자 아이디어 [DRAFT])
+> 사용자 질문: "봇에 디스코드 서버 템플릿을 저장해두고 '서버생성'을 누르면 자동 생성되는가?"
+
+- ❌ **통째 새 디스코드 길드(서버) 생성 = 비권장.** Discord API에 길드 생성(`POST /guilds`)·길드 템플릿 적용(`/guilds/templates/{code}`)이 있으나 **봇이 10개 미만 길드에 있을 때만** 허용(Discord 제약). 봇 생성 길드는 유저 재모집·초대 흐름 재구축 부담 → **단일 허브 길드 + 게임별 카테고리** 구조와 불일치.
+- ✅ **기존 길드 내 "게임/시즌 세트" 자동 생성 = 가능 (채택 방향 = T17).** 카테고리 + 채널들 + 접근역할(+온보딩 약관/인증 채널)을 봇이 `create_category`/`create_text_channel`/`create_role` 로 한 번에 생성(`Manage Channels/Roles` 권한). "봇에 저장한 템플릿" = 코드/설정에 채널·역할 구조를 **템플릿 정의**해두고 `/서버신설` 시 그대로 전개.
+- **구현 그림:** 현 `/서버신설`(레지스트리 prep 행만 생성) → T17에서 템플릿 인자(또는 도메인 기본 템플릿) 받아 카테고리/채널/역할 세트 생성 후 그 ID들을 servers 행(category_id·access_role_id)에 기록. 생성도 `mod_log.record(action="server_create", detail=...)`에 남김. 멱등성(중복 생성 방지)·실패 롤백(부분 생성 정리) 주의.
+- 분류: 기존 T17을 **사전정의 템플릿 방식으로 구체화** — DRAFT 보관(여기 §11). 확정 시 server_lifecycle.md 본문 + DL 동기화(RPG worktree, 디스코드 워크트리는 읽기전용).
 
 ### 확정 결정 (2026-06-06)
 - ✅ **종료 서버 = 완전 비활성.** 조회성 명령 포함 모든 명령·토글 차단(과거 시즌 기록 조회도 봇 명령으론 불가).

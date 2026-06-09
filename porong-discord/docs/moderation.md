@@ -15,11 +15,11 @@
 | `/경고` 🟢 | `유저, 사유` | `warnings` 추가 + DM 통보 + 누적 경고수 안내 | admin·support |
 | `/경고목록` 🟢 | `유저` | 경고 이력(활성/철회) 조회 | admin·support |
 | `/경고취소` 🟢 | `경고_id` | `warnings.active=0` | admin·support |
-| `/타임아웃` | `유저, 기간, 사유` | 디스코드 timeout(최대 28일) + DM | admin·support |
-| `/타임아웃해제` | `유저` | timeout 해제 | admin·support |
-| `/추방` | `유저, 사유` | kick + DM(사전 발송) | admin |
-| `/차단` | `유저, 사유` | ban + DM(사전 발송) | admin |
-| `/차단해제` | `유저_id` | unban | admin |
+| `/타임아웃` 🟢 | `유저, 기간, 단위, 사유` | 디스코드 timeout(최대 28일) + DM | admin·support |
+| `/타임아웃해제` 🟢 | `유저` | timeout 해제 | admin·support |
+| `/추방` 🟢 | `유저, 사유` | kick + DM(사전 발송) | admin |
+| `/차단` 🟢 | `유저, 사유` | ban + DM(사전 발송) | admin |
+| `/차단해제` 🟢 | `유저_id` | unban | admin |
 
 - Owner 는 항상 통과. 권한 역할 전부 미설정이면 보수적 차단(roles_and_permissions §B).
 - 응답 ephemeral, 공개 기록은 `#운영로그`.
@@ -32,6 +32,7 @@
 
 ### 1c. 봇 길드 권한 (배포 T8 구성)
 - 제재용: **Moderate Members(timeout) · Kick Members · Ban Members**. (admin.md의 Channels/Roles/Nicknames에 추가)
+- 🟢 **제재 구현(2026-06-09): `/타임아웃`·`/타임아웃해제`·`/추방`·`/차단`·`/차단해제`**(`modules/moderation/commands.py`). 사용자 명시 승인하 진행(디스코드 멤버 상태변경, CLAUDE.md §4). 공통 가드 `_guard()` = `_target_reject_reason`(봇·자기자신·서버소유자·동급이상) + `_bot_hierarchy_reject`(봇 역할 위계). 추방/차단은 길드 제거 전 DM. `discord.Forbidden`(권한/위계 부족)·`HTTPException` graceful 안내. 모든 액션 `mod_log.record()` 적재. 봇 길드 권한(위 3종)은 실제 동작 전 **배포(T8)에서 부여 필요** — 미부여 시 명령은 Forbidden 안내로 안전 실패.
 
 ## 2. 경고 누적 / 에스컬레이션
 - `/경고` 시 활성 경고수 집계 → 임계 도달 안내.
