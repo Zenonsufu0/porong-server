@@ -20,12 +20,13 @@ import logging
 import aiohttp
 
 from core import config
+from integrations.common import VerifyError
 
 log = logging.getLogger(__name__)
 
 
-class PoromonAuthError(Exception):
-    """포로몬 인증 API 호출 중 운영자 확인이 필요한 오류.
+class PoromonAuthError(VerifyError):
+    """포로몬 인증 API 호출 중 운영자 확인이 필요한 오류(VerifyError 하위).
 
     키 불일치(401)·네트워크 실패·예상치 못한 응답 등 *사용자 잘못이 아닌*
     오류에 사용한다. 호출부는 이 예외를 잡아 운영자 로그 + 사용자에겐

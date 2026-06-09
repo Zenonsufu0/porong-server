@@ -28,7 +28,9 @@ from discord.ext import commands
 
 from core import mod_log, servers, terms
 from core.permissions import requires_permission
-from integrations.poromon_api import PoromonApiClient, PoromonAuthError
+from integrations.common import VerifyError
+from integrations.poromon_api import PoromonApiClient
+from integrations.rpg_api import PoroApiClient
 
 log = logging.getLogger(__name__)
 
@@ -150,8 +152,12 @@ class OnboardingCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
         self._poromon_api = PoromonApiClient()
-        # 도메인 → verify(code, discord_id) -> {"ok", "uuid", "name"} / 예외 PoromonAuthError
-        self._verifiers = {"poromon": self._poromon_api.verify_code}
+        self._rpg_api = PoroApiClient()
+        # 도메인 → verify(code, discord_id) -> {"ok","uuid","name"} / 예외 VerifyError
+        self._verifiers = {
+            "poromon": self._poromon_api.verify_code,
+            "rpg": self._rpg_api.verify_code,
+        }
 
     @property
     def db(self):
@@ -159,6 +165,7 @@ class OnboardingCog(commands.Cog):
 
     async def cog_unload(self) -> None:
         await self._poromon_api.close()
+        await self._rpg_api.close()
 
     @commands.Cog.listener()
     async def on_ready(self) -> None:
@@ -218,7 +225,7 @@ class OnboardingCog(commands.Cog):
 
         try:
             result = await verifier(code, user.id)
-        except PoromonAuthError as e:
+        except VerifyError as e:
             log.error("온보딩 verify 오류 (domain=%s discord=%s): %s", domain, user.id, e)
             return _MSG_ERROR
 

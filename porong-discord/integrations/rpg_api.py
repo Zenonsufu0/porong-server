@@ -5,6 +5,11 @@ PoroRPG HTTP API 클라이언트 (aiohttp 기반).
 """
 import aiohttp
 from core.config import PORO_API_URL, PORO_API_KEY
+from integrations.common import VerifyError
+
+
+class RpgAuthError(VerifyError):
+    """RPG 인증 API 호출 중 운영자 확인이 필요한 오류(VerifyError 하위)."""
 
 
 class PoroApiClient:
@@ -22,6 +27,40 @@ class PoroApiClient:
             await self._session.close()
 
     # ─── 인증 ────────────────────────────────────────────────────
+
+    async def verify_code(self, code: str, discord_id: int | str) -> dict:
+        """POST /auth/verify — 인게임 `/인증` 발급 코드 검증 (DL-138 코드방향 통일).
+
+        계약 = 포로몬 verify_code 와 동일(레퍼런스). 헤더 `X-Api-Key`,
+        바디 `{"code", "discordId"}`.
+
+        반환:
+          {"ok": True,  "uuid": <MC UUID|None>, "name": <MC 닉|None>}  — 200 성공
+          {"ok": False, "reason": "not_found"}     — 404 코드 만료/없음
+          {"ok": False, "reason": "rate_limited"}  — 429 시도 과다
+        예외:
+          RpgAuthError — 401(키 불일치)·네트워크 실패·예상치 못한 응답.
+
+        ⚠ 필드명(`discordId` camelCase)은 DL-138 레퍼런스 기준. RPG AuthApiHandler
+          실제 계약과 다르면(예: snake_case) 맞춰야 함 — RPG worktree 확인 필요.
+        """
+        url = f"{PORO_API_URL}/auth/verify"
+        payload = {"code": code, "discordId": str(discord_id)}
+        try:
+            async with self._get_session().post(url, json=payload, headers=self._headers) as resp:
+                if resp.status == 200:
+                    data = await resp.json()
+                    return {"ok": True, "uuid": data.get("uuid"), "name": data.get("name")}
+                if resp.status == 404:
+                    return {"ok": False, "reason": "not_found"}
+                if resp.status == 429:
+                    return {"ok": False, "reason": "rate_limited"}
+                if resp.status == 401:
+                    raise RpgAuthError("RPG 인증 API 키 불일치(401)")
+                text = await resp.text()
+                raise RpgAuthError(f"예상치 못한 응답 {resp.status}: {text[:200]}")
+        except aiohttp.ClientError as e:
+            raise RpgAuthError(f"RPG 인증 API 네트워크 오류: {e}") from e
 
     async def create_pending(self, discord_user_id: str, minecraft_nick: str) -> dict:
         """POST /auth/pending → {code, expires_in}"""
