@@ -80,11 +80,11 @@ def _role(name: str) -> int:
     return int(os.getenv(name, "0") or "0")
 
 
-# ─── 멀티서버 온보딩 레지스트리 (1차: 코드 기반 — DB(T12) 도입 전) ─────
-# 서버(도메인)별 3단계 역할 상태머신 + 약관/인증 채널.
-#   접근(임시, 서버 선택) → 인증전(약관 동의) → 플레이어(인증 완료)
-# 미설정(0)인 항목/서버는 해당 패널·전이가 비활성. 채널/역할 ID 는 .env 에서만 채운다.
-# verify 라우팅(도메인→API 클라이언트)은 modules/onboarding 에서 코드로 매핑한다.
+# ─── [DEPRECATED] 멀티서버 온보딩 레지스트리 (env 코드 기반) ─────────────
+# ⚠ 2026-06-09 SUPERSEDE: 온보딩(panels.py)은 이제 DB 레지스트리(servers.get_any_active
+#   의 3역할 + server_categories 온보딩 카테고리)에서 역할/채널을 읽는다. 전역 단일 active
+#   모델(task.md §5)이라 서버 선택·env 매핑 불필요. 이 dict 는 더 이상 코드에서 참조하지
+#   않는다(레거시 .env 키 보존용으로만 잔존 — 제거 가능). verify 라우팅 = panels._verifiers.
 ONBOARDING_SERVERS: dict[str, dict[str, int | str]] = {
     "poromon": {
         "display_name": "포로몬",

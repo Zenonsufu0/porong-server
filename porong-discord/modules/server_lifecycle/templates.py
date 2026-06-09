@@ -21,7 +21,8 @@
 
 실패/중복 시 cleanup() 으로 생성분(역할·카테고리·채널)을 롤백.
 
-⚠ 온보딩 패널(약관동의 버튼·인증 모달) 게시 + verify 라우팅은 후속(ONBOARDING_SERVERS 연결).
+온보딩 패널(약관동의 버튼·인증 모달) 게시 = `/온보딩패널`(panels.py)이 active 서버의 온보딩
+카테고리 약관/인증 채널을 찾아 게시(DB 기반). verify 라우팅 = panels._verifiers(도메인별).
 """
 from __future__ import annotations
 
