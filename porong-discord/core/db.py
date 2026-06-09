@@ -105,6 +105,12 @@ _MIGRATIONS: list[str] = [
     CREATE UNIQUE INDEX IF NOT EXISTS idx_servers_single_active
         ON servers(state) WHERE state = 'active';
     """,
+    # v7 — 접속정보(T18): 마인크래프트 접속 주소 + 상태 임베드 메시지 ID
+    # connect_address = 플레이어 접속 host[:port](SLP 핑 대상). status_message_id = 갱신용.
+    """
+    ALTER TABLE servers ADD COLUMN connect_address   TEXT;
+    ALTER TABLE servers ADD COLUMN status_message_id INTEGER;
+    """,
 ]
 
 

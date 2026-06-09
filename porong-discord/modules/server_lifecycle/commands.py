@@ -168,6 +168,23 @@ class ServerLifecycleCog(commands.Cog):
         embed.add_field(name="API env key", value=str(r["api_env_key"] or "—"), inline=True)
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
+    @app_commands.command(name="서버주소", description="서버의 마인크래프트 접속 주소를 설정합니다(접속정보).")
+    @app_commands.describe(server_id="서버 ID", 접속주소="host 또는 host:port (빈 값이면 해제)")
+    @requires_permission("admin")
+    async def server_address(
+        self, interaction: discord.Interaction, server_id: int, 접속주소: str = ""
+    ) -> None:
+        row = await servers.get_server(self.db, server_id)
+        if row is None:
+            await interaction.response.send_message(f"서버 `#{server_id}` 없음.", ephemeral=True)
+            return
+        addr = 접속주소.strip() or None
+        await servers.set_connect_address(self.db, server_id, addr)
+        await interaction.response.send_message(
+            f"✅ 서버 `#{server_id}` 접속 주소 {'설정: `' + addr + '`' if addr else '해제'}.",
+            ephemeral=True,
+        )
+
     # ─── 신설 (레지스트리 행 생성 — 카테고리/역할 자동생성은 T17) ─────
 
     @app_commands.command(name="서버신설", description="새 서버(시즌)를 prep 등록 + 카테고리 4그룹·채널·온보딩 3역할 자동 생성(T17).")
@@ -176,6 +193,7 @@ class ServerLifecycleCog(commands.Cog):
         season_no="시즌 번호",
         display_name="표시명 (예: RPG 시즌3)",
         자동생성="템플릿으로 카테고리 4그룹·채널·온보딩 3역할 자동 생성(기본 True). category 수동 지정 시 무시됨",
+        접속주소=" (선택) 마인크래프트 접속 주소 host[:port] — 접속정보 실시간 상태(T18)",
         category=" (선택) 기존 카테고리 수동 연결 — 지정 시 자동생성 안 함",
         access_role=" (선택) 기존 접근(가시성) 역할 수동 연결",
     )
@@ -187,6 +205,7 @@ class ServerLifecycleCog(commands.Cog):
         season_no: int,
         display_name: str,
         자동생성: bool = True,
+        접속주소: str | None = None,
         category: discord.CategoryChannel | None = None,
         access_role: discord.Role | None = None,
     ) -> None:
@@ -227,6 +246,7 @@ class ServerLifecycleCog(commands.Cog):
                 access_role_id=(created_roles["access"].id if created_roles else (access_role.id if access_role else None)),
                 pending_role_id=created_roles["pending"].id if created_roles else None,
                 player_role_id=created_roles["player"].id if created_roles else None,
+                connect_address=접속주소,
             )
         except sqlite3.IntegrityError:
             # 레이스로 중복 등록 거부 — 자동 생성한 자산이 있으면 롤백(잔재 방지).

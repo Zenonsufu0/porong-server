@@ -54,20 +54,36 @@ async def create_prep_server(
     pending_role_id: int | None = None,
     player_role_id: int | None = None,
     api_env_key: str | None = None,
+    connect_address: str | None = None,
 ) -> int:
     """prep 상태 서버 행 생성 → 새 id 반환.
 
     access/pending/player_role_id = 온보딩 3역할(자동전개 시). 수동연결 경로는 access만.
+    connect_address = MC 접속 host[:port](접속정보 SLP 핑 대상, T18).
     UNIQUE(domain, season_no) 위반 시 sqlite3.IntegrityError 전파(호출부에서 처리).
     """
     now = int(time.time())
     return await db.execute(
         "INSERT INTO servers"
         "(domain, season_no, display_name, state, category_id, access_role_id, "
-        " pending_role_id, player_role_id, api_env_key, created_at) "
-        "VALUES(?, ?, ?, 'prep', ?, ?, ?, ?, ?, ?)",
+        " pending_role_id, player_role_id, api_env_key, connect_address, created_at) "
+        "VALUES(?, ?, ?, 'prep', ?, ?, ?, ?, ?, ?, ?)",
         (domain, season_no, display_name, category_id, access_role_id,
-         pending_role_id, player_role_id, api_env_key, now),
+         pending_role_id, player_role_id, api_env_key, connect_address, now),
+    )
+
+
+async def set_connect_address(db: Database, server_id: int, address: str | None) -> None:
+    """접속 주소(MC host[:port]) 설정/갱신 (T18 접속정보)."""
+    await db.execute(
+        "UPDATE servers SET connect_address = ? WHERE id = ?", (address, server_id)
+    )
+
+
+async def set_status_message_id(db: Database, server_id: int, message_id: int | None) -> None:
+    """접속정보 상태 임베드 메시지 ID 저장(재시작·재갱신 시 edit 대상)."""
+    await db.execute(
+        "UPDATE servers SET status_message_id = ? WHERE id = ?", (message_id, server_id)
     )
 
 

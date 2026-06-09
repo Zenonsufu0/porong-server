@@ -27,6 +27,7 @@ log = logging.getLogger(__name__)
 EXTENSIONS: list[str] = [
     # 공통
     "modules.common.general",
+    "modules.common.server_status",
     # RPG (auth·role_poll = 구방향 폐기, DL-138 — 온보딩은 modules.onboarding 으로 통일)
     "modules.rpg.player_commands",
     "modules.rpg.field_boss",
