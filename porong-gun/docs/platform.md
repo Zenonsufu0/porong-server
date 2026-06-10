@@ -23,7 +23,7 @@
 | ⭐ 무기 청사진 | **TaCZ Weapon Blueprints** (**1.0.3-beta7**) | ✅ | 루트 드랍 해금·레시피 영구 학습·`/gg clearRecipes`(시즌 리셋). *총만* 해금(탈출 청사진은 커스텀). ⚠️ **1.0.2는 TaCZ 1.1.8과 Mixin 충돌 → beta7 필수.** |
 | ⭐ POI/구조물 | **The Lost Cities** (+ **Underground Bunkers**) | ✅ | 폐도시·건물 자동 생성(POI 본체). rarity 조정해 드문 폐도시로. 고티어 지정 = 우리 루트 티어링. **← ❌ ChaosZPack 드랍**(Create 등 8모드 강제 의존 → 경제·톤 충돌, 아래). |
 | 적 보강(선택) | **ChaosZProject: Bandits!** | ✅ | TaCZ 총 든 약탈자(독립 애드온, ChaosZPack 의존 X) = 스캐브 외 적 다양화. |
-| 좀비 블록 파괴 | **Zombies Break & Build** (forge-1.20.1-1.5.0) | ✅ **핀** | 타겟까지 경로 블록 파괴(히트박스 기반) = 우리 기지 습격 설계와 정확히 일치. (Improved Mobs는 과해서 선택지로만.) |
+| 좀비 블록 파괴 | **Zombies Break & Build** (forge-1.20.1-1.5.0) | ✅ **핀** | 타겟까지 경로 블록 파괴(바닐라 블록·히트박스 기반) → **결전 좀비-방벽 돌파에 활용**(평소 밤=옵시디언급 방벽 무효=안전지대, 결전에만 돌파 게이지 = porongun-core hook, base_raid/finale). (Improved Mobs는 과해서 선택지로만.) |
 | 호드 나이트 | **Undead Nights** (2.0.4) | ✅ **핀** | 설정 풍부(규모·캡·간격). **Demolition Zombies(TNT로 방벽 폭파) + Elite Zombies** 내장 = 결전 특수/강화 좀비에 매핑. porongun-core가 config/명령으로 상시 야간+결전 오케스트레이션. |
 | 클레임·파티 | **Open Parties and Claims (OPaC)** | ✅ **핀** | **API**(porongun-core가 보호 룰 hook) + **파티 = 정식 연합(권한 그룹)에 매핑** + **문 권한 잠금.** 보호 *기하*(코어 반경·Y30·동심 밴드·**밀폐 외피 감지**·레벨)는 porongun-core 커스텀. 방벽=닫힌 외피 최외곽 1겹(밴드당) → base_raid.md「방벽 모델」. |
 | 폭약(관통) | **porongun-core 커스텀** | — **확정** | "방벽만 특수 폭약에 뚫림"은 우리 룰이라 자체 제작(레퍼런스 = Mekanism Breaching Explosive). 제3자 폭약 모드(More Explosives 등)는 일반 폭발물 flavor용 선택. |
