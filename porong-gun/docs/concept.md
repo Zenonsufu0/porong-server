@@ -17,6 +17,7 @@
 | [`design/economy.md`](design/economy.md) | 경제·장비 획득·제작·상점·온보딩 ← **설계 작업 공간** |
 | [`launch_plan.md`](launch_plan.md) | 정식 착수 준비(검증 게이트·구현 범위·MVP) |
 | [`ops_policy.md`](ops_policy.md) | 운영 정책 = 약관(최소 개입·금지/허용·밴·시즌·백업) |
+| [`impl_plan.md`](impl_plan.md) | porongun-core 구현 계획서(모듈·데이터·연동, 기획서 근거) |
 | [`../task.md`](../task.md) | 세션 핸드오프 노트 |
 
 ## 한 줄 컨셉
