@@ -3,7 +3,9 @@
 > 구상 단계 컨셉 정리 진행 상황 기록. 다음 세션은 여기부터 이어간다.
 > 본문 SoT: [`concept.md`](concept.md)(개요) · [`design.md`](design.md)(시스템 상세) · [`indicators.md`](indicators.md)(지표) · [`population_model.md`](population_model.md)(주민 동학) · [`agenda_catalog.md`](agenda_catalog.md)(안건) · [`data_schema.md`](data_schema.md)(DB) · 미확정/폐기: [`idea_inbox.md`](idea_inbox.md)
 > 참조 규약: `§N`=design.md, "지표 §N"=indicators.md (DL-E060)
-> 최종 갱신: 2026-06-10
+> 최종 갱신: 2026-06-11
+
+> **▶ 다음 세션 시작점:** 구상 완료(DL-E001~E075, 9문서) → **설계서(`spec.md`) 작성 중.** §1 아키텍처·§2 시뮬 엔진(주기 틱)·§3 데이터 계층·§4 생산·시장 완료. **다음 = §5 금융·재정 → §6 의회·안건 → §7 기술트리·진화 → §8 GUI → §9 커스텀 콘텐츠 → §10 운영.** 작성 원칙: 기획서 충실, 기획에 없는 동작은 임의 설계 말고 사용자에게 질문(확정 시 DL 기록 후 반영), 수치는 P1. 미해소 확인 건: §3 DB 동기 주기(권장값=매 틱+이벤트 즉시, 사용자 확인 대기).
 
 ## 지금 상태
 - `porong-economy`는 **구상 단계(문서만)**. 런타임·빌드 없음. 착수는 사용자 명시 요청 시에만.
