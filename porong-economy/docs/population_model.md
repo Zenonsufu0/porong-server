@@ -2,7 +2,7 @@
 
 > **[STATUS: 구상 — 스켈레톤]** 주민 집계(하이브리드 §4·DL-E003)의 **행동/동학** — 상태를 굴리는 규칙·함수. 상태(데이터)는 [`data_schema.md`](data_schema.md) `population_stratum`.
 > 이 모델이 **구현 1순위 토대** — 환경·치안·시장·재정·물가 지표가 모두 여기서 창발. 함수의 구체 계수·임계는 P1 밸런싱.
-> 컨셉 SoT: [`concept.md`](concept.md) · 결정: [`decision_log.md`](decision_log.md).
+> 개요 [`concept.md`](concept.md) · 시스템 상세 [`design.md`](design.md)(§N) · 결정 [`decision_log.md`](decision_log.md). 본 문서의 "§N"은 design.md.
 
 ## 왜 별도 문서인가
 데이터 스키마(상태: 인구·학력·저축)와 동학(행동: 소비·노동·출산·투자 함수)은 다른 관심사다. 동학은 시뮬레이션 엔진의 심장이라 한 곳에 모은다 — 지금 concept에 흩어진 창발 함수들을 여기로 consolidate.

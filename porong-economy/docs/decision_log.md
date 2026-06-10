@@ -2,7 +2,22 @@
 
 > **[STATUS: 구상 — 컨셉 결정 기록]** porong-economy 프로젝트 전용 결정 로그. 각 항목은 "무엇을 / 왜 / 근거 문서" 형식.
 >
-> **번호 체계:** 이 워크트리는 sparse-checkout으로 루트 공유 로그(`porong-rpg/docs/decision_log.md`, `DL-NNN`)에 접근할 수 없고, 그쪽 번호와 충돌을 피하려 **economy 전용 접두사 `DL-E###`** 를 쓴다. 본문 SoT: [`concept.md`](concept.md) · 미확정/폐기: [`idea_inbox.md`](idea_inbox.md).
+> **번호 체계:** 이 워크트리는 sparse-checkout으로 루트 공유 로그(`porong-rpg/docs/decision_log.md`, `DL-NNN`)에 접근할 수 없고, 그쪽 번호와 충돌을 피하려 **economy 전용 접두사 `DL-E###`** 를 쓴다. 본문 SoT: [`concept.md`](concept.md)(개요) · [`design.md`](design.md)(시스템 상세 §0~§12) · [`indicators.md`](indicators.md)(지표) · 미확정/폐기: [`idea_inbox.md`](idea_inbox.md).
+> 〔2026-06-10 docs 분리, DL-E060〕 본 로그의 **"concept §N" 참조는 `design.md` §N**, **"지표 §N"은 `indicators.md`** 를 가리킨다(개별 엔트리 미수정).
+
+---
+
+### DL-E060 docs 리팩터 — concept 분리(design·indicators 추출)
+
+**배경:** concept.md가 개요+상세+지표를 다 담아 비대(~400줄). 개요/상세 분리 필요(사용자).
+
+**결정:**
+- **concept.md = 슬림 개요**(정체성·게임 프레임·플레이어 경험·페이싱·시스템 통합 맵·핵심 기둥·열린 질문·문서 지도).
+- **design.md 신규** = 시스템 상세 §0~§12(산업·회사·주식·주민·진화·정치·연구·거시·토지·재정·시장·주민회사·계약·인프라).
+- **indicators.md 신규** = 경제 지표 마스터 리스트 + 행복도식.
+- **참조 규약:** `§N`(§1~§12·§1-A·§11-A/B) = design.md, "지표 §N"(카테고리 1~11) = indicators.md. agenda_catalog의 명시 참조는 갱신, decision_log 이력은 본 규약으로 해석(개별 미수정).
+
+**관련:** concept.md·design.md·indicators.md·agenda_catalog.md. 내용 변경 없는 구조 이동.
 
 ---
 
