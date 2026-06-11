@@ -1,6 +1,7 @@
 package com.porong.gun;
 
 import com.mojang.logging.LogUtils;
+import com.porong.gun.registry.PorongunItems;
 import com.porong.gun.registry.PorongunMenus;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
@@ -25,7 +26,8 @@ public final class PorongunCore {
         final IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         // M0 인벤 GUI 프로토타입: MenuType 등록(Screen 바인딩=PorongunClientEvents, 커맨드=PorongunCommands).
         PorongunMenus.register(modBus);
-        // TODO(M1~): 재료 아이템·코어 블록/아이템·화폐 등 나머지 모듈 등록(impl_plan §4).
+        PorongunItems.register(modBus); // M-Material 재료 4종(텅스텐·열화우라늄·군용·전자)
+        // TODO(M1~): 코어 블록/아이템·화폐 등 나머지 모듈 등록(impl_plan §4).
 
         LOGGER.info("[porongun-core] M0 로드 — 인벤 GUI 프로토타입(/porongun invtest)");
     }
