@@ -21,6 +21,8 @@ CORE 모드(NeoForge) ──write──> 영속 SQL DB (Postgres/MySQL 후보)
 
 ## 엔티티 맵 (핵심)
 
+> 핵심 맵 **17종**(아래 표) + 엔티티 상세의 위성 6종(inventory·deposit·loan·bond·party·land_plot) = **총 23 테이블**. 〔정정: DL-E035의 '16종'은 당초 표기, 실제 맵 17행.〕
+
 | 엔티티 | 핵심 필드(후보) | 관계 | 근거 |
 |---|---|---|---|
 | **player** | 개인 지갑(cash)·총자산 | → shareholding, vote | DL-E029 |
