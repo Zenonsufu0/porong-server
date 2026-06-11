@@ -1,6 +1,7 @@
 package com.porong.gun.registry;
 
 import com.porong.gun.PorongunCore;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
@@ -31,6 +32,10 @@ public final class PorongunItems {
             ITEMS.register("military_alloy", () -> new Item(new Item.Properties()));
     public static final RegistryObject<Item> ELECTRONIC_PART =
             ITEMS.register("electronic_part", () -> new Item(new Item.Properties()));
+
+    /** 거점 코어 설치 아이템(M-Core). 우클릭 설치 → CoreEvents 검증·등록. */
+    public static final RegistryObject<Item> CORE =
+            ITEMS.register("core", () -> new BlockItem(PorongunBlocks.CORE.get(), new Item.Properties()));
 
     private PorongunItems() {}
 
