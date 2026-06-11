@@ -1,6 +1,7 @@
 package com.porong.gun;
 
 import com.mojang.logging.LogUtils;
+import com.porong.gun.registry.PorongunMenus;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -22,9 +23,10 @@ public final class PorongunCore {
 
     public PorongunCore() {
         final IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
-        // TODO(M1~): 모듈 등록(Registries: 재료 아이템·코어 블록/아이템·화폐·GUI 메뉴 등)
-        //   각 모듈은 impl_plan §4 참조. 등록은 DeferredRegister로 modBus에 연결.
+        // M0 인벤 GUI 프로토타입: MenuType 등록(Screen 바인딩=PorongunClientEvents, 커맨드=PorongunCommands).
+        PorongunMenus.register(modBus);
+        // TODO(M1~): 재료 아이템·코어 블록/아이템·화폐 등 나머지 모듈 등록(impl_plan §4).
 
-        LOGGER.info("[porongun-core] M0 스캐폴딩 로드 — 빈 모드, 빌드/dev 확인용");
+        LOGGER.info("[porongun-core] M0 로드 — 인벤 GUI 프로토타입(/porongun invtest)");
     }
 }
