@@ -2,6 +2,7 @@ package com.porong.gun.registry;
 
 import com.porong.gun.PorongunCore;
 import com.porong.gun.inv.BackpackProtoMenu;
+import com.porong.gun.shop.ShopMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -24,6 +25,10 @@ public final class PorongunMenus {
     public static final RegistryObject<MenuType<BackpackProtoMenu>> BACKPACK_PROTO =
             MENU_TYPES.register("backpack_proto",
                     () -> IForgeMenuType.create(BackpackProtoMenu::new));
+
+    /** 상점 메뉴(M-Currency). 코어 우클릭/Shift+F로 연다. */
+    public static final RegistryObject<MenuType<ShopMenu>> SHOP =
+            MENU_TYPES.register("shop", () -> IForgeMenuType.create(ShopMenu::new));
 
     private PorongunMenus() {}
 

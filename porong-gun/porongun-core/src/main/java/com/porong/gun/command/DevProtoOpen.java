@@ -40,11 +40,14 @@ public final class DevProtoOpen {
         if (ticks.merge(id, 1, Integer::sum) < 40) return; // ~2초
         kitted.add(id);
 
-        // 핫바 슬롯0 = 코어(기본 선택, 우클릭 바로 설치)
+        // 핫바 슬롯0 = 코어(기본 선택, 우클릭 = 설치 / 설치된 코어 우클릭 = 상점)
         player.getInventory().setItem(0, new ItemStack(PorongunItems.CORE.get(), 4));
+        // 상점 테스트용: 코인 + 매입용 재료
+        player.getInventory().add(new ItemStack(PorongunItems.COIN.get(), 99));
+        player.getInventory().add(new ItemStack(PorongunItems.TUNGSTEN_ALLOY.get(), 16));
         player.displayClientMessage(
                 net.minecraft.network.chat.Component.literal(
-                        "§7[dev] 코어 4개 지급 — 우클릭 설치(영역 64×64), 가까이 두 번째 설치 시 겹침 거부"),
+                        "§7[dev] 코어4·코인99·텅스텐16 지급 — 코어 설치 후 우클릭=상점(사/팔)"),
                 false);
     }
 }

@@ -37,6 +37,14 @@ public final class PorongunItems {
     public static final RegistryObject<Item> CORE =
             ITEMS.register("core", () -> new BlockItem(PorongunBlocks.CORE.get(), new Item.Properties()));
 
+    /**
+     * 🪙 화폐 코인 (M-Currency). 물리 아이템 — 약탈 가능, 보안칸 안전.
+     * ⚠️ 설계 스택 한도 ~6,000(칸 부담 노브, economy)이나 바닐라 ItemStack count(byte)
+     *    한계로 큰 스택은 커스텀 직렬화 필요 → MVP는 99, 큰 스택은 후속 기술 과제.
+     */
+    public static final RegistryObject<Item> COIN =
+            ITEMS.register("coin", () -> new Item(new Item.Properties().stacksTo(99)));
+
     private PorongunItems() {}
 
     public static void register(IEventBus modBus) {

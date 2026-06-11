@@ -19,7 +19,9 @@ public final class PorongunClientEvents {
 
     @SubscribeEvent
     public static void clientSetup(FMLClientSetupEvent event) {
-        event.enqueueWork(() ->
-                MenuScreens.register(PorongunMenus.BACKPACK_PROTO.get(), BackpackProtoScreen::new));
+        event.enqueueWork(() -> {
+            MenuScreens.register(PorongunMenus.BACKPACK_PROTO.get(), BackpackProtoScreen::new);
+            MenuScreens.register(PorongunMenus.SHOP.get(), ShopScreen::new);
+        });
     }
 }
