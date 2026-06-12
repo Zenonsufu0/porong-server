@@ -1,6 +1,8 @@
 package com.porong.gun.registry;
 
 import com.porong.gun.PorongunCore;
+import com.porong.gun.base.BaseHubMenu;
+import com.porong.gun.base.BaseManageMenu;
 import com.porong.gun.inv.BackpackProtoMenu;
 import com.porong.gun.shop.ShopMenu;
 import net.minecraft.world.inventory.MenuType;
@@ -26,9 +28,17 @@ public final class PorongunMenus {
             MENU_TYPES.register("backpack_proto",
                     () -> IForgeMenuType.create(BackpackProtoMenu::new));
 
-    /** 상점 메뉴(M-Currency). 코어 우클릭/Shift+F로 연다. */
+    /** 상점 메뉴(M-Currency). 거점 허브에서 진입. */
     public static final RegistryObject<MenuType<ShopMenu>> SHOP =
             MENU_TYPES.register("shop", () -> IForgeMenuType.create(ShopMenu::new));
+
+    /** 거점 허브 메뉴(M-Core). 코어 우클릭 시 첫 진입(상점·기지·정보). */
+    public static final RegistryObject<MenuType<BaseHubMenu>> BASE_HUB =
+            MENU_TYPES.register("base_hub", () -> IForgeMenuType.create(BaseHubMenu::new));
+
+    /** 기지 관리 메뉴(M-Core 2단계). 코어 레벨 정보·업그레이드. */
+    public static final RegistryObject<MenuType<BaseManageMenu>> BASE_MANAGE =
+            MENU_TYPES.register("base_manage", () -> IForgeMenuType.create(BaseManageMenu::new));
 
     private PorongunMenus() {}
 

@@ -19,8 +19,9 @@ import net.minecraft.world.item.ItemStack;
  */
 public class ShopMenu extends AbstractContainerMenu {
 
-    /** 플레이어 인벤 영역 시작 Y(화면 상단=품목 목록, 하단=인벤). Screen과 공유. */
-    public static final int PLAYER_INV_Y = 138;
+    /** 플레이어 인벤 영역 시작 Y(화면 상단=품목 목록, 하단=인벤). Screen과 공유.
+     *  품목 8행(16px) + 안내문 아래에 위치하도록 충분히 내림. */
+    public static final int PLAYER_INV_Y = 162;
 
     public ShopMenu(int id, Inventory inv, FriendlyByteBuf buf) {
         this(id, inv);

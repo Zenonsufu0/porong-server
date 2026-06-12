@@ -57,8 +57,9 @@ public final class CoreEvents {
         if (!event.getState().is(PorongunBlocks.CORE.get())) return;
         if (!(event.getLevel() instanceof ServerLevel level)) return;
         CoreManager.get(level).removeCore(event.getPos());
-        msg(event.getPlayer(), "§e거점 코어 파괴 — 보호 영역 해제");
-        // 1단계: 등록 해제만. 완파·레벨 초기화·자물쇠 해제는 후속.
+        msg(event.getPlayer(), "§e거점 코어 파괴 — 보호 영역·자물쇠 해제, 레벨 초기화");
+        // 등록 해제 = 영역/자물쇠 해제 + 레벨 초기화(재설치 시 LV1).
+        // 영역 내 블록 완파는 M-Raid(블록 내구) 연동 후속.
     }
 
     private static void msg(Entity entity, String text) {

@@ -65,6 +65,36 @@ public class CoreManager extends SavedData {
         return cores.size();
     }
 
+    /** 코어 데이터 조회(없으면 null). */
+    @Nullable
+    public CoreData get(BlockPos pos) {
+        return cores.get(pos);
+    }
+
+    /**
+     * 좌표 {@code pos}가 속한 코어(영역 64×64) 좌표 반환(없으면 null). 자물쇠·영역 판정용.
+     * Y는 무시(수직 전체 보호 — base_raid Y30~상한은 후속, 현재 평면 64×64).
+     */
+    @Nullable
+    public BlockPos coreCovering(BlockPos pos) {
+        for (BlockPos p : cores.keySet()) {
+            if (Math.abs(p.getX() - pos.getX()) <= RADIUS
+                    && Math.abs(p.getZ() - pos.getZ()) <= RADIUS) {
+                return p;
+            }
+        }
+        return null;
+    }
+
+    /** 코어 레벨 변경(owner 유지). 코어 없으면 무시. */
+    public void setLevel(BlockPos pos, int level) {
+        CoreData d = cores.get(pos);
+        if (d != null) {
+            cores.put(pos, new CoreData(d.owner(), level));
+            setDirty();
+        }
+    }
+
     public static CoreManager load(CompoundTag tag) {
         CoreManager m = new CoreManager();
         ListTag list = tag.getList("cores", Tag.TAG_COMPOUND);

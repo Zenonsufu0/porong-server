@@ -11,6 +11,10 @@ base { archivesName = "${mod_id}" }
 // Java 17 (Forge 1.20.1 표준). 시스템에 21만 있어도 toolchain이 17 자동 프로비저닝.
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
+// 소스에 박힌 한글 리터럴(GUI 타이틀·메시지)이 javac 플랫폼 기본 인코딩으로 깨지지 않게 UTF-8 고정.
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
+tasks.withType(ProcessResources).configureEach { it.filteringCharset = 'UTF-8' }
+
 minecraft {
     mappings channel: "${mapping_channel}", version: "${mapping_version}"
 

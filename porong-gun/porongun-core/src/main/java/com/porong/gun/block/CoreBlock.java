@@ -1,6 +1,6 @@
 package com.porong.gun.block;
 
-import com.porong.gun.shop.ShopMenu;
+import com.porong.gun.base.BaseHubMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -36,13 +36,14 @@ public class CoreBlock extends Block implements EntityBlock {
         return new CoreBlockEntity(pos, state);
     }
 
-    /** 코어 우클릭 = 거점 GUI(현재 상점). economy 「코어 우클릭/Shift+F」. 권한·탭은 후속. */
+    /** 코어 우클릭 = 거점 허브 GUI(상점·배낭·기지·정보). economy 「코어 우클릭/Shift+F」. 권한은 후속. */
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
                                  InteractionHand hand, BlockHitResult hit) {
         if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
             NetworkHooks.openScreen(serverPlayer, new SimpleMenuProvider(
-                    (id, inv, p) -> new ShopMenu(id, inv), Component.literal("상점")));
+                            (id, inv, p) -> new BaseHubMenu(id, inv, pos), Component.literal("거점")),
+                    buf -> buf.writeBlockPos(pos));
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
     }

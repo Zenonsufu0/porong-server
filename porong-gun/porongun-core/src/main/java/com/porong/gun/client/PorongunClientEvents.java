@@ -22,6 +22,8 @@ public final class PorongunClientEvents {
         event.enqueueWork(() -> {
             MenuScreens.register(PorongunMenus.BACKPACK_PROTO.get(), BackpackProtoScreen::new);
             MenuScreens.register(PorongunMenus.SHOP.get(), ShopScreen::new);
+            MenuScreens.register(PorongunMenus.BASE_HUB.get(), BaseHubScreen::new);
+            MenuScreens.register(PorongunMenus.BASE_MANAGE.get(), BaseManageScreen::new);
         });
     }
 }
