@@ -3390,3 +3390,29 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 - 빌드: `./gradlew build` BUILD SUCCESSFUL. ⚠ 봇 연동·인게임 e2e 검증 미실시.
 
 **관련:** DL-030(디스코드 봇 설계 3종), `01_plugin_architecture/poro_rpg_module_design.md §9·§12`, 디스코드 worktree `integration_contract.md` A-1.
+
+---
+
+### DL-139 (2026-06-13) — Porong 브랜드 폐기 및 Zenon Project 전환 (1차: 표시명·문서·worktree 명칭)
+
+**배경:** 기존 Porong/포롱 캐릭터·브랜드를 폐기하고 전체 브랜드를 **Zenon Project**로 전환한다. 마인크래프트 서버 모노레포는 **Zenon Server**(레포 표시명 `zenon-server`)로 칭한다. 사용자 확인(2026-06-13).
+
+**무엇 (확정):**
+- **브랜드 폐기:** 기존 포롱 캐릭터·Porong/포롱 브랜드는 폐기한다.
+- **전체 브랜드 = Zenon Project.** 마인크래프트 서버 모노레포 = **Zenon Server**, 레포명 = `zenon-server`.
+- **공식 마스코트 겸 Discord 비서봇 = YUKI-01 / 유키.** 흰색+하늘색+눈송이 테마의 SD 소형 메이드 안드로이드 비서. 정중한 임무 보고체·무표정한 자신감·은근한 말대꾸, 핵심 말버릇 "권장합니다"·"처리했습니다"·"칭찬을 요청합니다". 운영 봇(`porong-discord`)의 페르소나로 사용.
+- **Zeno** = 유키의 주인/제작자이자 프로젝트 관리자 자캐 포지션.
+- **worktree/레포 표시명**은 `zenon-server`·`zenon-server-review`·`zenon-work-rpg`·`zenon-work-mon`·`zenon-work-discord`·`zenon-work-economy`·`zenon-work-gun` 기준으로 정리.
+
+**범위 (1차 전환에 한함):** 레포 **표시명**, 문서(README·루트 CLAUDE.md·`docs/worktree_policy.md`), worktree **디렉토리** 명칭만 정리한다.
+
+**보류 (후속 작업):**
+- **in-repo 폴더명 `porong-*`(`porong-rpg`/`porong-mon`/`porong-discord`/`porong-economy`/`porong-gun`) rename은 보류.** SoT 경로(`porong-rpg/docs/final_master_plan.md`)·`.gitignore`·sparse-checkout cone·다수 문서가 직접 참조하므로 일괄 rename은 별도 후속 작업으로 분리한다.
+- 코드 패키지명·플러그인명(`PoroRPG`/`PoroMonCore`)·mod id·assets 네임스페이스·item id/config key·런타임 파일은 **이번 전환에서 변경하지 않는다**(DL-131 동일 원칙 유지).
+- GitHub repo 실제 rename(`porong-server` → `zenon-server`)과 origin remote URL 갱신도 후속.
+
+**이력 보존(DL 정책):** 본 결정 로그와 `idea_inbox.md`의 **과거 경로·브랜드 표기는 당시 값 그대로 보존**한다(일괄치환 금지). DL-130/DL-131 등 이전 항목의 `poro-*`/`porong-*` 표기는 의도적으로 유지된 과거 기록이다. 브랜드 전환은 본 항목으로만 기록한다(원장 무결성).
+
+**근거:** 사용자 지시 (2026-06-13).
+
+**관련:** DL-131(in-repo 폴더 `poro-`→`porong-` rename — 이번엔 폴더명 유지), `docs/worktree_policy.md`(§1·§2·§3·§7), 루트 `CLAUDE.md`, `README.md`.

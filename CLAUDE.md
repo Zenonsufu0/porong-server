@@ -1,7 +1,9 @@
-# Poro Server 모노레포 — 전역 규칙
+# Zenon Server 모노레포 — 전역 규칙
 
 - 기본 응답 언어: 한국어.
-- 이 저장소는 Porong(포롱) 서버 프로젝트 모노레포다. 독립 프로젝트로 분리돼 있으며(활성 3 + 구상 2), 코드 공유는 거의 없다.
+- 이 저장소는 **Zenon Project**의 마인크래프트 서버 모노레포(**Zenon Server**, 레포 `zenon-server`)다. 독립 프로젝트로 분리돼 있으며(활성 3 + 구상 2), 코드 공유는 거의 없다.
+- 공식 마스코트/Discord 비서봇 캐릭터는 **YUKI-01 / 유키**(흰색+하늘색+눈송이 테마 SD 메이드 안드로이드 비서). 기존 Porong/포롱 캐릭터·브랜드는 폐기됐다(DL-139).
+- **in-repo 폴더명(`porong-*`)은 1차 브랜드 전환 범위 밖이라 그대로 유지한다.** SoT 경로·`.gitignore`·다수 문서가 참조하므로 rename은 별도 후속 작업으로 보류(DL-139).
 
 | 프로젝트 | 폴더 | 단계 | 규칙 / 설계 docs |
 |---|---|---|---|
@@ -16,9 +18,9 @@
 - 프로젝트 전역 단일 진실 공급원(SoT): **`porong-rpg/docs/final_master_plan.md`** (충돌 시 최우선). 결정 기록: `porong-rpg/docs/decision_log.md` (DL-NNN), 미확정 인박스: `porong-rpg/docs/idea_inbox.md`, 아카이브: `porong-rpg/docs/_archive/`.
 - 작업을 시작하기 전, 대상 프로젝트의 `CLAUDE.md`와 관련 docs를 먼저 읽는다.
 
-## 워크트리 작업 범위 (이 체크아웃 = `poro-work-rpg`)
+## 워크트리 작업 범위 (이 체크아웃 = `zenon-work-rpg`)
 
-- **이 worktree(`poro-work-rpg`, 브랜치 `feature/rpg-dev`)에서는 RPG(`poro-rpg/`) 관련 작업만 한다.** 포로몬(`poromon`)·디스코드봇(`poro-discord`) 작업은 각자의 worktree(`poro-work-poromon`·`poro-work-discord`)에서 수행하고, 이 세션에서는 **하지 않는다**.
+- **이 worktree(`zenon-work-rpg`, 브랜치 `feature/rpg-dev`)에서는 RPG(`porong-rpg/`) 관련 작업만 한다.** 포로몬(`porong-mon`)·디스코드봇(`porong-discord`) 작업은 각자의 worktree(`zenon-work-mon`·`zenon-work-discord`)에서 수행하고, 이 세션에서는 **하지 않는다**.
 - 포로몬·디스코드 파일은 이 worktree에 없거나 참조 대상일 뿐이다. 필요하면 읽기만 하고 **수정·커밋하지 않는다**.
 - 다른 프로젝트 작업 요청이 오면, 잘못된 worktree임을 먼저 알리고 해당 worktree에서 진행하도록 안내한다.
 

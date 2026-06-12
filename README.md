@@ -1,18 +1,20 @@
-# Porong Server (포롱 서버)
+# Zenon Server
 
-> **Porong**은 서로 독립적인 여러 게임 서버와 운영 도구를 한 레포에서 관리하는 멀티-서버 프로젝트다.
+> **Zenon Server**는 **Zenon Project**의 마인크래프트 서버 모노레포로, 서로 독립적인 여러 게임 서버와 운영 도구를 한 레포에서 관리하는 멀티-서버 프로젝트다.
 > 각 서버는 자기만의 컨셉·플랫폼·플레이루프를 가지며, 코드는 거의 공유하지 않는다.
 
-GitHub: [`Zenonsufu0/porong-server`](https://github.com/Zenonsufu0/porong-server)
+> 🤍 **YUKI-01 / 유키** — Zenon Project의 공식 마스코트이자 Discord 비서봇 캐릭터(흰색+하늘색+눈송이 테마의 SD 메이드 안드로이드 비서). 운영 봇(`porong-discord`)의 페르소나로 사용한다.
+
+GitHub: [`Zenonsufu0/zenon-server`](https://github.com/Zenonsufu0/zenon-server)
 
 ---
 
 ## 🎯 프로젝트 방향
 
-- **여러 컨셉의 서버를 한 브랜드(Porong)로** 묶어, 각각 독립적으로 설계·개발·운영한다.
+- **여러 컨셉의 서버를 한 브랜드(Zenon Project)로** 묶어, 각각 독립적으로 설계·개발·운영한다.
 - 서버 간에는 **억지 공통 모듈을 만들지 않는다.** 공유는 운영 도구(디스코드 봇)와 문서 규약 수준.
 - 모든 설계 결정은 문서로 남긴다(SoT·CANON·decision_log). 채팅에만 남기지 않는다.
-- 현재는 **RPG가 주력 개발**, PoroMon/Discord 봇이 병행, 나머지는 **구상 단계** 후보 서버다.
+- 현재는 **RPG가 주력 개발**, `porong-mon`/Discord 봇이 병행, 나머지는 **구상 단계** 후보 서버다.
 
 ---
 
@@ -24,7 +26,7 @@ GitHub: [`Zenonsufu0/porong-server`](https://github.com/Zenonsufu0/porong-server
 |---|---|---|
 | **porong-rpg** | [`porong-rpg/`](porong-rpg/) | **오픈월드 RPG.** 액션 전투, 직업, 월드보스, 던전, 퀘스트 중심. 자체 Paper 플러그인 PoroRPG가 전투·성장·영지·필드/보스를 소유. |
 | **porong-mon** | [`porong-mon/`](porong-mon/) | **Cobblemon 기반 수집/육성 서버.** 포켓몬 수집·육성, 관장(짐) 도전, 배틀타워, 전설 조우권 중심. Fabric 모드팩 + 자체 모드(PoroMonCore). |
-| **porong-discord** | [`porong-discord/`](porong-discord/) | **중앙제어 Discord 봇.** 전체 Porong 서버 운영을 보조 — 온보딩·인증 게이트·역할·알림·운영자 패널. (Python, discord.py) |
+| **porong-discord** | [`porong-discord/`](porong-discord/) | **중앙제어 Discord 봇.** 전체 Zenon 서버 운영을 보조 — 온보딩·인증 게이트·역할·알림·운영자 패널. 봇 페르소나는 공식 마스코트 **YUKI-01 / 유키**. (Python, discord.py) |
 
 ### 🧪 구상 단계 (개발 미착수 — 문서만)
 
@@ -60,19 +62,19 @@ GitHub: [`Zenonsufu0/porong-server`](https://github.com/Zenonsufu0/porong-server
 
 ## 🌳 Worktree 운영
 
-> 합본 저장소(이 폴더, `porong-server`)는 **merge/기록/전체 구조 확인용**이며, 여기서는 서버를 실행하지 않는다.
+> 합본 저장소(이 폴더, `zenon-server`)는 **merge/기록/전체 구조 확인용**이며, 여기서는 서버를 실행하지 않는다.
 > 프로젝트별 개발/실행은 각 worktree에서 자기 폴더만 sparse-checkout해서 한다. 전체 기준은 [`docs/worktree_policy.md`](docs/worktree_policy.md).
 
 | worktree 디렉토리 | 브랜치 | sparse-checkout | 상태 |
 |---|---|---|---|
-| `porong-server` (이 폴더) | `master` | (전체) | 합본 · merge · 기록 |
-| `porong-work-rpg` | `feature/rpg-dev` | `porong-rpg` | 활성 |
-| `porong-work-mon` | `feature/poromon-dev` | `porong-mon` | 활성 |
-| `porong-work-discord` | `feature/discord-dev` | `porong-discord` `porong-rpg/docs` `porong-mon/docs` | 활성 |
-| `porong-work-economy` *(예정)* | `feature/economy-dev` | `porong-economy` | 구상 — 착수 시 생성 |
-| `porong-work-gun` *(예정)* | `feature/gun-dev` | `porong-gun` | 구상 — 착수 시 생성 |
+| `zenon-server` (이 폴더) | `master` | (전체) | 합본 · merge · 기록 |
+| `zenon-work-rpg` | `feature/rpg-dev` | `porong-rpg` | 활성 |
+| `zenon-work-mon` | `feature/poromon-dev` | `porong-mon` | 활성 |
+| `zenon-work-discord` | `feature/discord-dev` | `porong-discord` `porong-rpg/docs` `porong-mon/docs` | 활성 |
+| `zenon-work-economy` *(예정)* | `feature/economy-dev` | `porong-economy` | 구상 — 착수 시 생성 |
+| `zenon-work-gun` *(예정)* | `feature/gun-dev` | `porong-gun` | 구상 — 착수 시 생성 |
 
-- in-repo 폴더 이름(`porong-rpg/` 등)은 SoT 경로·문서가 참조하므로 함부로 rename하지 않는다. worktree **디렉토리** 이름(`porong-work-*`)은 별개 레이어다.
+- **in-repo 폴더 이름(`porong-rpg/` 등)은 이번 1차 브랜드 전환에서 그대로 유지한다.** SoT 경로·문서·`.gitignore`가 참조하므로 함부로 rename하지 않는다. worktree **디렉토리** 이름(`zenon-work-*`)은 별개 레이어다.
 - 새 서버/하위 프로젝트는 새 폴더 + 새 worktree + 해당 폴더만 sparse-checkout. 절차는 정책 문서 §6 참고.
 
 ---
