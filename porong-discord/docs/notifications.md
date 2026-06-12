@@ -29,12 +29,18 @@
 | 점검 안내 | `@점검알림` | 운영 `/점검` |
 | 업데이트/패치 | `@업데이트알림` | 운영 `/공지` |
 
-## 통합 알림 구조: push 수신 + 디스패처 (T1, DL-133)
+## 통합 알림 구조: push 수신 + 디스패처 (T1, DL-133) — 🟢 (2026-06-10 구현)
+
+> 🟢 **구현: `core/inbound.py`(리스너) + `core/notifier.py`(디스패처) + `modules/notify/catalog.py`(빌더 9종) + main.py 기동.**
+> 보안: `INBOUND_SECRET`·`INBOUND_PORT` 둘 다 설정 시에만 리스너 기동(미설정 시 무인증
+> 엔드포인트 절대 안 엶). IP허용→timestamp(±300s)→HMAC-SHA256(body)→idempotency LRU(1024).
+> 라우팅 9종(③) ↔ embed 빌더 9종 키 일치 검증 완료. 미등록 kind = graceful 200.
+> 폴링(field_boss)은 유지(④ 이관 대기 — 게임서버 push 미구현). 실 e2e(게임서버 push)는 스테이징.
 
 현재 알림 로직은 `modules/rpg/field_boss.py` 에 RPG 종속·폴링으로 박혀 있다.
 도메인이 늘면 채널 라우팅·멘션·전송이 모듈마다 중복된다. 통신 방향은
 **게임서버 → 봇 push**로 확정(DL-133). 알림 구조를 2부로 나눈다.
-봉투 스키마·이벤트 카탈로그 = [`integration_contract.md`](integration_contract.md) B. 인터페이스 단계(구현 전).
+봉투 스키마·이벤트 카탈로그 = [`integration_contract.md`](integration_contract.md) B.
 
 ### ① 인바운드 수신 엔드포인트 (`core/inbound.py` — 경량 HTTP 리스너)
 - 게임서버가 이벤트를 봇으로 push. 봇은 `aiohttp.web` 앱을 discord 루프와 **함께** 띄운다(같은 프로세스).

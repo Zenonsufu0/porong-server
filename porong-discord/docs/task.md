@@ -9,7 +9,7 @@
 
 | # | 작업 | 영역 | 선행 | 상태 |
 |---|---|---|---|---|
-| T1 | 알림 인바운드 수신(push) + `core/notifier.py` 디스패처 | core | — | 🔴 |
+| T1 | 알림 인바운드 수신(push) + `core/notifier.py` 디스패처 | core | — | 🟢 (inbound 리스너+notifier+빌더 9종 / 게임서버 push e2e 스테이징) |
 | T2 | `rpg.md §8` Node.js 표기 → Python 정합 | docs | — | ⬜ |
 | T3 | `modules/admin` 명령어 설계 확정 | admin | 권한정책 | 🟡 |
 | T4 | `integrations/poromon_api.py` 인터페이스 확정 | poromon | 포로몬 설계 | 🟡 |
@@ -44,13 +44,13 @@
 
 ## 1. core (공통 인프라)
 
-- 🔴 **T1. 알림 인바운드 수신(push) + 디스패처** — 통신 방향 = 게임서버 → 봇 push 확정(DL-133).
-  - ⬜ ① 인바운드 HTTP 리스너(`core/`, aiohttp.web 등)를 discord 루프와 함께 기동.
-  - ⬜ 인바운드 보안: 공유 시크릿/HMAC 서명 검증 + 방화벽/IP 허용. 시크릿 `.env`(`INBOUND_SECRET` 등).
-  - ⬜ ② `core/notifier.py` 디스패처 — `(domain, kind, embed, mention_role_key)` → 채널/멘션 라우팅·전송·실패무시.
-  - ⬜ 각 도메인 모듈은 이벤트 의미 해석(embed)만, 전송은 notifier 위임.
-  - ⬜ 현행 RPG 필드보스 폴링은 유지, push 구조 완성 후 점진 이관.
-  - → 설계: [`notifications.md`] "통합 알림 구조" 절. 실구현 전 인터페이스 단계.
+- 🟢 **T1. 알림 인바운드 수신(push) + 디스패처** (2026-06-10 구현) — 게임서버 → 봇 push(DL-133).
+  - 🟢 ① `core/inbound.py` 리스너 — aiohttp `AppRunner`+`TCPSite` 를 봇 루프에서 기동(main.py). `POST /events`.
+  - 🟢 인바운드 보안 — IP허용→X-Timestamp(±`INBOUND_TS_TOLERANCE`)→`X-Signature`=HMAC-SHA256(body)→idempotency LRU(1024). **SECRET·PORT 둘 다 설정 시에만 기동**(무인증 방지). `.env`: `INBOUND_SECRET`·`INBOUND_HOST/PORT`·`INBOUND_ALLOW_IPS`.
+  - 🟢 ② `core/notifier.py` 디스패처 — `(domain,kind)` → 라우팅(채널 config키·멘션 역할키) lookup → 등록 빌더로 embed → 전송(best-effort). 도메인 미import(빌더 레지스트리).
+  - 🟢 빌더 등록 = `modules/notify/catalog.py`(9종, 라우팅 키와 1:1 검증). 각 모듈은 embed 의미만, 전송은 notifier 위임.
+  - ⬜ 현행 RPG 필드보스 폴링 유지 — 게임서버 `rpg.field_boss_*` push 구현 시 동일 embed 경로로 이관(④, 폴링 XOR push).
+  - → 설계: [`notifications.md`] ①②③④. 게임서버 push e2e 는 스테이징(봇측 완료).
 - ⬜ **봇 관여 경계 가드(DL-133)** — 게임 상태 변경은 `integrations/*_api.py` 경유로만. DB/파일/임의 RCON 직접접근 금지를 코드 리뷰 체크포인트로.
 - ⬜ 권한 데코레이터(`requires_permission`) 단위 검증 보강(운영 명령어 도입 전).
 

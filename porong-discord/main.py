@@ -28,6 +28,8 @@ EXTENSIONS: list[str] = [
     # 공통
     "modules.common.general",
     "modules.common.server_status",
+    # 통합 알림 embed 빌더 등록 (T1)
+    "modules.notify.catalog",
     # 커뮤니티 (T13·T14)
     "modules.community.temp_voice",
     "modules.community.level",
@@ -95,12 +97,23 @@ async def main() -> None:
     db = Database(config.BOT_DB_PATH)
     await db.connect()
     bot.db = db  # type: ignore[attr-defined]
+
+    inbound = None
     try:
         async with bot:
             for ext in EXTENSIONS:
                 await bot.load_extension(ext)
+            # 인바운드 알림 리스너(T1) — SECRET·PORT 설정 시에만 기동(무인증 방지).
+            from core import inbound as inbound_mod
+            if inbound_mod.is_enabled():
+                inbound = inbound_mod.InboundServer(bot)
+                await inbound.start()
+            else:
+                log.info("인바운드 알림 리스너 비활성(INBOUND_SECRET/PORT 미설정)")
             await bot.start(DISCORD_TOKEN)
     finally:
+        if inbound is not None:
+            await inbound.cleanup()
         await db.close()
 
 

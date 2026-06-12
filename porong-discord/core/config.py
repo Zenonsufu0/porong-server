@@ -41,6 +41,22 @@ CATEGORY_티켓_ID: int = int(os.getenv("CATEGORY_티켓_ID", "0") or "0")
 # 버그제보 게시 채널 (T16). 미설정(0)이면 /버그제보 비활성(안내). 봇 DB 미저장 — 채널 임베드만.
 CHANNEL_BUGREPORT_ID: int = int(os.getenv("CHANNEL_BUGREPORT_ID", "0") or "0")
 
+# ─── 인바운드 알림 수신 (T1, notifications.md / DL-133) ─────────────────
+# 게임서버 → 봇 push 리스너. 보안: SECRET·PORT 둘 다 설정될 때만 기동(미설정 시 비활성 —
+# 무인증 엔드포인트를 절대 열지 않는다). HMAC-SHA256(body) + X-Timestamp 신선도 + IP 허용.
+INBOUND_SECRET: str = os.getenv("INBOUND_SECRET", "")          # 빈 값 → 리스너 비활성
+INBOUND_HOST: str   = os.getenv("INBOUND_HOST", "127.0.0.1")   # 기본 루프백(같은 호스트)
+INBOUND_PORT: int   = int(os.getenv("INBOUND_PORT", "0") or "0")  # 0 → 비활성
+INBOUND_TS_TOLERANCE: int = int(os.getenv("INBOUND_TS_TOLERANCE", "300") or "300")
+# 허용 출발 IP(쉼표 구분). 비우면 IP 필터 생략(방화벽에 위임).
+INBOUND_ALLOW_IPS: set[str] = {
+    ip for ip in os.getenv("INBOUND_ALLOW_IPS", "").replace(" ", "").split(",") if ip
+}
+
+# 알림 라우팅 공지 채널 (notifications.md ③). 미설정(0)이면 해당 알림 graceful skip.
+CHANNEL_NOTICE_ID: int         = int(os.getenv("CHANNEL_NOTICE_ID", "0") or "0")
+CHANNEL_POROMON_NOTICE_ID: int = int(os.getenv("CHANNEL_POROMON_NOTICE_ID", "0") or "0")
+
 # ─── 커뮤니티 레벨 (T13, community_level.md §6) ─────────────────────────
 # 채팅·음성 활동 XP 튜닝. 레벨업 알림 채널 + XP 제외 채널/AFK.
 CHAT_XP_PER_MSG: int      = int(os.getenv("CHAT_XP_PER_MSG", "15") or "15")
