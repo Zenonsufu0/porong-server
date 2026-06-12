@@ -1,7 +1,7 @@
 """
 FAQ(자주 묻는 질문) 데이터 접근 (T16) — support.md §3, data_model.md §2.9.
 
-FAQ 내용은 운영자가 `/FAQ추가`로 직접 등록한다(LLM 미사용 — §9.2). 봇은 저장소·조회 패널만 제공.
+FAQ 내용은 운영자가 `/faq추가`로 직접 등록한다(LLM 미사용 — §9.2). 봇은 저장소·조회 패널만 제공.
 domain NULL = 공통(전 서버), 값 = 서버별. 조회 패널은 공통 + 현재 active 도메인만 노출.
 """
 from __future__ import annotations

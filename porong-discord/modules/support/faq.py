@@ -4,7 +4,7 @@ FAQ(자주 묻는 질문) — T16 support.md §3.
 조회 = 패널형(B안). `/faq` → 등록된 질문 Select 메뉴에서 골라 답변(ephemeral).
 미매칭/원하는 답이 없으면 [운영진 문의] 버튼 → 티켓(1:1 문의) 폴백(§2 연결, LLM 미사용).
 
-내용은 운영자가 직접 등록(`/FAQ추가`·`/FAQ수정`·`/FAQ삭제`, admin·support). domain NULL=공통.
+내용은 운영자가 직접 등록(`/faq추가`·`/faq수정`·`/faq삭제`, admin·support). domain NULL=공통.
 조회 패널은 공통 + 현재 active 서버 도메인만 노출(전역 단일 active 모델, task.md §5).
 """
 from __future__ import annotations
@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 
 _SELECT_LIMIT = 25  # 디스코드 Select 옵션 상한
 
-# /FAQ추가·수정 대상 도메인 선택지. value="common" → DB domain=NULL(전 서버 공통).
+# /faq추가·수정 대상 도메인 선택지. value="common" → DB domain=NULL(전 서버 공통).
 _DOMAIN_CHOICES = [
     app_commands.Choice(name="공통(전 서버)", value="common"),
     app_commands.Choice(name="RPG", value="rpg"),
@@ -163,7 +163,7 @@ class FaqCog(commands.Cog):
 
     # ─── 관리(운영) ────────────────────────────────────────────────
 
-    @app_commands.command(name="FAQ추가", description="FAQ 항목을 추가합니다(운영).")
+    @app_commands.command(name="faq추가", description="FAQ 항목을 추가합니다(운영).")
     @app_commands.describe(대상="공통/서버별 구분(생략 시 공통)")
     @app_commands.choices(대상=_DOMAIN_CHOICES)
     @requires_permission("admin", "support")
@@ -174,7 +174,7 @@ class FaqCog(commands.Cog):
         domain = None if 대상 is None or 대상.value == "common" else 대상.value
         await interaction.response.send_modal(FaqModal(self, domain=domain, faq_id=None))
 
-    @app_commands.command(name="FAQ수정", description="FAQ 항목을 수정합니다(운영).")
+    @app_commands.command(name="faq수정", description="FAQ 항목을 수정합니다(운영).")
     @app_commands.describe(번호="수정할 FAQ 번호")
     @requires_permission("admin", "support")
     async def faq_edit(self, interaction: discord.Interaction, 번호: int) -> None:
@@ -191,7 +191,7 @@ class FaqCog(commands.Cog):
             )
         )
 
-    @app_commands.command(name="FAQ삭제", description="FAQ 항목을 삭제합니다(운영).")
+    @app_commands.command(name="faq삭제", description="FAQ 항목을 삭제합니다(운영).")
     @app_commands.describe(번호="삭제할 FAQ 번호")
     @requires_permission("admin", "support")
     async def faq_delete(self, interaction: discord.Interaction, 번호: int) -> None:

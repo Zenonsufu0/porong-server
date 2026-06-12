@@ -33,7 +33,7 @@
 - **조회 = 패널 선택**: `/faq` → 등록된 질문 **Select 메뉴**(공통 + 현재 active 도메인, ≤25개)에서 골라 답변(ephemeral). 키워드 텍스트 매칭은 폐기(LLM 미사용 → 정확 단어 요구로 실효성 낮음, 운영자 큐레이션 목록을 직접 고르는 편이 현실적).
 - **폴백**: 패널 [운영진 문의] 버튼 → 티켓 생성(§2 연결, `TicketCog.open_ticket_for`). FAQ 0건이어도 버튼 노출.
 - 노출 필터 = `domain IS NULL`(공통) + active 서버 도메인(전역 단일 active, task.md §5). >25개면 절단 + 안내 문구.
-- 운영 관리: `/FAQ추가`(대상=공통/RPG/포로몬, 모달)·`/FAQ수정 번호`(모달 프리필)·`/FAQ삭제 번호`(admin·support) → `faq` CRUD. 번호 = 자동완성(`#id [도메인] 질문`). 전부 `mod_log`(faq_add/update/delete).
+- 운영 관리: `/faq추가`(대상=공통/RPG/포로몬, 모달)·`/faq수정 번호`(모달 프리필)·`/faq삭제 번호`(admin·support) → `faq` CRUD. 번호 = 자동완성(`#id [도메인] 질문`). 전부 `mod_log`(faq_add/update/delete).
 - 구현: db v11 `faq`, `core/faq.py`, `modules/support/faq.py`.
 
 ## 4. 권한 / 게이트
@@ -41,7 +41,7 @@
 | 명령 | 권한 |
 |---|---|
 | `/버그제보` `/문의` `/faq` | 공통(유저) |
-| `/티켓종료`(타인 티켓) · `/FAQ추가·수정·삭제` | `requires_permission`(admin·support) |
+| `/티켓종료`(타인 티켓) · `/faq추가·수정·삭제` | `requires_permission`(admin·support) |
 
 - 대상 선택형이라 **카테고리 게이트 불필요**(공통 채널에서 호출, 대상은 모달 선택).
 

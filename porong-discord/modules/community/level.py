@@ -2,7 +2,7 @@
 커뮤니티 레벨 (T13) — community_level.md §1~4.
 
 채팅·음성 활동 XP → 레벨. 길드 전역(도메인 무관). **메시지 내용 미열람**(작성 이벤트만).
-저장 = core.community(community_xp). 칭호(/칭호)·XP 보정(/XP지급)은 다음 슬라이스.
+저장 = core.community(community_xp). 칭호(/칭호)·XP 보정(/xp지급)은 다음 슬라이스.
 
 어뷰징 방지: 채팅 쿨다운(메모리 1차 판정 후 DB write — 핫패스 방어) · 음성 제외
 (self-mute/deaf·AFK·혼자) · 봇·제외 채널 제외.
@@ -213,7 +213,7 @@ class CommunityLevelCog(commands.Cog):
         )
 
     # ─── 운영 XP 보정 ─────────────────────────────────────────────
-    @app_commands.command(name="XP지급", description="유저에게 커뮤니티 XP를 지급합니다(운영).")
+    @app_commands.command(name="xp지급", description="유저에게 커뮤니티 XP를 지급합니다(운영).")
     @app_commands.describe(유저="대상", 양="지급할 XP")
     @requires_permission("admin")
     async def xp_grant(
@@ -232,7 +232,7 @@ class CommunityLevelCog(commands.Cog):
             ephemeral=True, allowed_mentions=discord.AllowedMentions.none(),
         )
 
-    @app_commands.command(name="XP회수", description="유저의 커뮤니티 XP를 회수합니다(운영).")
+    @app_commands.command(name="xp회수", description="유저의 커뮤니티 XP를 회수합니다(운영).")
     @app_commands.describe(유저="대상", 양="회수할 XP")
     @requires_permission("admin")
     async def xp_revoke(
