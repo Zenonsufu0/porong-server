@@ -1,7 +1,7 @@
 # porong-economy 작업 인계 (task)
 
 > 구상 단계 컨셉 정리 진행 상황 기록. 다음 세션은 여기부터 이어간다.
-> 본문 SoT: [`concept.md`](concept.md)(개요) · [`design.md`](design.md)(시스템 상세) · [`spec.md`](spec.md)(설계서) · [`indicators.md`](indicators.md)(지표) · [`population_model.md`](population_model.md)(주민 동학) · [`agenda_catalog.md`](agenda_catalog.md)(안건) · [`data_schema.md`](data_schema.md)(DB) · [`balance.md`](balance.md)(P1 수치 밸런싱) · 미확정/폐기: [`idea_inbox.md`](idea_inbox.md)
+> 본문 SoT: [`concept.md`](concept.md)(개요) · [`design.md`](design.md)(시스템 상세) · [`spec.md`](spec.md)(설계서) · [`indicators.md`](indicators.md)(지표) · [`population_model.md`](population_model.md)(주민 동학) · [`agenda_catalog.md`](agenda_catalog.md)(안건) · [`content_catalog.md`](content_catalog.md)(산출품·콘텐츠) · [`data_schema.md`](data_schema.md)(DB) · [`balance.md`](balance.md)(P1 수치 밸런싱) · 미확정/폐기: [`idea_inbox.md`](idea_inbox.md)
 > 참조 규약: `§N`=design.md, "지표 §N"=indicators.md (DL-E060)
 > 최종 갱신: 2026-06-12
 
