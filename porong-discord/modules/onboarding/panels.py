@@ -30,7 +30,7 @@ from core import mod_log, servers, terms
 from core.permissions import requires_permission
 from integrations.common import VerifyError
 from integrations.poromon_api import PoromonApiClient
-from integrations.rpg_api import PoroApiClient
+from integrations.rpg_api import PorongApiClient
 
 log = logging.getLogger(__name__)
 
@@ -152,7 +152,7 @@ class OnboardingCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
         self._poromon_api = PoromonApiClient()
-        self._rpg_api = PoroApiClient()
+        self._rpg_api = PorongApiClient()
         # 도메인 → verify(code, discord_id) -> {"ok","uuid","name"} / 예외 VerifyError
         self._verifiers = {
             "poromon": self._poromon_api.verify_code,

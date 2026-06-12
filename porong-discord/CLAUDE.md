@@ -1,4 +1,4 @@
-# porong-discord — 포로서버 중앙제어 디스코드 봇 작업 지침
+# porong-discord — 포롱서버 중앙제어 디스코드 봇 작업 지침
 
 > 이 문서는 `porong-discord/` 작업 영역 전용 지침이다.
 > 루트 `../CLAUDE.md`(모노레포 전역 규칙)가 상위 우선이며, 이 문서는 그것을 보완한다.
@@ -6,9 +6,9 @@
 
 ## 0. 이 작업 영역의 책임
 
-이 영역은 **포로서버 전체 중앙제어 디스코드 봇** 담당이다.
+이 영역은 **포롱서버 전체 중앙제어 디스코드 봇** 담당이다.
 
-- 봇은 RPG 전용 봇이 아니라 **포로서버 전체 운영 허브**다.
+- 봇은 RPG 전용 봇이 아니라 **포롱서버 전체 운영 허브**다.
 - 실제 게임 로직은 RPG 플러그인(`../porong-rpg/`) 또는 포로몬 서버(`../porong-mon/`)에서 처리한다.
 - 봇은 **명령어 · 권한 · 알림 · 조회 · 운영자 패널(UI)** 만 담당한다.
 - RPG 와 포로몬은 코드 공유가 거의 없으므로 **봇 내부에서도 도메인 모듈을 분리**한다.
@@ -29,7 +29,7 @@
 - (분리돼 있다면) 디스코드봇 전용 문서
 
 읽기만 가능 (수정 금지):
-- `../porong-rpg/`, `../custom-plugins/poro-rpg/`, `../porong-mon/`
+- `../porong-rpg/`, `../custom-plugins/porong-rpg/`, `../porong-mon/`
 - 루트 `.gitignore` / `README.md` / `CLAUDE.md`, 공통 docs 구조, `../infra/`
 - RPG/포로몬 실제 게임 로직 파일
 
@@ -42,7 +42,7 @@ porong-discord/
     config.py             # .env 로드 + 역할/채널 ID
     permissions.py        # 권한/역할 정책 (권한↔알림 분리, 권한 데코레이터)
   integrations/           # 외부 서버 연동 (도메인별 분리)
-    rpg_api.py            # PoroRPG HTTP API 클라이언트 (구현됨)
+    rpg_api.py            # PorongRPG HTTP API 클라이언트 (구현됨)
     poromon_api.py        # 포로몬 연동 (스텁 — 인터페이스만)
   modules/                # 도메인 명령어/기능 모듈 (Cog)
     common/               # 게임 비종속 공통 (/핑 등)
@@ -93,10 +93,10 @@ porong-discord/
 - 코드/문서에 실제 토큰·ID·URL 을 하드코딩하지 않는다.
 
 ### 봇이 요구하는 환경변수 (`.env`)
-필수: `DISCORD_TOKEN`, `PORO_API_KEY`, `GUILD_ID`, `CHANNEL_FIELD_BOSS_ID`
+필수: `DISCORD_TOKEN`, `PORONG_API_KEY`, `GUILD_ID`, `CHANNEL_FIELD_BOSS_ID`
 DEPRECATED(구 RPG 단일서버 온보딩 — DL-138 폐기, 미참조·optional): `CHANNEL_AUTH_ID`,
 `ROLE_접속대기_ID`, `ROLE_인증유저_ID`, `ROLE_미인증_ID`, `TERMS_MESSAGE_ID`
-선택(미설정 시 0 → 기능 비활성): `PORO_API_URL`,
+선택(미설정 시 0 → 기능 비활성): `PORONG_API_URL`,
 클래스 역할(`ROLE_검사_ID` …), 알림 역할(`ROLE_필드보스알림_ID`, `ROLE_월드보스알림_ID`,
 `ROLE_포로몬알림_ID`, `ROLE_이벤트알림_ID`, `ROLE_점검알림_ID`, `ROLE_업데이트알림_ID`),
 운영 권한 역할(`ROLE_OWNER_ID`, `ROLE_ADMIN_ID`, `ROLE_RPG_MANAGER_ID`,

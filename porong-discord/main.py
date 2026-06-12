@@ -1,7 +1,7 @@
 """
-포로 서버 중앙제어 디스코드 봇 엔트리포인트.
+포롱 서버 중앙제어 디스코드 봇 엔트리포인트.
 
-봇은 포로서버 전체(공통·RPG·포로몬·이벤트·관리자·역할)의 운영 허브다.
+봇은 포롱서버 전체(공통·RPG·포로몬·이벤트·관리자·역할)의 운영 허브다.
 실제 게임 로직은 RPG 플러그인 / 포로몬 서버가 담당하고, 봇은
 명령어·권한·알림·조회·운영자 패널만 담당한다.
 
@@ -64,7 +64,7 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 
 @bot.event
 async def on_ready() -> None:
-    print(f"Poro Bot ready: {bot.user}")
+    print(f"Porong Bot ready: {bot.user}")
     await bot.tree.sync()
     print("Slash commands synced.")
 

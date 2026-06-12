@@ -144,8 +144,8 @@ _MIGRATIONS: list[str] = [
         ('newbie',  '🌱 새내기',     5),
         ('regular', '💬 단골',      10),
         ('veteran', '🔥 터줏대감',   20),
-        ('elder',   '⭐ 포로 원로',  30),
-        ('legend',  '👑 포로 레전드', 50);
+        ('elder',   '⭐ 포롱 원로',  30),
+        ('legend',  '👑 포롱 레전드', 50);
     """,
     # v10 — tickets 1:1 문의 (data_model.md §2.6, T16)
     """

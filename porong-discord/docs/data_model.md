@@ -16,7 +16,7 @@
 
 ## 1. 런타임 / 접근 계층
 
-- **파일:** `<인스턴스 로컬>/poro_bot.sqlite3` — **gitignored**(런타임 데이터, 커밋 금지). 경로는 `.env`(`BOT_DB_PATH`).
+- **파일:** `<인스턴스 로컬>/porong_bot.sqlite3` — **gitignored**(런타임 데이터, 커밋 금지). 경로는 `.env`(`BOT_DB_PATH`).
 - **드라이버:** `aiosqlite`(비동기) — discord 이벤트 루프 블로킹 방지. 동기 `sqlite3` 금지.
 - **접근 계층:** `core/db.py` — 연결 풀/단일 커넥션 + 쿼리 헬퍼. 각 모듈은 `core/db.py` 경유로만 접근(도메인 모듈이 raw SQL 흩뿌리지 않음).
 - **마이그레이션:** `schema_meta.version` 기반 단순 증분 러너(기동 시 현재 버전 → 목표 버전까지 순차 적용).

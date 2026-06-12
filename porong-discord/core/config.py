@@ -8,8 +8,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DISCORD_TOKEN: str = os.environ["DISCORD_TOKEN"]
-PORO_API_URL: str = os.getenv("PORO_API_URL", "http://localhost:8765")
-PORO_API_KEY: str = os.environ["PORO_API_KEY"]
+PORONG_API_URL: str = os.getenv("PORONG_API_URL", "http://localhost:8765")
+PORONG_API_KEY: str = os.environ["PORONG_API_KEY"]
 
 # ─── 포로몬 인증 API (RPG 와 분리된 별도 연동) ──────────────────────
 # 봇·MC 동일 호스트 전제 → 루프백(127.0.0.1) 바인드. 키는 secret 으로만 로드.
@@ -20,7 +20,7 @@ POROMON_AUTH_KEY: str = os.getenv("POROMON_AUTH_KEY", "")
 GUILD_ID: int = int(os.environ["GUILD_ID"])
 
 # ─── 봇 SQLite (T12, 인스턴스 로컬 — gitignored) ─────────────────────
-BOT_DB_PATH: str = os.getenv("BOT_DB_PATH", "poro_bot.sqlite3")
+BOT_DB_PATH: str = os.getenv("BOT_DB_PATH", "porong_bot.sqlite3")
 
 # [DEPRECATED] CHANNEL_AUTH_ID — 구 RPG 단일서버 약관 채널(modules/rpg/auth.py 폐기, DL-138).
 # 신 온보딩은 active 서버의 온보딩 카테고리 채널을 사용(panels.py). optional 로 완화.

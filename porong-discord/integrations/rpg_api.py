@@ -1,10 +1,10 @@
 """
-PoroRPG HTTP API 클라이언트 (aiohttp 기반).
+PorongRPG HTTP API 클라이언트 (aiohttp 기반).
 
 모든 요청에 X-Api-Key 헤더를 포함한다.
 """
 import aiohttp
-from core.config import PORO_API_URL, PORO_API_KEY
+from core.config import PORONG_API_URL, PORONG_API_KEY
 from integrations.common import VerifyError
 
 
@@ -12,10 +12,10 @@ class RpgAuthError(VerifyError):
     """RPG 인증 API 호출 중 운영자 확인이 필요한 오류(VerifyError 하위)."""
 
 
-class PoroApiClient:
+class PorongApiClient:
     def __init__(self, session: aiohttp.ClientSession | None = None):
         self._session = session
-        self._headers = {"X-Api-Key": PORO_API_KEY, "Content-Type": "application/json"}
+        self._headers = {"X-Api-Key": PORONG_API_KEY, "Content-Type": "application/json"}
 
     def _get_session(self) -> aiohttp.ClientSession:
         if self._session is None or self._session.closed:
@@ -44,7 +44,7 @@ class PoroApiClient:
         ⚠ 필드명(`discordId` camelCase)은 DL-138 레퍼런스 기준. RPG AuthApiHandler
           실제 계약과 다르면(예: snake_case) 맞춰야 함 — RPG worktree 확인 필요.
         """
-        url = f"{PORO_API_URL}/auth/verify"
+        url = f"{PORONG_API_URL}/auth/verify"
         payload = {"code": code, "discordId": str(discord_id)}
         try:
             async with self._get_session().post(url, json=payload, headers=self._headers) as resp:
@@ -69,7 +69,7 @@ class PoroApiClient:
 
     async def get_field_boss_status(self) -> list:
         """GET /field-boss/status → [{field_id, status, respawn_minutes, player_count}, ...]"""
-        url = f"{PORO_API_URL}/field-boss/status"
+        url = f"{PORONG_API_URL}/field-boss/status"
         async with self._get_session().get(url, headers=self._headers) as resp:
             resp.raise_for_status()
             return await resp.json()
@@ -78,21 +78,21 @@ class PoroApiClient:
 
     async def get_player_by_nick(self, nick: str) -> dict:
         """GET /player/by-nick/{nick} → DiscordCardResponse"""
-        url = f"{PORO_API_URL}/player/by-nick/{nick}"
+        url = f"{PORONG_API_URL}/player/by-nick/{nick}"
         async with self._get_session().get(url, headers=self._headers) as resp:
             resp.raise_for_status()
             return await resp.json()
 
     async def get_island_by_nick(self, nick: str) -> dict:
         """GET /island/by-nick/{nick} → DiscordCardResponse"""
-        url = f"{PORO_API_URL}/island/by-nick/{nick}"
+        url = f"{PORONG_API_URL}/island/by-nick/{nick}"
         async with self._get_session().get(url, headers=self._headers) as resp:
             resp.raise_for_status()
             return await resp.json()
 
     async def get_boss_by_nick(self, nick: str) -> dict:
         """GET /boss-history/by-nick/{nick} → DiscordCardResponse"""
-        url = f"{PORO_API_URL}/boss-history/by-nick/{nick}"
+        url = f"{PORONG_API_URL}/boss-history/by-nick/{nick}"
         async with self._get_session().get(url, headers=self._headers) as resp:
             resp.raise_for_status()
             return await resp.json()

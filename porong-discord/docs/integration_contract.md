@@ -5,7 +5,7 @@
 > 알림 라우팅은 [`notifications.md`], 역할/온보딩은 [`roles_and_permissions.md`].
 > 상태: 🟢 구현 · 🟡 설계(미구현) · 🔴 미정.
 >
-> ⚠ 게임서버 측 API의 권위는 각 게임 프로젝트(PoroRPG / PoroMonCore)에 있다. 이 문서는
+> ⚠ 게임서버 측 API의 권위는 각 게임 프로젝트(PorongRPG / PoroMonCore)에 있다. 이 문서는
 > **봇이 기대·호출하는 계약(봇 관점)**을 명세한다. 게임서버 코드는 여기서 수정하지 않는다.
 
 ## 0. 두 방향
@@ -23,7 +23,7 @@
 ## A. 봇 → 게임서버 (요청-응답 API)
 
 ### A-0. 공통 규약
-- **전송:** JSON over HTTP(S). 도메인별 베이스 URL — RPG `PORO_API_URL`, 포로몬 `POROMON_API_URL`(신규).
+- **전송:** JSON over HTTP(S). 도메인별 베이스 URL — RPG `PORONG_API_URL`, 포로몬 `POROMON_API_URL`(신규).
 - **인증:** `X-Api-Key: <서버별 키>` 헤더(`.env`). `Content-Type: application/json`.
 - **에러:** HTTP status + `{error, message}`. 4xx → 사용자에게 정중한 메시지(ephemeral), 5xx → 재시도/실패무시 후 로깅.
 - **상태변경 멱등성:** 운영 명령(골드지급·화이트리스트 등)은 재요청 안전성(idempotency key) 고려.
