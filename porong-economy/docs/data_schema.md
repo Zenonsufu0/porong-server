@@ -8,20 +8,20 @@
 ```
 CORE 모드(NeoForge) ──write──> 영속 SQL DB (Postgres/MySQL 후보)
                                    │
-                    ┌──────────────┼──────────────┐
-                read│           read│           read│
-              인게임 커스텀 GUI   웹 대시보드     디스코드 봇
-              (실시간 push)      (심화 분석)     (조회·알림)
+                    ┌──────────────┴──────────────┐
+                read│                           read│
+              인게임 커스텀 GUI                 디스코드 봇
+              (실시간 push)                    (조회·알림)
 ```
 
-- **영속 SQL 서버 DB** — 재무·지분·거래가 구조적 관계 데이터라 관계형. 멀티 소비자(웹/디스코드)라 임베디드(SQLite)보다 서버 DB(Postgres/MySQL).
-- **CORE 모드가 단일 writer**, 인게임 GUI(DL-E032)·웹 대시보드·디스코드 봇이 reader.
-- **시계열 데이터**(주가 캔들·지표 추이)는 스냅샷 테이블로 분리 — 차트·웹 분석용.
-- 실시간 인게임 GUI는 DB 폴링이 아니라 CORE가 메모리 상태를 패킷 push, DB는 영속·조회·웹용(쓰기 주기는 구현 시).
+- **영속 SQL 서버 DB** — 재무·지분·거래가 구조적 관계 데이터라 관계형. 멀티 소비자(인게임·디스코드)라 임베디드(SQLite)보다 서버 DB(Postgres/MySQL).
+- **CORE 모드가 단일 writer**, 인게임 GUI(DL-E032)·디스코드 봇이 reader. **외부 웹 대시보드·MCEF 비채택(DL-E057)** — 전부 인게임 네이티브 + 디스코드 알림.
+- **시계열 데이터**(주가 캔들·지표 추이)는 스냅샷 테이블로 분리 — 차트·분석용.
+- 실시간 인게임 GUI는 DB 폴링이 아니라 CORE가 메모리 상태를 패킷 push, DB는 영속·조회용(쓰기 주기는 구현 시).
 
 ## 엔티티 맵 (핵심)
 
-> 핵심 맵 **17종**(아래 표) + 엔티티 상세의 위성 6종(inventory·deposit·loan·bond·party·land_plot) = **총 23 테이블**. 〔정정: DL-E035의 '16종'은 당초 표기, 실제 맵 17행.〕
+> 핵심 맵 **19종**(아래 표) + 엔티티 상세의 위성 6종(inventory·deposit·loan·bond·party·land_plot) = **총 25 테이블**. 〔정정: DL-E035의 '16종'은 당초 표기 / DL-E093에서 village_state·power_grid 2종 추가(17→19).〕
 
 | 엔티티 | 핵심 필드(후보) | 관계 | 근거 |
 |---|---|---|---|
@@ -34,14 +34,16 @@ CORE 모드(NeoForge) ──write──> 영속 SQL DB (Postgres/MySQL 후보)
 | **item**(품목) | 필수/사치 tier·기본 속성 | → market_state, market_listing | DL-E013 |
 | **market_listing**(출하) | 물량·호가·품질 | company → item | DL-E026·E027 |
 | **market_state**(시세) | 공급·수요·시세·품질분포·독점도(HHI) | ← item | DL-E014 |
-| **shareholding**(지분) | 보유 주식수·holder종류(player/주민풀) | company ↔ player/주민풀 | DL-E033·E034 |
+| **shareholding**(지분) | 보유 주식수·holder종류(player/주민풀/government) | company ↔ player/주민풀/정부 | DL-E033·E034·E088 |
 | **stock_price_history** | 시각·OHLC(캔들) | ← company (시계열) | DL-E033 |
 | **contract**(계약) | 공급레이트·개당대금·기간·위약금·상태 | company ↔ company | DL-E028 |
 | **techtree_node**(기술) | 선행노드·시대·해금상태(서버 공통)·연구진척 | 서버 공통 | DL-E020·E031 |
 | **treasury**(재정/중앙은행) | 국고잔액·부채·이자·통화량·세율(정책 상태값들) | 단일 | DL-E012·E023 |
 | **agenda**(안건) | 카테고리·트리거지표·효과·상태·발의시각 | → vote | DL-E025, agenda_catalog |
 | **vote**(투표) | 선택(찬/반)·시각 | agenda ↔ player | DL-E025 |
-| **indicator_snapshot**(지표 시계열) | 시각 + 오염·범죄율·CPI·인플레·실업률·GDP·지니·행복도… | 대시보드/웹 차트 | DL-E009~E017 |
+| **indicator_snapshot**(지표 시계열) | 시각 + 오염·범죄율·CPI·인플레·실업률·GDP·지니·행복도·산재율… | 대시보드/디스코드 | DL-E009~E017 |
+| **village_state**(마을 전역 상태) | 진화단계·세부단계(1~16)·시대·인프라수준·해금 슬롯 | 단일 | DL-E051·E093 |
+| **power_grid**(전력망 상태) | 총공급·총수요·전기세·발전믹스 비율(정책) | 단일 | DL-E083·E087·E093 |
 
 ## 다음
 - 엔티티별로 필드·타입·관계를 상세화한다(아래에 §로 추가).
@@ -58,7 +60,8 @@ CORE 모드(NeoForge) ──write──> 영속 SQL DB (Postgres/MySQL 후보)
 | name | text | |
 | industry_id | FK→industry | 업종(§1-A) |
 | founder_player_id | FK→player | 창업자(기록) |
-| controller_player_id | FK→player (캐시) | 현재 대표 = 최대 유저 지분(DL-E034), 지분 변동 시 재계산 |
+| controller_player_id | FK→player (캐시, nullable) | 현재 대표 = 최대 유저 지분(DL-E034). **공기업(주민회사)은 NULL = 정부 통제**(DL-E088·E093), 지분 변동 시 재계산 |
+| is_public | bool | **공기업(주민회사) 여부 — 정부 51%+ 영구·인수 면역(DL-E088·E093)** |
 | stable_control | bool | 51%+ 단독 지배(적대적 인수 면역) |
 | cash | decimal | **회사 현금 — 유저 지갑과 분리(유한책임)** |
 | land_plot_id | FK→land | 마을 토지 구획(§9) |
@@ -73,8 +76,9 @@ CORE 모드(NeoForge) ──write──> 영속 SQL DB (Postgres/MySQL 후보)
 | founded_at | timestamp | |
 
 **`shareholding` (지분)** — 대표·소유 계산 핵심
-| company_id FK · holder_type(player/주민풀) · holder_id · shares |
+| company_id FK · holder_type(**player/주민풀/government**) · holder_id · shares |
 - controller = 유저 holder 중 max(shares). 합산으로 51% 판정(stable_control).
+- **government holder(DL-E088·E093):** 주민회사 = 정부(treasury) 51%+ 영구 보유분을 government holder로 표현 → **매물 아님**(인수 면역 가드레일). 나머지 49% 미만만 player/주민풀 passive 매물(배당·차익).
 
 **`financials` (재무제표)** — 기간별 시계열
 | company_id FK · period · 손익(매출·비용[인건비·원료·전기·세금·위약금·산재]·이익) · 재무상태(자산[현금·토지·설비·재고]·부채·자본) · 현금흐름(영업·투자·재무) |
@@ -146,9 +150,19 @@ CORE 모드(NeoForge) ──write──> 영속 SQL DB (Postgres/MySQL 후보)
 
 **`land_plot`** | id · location · owner_type(company/마을) · owner_id · price · zoning(공업/상업/주거) · buildable(그린벨트 제외)
 
+### 마을 전역 상태 (village_state) — DL-E051·E093, 단일 행
+
+**`village_state`** | current_stage(마을/도시/대도시/국가) · sublevel(1~16) · current_era(수공업/증기/전기/자동화) · infrastructure_level · unlocked_slots(공공 건물 슬롯) · 진화 다인자 캐시(인구·GDP·산업다양성·평균학력·인프라)
+- `treasury`처럼 **단일 상태 행.** 안건 3층 게이트 ①카테고리 해금(spec §6-2)·가용 사유 면적(§11·design §9)·Create 시대 게이팅(§7-3)·공공 슬롯 해금(§6-6)·자본시장 깊이 창발(§5-4)이 읽는 **진화 상태의 단일 출처.** 매 틱 §2-6 진화 평가가 갱신(DL-E051). era 해금은 `techtree_node.era·unlocked`와 동기.
+
+### 전력망 상태 (power_grid) — DL-E083·E087·E093, 단일 행
+
+**`power_grid`** | total_supply · total_demand · electricity_price(cost-plus 단일가) · fuel_mix(석탄/디젤/친환경 비율 — 의회 정책 상태값) · grid_utilization
+- 단일 상태 행. **fuel_mix = 의회 의결로 변경·지속되는 정책 상태값**(treasury 정책값과 동급, DL-E083·E087). 회사 가동 전력 게이트(spec §4·§11-5)·전기세 비용(`financials` 손익 전기)·친환경 안건(agenda)이 읽음. 매 틱 전력 정산이 갱신 — **전기세 = 직전 틱 연료가 기준(lag)**, 순환 회피(spec §11-5).
+
 ### 지표 시계열 (indicator_snapshot) — DL-E049
 
-**`indicator_snapshot`** | time · 오염 · 범죄율 · CPI · 인플레 · 실업률 · GDP · 성장률 · 지니 · 행복도 · 빈곤율 · 경기국면 · 주가지수 · 부채-세수비율 · … → 대시보드·웹 차트 + 안건 트리거
+**`indicator_snapshot`** | time · 오염 · 범죄율 · CPI · 인플레 · 실업률 · GDP · 성장률 · 지니 · 행복도 · 빈곤율 · 경기국면 · 주가지수 · **산재율** · 부채-세수비율 · … → 대시보드·디스코드 + 안건 트리거
 
 > **엔티티 1차 완료.** 구체 타입·인덱스·제약·관계 FK는 구현 단계. IPO 상장 재무 요건·계수는 P1.
 
