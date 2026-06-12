@@ -279,12 +279,36 @@
 
 **▶ 다음 세션 시작점 (간편설치기 실행 — `client_pack_policy.md` 기준):**
 > ✅ 완료: 결정 044(구성 86/25)·045(설치기 모델)·봇 계약 보강·**manifest 갭 실측(§3-1)**·loader 0.19.3 정정. (커밋 5ba0952·6346911)
-1. **CF 프로필 재익스포트**(사용자/CurseForge 앱): manifest에 (a) 7개 자동 포함 + eggs 자동 제거. ⚠️ collection이 Modrinth-only면 (b) 번들로 전환. → `extract-curseforge-pack.sh`로 반영.
-2. **`extract-curseforge-pack.sh` ROOT 경로 stale 수정**(`poro-server-poromon`→현 워크트리) — 클로드 가능.
-3. **PoroMonCore 빌드→`overrides/mods/` 번들 + 클라 export 필터(openloader/data 제외) 스크립트화**(§6) — 클로드 가능.
+> ✅ 완료(2026-06-12): **2·3 스크립트화** — `extract-curseforge-pack.sh` ROOT 자동 도출 + 신규 `build-client-pack.sh`(빌드→번들→필터→zip), SKIP_BUILD=1 테스트 통과·zip 구조 검증. (커밋 미실행)
+1. **CF 프로필 재익스포트**(사용자/CurseForge 앱): manifest에 (a) 7개 자동 포함 + eggs 자동 제거. ⚠️ collection이 Modrinth-only면 (b) 번들로 전환. → `extract-curseforge-pack.sh <export.zip>`로 반영.
+2. ✅ **`extract-curseforge-pack.sh` ROOT stale 수정**: 하드코딩(`poro-server-poromon`) → **스크립트 위치 기준 자동 도출**(`SCRIPT_DIR`의 상위 = porong-mon). 폴더명 변경에 안전. 문법 OK.
+3. ✅ **`build-client-pack.sh` 신설**(§6 파이프라인): ① PoroMonCore `./gradlew build`(SKIP_BUILD=1로 생략 가능) → ② `overrides/mods/`에 jar 번들(옛 버전 정리) → ③ 클라 스테이징(`config/openloader/data` 서버 데이터팩 제외, 결정 043) → ④ `manifest.json+modlist.html+overrides/` zip(`.local/pack-build/PoroMon-0.1.zip`, 비추적). **검증**: zip 루트에 manifest/modlist, `overrides/mods/poromon-core-0.1.0.jar` 동봉, openloader는 `options.json` 유지·`data/` 제외 확인.
+   - ⚠️ 현재 패키징되는 `manifest.json`은 **stale 80개**(재익스포트 전) — 1번 후 재실행해야 정합 86. 스크립트 헤더에 명시.
 4. **깨끗한 런처 설치 검증**(`client_pack_policy.md` §7, 클라 필요) — 사용자.
 5. (봇·사용자) `porong-work-discord`에서 봇 인증 B1~B5 구현(`discord_auth_integration.md`).
-> 클로드 단독 가능 = 2·3(스크립트). 1·4·5 = 사용자/외부 도구 필요.
+> 클로드 단독 가능 = ✅2·3 완료. 남은 1·4·5 = 사용자/외부 도구 필요.
+> ⚠️ 별건: `sync-server-mods.sh`도 ROOT가 stale(`poro-work-poromon/poromon`) — 서버 동기화(§6-6) 실행 전 동일 패턴으로 수정 필요(미작업).
+
+## ◎ 2026-06-12 — 배포 모델 전환 (결정 046, 045 대체)
+
+**사용자 확정**: CurseForge 배제 → **자체 제작 범용 exe 설치기 + 모드 전부 번들 + 토글 0.1부터.** (CF 로그인·외부 다운로드 차단·유저별 실패 + 토글 UX 직접 제어 + 포로건 등 재활용.)
+- **결정**: ① Windows `.exe` 더블클릭(Mac 후순위) ② **범용 엔진 + 서버별 `pack.json` 분리**(재활용) ③ **모드 전부 exe 번들**(설치 시 인터넷·로그인 0) ④ **필수(T0)=강제 / 선택(T1·T2)=개별 체크박스** ⑤ CF/Modrinth·packwiz 배제.
+- **유지**: 유저 수동설치 금지·T0 서버 해시정합·PoroMonCore 항상 번들·버전 핀.
+- **산출**: `docs/01_modpack/installer_design.md` 신설(엔진 아키텍처·pack.json 스키마·설치 흐름·토글 매핑·빌드 파이프라인·로드맵·오픈질문). 결정 046 = `decisions.md`. `client_pack_policy.md`(045/CF)는 상단 배너로 격하·보존.
+- **위 §"다음 세션 시작점(간편설치기 실행)" 2·3 = CF 전용이라 보류**: `extract-curseforge-pack.sh`(경로는 고쳐둠)·`build-client-pack.sh`(CF zip)는 미사용. 새 방향은 아래.
+
+**▶ 다음 세션 — 설치기 구현 (installer_design.md 기준):**
+1. ✅ **`pack.json` 생성/검증 완료(2026-06-12)** — `scripts/gen-pack-json.py`(prefix→티어 매핑, longest-prefix, 미분류 에러). `modpack/pack.json` 생성. **전수 86 분류**: T0 14 / T1 40 / T2 18 / L 9 / S 5. 클라 번들 81(서버전용 5 제외). 부산물: `client_mod_tiers.md` xaero 2종 누락 보강 + 집계 정정(T1 39→40).
+   - ⚠️ **정합 이슈 발견**: `sync-server-mods.sh` 화이트리스트에 **`poromon-core` 누락 + `eggs` 잔존**(결정 032·044 미반영). 서버 동기화 전 화이트리스트 갱신 필요(ROOT stale와 함께).
+   - ⬜ `server.address`=`TODO_HOST:25566` 플레이스홀더(운영 시 채움).
+2. ✅ **번들 스테이징 스크립트 완료(2026-06-12)** — `scripts/build-installer-pack.sh`. pack.json 읽어 `.local/installer-pack/PoroMon/`에 mods(클라 81, **PoroMonCore=빌드본 교체**) + overrides(config/openloader/data 제외) + pack.json + tools/ 스테이징. **검증**: 서버전용 5개 mods 제외·openloader data 제외·PoroMonCore 해시 일치(번들=서버 빌드본). SKIP_BUILD=1 지원.
+   - ⬜ **fabric-installer.jar 미보유** — `modpack/tools/fabric-installer.jar` 채워야(또는 FABRIC_INSTALLER 지정). 엔진 빌드 전 필요. (외부 다운로드 1회)
+3. 🔶 **엔진 구현 — 코어 완료(2026-06-12, Python 확정)**: `installer/`(무의존 표준라이브러리). `poromon_installer/{pack,nbt,steps,installer,platform}.py` + `main.py`(CLI). pack.json 로드·토글(default±enable/disable)·Fabric headless 설치·mods 배치·overrides 복사·**servers.dat 자체 NBT 등록**·런처 프로필. **WSL 검증**: `--list`/`--plan`(dry-run) 동작, 기본 63개(필수14+lib9+T1 40), 토글 파일 교체(jei↔iris), NBT round-trip(한글·중복ip교체·append) OK.
+   - ⬜ **잔여**: ① **GUI(tkinter 체크박스) + PyInstaller exe 빌드** ② fabric-installer.jar 확보 ③ 실 설치 검증(Windows+MC, 사용자) — Fabric 설치/런처 프로필/실파일은 WSL서 미검증(dry-run만).
+4. **모드 라이선스 재배포 점검**(번들 공통 숙제, §9-1) — 오픈 전.
+5. (사용자) 깨끗한 Windows에서 exe 설치 검증(§8 체크리스트).
+> 클로드 단독 가능 = ✅1·2 완료, 🔶3 엔진코어 완료(GUI/exe 잔여). 4=점검. 5=사용자. fabric-installer 1회 확보 필요.
+> ⚠️ 미확정(§9): 코드서명·기술스택·JEI/EMI 택1·설치기 코드 위치(porong-mon/installer vs 별도 공용 레포).
 
 
 

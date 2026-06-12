@@ -1,0 +1,543 @@
+{
+  "pack": {
+    "id": "poromon",
+    "name": "PoroMon",
+    "version": "0.1.0"
+  },
+  "minecraft": {
+    "version": "1.21.1",
+    "loader": "fabric",
+    "loaderVersion": "0.19.3",
+    "java": 21
+  },
+  "install": {
+    "instanceName": "PoroMon",
+    "isolated": true
+  },
+  "server": {
+    "name": "PoroMon",
+    "address": "TODO_HOST:25566"
+  },
+  "required": [
+    {
+      "file": "CobbleFurnies-fabric-1.1.jar",
+      "name": "CobbleFurnies",
+      "desc": "LM 의존"
+    },
+    {
+      "file": "Cobblemon-fabric-1.7.3+1.21.1.jar",
+      "name": "Cobblemon",
+      "desc": "포켓몬 엔진(코어)"
+    },
+    {
+      "file": "LegendaryMonuments-7.8.jar",
+      "name": "Legendary Monuments",
+      "desc": "레지스트리 정합(비활성)"
+    },
+    {
+      "file": "SimpleTMs-fabric-2.3.3.jar",
+      "name": "SimpleTMs",
+      "desc": "기술머신(TM/TR)"
+    },
+    {
+      "file": "TerraBlender-fabric-1.21.1-4.1.0.8.jar",
+      "name": "TerraBlender",
+      "desc": "LM 의존(바이옴)"
+    },
+    {
+      "file": "accessories-fabric-1.1.0-beta.53+1.21.1.jar",
+      "name": "Accessories"
+    },
+    {
+      "file": "architectury-13.0.8-fabric.jar",
+      "name": "Architectury"
+    },
+    {
+      "file": "athena-fabric-1.21.1-4.0.6.jar",
+      "name": "Athena",
+      "desc": "LM 체인 lib"
+    },
+    {
+      "file": "chipped-fabric-1.21.1-4.0.2.jar",
+      "name": "Chipped",
+      "desc": "LM 의존"
+    },
+    {
+      "file": "fabric-api-0.116.8+1.21.1.jar",
+      "name": "Fabric API"
+    },
+    {
+      "file": "mega_showdown-fabric-1.8.4+1.7.3+1.21.1.jar",
+      "name": "Mega Showdown",
+      "desc": "메가/배틀 기믹"
+    },
+    {
+      "file": "owo-lib-0.12.15.4+1.21.jar",
+      "name": "oωo Lib"
+    },
+    {
+      "file": "poromon-core-0.1.0.jar",
+      "name": "PoroMonCore",
+      "desc": "서버 규칙 엔진 + 커스텀 텍스처"
+    },
+    {
+      "file": "resourcefullib-fabric-1.21-3.0.12.jar",
+      "name": "Resourceful Lib",
+      "desc": "LM 체인 lib"
+    }
+  ],
+  "optional": [
+    {
+      "file": "AdvancedLootInfo-fabric-1.21.1-1.7.1.jar",
+      "name": "Advanced Loot Info",
+      "desc": "루트테이블 정보",
+      "group": "viewer",
+      "default": true
+    },
+    {
+      "file": "BetterAdvancements-Fabric-1.21.1-0.4.3.21.jar",
+      "name": "Better Advancements",
+      "desc": "발전과제 화면 개선",
+      "group": "viewer",
+      "default": true
+    },
+    {
+      "file": "BetterPingDisplay-Fabric-1.21.1-1.1.1.jar",
+      "name": "Better Ping Display",
+      "desc": "탭 핑 표시",
+      "group": "viewer",
+      "default": true
+    },
+    {
+      "file": "BetterThirdPerson-Fabric-1.21-1.9.0.jar",
+      "name": "Better Third Person",
+      "desc": "3인칭 카메라",
+      "group": "qol",
+      "default": true
+    },
+    {
+      "file": "EMIProfessions-fabric-1.21.1-1.0.3.jar",
+      "name": "EMI Professions",
+      "group": "viewer",
+      "default": true
+    },
+    {
+      "file": "InvMove-0.9.3+1.21.1-Fabric.jar",
+      "name": "InvMove",
+      "desc": "인벤 열고 이동",
+      "group": "qol",
+      "default": true
+    },
+    {
+      "file": "InvMoveCompats-0.5.0+1.21.8-Fabric.jar",
+      "name": "InvMove Compats",
+      "group": "qol",
+      "default": true
+    },
+    {
+      "file": "appleskin-fabric-mc1.21-3.0.6.jar",
+      "name": "AppleSkin",
+      "desc": "포만도 표시",
+      "group": "viewer",
+      "default": true
+    },
+    {
+      "file": "complete-cobblemon-collection-myths-and-legends-compat-2.0.1 (1).jar",
+      "name": "전설 모델 보충",
+      "desc": "미구현 전설/환상 모델(없으면 인형으로 보임)",
+      "group": "models",
+      "default": true
+    },
+    {
+      "file": "craftingtweaks-fabric-1.21.1-21.1.7.jar",
+      "name": "Crafting Tweaks",
+      "desc": "제작 편의",
+      "group": "qol",
+      "default": true
+    },
+    {
+      "file": "dynamiccrosshair-9.11+1.21.1-fabric.jar",
+      "name": "Dynamic Crosshair",
+      "desc": "상황별 십자선",
+      "group": "qol",
+      "default": true
+    },
+    {
+      "file": "emi-1.1.22+1.21.1+fabric.jar",
+      "name": "EMI",
+      "desc": "레시피/아이템 뷰어(메인)",
+      "group": "viewer",
+      "default": true
+    },
+    {
+      "file": "emi_enchanting-0.1.2+1.21.jar",
+      "name": "EMI Enchanting",
+      "group": "viewer",
+      "default": true
+    },
+    {
+      "file": "emi_ores-1.2+1.21.1+fabric.jar",
+      "name": "EMI Ores",
+      "group": "viewer",
+      "default": true
+    },
+    {
+      "file": "enchdesc-fabric-1.21.1-21.1.9.jar",
+      "name": "Enchantment Descriptions",
+      "desc": "인챈트 설명",
+      "group": "viewer",
+      "default": true
+    },
+    {
+      "file": "enhanced_attack_indicator-1.1.0+1.21.jar",
+      "name": "Enhanced Attack Indicator",
+      "desc": "공격 인디케이터",
+      "group": "qol",
+      "default": true
+    },
+    {
+      "file": "entityculling-fabric-1.9.5-mc1.21.1.jar",
+      "name": "Entity Culling",
+      "desc": "시야 밖 엔티티 컬링",
+      "group": "performance",
+      "default": true
+    },
+    {
+      "file": "fancymenu_fabric_3.8.1_MC_1.21.1.jar",
+      "name": "FancyMenu",
+      "desc": "타이틀/메뉴 커스터마이즈",
+      "group": "ui",
+      "default": true
+    },
+    {
+      "file": "ferritecore-7.0.3-fabric.jar",
+      "name": "FerriteCore",
+      "desc": "메모리 절감",
+      "group": "performance",
+      "default": true
+    },
+    {
+      "file": "jeed-1.21-2.3.2-fabric.jar",
+      "name": "JEED",
+      "desc": "효과(포션) 정보",
+      "group": "viewer",
+      "default": true
+    },
+    {
+      "file": "jei-1.21.1-fabric-19.27.0.340.jar",
+      "name": "JEI",
+      "desc": "레시피 뷰어(EMI와 중복 — 택1 검토)",
+      "group": "viewer",
+      "default": true
+    },
+    {
+      "file": "krypton-0.2.8.jar",
+      "name": "Krypton",
+      "desc": "네트워크 최적화",
+      "group": "performance",
+      "default": true
+    },
+    {
+      "file": "language-reload-1.7.5+1.21.1.jar",
+      "name": "Language Reload",
+      "desc": "언어 로딩 가속",
+      "group": "ui",
+      "default": true
+    },
+    {
+      "file": "lithium-fabric-0.15.1+mc1.21.1.jar",
+      "name": "Lithium",
+      "desc": "틱/AI 최적화",
+      "group": "performance",
+      "default": true
+    },
+    {
+      "file": "modmenu-11.0.3.jar",
+      "name": "Mod Menu",
+      "desc": "모드 설정 메뉴",
+      "group": "ui",
+      "default": true
+    },
+    {
+      "file": "notenoughanimations-fabric-1.11.1-mc1.21.1.jar",
+      "name": "Not Enough Animations",
+      "desc": "1인칭 손 동작",
+      "group": "qol",
+      "default": true
+    },
+    {
+      "file": "reeses-sodium-options-fabric-1.8.3+mc1.21.4.jar",
+      "name": "Reese's Sodium Options",
+      "desc": "Sodium 옵션 UI",
+      "group": "performance",
+      "default": true
+    },
+    {
+      "file": "shulkerboxtooltip-fabric-5.1.8+1.21.1.jar",
+      "name": "Shulker Box Tooltip",
+      "desc": "셔커상자 미리보기",
+      "group": "viewer",
+      "default": true
+    },
+    {
+      "file": "sodium-extra-fabric-0.6.0+mc1.21.1.jar",
+      "name": "Sodium Extra",
+      "desc": "Sodium 추가 옵션",
+      "group": "performance",
+      "default": true
+    },
+    {
+      "file": "sodium-fabric-0.6.13+mc1.21.1.jar",
+      "name": "Sodium",
+      "desc": "렌더 최적화(핵심)",
+      "group": "performance",
+      "default": true
+    },
+    {
+      "file": "sodium-shadowy-path-blocks-fabric-4.0.0.jar",
+      "name": "Shadowy Path Blocks",
+      "desc": "흙길 렌더 보정",
+      "group": "performance",
+      "default": true
+    },
+    {
+      "file": "sodiumextras-fabric-1.0.8-1.21.1.jar",
+      "name": "Sodium Extras",
+      "group": "performance",
+      "default": true
+    },
+    {
+      "file": "sodiumleafculling-fabric-1.0.1-1.21.1.jar",
+      "name": "Sodium Leaf Culling",
+      "desc": "나뭇잎 컬링",
+      "group": "performance",
+      "default": true
+    },
+    {
+      "file": "sodiumoptionsapi-fabric-1.0.10-1.21.1.jar",
+      "name": "Sodium Options API",
+      "group": "performance",
+      "default": true
+    },
+    {
+      "file": "stendhal-1.4.1-1.21.jar",
+      "name": "Stendhal",
+      "desc": "채팅/표지판 서식",
+      "group": "viewer",
+      "default": true
+    },
+    {
+      "file": "swingthrough-1.0.5+1.21.jar",
+      "name": "Swing Through Grass",
+      "desc": "풀 통과 공격",
+      "group": "qol",
+      "default": true
+    },
+    {
+      "file": "tipsmod-fabric-1.21.1-21.1.3.jar",
+      "name": "Tips",
+      "desc": "로딩 팁",
+      "group": "viewer",
+      "default": true
+    },
+    {
+      "file": "tooltipfix-1.1.1-1.20.jar",
+      "name": "ToolTip Fix",
+      "desc": "긴 툴팁 보정",
+      "group": "viewer",
+      "default": true
+    },
+    {
+      "file": "xaerominimap-fabric-1.21.1-25.3.5.jar",
+      "name": "Xaero's Minimap",
+      "desc": "미니맵",
+      "group": "viewer",
+      "default": true
+    },
+    {
+      "file": "xaeroworldmap-fabric-1.21.1-1.40.6.jar",
+      "name": "Xaero's World Map",
+      "desc": "월드맵",
+      "group": "viewer",
+      "default": true
+    },
+    {
+      "file": "AmbientEnvironment-fabric-1.21.1-18.0.0.2.jar",
+      "name": "Ambient Environment",
+      "desc": "환경 사운드",
+      "group": "sound",
+      "default": false
+    },
+    {
+      "file": "BHMenu-Fabric-1.21-2.5.3.jar",
+      "name": "BHMenu",
+      "desc": "메인 메뉴 변경",
+      "group": "misc",
+      "default": false
+    },
+    {
+      "file": "CraftPresence-2.7.0+1.21.1-fabric.jar",
+      "name": "CraftPresence",
+      "desc": "디스코드 Rich Presence",
+      "group": "misc",
+      "default": false
+    },
+    {
+      "file": "PresenceFootsteps-1.10.2+1.21.jar",
+      "name": "Presence Footsteps",
+      "desc": "발소리",
+      "group": "sound",
+      "default": false
+    },
+    {
+      "file": "cherishedworlds-fabric-10.1.1+1.21.1.jar",
+      "name": "Cherished Worlds",
+      "desc": "싱글 즐겨찾기(멀티 무용)",
+      "group": "misc",
+      "default": false
+    },
+    {
+      "file": "citresewn-1.2.2+1.21.jar",
+      "name": "CIT Resewn",
+      "desc": "커스텀 아이템 텍스처",
+      "group": "models",
+      "default": false
+    },
+    {
+      "file": "entity_model_features_1.21-fabric-3.0.10.jar",
+      "name": "EMF",
+      "desc": "커스텀 엔티티 모델",
+      "group": "models",
+      "default": false
+    },
+    {
+      "file": "entity_texture_features_1.21-fabric-7.0.8.jar",
+      "name": "ETF",
+      "desc": "커스텀 엔티티 텍스처",
+      "group": "models",
+      "default": false
+    },
+    {
+      "file": "fallingleaves-1.17.1+1.21.1.jar",
+      "name": "Falling Leaves",
+      "desc": "낙엽 파티클",
+      "group": "visual",
+      "default": false
+    },
+    {
+      "file": "iris-fabric-1.8.8+mc1.21.1.jar",
+      "name": "Iris Shaders",
+      "desc": "셰이더(무거움)",
+      "group": "shader",
+      "default": false
+    },
+    {
+      "file": "lambdynamiclights-4.8.7+1.21.1.jar",
+      "name": "LambDynamicLights",
+      "desc": "동적 조명",
+      "group": "visual",
+      "default": false
+    },
+    {
+      "file": "make_bubbles_pop-0.3.0-fabric-mc1.19.4-1.21.jar",
+      "name": "Make Bubbles Pop",
+      "desc": "물거품 효과",
+      "group": "visual",
+      "default": false
+    },
+    {
+      "file": "monsters-in-the-closet-1.0.3+1.21.jar",
+      "name": "Monsters in the Closet",
+      "desc": "분위기 사운드",
+      "group": "sound",
+      "default": false
+    },
+    {
+      "file": "particlerain-4.0.0-beta.5+1.21.1-fabric.jar",
+      "name": "Particle Rain",
+      "desc": "날씨 파티클",
+      "group": "visual",
+      "default": false
+    },
+    {
+      "file": "particular-1.21.1-Fabric-1.1.2.jar",
+      "name": "Particular",
+      "desc": "환경 파티클",
+      "group": "visual",
+      "default": false
+    },
+    {
+      "file": "visuality-0.7.7+1.21.jar",
+      "name": "Visuality",
+      "desc": "추가 파티클",
+      "group": "visual",
+      "default": false
+    },
+    {
+      "file": "wakes-0.2.2-1.21.jar",
+      "name": "Wakes",
+      "desc": "물 항적 효과",
+      "group": "visual",
+      "default": false
+    },
+    {
+      "file": "yosbr-0.1.2.jar",
+      "name": "YOSBR",
+      "desc": "옵션 기본값 유지",
+      "group": "misc",
+      "default": false
+    }
+  ],
+  "libraries": [
+    {
+      "file": "Almanac-1.21.1-2-fabric-1.5.2.jar",
+      "name": "Almanac"
+    },
+    {
+      "file": "UniLib-1.2.0+1.21.1-fabric.jar",
+      "name": "UniLib"
+    },
+    {
+      "file": "balm-fabric-1.21.1-21.0.56.jar",
+      "name": "Balm"
+    },
+    {
+      "file": "bookshelf-fabric-1.21.1-21.1.80.jar",
+      "name": "Bookshelf"
+    },
+    {
+      "file": "cloth-config-15.0.140-fabric.jar",
+      "name": "Cloth Config"
+    },
+    {
+      "file": "konkrete_fabric_1.9.9_MC_1.21.jar",
+      "name": "Konkrete"
+    },
+    {
+      "file": "melody_fabric_1.0.10_MC_1.21.jar",
+      "name": "Melody"
+    },
+    {
+      "file": "prickle-fabric-1.21.1-21.1.11.jar",
+      "name": "Prickle"
+    },
+    {
+      "file": "yet_another_config_lib_v3-3.8.2+1.21.1-fabric.jar",
+      "name": "YACL"
+    }
+  ],
+  "overrides": [
+    "config",
+    "fancymenu_data",
+    "shaderpacks",
+    "showdown",
+    "xaero"
+  ],
+  "_excluded_server_only": [
+    "Clumps-fabric-1.21.1-19.0.0.1.jar",
+    "OpenLoader-fabric-1.21.1-21.1.5.jar",
+    "bwncr-fabric-1.21.1-3.20.3.jar",
+    "letmedespawn-1.21.x-fabric-1.5.0.jar",
+    "netherportalfix-fabric-1.21.1-21.1.3.jar"
+  ]
+}

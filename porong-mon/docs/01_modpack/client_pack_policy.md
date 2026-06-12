@@ -1,5 +1,8 @@
 # 클라이언트 팩 정책 + 간편설치기 제작 계획 (결정 045)
 
+> ⛔ **배포 모델 폐기 — 결정 046(2026-06-12)으로 대체. SoT = `installer_design.md`.**
+> CurseForge 공식 팩 1차 모델은 **자체 제작 범용 exe 설치기 + 전부 번들 + 토글 0.1부터**로 전환됨(사유: CF 로그인·외부 다운로드 차단·유저별 실패). 이 문서는 **CF 방식 참고/패키지 구조 자료**로만 보존. **유지되는 원칙**: 유저 수동설치 금지·T0 서버정합·PoroMonCore 항상 번들·버전 핀. manifest 정합/`extract-curseforge-pack.sh`/`build-client-pack.sh`(CF zip)는 **CF 전용 → 보류**.
+
 > 대상: **PoroMon 0.1** 클라이언트 배포. MC 1.21.1 / Fabric Loader 0.19.3 / Java 21.
 > 목적: "유저가 모드를 수동 설치하지 않고 한 번에 설치→플레이"(`CLAUDE.md` 모드팩 정책)를 실현하는 **배포 패키지 + 간편설치기**의 제작 계획.
 > 선행 문서: 분류는 `client_mod_tiers.md`(T0/T1/T2), 서버/클라 분리는 `server_mod_separation.md`. 이 문서는 **"어떻게 패키징·배포·설치하게 만들 것인가"**.
