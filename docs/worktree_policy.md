@@ -14,39 +14,39 @@
 | 경로 | 역할 | 서버 실행 | VS Code(개발용) |
 |---|---|---|---|
 | `/home/zenonsufu1/dev/zenon-server` | **합본/merge/기록용** 원본. 전체 구조 확인. | ❌ 안 함 | ❌ 안 엶 |
-| `/home/zenonsufu1/dev/zenon-work-rpg` | RPG 개발/실행 worktree | ✅ Paper RPG | `zenon-work-rpg/porong-rpg` |
-| `/home/zenonsufu1/dev/zenon-work-mon` | PoroMon 개발/실행 worktree | ✅ Fabric/Cobblemon | `zenon-work-mon/porong-mon` |
-| `/home/zenonsufu1/dev/zenon-work-discord` | Discord 봇 개발/실행 worktree | ✅ Discord 봇 | `zenon-work-discord/porong-discord` |
+| `/home/zenonsufu1/dev/zenon-work-rpg` | RPG 개발/실행 worktree | ✅ Paper RPG | `zenon-work-rpg/zenon-rpg` |
+| `/home/zenonsufu1/dev/zenon-work-mon` | PoroMon 개발/실행 worktree | ✅ Fabric/Cobblemon | `zenon-work-mon/zenon-mon` |
+| `/home/zenonsufu1/dev/zenon-work-discord` | Discord 봇 개발/실행 worktree | ✅ Discord 봇 | `zenon-work-discord/zenon-discord` |
 
 - **원본 `zenon-server`에서는 서버를 실행하지 않고, 개발용 VS Code도 열지 않는다.**
 - 모든 merge·태그·전체 히스토리 작업은 원본 `zenon-server`에서 한다.
 - **서버 실행물의 표준 위치는 각 worktree의 `<프로젝트>/.local/server`** 다 (아래 §5).
-  - RPG: `zenon-work-rpg/porong-rpg/.local/server` (Paper: paper.jar·world·plugins·config·logs 등)
-  - PoroMon: `zenon-work-mon/porong-mon/.local/server` (Fabric/Cobblemon: run·worlds·mods·server jar 등)
+  - RPG: `zenon-work-rpg/zenon-rpg/.local/server` (Paper: paper.jar·world·plugins·config·logs 등)
+  - PoroMon: `zenon-work-mon/zenon-mon/.local/server` (Fabric/Cobblemon: run·worlds·mods·server jar 등)
   - `.local/`은 `.gitignore`(`**/.local/`)로 어느 worktree에서도 추적되지 않는다. (DL-130)
 
 ---
 
 ## 2. monorepo 폴더 구조 (in-repo)
 
-monorepo 안의 프로젝트 폴더 이름은 **`porong-` 접두사 기준**이다(2026-06-07 `poro-`→`porong-` rename, DL-131). 이 이름은
-SoT 경로(`porong-rpg/docs/final_master_plan.md`)·`.gitignore`·다수 문서가 직접
+monorepo 안의 프로젝트 폴더 이름은 **`zenon-` 접두사 기준**이다(2026-06-13 `porong-`→`zenon-` rename, DL-140; 그 전 이력: 2026-06-07 `poro-`→`porong-`, DL-131). 이 이름은
+SoT 경로(`zenon-rpg/docs/final_master_plan.md`)·`.gitignore`·다수 문서가 직접
 참조하므로 **함부로 rename하지 않는다.**
 
 ```
-zenon-server/        (in-repo 폴더명은 porong-* 유지 — DL-139)
-├─ porong-rpg/      RPG 서버 + 전역 설계 문서(docs/ SoT)
-├─ porong-mon/       모드 서버/모드팩
-├─ porong-discord/  디스코드 봇
-├─ porong-economy/  경제 서버 (구상 — 문서만)
-├─ porong-gun/      총기/전술/생존 서버 (구상 — 문서만)
+zenon-server/        (in-repo 폴더명 = zenon-* — DL-140, 2026-06-13)
+├─ zenon-rpg/      RPG 서버 + 전역 설계 문서(docs/ SoT)
+├─ zenon-mon/       모드 서버/모드팩
+├─ zenon-discord/  디스코드 봇
+├─ zenon-economy/  경제 서버 (구상 — 문서만)
+├─ zenon-gun/      총기/전술/생존 서버 (구상 — 문서만)
 ├─ scripts/       레포 전역 보조 스크립트 (공용)
 ├─ docs/          레포 전역 운영 문서 (이 파일 포함, 공용)
 ├─ CLAUDE.md / AGENTS.md / README.md / LICENSE  (공용)
 └─ .gitignore / .mcp.json / .agents / .claude / .codex (공용)
 ```
 
-> **worktree 디렉토리 이름**(`zenon-work-rpg` 등)과 **in-repo 폴더 이름**(`porong-rpg` 등)은
+> **worktree 디렉토리 이름**(`zenon-work-rpg` 등)과 **in-repo 폴더 이름**(`zenon-rpg` 등)은
 > 별개 레이어다. worktree 디렉토리 이름은 git 추적 내용과 무관하므로 자유롭게 바꿔도
 > (`git worktree move`) 커밋·문서에 영향이 없다. in-repo 폴더 이름은 영향이 크다.
 
@@ -61,38 +61,41 @@ zenon-server/        (in-repo 폴더명은 porong-* 유지 — DL-139)
 # RPG
 cd /home/zenonsufu1/dev/zenon-work-rpg
 git sparse-checkout init --cone
-git sparse-checkout set porong-rpg
+git sparse-checkout set zenon-rpg
 
 # PoroMon
 cd /home/zenonsufu1/dev/zenon-work-mon
 git sparse-checkout init --cone
-git sparse-checkout set porong-mon
+git sparse-checkout set zenon-mon
 
 # Discord (봇이 RPG/PoroMon 문서를 참조하므로 docs 하위만 추가 포함)
 cd /home/zenonsufu1/dev/zenon-work-discord
 git sparse-checkout init --cone
-git sparse-checkout set porong-discord porong-rpg/docs porong-mon/docs
+git sparse-checkout set zenon-discord zenon-rpg/docs zenon-mon/docs
 ```
 
 | worktree | sparse 대상 | 비고 |
 |---|---|---|
-| `zenon-work-rpg` | `porong-rpg` | |
-| `zenon-work-mon` | `porong-mon` | |
-| `zenon-work-discord` | `porong-discord` `porong-rpg/docs` `porong-mon/docs` | docs는 참조 전용. RPG/PoroMon 코드는 안 가져옴 |
+| `zenon-work-rpg` | `zenon-rpg` | |
+| `zenon-work-mon` | `zenon-mon` | |
+| `zenon-work-discord` | `zenon-discord` `zenon-rpg/docs` `zenon-mon/docs` | docs는 참조 전용. RPG/PoroMon 코드는 안 가져옴 |
 
 **예정(구상 — 아직 worktree 미생성):** 착수가 결정되면 §6 절차로 만든다.
 
 | worktree (예정) | 브랜치 | sparse 대상 |
 |---|---|---|
-| `zenon-work-economy` | `feature/economy-dev` | `porong-economy` |
-| `zenon-work-gun` | `feature/gun-dev` | `porong-gun` |
+| `zenon-work-economy` | `feature/economy-dev` | `zenon-economy` |
+| `zenon-work-gun` | `feature/gun-dev` | `zenon-gun` |
 
 > sparse-checkout 설정은 **worktree-local**(`.git/worktrees/<name>/sparse-checkout`)이며
 > 커밋되지 않는다. 새 클론/새 worktree에서는 매번 다시 설정한다.
 >
-> ℹ️ **rename 전환 완료(2026-06-07):** 세 feature 브랜치(`feature/rpg-dev`/`feature/poromon-dev`/`feature/discord-dev`)
-> 모두 `poro-`→`porong-` rename(DL-131)을 머지했고, 각 worktree sparse-checkout도 새 폴더명으로 재설정 완료했다.
-> 즉 위 표의 sparse 대상이 master·feature 양쪽에서 동일하게 유효하다.
+> ⚠️ **전환기 주의(2026-06-13, DL-140 `porong-`→`zenon-` rename):** 위 표·코드블록의 sparse 대상(`zenon-*`)은 **master 기준**이다.
+> 세 feature 브랜치(`feature/rpg-dev`/`feature/poromon-dev`/`feature/discord-dev`)는 **아직 옛 폴더명(`porong-*`, DL-131)** 상태다.
+> 각 브랜치가 DL-140 rename을 머지하기 전까지는 그 worktree의 `git sparse-checkout set` 대상이 여전히 `porong-*`여야 빈 worktree가 안 된다.
+> **머지 후** 각 worktree에서 `git sparse-checkout set zenon-<프로젝트>`로 **재설정**해야 한다(미재설정 시 빈 체크아웃).
+>
+> ℹ️ **이전 이력(2026-06-07, DL-131 `poro-`→`porong-`):** 당시 세 feature 브랜치 모두 rename을 머지하고 sparse-checkout을 `porong-*`로 재설정 완료했었다.
 
 ---
 
@@ -109,7 +112,7 @@ git sparse-checkout set porong-discord porong-rpg/docs porong-mon/docs
 ## 5. 파일 배치 규칙
 
 - **프로젝트 전용 파일은 해당 하위 폴더 안에만** 만든다
-  (`porong-rpg/`, `porong-mon/`, `porong-discord/`).
+  (`zenon-rpg/`, `zenon-mon/`, `zenon-discord/`).
 - monorepo **루트에는 공용 파일만** 둔다
   (`README.md`, `CLAUDE.md`, `AGENTS.md`, `LICENSE`, `scripts/`, `docs/`, `.gitignore` 등).
 - 서버 실행 산출물은 추적하지 않는다 — `.gitignore`로 관리:
@@ -117,20 +120,20 @@ git sparse-checkout set porong-discord porong-rpg/docs porong-mon/docs
   `.local/`(런타임 데이터) 등.
 - **실행물의 표준 배치 = `<프로젝트>/.local/server`** (worktree-local 런타임). 원본
   `zenon-server` 작업트리 안에는 서버 실행물을 두지 않는다. (2026-06-05 정리, DL-130)
-  - RPG → `zenon-work-rpg/porong-rpg/.local/server`
-  - PoroMon → `zenon-work-mon/porong-mon/.local/server`
-  - 직접 만든 산출물만 추적: 플러그인 소스 `porong-rpg/custom-plugins/`,
-    커스텀 모드 소스 `porong-mon/custom-mods/`, 모드팩 메타/오버라이드 `porong-mon/modpack/`.
+  - RPG → `zenon-work-rpg/zenon-rpg/.local/server`
+  - PoroMon → `zenon-work-mon/zenon-mon/.local/server`
+  - 직접 만든 산출물만 추적: 플러그인 소스 `zenon-rpg/custom-plugins/`,
+    커스텀 모드 소스 `zenon-mon/custom-mods/`, 모드팩 메타/오버라이드 `zenon-mon/modpack/`.
 
 ---
 
 ## 6. 새 서버/새 하위 프로젝트 추가 절차
 
-1. monorepo 루트에 새 폴더를 만든다(예: `porong-foo/`). 전용 파일은 그 안에만 둔다.
+1. monorepo 루트에 새 폴더를 만든다(예: `zenon-foo/`). 전용 파일은 그 안에만 둔다.
 2. 새 worktree를 만든다:
    `git worktree add /home/zenonsufu1/dev/zenon-work-foo <branch>`
 3. 그 worktree에서 새 폴더만 sparse-checkout한다:
-   `git sparse-checkout init --cone && git sparse-checkout set porong-foo`
+   `git sparse-checkout init --cone && git sparse-checkout set zenon-foo`
 4. 이 문서 표에 추가한다.
 
 ---
@@ -142,14 +145,17 @@ git sparse-checkout set porong-discord porong-rpg/docs porong-mon/docs
 ```
 zenon-server        [master]              ← 합본/merge/기록 (main)
 zenon-server-review [codex-review]        ← 코드리뷰 전용(별도 운영)
-zenon-work-discord  [feature/discord-dev] ← sparse: porong-discord porong-rpg/docs porong-mon/docs
-zenon-work-mon      [feature/poromon-dev] ← sparse: porong-mon
-zenon-work-rpg      [feature/rpg-dev]     ← sparse: porong-rpg
+zenon-work-discord  [feature/discord-dev] ← sparse: zenon-discord zenon-rpg/docs zenon-mon/docs
+zenon-work-mon      [feature/poromon-dev] ← sparse: zenon-mon
+zenon-work-rpg      [feature/rpg-dev]     ← sparse: zenon-rpg
 ```
 
-> **브랜드 전환 메모(Porong → Zenon, 2026-06-13, DL-139):** Porong/포롱 브랜드를 폐기하고 **Zenon Project**로 1차 전환했다.
-> 레포/worktree **표시명**은 `zenon-server`/`zenon-work-*` 기준(위 표·코드블록 반영). **in-repo 폴더명(`porong-*`)은 이번 1차 전환에서 유지**하며,
-> 폴더 rename·GitHub repo 실제 rename(`zenon-server`)·remote URL 갱신은 별도 후속 작업으로 보류한다. 공식 마스코트/Discord 비서봇은 **YUKI-01 / 유키**.
+> **폴더 rename 메모(2차, 2026-06-13, DL-140):** in-repo 최상위 폴더명을 `git mv`로 `porong-*`→`zenon-*`로 rename했다(master):
+> `porong-rpg`→`zenon-rpg`, `porong-mon`→`zenon-mon`, `porong-discord`→`zenon-discord`, `porong-economy`→`zenon-economy`, `porong-gun`→`zenon-gun`.
+> 표시명도 Zenon RPG/Zenon Mon/Zenon Discord(YUKI-01)/Zenon Economy/Zenon Gun으로 정리. **코드 식별자(Java 패키지 `com.poro.rpg`·플러그인 빌드 디렉토리 `custom-plugins/poro-rpg`·플러그인명 `PoroRPG`·모드 `PoroMonCore`·`poromon` 모듈/명령/`03_poromoncore` 등)는 변경하지 않았다**(별도 후속 제안). 과거 원장(`decision_log.md`·`_archive/`)의 옛 경로 표기는 보존.
+
+> **브랜드 전환 메모(Porong → Zenon, 2026-06-13, DL-139 — 1차):** Porong/포롱 브랜드를 폐기하고 **Zenon Project**로 전환했다.
+> 레포/worktree **표시명**을 `zenon-server`/`zenon-work-*` 기준으로 1차 정리(위 표·코드블록 반영). ~~in-repo 폴더명(`porong-*`)은 1차에서 유지~~ → **DL-140(2차)에서 `zenon-*`로 rename 완료.** 공식 마스코트/Discord 비서봇은 **YUKI-01 / 유키**.
 
 > **브랜드 전환 메모(Poro → Porong, 2026-06-07, DL-131 — 과거 기록, 위 Zenon 전환으로 표시명 SUPERSEDE):** worktree **디렉토리** 이름은 모두 `porong-*`로 전환했었다
 > (main 원본 폴더 포함 → `/home/zenonsufu1/dev/porong-server`). main 폴더는 `git worktree move`가
@@ -158,8 +164,9 @@ zenon-work-rpg      [feature/rpg-dev]     ← sparse: porong-rpg
 > `https://github.com/Zenonsufu0/porong-server.git`로 갱신했다(전 worktree 공유). *(이상은 당시 기록이며, 표시명은 DL-139로 Zenon으로 재전환.)*
 > **in-repo 폴더 이름**도 `poro-rpg`/`poromon`/`poro-discord` → `porong-rpg`/`porong-mon`/`porong-discord`로
 > rename 완료했다(2026-06-07, master, DL-131). Java 패키지·mod id·assets 네임스페이스·Gradle 내부명·item id/config key는
-> **변경하지 않았다.** 세 feature 브랜치(`feature/*-dev`)도 모두 rename을 머지하고 sparse-checkout을 새 이름으로
-> 재설정 완료했다(전환 종료).
+> **변경하지 않았다.** 세 feature 브랜치(`feature/*-dev`)도 모두 rename을 머지하고 sparse-checkout을 `porong-*`로
+> 재설정 완료했다(당시 전환 종료). *(이후 DL-140으로 in-repo 폴더명이 `porong-*`→`zenon-*`로 재전환됨 — 위 §2·§3·상단 메모 참조.)*
 
-> **구상 단계 추가(2026-06-07):** `porong-economy`/`porong-gun` 폴더를 **문서만** 추가했다(구상 — 개발 미착수).
+> **구상 단계 추가(2026-06-07, DL-137):** `porong-economy`/`porong-gun` 폴더를 **문서만** 추가했다(구상 — 개발 미착수).
 > worktree(`zenon-work-economy`/`zenon-work-gun`)는 **아직 만들지 않았다.** 착수 결정 시 §6 절차로 생성한다.
+> *(폴더명은 DL-140으로 `zenon-economy`/`zenon-gun`이 됨 — 위 §2 트리 참조.)*

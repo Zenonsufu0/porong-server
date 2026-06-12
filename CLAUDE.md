@@ -7,20 +7,20 @@
 
 | 프로젝트 | 폴더 | 단계 | 규칙 / 설계 docs |
 |---|---|---|---|
-| **porong-rpg** | `porong-rpg/` | 활성 | Paper 플러그인 RPG 서버 (전투·성장·영지·보스·DB/API). → `porong-rpg/CLAUDE.md`, `porong-rpg/docs/` |
-| **porong-mon** | `porong-mon/` | 활성 | 모드 서버/모드팩. → `porong-mon/CLAUDE.md`, `porong-mon/docs/` |
-| **porong-discord** | `porong-discord/` | 활성 | 디스코드 온보딩/운영 봇 (Python). |
-| **porong-economy** | `porong-economy/` | 구상 | 경제/거래/생산/시장 중심 후보 서버. → `porong-economy/docs/` |
-| **porong-gun** | `porong-gun/` | 구상 | 총기/전술/생존 후보 서버(컨셉 미확정). → `porong-gun/docs/` |
+| **zenon-rpg** | `zenon-rpg/` | 활성 | Paper 플러그인 RPG 서버 (전투·성장·영지·보스·DB/API). → `zenon-rpg/CLAUDE.md`, `zenon-rpg/docs/` |
+| **zenon-mon** | `zenon-mon/` | 활성 | 모드 서버/모드팩. → `zenon-mon/CLAUDE.md`, `zenon-mon/docs/` |
+| **zenon-discord** | `zenon-discord/` | 활성 | 디스코드 온보딩/운영 봇 (Python). |
+| **zenon-economy** | `zenon-economy/` | 구상 | 경제/거래/생산/시장 중심 후보 서버. → `zenon-economy/docs/` |
+| **zenon-gun** | `zenon-gun/` | 구상 | 총기/전술/생존 후보 서버(컨셉 미확정). → `zenon-gun/docs/` |
 
-- **구상 단계 프로젝트(`porong-economy`/`porong-gun`)는 문서만 있다.** 런타임·빌드 산출물·플랫폼 템플릿(Gradle/Fabric/Paper)을 만들지 않는다. 착수는 사용자 명시 요청 시에만.
+- **구상 단계 프로젝트(`zenon-economy`/`zenon-gun`)는 문서만 있다.** 런타임·빌드 산출물·플랫폼 템플릿(Gradle/Fabric/Paper)을 만들지 않는다. 착수는 사용자 명시 요청 시에만.
 
-- 프로젝트 전역 단일 진실 공급원(SoT): **`porong-rpg/docs/final_master_plan.md`** (충돌 시 최우선). 결정 기록: `porong-rpg/docs/decision_log.md` (DL-NNN), 미확정 인박스: `porong-rpg/docs/idea_inbox.md`, 아카이브: `porong-rpg/docs/_archive/`.
+- 프로젝트 전역 단일 진실 공급원(SoT): **`zenon-rpg/docs/final_master_plan.md`** (충돌 시 최우선). 결정 기록: `zenon-rpg/docs/decision_log.md` (DL-NNN), 미확정 인박스: `zenon-rpg/docs/idea_inbox.md`, 아카이브: `zenon-rpg/docs/_archive/`.
 - 작업을 시작하기 전, 대상 프로젝트의 `CLAUDE.md`와 관련 docs를 먼저 읽는다.
 
 ## 워크트리 작업 범위 (이 체크아웃 = `zenon-work-rpg`)
 
-- **이 worktree(`zenon-work-rpg`, 브랜치 `feature/rpg-dev`)에서는 RPG(`porong-rpg/`) 관련 작업만 한다.** 포로몬(`porong-mon`)·디스코드봇(`porong-discord`) 작업은 각자의 worktree(`zenon-work-mon`·`zenon-work-discord`)에서 수행하고, 이 세션에서는 **하지 않는다**.
+- **이 worktree(`zenon-work-rpg`, 브랜치 `feature/rpg-dev`)에서는 RPG(`zenon-rpg/`) 관련 작업만 한다.** 포로몬(`zenon-mon`)·디스코드봇(`zenon-discord`) 작업은 각자의 worktree(`zenon-work-mon`·`zenon-work-discord`)에서 수행하고, 이 세션에서는 **하지 않는다**.
 - 포로몬·디스코드 파일은 이 worktree에 없거나 참조 대상일 뿐이다. 필요하면 읽기만 하고 **수정·커밋하지 않는다**.
 - 다른 프로젝트 작업 요청이 오면, 잘못된 worktree임을 먼저 알리고 해당 worktree에서 진행하도록 안내한다.
 
@@ -39,13 +39,13 @@
 
 | 분류 | 조건 | 반영 위치 |
 |---|---|---|
-| CANON 반영 | 확정된 공식 기준 변경 | 관련 프로젝트 docs의 `CANON.md` + `porong-rpg/docs/decision_log.md` |
-| 결정 기록 | 이유 있는 설계 결정 | `porong-rpg/docs/decision_log.md` (DL-NNN) |
-| DRAFT 보관 | 미확정·검토 필요 | `porong-rpg/docs/idea_inbox.md` |
-| 폐기 기록 | 대체·폐기된 내용 | `porong-rpg/docs/decision_log.md` 또는 `porong-rpg/docs/_archive/`에 이유 기록 |
+| CANON 반영 | 확정된 공식 기준 변경 | 관련 프로젝트 docs의 `CANON.md` + `zenon-rpg/docs/decision_log.md` |
+| 결정 기록 | 이유 있는 설계 결정 | `zenon-rpg/docs/decision_log.md` (DL-NNN) |
+| DRAFT 보관 | 미확정·검토 필요 | `zenon-rpg/docs/idea_inbox.md` |
+| 폐기 기록 | 대체·폐기된 내용 | `zenon-rpg/docs/decision_log.md` 또는 `zenon-rpg/docs/_archive/`에 이유 기록 |
 | 미반영 | 위 어디에도 해당 안 됨 | 보고 시 "미반영 이유" 명시 |
 
-`porong-rpg/docs/idea_inbox.md`: 확정 시 CANON 반영 + decision_log 기록 + inbox 항목에 `[PROMOTED → DL-NNN]`. 폐기 시 `[폐기 — 이유]`. 불확실하면 inbox에라도 기록하고 비워두지 않는다.
+`zenon-rpg/docs/idea_inbox.md`: 확정 시 CANON 반영 + decision_log 기록 + inbox 항목에 `[PROMOTED → DL-NNN]`. 폐기 시 `[폐기 — 이유]`. 불확실하면 inbox에라도 기록하고 비워두지 않는다.
 
 ## 작업 완료 보고 형식
 
