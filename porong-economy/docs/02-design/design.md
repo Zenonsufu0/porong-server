@@ -1,6 +1,6 @@
 # porong-economy 시스템 상세 설계 (design)
 
-> **[STATUS: 구상]** 개요는 [`concept.md`](concept.md) · 지표 [`indicators.md`](indicators.md) · 주민 동학 [`population_model.md`](population_model.md) · 안건 [`agenda_catalog.md`](agenda_catalog.md) · DB [`data_schema.md`](data_schema.md) · 결정 [`decision_log.md`](decision_log.md).
+> **[STATUS: 구상]** 개요는 [`concept.md`](../01-vision/concept.md) · 지표 [`indicators.md`](../03-economy/indicators.md) · 주민 동학 [`population_model.md`](../03-economy/population_model.md) · 안건 [`agenda_catalog.md`](../04-content/agenda_catalog.md) · DB [`data_schema.md`](../05-data/data_schema.md) · 결정 [`decision_log.md`](../decision_log.md).
 > 본 문서의 `§0~§12`·`§1-A`·`§11-A/B`가 시스템 상세 번호다 — 다른 문서의 "§N" 참조 대상.
 
 ## 심화 비전 — 살아있는 경제 공동체 시뮬레이션 (후보)
@@ -18,7 +18,7 @@
 - 산업은 **티어**를 이룬다: 1차(원료) → 2차(가공) → 3차/고부가가치. 상위 티어는 하위 티어의 산출물과 주민 노동력·기술을 필요로 한다.
 - **원료 희귀도 티어:** 1차 자원은 흔함(철·곡물)부터 **희귀(다이아 등 — 바닐라보다 희귀하게 조정)**까지 티어가 있다. 희귀 원료는 고기술·고숙련 노동과 결합해 **고품질 소비재(사치품, §11)**가 되는 고부가가치 산업의 비싼 입력 — 산업 사다리(1차→고부가가치)에 의미를 준다.
 - **자동화·공장 가동에는 포롱마을 주민(노동력)이 필요**하다 — 인력 없이는 규모 있는 생산이 불가능하다.
-- **산출품 카탈로그 (원료→부품→완성 소비재 · 개요. 구체 매트릭스·체인·소스·커스텀 = [`content_catalog.md`](content_catalog.md) DL-E102):**
+- **산출품 카탈로그 (원료→부품→완성 소비재 · 개요. 구체 매트릭스·체인·소스·커스텀 = [`content_catalog.md`](../04-content/content_catalog.md) DL-E102):**
   | 분야 | 원료·중간재 | **완성 소비재 (주민 구매)** |
   |---|---|---|
   | 농업·식품 | 곡물·축산·식자재·밀가루 | 식료품·가공식품·기호품(술·과자·커피) |

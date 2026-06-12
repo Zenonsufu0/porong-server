@@ -2,8 +2,21 @@
 
 > **[STATUS: 구상 — 컨셉 결정 기록]** porong-economy 프로젝트 전용 결정 로그. 각 항목은 "무엇을 / 왜 / 근거 문서" 형식.
 >
-> **번호 체계:** 이 워크트리는 sparse-checkout으로 루트 공유 로그(`porong-rpg/docs/decision_log.md`, `DL-NNN`)에 접근할 수 없고, 그쪽 번호와 충돌을 피하려 **economy 전용 접두사 `DL-E###`** 를 쓴다. 본문 SoT: [`concept.md`](concept.md)(개요) · [`design.md`](design.md)(시스템 상세 §0~§12) · [`indicators.md`](indicators.md)(지표) · 미확정/폐기: [`idea_inbox.md`](idea_inbox.md).
+> **번호 체계:** 이 워크트리는 sparse-checkout으로 루트 공유 로그(`porong-rpg/docs/decision_log.md`, `DL-NNN`)에 접근할 수 없고, 그쪽 번호와 충돌을 피하려 **economy 전용 접두사 `DL-E###`** 를 쓴다. 본문 SoT: [`concept.md`](01-vision/concept.md)(개요) · [`design.md`](02-design/design.md)(시스템 상세 §0~§12) · [`indicators.md`](03-economy/indicators.md)(지표) · 미확정/폐기: [`idea_inbox.md`](idea_inbox.md).
 > 〔2026-06-10 docs 분리, DL-E060〕 본 로그의 **"concept §N" 참조는 `design.md` §N**, **"지표 §N"은 `indicators.md`** 를 가리킨다(개별 엔트리 미수정).
+
+---
+
+### DL-E110 docs 폴더 구조 분류 (5 카테고리 + README 인덱스)
+
+**배경:** 12개 .md 평면 → 탐색·관리 정리(사용자 요청).
+
+**결정:**
+- **폴더 분류:** 운영(`task.md`·`decision_log.md`·`idea_inbox.md`)은 루트 유지 + `01-vision`(concept) · `02-design`(design·spec) · `03-economy`(population_model·indicators·balance) · `04-content`(content_catalog·agenda_catalog) · `05-data`(data_schema).
+- **`README.md` 인덱스 신설** — 카테고리·읽는 순서.
+- 마크다운 링크 24개 = 새 상대경로 수정. 본문 백틱 텍스트(`spec.md` 등)는 파일명 식별용(클릭 링크 아님)이라 유지.
+
+**관련:** `README.md`, DL-E060(docs 분리 선례). 메타(문서 구조).
 
 ---
 

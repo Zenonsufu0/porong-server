@@ -1,6 +1,6 @@
 # porong-economy 경제 지표 마스터 리스트 (indicators)
 
-> **[STATUS: 구상]** CORE 안건([`agenda_catalog.md`](agenda_catalog.md)) 입력 지표. 개요 [`concept.md`](concept.md) · 상세 [`design.md`](design.md) · 동학 [`population_model.md`](population_model.md).
+> **[STATUS: 구상]** CORE 안건([`agenda_catalog.md`](../04-content/agenda_catalog.md)) 입력 지표. 개요 [`concept.md`](../01-vision/concept.md) · 상세 [`design.md`](../02-design/design.md) · 동학 [`population_model.md`](population_model.md).
 > "지표 §N"(카테고리 1~11)은 이 문서를 가리킨다.
 
 ## 경제 지표 마스터 리스트 (CORE 안건 입력값)

@@ -1,6 +1,6 @@
 # porong-economy 데이터 스키마 (구상)
 
-> **[STATUS: 구상 — 엔티티 맵 단계]** 경제 시스템의 영속 데이터 모델. 개요 [`concept.md`](concept.md) · 시스템 상세 [`design.md`](design.md)(§N) · 결정 [`decision_log.md`](decision_log.md)(`DL-E###`).
+> **[STATUS: 구상 — 엔티티 맵 단계]** 경제 시스템의 영속 데이터 모델. 개요 [`concept.md`](../01-vision/concept.md) · 시스템 상세 [`design.md`](../02-design/design.md)(§N) · 결정 [`decision_log.md`](../decision_log.md)(`DL-E###`).
 > 필드는 1차 후보 — 구체 타입·인덱스·제약은 구현 단계. 밸런싱 수치는 P1.
 
 ## 아키텍처 (확정 · DL-E035)
@@ -92,7 +92,7 @@ CORE 모드(NeoForge) ──write──> 영속 SQL DB (Postgres/MySQL 후보)
 
 ### population_stratum (주민 계층 — 상태)
 
-> **상태(state)** 만 여기. 행동/동학(소비·노동·출산·투자 함수, 창발 지표)은 [`population_model.md`](population_model.md)로 분리.
+> **상태(state)** 만 여기. 행동/동학(소비·노동·출산·투자 함수, 창발 지표)은 [`population_model.md`](../03-economy/population_model.md)로 분리.
 
 **`population_stratum`** — 학력 tier 기준
 | 필드 | 타입(후보) | 설명 |

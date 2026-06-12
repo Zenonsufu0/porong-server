@@ -1,9 +1,9 @@
 # porong-economy 안건 카탈로그 (CORE 발의 안건)
 
-> **[STATUS: 구상 — 작성 중]** CORE SYSTEM이 [`indicators.md`](indicators.md)(경제 지표 마스터 리스트)를 감시하다 임계 조건에서 발의하는 안건 목록. 유저는 발의 불가, 찬/반만(`design.md` §6, DL-E006).
-> 컬럼: 안건 / 트리거(지표·임계) / 가결 효과 / 부결·방치 / 가치축. **트리거 임계 수치 = [`balance.md`](balance.md) §15 / effect 크기 = §16**(초기값, DL-E103). 전부 플레이테스트 조정.
+> **[STATUS: 구상 — 작성 중]** CORE SYSTEM이 [`indicators.md`](../03-economy/indicators.md)(경제 지표 마스터 리스트)를 감시하다 임계 조건에서 발의하는 안건 목록. 유저는 발의 불가, 찬/반만(`design.md` §6, DL-E006).
+> 컬럼: 안건 / 트리거(지표·임계) / 가결 효과 / 부결·방치 / 가치축. **트리거 임계 수치 = [`balance.md`](../03-economy/balance.md) §15 / effect 크기 = §16**(초기값, DL-E103). 전부 플레이테스트 조정.
 > **기술 게이팅:** 모든 안건은 서버 공통 기술 트리(`design.md` §7)의 **선행 기술 전제**에 묶인다(예: 친환경 전환 = 친환경 발전 연구 후). 세부 선행조건 매핑은 P1.
-> 결정 기록: [`decision_log.md`](decision_log.md)(`DL-E###`).
+> 결정 기록: [`decision_log.md`](../decision_log.md)(`DL-E###`).
 
 ## 1. 환경
 
