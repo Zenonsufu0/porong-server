@@ -20,6 +20,7 @@
 | **04-content** | [`content_catalog.md`](04-content/content_catalog.md) | 산출품·가공 체인·커스텀 아이템 |
 | | [`agenda_catalog.md`](04-content/agenda_catalog.md) | 의회 안건 49종 |
 | **05-data** | [`data_schema.md`](05-data/data_schema.md) | 영속 DB 엔티티 스키마 |
+| **06-roadmap** | [`roadmap.md`](06-roadmap/roadmap.md) | 구현 로드맵·시즌1/2 MVP 경계·제작 체크리스트 |
 
 ## 읽는 순서 (신규 파악)
 
