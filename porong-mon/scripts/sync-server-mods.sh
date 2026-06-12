@@ -7,7 +7,7 @@
 #   .local/server/mods 로 복사한다. 클라 전용 모드는 절대 복사하지 않는다.
 #   (서버 실행 폴더 = poromon/.local/server, Git 비추적. RPG DL-130과 동치 표준.)
 #
-# 분류 근거: docs/01_modpack/server_mod_separation.md (§1 서버 필수 + §2 서버 권장 = 19개)
+# 분류 근거: docs/01_modpack/server_mod_separation.md (§1+§1b+§1c+§2 = 25개, 결정 044)
 #            reports/mod_classification.md (1차 자동) + 도메인 수동 보정.
 #
 # !!! 초안: DRY_RUN=1 기본값으로 실제 복사는 막혀 있다 !!!
@@ -16,15 +16,17 @@
 # ---------------------------------------------------------------------------
 set -euo pipefail
 
-# ROOT = 포로몬 worktree 프로젝트 폴더. 환경변수로 덮어쓸 수 있다.
-ROOT="${ROOT:-/home/zenonsufu1/dev/poro-work-poromon/poromon}"
+# ROOT = 포로몬 worktree 프로젝트 폴더(이 스크립트 상위). 환경변수로 덮어쓸 수 있다.
+# 스크립트 위치에서 도출하므로 워크트리/폴더명이 바뀌어도 깨지지 않는다.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="${ROOT:-$(dirname "$SCRIPT_DIR")}"
 SRC_DIR="${SRC_DIR:-$ROOT/modpack/client/mods}"   # 실제 jar 원본(클라 프로필 복사본)
 DEST_DIR="${DEST_DIR:-$ROOT/.local/server/mods}"  # 서버 실행 폴더(.local/server)의 모드 디렉터리
 DRY_RUN="${DRY_RUN:-1}"          # 1 = 출력만(기본). 0 = 실제 복사.
 INCLUDE_AMBIGUOUS="${INCLUDE_AMBIGUOUS:-0}"  # 1 = §3 애매/공용 후보도 포함.
 
 # ---------------------------------------------------------------------------
-# 서버 화이트리스트 (server_mod_separation.md §1+§2 = 25개) — 정확 파일명
+# 서버 화이트리스트 (§1+§1b+§1c+§2 = 25개) — 정확 파일명. eggs−1(032)+PoroMonCore+1(044).
 # ---------------------------------------------------------------------------
 SERVER_WHITELIST=(
   # §1 서버 필수 (Cobblemon 스택 + 의존)
@@ -34,8 +36,10 @@ SERVER_WHITELIST=(
   "Cobblemon-fabric-1.7.3+1.21.1.jar"
   "mega_showdown-fabric-1.8.4+1.7.3+1.21.1.jar"
   "SimpleTMs-fabric-2.3.3.jar"
-  "eggs-cobblemon-addon-0.9.jar"
   "accessories-fabric-1.1.0-beta.53+1.21.1.jar"
+  # §1c PoroMonCore — 자체 빌드 서버 규칙 엔진(결정 044 추가 / eggs 결정 032 제거).
+  #   ⚠️ client/mods 사본이 최신 빌드여야 함(빌드 후 갱신). 클라 번들과 동일 해시.
+  "poromon-core-0.1.0.jar"
   # §1b Legendary Monuments + 하드 의존 체인 (최종 포함 확정 — 2026-06-05 프로필 추가)
   #   LM 7.8 depends: chipped/cobblefurnies/terrablender. chipped/cobblefurnies→athena,
   #   chipped→resourcefullib 추가 의존. 5종 모두 env="*"(서버 필요).
@@ -150,5 +154,5 @@ main "$@"
 #   1) 서버 부팅 테스트로 owo/accessories 등 의존성·environment 최종 검증.
 #   2) Legendary Monuments 전설 통제 우회 여부 확인 후 유지/게이트 결정.
 #   3) 모드팩 업데이트 시 SERVER_WHITELIST 파일명(버전) 갱신.
-#   4) client/mods=80 vs manifest 기대 81 개수 불일치 원인 확인.
+#   4) PoroMonCore: client/mods 사본이 최신 빌드본인지 확인(빌드→client/mods 갱신 후 동기화).
 # ---------------------------------------------------------------------------

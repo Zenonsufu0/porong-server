@@ -287,7 +287,7 @@
 4. **깨끗한 런처 설치 검증**(`client_pack_policy.md` §7, 클라 필요) — 사용자.
 5. (봇·사용자) `porong-work-discord`에서 봇 인증 B1~B5 구현(`discord_auth_integration.md`).
 > 클로드 단독 가능 = ✅2·3 완료. 남은 1·4·5 = 사용자/외부 도구 필요.
-> ⚠️ 별건: `sync-server-mods.sh`도 ROOT가 stale(`poro-work-poromon/poromon`) — 서버 동기화(§6-6) 실행 전 동일 패턴으로 수정 필요(미작업).
+> ✅ 별건 해결(2026-06-12): `sync-server-mods.sh` ROOT 자동도출 + 화이트리스트 정합(poromon-core 추가·eggs 제거, 결정 032·044). DRY_RUN 검증 25개·poromon-core 포함·eggs 0·MISSING 0.
 
 ## ◎ 2026-06-12 — 배포 모델 전환 (결정 046, 045 대체)
 
@@ -299,7 +299,7 @@
 
 **▶ 다음 세션 — 설치기 구현 (installer_design.md 기준):**
 1. ✅ **`pack.json` 생성/검증 완료(2026-06-12)** — `scripts/gen-pack-json.py`(prefix→티어 매핑, longest-prefix, 미분류 에러). `modpack/pack.json` 생성. **전수 86 분류**: T0 14 / T1 40 / T2 18 / L 9 / S 5. 클라 번들 81(서버전용 5 제외). 부산물: `client_mod_tiers.md` xaero 2종 누락 보강 + 집계 정정(T1 39→40).
-   - ⚠️ **정합 이슈 발견**: `sync-server-mods.sh` 화이트리스트에 **`poromon-core` 누락 + `eggs` 잔존**(결정 032·044 미반영). 서버 동기화 전 화이트리스트 갱신 필요(ROOT stale와 함께).
+   - ✅ **정합 이슈 해결(2026-06-12)**: `sync-server-mods.sh` 화이트리스트 poromon-core 추가·eggs 제거(결정 032·044) + ROOT 자동도출. DRY_RUN 검증 통과. ⚠️ 잔여: client/mods의 poromon-core가 최신 빌드본인지(빌드 후 갱신) — 서버 배포 시 확인.
    - ⬜ `server.address`=`TODO_HOST:25566` 플레이스홀더(운영 시 채움).
 2. ✅ **번들 스테이징 스크립트 완료(2026-06-12)** — `scripts/build-installer-pack.sh`. pack.json 읽어 `.local/installer-pack/PoroMon/`에 mods(클라 81, **PoroMonCore=빌드본 교체**) + overrides(config/openloader/data 제외) + pack.json + tools/ 스테이징. **검증**: 서버전용 5개 mods 제외·openloader data 제외·PoroMonCore 해시 일치(번들=서버 빌드본). SKIP_BUILD=1 지원.
    - ⬜ **fabric-installer.jar 미보유** — `modpack/tools/fabric-installer.jar` 채워야(또는 FABRIC_INSTALLER 지정). 엔진 빌드 전 필요. (외부 다운로드 1회)
