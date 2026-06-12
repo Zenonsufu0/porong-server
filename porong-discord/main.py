@@ -34,6 +34,7 @@ EXTENSIONS: list[str] = [
     # 지원 (T16)
     "modules.support.tickets",
     "modules.support.faq",
+    "modules.support.bug_report",
     # RPG (auth·role_poll = 구방향 폐기, DL-138 — 온보딩은 modules.onboarding 으로 통일)
     "modules.rpg.player_commands",
     "modules.rpg.field_boss",

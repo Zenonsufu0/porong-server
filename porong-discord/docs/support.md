@@ -3,7 +3,9 @@
 > **[STATUS: DRAFT]** — 2026-06-06. 버그제보(서버 선택형)·티켓(1:1 문의)·FAQ(→문의 폴백).
 > 저장 = [`data_model.md`](data_model.md) §2.6 `tickets`·§2.9 `faq`. LLM 미사용(§9.2). 인터페이스 단계(구현 전).
 
-## 1. 버그제보 — 서버 선택형 (rpg.md §4 일반화)
+## 1. 버그제보 — 서버 선택형 (rpg.md §4 일반화) 🟢 (2026-06-10 구현)
+
+> 🟢 **구현: `modules/support/bug_report.py` + `core/config.CHANNEL_BUGREPORT_ID`.** `/버그제보 대상(RPG/포로몬/기타·봇) 심각도(낮음~심각)` → 모달(제목·재현·기대·실제) → 공통 버그채널 임베드 게시(`BUG · reporter:{id}` 푸터) + 제보자 DM + 운영진 상태 버튼(확인중/완료/기각, `member_has_permission(admin·support·rpg_manager·poromon_manager)`). 상태 변경 시 임베드 색/필드 갱신 + 제보자 DM. **봇 DB 미저장**(채널 임베드가 유일 기록 — data_model §0). RPG/포로몬도 현재는 동일 채널 baseline 접수(임베드에 "게임 DB 이관 예정" 노트) — `rpg_api.create_bug_report`/`poromon_api` 게임 DB 라우팅은 게임 API 확정 후 연동. `CHANNEL_BUGREPORT_ID` 미설정 시 graceful 비활성(문의 안내).
 
 기존 RPG 전용 `/버그제보`([`domains/rpg.md`](domains/rpg.md) §4)를 **대상 서버 선택**으로 일반화한다.
 
