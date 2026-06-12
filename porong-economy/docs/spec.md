@@ -293,12 +293,14 @@
 
 | 탭 | 내용 | 데이터 소스 |
 |---|---|---|
-| 회사 | 재무제표 3종·생산량·평균품질·고용·주가 | financials·company·employment |
-| 시장 | 품목별 시세·공급/수요·내 호가·품질분포 | market_state·market_listing |
-| 거래소 | **실시간 캔들 차트**·호가 주문·보유 지분 | stock_price_history·shareholding |
+| 회사 | 재무제표 3종·생산량·평균품질·**가동률·산재이력·안전수준·전력비용·주민 선호도(고용 평판)**·고용·주가·**배당정책** | financials·company·employment·power_grid |
+| 시장 | 품목별 시세·공급/수요·내 호가·품질분포·**주민회사 앵커가(천장/바닥)·공급안정성** | market_state·market_listing |
+| 거래소 | **실시간 캔들 차트**·호가 주문·보유 지분·**배당 내역·시장 깊이(유동성)** | stock_price_history·shareholding |
 | 의회 | 현재 안건·찬반 투표·정족수·결과 이력 | agenda·vote |
-| 마을 | 진화 단계·지표(오염·범죄·CPI·실업·GDP·지니·행복)·재정 | indicator_snapshot·treasury |
+| 마을 | 진화 단계(16 세부)·지표(오염·범죄·CPI·실업·GDP·지니·행복·**산재율**)·재정·**전력(전기세·발전믹스)** | indicator_snapshot·treasury·village_state·power_grid |
 | 내 자산 | 현금·지분 평가·예금·채권·부동산·총자산(랭킹) | player·deposit·bond·shareholding·land_plot |
+
+> **탭 항목 = 표시 후보(DL-E093 보강).** concept "운영 = 산출량·평균품질·시장평균가·주민선호도·공급안정성" 전부 반영. 신규 메커닉(산재·전력·주민회사 앵커·시장 깊이·배당) 표시 포함. 레이아웃 세부·우선순위 = 구현 단계.
 
 ### 8-2. 렌더·갱신
 
