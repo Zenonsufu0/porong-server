@@ -56,12 +56,15 @@ def _fallback_embed(domain: str, kind: str, data: dict) -> discord.Embed:
     return embed
 
 
-async def dispatch(bot, domain: str, kind: str, data: dict) -> None:
-    """알림 1건 라우팅·전송. 미등록 (domain,kind) 또는 전송 실패는 graceful."""
+async def dispatch(bot, domain: str, kind: str, data: dict) -> bool:
+    """알림 1건 라우팅·전송. 전송 성공 시 True, 미등록/채널없음/실패 시 False(graceful).
+
+    반환값은 운영자 트리거 명령(T5)의 피드백용 — 인바운드 push 경로는 무시해도 무방.
+    """
     route = _ROUTES.get((domain, kind))
     if route is None:
         log.info("미등록 알림 (%s.%s) — 무시", domain, kind)
-        return
+        return False
     channel_attr, mention_key = route
 
     builder = _BUILDERS.get((domain, kind))
@@ -69,13 +72,13 @@ async def dispatch(bot, domain: str, kind: str, data: dict) -> None:
         embed = builder(data) if builder else _fallback_embed(domain, kind, data)
     except Exception:  # 빌더가 data 형식 오류로 던져도 봇은 멈추지 않음
         log.warning("embed 빌더 실패 (%s.%s)", domain, kind, exc_info=True)
-        return
+        return False
 
     channel_id = getattr(config, channel_attr, 0)
     channel = bot.get_channel(channel_id) if channel_id else None
     if not isinstance(channel, (discord.TextChannel, discord.Thread)):
         log.warning("알림 채널 없음/부적합 (%s.%s, %s=%s)", domain, kind, channel_attr, channel_id)
-        return
+        return False
 
     mention_id = config.NOTIFY_ROLE_IDS.get(mention_key, 0) if mention_key else 0
     content = f"<@&{mention_id}>" if mention_id else None
@@ -84,5 +87,7 @@ async def dispatch(bot, domain: str, kind: str, data: dict) -> None:
     )
     try:
         await channel.send(content=content, embed=embed, allowed_mentions=allowed)
+        return True
     except discord.HTTPException:
         log.warning("알림 전송 실패 (%s.%s)", domain, kind, exc_info=True)
+        return False

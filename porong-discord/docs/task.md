@@ -13,7 +13,7 @@
 | T2 | `rpg.md §8` Node.js 표기 → Python 정합 | docs | — | ⬜ |
 | T3 | `modules/admin` 명령어 설계 확정 | admin | 권한정책 | 🟡 |
 | T4 | `integrations/poromon_api.py` 인터페이스 확정 | poromon | 포로몬 설계 | 🟡 |
-| T5 | 알림 후보(시즌/월드보스·점검·업데이트) 배선 | notify | T1 | 🟡 |
+| T5 | 알림 후보(시즌/월드보스·점검·업데이트) 배선 | notify | T1 | 🟢 (운영 명령 6종 배선 / 게임서버 push 트리거만 대기) |
 | T6 | `modules/event` 실구현 설계 | event | — | 🟡 |
 | T7 | 공통 디스코드 인증을 `core/`로 분리 (멀티서버 온보딩) | core/onboarding | — | 🟡 |
 | T8 | 오라클 서버 배포(24h 상시) 구성 문서/스크립트 | infra | — | ⬜ |
@@ -73,20 +73,20 @@
 ### roles/ 🟢 (/클래스선택 · /알림설정)
 - 🟢 알림 역할 토글·클래스 역할 선택. 신규 알림 역할 추가 시 `config` + 선택지 동기.
 
-### admin/ 🟡 (스텁 — 설계 선행, 보안 영향 큼)
+### admin/ 🟡 (알림 명령 구현 / 상태변경은 스텁)
 - 🟡 **T3. 명령어 설계 확정** (모두 `@requires_permission` 보호, [`domains/admin.md`]):
-  - ⬜ `/공지` `/점검` `/보스알림` (admin / event_manager)
+  - 🟢 `/공지`(→common.update)·`/점검`(→common.maintenance)·`/보스알림`(종류=월드/시즌, T5, 2026-06-10) — `notifier.dispatch` 위임 + mod_log(announce). 봇 단독(게임 무관).
   - ⬜ `/역할부여` `/유저조회` (admin)
   - ⬜ `/골드지급` (rpg_manager, API 경유 + 운영로그 기록)
-  - ⬜ `/이벤트등록` (event_manager)
   - ⬜ 운영 명령어 전용 채널(`#운영로그`) 제한 검토.
   - ⚠ 상태 변경 명령은 게임 서버 API 경유 + 사용자 명시 요청 시에만 실구현.
 
 ### poromon/ 🟡 (스텁)
 - ⬜ `/포로몬현황` `/포로몬도감` — `poromon_api` 실구현(T4) 선행.
 
-### event/ 🟡 (스텁)
-- ⬜ **T6.** 이벤트 등록/시작/종료 알림 흐름 설계 — admin `/이벤트등록`·notifier(T1)와 연계.
+### event/ 🟡 (이벤트 알림 구현 / 일정 영속은 스텁)
+- 🟢 `/이벤트알림 시작|종료`(T5, 2026-06-10) — `notifier.dispatch`(common.event_start/end) + mod_log(announce). event_manager·admin.
+- ⬜ **T6.** 이벤트 일정 영속(`/이벤트등록`·`/일정`)·참여 패널 — 별도 설계.
 
 ### common/ 🟢
 - 🟢 게임 비종속 공통(/핑 등). 추가 공통 명령은 여기.

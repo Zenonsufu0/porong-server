@@ -16,9 +16,10 @@
 
 | 명령어 | 기능 | 권한 |
 |---|---|---|
-| `/공지 <내용>` | 공식 공지 게시 | admin |
-| `/점검 <시작> <예상시간>` | 점검 안내 + `@점검알림` 멘션 | admin |
-| `/보스알림 <보스> <채널>` | 수동 보스 등장 알림 | admin / event_manager |
+| `/공지 <요약> [버전]` 🟢 | 업데이트/패치 공지(→common.update, `@업데이트알림`) | admin |
+| `/점검 <시작> <예상시간> [사유]` 🟢 | 점검 안내(→common.maintenance, `@점검알림`) | admin |
+| `/보스알림 <종류> <보스> …` 🟢 | 월드/시즌 보스 알림(→common.world_boss / rpg.season_boss_recruit) | admin / event_manager |
+| `/이벤트알림 <시작\|종료> <이벤트>` 🟢 | 이벤트 시작/종료(→common.event_start/end, modules/event) | admin / event_manager |
 | `/역할부여 <유저> <역할>` | 수동 역할 부여(테스터 등) | admin |
 | `/유저조회 <닉네임>` | 플레이어 상세 조회 (ephemeral) | admin |
 | `/골드지급 <닉네임> <금액> <사유>` | 골드 지급(API 경유 + 운영로그 기록) | rpg_manager |
