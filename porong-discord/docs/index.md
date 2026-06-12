@@ -26,6 +26,7 @@
 | [`moderation.md`](moderation.md) | **모더레이션 설계** — 경고·타임아웃·추방·차단·운영/감사로그, T15 |
 | [`support.md`](support.md) | **지원/문의 설계** — 서버 선택형 버그제보·티켓(1:1)·FAQ→문의 폴백, T16 |
 | [`task.md`](task.md) | **작업 트래커** — 구현 작업 목록·우선순위(DL-130 연동) |
+| [`deployment.md`](deployment.md) | **배포/운영 런북** — 인텐트·봇권한·.env·기동·스테이징 e2e 체크리스트, T8 |
 | [`roles_and_permissions.md`](roles_and_permissions.md) | **역할 체계 SoT** — 온보딩·권한(수동)·알림(자동) 분리 |
 | [`notifications.md`](notifications.md) | 알림 시스템 — 채널·멘션·트리거(도메인별) |
 | [`domains/rpg.md`](domains/rpg.md) | RPG 도메인 상세 명세(온보딩·명령어·버그제보 등) |
