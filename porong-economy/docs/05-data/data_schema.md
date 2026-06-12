@@ -6,16 +6,17 @@
 ## 아키텍처 (확정 · DL-E035)
 
 ```
-CORE 모드(NeoForge) ──write──> 영속 SQL DB (Postgres/MySQL 후보)
-                                   │
-                    ┌──────────────┴──────────────┐
-                read│                           read│
-              인게임 커스텀 GUI                 디스코드 봇
-              (실시간 push)                    (조회·알림)
+CORE 모드(NeoForge) ──write──> 임베디드 DB (SQLite/H2, DL-E139)
+                                   │ read
+                              인게임 커스텀 GUI
+                              (실시간 push)
+
+  porong-discord(별도 프로젝트) ──연동 API(인증·알림 데이터)──> economy
+                                  (DB 직접 read 아님)
 ```
 
-- **영속 SQL 서버 DB** — 재무·지분·거래가 구조적 관계 데이터라 관계형. 멀티 소비자(인게임·디스코드)라 임베디드(SQLite)보다 서버 DB(Postgres/MySQL).
-- **CORE 모드가 단일 writer**, 인게임 GUI(DL-E032)·디스코드 봇이 reader. **외부 웹 대시보드·MCEF 비채택(DL-E057)** — 전부 인게임 네이티브 + 디스코드 알림.
+- **임베디드 관계형 DB(SQLite/H2, DL-E139)** — 재무·지분·거래가 구조적 관계 데이터라 관계형. 30명·집계 인구라 쓰기량 적어 임베디드로 충분(외부 Postgres/MySQL 서버 불요). 디스코드 봇은 DB 직접 read 아니라 economy 연동 API 사용(아래).
+- **CORE 모드가 단일 writer**, 인게임 GUI(DL-E032)가 reader. **디스코드 봇은 porong-discord 별도 프로젝트** — economy는 인증 연동 + 알림 데이터 API 제공(DB 직접 접근 아님, DL-E139). **외부 웹 대시보드·MCEF 비채택(DL-E057)** — 전부 인게임 네이티브 + 디스코드 알림.
 - **시계열 데이터**(주가 캔들·지표 추이)는 스냅샷 테이블로 분리 — 차트·분석용.
 - 실시간 인게임 GUI는 DB 폴링이 아니라 CORE가 메모리 상태를 패킷 push, DB는 영속·조회용(쓰기 주기는 구현 시).
 
@@ -152,7 +153,7 @@ CORE 모드(NeoForge) ──write──> 영속 SQL DB (Postgres/MySQL 후보)
 
 ### 마을 전역 상태 (village_state) — DL-E051·E093, 단일 행
 
-**`village_state`** | current_stage(마을/도시/대도시/국가) · sublevel(1~16) · current_era(수공업/증기/전기/자동화) · infrastructure_level · unlocked_slots(공공 건물 슬롯) · 진화 다인자 캐시(인구·GDP·산업다양성·평균학력·인프라)
+**`village_state`** | current_stage(마을/소도시/도시/대도시/국가, DL-E134) · sublevel(1~20, 5단계×4서브; 시즌1=마을·소도시·도시 12) · current_era(수공업/증기/전기/자동화) · infrastructure_level · unlocked_slots(공공 건물 슬롯) · 진화 다인자 캐시(인구·GDP·산업다양성·평균학력·인프라)
 - `treasury`처럼 **단일 상태 행.** 안건 3층 게이트 ①카테고리 해금(spec §6-2)·가용 사유 면적(§11·design §9)·Create 시대 게이팅(§7-3)·공공 슬롯 해금(§6-6)·자본시장 깊이 창발(§5-4)이 읽는 **진화 상태의 단일 출처.** 매 틱 §2-6 진화 평가가 갱신(DL-E051). era 해금은 `techtree_node.era·unlocked`와 동기.
 
 ### 전력망 상태 (power_grid) — DL-E083·E087·E093, 단일 행
