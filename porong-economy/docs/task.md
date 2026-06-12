@@ -1,7 +1,7 @@
 # porong-economy 작업 인계 (task)
 
 > 구상 단계 컨셉 정리 진행 상황 기록. 다음 세션은 여기부터 이어간다.
-> 본문 SoT: [`concept.md`](concept.md)(개요) · [`design.md`](design.md)(시스템 상세) · [`indicators.md`](indicators.md)(지표) · [`population_model.md`](population_model.md)(주민 동학) · [`agenda_catalog.md`](agenda_catalog.md)(안건) · [`data_schema.md`](data_schema.md)(DB) · 미확정/폐기: [`idea_inbox.md`](idea_inbox.md)
+> 본문 SoT: [`concept.md`](concept.md)(개요) · [`design.md`](design.md)(시스템 상세) · [`spec.md`](spec.md)(설계서) · [`indicators.md`](indicators.md)(지표) · [`population_model.md`](population_model.md)(주민 동학) · [`agenda_catalog.md`](agenda_catalog.md)(안건) · [`data_schema.md`](data_schema.md)(DB) · [`balance.md`](balance.md)(P1 수치 밸런싱) · 미확정/폐기: [`idea_inbox.md`](idea_inbox.md)
 > 참조 규약: `§N`=design.md, "지표 §N"=indicators.md (DL-E060)
 > 최종 갱신: 2026-06-12
 
@@ -12,7 +12,8 @@
 > **▶ 어드버서리얼 검토 1차(4-에이전트: 악용·붕괴·교착·엣지) — 🔴 5건 + 🟡 핵심 반영 완료:**
 > - 🔴 DL-E094(경제 무결성: 돈 보존·부=순자산·지분 평가 캡·분배 가드)·E095(오프라인 추상 생산)·E096(실물/인구 자동 안전판: 서킷·인구 앵커·역진화 예외)
 > - 🟡 DL-E097(앵커 동적 확장: B2B 중간재·공백/독점 투표불요 자동신설)·E098(부트스트랩 day-0 점화: 시작 인구·시드 국고/저축·핵심 인프라 자동존재·공공 발전 자동 provision·정족수 동적완화)·E099(이탈·운영: 좀비 회사 청산·이전가격 차단[탄소세=생산량×오염계수]·집계 평활화·직접 현금이전 차단·안건 페이싱)
-> **남은 🟢/의도 확인:** 동표 타이브레이커 부자유리(DL-E007 의도)·후반 합류자 캐치업(시즌제 의도)·외부 .schem 로드 PoC(착수 시)·자산효과 전염 계수(P1). **다음 = P1 수치 밸런싱 또는 Phase 0 착수.**
+> **남은 🟢/의도 확인:** 동표 타이브레이커 부자유리(DL-E007 의도)·후반 합류자 캐치업(시즌제 의도)·외부 .schem 로드 PoC(착수 시)·자산효과 전염 계수(P1).
+> **▶ P1 수치 밸런싱 착수([`balance.md`](balance.md), DL-E100):** ✅ §0 기준 앵커(시즌 28일·틱 30분·시작 인구 600·시드값)·§1 페이싱·§2 노동=소비 루프 1차. **다음 = §3~§12 카테고리별**(생산·시장·인구·재정통화·자본시장·전력·산재·의회·서킷·승리) 순차. 모든 값 플레이테스트 출발점.
 > **③ 비전 확정(이번 세션):** 적대적 인수 = **부차적**(51% 확보 리스크 관리 잘하면 거의 안 당함, 방심 응징 드라마) / 투자 단독트랙 = **무캡**(주식·배당·M&A만으로도 1등 가능, 인위적 캡 없음·거품은 펀더멘털 회귀로 자연 조정).
 
 ## 지금 상태
