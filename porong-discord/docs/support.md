@@ -26,11 +26,13 @@
 - 모든 개설/종료 `mod_log` 기록(선택) + 운영 가시.
 - 🟢 **구현(2026-06-09): `modules/support/tickets.py` + db v10 `tickets` + `core/tickets.py`.** `/문의`(동시 1개 제한, @everyone 숨김+개설자/admin/support 가시) · `/티켓종료`·[종료] 영구버튼(개설자/운영) · 종료=**잠금·아카이브**(채널 삭제 X, `[종료]` 프리픽스 + 개설자 접근 해제 — §5 삭제vs아카이브 = 아카이브 채택, 생애주기 정합). 생성 카테고리 = `CATEGORY_티켓_ID`(.env, 미설정 시 무카테고리). mod_log(ticket_open/close).
 
-## 3. FAQ
+## 3. FAQ 🟢 (2026-06-10 구현 — 조회방식 = **패널형(B안)** 확정)
 
-- `/faq [검색어]` 또는 패널 → `faq.trigger` 매칭 → 답변(ephemeral).
-- **미매칭 → "운영진 문의" 버튼 → 티켓 생성**(§2 연결). LLM 미사용.
-- 운영 관리: `/FAQ추가`·`/FAQ수정`·`/FAQ삭제`(admin·support) → `faq` CRUD. `domain` 별/공통(NULL).
+- **조회 = 패널 선택**: `/faq` → 등록된 질문 **Select 메뉴**(공통 + 현재 active 도메인, ≤25개)에서 골라 답변(ephemeral). 키워드 텍스트 매칭은 폐기(LLM 미사용 → 정확 단어 요구로 실효성 낮음, 운영자 큐레이션 목록을 직접 고르는 편이 현실적).
+- **폴백**: 패널 [운영진 문의] 버튼 → 티켓 생성(§2 연결, `TicketCog.open_ticket_for`). FAQ 0건이어도 버튼 노출.
+- 노출 필터 = `domain IS NULL`(공통) + active 서버 도메인(전역 단일 active, task.md §5). >25개면 절단 + 안내 문구.
+- 운영 관리: `/FAQ추가`(대상=공통/RPG/포로몬, 모달)·`/FAQ수정 번호`(모달 프리필)·`/FAQ삭제 번호`(admin·support) → `faq` CRUD. 번호 = 자동완성(`#id [도메인] 질문`). 전부 `mod_log`(faq_add/update/delete).
+- 구현: db v11 `faq`, `core/faq.py`, `modules/support/faq.py`.
 
 ## 4. 권한 / 게이트
 

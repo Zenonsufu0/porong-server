@@ -162,6 +162,19 @@ _MIGRATIONS: list[str] = [
     CREATE INDEX IF NOT EXISTS idx_tickets_opener  ON tickets(opener_id, state);
     CREATE INDEX IF NOT EXISTS idx_tickets_channel ON tickets(channel_id);
     """,
+    # v11 — faq 자주 묻는 질문 (data_model.md §2.9, T16)
+    # 운영자가 직접 등록(LLM 미사용). domain NULL=공통 / 값=서버별. 조회 패널은 공통+active 도메인.
+    """
+    CREATE TABLE IF NOT EXISTS faq (
+        id         INTEGER PRIMARY KEY AUTOINCREMENT,
+        domain     TEXT,
+        trigger    TEXT    NOT NULL,
+        answer     TEXT    NOT NULL,
+        updated_by INTEGER,
+        updated_at INTEGER NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_faq_domain ON faq(domain);
+    """,
 ]
 
 

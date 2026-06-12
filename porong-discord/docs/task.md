@@ -24,7 +24,7 @@
 | T13 | community 모듈(레벨·칭호·리더보드·임시음성) | community | T12 | 🟢 (레벨·칭호·리더보드·임시음성·XP보정) |
 | T14 | community 확장(출석·일일보상·임시역할 자동만료) | community | T13 | 🟡 |
 | T15 | moderation 모듈(제재·추방·경고 + 운영/감사로그) | moderation | T12 | 🟢 (경고·타임아웃·추방·차단 + mod_log) |
-| T16 | support 모듈(버그제보·티켓·FAQ→운영진문의) | support | T12 | 🟡 (티켓 🟢 / FAQ·버그제보 ⬜) |
+| T16 | support 모듈(버그제보·티켓·FAQ→운영진문의) | support | T12 | 🟡 (티켓·FAQ 🟢 / 버그제보 ⬜) |
 | T17 | admin 확장(서버 on/off·카테고리 템플릿 신설) | admin | 봇 길드권한 | 🟢 (템플릿 자동전개 — `/서버신설`) |
 | T18 | common 확장(`/도움말`·`/서버상태`·접속정보) | common | — | 🟡 (접속정보 🟢 / 도움말·서버상태 ⬜) |
 | T19 | `/클래스선택`을 `modules/roles/`→`modules/rpg/`로 이관(도메인 격리). 클래스 매핑도 RPG로 | rpg | — | ⬜ |
@@ -93,8 +93,9 @@
 - 🟢 `server_status.py` — 접속정보 라이브(T18, SLP 핑·3분 갱신).
 
 ### support/ 🟡 (T16)
-- 🟢 `tickets.py` — 1:1 문의: `/문의`(비공개 채널, 동시 1개) · `/티켓종료`·[종료] 버튼(개설자/운영) · 종료=잠금·아카이브. db v10 `tickets`, `core/tickets.py`. mod_log(ticket_open/close).
-- ⬜ FAQ(`/faq`·CRUD, faq 테이블 — 미매칭 시 티켓 폴백) · 버그제보(`/버그제보` — 게임 API 선행).
+- 🟢 `tickets.py` — 1:1 문의: `/문의`(비공개 채널, 동시 1개) · `/티켓종료`·[종료] 버튼(개설자/운영) · 종료=잠금·아카이브. db v10 `tickets`, `core/tickets.py`. mod_log(ticket_open/close). `open_ticket_for` 추출(FAQ 폴백 공용).
+- 🟢 `faq.py` — **패널형 FAQ**(2026-06-10, 조회방식 B안 확정): `/faq` → 등록 질문 Select(공통+active 도메인, ≤25)에서 골라 답변(ephemeral) + [운영진 문의] 버튼 → 티켓 폴백(TicketCog.open_ticket_for). 운영 CRUD `/FAQ추가`·`/FAQ수정`·`/FAQ삭제`(admin·support, 모달+번호 자동완성). db **v11 `faq`**(domain NULL=공통/값=서버별), `core/faq.py`, mod_log(faq_add/update/delete). LLM 미매칭 매칭 대신 패널 선택(키워드 검색 폐기 — support.md §3).
+- ⬜ 버그제보(`/버그제보` — 게임 API 선행).
 
 ### community/ 🟡 (T13)
 - 🟢 `temp_voice.py` — 임시 음성방(허브 입장 → 개인방 생성·비면 삭제). voice_states.

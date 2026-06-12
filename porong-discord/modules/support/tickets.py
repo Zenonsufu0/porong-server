@@ -66,6 +66,10 @@ class TicketCog(commands.Cog):
 
     @app_commands.command(name="문의", description="운영진과 1:1 비공개 문의 채널을 엽니다.")
     async def open_ticket(self, interaction: discord.Interaction) -> None:
+        await self.open_ticket_for(interaction)
+
+    async def open_ticket_for(self, interaction: discord.Interaction) -> None:
+        """티켓 개설 본체(슬래시·FAQ 폴백 버튼 공용). 응답 미소비 상태 전제."""
         guild = interaction.guild
         member = interaction.user
         if guild is None or not isinstance(member, discord.Member):
