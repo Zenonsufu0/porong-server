@@ -37,9 +37,27 @@ python3 main.py --bundle <bundle_dir> --install --target <dir>   # 실제 설치
 
 기본값: 선택 모드는 pack.json `default`(T1 ON / T2 OFF). `--enable/--disable <file>`로 조정.
 
+## exe 빌드 (PyInstaller)
+
+```bash
+# 1) 번들 생성(클라 81 + overrides + pack.json + fabric-installer)
+../scripts/build-installer-pack.sh
+
+# 2) Windows 에서(exe 타겟은 Windows): PyInstaller 설치 후
+pip install pyinstaller
+cd installer
+pyinstaller PoroMon.spec
+#  → dist/PoroMon설치기.exe  (번들 동봉·단일 파일)
+```
+
+- 번들은 exe 안에 동봉(`PoroMon.spec` datas → 런타임 `sys._MEIPASS/bundle`). 유저는 exe만 받으면 됨.
+- 아이콘: `modpack/overrides/icon.ico` 있으면 자동 적용(없으면 기본). png→ico 변환 필요.
+- 코드서명 미적용 → SmartScreen 경고("추가 정보→실행"). 정식 배포 시 인증서 검토(installer_design §9-2).
+
 ## 상태
 
-- ✅ 엔진 코어(pack·nbt·steps·installer·CLI) — WSL 단위 검증.
-- ⬜ GUI(tkinter) + PyInstaller exe 빌드 — 다음 단계.
-- ⬜ 실 설치 검증(Windows+MC) — 사용자.
+- ✅ 엔진 코어(pack·nbt·steps·installer·platform·CLI) — WSL 단위 검증(--list/--plan/토글/NBT).
+- ✅ GUI(`gui.py`, tkinter) + `PoroMon.spec`(PyInstaller onefile) — 코드 작성·컴파일 검증.
+- ⬜ 실제 GUI 렌더 + exe 빌드 + 설치 검증(Windows+MC) — 사용자.
 - ⬜ `tools/fabric-installer.jar` 확보(번들).
+- ⬜ server.address 실주소(현 TODO_HOST) · icon.ico.

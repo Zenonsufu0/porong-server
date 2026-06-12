@@ -32,3 +32,18 @@ def default_instance_dir(instance_name):
 def fabric_version_id(mc_version, loader_version):
     """Fabric 설치 후 versions/ 에 생기는 버전 id 형식."""
     return f"fabric-loader-{loader_version}-{mc_version}"
+
+
+def resolve_bundle(explicit=None):
+    """번들 디렉터리 위치 해소.
+
+    - explicit 인자 우선.
+    - exe(PyInstaller frozen): sys._MEIPASS/bundle (exe 안에 동봉된 번들).
+    - 개발: installer/../.local/installer-pack/PoroMon (build-installer-pack.sh 산출).
+    """
+    if explicit:
+        return explicit
+    if getattr(sys, "frozen", False):
+        return os.path.join(getattr(sys, "_MEIPASS", ""), "bundle")
+    installer_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # installer/
+    return os.path.join(installer_root, "..", ".local", "installer-pack", "PoroMon")

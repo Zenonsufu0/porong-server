@@ -303,8 +303,9 @@
    - ⬜ `server.address`=`TODO_HOST:25566` 플레이스홀더(운영 시 채움).
 2. ✅ **번들 스테이징 스크립트 완료(2026-06-12)** — `scripts/build-installer-pack.sh`. pack.json 읽어 `.local/installer-pack/PoroMon/`에 mods(클라 81, **PoroMonCore=빌드본 교체**) + overrides(config/openloader/data 제외) + pack.json + tools/ 스테이징. **검증**: 서버전용 5개 mods 제외·openloader data 제외·PoroMonCore 해시 일치(번들=서버 빌드본). SKIP_BUILD=1 지원.
    - ⬜ **fabric-installer.jar 미보유** — `modpack/tools/fabric-installer.jar` 채워야(또는 FABRIC_INSTALLER 지정). 엔진 빌드 전 필요. (외부 다운로드 1회)
-3. 🔶 **엔진 구현 — 코어 완료(2026-06-12, Python 확정)**: `installer/`(무의존 표준라이브러리). `poromon_installer/{pack,nbt,steps,installer,platform}.py` + `main.py`(CLI). pack.json 로드·토글(default±enable/disable)·Fabric headless 설치·mods 배치·overrides 복사·**servers.dat 자체 NBT 등록**·런처 프로필. **WSL 검증**: `--list`/`--plan`(dry-run) 동작, 기본 63개(필수14+lib9+T1 40), 토글 파일 교체(jei↔iris), NBT round-trip(한글·중복ip교체·append) OK.
-   - ⬜ **잔여**: ① **GUI(tkinter 체크박스) + PyInstaller exe 빌드** ② fabric-installer.jar 확보 ③ 실 설치 검증(Windows+MC, 사용자) — Fabric 설치/런처 프로필/실파일은 WSL서 미검증(dry-run만).
+3. 🔶 **엔진 구현 — 코어+GUI 완료(2026-06-12, Python 확정)**: `installer/`(무의존 표준라이브러리). `poromon_installer/{pack,nbt,steps,installer,platform}.py` + `main.py`(CLI) + `gui.py`(tkinter 체크박스) + `PoroMon.spec`(PyInstaller onefile). pack.json 로드·토글(default±enable/disable)·Fabric headless 설치·mods 배치·overrides 복사·**servers.dat 자체 NBT 등록**·런처 프로필. 번들=exe 동봉(`_MEIPASS/bundle`, `resolve_bundle`).
+   - **WSL 검증**: 전체 py_compile OK, `--list`/`--plan`(dry-run), 기본 63개(필수14+lib9+T1 40), 토글 파일 교체(jei↔iris), NBT round-trip(한글·중복ip교체·append), resolve_bundle 경로 OK. (tkinter는 WSL 미설치라 GUI 렌더는 미검증 — Windows 표준 포함.)
+   - ⬜ **잔여(사용자/Windows)**: ① `tools/fabric-installer.jar` 확보 ② `pip install pyinstaller && pyinstaller PoroMon.spec` → exe ③ 실 GUI 렌더 + 설치 검증(Windows+MC) — Fabric 설치/런처 프로필/실파일 배치는 WSL서 dry-run만. ④ server.address 실주소 · icon.ico.
 4. **모드 라이선스 재배포 점검**(번들 공통 숙제, §9-1) — 오픈 전.
 5. (사용자) 깨끗한 Windows에서 exe 설치 검증(§8 체크리스트).
 > 클로드 단독 가능 = ✅1·2 완료, 🔶3 엔진코어 완료(GUI/exe 잔여). 4=점검. 5=사용자. fabric-installer 1회 확보 필요.
