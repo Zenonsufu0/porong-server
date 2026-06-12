@@ -298,7 +298,7 @@
 - **위 §"다음 세션 시작점(간편설치기 실행)" 2·3 = CF 전용이라 보류**: `extract-curseforge-pack.sh`(경로는 고쳐둠)·`build-client-pack.sh`(CF zip)는 미사용. 새 방향은 아래.
 
 **▶ 다음 세션 — 설치기 구현 (installer_design.md 기준):**
-1. ✅ **`pack.json` 생성/검증 완료(2026-06-12)** — `scripts/gen-pack-json.py`(prefix→티어 매핑, longest-prefix, 미분류 에러). `modpack/pack.json` 생성. **전수 86 분류**: T0 14 / T1 40 / T2 18 / L 9 / S 5. 클라 번들 81(서버전용 5 제외). 부산물: `client_mod_tiers.md` xaero 2종 누락 보강 + 집계 정정(T1 39→40).
+1. ✅ **`pack.json` 생성/검증 완료(2026-06-12)** — `scripts/gen-pack-json.py`(prefix→티어 매핑, longest-prefix, 미분류 에러). `modpack/pack.json` 생성. **전수 84 분류**(xaero 2 제외 후, 결정 047): T0 14 / T1 38 / T2 18 / L 9 / S 5. 클라 번들 79(서버전용 5 제외).
    - ✅ **정합 이슈 해결(2026-06-12)**: `sync-server-mods.sh` 화이트리스트 poromon-core 추가·eggs 제거(결정 032·044) + ROOT 자동도출. DRY_RUN 검증 통과. ⚠️ 잔여: client/mods의 poromon-core가 최신 빌드본인지(빌드 후 갱신) — 서버 배포 시 확인.
    - ⬜ `server.address`=`TODO_HOST:25566` 플레이스홀더(운영 시 채움).
 2. ✅ **번들 스테이징 스크립트 완료(2026-06-12)** — `scripts/build-installer-pack.sh`. pack.json 읽어 `.local/installer-pack/PoroMon/`에 mods(클라 81, **PoroMonCore=빌드본 교체**) + overrides(config/openloader/data 제외) + pack.json + tools/ 스테이징. **검증**: 서버전용 5개 mods 제외·openloader data 제외·PoroMonCore 해시 일치(번들=서버 빌드본). SKIP_BUILD=1 지원.
@@ -306,7 +306,9 @@
 3. 🔶 **엔진 구현 — 코어+GUI 완료(2026-06-12, Python 확정)**: `installer/`(무의존 표준라이브러리). `poromon_installer/{pack,nbt,steps,installer,platform}.py` + `main.py`(CLI) + `gui.py`(tkinter 체크박스) + `PoroMon.spec`(PyInstaller onefile). pack.json 로드·토글(default±enable/disable)·Fabric headless 설치·mods 배치·overrides 복사·**servers.dat 자체 NBT 등록**·런처 프로필. 번들=exe 동봉(`_MEIPASS/bundle`, `resolve_bundle`).
    - **WSL 검증**: 전체 py_compile OK, `--list`/`--plan`(dry-run), 기본 63개(필수14+lib9+T1 40), 토글 파일 교체(jei↔iris), NBT round-trip(한글·중복ip교체·append), resolve_bundle 경로 OK. (tkinter는 WSL 미설치라 GUI 렌더는 미검증 — Windows 표준 포함.)
    - ⬜ **잔여(사용자/Windows)**: ① `tools/fabric-installer.jar` 확보 ② `pip install pyinstaller && pyinstaller PoroMon.spec` → exe ③ 실 GUI 렌더 + 설치 검증(Windows+MC) — Fabric 설치/런처 프로필/실파일 배치는 WSL서 dry-run만. ④ server.address 실주소 · icon.ico.
-4. **모드 라이선스 재배포 점검**(번들 공통 숙제, §9-1) — 오픈 전.
+4. 🔶 **모드 라이선스 점검 완료(2026-06-12)** — `scripts/check-mod-licenses.py`(jar fabric.mod.json license 추출·분류) + `docs/01_modpack/license_audit.md`. **결과: OK 63 / COPYLEFT 1(wakes GPLv3) / CHECK 22**. CHECK 중 poromon-core(우리꺼)·netherportalfix·bwncr(클라 미포함) 제외 시 실질 ~18개. ★핵심 확인 필요: **mega_showdown**(필드없음)·**chipped**(Terrarium)·**balm**(의존)·**xaero**(ARR). 대부분 "modpack permission"이면 가능하나 자체 exe 번들은 회색지대 → 저작자/CF 페이지 확인. 불가분은 T2 강등/다운로드분리/대체.
+   - ✅ **xaero 미니맵/월드맵 제외(결정 047)**: ARR 번들 불가 + TP로 보완 → client/mods에서 제거(.local/removed-mods). 구성 86→84, CHECK 22→20.
+   - ⬜ **잔여(사용자 판단)**: 남은 CHECK 모드 permission 실확인(특히 핵심 필수 mega_showdown·chipped·balm) → 번들 가부 확정.
 5. (사용자) 깨끗한 Windows에서 exe 설치 검증(§8 체크리스트).
 > 클로드 단독 가능 = ✅1·2 완료, 🔶3 엔진코어 완료(GUI/exe 잔여). 4=점검. 5=사용자. fabric-installer 1회 확보 필요.
 > ⚠️ 미확정(§9): 코드서명·기술스택·JEI/EMI 택1·설치기 코드 위치(porong-mon/installer vs 별도 공용 레포).

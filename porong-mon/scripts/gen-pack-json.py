@@ -85,8 +85,8 @@ TABLE = [
     ("stendhal-",                    "t1", "viewer", "Stendhal", "채팅/표지판 서식"),
     ("BetterAdvancements-",          "t1", "viewer", "Better Advancements", "발전과제 화면 개선"),
     ("tipsmod-",                     "t1", "viewer", "Tips", "로딩 팁"),
-    ("xaerominimap-",                "t1", "viewer", "Xaero's Minimap", "미니맵"),       # client_mod_tiers.md 누락분 보강
-    ("xaeroworldmap-",               "t1", "viewer", "Xaero's World Map", "월드맵"),     # client_mod_tiers.md 누락분 보강
+    # xaero 미니맵/월드맵 = 제외(결정 047): ARR 번들 불가 + TP 시스템으로 길찾기 보완.
+    #   .local/removed-mods/ 로 이동. 재도입 시 여기 복원 + client/mods 복귀.
 
     # ── T1 조작/인벤 QoL (2-3) ────────────────────────────────────────
     ("craftingtweaks-",              "t1", "qol", "Crafting Tweaks", "제작 편의"),
@@ -216,9 +216,10 @@ def main():
     n = {k: len(v) for k, v in buckets.items()}
     total = sum(n.values())
     client_total = n["required"] + n["t1"] + n["t2"] + n["lib"]
+    EXPECTED_TOTAL = 84  # 현 모드팩 jar 수(회귀 체크). 모드 추가/제거 시 갱신. (86 − xaero 2, 결정 047)
     print(f"분류 결과: T0={n['required']} / T1={n['t1']} / T2={n['t2']} / "
-          f"L={n['lib']} / S(제외)={n['server']}  (전수 {total}=86 {'OK' if total == 86 else 'MISMATCH'})",
-          file=sys.stderr)
+          f"L={n['lib']} / S(제외)={n['server']}  (전수 {total}={EXPECTED_TOTAL} "
+          f"{'OK' if total == EXPECTED_TOTAL else 'MISMATCH'})", file=sys.stderr)
     print(f"클라 번들 = required+optional+libraries = {client_total}개 "
           f"(서버전용 {n['server']}개 제외)", file=sys.stderr)
 

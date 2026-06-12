@@ -464,3 +464,16 @@ jar 전수 검증(`egg_pool_design.md §8`)으로 Eggs Addon(`diesse`)의 실제
 **공통 숙제(방식 무관):** 번들=재배포이므로 **모드별 라이선스 재배포 허용 여부 확인**(대부분 Fabric 모드 허용, ARR 엄격 소수 주의) — 오픈 전 체크리스트. Fabric loader 설치·MC 프로필 생성·서버 자동등록(servers.dat) 로직은 설치기가 직접 구현.
 
 **산출:** `installer_design.md` 신설(범용 엔진 아키텍처·설정 스키마·토글 모델·번들/설치 흐름·빌드 파이프라인). `client_pack_policy.md`는 045 기준 = CF 전용으로 격하(상단 배너).
+
+### 047. xaero 미니맵/월드맵 제외 — 모드팩 구성 86→84 (2026-06-12)
+
+번들 라이선스 점검(`license_audit.md`, 결정 046 §9-1) 결과 **Xaero's Minimap/World Map = ARR(All Rights Reserved)** → 자체 exe 번들 재배포 불가/회색지대. 제외 결정.
+
+**사유:**
+- ARR 번들 리스크 — 마땅한 오픈소스 미니맵 대체도 드묾(JourneyMap·VoxelMap도 유사).
+- **필요도 낮음** — 포로몬은 TP 시스템(홈 5·야생 랜덤이동·허브 TP·TPA, 결정 029·030)으로 길찾기가 보완돼 미니맵 의존이 작음. 바닐라 기본도 미니맵 없음.
+- 원하는 유저는 개별 설치 가능(취향 영역).
+
+**처리:** `modpack/client/mods`에서 `xaerominimap`·`xaeroworldmap` 제거 → `.local/removed-mods/`(되돌리기 보관). `gen-pack-json.py` 테이블·`client_mod_tiers.md`(§2-2 + §6 집계 T1 40→38, 전수 86→84)·`license_audit.md`(CHECK 22→20) 갱신. pack.json 재생성(클라 번들 81→79).
+
+**재도입 조건:** Xaero permission 확보 시 `.local/removed-mods/`에서 복원 + 테이블/문서 되돌림.

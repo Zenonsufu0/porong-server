@@ -90,10 +90,8 @@
 | `stendhal-*` | 채팅/표지판 서식 | — |
 | `betteradvancements-*` | 발전과제 화면 개선 | — |
 | `tipsmod-*` | 로딩 팁 | — |
-| `xaerominimap-*` | 미니맵 (탐험 편의) | — |
-| `xaeroworldmap-*` | 월드맵 (탐험 편의) | — |
 
-> ⚠️ **보강(2026-06-12)**: `xaerominimap`/`xaeroworldmap` 2종이 이전 분류표에서 누락돼 있었음(`gen-pack-json.py` 전수 분류 시 발견). 미니맵/월드맵은 탐험 편의라 **T1 기본 ON**. → §6 집계 T1 39→**40** 정정.
+> ⛔ **xaero 미니맵/월드맵 = 제외(결정 047, 2026-06-12)**: ARR 라이선스로 번들 재배포 불가(`license_audit.md`) + TP 시스템(홈·야생이동·허브·TPA)으로 길찾기 보완돼 필요도 낮음. `client/mods`에서 제거(→ `.local/removed-mods/`). 재도입 시 permission 확보 후 복원. (앞서 2026-06-12 누락 보강했다가 같은 날 제외 결정.)
 
 ### 2-3. 조작/인벤 QoL
 | jar | 역할 | 의존 |
@@ -188,12 +186,12 @@
 | 구분 | 수 | 설치기 |
 |---|---|---|
 | T0 코어(강제) | 14 | 항상 (eggs −1, **poromon-core +1**) |
-| T1 권장 편의 | 40 | 기본 ON (collection +1, **xaero 2 보강 2026-06-12**) |
+| T1 권장 편의 | 38 | 기본 ON (collection +1, **xaero 2 제외 결정 047**) |
 | T2 선택 취향 | 18 | 기본 OFF |
 | L 라이브러리(자동) | 9 | 의존 해소 (항상 포함) |
 | (S) 서버전용(클라 제외 후보) | 5 | 선택 |
 
-> ✅ **전수 정합(2026-06-12)**: 14 + 40 + 18 + 9 + 5 = **86** (실측 일치). `gen-pack-json.py`가 prefix 매핑으로 전수 분류·검증(미분류 0). pack.json = required(14) + optional(58=T1 40 ON/T2 18 OFF) + libraries(9) = **클라 번들 81**, 서버전용 5 제외.
+> ✅ **전수 정합(2026-06-12)**: 14 + 38 + 18 + 9 + 5 = **84** (실측 일치, xaero 2 제외 후). `gen-pack-json.py`가 prefix 매핑으로 전수 분류·검증(미분류 0). pack.json = required(14) + optional(56=T1 38 ON/T2 18 OFF) + libraries(9) = **클라 번들 79**, 서버전용 5 제외.
 
 > 합계는 라이브러리 중복 귀속 때문에 단순 합 ≠ 86(실측 클라 jar). **분류 1차 초안** — 간편설치기 스펙 확정 시 토글 단위(개별 vs 묶음)와 정확 개수 재고정 필요(TODO). 의존성 자동 해소는 CurseForge/Modrinth 메타로 검증.
 > **결정 044(2026-06-09) 반영**: 실측 클라 86개 = 이전 85 − eggs + poromon-core + complete-cobblemon-collection. T0에 PoroMonCore(커스텀, 끌 수 없음·overrides 번들), T1에 collection(강권장) 추가.

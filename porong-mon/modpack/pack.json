@@ -348,20 +348,6 @@
       "default": true
     },
     {
-      "file": "xaerominimap-fabric-1.21.1-25.3.5.jar",
-      "name": "Xaero's Minimap",
-      "desc": "미니맵",
-      "group": "viewer",
-      "default": true
-    },
-    {
-      "file": "xaeroworldmap-fabric-1.21.1-1.40.6.jar",
-      "name": "Xaero's World Map",
-      "desc": "월드맵",
-      "group": "viewer",
-      "default": true
-    },
-    {
       "file": "AmbientEnvironment-fabric-1.21.1-18.0.0.2.jar",
       "name": "Ambient Environment",
       "desc": "환경 사운드",
