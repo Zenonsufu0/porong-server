@@ -53,6 +53,11 @@ AFK_CHANNEL_ID: int       = int(os.getenv("AFK_CHANNEL_ID", "0") or "0")
 XP_EXCLUDE_CHANNEL_IDS: set[int] = {
     int(x) for x in os.getenv("XP_EXCLUDE_CHANNEL_IDS", "").replace(" ", "").split(",") if x
 }
+
+# 출석/일일보상 (T14). 보상 XP = BASE + min(streak, CAP) * PER_STREAK.
+ATTENDANCE_XP_BASE: int       = int(os.getenv("ATTENDANCE_XP_BASE", "100") or "100")
+ATTENDANCE_XP_PER_STREAK: int = int(os.getenv("ATTENDANCE_XP_PER_STREAK", "10") or "10")
+ATTENDANCE_STREAK_CAP: int    = int(os.getenv("ATTENDANCE_STREAK_CAP", "30") or "30")
 # [DEPRECATED] TERMS_MESSAGE_ID — 구 RPG 약관 메시지 ID(폐기). 미참조.
 TERMS_MESSAGE_ID: int | None = int(os.environ["TERMS_MESSAGE_ID"]) if os.getenv("TERMS_MESSAGE_ID") else None
 

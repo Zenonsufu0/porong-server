@@ -22,7 +22,7 @@
 | T11 | 운영자 닉네임 변경 명령(`/닉네임변경`·`/닉네임재입력`) | admin | API | 🟡 |
 | T12 | SQLite 저장 계층 도입(봇 영속 DB) — community/moderation/support 공통 선행 | core | — | 🟢 |
 | T13 | community 모듈(레벨·칭호·리더보드·임시음성) | community | T12 | 🟢 (레벨·칭호·리더보드·임시음성·XP보정) |
-| T14 | community 확장(출석·일일보상·임시역할 자동만료) | community | T13 | 🟡 |
+| T14 | community 확장(출석·일일보상·임시역할 자동만료) | community | T13 | 🟢 (출석·임시역할만료 — 닉prefix만 보류) |
 | T15 | moderation 모듈(제재·추방·경고 + 운영/감사로그) | moderation | T12 | 🟢 (경고·타임아웃·추방·차단 + mod_log) |
 | T16 | support 모듈(버그제보·티켓·FAQ→운영진문의) | support | T12 | 🟢 (티켓·FAQ·버그제보 — 게임DB 라우팅만 API 선행) |
 | T17 | admin 확장(서버 on/off·카테고리 템플릿 신설) | admin | 봇 길드권한 | 🟢 (템플릿 자동전개 — `/서버신설`) |
@@ -97,11 +97,13 @@
 - 🟢 `faq.py` — **패널형 FAQ**(2026-06-10, 조회방식 B안 확정): `/faq` → 등록 질문 Select(공통+active 도메인, ≤25)에서 골라 답변(ephemeral) + [운영진 문의] 버튼 → 티켓 폴백(TicketCog.open_ticket_for). 운영 CRUD `/FAQ추가`·`/FAQ수정`·`/FAQ삭제`(admin·support, 모달+번호 자동완성). db **v11 `faq`**(domain NULL=공통/값=서버별), `core/faq.py`, mod_log(faq_add/update/delete). LLM 미매칭 매칭 대신 패널 선택(키워드 검색 폐기 — support.md §3).
 - 🟢 `bug_report.py` — **버그제보**(2026-06-10): `/버그제보 대상 심각도` → 모달(제목·재현·기대·실제) → 공통 버그채널 임베드(`CHANNEL_BUGREPORT_ID`) + 제보자 DM + 운영 상태버튼(확인중/완료/기각, 영구뷰). **봇 DB 미저장**(채널 임베드만, data_model §0). RPG/포로몬은 baseline 채널 접수(게임 DB 이관 노트) — 게임 API(`create_bug_report`) 확정 시 라우팅 연동. support.md §1.
 
-### community/ 🟡 (T13)
+### community/ 🟢 (T13·T14)
 - 🟢 `temp_voice.py` — 임시 음성방(허브 입장 → 개인방 생성·비면 삭제). voice_states.
 - 🟢 `level.py` — 채팅·음성 XP → 레벨(`core/community.py` 곡선·접근, DB v8), `/레벨`(칭호 표시)·`/리더보드`, 레벨업 알림.
 - 🟢 칭호(`core/titles.py`, DB v9 titles/user_titles) — 레벨 임계 자동 획득, `/칭호`(Select 장착), 카탈로그 시드 5종. `/XP지급`·`/XP회수`(운영, mod_log).
-- ⬜ 출석(T14)·임시역할 자동만료(T14)·닉 `[LV.nn]` prefix(보류).
+- 🟢 `attendance.py` — 출석(T14, 2026-06-10): `/출석` 하루 1회(KST) streak·total + 보상 XP(BASE+streak×PER, 캡), 레벨업 위임. db **v12 `attendance`**, `core/attendance.py`. community_level §9.
+- 🟢 `temp_roles.py` — 임시역할 자동만료(T14, 2026-06-10): `/임시역할부여`(admin, 분/시간/일) + 60초 tick 만료 회수. db **v13 `temp_roles`**, `core/temp_roles.py`, mod_log(temp_role_grant/expire). community_level §10.
+- ⬜ 닉 `[LV.nn]` prefix(보류).
 
 ## 4. 알림 배선 (→ T1 선행, [`notifications.md`])
 

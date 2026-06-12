@@ -42,6 +42,8 @@ _ACTION_META: dict[str, tuple[str, discord.Color]] = {
     "faq_add":       ("❓ FAQ추가",     discord.Color.green()),
     "faq_update":    ("✏ FAQ수정",     discord.Color.blue()),
     "faq_delete":    ("🗑 FAQ삭제",     discord.Color.light_grey()),
+    "temp_role_grant":  ("⏳ 임시역할부여", discord.Color.teal()),
+    "temp_role_expire": ("⌛ 임시역할만료", discord.Color.light_grey()),
 }
 
 

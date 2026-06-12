@@ -76,13 +76,15 @@
   - 전역 커뮤니티 라운지가 별도로 필요하면 공통 카테고리에도 허브 1개 추가 가능(템플릿과 무관하게 운영 설정).
   - ⚠ DL 동기화 대기(RPG worktree) — 디스코드 워크트리는 decision_log 읽기전용.
 
-## 9. 출석 / 일일보상 (T14)
-- `/출석` → 하루 1회(KST 기준) 체크. `attendance`(streak·total·last_date) 갱신.
-- 연속 출석 스트릭 보상 = XP 가산(§2) 또는 칭호 조건. 끊기면 streak 리셋.
-- 중복 출석은 "오늘 이미 출석" 안내(ephemeral).
+## 9. 출석 / 일일보상 (T14) 🟢 (2026-06-10 구현)
+- 🟢 **`modules/community/attendance.py` + `core/attendance.py` + db v12 `attendance`.**
+- `/출석` → 하루 1회(KST=UTC+9) 체크. `attendance`(streak·total·last_date) 갱신. last_date 가 어제면 streak+1, 그 외(공백·이틀 이상 공백)면 1로 리셋.
+- 보상 XP = `ATTENDANCE_XP_BASE + min(streak, CAP) * ATTENDANCE_XP_PER_STREAK`(config, 기본 100+streak×10, 캡 30) → `community.add_xp` 가산. 레벨업 시 `CommunityLevelCog._handle_levelup` 위임(칭호 연동 재사용).
+- 중복 출석은 "오늘 이미 출석" 안내(ephemeral). 정상 출석은 공개 임베드(streak·total).
 
-## 10. 임시역할 자동만료 (T14)
-- 이벤트 한정 역할 등 만료 시각이 있는 역할은 `temp_roles`(role_id·expires_at)에 적재.
-- 주기 tick(예 60초)으로 만료분 조회 → 역할 회수 + 행 삭제. 재시작 후에도 DB 기준 복구.
-- 부여 경로: 운영 명령 또는 이벤트 모듈에서 `temp_roles` INSERT.
+## 10. 임시역할 자동만료 (T14) 🟢 (2026-06-10 구현)
+- 🟢 **`modules/community/temp_roles.py` + `core/temp_roles.py` + db v13 `temp_roles`.**
+- `/임시역할부여 <유저> <역할> <기간> <단위(분/시간/일)> [사유]`(admin) → 역할 부여 + `temp_roles`(expires_at) 적재 + mod_log(temp_role_grant). 위계/관리역할/@everyone 가드.
+- tick 60초(`tasks.loop`)로 `expires_at <= now` 조회 → 역할 회수 + 행 삭제 + mod_log(temp_role_expire). 재시작 후에도 DB 기준 복구(before_loop=wait_until_ready). 멤버/역할 없거나 이미 회수돼도 행은 정리.
+- 부여 경로 추가 = 이벤트 모듈 등에서 `temp_roles.grant()` 호출.
 </content>

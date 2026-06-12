@@ -175,6 +175,28 @@ _MIGRATIONS: list[str] = [
     );
     CREATE INDEX IF NOT EXISTS idx_faq_domain ON faq(domain);
     """,
+    # v12 — attendance 출석 (data_model.md §2.7, T14)
+    # 하루 1회(KST) 출석 체크. last_date = 'YYYY-MM-DD'(KST). streak 끊기면 리셋.
+    """
+    CREATE TABLE IF NOT EXISTS attendance (
+        discord_user_id INTEGER PRIMARY KEY,
+        last_date       TEXT    NOT NULL,
+        streak          INTEGER NOT NULL DEFAULT 0,
+        total           INTEGER NOT NULL DEFAULT 0
+    );
+    """,
+    # v13 — temp_roles 임시역할 자동만료 (data_model.md §2.8, T14)
+    # 만료 시각 도달 시 봇이 역할 회수 + 행 삭제. 재시작 후에도 DB 기준 복구.
+    """
+    CREATE TABLE IF NOT EXISTS temp_roles (
+        id              INTEGER PRIMARY KEY AUTOINCREMENT,
+        discord_user_id INTEGER NOT NULL,
+        role_id         INTEGER NOT NULL,
+        expires_at      INTEGER NOT NULL,
+        reason          TEXT
+    );
+    CREATE INDEX IF NOT EXISTS idx_temp_roles_expires ON temp_roles(expires_at);
+    """,
 ]
 
 

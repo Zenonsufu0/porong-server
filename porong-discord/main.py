@@ -28,9 +28,11 @@ EXTENSIONS: list[str] = [
     # 공통
     "modules.common.general",
     "modules.common.server_status",
-    # 커뮤니티 (T13)
+    # 커뮤니티 (T13·T14)
     "modules.community.temp_voice",
     "modules.community.level",
+    "modules.community.attendance",
+    "modules.community.temp_roles",
     # 지원 (T16)
     "modules.support.tickets",
     "modules.support.faq",
