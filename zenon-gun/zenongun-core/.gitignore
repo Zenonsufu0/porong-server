@@ -1,0 +1,16 @@
+# Gradle / 빌드 산출물 (gradle-wrapper.jar는 예외 추적 — CLAUDE.md)
+.gradle/
+build/
+run/
+src/generated/
+*.log
+
+# IDE
+.idea/
+*.iml
+.eclipse/
+.settings/
+bin/
+eclipse/
+.project
+.classpath

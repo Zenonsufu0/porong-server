@@ -125,3 +125,7 @@ assets/
 # Local runtime per worktree
 .local/
 **/.local/
+
+# 예외: zenongun-core 자체 제작 소스 에셋(외부 유래 아님, 모드 동작 필수 — 텍스처/모델/lang)
+!zenon-gun/zenongun-core/src/main/resources/assets/
+!zenon-gun/zenongun-core/src/main/resources/assets/**

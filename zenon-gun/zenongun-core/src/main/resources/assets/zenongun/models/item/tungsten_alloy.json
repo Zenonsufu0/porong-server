@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "comment": "임시 바닐라 텍스처(iron_ingot). 정식 16x16 텍스처로 교체 예정 — texture_todo 참고.",
+  "textures": {
+    "layer0": "minecraft:item/iron_ingot"
+  }
+}
