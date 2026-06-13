@@ -60,13 +60,15 @@ python main.py                            # 기동
 | `DISCORD_TOKEN` | 봇 토큰 |
 | `GUILD_ID` | 운영 길드 ID |
 | `CHANNEL_FIELD_BOSS_ID` | 필드보스 알림 채널 |
-| `PORONG_API_KEY` | RPG 게임서버 API 키(X-Api-Key) |
+| `ZENON_RPG_API_KEY` | RPG 게임서버 API 키(X-Api-Key). 구 `PORONG_API_KEY` 폴백 |
 
-> ⚠ 브랜드 변경(2026-06-10): 구 `PORO_API_URL/KEY` → **`PORONG_API_URL/KEY`**. 기존 `.env` 갱신 필요.
+> ⚠ 브랜드 변경 이력: 구 `PORO_API_URL/KEY`(2026-06-10) → `PORONG_API_URL/KEY` →
+> **`ZENON_RPG_API_URL/KEY`**(현행). 전환기 한정으로 구 `PORONG_API_*` 도 폴백으로 인식하나,
+> 신규 `.env` 는 새 이름을 사용하고 구 이름은 차후 제거한다.
 
 ### 3.2 선택 (미설정 시 0/기본값 → 해당 기능 graceful 비활성)
-- **API:** `PORONG_API_URL`(기본 localhost:8765), `POROMON_AUTH_URL/KEY`
-- **DB:** `BOT_DB_PATH`(기본 `porong_bot.sqlite3`, 인스턴스 로컬·gitignored)
+- **API:** `ZENON_RPG_API_URL`(기본 localhost:8765, 구 `PORONG_API_URL` 폴백), `POROMON_AUTH_URL/KEY`
+- **DB:** `BOT_DB_PATH`(기본 `yuki_bot.sqlite3`, 인스턴스 로컬·gitignored)
 - **채널:** `CHANNEL_MODLOG_ID`(운영로그)·`CHANNEL_NOTICE_ID`(공지)·`CHANNEL_POROMON_NOTICE_ID`·
   `CHANNEL_BUGREPORT_ID`·`CHANNEL_LEVELUP_ID`·`AFK_CHANNEL_ID`·`CATEGORY_티켓_ID`
 - **전역 단일 active:** `ROLE_서버준비_ID`·`CATEGORY_통합_ID`(생애주기 일괄 전이용)
@@ -114,6 +116,7 @@ python main.py                            # 기동
 
 ## 6. DB / 백업
 
-- 단일 SQLite 파일(`BOT_DB_PATH`, 기본 `porong_bot.sqlite3`) — 인스턴스 로컬, gitignored.
+- 단일 SQLite 파일(`BOT_DB_PATH`, 기본 `yuki_bot.sqlite3`) — 인스턴스 로컬, gitignored.
+  - 기존 `porong_bot.sqlite3` 사용자는 파일명을 바꾸거나 `BOT_DB_PATH` 로 기존 경로를 명시한다(자동 마이그레이션 없음).
 - 증분 마이그레이션 v1~v13 자동 적용(기동 시 `schema_meta.version`). 다운그레이드 미지원.
 - 백업 = 파일 주기 복사(WAL 모드 — `.sqlite3`·`-wal`·`-shm` 함께) 또는 `sqlite3 .backup`.

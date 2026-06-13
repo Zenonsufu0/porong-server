@@ -23,7 +23,7 @@
 ## A. 봇 → 게임서버 (요청-응답 API)
 
 ### A-0. 공통 규약
-- **전송:** JSON over HTTP(S). 도메인별 베이스 URL — RPG `PORONG_API_URL`, 포로몬 `POROMON_API_URL`(신규).
+- **전송:** JSON over HTTP(S). 도메인별 베이스 URL — RPG `ZENON_RPG_API_URL`(구 `PORONG_API_URL` 폴백), 포로몬 `POROMON_API_URL`(신규).
 - **인증:** `X-Api-Key: <서버별 키>` 헤더(`.env`). `Content-Type: application/json`.
 - **에러:** HTTP status + `{error, message}`. 4xx → 사용자에게 정중한 메시지(ephemeral), 5xx → 재시도/실패무시 후 로깅.
 - **상태변경 멱등성:** 운영 명령(골드지급·화이트리스트 등)은 재요청 안전성(idempotency key) 고려.

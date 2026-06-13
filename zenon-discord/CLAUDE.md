@@ -93,10 +93,10 @@ zenon-discord/
 - 코드/문서에 실제 토큰·ID·URL 을 하드코딩하지 않는다.
 
 ### 봇이 요구하는 환경변수 (`.env`)
-필수: `DISCORD_TOKEN`, `PORONG_API_KEY`, `GUILD_ID`, `CHANNEL_FIELD_BOSS_ID`
+필수: `DISCORD_TOKEN`, `ZENON_RPG_API_KEY`(구 `PORONG_API_KEY` 폴백), `GUILD_ID`, `CHANNEL_FIELD_BOSS_ID`
 DEPRECATED(구 RPG 단일서버 온보딩 — DL-138 폐기, 미참조·optional): `CHANNEL_AUTH_ID`,
 `ROLE_접속대기_ID`, `ROLE_인증유저_ID`, `ROLE_미인증_ID`, `TERMS_MESSAGE_ID`
-선택(미설정 시 0 → 기능 비활성): `PORONG_API_URL`,
+선택(미설정 시 0 → 기능 비활성): `ZENON_RPG_API_URL`(구 `PORONG_API_URL` 폴백),
 클래스 역할(`ROLE_검사_ID` …), 알림 역할(`ROLE_필드보스알림_ID`, `ROLE_월드보스알림_ID`,
 `ROLE_포로몬알림_ID`, `ROLE_이벤트알림_ID`, `ROLE_점검알림_ID`, `ROLE_업데이트알림_ID`),
 운영 권한 역할(`ROLE_OWNER_ID`, `ROLE_ADMIN_ID`, `ROLE_RPG_MANAGER_ID`,
