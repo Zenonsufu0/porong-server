@@ -7,7 +7,7 @@ import discord
 from discord.ext import commands, tasks
 
 from core import config
-from integrations.rpg_api import PoroApiClient
+from integrations.rpg_api import ZenonRpgApiClient
 
 # 필드 ID → 한글 표시명 매핑 (ExploreHubGui.Field 기준)
 FIELD_NAMES: dict[str, str] = {
@@ -22,7 +22,7 @@ FIELD_NAMES: dict[str, str] = {
 class FieldBossCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
-        self.api = PoroApiClient()
+        self.api = ZenonRpgApiClient()
         # field_id → 이전 상태 문자열 ("ALIVE" / "RESPAWNING" / "IMMINENT")
         self._prev_status: dict[str, str] = {}
 

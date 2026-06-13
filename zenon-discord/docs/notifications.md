@@ -18,25 +18,74 @@
 
 폴링 방식: `tasks.loop` 으로 주기 조회 후 이전 상태와 비교해 전환 시점에만 1회 발송.
 
-## 미구현 (TODO)
+## 운영 명령 배선 (T5, 2026-06-10 구현 🟢)
 
-| 알림 | 멘션 | 비고 |
+운영자가 직접 알림을 쏘는 경로 — `notifier.dispatch` 위임 + mod_log(announce). 봇 단독(게임 무관).
+
+| 알림 | 멘션 | 운영 명령 | 상태 |
+|---|---|---|---|
+| 업데이트/패치 | `@업데이트알림` | `/공지 <요약> [버전]` (admin) | 🟢 |
+| 점검 안내 | `@점검알림` | `/점검 <시작> <예상시간> [사유]` (admin) | 🟢 |
+| 월드보스 | `@월드보스알림` | `/보스알림 월드보스 …` (admin/event_manager) | 🟢 |
+| 시즌보스 모집/공지 | `@시즌보스알림` | `/보스알림 시즌보스 …` (admin/event_manager) | 🟢 |
+| 이벤트 시작/종료 | `@이벤트알림` | `/이벤트알림 시작\|종료 <이벤트>` (admin/event_manager) | 🟢 |
+| Zenon Mon 이벤트/공지 | `@포로몬알림` | (게임서버 push 또는 추후 운영 명령) | ⬜ |
+
+> 게임서버 push 트리거(인바운드)는 ① 리스너로 수신 준비됨 — 게임서버 송신 구현이 남은 작업.
+
+## 통합 알림 구조: push 수신 + 디스패처 (T1, DL-133) — 🟢 (2026-06-10 구현)
+
+> 🟢 **구현: `core/inbound.py`(리스너) + `core/notifier.py`(디스패처) + `modules/notify/catalog.py`(빌더 9종) + main.py 기동.**
+> 보안: `INBOUND_SECRET`·`INBOUND_PORT` 둘 다 설정 시에만 리스너 기동(미설정 시 무인증
+> 엔드포인트 절대 안 엶). IP허용→timestamp(±300s)→HMAC-SHA256(body)→idempotency LRU(1024).
+> 라우팅 9종(③) ↔ embed 빌더 9종 키 일치 검증 완료. 미등록 kind = graceful 200.
+> 폴링(field_boss)은 유지(④ 이관 대기 — 게임서버 push 미구현). 실 e2e(게임서버 push)는 스테이징.
+
+현재 알림 로직은 `modules/rpg/field_boss.py` 에 RPG 종속·폴링으로 박혀 있다.
+도메인이 늘면 채널 라우팅·멘션·전송이 모듈마다 중복된다. 통신 방향은
+**게임서버 → 봇 push**로 확정(DL-133). 알림 구조를 2부로 나눈다.
+봉투 스키마·이벤트 카탈로그 = [`integration_contract.md`](integration_contract.md) B.
+
+### ① 인바운드 수신 엔드포인트 (`core/inbound.py` — 경량 HTTP 리스너)
+- 게임서버가 이벤트를 봇으로 push. 봇은 `aiohttp.web` 앱을 discord 루프와 **함께** 띄운다(같은 프로세스).
+- **엔드포인트:** `POST {BOT_INBOUND_BASE}/events` (단일 진입, 봉투의 `kind`로 분기).
+- **검증 순서(외부 유입 → 강하게):**
+  1. **IP 허용** — `INBOUND_ALLOW_IPS`(게임 호스팅 IP)만. 방화벽/보안그룹과 이중.
+  2. **`X-Timestamp`** — `±N초`(예 300) 밖이면 `401`(리플레이 방지).
+  3. **`X-Signature`** — `hex(HMAC-SHA256(raw_body, INBOUND_SECRET))` 불일치 시 `401`.
+  4. **idempotency** — `idempotency_key` 기 수신이면 무시(dedup). 저장소 = 메모리 LRU(재시작 시 유실 허용) 또는 DB.
+- 통과 → 봉투 `{domain, kind, data}` 파싱 → `notifier.dispatch(domain, kind, data)`. 응답 `200 {"ok":true}` / 스키마 오류 `400`.
+- **전달 보증/엣지(검토 보강):**
+  - 봇 다운 중 push 는 **유실**(봇 측 큐·재시도 없음) → **게임서버가 재시도·실패허용 책임**(계약 명시).
+  - 미등록 `(domain, kind)`(스텁/오타) 수신 = graceful 처리(로깅 + `200`, 크래시 금지).
+  - `INBOUND_SECRET`은 현재 전 domain 공유 → 봉투 `domain` 스푸핑 가능(신뢰 경계 내 저위험). per-domain 시크릿은 추후 고려.
+  - 구현: `web.run_app()` 금지 → `AppRunner`+`TCPSite`를 봇 루프 task로 기동.
+- **인증 방식 결정:** **HMAC-SHA256 + timestamp**(권장안 채택). 단순 공유키 대비 본문 위변조·리플레이 방어. `.env`: `INBOUND_SECRET`.
+- `.env` 추가: `BOT_INBOUND_BASE`(또는 PORT) · `INBOUND_SECRET` · `INBOUND_ALLOW_IPS`(선택). placeholder만 `.env.example`.
+
+### ② 디스패처 `core/notifier.py`
+- **진입점:** `async def dispatch(domain, kind, data)` — 라우팅 테이블 lookup → embed 빌드 → 채널 전송 + 멘션.
+- **라우팅 테이블:** `(domain, kind) → {channel_id_key, mention_role_key}`. 채널/역할 ID는 `core/config.py`+`.env`(하드코딩 금지).
+- **embed 빌더 레지스트리(도메인 격리 유지):** core/notifier 는 도메인 코드를 import 하지 않는다.
+  각 도메인 모듈이 로드 시 `(domain, kind) → builder(data)→Embed` 를 **등록**하고, notifier 는 등록된 빌더만 조회.
+- **전송:** best-effort. 채널 없음/권한 없음/HTTP 오류 → 로깅 후 무시(알림 1건 실패가 봇을 막지 않음).
+- 각 도메인 모듈은 **이벤트 의미 해석(embed 구성)만**, 전송·라우팅은 notifier 위임.
+
+### ③ 라우팅 테이블 초안 (이벤트 카탈로그 × 채널/멘션)
+| domain.kind | 채널(config 키) | 멘션역할키 |
 |---|---|---|
-| 시즌보스 모집/공지 | `@시즌보스알림` | RPG 또는 운영 `/보스알림` |
-| 월드보스 | `@월드보스알림` | 서버 공통 |
-| 포로몬 이벤트/공지 | `@포로몬알림` | `poromon_api` 실구현 선행 |
-| 이벤트 시작/종료 | `@이벤트알림` | `modules/event` 실구현 선행 |
-| 점검 안내 | `@점검알림` | 운영 `/점검` |
-| 업데이트/패치 | `@업데이트알림` | 운영 `/공지` |
+| `rpg.field_boss_pre` / `field_boss_spawn` | `CHANNEL_FIELD_BOSS_ID` | `필드보스알림` |
+| `rpg.season_boss_recruit` | `CHANNEL_NOTICE_ID`(신규) | `시즌보스알림` |
+| `common.world_boss` | `CHANNEL_NOTICE_ID` | `월드보스알림` |
+| `common.maintenance` | `CHANNEL_NOTICE_ID` | `점검알림` |
+| `common.update` | `CHANNEL_NOTICE_ID` | `업데이트알림` |
+| `common.event_start` / `event_end` | `CHANNEL_NOTICE_ID` | `이벤트알림` |
+| `poromon.event` | `CHANNEL_ZENON_MON_NOTICE_ID`(신규) | `포로몬알림` |
 
-## 구조적 제안: 통합 알림 디스패처 (미설계)
+> 신규 채널 ID(`CHANNEL_NOTICE_ID`·`CHANNEL_ZENON_MON_NOTICE_ID` 등)는 `config.py`+`.env` 추가. 다수 공지를 단일 공지채널로 묶을지 분리할지는 운영 채널구조에 맞춰 확정.
 
-현재 알림 로직은 `modules/rpg/field_boss.py` 에 RPG 종속으로 박혀 있다.
-도메인이 늘면 채널 라우팅·멘션·전송이 모듈마다 중복된다.
+### ④ 폴링 → push 이관
+- 현행 RPG 필드보스 **폴링**(`field_boss.py`)은 유지. 게임서버가 `rpg.field_boss_*` push 구현 시 동일 embed 경로로 이관.
+- **이관 중 중복 방지:** 한 소스만 활성(폴링 XOR push) — 플래그로 제어. 양쪽 동시 활성 금지.
 
-→ `core/notifier.py` 인터페이스 제안:
-- 입력: `(domain, kind, embed, mention_role_key)` 같은 통일된 알림 요청.
-- 책임: 알림 키 → 채널 ID / 멘션 역할 ID 라우팅, 전송, 실패 무시 처리.
-- 각 도메인 모듈은 상태 감지만 하고 전송은 notifier 에 위임.
-
-실제 구현은 사용자 요청 시 진행한다(현재는 인터페이스 제안 수준).
+> 실제 구현은 사용자 요청 시 진행(현재는 설계 확정·인터페이스 수준). → [`task.md`](task.md) T1.

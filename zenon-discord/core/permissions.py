@@ -36,6 +36,17 @@ AUTO_GRANTABLE_NOTIFY_ROLES: tuple[str, ...] = tuple(config.NOTIFY_ROLE_IDS.keys
 # 관리자급(전체 운영 권한)으로 취급할 키
 ADMIN_LEVEL_ROLES: tuple[str, ...] = ("owner", "admin")
 
+# 권한 서열 (제재 대상 보호용 — 높을수록 상위, 미보유=0). moderation.md §1b:
+# "operator보다 같거나 높은 권한 보유자·Owner는 제재 대상에서 제외".
+_PERMISSION_RANK: dict[str, int] = {
+    "owner":           100,
+    "admin":           80,
+    "rpg_manager":     50,
+    "poromon_manager": 50,
+    "event_manager":   50,
+    "support":         40,
+}
+
 
 # ─── 정책 질의 ──────────────────────────────────────────────────────
 
@@ -74,6 +85,22 @@ def member_has_permission(member: discord.Member, *keys: str) -> bool:
 def is_admin(member: discord.Member) -> bool:
     """Owner 또는 Admin 권한 보유 여부."""
     return member_has_permission(member, *ADMIN_LEVEL_ROLES)
+
+
+def permission_rank(member: discord.Member) -> int:
+    """멤버의 최고 권한 서열(미보유=0). 제재 대상 보호 판정에 사용(§1b).
+
+    미설정(0) 역할은 무시. 여러 권한 역할 보유 시 최댓값.
+    """
+    if not isinstance(member, discord.Member):
+        return 0
+    member_role_ids = {r.id for r in member.roles}
+    best = 0
+    for key, rank in _PERMISSION_RANK.items():
+        rid = config.PERMISSION_ROLE_IDS.get(key, 0)
+        if rid and rid in member_role_ids and rank > best:
+            best = rank
+    return best
 
 
 # ─── 슬래시 커맨드 권한 데코레이터 ──────────────────────────────────
