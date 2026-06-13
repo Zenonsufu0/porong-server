@@ -501,3 +501,17 @@ jar 전수 검증(`egg_pool_design.md §8`)으로 Eggs Addon(`diesse`)의 실제
 - **런타임/배포 산출물**: `porong-mon/.local/**`(옛 dev 서버·installer-pack, 2.0G, gitignored), `fancymenu_data/last_world.fmdata`(dev 머신 인스턴스 경로 캐시) 미변경.
 
 **미적용/주의:** 실제 월드·DB·jar 등 런타임 파일 미변경. 옛 `porong-mon` 잔재는 삭제·이동 보류(사용자 승인 대기).
+
+### 049. LM 소환/접근 아이템 제작 레시피 차단 (결정 023 L55 잔여 해소) (2026-06-14)
+
+결정 023(LM 완전 비활성)의 미완 잔여 = **소환/접근 아이템 제작 레시피**. 구조물은 결정 043으로 차단됐으나(상자 loot도 구조물 미생성으로 무력), 플레이어가 **재료로 소환템을 직접 제작**하면 ZenonMonCore 전설 통제(조우권·사설룸)를 우회 가능했음(통제 구멍).
+
+**조치:** OpenLoader `zenonmon_lm_control` 팩에 `data/legendarymonuments/recipe/<name>.json` **동일경로 오버라이드 40개** 추가. 각 파일은 `fabric:load_conditions` = `fabric:all_mods_loaded ["zenonmon_disabled"]`(존재하지 않는 모드 → 항상 거짓) → 레시피 미로딩 = 제작 불가. 구조물 차단과 동일한 OpenLoader 동일경로 우선순위 기법(결정 043 검증). Fabric Resource Conditions API는 fabric-api JIJ로 번들(`fabric-resource-conditions-api-v1`, 조건 ID jar에서 실검증).
+
+**차단 40종(소환/접근템, 결과물 기준 분류):** arc_phone·azure_flute·distortion_portal·red_chain·cosmic_bag·ancient_origin_ball / fullmoon·newmoon whistle·dream_catcher·gs_ball·rainbow_feather·vortex_stone·magma_stone·meltan_box·curry_of_justice / 트리트5(entei·raikou·suicune·latias·latios) / 항아리 item6+block6(eub·fub·sub·geub·gfub·gsub) / 골렘키6(dragon·electric·ice·rock·steel·titan) / shards_to_lightstone·darkstone.
+
+**보존:** distortion_* 건축블록·골렘 블록/주괴/스크랩·origin 주괴/블록·galar_particle·pauldron(장식 갑옷)·철광석 제련 등 무해 레시피 102→62 유지.
+
+**제외(별도 결정 필요):** `suitcase_block`(창고형 추정 불확실), `mega_showdown:rusted_sword/shield`(자시안/자마젠타 — MSD 도메인, LM 패스 범위 밖).
+
+**검증:** 40개 전부 유효 JSON + jar 실경로와 1:1 대조(orphan 0). **헤드리스 한계**: 실제 제작 차단·datapack 우선순위는 서버 기동 후 `/datapack list` + 레시피북/제작 시도로 **알파 인게임 확인 필요**. (보조: 재료 광석 placed_feature 비활성은 미적용 — 레시피 차단 시 재료 무용이라 1차 제외.)

@@ -1,6 +1,6 @@
 {
   "pack": {
     "pack_format": 48,
-    "description": "Zenon Mon LM control — disable Legendary Monuments natural structure generation (decision 023). Legendaries are controlled by ZenonMonCore (tickets/private rooms) only."
+    "description": "Zenon Mon LM control — disable Legendary Monuments legendary acquisition (decision 023 / 049). (1) natural structure generation off (worldgen/structure_set empty); (2) summon/access item crafting recipes off (40 recipes overridden with fabric:load_conditions all_mods_loaded[zenonmon_disabled] = false). Legendaries are controlled by ZenonMonCore (tickets/private rooms) only. Cosmetic distortion blocks / golem armor kept. Excluded (separate decision): suitcase_block, mega_showdown rusted_sword/shield (MSD domain)."
   }
 }

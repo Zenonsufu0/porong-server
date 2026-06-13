@@ -52,7 +52,7 @@
 - [x] 클라 편의성 티어 분류(`client_mod_tiers.md`) — 간편설치기 기반
 
 **Phase 1 잔여 / 다음**
-- [ ] LM 소환 통제 잔여(별도 패스): `loot_table/*` 차단 + `arc_phone` 등 소환아이템 제작 레시피 무력화(Fabric 조건부 레시피)
+- [x] **LM 소환 통제 (결정 049, 2026-06-14)**: 소환/접근템 **40 레시피** `fabric:load_conditions`(all_mods_loaded[zenonmon_disabled]=거짓) 오버라이드로 차단(`zenonmon_lm_control`). loot=구조물 미생성으로 무력. ⏳ 알파 인게임 제작차단·datapack 우선순위 확인.
 - [ ] 실제 클라 접속 테스트(클라 인스턴스로 서버 접속 — 모드 불일치 거부 없음, 스폰/배틀/TPS)
 - [ ] 간편설치기 스펙 확정: T1/T2 토글 단위·의존성 자동해소(CurseForge/Modrinth 메타 재검증)
 
@@ -259,7 +259,7 @@
 
 **▶ 다음 세션 — 오픈 준비도 평가: "알파 검증만 남음"은 아직 아님. 알파 전 닫아야 할 블로커 우선:**
 1. 🔴 **디스코드 봇 측 인증 구현** — 최우선 블로커. 없으면 미인증=허브감금이라 **전원 갇힘**. 별도 워크트리(`porong-work-discord`). 봇 .env에 apiKey 동일값 + base `http://127.0.0.1:25580`. (사용자 직접)
-2. 🔴 **LM 소환 아이템 통제** — 결정 043으로 구조물은 막았으나 `arc_phone` 등 소환템 **레시피/loot 미차단(L55 미완)** → 전설 자유소환 가능, 통제 구멍. 메가스톤 때처럼 jar 까서 레시피/loot 무력화 필요. **이 워크트리에서 바로 가능(추천 시작점).**
+2. ✅ **LM 소환 아이템 통제 (결정 049, 2026-06-14 완료)** — `arc_phone` 등 소환/접근템 **40 레시피**를 `zenonmon_lm_control`에 `fabric:load_conditions` 오버라이드로 차단(제작 불가). loot=구조물 미생성으로 무력. 제외: suitcase_block·MSD rusted_sword/shield(별도). ⏳ 알파 인게임 확인만 잔여.
 3. 🟡 **특성 마개조 6종(L250) 실구현 상태 점검** — 코드(MakeoverStone/Service/EngineeringMenu) 있으나 텍스처렌더·forced특성 전투반영·TM한글검색 미검증. 완성/미완 판정 필요.
 4. ⬜ **운영(빠름)**: `/poromon admin netherhub` 1회 / **허브 spawn 실좌표**(사용자 접속 후 전달 → core.json + `/setworldspawn`).
 5. ⬜ **클라 접속 테스트(L56)** — 알파 0번째 관문(모드일치·스폰·배틀·TPS). 미수행.

@@ -168,7 +168,7 @@ AmbientEnvironment · BHMenu · BetterPingDisplay · BetterThirdPerson · CraftP
 - [x] Mega Showdown / SimpleTMs / Eggs / **Legendary Monuments** 로드 (2026-06-05 확인)
 - [x] **LM 하드 의존 해소 확인(결정 023 §2)**: `chipped`/`cobblefurnies`/`terrablender`(+lib athena/resourcefullib) **§1b로 명시 추가**해 `Missing dependency` 경고 없음.
 - [x] **LM 구조물 자연 생성 차단(결정 023)**: datapack `zenonmon_lm_control`(OpenLoader)로 `worldgen/structure_set/*` 21종을 빈 구조물 오버라이드. 2026-06-05 검증 — `/locate structure legendarymonuments:*` "Could not find". 추적: `modpack/overrides/config/openloader/packs/zenonmon_lm_control/`.
-- [ ] **LM 소환 통제 잔여(결정 023, 별도 패스)**: `loot_table/*` 드롭 차단 + 소환/제단접근 **아이템 제작 레시피 무력화**(예 `arc_phone` 바닐라 재료 제작). Fabric 조건부 레시피로 제거 가능. → ZenonMonCore 전설 통제 정합. **이번 범위 제외(사용자 선택).**
+- [x] **LM 소환 통제 (결정 023 → 049 완료, 2026-06-14)**: 소환/제단접근 **아이템 제작 레시피 40종** 무력화(`zenonmon_lm_control`에 `fabric:load_conditions` 동일경로 오버라이드 — 항상 거짓 → 미로딩). `loot_table/*`은 구조물 미생성으로 무력. → ZenonMonCore 전설 통제 정합. ⏳ 알파 인게임 확인.
 
 ### 6-5. 클라 접속 / 안정성
 - [ ] Zenon Mon 클라 모드팩 접속 성공(서버가 클라 전용 모드 요구 안 함)
