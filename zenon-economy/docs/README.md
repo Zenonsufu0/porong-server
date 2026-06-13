@@ -18,7 +18,7 @@
 | | [`indicators.md`](03-economy/indicators.md) | 경제 지표 마스터 리스트 |
 | | [`balance.md`](03-economy/balance.md) | P1 수치 밸런싱 (§0~§18) |
 | **04-content** | [`content_catalog.md`](04-content/content_catalog.md) | 산출품·가공 체인·커스텀 아이템 |
-| | [`agenda_catalog.md`](04-content/agenda_catalog.md) | 의회 안건 49종 |
+| | [`agenda_catalog.md`](04-content/agenda_catalog.md) | 의회 안건 12카테고리 55종 |
 | **05-data** | [`data_schema.md`](05-data/data_schema.md) | 영속 DB 엔티티 스키마 |
 | **06-roadmap** | [`roadmap.md`](06-roadmap/roadmap.md) | 구현 로드맵·시즌1/2 MVP 경계·제작 체크리스트 |
 
