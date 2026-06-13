@@ -1,4 +1,4 @@
-# porong-gun 작업 노트 (다음 세션 이어가기용)
+# zenon-gun 작업 노트 (다음 세션 이어가기용)
 
 > **🚀 상태: 구현 착수(M0, 2026-06-10)** — **porongun-core 스캐폴딩 빌드 성공**(`feat f1bf0cc`: Forge 1.20.1-47.4.10·Java 17 toolchain·Gradle 8.8·ForgeGradle 6, 빈 모드 BUILD SUCCESSFUL → porongun-0.0.1.jar). 환경 검증 완료(빌드 됨). **✅ ①dev 서버 로드 테스트 성공(2026-06-10): Done 8.5초·porongun-core 로드 로그 확인·19모드 충돌 0·porongun 에러 0**(보이는 에러=OPaC config 보정 WARN·TaCZ Blueprints blood_strike_1 기존 이슈, porongun 무관).
 > **✅ ②🔴 인벤 GUI 프로토타입 검증 완료(2026-06-11, runClient 인게임):** 커스텀 `AbstractContainerMenu`/`AbstractContainerScreen`로 **3대 유리 레이어 전부 동작 확인** — 무게 점유칸(무게N=자기1칸+뒤 N-1칸 푸른 유리막, 줄 경계 안 멈춤·`mayPlace` 배치 거부)·보안칸(회색 봉인)·검사 가림(어두운 유리, 토글+마우스오버 해제). 핵심 기법=아이템 위 **z=300 오버레이 fill**(에셋 0, `renderLabels` 훅, `renderSlot`은 official 매핑상 private). **WSLg에서 runClient 그래픽 구동 성공**(M0 최대 리스크 해소). 코드=`com.porong.gun.{inv,client,registry,command}`(미커밋). 트리거=로그인 자동 1회+우클릭+`/porongun invtest`, 무게 태그=`/porongun setweight <n>`. ⚠️ 검사 가림 불투명도(`COL_CONCEAL` 알파)·보안 오버레이 명도는 튜닝 노브(밝은 아이템은 어둡게 덜 됨). ⚠️ WSLg 입력=**마우스(XTEST)만 동작, 키보드 주입 불가** → GUI 트리거는 마우스/자동 경로 유지 권장. **⚠️ 모델 보정(2026-06-11): 인벤=배낭(별도 컨테이너 아님)** — 프로토타입은 별도 `SimpleContainer`로 유리 렌더 기법만 검증했으나, 정식 M-Inv는 **바닐라 플레이어 인벤 자체를 줄 단위 개방(2줄18→27→36)** 하고 그 슬롯에 유리 레이어를 얹어야 함(바닐라 `InventoryMenu` 슬롯 잠금·배치 거부=Mixin/이벤트 후킹 = 새 검증거리). → survival.md 「인벤=배낭」 항목.
@@ -14,13 +14,13 @@
 >   - **재료/코인 텍스처 = 바닐라 임시 치환**(사용자 16×16 직접 제작 예정 → [`docs/texture_todo.md`](docs/texture_todo.md)): 텅스텐→철괴·열화우라늄→에메랄드·군용→네더라이트·전자→비교기·코인→금조각. 커스텀 png 삭제, 코어 블록 png만 유지. 모델 json `layer0`=`minecraft:item/*`(정식 PNG 오면 `porongun:item/*`로 복구).
 >   - **M-Core 2단계(자립):** `core.CoreLevels`(레벨1~5 = 내구100~1000·보안칸2~6·도구효율5~10·업글비용 재료+화폐 800~8000)·**기지관리 GUI 업그레이드**(`base.BaseManageMenu`/`client.BaseManageScreen` — 재료·코인 검증·차감·레벨업·재오픈)·**코어 자물쇠**(`core.CoreLockEvents` = RightClickBlock 가로채 영역(64×64)내 컨테이너 외부인 잠금, 소유자 UUID 기준)·**코어 파괴=레벨초기화+자물쇠해제**(`CoreManager.removeCore`). 코어 좌표는 buf로 허브→기지관리 전달. dev 키트=코어4·코인3000·업글재료(철블록8·다이아16·텅스텐64·군용16·전자8).
 >   - **⚠️ 후속(외부 의존):** 블록 내구 실제 부수기·자가복구 tick=**M-Raid** / 보안칸 실동작=**M-Inv**(E키 바닐라 `InventoryMenu` 후킹 🔴) / **연합 권한 자물쇠 예외=OPaC deobf 연동**(`build.gradle` compileOnly fg.deobf TODO). 레벨 데이터엔 값 다 반영됨(그 모듈이 참조만).
-> **📍 다음 세션 시작점 (2026-06-13~): M-Core 2단계 인게임 검증 → 다음 모듈.** ①사용자 검증 = 기지관리 업글(LV2~3 재료/코인 차감·레벨 표시)·코어 자물쇠(영역내 상자 비소유 잠금=둘째 계정 필요)·한글 정상. ②다음 택1: **M-Inv 인벤 통합**(배낭=바닐라 인벤 유리레이어, 🔴 InventoryMenu 후킹) / **M-Raid**(블록 내구·자가복구·곡괭이 효율·폭약) / **OPaC deobf 연동**(연합 파티·자물쇠 예외·문 권한) / **M-Material 레시피**(`gun_smith_table`) / **M-POI**. **⚠️ 레포 이름 변경 예정 — 변경 후 `git remote set-url origin <새 URL>` 갱신 필요(현재 `https://github.com/Zenonsufu0/porong-server.git`).**
+> **📍 다음 세션 시작점 (2026-06-13~): M-Core 2단계 인게임 검증 → 다음 모듈.** ①사용자 검증 = 기지관리 업글(LV2~3 재료/코인 차감·레벨 표시)·코어 자물쇠(영역내 상자 비소유 잠금=둘째 계정 필요)·한글 정상. ②다음 택1: **M-Inv 인벤 통합**(배낭=바닐라 인벤 유리레이어, 🔴 InventoryMenu 후킹) / **M-Raid**(블록 내구·자가복구·곡괭이 효율·폭약) / **OPaC deobf 연동**(연합 파티·자물쇠 예외·문 권한) / **M-Material 레시피**(`gun_smith_table`) / **M-POI**. **✅ 레포 이름 변경 완료 — origin = `https://github.com/Zenonsufu0/zenon-server.git`.**
 > **상태(설계):** **설계 단계 완료** — dev 서버·통합 게이트·컨셉 검토 완료(06-08). **06-09: 전투·탄약·경제·기지/방벽·월드/POI·결전·커스텀 시스템 대거 확정 + 설계 구멍 4개(코어 자물쇠·좀비-방벽·농성 압도·레이드 동기) 해결.** **06-10: #2 밸런싱 앵커 체인 전체 완료(1~5단계 + 화폐) + 배틀라이플 .308 텅스텐 재분류·LMG 캡·상자 드랍 테이블 상세**(전투 TTK·방어 차등 H24·고급총 3단·수급 24h·공급 48·비파밍 비용·화약 앵커 5코인·레이드 돌파/대물 관통/RPG·통합 검산·배틀라이플=POI 일상총·티어별 상자 드랍+청사진 루트). **+ 스캐브 랭크 4랭크·상자 드랍 테이블·결전 #2 수치·헬리패드 추출·의료 #2 수치·잔여 디테일(방벽 색·상자 검사시간·정보 탭) 전부 완료.** **+ 정식 착수 준비 검토 완료([`docs/launch_plan.md`](docs/launch_plan.md): 0순위 검증 게이트 7항·porongun-core 구현 범위·MVP 단계 M0~M4·리스크).** **✅ MVP 1차 범위 = M3(결전까지) 확정(06-10), 개발은 M1→M2→M3 순차. 🔜 다음 = M0 검증 게이트 7항 실측(dev 서버, 특히 🔴 인벤 GUI 프로토타입). 빌드 착수는 사용자 명시 요청 시.**
 > **SoT:** [`docs/concept.md`](docs/concept.md)(비전+인덱스) + `docs/platform.md` + `docs/design/`(finale·base_raid·survival·world·economy) + [`docs/launch_plan.md`](docs/launch_plan.md)(착수 계획). 아이디어 이력: [`docs/idea_inbox.md`](docs/idea_inbox.md) (INBOX-001~042). **충돌 시 design/ + 아래 06-09 블록이 최신.**
 > **🔍 전체 정합 검토 완료(06-10):** 2개 에이전트 교차 검증 → 🔴 설계 모순 0건, 핵심 앵커 체인(전투 TTK→공급 48→비파밍→화폐→레이드→결전) 정합 확인. 🟡 불일치 11건 수정(공급 옛값 18→48·부위HP 총합≈20 정정·헬기 4인승→6~8좌석·보스 HP 150→180·concept 좀비 평소 안전지대·Y25 M2 배치·상자 티어 차등·반창고 상점가·총격 발수·platform 좀비 모드). 옛 폐기표현(.308 AP·다액면·3중 캡·자동생성 방벽·위더) 잔존 없음(idea_inbox는 이력이라 보존).
 > **설계 작업 공간:** `docs/design/economy.md`(#1 제작법 / #2 밸런싱) · `base_raid.md`(기지·방벽) · `world.md`(POI·맵) · `finale.md`(결전) · `survival.md`(인벤·보안함).
 >
-> **🖥️ dev 서버 (Git 비추적 런타임 — `porong-gun/.local/server/`):**
+> **🖥️ dev 서버 (Git 비추적 런타임 — `zenon-gun/.local/server/`, 2026-06-14 porong-gun/.local에서 이전):**
 > - **Forge 1.20.1 (47.4.10)** / Java 21 구동 / 포트 **25567** / hard / whitelist / max 30. 기동: `.local/server/start.sh`.
 > - **모드팩 = "Escape From Porong 0.1.0"**. **최종 스택 = 서버 18 + 클라 1**(ChaosZPack 클러스터 드랍 후 린 스택). 제거분 = `.local/_removed-chaoszpack/`.
 > - 유지: TaCZ스택·First Aid·Lost Cities·LC2H·Underground Bunkers·Undead Nights·Zombies B&B·OPaC·Bandits·libs.
@@ -104,7 +104,7 @@
 - **✅ 운영 정책=약관([`docs/ops_policy.md`](docs/ops_policy.md) 신설, 2026-06-10):** **최소 개입 철학**(게임 내 약탈·배신·기습 다 자유=게임 일부, 운영자는 시스템 밖[핵·버그악용·현실 괴롭힘·RMT]만 개입, 1인 운영 정합). 금지 행위표·허용(분쟁 예방 명시)·밴(디스코드↔화이트리스트 연동·신고 기반)·시즌(2주·새 시드)·**롤백=서버 장애만(게임 내 손실 무롤백=비정한 톤)**·안티치트 자동화·운영자 특혜 X. 디스코드 인증=약관 동의 간주. concept 인덱스 추가.
 - ✅ 위더 보스 항목 폐기(위더 미사용 결정과 충돌, 보스=보스 스캐브 대체).
 
-> **브랜치:** `feature/gun-dev` (worktree `porong-work-gun`).
+> **브랜치:** `feature/gun-dev` (worktree `zenon-work-gun`).
 > decision_log는 정식 착수 확정 시 일괄 기록 예정(아직 구상→설계).
 
 ## 한 줄 컨셉
