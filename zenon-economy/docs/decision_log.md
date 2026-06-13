@@ -7,6 +7,24 @@
 
 ---
 
+### DL-E145 모드 매니페스트 신설 + NeoForge 1.21.1 호환 실측 (roadmap §5)
+
+**배경:** 모드 결정이 spec §9·design·concept·DL(E030/E069/E082)에 흩어져 착수 청사진이 불명확. 한 곳(`roadmap.md` §5)에 매니페스트로 모으고, **1.21.1 NeoForge 호환을 웹 실측**(2026-06)했다.
+
+**호환 확인 (시즌1 필수 — 전부 1.21.1 NeoForge 정식 ✅):** Create 6.0.10 · Create Crafts&Additions 1.6.0 · **Immersive Engineering 12.4.2-194 + Immersive Petroleum 4.4.1-37**(확정 재료 모드 안전) · Croptopia 4.2.4 · Farmer's Delight 1.3.2 · KubeJS 2101.7.x · FTB Quests(2026). 시즌2: AE2 stable · Mekanism **alpha(비권장)**.
+
+**드러난 리스크 (P1 착수 게이트):**
+- **Steam'n'Rails 1.21.1 = 비공식 커뮤니티 포트(rc)** — 공식 아님 → 안정성 검증 or 대안 필요.
+- **FTB Quests↔KubeJS 연동 = FTB XMod Compat 추가 모드** 의존(1902.5.0+).
+- **Mekanism 1.21.1 alpha** — 시즌2라 시간 여유, 안정화 전 보류.
+- **버전 핀**은 착수 직전 재확인(Create 애드온군은 Create 버전 종속).
+
+**가구(furniture) 위상 정리:** "가구"는 **마을 장식이 아니라 B2C 8대 완성 소비재 중 하나**(내구재, DL-E066) = 주민 구매 시장재. "가구 모드"(후보 Macaw's Furniture 1.21.1 ✅) 채택은 **커스텀 텍스처 부담 회피용 조달**(식품=Croptopia 논리와 동일). **결정 대기** — 옵션 (a)Macaw's 채택 / (b)커스텀 흡수 / (c)시즌2 연기. 시즌1 칼질(2~3군)상 후순위 가능.
+
+**근거 문서:** `roadmap.md` §5(신설)·`spec.md` §9·`content_catalog.md`. 관련: DL-E030(플랫폼)·E069/E070(소싱)·E082(IE 확정)·E066(소비재 8군)·E144(정합).
+
+---
+
 ### DL-E144 정합 스윕 — 안건 수(→55)·진화 세부단계(→20)·시즌 길이 후행 불일치 정정
 
 **배경:** 시즌1 MVP 범위 재점검 중 과거 2개 변경(§6 분리 DL-E130 · 진화 5단계 재명명 DL-E134/sublevel E142)의 후행 스윕이 일부 누락돼, **현재형 문서가 옛 수치를 잔존**시킨 것을 발견. 시즌1/2 경계 *분류 자체는 일관*(DL-E138 정정 잘 전파)이고 빠진 루프도 없음 — 순수 **문서 정합(숫자) 결함**.
