@@ -38,19 +38,19 @@ server/
 .agents/skills/ccpm
 
 # archived docs are part of the documentation history and should be tracked.
-!porong-rpg/docs/_archive/
-!porong-rpg/docs/_archive/**
+!zenon-rpg/docs/_archive/
+!zenon-rpg/docs/_archive/**
 
 # local backup files (예: AGENTS.md.bak.YYYYMMDD-HHMMSS)
 *.bak.*
 # Private weapon references / failed Blockbench attempts
-porong-rpg/assets/source/items/weapons/**/_private_refs/
-porong-rpg/assets/source/items/weapons/**/refs/web_refs/
-porong-rpg/assets/source/items/weapons/**/failed_attempts/
-porong-rpg/assets/source/items/weapons/**/_legacy/failed_auto_attempts/
+zenon-rpg/assets/source/items/weapons/**/_private_refs/
+zenon-rpg/assets/source/items/weapons/**/refs/web_refs/
+zenon-rpg/assets/source/items/weapons/**/failed_attempts/
+zenon-rpg/assets/source/items/weapons/**/_legacy/failed_auto_attempts/
 
 # Obsidian local workspace/settings
-porong-rpg/docs/.obsidian/
+zenon-rpg/docs/.obsidian/
 
 # ─────────────────────────────────────────────────────────────
 # 보안/라이선스 정리 (외부 에셋 재배포 금지, WSL 찌꺼기, 비밀정보)
@@ -89,9 +89,6 @@ credentials.*
 # 로컬 작업은 디스크에 유지(gitignored). 히스토리에서도 제거됨(filter-repo).
 # ─────────────────────────────────────────────────────────────
 assets/
-# 예외: porongun-core 자체 제작 소스 에셋(외부 유래 아님, 모드 동작 필수 — 텍스처/모델/lang)
-!porong-gun/porongun-core/src/main/resources/assets/
-!porong-gun/porongun-core/src/main/resources/assets/**
 
 # Minecraft runtime files
 **/logs/
@@ -128,3 +125,7 @@ assets/
 # Local runtime per worktree
 .local/
 **/.local/
+
+# 예외: porongun-core 자체 제작 소스 에셋(외부 유래 아님, 모드 동작 필수 — 텍스처/모델/lang)
+!zenon-gun/porongun-core/src/main/resources/assets/
+!zenon-gun/porongun-core/src/main/resources/assets/**
