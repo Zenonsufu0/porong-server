@@ -1,6 +1,6 @@
 # 필드 4: 무너진 초소 (ruined_outpost)
 # 권장 강화: 12강~16강 / 필드 레벨: 4
-# PoroRPG drop hook: outpost_normal_drop / outpost_elite_drop / fallen_knight_drop
+# ZenonRPG drop hook: outpost_normal_drop / outpost_elite_drop / fallen_knight_drop
 
 Outpost_Pillager:
   Type: PILLAGER

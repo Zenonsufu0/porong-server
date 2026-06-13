@@ -1,11 +1,11 @@
 # 필드 드랍 테이블
-# 실제 아이템(강화석, 큐브, 필드 재료)은 PoroRPG 훅에서 처리
+# 실제 아이템(강화석, 큐브, 필드 재료)은 ZenonRPG 훅에서 처리
 # 이 파일은 MythicMobs 레벨 EXP 드랍 정의만 포함
 # T1 장비 파편 드랍 없음 (1차 시즌 설계: 접속 시 일괄지급 + 영지 등급작)
-# 큐브는 완성품 직드랍 구조 (PoroRPG 드랍 훅 담당)
+# 큐브는 완성품 직드랍 구조 (ZenonRPG 드랍 훅 담당)
 
-# 참고: 실제 골드/큐브/재료 드랍은 PoroRPG의 FieldDropHandler가
-# 아래 PoroRPG hook ID를 기반으로 처리
+# 참고: 실제 골드/큐브/재료 드랍은 ZenonRPG의 FieldDropHandler가
+# 아래 ZenonRPG hook ID를 기반으로 처리
 # plains_normal_drop, plains_elite_drop, plains_predator_drop
 # mine_normal_drop, mine_elite_drop, mine_golem_drop
 # waterway_normal_drop, waterway_elite_drop, waterway_lord_drop

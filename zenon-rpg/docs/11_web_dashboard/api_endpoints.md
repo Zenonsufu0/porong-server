@@ -1,10 +1,10 @@
 # 웹 대시보드 API 엔드포인트 목록
 
-> **[STATUS: DRAFT]** — 대시보드에서 호출하는 PoroRPG HTTP API 엔드포인트 설계.
+> **[STATUS: DRAFT]** — 대시보드에서 호출하는 ZenonRPG HTTP API 엔드포인트 설계.
 >
 > 기준일: 2026-05-23
 >
-> 기반: PoroRPG HTTP API, 포트 8765. 모든 엔드포인트는 Bearer 토큰 인증 필요.
+> 기반: ZenonRPG HTTP API, 포트 8765. 모든 엔드포인트는 Bearer 토큰 인증 필요.
 
 ---
 

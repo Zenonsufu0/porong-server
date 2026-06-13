@@ -8,8 +8,8 @@
 ## 0. ✅ 빌드/배포 동기화 — 완료 (2026-05-31, DL-098)
 
 - [x] **jar 재빌드** — DL-091~097 코드 반영. `zenon-rpg-0.1.0.jar` 빌드(테스트 통과).
-- [x] **런타임 jar 단일화** — server/plugins의 중복 jar 2개(PoroRPG.jar + zenon-rpg-0.1.0.jar) 제거 후 새 빌드 1개 배치.
-- [x] **stale seed 동기화** — src 정본을 `server/plugins/PoroRPG/seeds/`에 덮어쓰기(25→27파일). boss_master(시즌6+최종3)·강화표·item_master·잠재풀 src 정합 확인.
+- [x] **런타임 jar 단일화** — server/plugins의 중복 jar 2개(ZenonRPG.jar + zenon-rpg-0.1.0.jar) 제거 후 새 빌드 1개 배치.
+- [x] **stale seed 동기화** — src 정본을 `server/plugins/ZenonRPG/seeds/`에 덮어쓰기(25→27파일). boss_master(시즌6+최종3)·강화표·item_master·잠재풀 src 정합 확인.
 - [x] **MM 셸 배포** — server-config/mythicmobs → 런타임. 옛 stale 파일(FieldBosses/SeasonBosses/PoroFieldMobs) 제거로 `rift_king` 중복 충돌 해소. Outpost_Knight 리네임 반영.
 - [x] **부팅 검증** — 실서버 부팅 시 8개 bootstrap 전부 completed, disable 0, MythicMobs 감지 → 리스너 등록, Done. (부팅 중 드러난 검증 과엄격 4건 DL-098로 해소.)
 

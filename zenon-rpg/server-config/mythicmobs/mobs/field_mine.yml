@@ -1,6 +1,6 @@
 # 필드 2: 폐광 지대 (abandoned_mine)
 # 권장 강화: 5강~10강 / 필드 레벨: 2
-# PoroRPG drop hook: mine_normal_drop / mine_elite_drop / mine_golem_drop
+# ZenonRPG drop hook: mine_normal_drop / mine_elite_drop / mine_golem_drop
 
 Mine_Crawler:
   Type: CAVE_SPIDER

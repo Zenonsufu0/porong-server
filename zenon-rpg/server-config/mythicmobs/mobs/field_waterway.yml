@@ -1,6 +1,6 @@
 # 필드 3: 오염된 수로 (corrupted_waterway)
 # 권장 강화: 8강~13강 / 필드 레벨: 3
-# PoroRPG drop hook: waterway_normal_drop / waterway_elite_drop / waterway_lord_drop
+# ZenonRPG drop hook: waterway_normal_drop / waterway_elite_drop / waterway_lord_drop
 
 Waterway_Drowned:
   Type: DROWNED

@@ -1,9 +1,9 @@
-# PoroRPG 모듈 설계 문서
+# ZenonRPG 모듈 설계 문서
 
-> **[STATUS: REFERENCE]** — PoroRPG 모듈 상세 참조. 공식 플러그인 경계는 `CANON.md`가 우선.
+> **[STATUS: REFERENCE]** — ZenonRPG 모듈 상세 참조. 공식 플러그인 경계는 `CANON.md`가 우선.
 
 > 작성 기준: 2026-05-20  
-> 대상: PoroRPG 플러그인 (custom-plugins/poro-rpg)  
+> 대상: ZenonRPG 플러그인 (custom-plugins/zenon-rpg)
 > 목적: "무엇이 어떻게 구현됐는가"를 기록하는 기술 설계 문서
 
 ---
@@ -11,7 +11,7 @@
 ## 1. 전체 구조 개요
 
 ```
-PoroRPGPlugin (진입점)
+ZenonRPGPlugin (진입점)
 │
 ├── Foundation Layer
 │   ├── CommonFoundationBootstrap → FoundationContext
@@ -60,7 +60,7 @@ PoroRPGPlugin (진입점)
 
 **초기화 순서:**
 1. `config.yml` 로드 → `CommonConfig`
-2. `SqliteConnectionProvider` 생성 (DB 경로: `plugins/PoroRPG/poro.db`)
+2. `SqliteConnectionProvider` 생성 (DB 경로: `plugins/ZenonRPG/poro.db`)
 3. `DatabaseBootstrapper.migrate()` → DDL 테이블 생성/마이그레이션
 4. 로거 팩토리 초기화
 
@@ -423,8 +423,8 @@ Component.text("").font(Key.key("poro","gui"))
 
 | 데이터 | 저장 방식 | 저장 위치 |
 |---|---|---|
-| 플레이어 성장 (장비, 강화, 잠재, 각인, 레벨) | JSON 파일 | `plugins/PoroRPG/player_data/<UUID>.json` |
-| 영지 저장고 수량 | JSON 파일 | `plugins/PoroRPG/player_data/<UUID>.json` |
+| 플레이어 성장 (장비, 강화, 잠재, 각인, 레벨) | JSON 파일 | `plugins/ZenonRPG/player_data/<UUID>.json` |
+| 영지 저장고 수량 | JSON 파일 | `plugins/ZenonRPG/player_data/<UUID>.json` |
 | Discord 연동 정보 | SQLite | `poro.db → discord_link` |
 | 플레이어 플래그 | SQLite | `poro.db → player_flags` |
 | 보스 클리어 기록 | SQLite | `poro.db → boss_clear_log` |
@@ -581,7 +581,7 @@ HttpApiServer → AuthService.verify(code, discordId)
 
 **빌드 명령:**
 ```bash
-cd custom-plugins/poro-rpg
+cd custom-plugins/zenon-rpg
 ./gradlew jar
 ```
 
@@ -589,7 +589,7 @@ cd custom-plugins/poro-rpg
 
 **배포:**
 ```bash
-cp build/libs/zenon-rpg-0.1.0.jar server/plugins/PoroRPG.jar
+cp build/libs/zenon-rpg-0.1.0.jar server/plugins/ZenonRPG.jar
 ```
 
 **서버 재시작 필요:** 플러그인은 핫 리로드를 지원하지 않는다.

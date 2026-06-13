@@ -35,7 +35,7 @@
 |---|---|---|
 | 상점 | `market/ShopGui` — config.yml `shop.{material,block,cosmetic,special}` 로드 + `reloadItems(Plugin)` 보유 | 이미 config 기반. 명령으로 config write+reload 또는 DB 이전이면 핫에딧 가능 |
 | 몹 스탯 | MythicMobs YAML(`Damage:`/`Health`)만. 시드 CSV에 없음(`boss_master.csv`는 메타데이터만, HP/DEF/ATK 없음) | 런타임 오버라이드 레이어 신규 필요 |
-| 스폰 경로 | `FieldSpawnService` → `mythicSpawner` BiFunction(PoroRPGPlugin:642~). 람다가 스폰 **Entity** 보유 | **스폰 직후 어트리뷰트 주입 지점 존재** |
+| 스폰 경로 | `FieldSpawnService` → `mythicSpawner` BiFunction(ZenonRPGPlugin:642~). 람다가 스폰 **Entity** 보유 | **스폰 직후 어트리뷰트 주입 지점 존재** |
 | 몹 식별 | scoreboard tag(`poro_field_N`/`poro_rank_elite`/`poro_type_field_boss`) + mobId | 오버라이드 키로 사용 |
 | 명령 패턴 | `AdminTogglesCommand` + `AdminTogglesService`(상태 보유 서비스 + 명령) | 신규 명령의 모델 |
 | DB 패턴 | `*Ddl`/`*Migration`/`*Repository` 정형 (Auction·Pvp·EconomyFlow 등) | 신규 테이블 정형 따름 |
@@ -47,7 +47,7 @@
 
 ### 4.1 축 A — 몹 스탯 런타임 오버라이드 레이어
 
-**구조:** PoroRPG가 스폰 시 DB 오버라이드를 적용(MythicMobs reload 불필요).
+**구조:** ZenonRPG가 스폰 시 DB 오버라이드를 적용(MythicMobs reload 불필요).
 
 ```
 [DB] mob_stat_override         [스폰] MythicMobSpawnEvent 리스너 (전 경로 커버)
@@ -76,7 +76,7 @@
 **§4.1-C 보스 패턴 데미지 제약 및 대안:**
 - 보스의 강타/폭발 등은 MythicMobs 스킬에서 발동 → 데미지가 YAML에 박힘. 런타임 어트리뷰트로 못 바꿈.
 - 대안 (택1, 후속 결정):
-  - **(C-1) 글로벌 배율 placeholder** — MythicMobs 스킬을 `damage{a=<배율변수>×기본}` 형태로 바꾸고, PoroRPG가 PlaceholderAPI/Mythic 변수로 보스별 패턴 배율을 노출. 런타임 명령으로 그 변수만 조정. (가장 유연)
+  - **(C-1) 글로벌 배율 placeholder** — MythicMobs 스킬을 `damage{a=<배율변수>×기본}` 형태로 바꾸고, ZenonRPG가 PlaceholderAPI/Mythic 변수로 보스별 패턴 배율을 노출. 런타임 명령으로 그 변수만 조정. (가장 유연)
   - **(C-2) YAML 배포 유지** — 패턴 데미지는 DL-116 §6대로 YAML 배포로 두고, 런타임은 HP+평타만. (MVP 단순)
 - **권고:** MVP는 (C-2). 패턴 배율 핫에딧 수요가 확인되면 (C-1) 도입.
 

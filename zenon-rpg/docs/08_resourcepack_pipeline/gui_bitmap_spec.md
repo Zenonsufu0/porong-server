@@ -3,7 +3,7 @@
 > **[STATUS: REFERENCE]** — Custom Font Bitmap GUI 배경 상세 참조. 공식 리소스팩 기준은 `index.md`가 우선.
 
 > 방식: Custom Font Bitmap — 인벤토리 타이틀에 커스텀 폰트 문자를 삽입해 PNG 이미지를 GUI 배경으로 렌더링.  
-> 의존성: 리소스팩 + PoroRPG 플러그인 (Adventure Component API)
+> 의존성: 리소스팩 + ZenonRPG 플러그인 (Adventure Component API)
 
 ---
 
@@ -140,7 +140,7 @@ assets/export/resourcepack/assets/poro/
 
 ---
 
-## 6. 플러그인 연동 (PoroRPG)
+## 6. 플러그인 연동 (ZenonRPG)
 
 > **[DL-073]** 현행 구현은 PNG 배경 font character를 사용하지 않으며, 모든 허브 GUI는 순수 텍스트 타이틀만 사용한다.
 

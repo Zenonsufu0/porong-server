@@ -1,6 +1,6 @@
 # 필드 1: 수도 외곽 평원 (capital_plains)
 # 권장 강화: 0강~5강 / 필드 레벨: 1
-# PoroRPG drop hook: plains_normal_drop / plains_elite_drop / plains_predator_drop
+# ZenonRPG drop hook: plains_normal_drop / plains_elite_drop / plains_predator_drop
 # scoreboard tag 전략: addScoreboardTag ~onSpawn (MythicMobs YAML, Java 코드 무의존)
 
 Plains_Soldier:

@@ -3,7 +3,7 @@
 > **[STATUS: REFERENCE]** — 공방 레시피 상세 참조. 공식 영지 기준은 `CANON.md`가 우선.
 
 > 작성 기준: `final_master_plan.md`의 "개인 영지" 및 `CANON.md` (2026-05-21 확정 반영)  
-> 대상: PoroRPG — 공방 레시피 (`life_recipe_master.csv` 기준)
+> 대상: ZenonRPG — 공방 레시피 (`life_recipe_master.csv` 기준)
 
 ---
 

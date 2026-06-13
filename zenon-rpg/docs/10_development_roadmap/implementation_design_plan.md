@@ -8,14 +8,14 @@
 
 ## 0. 목적
 
-현재 PoroRPG 구현은 컴파일 가능한 스텁과 일부 최소 동작 보정까지 진행된 상태다.
+현재 ZenonRPG 구현은 컴파일 가능한 스텁과 일부 최소 동작 보정까지 진행된 상태다.
 이 문서는 추가 구현을 진행하기 전 설계 기준을 고정한다.
 
 목표:
 
 - 코드가 CANON·item master·드랍표와 다른 식별자를 사용하지 않게 한다.
 - GUI/입력/드랍처럼 런타임에서만 드러나는 흐름을 구현 전에 표로 확정한다.
-- MythicMobs, IridiumSkyblock, Paper API 경계에서 PoroRPG가 소유할 데이터와 외부 플러그인 껍데기를 분리한다.
+- MythicMobs, IridiumSkyblock, Paper API 경계에서 ZenonRPG가 소유할 데이터와 외부 플러그인 껍데기를 분리한다.
 - 구현 완료 기준과 검증 명령을 Phase별로 명확히 둔다.
 
 ---
@@ -241,7 +241,7 @@ public static boolean isFieldBoss(Entity entity) {
 
 ### 4.4 저장·복원 (DP-005 확정: schemaVersion 기반 migration)
 
-**JSON 파일 위치:** `plugins/PoroRPG/playerdata/{uuid}.json`
+**JSON 파일 위치:** `plugins/ZenonRPG/playerdata/{uuid}.json`
 
 **PlayerSaveData 현재 schema v3:**
 
@@ -307,7 +307,7 @@ migration은 `PlayerPersistenceService.load()` 내부에서 버전별 분기로 
 
 ### 4.5 GUI title 상수 (DP-004 확정: GuiTitles 클래스)
 
-`com.poro.rpg.gui.GuiTitles` 클래스에 static final Component 상수 정의.
+`kr.zenon.rpg.gui.GuiTitles` 클래스에 static final Component 상수 정의.
 
 | 상수명 | 표시 문자열 | 인벤토리 크기 | listener |
 |---|---|---|---|

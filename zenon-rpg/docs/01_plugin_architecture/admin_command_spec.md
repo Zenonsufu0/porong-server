@@ -4,7 +4,7 @@
 
 > 작성 기준: `../final_master_plan.md` §15 (2026-05-22 재정리 반영)  
 > 권한 노드: `poro.admin`  
-> 대상: PoroRPG — Command Layer (`PoroCommand.java`)
+> 대상: ZenonRPG — Command Layer (`PoroCommand.java`)
 
 ---
 

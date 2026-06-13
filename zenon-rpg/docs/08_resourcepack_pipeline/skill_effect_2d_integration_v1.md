@@ -100,7 +100,7 @@ assets/export/resourcepack/assets/
 
 ## 5. 플러그인 설계 — EffectDisplayService
 
-신규 서비스 1개로 캡슐화(`com.poro.rpg.combat.effect.EffectDisplayService`).
+신규 서비스 1개로 캡슐화(`kr.zenon.rpg.combat.effect.EffectDisplayService`).
 
 ```java
 // 빌보드/방향 모드

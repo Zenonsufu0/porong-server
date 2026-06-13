@@ -3447,3 +3447,36 @@ API: `GET /api/v1/boss/stats`, `/boss/{boss_id}/stats`, `/boss/{boss_id}/weekly`
 - `.claude/` 에이전트·스킬 정의의 `포로 서버`·LICENSE `Poro Server Project`·제품명 `포로몬`/`PoroMon` 일괄 정리는 후속.
 
 **근거:** 사용자 지시(2026-06-13). **관련:** DL-139(1차 표시명 전환), DL-131(poro→porong 폴더 rename), `docs/worktree_policy.md`(§2·§3·§6·§7).
+
+---
+
+### DL-141 (2026-06-13) — RPG 코드 식별자 `PoroRPG` → `ZenonRPG` 전환 (DL-140이 보류한 코드 rename)
+
+**배경:** DL-140(2차)이 폴더명만 `porong-*`→`zenon-*`로 rename하고 코드 식별자(`com.poro.rpg`·`PoroRPG`·`custom-plugins/poro-rpg`)는 "빌드·런타임·DB·리소스팩 영향이 크므로 별도 커밋·별도 결정"으로 보류했다. 실테스트/운영 전 시점에 이름 부채를 정리한다. 사용자 지시(2026-06-13). RPG worktree(`feature/rpg-dev`) 전용.
+
+**무엇 (확정 — `zenon-rpg/` 한정):**
+- **Java 패키지** `com.poro.rpg` → `kr.zenon.rpg` (508개 java, 패키지 디렉토리 `com/poro/rpg`→`kr/zenon/rpg` main+test 포함).
+- **플러그인 메인 클래스** `PoroRPGPlugin` → `ZenonRPGPlugin` (파일명 포함).
+- **내부 클래스** `PoroCommand`→`ZenonCommand`, `PoroItemGuardListener`→`ZenonItemGuardListener`, `PoroHttpServer`→`ZenonHttpServer` (외부 호환성 키 아님 — 순수 내부 식별자).
+- **plugin.yml** `name: PoroRPG`→`ZenonRPG`, `main: com.poro.rpg.PoroRPGPlugin`→`kr.zenon.rpg.ZenonRPGPlugin`, description·permission/command description 텍스트의 `PoroRPG`→`ZenonRPG`.
+- **빌드 디렉토리** `custom-plugins/poro-rpg` → `custom-plugins/zenon-rpg` (`git mv`).
+- **Gradle** `group = "com.poro"`→`"kr.zenon"`, `rootProject.name = "poro-rpg"`→`"zenon-rpg"`, build description → `Zenon RPG plugin for Zenon Server`. → 산출물 JAR명이 `poro-rpg-0.1.0.jar`→`zenon-rpg-0.1.0.jar`로 바뀐다.
+- **config.yml** `server-name: "Poro Server"`→`"Zenon Server"` (표시값).
+- **현재형 문서/config** 40개 파일(`CLAUDE.md`·`README.md`·`docs/**`(역사 원장 제외)·`server-config/mythicmobs/**` comment·`scripts/setup-worlds.sh`)에서 브랜드 표시 `PoroRPG`/`Poro RPG`/`Poro Server`/`포로 서버` → `ZenonRPG`/`Zenon RPG`/`Zenon Server`, 경로 `custom-plugins/poro-rpg`→`custom-plugins/zenon-rpg`, `com.poro.rpg`→`kr.zenon.rpg`, 런타임 경로 표기 `poro-rpg/.local`→`zenon-rpg/.local` 갱신.
+
+**보존한 것 (외부 호환성 키 — 이번 미변경, 별도 결정 필요):**
+- **permission node** `poro.use`·`poro.admin(.*)`·`poro.reputation` 등, **명령어 이름** `/poro`·`/poro-*`(plugin.yml command 키와 코드 `getCommand("poro-*")` 정합).
+- **NamespacedKey / 리소스팩 namespace** `poro_rpg:menu_item`·`poro_rpg:mob_def`·`poro_rpg:weapon_type`·`poro:gui`·PDC `poro_item_id`, **scoreboard tag** `poro_rank_elite`·`poro_field_*`·`poro_type_field_boss`.
+- **저장 데이터 경로** `config.yml` `sqlite-path: "storage/poro.sqlite"`.
+- 이유: 저장 데이터·리소스팩·권한·명령어 호환성 키는 일괄 변경 시 기존 데이터/리소스팩/권한설정과 단절. 별도 마이그레이션 결정으로 분리.
+
+**이력 보존(DL 정책):** `decision_log.md`·`task.md`·`idea_inbox.md`·`_archive/`의 과거 `Poro`/`Porong`/`포로`/`포롱` 표기는 당시 값 그대로 보존(일괄치환 제외). 게임 콘텐츠/로어성 표기(퀘스트명 `Call of Poro`, 테스트 픽스처 `PoroHero`)도 브랜드 메타데이터가 아니라 미변경 — 콘텐츠 결정으로 분리.
+
+**운영 영향 (필수 후속):**
+- **plugin data folder 수동 이전:** 플러그인 `name`이 `ZenonRPG`로 바뀌어 데이터 폴더가 `plugins/PoroRPG`→`plugins/ZenonRPG`로 바뀐다. 기존 런타임에 `plugins/PoroRPG`(playerdata·sqlite 등)가 있으면 **수동으로 `plugins/ZenonRPG`로 복사/이전** 필요.
+- **빌드 산출물명 변경:** 배포 스크립트가 `poro-rpg-0.1.0.jar`를 참조하면 `zenon-rpg-0.1.0.jar`로 갱신 필요.
+- **옛 `porong-rpg/` 로컬 잔재:** Git 비추적(전체 ignored). 내용은 런타임 서버(`.local/server`: paper.jar·world·logs·`plugins/PoroRPG`·`poro-rpg-0.1.0.jar` 등)+빌드 캐시(`custom-plugins/poro-rpg/{.gradle,build}`)뿐, 소스 없음. 런타임/캐시 잔재이므로 별도 정리 대상(삭제는 사용자 승인 후).
+
+**검증:** `./gradlew build` BUILD SUCCESSFUL(기존 deprecation 경고 1건만). `git diff --check` 클린.
+
+**근거:** 사용자 지시(2026-06-13). **관련:** DL-140(폴더 rename, 코드 식별자 보류), DL-139(1차 표시명 전환), DL-130(런타임 `.local/server` 경로).

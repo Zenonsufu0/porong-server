@@ -277,7 +277,7 @@ per-stack 무기별 핵심기 계수 변화(만충 보너스 별도):
 
 ## 7. 적용할 계수 변경 목록 (코드 반영용)
 
-코드 출처: `custom-plugins/poro-rpg/src/main/java/com/poro/poro/combat/skills/<weapon>/*.java`의 `scaledDamage(ctx,player,계수)` / `scaledDamageWithStacks(ctx,player,기본계수,스택당계수)` 호출 인자.
+코드 출처: `custom-plugins/zenon-rpg/src/main/java/com/poro/poro/combat/skills/<weapon>/*.java`의 `scaledDamage(ctx,player,계수)` / `scaledDamageWithStacks(ctx,player,기본계수,스택당계수)` 호출 인자.
 
 ### 1차안 (필수 — ±10%에 근접)
 | 파일(무기/스킬) | 호출 형태 | 현재 인자 | 제안 인자 |

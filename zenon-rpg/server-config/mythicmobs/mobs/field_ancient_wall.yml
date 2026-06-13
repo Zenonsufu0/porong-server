@@ -1,6 +1,6 @@
 # 필드 5: 고대 성벽 잔해 (ancient_wall)
 # 권장 강화: 15강~18강 / 필드 레벨: 5
-# PoroRPG drop hook: ancient_normal_drop / ancient_elite_drop / rift_watcher_drop
+# ZenonRPG drop hook: ancient_normal_drop / ancient_elite_drop / rift_watcher_drop
 
 Wall_Enderman:
   Type: ENDERMAN
