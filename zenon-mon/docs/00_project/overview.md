@@ -1,12 +1,12 @@
-# PoroMon 개요
+# Zenon Mon 개요
 
-PoroMon은 Poro 브랜드 산하의 별도 Cobblemon 기반 모드 마인크래프트 서버다.
+Zenon Mon은 Poro 브랜드 산하의 별도 Cobblemon 기반 모드 마인크래프트 서버다.
 
 메인 Poro RPG 서버와는 다른 서버다.
 
 ## 방향
 
-PoroMon은 자유 생존형 포켓몬 탐험 서버다.
+Zenon Mon은 자유 생존형 포켓몬 탐험 서버다.
 
 플레이어는 자유롭게 할 수 있다:
 

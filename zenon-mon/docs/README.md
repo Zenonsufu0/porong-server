@@ -1,20 +1,20 @@
-# PoroMon Docs
+# Zenon Mon Docs
 
-> PoroMon(포로몬) 문서 루트 / 서버 기본 컨셉 + 문서 인덱스.
+> Zenon Mon(Zenon Mon) 문서 루트 / 서버 기본 컨셉 + 문서 인덱스.
 > 권위 규칙은 레포 루트 `CLAUDE.md`. 본 문서는 그 요약 + 길잡이.
 
 ---
 
 ## 1. 서버 기본 컨셉
 
-**PoroMon = Cobblemon 기반 Fabric 모드 서버.** Poro 브랜드의 별도 라인이며, 메인 Poro RPG(Paper) 서버와 무관하다.
+**Zenon Mon = Cobblemon 기반 Fabric 모드 서버.** Poro 브랜드의 별도 라인이며, 메인 Poro RPG(Paper) 서버와 무관하다.
 
 - **무엇인가**: 자유 생존형 포켓몬 탐험 서버. 탐험·포획·건축·채굴·농사·거래·자연 마을 사용은 자유.
 - **무엇을 통제하나**: 고임팩트 엔드게임만 서버가 중앙 통제 — 레전드 조우, 메가/테라 해금, 짐/배지, 리그/챔피언, 시즌. 일반 플레이는 과잉 통제하지 않는다.
 - **역할 분담**:
   - **Cobblemon** = 포켓몬 엔진
   - **Mega Showdown** = 메가/테라/다이맥스/Z무브 배틀 기믹
-  - **PoroMonCore** = 서버 고유 진행/보상/제한/허브 규칙 엔진(커스텀 Fabric 모드)
+  - **ZenonMonCore** = 서버 고유 진행/보상/제한/허브 규칙 엔진(커스텀 Fabric 모드)
 - **허브 중앙집중**: 짐·배지·레전드 제단·메가/테라 연구·배틀타워·리그·챔피언·마켓을 허브에 모은다(자유 탐험은 그대로).
 
 ### 코어 루프
@@ -30,10 +30,10 @@
 | 항목 | 값 |
 |---|---|
 | Minecraft | 1.21.1 |
-| 로더 | Fabric (Loader 0.18.4) |
+| 로더 | Fabric (Loader 0.19.3) |
 | Java | 21 |
 | 베이스 모드팩 | Cobblemon Official [Fabric] 1.7.3 + Mega Showdown + SimpleTMs + Eggs Addon + Legendary Monuments |
-| 커스텀 모드 | `custom-mods/poromon-core` (PoroMonCore) |
+| 커스텀 모드 | `custom-mods/zenon-mon-core` (ZenonMonCore) |
 | 개발 환경 | WSL Ubuntu / VS Code + Claude Code |
 
 ---
@@ -44,29 +44,31 @@
 
 ### 00_project — 프로젝트 방향
 - ✅ [overview.md](00_project/overview.md) — 서버 방향/코어 루프
-- ✅ [decisions.md](00_project/decisions.md) — 결정 기록(001~012)
-- 📝 [roadmap.md](00_project/roadmap.md) — 단계별 로드맵
+- ✅ [decisions.md](00_project/decisions.md) — 결정 기록(001~028)
+- ✅ [roadmap.md](00_project/roadmap.md) — 단계별 로드맵(Phase 0~7)
 
 ### 01_modpack — 모드팩
 - ✅ [modpack_list.md](01_modpack/modpack_list.md) — 80개 모드 목록(+SimpleTMs, Eggs, Legendary Monuments)
 - ✅ [server_mod_separation.md](01_modpack/server_mod_separation.md) — 서버/클라 분리(필수·권장·제외·애매) + 테스트 체크리스트
+- ✅ [client_mod_tiers.md](01_modpack/client_mod_tiers.md) — 클라 85개 티어링(T0 코어/T1 권장/T2 선택/서버전용) — 간편설치기용(결정 025)
 - ✅ [jar_feature_audit.md](01_modpack/jar_feature_audit.md) — jar 내부 기준 기능 검토(LM/Eggs/SimpleTMs/MSD ID·한글화·충돌)
+- ✅ [jar_registry_reference.md](01_modpack/jar_registry_reference.md) — **실 jar 추출 검증 ID**: 전설71/환상23/UB11/패러독스20·메가스톤47·키아이템(한글명). 풀/상점 TODO 해소 출처
 - 📝 [client_pack_policy.md](01_modpack/client_pack_policy.md) — 클라 배포 팩 정책
 - 📝 [export_notes.md](01_modpack/export_notes.md) — CurseForge export 메모
 
 ### 02_server — 서버 운영
-- ✅ [server_setup.md](02_server/server_setup.md) — server/run 구성 + start.sh/eula + PoroMonCore 선행조건
+- ✅ [server_setup.md](02_server/server_setup.md) — server/run 구성 + start.sh/eula + ZenonMonCore 선행조건
 - ✅ [world_policy.md](02_server/world_policy.md) — 월드/게임규칙/백업/시즌
 - ✅ [protection_policy.md](02_server/protection_policy.md) — 허브 보호/그리핑
 - ✅ [server_runbook.md](02_server/server_runbook.md) — 기동/정지/백업/롤백/장애
 
-### 03_poromoncore — 커스텀 모드
-- ✅ [poromoncore_spec.md](03_poromoncore/poromoncore_spec.md) — 역할/0.1 스코프/매니저
-- ✅ [module_structure.md](03_poromoncore/module_structure.md) — 패키지/모듈/의존/초기화
-- ✅ [config_structure.md](03_poromoncore/config_structure.md) — 설정 파일 스키마
-- ✅ [database_schema.md](03_poromoncore/database_schema.md) — 런타임 데이터 저장
-- ✅ [commands.md](03_poromoncore/commands.md) — `/poromon` 명령 트리
-- ✅ [menu_design.md](03_poromoncore/menu_design.md) — 리그 패스 아이템 정책 + 메뉴 GUI 레이아웃(결정 024 하이브리드)
+### 03_zenonmoncore — 커스텀 모드
+- ✅ [zenonmoncore_spec.md](03_zenonmoncore/zenonmoncore_spec.md) — 역할/0.1 스코프/매니저
+- ✅ [module_structure.md](03_zenonmoncore/module_structure.md) — 패키지/모듈/의존/초기화
+- ✅ [config_structure.md](03_zenonmoncore/config_structure.md) — 설정 파일 스키마
+- ✅ [database_schema.md](03_zenonmoncore/database_schema.md) — 런타임 데이터 저장
+- ✅ [commands.md](03_zenonmoncore/commands.md) — `/zenonmon` 명령 트리
+- ✅ [menu_design.md](03_zenonmoncore/menu_design.md) — 리그 패스 아이템 정책 + 메뉴 GUI 레이아웃(결정 024 하이브리드)
 
 ### 04_game_design — 게임 설계
 - ✅ [hub_design.md](04_game_design/hub_design.md) — 허브 구성
@@ -79,6 +81,7 @@
 - ✅ [egg_pool_design.md](04_game_design/egg_pool_design.md) — 알 등급별 풀(커스텀 가능 여부 확인 필요)
 - ✅ [gym_badge_design.md](04_game_design/gym_badge_design.md) — 짐/배지
 - ✅ [league_season_design.md](04_game_design/league_season_design.md) — 리그/시즌
+- ✅ [battle_tower_design.md](04_game_design/battle_tower_design.md) — 배틀타워 50층 층별 설계(입장 8관장·Lv100, 종/기술 검증완료, 결정 028)
 
 ### 05_operations — 운영
 - ✅ [localization_policy.md](05_operations/localization_policy.md) — 한글화 정책(유저 표시 텍스트 한국어)
@@ -90,13 +93,11 @@
 1. `CLAUDE.md`(루트) → 본 README §1
 2. `00_project/overview.md`, `decisions.md`
 3. `01_modpack/server_mod_separation.md` → `02_server/server_setup.md`
-4. `03_poromoncore/poromoncore_spec.md` → `module_structure.md`
+4. `03_zenonmoncore/zenonmoncore_spec.md` → `module_structure.md`
 
 ## 4. 현재 진행 / 다음 단계
-- ✅ 모드팩 분석, 서버/클라 분리 설계, 서버 정책 4종, PoroMonCore 설계 4종
-- ▶ 다음: 서버 최소구성 기동 테스트(`server_setup.md` 선행조건) → PoroMonCore Gradle 골격 → `/poromon` 0.1
+- ✅ 모드팩 분석, 서버/클라 분리 설계, 서버 정책 4종, ZenonMonCore 설계 6종
+- ✅ **서버 1차 기동 통과**(2026-06-05, `.local/server` 25모드 `Done`) + 클라 모드 티어링(결정 025)
+- ▶ 다음: 클라 인스턴스 실제 접속 테스트 → 간편설치기 스펙 → ZenonMonCore Gradle 골격 → `/zenonmon` 0.1
 
-## 5. 정리 메모(중복 파일)
-루트의 다음 4개는 하위 폴더 문서와 **중복되는 빈 파일** — 삭제 또는 통합 대상:
-`docs/economy_plan.md`, `docs/hub_plan.md`, `docs/poromon_design.md`, `docs/poromoncore_spec.md`
-(정식 위치: `04_game_design/economy_design.md`, `04_game_design/hub_design.md`, `00_project/overview.md`, `03_poromoncore/poromoncore_spec.md`)
+> 빈 플레이스홀더(추후 작성): `01_modpack/{client_pack_policy, export_notes}.md`, `05_operations/{admin_policy, balance_policy, known_issues, user_install_guide}.md`

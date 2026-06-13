@@ -1,4 +1,4 @@
-# PoroMon 0.1 Dev Modpack List
+# Zenon Mon 0.1 Dev Modpack List
 
 - Minecraft: 1.21.1
 - Mod Loaders: [{'id': 'fabric-0.18.4', 'primary': True}]

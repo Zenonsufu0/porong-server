@@ -1,7 +1,7 @@
 # Gym / Badge Design (체육관 / 배지 설계)  — 초안(DRAFT)
 
-> 허브 체육관 구역(`hub_design.md` §3)의 게임 설계. 기록·보상은 PoroMonCore가 담당.
-> 연동: `GymBadgeManager` / `PlayerProgress.badges`(`../03_poromoncore/database_schema.md`) / `gyms.json`(`config_structure.md`).
+> 허브 체육관 구역(`hub_design.md` §3)의 게임 설계. 기록·보상은 ZenonMonCore가 담당.
+> 연동: `GymBadgeManager` / `PlayerProgress.badges`(`../03_zenonmoncore/database_schema.md`) / `gyms.json`(`config_structure.md`).
 > ⚠️ 초안. `TBD`/`예시`는 검토·확정 대상.
 
 ## 1. 목표 / 원칙
@@ -45,7 +45,7 @@
 - 점유 락·대기열 **불필요**. (전설 제단의 1인 전용 룸과 다름 — 관장은 반복 가능한 배틀이고 보상이 단일 개체가 아니라 기록이므로 횡취 문제 없음.)
 - 단, 진행 게이트(순차 강제)는 **플레이어별 진행 상태**로 각자 판정.
 
-## 5. 클리어 조건 / 기록 (PoroMonCore)
+## 5. 클리어 조건 / 기록 (ZenonMonCore)
 - 클리어 판정: 관장 배틀 승리 → `GymBadgeManager`가 수신.
 - 저장: `PlayerProgress.badges[]`에 배지 id 추가, `stats.gymCleared++`.
 - 멱등성: 이미 보유한 배지는 중복 지급 안 함(최초 1회 보상). 재도전 보상은 별도(§6).
@@ -70,7 +70,7 @@
 
 ## 7. 진행 게이트 (배지가 여는 것)
 - N배지 → 티켓 구매권(전설 제단 §5 연계)
-- **4배지 → 배틀타워 입장**(`league_season_design.md` §3)
+- **8배지(관장 전원) → 배틀타워 입장**(결정 028 — 기존 4배지에서 상향; `league_season_design.md` §3, `battle_tower_design.md`)
 - 특정 배지 → 메가팔찌/테라 해금 조건의 일부(`mega_tera_unlock.md`)
 - 8배지 → 정규리그 자격(`league_season_design.md` §4)
 - 구체 임계값(N) — **TBD**.
@@ -121,5 +121,5 @@
 
 ## 11. 관련 문서
 - 허브: `hub_design.md` §3 · 메가/테라: `mega_tera_unlock.md` · 리그: `league_season_design.md`(TODO)
-- 코어: `../03_poromoncore/module_structure.md`(GymBadgeManager) / `database_schema.md`(badges) / `config_structure.md`(gyms.json)
+- 코어: `../03_zenonmoncore/module_structure.md`(GymBadgeManager) / `database_schema.md`(badges) / `config_structure.md`(gyms.json)
 - 결정: `../00_project/decisions.md`(010 허브)

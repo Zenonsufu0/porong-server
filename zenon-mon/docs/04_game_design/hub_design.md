@@ -1,10 +1,12 @@
 # Hub Design (허브 설계)
 
-허브는 PoroMon 서버의 중앙 도시이자 **리그 본부 / 엔드게임 서비스 구역**이다.
+> ⚠️ **결정 030(허브 단순화):** 허브는 **서버 중심 건축물 + 스폰/텔레포트 지점**으로만 사용한다. NPC·판매대·전설 제단·메가 연구소 등을 허브에 물리적으로 두지 않고 **전부 9번 메뉴 GUI로 통합**(결정 024 하이브리드 폐기). 아래 "구역/시설" 서술은 메뉴 카테고리로 대체해 읽을 것. 허브 맵은 schematic 1개를 붙이고 좌표만 `core.json hub.spawn`으로 잡는다.
+
+허브는 Zenon Mon 서버의 중앙 도시이자 **리그 본부 / 엔드게임 서비스 구역**이다.
 자유 탐험을 대체하지 않는다 — 짐·해금·레전드·리그 등 *통제 시스템*만 허브에 모은다(`../README.md` §1).
 
 > 보호: 허브 건물은 보호 대상(`../02_server/protection_policy.md`, 결정 012). **월드 스폰 = 중앙 광장**으로 고정.
-> 연동: 짐 기록·레전드 룸·메가/테라 해금·텔레포트는 PoroMonCore가 담당(`../03_poromoncore/module_structure.md`).
+> 연동: 짐 기록·레전드 룸·메가/테라 해금·텔레포트는 ZenonMonCore가 담당(`../03_zenonmoncore/module_structure.md`).
 
 ## 구역 개요
 중앙 광장 · 시장 · 체육관 · 연구소 · 전설 제단 · 리그 — 6개 구역.
@@ -19,7 +21,7 @@
 - **야생 랜덤 텔레포트 NPC** — 필드로 무작위 송출(탐험 진입점)
 - 리그 패스 / 메뉴 안내
 
-**PoroMonCore 연동:** 야생 랜덤 텔레포트·허브 귀환 = `HubInteractionManager`. League Pass 안내 = `MenuItemManager`/`MenuGuiManager`.
+**ZenonMonCore 연동:** 야생 랜덤 텔레포트·허브 귀환 = `HubInteractionManager`. League Pass 안내 = `MenuItemManager`/`MenuGuiManager`.
 
 ## 2. 시장 구역 (Market District)
 
@@ -41,9 +43,9 @@
 - 관장별 타입 문양
 - 배지 보상 NPC
 - 재도전 NPC
-- **관장 클리어 기록은 PoroMonCore가 저장**
+- **관장 클리어 기록은 ZenonMonCore가 저장**
 
-**연동:** `GymBadgeManager`(클리어 기록/배지), 저장은 `PlayerProgress.badges`(`../03_poromoncore/database_schema.md`). 배지 → 메가/테라 해금·티켓 구매권 등 진행 게이트. 상세는 `gym_badge_design.md`(TODO).
+**연동:** `GymBadgeManager`(클리어 기록/배지), 저장은 `PlayerProgress.badges`(`../03_zenonmoncore/database_schema.md`). 배지 → 메가/테라 해금·티켓 구매권 등 진행 게이트. 상세는 `gym_badge_design.md`(TODO).
 
 ## 4. 연구소 구역 (Research District)
 - 메가팔찌 해금
@@ -69,7 +71,7 @@
 - 흐름·정합·롤백 주의: `legendary_encounter.md`, `database_schema.md` §5(티켓→룸 트랜잭션). 레이쿠자는 시즌말/특수 취급.
 
 ## 6. 리그 구역 (League District)
-- 배틀타워 (탑 형식 PvE 도전, 배지 4개 이상)
+- 배틀타워 (탑 형식 PvE 도전, **관장 8명/8배지 전원** — 결정 028)
 - **배틀 아레나 (친선 포켓몬 대전 전용)** ※ 인간 PvP 아님 — 아래 확정 참고
 - 정규리그장 (점수제 래더, 레벨50)
 - 챔피언스리그 경기장 (서버 마지막날 토너먼트)
@@ -81,7 +83,7 @@
 
 ---
 
-## 구역 ↔ PoroMonCore 모듈 매핑(요약)
+## 구역 ↔ ZenonMonCore 모듈 매핑(요약)
 
 | 구역 | 주요 모듈 |
 |---|---|
@@ -100,6 +102,6 @@
 
 ## 관련 문서
 - 컨셉: `../README.md` · 결정: `../00_project/decisions.md`(011 PvP, 012 보호)
-- 코어 모듈: `../03_poromoncore/module_structure.md` / 설정: `config_structure.md` / 데이터: `database_schema.md`
+- 코어 모듈: `../03_zenonmoncore/module_structure.md` / 설정: `config_structure.md` / 데이터: `database_schema.md`
 - 레전드: `legendary_encounter.md` · 메가/테라: `mega_tera_unlock.md`
 - 보호: `../02_server/protection_policy.md`

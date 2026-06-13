@@ -1,0 +1,6 @@
+{
+  "pack": {
+    "pack_format": 48,
+    "description": "Zenon Mon LM control — disable Legendary Monuments natural structure generation (decision 023). Legendaries are controlled by ZenonMonCore (tickets/private rooms) only."
+  }
+}

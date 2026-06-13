@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "zenonmoncore",
+  "version": "${version}",
+  "name": "ZenonMonCore",
+  "description": "Zenon Mon 서버 규칙 엔진 — 진행도/배틀타워/허브/티켓(0.1 스캐폴드).",
+  "authors": ["Zenon Project"],
+  "license": "ARR",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["kr.zenon.moncore.ZenonMonCore"]
+  },
+  "mixins": ["zenonmoncore.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}

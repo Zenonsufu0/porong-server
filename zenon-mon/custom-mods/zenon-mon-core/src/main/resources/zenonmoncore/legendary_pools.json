@@ -1,0 +1,2168 @@
+{
+  "configVersion": 1,
+  "pools": {
+    "rare_encounter_pool": {
+      "type": "rare",
+      "displayNameKo": "희귀 조우권",
+      "stageWeight": {
+        "basic": 70,
+        "middle": 20,
+        "final": 10
+      },
+      "candidates": [
+        {
+          "species": "cobblemon:dratini",
+          "displayNameKo": "미뇽",
+          "weight": 10,
+          "enabled": true,
+          "stage": "basic"
+        },
+        {
+          "species": "cobblemon:dragonair",
+          "displayNameKo": "신뇽",
+          "weight": 10,
+          "enabled": true,
+          "stage": "middle"
+        },
+        {
+          "species": "cobblemon:dragonite",
+          "displayNameKo": "망나뇽",
+          "weight": 10,
+          "enabled": true,
+          "stage": "final"
+        },
+        {
+          "species": "cobblemon:larvitar",
+          "displayNameKo": "애버라스",
+          "weight": 10,
+          "enabled": true,
+          "stage": "basic"
+        },
+        {
+          "species": "cobblemon:pupitar",
+          "displayNameKo": "데기라스",
+          "weight": 10,
+          "enabled": true,
+          "stage": "middle"
+        },
+        {
+          "species": "cobblemon:tyranitar",
+          "displayNameKo": "마기라스",
+          "weight": 10,
+          "enabled": true,
+          "stage": "final"
+        },
+        {
+          "species": "cobblemon:bagon",
+          "displayNameKo": "아공이",
+          "weight": 10,
+          "enabled": true,
+          "stage": "basic"
+        },
+        {
+          "species": "cobblemon:shelgon",
+          "displayNameKo": "쉘곤",
+          "weight": 10,
+          "enabled": true,
+          "stage": "middle"
+        },
+        {
+          "species": "cobblemon:salamence",
+          "displayNameKo": "보만다",
+          "weight": 10,
+          "enabled": true,
+          "stage": "final"
+        },
+        {
+          "species": "cobblemon:beldum",
+          "displayNameKo": "메탕",
+          "weight": 10,
+          "enabled": true,
+          "stage": "basic"
+        },
+        {
+          "species": "cobblemon:metang",
+          "displayNameKo": "메탕구",
+          "weight": 10,
+          "enabled": true,
+          "stage": "middle"
+        },
+        {
+          "species": "cobblemon:metagross",
+          "displayNameKo": "메타그로스",
+          "weight": 10,
+          "enabled": true,
+          "stage": "final"
+        },
+        {
+          "species": "cobblemon:gible",
+          "displayNameKo": "딥상어동",
+          "weight": 10,
+          "enabled": true,
+          "stage": "basic"
+        },
+        {
+          "species": "cobblemon:gabite",
+          "displayNameKo": "한바이트",
+          "weight": 10,
+          "enabled": true,
+          "stage": "middle"
+        },
+        {
+          "species": "cobblemon:garchomp",
+          "displayNameKo": "한카리아스",
+          "weight": 10,
+          "enabled": true,
+          "stage": "final"
+        },
+        {
+          "species": "cobblemon:deino",
+          "displayNameKo": "모노두",
+          "weight": 10,
+          "enabled": true,
+          "stage": "basic"
+        },
+        {
+          "species": "cobblemon:zweilous",
+          "displayNameKo": "디헤드",
+          "weight": 10,
+          "enabled": true,
+          "stage": "middle"
+        },
+        {
+          "species": "cobblemon:hydreigon",
+          "displayNameKo": "삼삼드래",
+          "weight": 10,
+          "enabled": true,
+          "stage": "final"
+        },
+        {
+          "species": "cobblemon:goomy",
+          "displayNameKo": "미끄메라",
+          "weight": 10,
+          "enabled": true,
+          "stage": "basic"
+        },
+        {
+          "species": "cobblemon:sliggoo",
+          "displayNameKo": "미끄네일",
+          "weight": 10,
+          "enabled": true,
+          "stage": "middle"
+        },
+        {
+          "species": "cobblemon:goodra",
+          "displayNameKo": "미끄래곤",
+          "weight": 10,
+          "enabled": true,
+          "stage": "final"
+        },
+        {
+          "species": "cobblemon:jangmoo",
+          "displayNameKo": "짜랑꼬",
+          "weight": 10,
+          "enabled": true,
+          "stage": "basic"
+        },
+        {
+          "species": "cobblemon:hakamoo",
+          "displayNameKo": "짜랑고우",
+          "weight": 10,
+          "enabled": true,
+          "stage": "middle"
+        },
+        {
+          "species": "cobblemon:kommoo",
+          "displayNameKo": "짜랑고우거",
+          "weight": 10,
+          "enabled": true,
+          "stage": "final"
+        },
+        {
+          "species": "cobblemon:dreepy",
+          "displayNameKo": "드라꼰",
+          "weight": 10,
+          "enabled": true,
+          "stage": "basic"
+        },
+        {
+          "species": "cobblemon:drakloak",
+          "displayNameKo": "드래런치",
+          "weight": 10,
+          "enabled": true,
+          "stage": "middle"
+        },
+        {
+          "species": "cobblemon:dragapult",
+          "displayNameKo": "드래펄트",
+          "weight": 10,
+          "enabled": true,
+          "stage": "final"
+        },
+        {
+          "species": "cobblemon:frigibax",
+          "displayNameKo": "드니차",
+          "weight": 10,
+          "enabled": true,
+          "stage": "basic"
+        },
+        {
+          "species": "cobblemon:arctibax",
+          "displayNameKo": "드니꽁",
+          "weight": 10,
+          "enabled": true,
+          "stage": "middle"
+        },
+        {
+          "species": "cobblemon:baxcalibur",
+          "displayNameKo": "드닐레이브",
+          "weight": 10,
+          "enabled": true,
+          "stage": "final"
+        },
+        {
+          "species": "cobblemon:bisharp",
+          "displayNameKo": "절각참",
+          "weight": 10,
+          "enabled": true,
+          "stage": "middle"
+        },
+        {
+          "species": "cobblemon:kingambit",
+          "displayNameKo": "대도각참",
+          "weight": 10,
+          "enabled": true,
+          "stage": "final"
+        },
+        {
+          "species": "cobblemon:honedge",
+          "displayNameKo": "단칼빙",
+          "weight": 10,
+          "enabled": true,
+          "stage": "basic"
+        },
+        {
+          "species": "cobblemon:doublade",
+          "displayNameKo": "쌍검킬",
+          "weight": 10,
+          "enabled": true,
+          "stage": "middle"
+        },
+        {
+          "species": "cobblemon:aegislash",
+          "displayNameKo": "킬가르도",
+          "weight": 10,
+          "enabled": true,
+          "stage": "final"
+        },
+        {
+          "species": "cobblemon:scyther",
+          "displayNameKo": "스라크",
+          "weight": 10,
+          "enabled": true,
+          "stage": "basic"
+        },
+        {
+          "species": "cobblemon:scizor",
+          "displayNameKo": "핫삼",
+          "weight": 10,
+          "enabled": true,
+          "stage": "final"
+        },
+        {
+          "species": "cobblemon:gligar",
+          "displayNameKo": "글라이거",
+          "weight": 10,
+          "enabled": true,
+          "stage": "basic"
+        },
+        {
+          "species": "cobblemon:gliscor",
+          "displayNameKo": "글라이온",
+          "weight": 10,
+          "enabled": true,
+          "stage": "final"
+        },
+        {
+          "species": "cobblemon:rookidee",
+          "displayNameKo": "파라꼬",
+          "weight": 10,
+          "enabled": true,
+          "stage": "basic"
+        },
+        {
+          "species": "cobblemon:corviknight",
+          "displayNameKo": "아머까오",
+          "weight": 10,
+          "enabled": true,
+          "stage": "final"
+        },
+        {
+          "species": "cobblemon:ferroseed",
+          "displayNameKo": "철시드",
+          "weight": 10,
+          "enabled": true,
+          "stage": "basic"
+        },
+        {
+          "species": "cobblemon:ferrothorn",
+          "displayNameKo": "너트령",
+          "weight": 10,
+          "enabled": true,
+          "stage": "final"
+        },
+        {
+          "species": "cobblemon:swinub",
+          "displayNameKo": "꾸꾸리",
+          "weight": 10,
+          "enabled": true,
+          "stage": "basic"
+        },
+        {
+          "species": "cobblemon:piloswine",
+          "displayNameKo": "메꾸리",
+          "weight": 10,
+          "enabled": true,
+          "stage": "middle"
+        },
+        {
+          "species": "cobblemon:mamoswine",
+          "displayNameKo": "맘모꾸리",
+          "weight": 10,
+          "enabled": true,
+          "stage": "final"
+        },
+        {
+          "species": "cobblemon:azurill",
+          "displayNameKo": "루리리",
+          "weight": 10,
+          "enabled": true,
+          "stage": "basic"
+        },
+        {
+          "species": "cobblemon:marill",
+          "displayNameKo": "마릴",
+          "weight": 10,
+          "enabled": true,
+          "stage": "middle"
+        },
+        {
+          "species": "cobblemon:azumarill",
+          "displayNameKo": "마릴리",
+          "weight": 10,
+          "enabled": true,
+          "stage": "final"
+        },
+        {
+          "species": "cobblemon:togepi",
+          "displayNameKo": "토게피",
+          "weight": 10,
+          "enabled": true,
+          "stage": "basic"
+        },
+        {
+          "species": "cobblemon:togetic",
+          "displayNameKo": "토게틱",
+          "weight": 10,
+          "enabled": true,
+          "stage": "middle"
+        },
+        {
+          "species": "cobblemon:togekiss",
+          "displayNameKo": "토게키스",
+          "weight": 10,
+          "enabled": true,
+          "stage": "final"
+        },
+        {
+          "species": "cobblemon:shroomish",
+          "displayNameKo": "버섯꼬",
+          "weight": 10,
+          "enabled": true,
+          "stage": "basic"
+        },
+        {
+          "species": "cobblemon:breloom",
+          "displayNameKo": "버섯모",
+          "weight": 10,
+          "enabled": true,
+          "stage": "final"
+        },
+        {
+          "species": "cobblemon:rotom",
+          "displayNameKo": "로토무",
+          "weight": 10,
+          "enabled": true,
+          "stage": "basic"
+        },
+        {
+          "species": "cobblemon:mimikyu",
+          "displayNameKo": "따라큐",
+          "weight": 10,
+          "enabled": true,
+          "stage": "basic"
+        },
+        {
+          "species": "cobblemon:larvesta",
+          "displayNameKo": "활화르바",
+          "weight": 10,
+          "enabled": true,
+          "stage": "basic"
+        },
+        {
+          "species": "cobblemon:volcarona",
+          "displayNameKo": "불카모스",
+          "weight": 10,
+          "enabled": true,
+          "stage": "final"
+        },
+        {
+          "species": "cobblemon:riolu",
+          "displayNameKo": "리오르",
+          "weight": 10,
+          "enabled": true,
+          "stage": "basic"
+        },
+        {
+          "species": "cobblemon:lucario",
+          "displayNameKo": "루카리오",
+          "weight": 10,
+          "enabled": true,
+          "stage": "final"
+        },
+        {
+          "species": "cobblemon:zorua",
+          "displayNameKo": "조로아",
+          "weight": 10,
+          "enabled": true,
+          "stage": "basic"
+        },
+        {
+          "species": "cobblemon:zoroark",
+          "displayNameKo": "조로아크",
+          "weight": 10,
+          "enabled": true,
+          "stage": "final"
+        },
+        {
+          "species": "cobblemon:absol",
+          "displayNameKo": "앱솔",
+          "weight": 10,
+          "enabled": true,
+          "stage": "basic"
+        },
+        {
+          "species": "cobblemon:feebas",
+          "displayNameKo": "빈티나",
+          "weight": 10,
+          "enabled": true,
+          "stage": "basic"
+        },
+        {
+          "species": "cobblemon:milotic",
+          "displayNameKo": "밀로틱",
+          "weight": 10,
+          "enabled": true,
+          "stage": "final"
+        },
+        {
+          "species": "cobblemon:snorlax",
+          "displayNameKo": "잠만보",
+          "weight": 10,
+          "enabled": true,
+          "stage": "basic"
+        },
+        {
+          "species": "cobblemon:lapras",
+          "displayNameKo": "라프라스",
+          "weight": 10,
+          "enabled": true,
+          "stage": "basic"
+        },
+        {
+          "species": "cobblemon:eevee",
+          "displayNameKo": "이브이",
+          "weight": 10,
+          "enabled": true,
+          "stage": "basic"
+        },
+        {
+          "species": "cobblemon:gastly",
+          "displayNameKo": "고오스",
+          "weight": 10,
+          "enabled": true,
+          "stage": "basic"
+        },
+        {
+          "species": "cobblemon:haunter",
+          "displayNameKo": "고우스트",
+          "weight": 10,
+          "enabled": true,
+          "stage": "middle"
+        },
+        {
+          "species": "cobblemon:gengar",
+          "displayNameKo": "팬텀",
+          "weight": 10,
+          "enabled": true,
+          "stage": "final"
+        },
+        {
+          "species": "cobblemon:drilbur",
+          "displayNameKo": "두더류",
+          "weight": 10,
+          "enabled": true,
+          "stage": "basic"
+        },
+        {
+          "species": "cobblemon:excadrill",
+          "displayNameKo": "몰드류",
+          "weight": 10,
+          "enabled": true,
+          "stage": "final"
+        }
+      ]
+    },
+    "basic_legendary_ticket_pool": {
+      "type": "basic",
+      "displayNameKo": "하급 전설 조우권",
+      "candidates": [
+        {
+          "species": "cobblemon:articuno",
+          "displayNameKo": "프리져",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:zapdos",
+          "displayNameKo": "썬더",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:moltres",
+          "displayNameKo": "파이어",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:raikou",
+          "displayNameKo": "라이코",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:entei",
+          "displayNameKo": "앤테이",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:suicune",
+          "displayNameKo": "스이쿤",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:regirock",
+          "displayNameKo": "레지락",
+          "weight": 12,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:regice",
+          "displayNameKo": "레지아이스",
+          "weight": 12,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:registeel",
+          "displayNameKo": "레지스틸",
+          "weight": 12,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:uxie",
+          "displayNameKo": "유크시",
+          "weight": 12,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:mesprit",
+          "displayNameKo": "엠라이트",
+          "weight": 12,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:azelf",
+          "displayNameKo": "아그놈",
+          "weight": 12,
+          "enabled": true
+        }
+      ]
+    },
+    "intermediate_legendary_ticket_pool": {
+      "type": "intermediate",
+      "displayNameKo": "중급 전설 조우권",
+      "candidates": [
+        {
+          "species": "cobblemon:latias",
+          "displayNameKo": "라티아스",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:latios",
+          "displayNameKo": "라티오스",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:heatran",
+          "displayNameKo": "히드런",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:cresselia",
+          "displayNameKo": "크레세리아",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:regigigas",
+          "displayNameKo": "레지기가스",
+          "weight": 9,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:regieleki",
+          "displayNameKo": "레지에레키",
+          "weight": 9,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:regidrago",
+          "displayNameKo": "레지드래고",
+          "weight": 9,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:cobalion",
+          "displayNameKo": "코바르온",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:terrakion",
+          "displayNameKo": "테라키온",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:virizion",
+          "displayNameKo": "비리디온",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:cosmog",
+          "displayNameKo": "코스모그",
+          "weight": 6,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:okidogi",
+          "displayNameKo": "조타구",
+          "weight": 9,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:munkidori",
+          "displayNameKo": "이야후",
+          "weight": 9,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:fezandipiti",
+          "displayNameKo": "기로치",
+          "weight": 9,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:typenull",
+          "displayNameKo": "타입:널",
+          "weight": 8,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:silvally",
+          "displayNameKo": "실버디",
+          "weight": 6,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:keldeo",
+          "displayNameKo": "케르디오",
+          "weight": 5,
+          "enabled": false
+        },
+        {
+          "species": "cobblemon:hoopa",
+          "displayNameKo": "후파",
+          "weight": 5,
+          "enabled": false
+        }
+      ]
+    },
+    "advanced_legendary_ticket_pool": {
+      "type": "advanced",
+      "displayNameKo": "상급 전설 조우권",
+      "candidates": [
+        {
+          "species": "cobblemon:lugia",
+          "displayNameKo": "루기아",
+          "weight": 8,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:hooh",
+          "displayNameKo": "칠색조",
+          "weight": 8,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:zacian",
+          "displayNameKo": "자시안",
+          "weight": 7,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:zamazenta",
+          "displayNameKo": "자마젠타",
+          "weight": 7,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:wochien",
+          "displayNameKo": "총지엔",
+          "weight": 8,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:chienpao",
+          "displayNameKo": "파오젠",
+          "weight": 8,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:tinglu",
+          "displayNameKo": "딩루",
+          "weight": 8,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:chiyu",
+          "displayNameKo": "위유이",
+          "weight": 8,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:tornadus",
+          "displayNameKo": "토네로스",
+          "weight": 8,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:thundurus",
+          "displayNameKo": "볼트로스",
+          "weight": 8,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:landorus",
+          "displayNameKo": "랜드로스",
+          "weight": 8,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:enamorus",
+          "displayNameKo": "러브로스",
+          "weight": 8,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:tapukoko",
+          "displayNameKo": "카푸꼬꼬꼭",
+          "weight": 9,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:tapulele",
+          "displayNameKo": "카푸나비나",
+          "weight": 9,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:tapubulu",
+          "displayNameKo": "카푸브루루",
+          "weight": 9,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:tapufini",
+          "displayNameKo": "카푸느지느",
+          "weight": 9,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:ogerpon",
+          "displayNameKo": "오거폰",
+          "weight": 7,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:kubfu",
+          "displayNameKo": "치고마",
+          "weight": 8,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:urshifu",
+          "displayNameKo": "우라오스",
+          "weight": 7,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:glastrier",
+          "displayNameKo": "블리자포스",
+          "weight": 7,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:spectrier",
+          "displayNameKo": "레이스포스",
+          "weight": 7,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:darkrai",
+          "displayNameKo": "다크라이",
+          "weight": 5,
+          "enabled": false
+        },
+        {
+          "species": "cobblemon:celebi",
+          "displayNameKo": "세레비",
+          "weight": 5,
+          "enabled": false
+        }
+      ]
+    },
+    "apex_legendary_ticket_pool": {
+      "type": "apex",
+      "displayNameKo": "최상급 전설 조우권",
+      "candidates": [
+        {
+          "species": "cobblemon:mewtwo",
+          "displayNameKo": "뮤츠",
+          "weight": 5,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:groudon",
+          "displayNameKo": "그란돈",
+          "weight": 6,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:kyogre",
+          "displayNameKo": "가이오가",
+          "weight": 6,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:rayquaza",
+          "displayNameKo": "레쿠쟈",
+          "weight": 3,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:dialga",
+          "displayNameKo": "디아루가",
+          "weight": 5,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:palkia",
+          "displayNameKo": "펄기아",
+          "weight": 5,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:giratina",
+          "displayNameKo": "기라티나",
+          "weight": 4,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:reshiram",
+          "displayNameKo": "레시라무",
+          "weight": 6,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:zekrom",
+          "displayNameKo": "제크로무",
+          "weight": 6,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:kyurem",
+          "displayNameKo": "큐레무",
+          "weight": 5,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:xerneas",
+          "displayNameKo": "제르네아스",
+          "weight": 6,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:yveltal",
+          "displayNameKo": "이벨타르",
+          "weight": 6,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:zygarde",
+          "displayNameKo": "지가르데",
+          "weight": 5,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:solgaleo",
+          "displayNameKo": "솔가레오",
+          "weight": 6,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:lunala",
+          "displayNameKo": "루나아라",
+          "weight": 6,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:necrozma",
+          "displayNameKo": "네크로즈마",
+          "weight": 5,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:zacian",
+          "displayNameKo": "자시안",
+          "weight": 6,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:zamazenta",
+          "displayNameKo": "자마젠타",
+          "weight": 6,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:eternatus",
+          "displayNameKo": "무한다이노",
+          "weight": 4,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:koraidon",
+          "displayNameKo": "코라이돈",
+          "weight": 5,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:miraidon",
+          "displayNameKo": "미라이돈",
+          "weight": 5,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:terapagos",
+          "displayNameKo": "테라파고스",
+          "weight": 4,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:calyrex",
+          "displayNameKo": "버드렉스",
+          "weight": 5,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:mew",
+          "displayNameKo": "뮤",
+          "weight": 2,
+          "enabled": false
+        },
+        {
+          "species": "cobblemon:arceus",
+          "displayNameKo": "아르세우스",
+          "weight": 1,
+          "enabled": false
+        }
+      ]
+    },
+    "field_event_legendary_pool": {
+      "type": "field_event",
+      "displayNameKo": "",
+      "candidates": [
+        {
+          "species": "cobblemon:articuno",
+          "displayNameKo": "프리져",
+          "weight": 10,
+          "enabled": true,
+          "stage": "low"
+        },
+        {
+          "species": "cobblemon:zapdos",
+          "displayNameKo": "썬더",
+          "weight": 10,
+          "enabled": true,
+          "stage": "low"
+        },
+        {
+          "species": "cobblemon:moltres",
+          "displayNameKo": "파이어",
+          "weight": 10,
+          "enabled": true,
+          "stage": "low"
+        },
+        {
+          "species": "cobblemon:raikou",
+          "displayNameKo": "라이코",
+          "weight": 10,
+          "enabled": true,
+          "stage": "low"
+        },
+        {
+          "species": "cobblemon:entei",
+          "displayNameKo": "앤테이",
+          "weight": 10,
+          "enabled": true,
+          "stage": "low"
+        },
+        {
+          "species": "cobblemon:suicune",
+          "displayNameKo": "스이쿤",
+          "weight": 10,
+          "enabled": true,
+          "stage": "low"
+        },
+        {
+          "species": "cobblemon:regirock",
+          "displayNameKo": "레지락",
+          "weight": 10,
+          "enabled": true,
+          "stage": "low"
+        },
+        {
+          "species": "cobblemon:regice",
+          "displayNameKo": "레지아이스",
+          "weight": 10,
+          "enabled": true,
+          "stage": "low"
+        },
+        {
+          "species": "cobblemon:registeel",
+          "displayNameKo": "레지스틸",
+          "weight": 10,
+          "enabled": true,
+          "stage": "low"
+        },
+        {
+          "species": "cobblemon:uxie",
+          "displayNameKo": "유크시",
+          "weight": 10,
+          "enabled": true,
+          "stage": "low"
+        },
+        {
+          "species": "cobblemon:mesprit",
+          "displayNameKo": "엠라이트",
+          "weight": 10,
+          "enabled": true,
+          "stage": "low"
+        },
+        {
+          "species": "cobblemon:azelf",
+          "displayNameKo": "아그놈",
+          "weight": 10,
+          "enabled": true,
+          "stage": "low"
+        },
+        {
+          "species": "cobblemon:latias",
+          "displayNameKo": "라티아스",
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
+        },
+        {
+          "species": "cobblemon:latios",
+          "displayNameKo": "라티오스",
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
+        },
+        {
+          "species": "cobblemon:heatran",
+          "displayNameKo": "히드런",
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
+        },
+        {
+          "species": "cobblemon:cresselia",
+          "displayNameKo": "크레세리아",
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
+        },
+        {
+          "species": "cobblemon:regigigas",
+          "displayNameKo": "레지기가스",
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
+        },
+        {
+          "species": "cobblemon:regieleki",
+          "displayNameKo": "레지에레키",
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
+        },
+        {
+          "species": "cobblemon:regidrago",
+          "displayNameKo": "레지드래고",
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
+        },
+        {
+          "species": "cobblemon:cobalion",
+          "displayNameKo": "코바르온",
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
+        },
+        {
+          "species": "cobblemon:terrakion",
+          "displayNameKo": "테라키온",
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
+        },
+        {
+          "species": "cobblemon:virizion",
+          "displayNameKo": "비리디온",
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
+        },
+        {
+          "species": "cobblemon:cosmog",
+          "displayNameKo": "코스모그",
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
+        },
+        {
+          "species": "cobblemon:okidogi",
+          "displayNameKo": "조타구",
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
+        },
+        {
+          "species": "cobblemon:munkidori",
+          "displayNameKo": "이야후",
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
+        },
+        {
+          "species": "cobblemon:fezandipiti",
+          "displayNameKo": "기로치",
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
+        },
+        {
+          "species": "cobblemon:typenull",
+          "displayNameKo": "타입:널",
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
+        },
+        {
+          "species": "cobblemon:silvally",
+          "displayNameKo": "실버디",
+          "weight": 10,
+          "enabled": true,
+          "stage": "mid"
+        }
+      ],
+      "stageWeight": {
+        "low": 70,
+        "mid": 30
+      }
+    },
+    "theme_sky_pool": {
+      "type": "theme",
+      "displayNameKo": "하늘 조우권",
+      "candidates": [
+        {
+          "species": "cobblemon:latios",
+          "displayNameKo": "라티오스",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:latias",
+          "displayNameKo": "라티아스",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:tornadus",
+          "displayNameKo": "토네로스",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:thundurus",
+          "displayNameKo": "볼트로스",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:landorus",
+          "displayNameKo": "랜드로스",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:enamorus",
+          "displayNameKo": "러브로스",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:lugia",
+          "displayNameKo": "루기아",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:hooh",
+          "displayNameKo": "칠색조",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:articuno",
+          "displayNameKo": "프리져",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:zapdos",
+          "displayNameKo": "썬더",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:moltres",
+          "displayNameKo": "파이어",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:rayquaza",
+          "displayNameKo": "레쿠쟈",
+          "stage": "apex",
+          "weight": 20,
+          "enabled": true
+        }
+      ],
+      "stageWeight": {
+        "intermediate": 55,
+        "advanced": 35,
+        "apex": 10
+      }
+    },
+    "theme_deep_sea_pool": {
+      "type": "theme",
+      "displayNameKo": "심해 조우권",
+      "candidates": [
+        {
+          "species": "cobblemon:suicune",
+          "displayNameKo": "스이쿤",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:lugia",
+          "displayNameKo": "루기아",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:tapufini",
+          "displayNameKo": "카푸느지느",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:manaphy",
+          "displayNameKo": "마나피",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:phione",
+          "displayNameKo": "피오네",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:kyogre",
+          "displayNameKo": "가이오가",
+          "stage": "apex",
+          "weight": 20,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:keldeo",
+          "displayNameKo": "케르디오",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:ironbundle",
+          "displayNameKo": "무쇠보따리",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:walkingwake",
+          "displayNameKo": "굽이치는물결",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:volcanion",
+          "displayNameKo": "볼케니온",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        }
+      ],
+      "stageWeight": {
+        "intermediate": 55,
+        "advanced": 35,
+        "apex": 10
+      }
+    },
+    "theme_earth_pool": {
+      "type": "theme",
+      "displayNameKo": "대지 조우권",
+      "candidates": [
+        {
+          "species": "cobblemon:heatran",
+          "displayNameKo": "히드런",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:landorus",
+          "displayNameKo": "랜드로스",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:regirock",
+          "displayNameKo": "레지락",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:registeel",
+          "displayNameKo": "레지스틸",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:terrakion",
+          "displayNameKo": "테라키온",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:tinglu",
+          "displayNameKo": "딩루",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:diancie",
+          "displayNameKo": "디안시",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:volcanion",
+          "displayNameKo": "볼케니온",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:zarude",
+          "displayNameKo": "자루도",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:zygarde",
+          "displayNameKo": "지가르데",
+          "stage": "apex",
+          "weight": 5,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:groudon",
+          "displayNameKo": "그란돈",
+          "stage": "apex",
+          "weight": 20,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:koraidon",
+          "displayNameKo": "코라이돈",
+          "stage": "apex",
+          "weight": 20,
+          "enabled": true
+        }
+      ],
+      "stageWeight": {
+        "intermediate": 55,
+        "advanced": 35,
+        "apex": 10
+      }
+    },
+    "theme_time_pool": {
+      "type": "theme",
+      "displayNameKo": "시간 조우권",
+      "candidates": [
+        {
+          "species": "cobblemon:cresselia",
+          "displayNameKo": "크레세리아",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:uxie",
+          "displayNameKo": "유크시",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:mesprit",
+          "displayNameKo": "엠라이트",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:azelf",
+          "displayNameKo": "아그놈",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:celebi",
+          "displayNameKo": "세레비",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:jirachi",
+          "displayNameKo": "지라치",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:genesect",
+          "displayNameKo": "게노세크트",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:magearna",
+          "displayNameKo": "마기아나",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:meltan",
+          "displayNameKo": "멜탄",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:melmetal",
+          "displayNameKo": "멜메탈",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:dialga",
+          "displayNameKo": "디아루가",
+          "stage": "apex",
+          "weight": 20,
+          "enabled": true
+        }
+      ],
+      "stageWeight": {
+        "intermediate": 55,
+        "advanced": 35,
+        "apex": 10
+      }
+    },
+    "theme_space_pool": {
+      "type": "theme",
+      "displayNameKo": "공간 조우권",
+      "candidates": [
+        {
+          "species": "cobblemon:latios",
+          "displayNameKo": "라티오스",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:latias",
+          "displayNameKo": "라티아스",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:cosmog",
+          "displayNameKo": "코스모그",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:deoxys",
+          "displayNameKo": "테오키스",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:hoopa",
+          "displayNameKo": "후파",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:palkia",
+          "displayNameKo": "펄기아",
+          "stage": "apex",
+          "weight": 20,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:solgaleo",
+          "displayNameKo": "솔가레오",
+          "stage": "apex",
+          "weight": 5,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:lunala",
+          "displayNameKo": "루나아라",
+          "stage": "apex",
+          "weight": 5,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:necrozma",
+          "displayNameKo": "네크로즈마",
+          "stage": "apex",
+          "weight": 5,
+          "enabled": true
+        }
+      ],
+      "stageWeight": {
+        "intermediate": 55,
+        "advanced": 35,
+        "apex": 10
+      }
+    },
+    "theme_reverse_pool": {
+      "type": "theme",
+      "displayNameKo": "반전 조우권",
+      "candidates": [
+        {
+          "species": "cobblemon:chiyu",
+          "displayNameKo": "위유이",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:chienpao",
+          "displayNameKo": "파오젠",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:spectrier",
+          "displayNameKo": "레이스포스",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:darkrai",
+          "displayNameKo": "다크라이",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:pecharunt",
+          "displayNameKo": "복숭악동",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:marshadow",
+          "displayNameKo": "마샤도",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:lunala",
+          "displayNameKo": "루나아라",
+          "stage": "apex",
+          "weight": 5,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:yveltal",
+          "displayNameKo": "이벨타르",
+          "stage": "apex",
+          "weight": 5,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:necrozma",
+          "displayNameKo": "네크로즈마",
+          "stage": "apex",
+          "weight": 5,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:eternatus",
+          "displayNameKo": "무한다이노",
+          "stage": "apex",
+          "weight": 5,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:giratina",
+          "displayNameKo": "기라티나",
+          "stage": "apex",
+          "weight": 20,
+          "enabled": true
+        }
+      ],
+      "stageWeight": {
+        "intermediate": 55,
+        "advanced": 35,
+        "apex": 10
+      }
+    },
+    "theme_light_pool": {
+      "type": "theme",
+      "displayNameKo": "빛 조우권",
+      "candidates": [
+        {
+          "species": "cobblemon:hooh",
+          "displayNameKo": "칠색조",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:cresselia",
+          "displayNameKo": "크레세리아",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:meloetta",
+          "displayNameKo": "메로엣타",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:zeraora",
+          "displayNameKo": "제라오라",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:jirachi",
+          "displayNameKo": "지라치",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:shaymin",
+          "displayNameKo": "쉐이미",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:xerneas",
+          "displayNameKo": "제르네아스",
+          "stage": "apex",
+          "weight": 5,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:solgaleo",
+          "displayNameKo": "솔가레오",
+          "stage": "apex",
+          "weight": 5,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:lunala",
+          "displayNameKo": "루나아라",
+          "stage": "apex",
+          "weight": 5,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:necrozma",
+          "displayNameKo": "네크로즈마",
+          "stage": "apex",
+          "weight": 5,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:terapagos",
+          "displayNameKo": "테라파고스",
+          "stage": "apex",
+          "weight": 20,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:diancie",
+          "displayNameKo": "디안시",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:victini",
+          "displayNameKo": "비크티니",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:cosmog",
+          "displayNameKo": "코스모그",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:magearna",
+          "displayNameKo": "마기아나",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        }
+      ],
+      "stageWeight": {
+        "intermediate": 55,
+        "advanced": 35,
+        "apex": 10
+      }
+    },
+    "theme_dragon_king_pool": {
+      "type": "theme",
+      "displayNameKo": "용왕 조우권",
+      "candidates": [
+        {
+          "species": "cobblemon:regidrago",
+          "displayNameKo": "레지드래고",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:reshiram",
+          "displayNameKo": "레시라무",
+          "stage": "apex",
+          "weight": 20,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:zekrom",
+          "displayNameKo": "제크로무",
+          "stage": "apex",
+          "weight": 20,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:kyurem",
+          "displayNameKo": "큐레무",
+          "stage": "apex",
+          "weight": 20,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:dialga",
+          "displayNameKo": "디아루가",
+          "stage": "apex",
+          "weight": 20,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:palkia",
+          "displayNameKo": "펄기아",
+          "stage": "apex",
+          "weight": 20,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:giratina",
+          "displayNameKo": "기라티나",
+          "stage": "apex",
+          "weight": 20,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:zygarde",
+          "displayNameKo": "지가르데",
+          "stage": "apex",
+          "weight": 5,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:rayquaza",
+          "displayNameKo": "레쿠쟈",
+          "stage": "apex",
+          "weight": 20,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:koraidon",
+          "displayNameKo": "코라이돈",
+          "stage": "apex",
+          "weight": 20,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:miraidon",
+          "displayNameKo": "미라이돈",
+          "stage": "apex",
+          "weight": 20,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:latias",
+          "displayNameKo": "라티아스",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:latios",
+          "displayNameKo": "라티오스",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:ragingbolt",
+          "displayNameKo": "날뛰는우레",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:gougingfire",
+          "displayNameKo": "꿰뚫는화염",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:roaringmoon",
+          "displayNameKo": "포효의달",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        }
+      ],
+      "stageWeight": {
+        "intermediate": 55,
+        "advanced": 35,
+        "apex": 10
+      }
+    },
+    "theme_guardian_pool": {
+      "type": "theme",
+      "displayNameKo": "수호자 조우권",
+      "candidates": [
+        {
+          "species": "cobblemon:cobalion",
+          "displayNameKo": "코바르온",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:terrakion",
+          "displayNameKo": "테라키온",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:virizion",
+          "displayNameKo": "비리디온",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:keldeo",
+          "displayNameKo": "케르디오",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:tapukoko",
+          "displayNameKo": "카푸꼬꼬꼭",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:tapulele",
+          "displayNameKo": "카푸나비나",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:tapubulu",
+          "displayNameKo": "카푸브루루",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:tapufini",
+          "displayNameKo": "카푸느지느",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:ogerpon",
+          "displayNameKo": "오거폰",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:kubfu",
+          "displayNameKo": "치고마",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:urshifu",
+          "displayNameKo": "우라오스",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:zacian",
+          "displayNameKo": "자시안",
+          "stage": "apex",
+          "weight": 20,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:zamazenta",
+          "displayNameKo": "자마젠타",
+          "stage": "apex",
+          "weight": 20,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:calyrex",
+          "displayNameKo": "버드렉스",
+          "stage": "apex",
+          "weight": 20,
+          "enabled": true
+        }
+      ],
+      "stageWeight": {
+        "intermediate": 55,
+        "advanced": 35,
+        "apex": 10
+      }
+    },
+    "theme_eternity_pool": {
+      "type": "theme",
+      "displayNameKo": "영원 조우권",
+      "candidates": [
+        {
+          "species": "cobblemon:cosmog",
+          "displayNameKo": "코스모그",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:celebi",
+          "displayNameKo": "세레비",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:jirachi",
+          "displayNameKo": "지라치",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:shaymin",
+          "displayNameKo": "쉐이미",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:hoopa",
+          "displayNameKo": "후파",
+          "stage": "intermediate",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:victini",
+          "displayNameKo": "비크티니",
+          "stage": "advanced",
+          "weight": 10,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:mew",
+          "displayNameKo": "뮤",
+          "stage": "apex",
+          "weight": 5,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:mewtwo",
+          "displayNameKo": "뮤츠",
+          "stage": "apex",
+          "weight": 5,
+          "enabled": true
+        },
+        {
+          "species": "cobblemon:arceus",
+          "displayNameKo": "아르세우스",
+          "stage": "apex",
+          "weight": 20,
+          "enabled": true
+        }
+      ],
+      "stageWeight": {
+        "intermediate": 55,
+        "advanced": 35,
+        "apex": 10
+      }
+    }
+  }
+}

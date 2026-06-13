@@ -1,6 +1,6 @@
 # Protection Policy (토지 보호 / 그리핑 정책)
 
-> 대상: PoroMon 데디케이티드 서버
+> 대상: Zenon Mon 데디케이티드 서버
 > 상위 결정: `decisions.md` 011(PvP off) / 012(허브만 보호), 요약: `world_policy.md` §3
 > 철학: **일반 플레이는 자유**. 보호는 *서버 자산(허브)* 에만 최소 적용해 서버를 가볍게 유지.
 > ⚠️ `TBD` = 미정. 결정 시 본 문서 + `server.properties`/관련 설정을 함께 갱신.
@@ -15,7 +15,7 @@
 
 핵심 원칙:
 - **보호 모드(claim 플러그인/모드)를 초기엔 추가하지 않는다.** (서버 부하·복잡도↓, CLAUDE.md "테스트 전 무거운 모드 자제"와 일치)
-- 보호가 필요한 것은 **PoroMonCore가 관리할 허브/시설**뿐 → 가능하면 바닐라 `spawn-protection` 또는 PoroMonCore 내부 영역 보호로 처리.
+- 보호가 필요한 것은 **ZenonMonCore가 관리할 허브/시설**뿐 → 가능하면 바닐라 `spawn-protection` 또는 ZenonMonCore 내부 영역 보호로 처리.
 
 ## 2. 1차 구현: 바닐라 spawn-protection
 
@@ -26,21 +26,21 @@
   - 한계: (a) 사각형(청크 기반 반경)이라 허브 모양과 정확히 안 맞을 수 있음, (b) 컨테이너 상호작용/레드스톤/엔티티는 막지 못할 수 있음(버전별 차이), (c) 스폰 1곳에만 적용 → 허브가 스폰과 같은 위치여야 함.
 - **전제**: **월드 스폰 = 허브 중심**으로 설정 (`/setworldspawn` 또는 월드 스폰 고정). 허브가 스폰과 떨어져 있으면 spawn-protection으로는 못 막음 → 2차(아래) 필요.
 
-## 3. 2차(향후): PoroMonCore 영역 보호
+## 3. 2차(향후): ZenonMonCore 영역 보호
 
-허브가 커지거나 스폰과 분리되면, PoroMonCore가 **영역 기반 보호**를 담당:
+허브가 커지거나 스폰과 분리되면, ZenonMonCore가 **영역 기반 보호**를 담당:
 - 보호 영역(들)을 config로 정의: `{world, min(x,y,z), max(x,y,z)}` 리스트
 - 서버측 이벤트 취소: 블록 파괴/설치, 컨테이너 열기, 엔티티 상호작용(주민/디스플레이) — non-op & 권한 없는 플레이어 차단
 - `module_structure.md`의 **HubInteractionManager** 와 연계 (허브 상호작용은 허용, 파괴는 차단)
 - 장점: 허브 위치/모양 자유, 다중 영역, 권한 세분화. (단 구현 비용 발생 → 0.1 이후)
 
-> 0.1 스코프엔 미포함. 우선 spawn-protection으로 허브 보호 → 한계 보이면 PoroMonCore 영역 보호로 승격.
+> 0.1 스코프엔 미포함. 우선 spawn-protection으로 허브 보호 → 한계 보이면 ZenonMonCore 영역 보호로 승격.
 
 ## 4. 권한 / 운영
 
 - **op (관리자)**: 모든 보호 영역 우회, 명령/건축 가능. op 목록은 `ops.json`. 최소 인원만 부여.
 - **일반 플레이어**: 허브 보호 영역 내 파괴/설치 불가, 그 외 자유.
-- 허브 내 **상호작용 허용 vs 차단** 구분 필요(예: 짐 NPC 우클릭은 허용, 블록 파괴는 차단) → 2차 PoroMonCore 보호에서 화이트리스트로 처리.
+- 허브 내 **상호작용 허용 vs 차단** 구분 필요(예: 짐 NPC 우클릭은 허용, 블록 파괴는 차단) → 2차 ZenonMonCore 보호에서 화이트리스트로 처리.
 
 ## 5. 그리핑 / 분쟁
 
@@ -60,19 +60,19 @@
 2. 일반 월드 그리핑 신고 누적
 3. 플레이어 건축물 영구 보존 요구 발생
 
-검토 옵션: claim 모드 도입 / 플롯·구역 시스템 / PoroMonCore 영역 보호 확장.
+검토 옵션: claim 모드 도입 / 플롯·구역 시스템 / ZenonMonCore 영역 보호 확장.
 
 ---
 
 ## 미정(TBD)
 1. spawn-protection 반경 값
 2. 월드 스폰 = 허브 중심 고정 여부 (1차 보호 전제)
-3. 허브 보호를 spawn-protection으로 끝낼지, 2차 PoroMonCore 영역 보호로 갈지
+3. 허브 보호를 spawn-protection으로 끝낼지, 2차 ZenonMonCore 영역 보호로 갈지
 4. op 부여 기준/인원
 
 ## 관련 문서
 - 월드 정책: `docs/02_server/world_policy.md`
 - 운영 절차(롤백/백업): `docs/02_server/server_runbook.md` (TODO)
 - 허브 설계: `docs/04_game_design/hub_design.md`
-- PoroMonCore 모듈: `docs/03_poromoncore/module_structure.md`
+- ZenonMonCore 모듈: `docs/03_zenonmoncore/module_structure.md`
 - 결정 기록: `docs/00_project/decisions.md` (011, 012)

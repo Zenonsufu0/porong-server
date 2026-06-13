@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="/home/zenonsufu1/dev/poro-server-poromon"
+# ROOT = zenon-mon 워크스페이스 루트(이 스크립트 상위 디렉터리).
+# 스크립트 위치에서 도출하므로 워크트리/폴더명이 바뀌어도 깨지지 않는다.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$(dirname "$SCRIPT_DIR")"
 ZIP_PATH="${1:-}"
 
 if [ -z "$ZIP_PATH" ]; then
@@ -14,7 +17,7 @@ if [ ! -f "$ZIP_PATH" ]; then
   exit 1
 fi
 
-TMP="/tmp/poromon-pack-extract"
+TMP="/tmp/zenonmon-pack-extract"
 
 echo "[1/6] Cleaning temp..."
 rm -rf "$TMP"

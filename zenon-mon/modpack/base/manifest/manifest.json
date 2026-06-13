@@ -3,14 +3,14 @@
     "version": "1.21.1",
     "modLoaders": [
       {
-        "id": "fabric-0.18.4",
+        "id": "fabric-0.19.3",
         "primary": true
       }
     ]
   },
   "manifestType": "minecraftModpack",
   "manifestVersion": 1,
-  "name": "PoroMon 0.1 Dev",
+  "name": "Zenon Mon 0.1 Dev",
   "version": "1.7.3",
   "author": "CobbledStudios",
   "files": [

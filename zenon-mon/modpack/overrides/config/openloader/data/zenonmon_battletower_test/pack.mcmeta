@@ -1,0 +1,6 @@
+{
+  "pack": {
+    "pack_format": 48,
+    "description": "Zenon Mon battle tower TEST trainer presets (floor 1, floor 20 mega). NPC mega/AI 수동 검증용. Summon: /summon cobblemon:npc ~ ~ ~ {NPCClass:\"zenonmon:floor_20\"}"
+  }
+}

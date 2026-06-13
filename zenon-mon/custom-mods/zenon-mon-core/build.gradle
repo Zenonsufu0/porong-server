@@ -1,0 +1,47 @@
+plugins {
+    id 'fabric-loom' version '1.7-SNAPSHOT'
+    id 'java'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+repositories {
+    maven { name = 'Cobblemon'; url = 'https://maven.impactdev.net/repository/development/' }
+    maven { name = 'Modrinth'; url = 'https://api.modrinth.com/maven'; content { includeGroup 'maven.modrinth' } }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    // Cobblemon API (배틀타워 pvn). compileOnly — 런타임은 서버의 Cobblemon 모드가 제공.
+    modCompileOnly "com.cobblemon:fabric:${project.cobblemon_version}"
+    modCompileOnly "net.fabricmc:fabric-language-kotlin:${project.flk_version}"
+    // Mega Showdown API (NPC 메가 발동 megaEvolveInBattle). 로컬 jar(maven 미배포). compileOnly.
+    modCompileOnly files("../../modpack/client/mods/mega_showdown-fabric-1.8.4+1.7.3+1.21.1.jar")
+}
+
+processResources {
+    inputs.property "version", project.version
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+    withSourcesJar()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 21
+    it.options.encoding = "UTF-8"
+}

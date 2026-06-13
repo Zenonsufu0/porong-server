@@ -1,0 +1,26 @@
+{
+  "hitbox": "player",
+  "names": [
+    "타워 20층 — 첫 메가"
+  ],
+  "interaction": {
+    "type": "dialogue",
+    "dialogue": "zenonmon:battletower_start"
+  },
+  "battleConfiguration": {
+    "canChallenge": true
+  },
+  "autoHealParty": false,
+  "skill": 5,
+  "party": {
+    "type": "simple",
+    "pokemon": [
+      "garchomp level=100 held_item=cobblemon:rocky_helmet nature=jolly moves=earthquake,dragonclaw,stealthrock,swordsdance hp_iv=31 attack_iv=31 defence_iv=31 special_attack_iv=31 special_defence_iv=31 speed_iv=31 attack_ev=252 speed_ev=252 hp_ev=4",
+      "rotom wash-appliance=true level=100 held_item=cobblemon:leftovers nature=modest moves=hydropump,voltswitch,willowisp,painsplit hp_iv=31 attack_iv=31 defence_iv=31 special_attack_iv=31 special_defence_iv=31 speed_iv=31 special_attack_ev=252 hp_ev=252 speed_ev=4",
+      "scizor level=100 held_item=mega_showdown:scizorite nature=adamant moves=bulletpunch,uturn,swordsdance,roost hp_iv=31 attack_iv=31 defence_iv=31 special_attack_iv=31 special_defence_iv=31 speed_iv=31 attack_ev=252 hp_ev=252 speed_ev=4",
+      "breloom level=100 held_item=cobblemon:focus_sash nature=jolly moves=spore,machpunch,bulletseed,swordsdance hp_iv=31 attack_iv=31 defence_iv=31 special_attack_iv=31 special_defence_iv=31 speed_iv=31 attack_ev=252 speed_ev=252 hp_ev=4",
+      "volcarona level=100 held_item=cobblemon:life_orb nature=timid moves=quiverdance,fierydance,bugbuzz,gigadrain hp_iv=31 attack_iv=31 defence_iv=31 special_attack_iv=31 special_defence_iv=31 speed_iv=31 special_attack_ev=252 speed_ev=252 hp_ev=4",
+      "tyranitar level=100 held_item=cobblemon:leftovers nature=adamant moves=stoneedge,crunch,earthquake,thunderwave hp_iv=31 attack_iv=31 defence_iv=31 special_attack_iv=31 special_defence_iv=31 speed_iv=31 attack_ev=252 hp_ev=252 special_defence_ev=4"
+    ]
+  }
+}
