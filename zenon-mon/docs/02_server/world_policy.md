@@ -1,7 +1,7 @@
 # World Policy (월드 정책)
 
-> 대상: PoroMon 데디케이티드 서버 (MC 1.21.1 / Fabric / Cobblemon 1.7.3 + Mega Showdown)
-> 철학(overview.md / CLAUDE.md): **일반 플레이는 자유**, 고임팩트 시스템만 PoroMonCore가 통제.
+> 대상: Zenon Mon 데디케이티드 서버 (MC 1.21.1 / Fabric / Cobblemon 1.7.3 + Mega Showdown)
+> 철학(overview.md / CLAUDE.md): **일반 플레이는 자유**, 고임팩트 시스템만 ZenonMonCore가 통제.
 > ⚠️ `TBD` = 아직 미정. 결정되면 본 문서와 `server.properties`를 함께 갱신한다.
 
 ## 1. 월드 생성
@@ -62,7 +62,7 @@
 ## 4-1. 스폰 통제 (전설 / 관장·트레이너) — 결정 013
 - **전설 자연 랜덤 스폰 off.** 전설은 조우권+사설 제단룸으로만(결정 008, `../04_game_design/legendary_encounter.md`).
   - 구현: Cobblemon 스폰 풀에서 전설 종 제거 — 스폰 설정/데이터팩 오버라이드 방식(정확한 키/파일 검증 필요). `enableSpawning`은 일반 스폰 유지를 위해 끄지 않음(전설만 선별 제거).
-- **관장·트레이너 맵 스폰 없음.** 관장은 허브 전용 PoroMonCore NPC로만 존재(`../04_game_design/gym_badge_design.md`). 야생/필드 트레이너 스폰 없음.
+- **관장·트레이너 맵 스폰 없음.** 관장은 허브 전용 ZenonMonCore NPC로만 존재(`../04_game_design/gym_badge_design.md`). 야생/필드 트레이너 스폰 없음.
 - 검증: 서버 기동 후 일정 시간 관찰 + 스폰 로그로 전설 스폰 0 확인(`server_runbook.md` 체크).
 
 ## 5. 백업 / 보존
@@ -78,7 +78,7 @@
 ## 6. 월드 리셋 / 시즌
 
 - 기본: **영속 월드** (시즌마다 전체 와이프하지 않음).
-- 시즌 콘텐츠(리그/챔피언/시즌 보상)는 **PoroMonCore의 진행/기록 리셋**으로 처리하는 방향 — 월드 지형 와이프와 분리.
+- 시즌 콘텐츠(리그/챔피언/시즌 보상)는 **ZenonMonCore의 진행/기록 리셋**으로 처리하는 방향 — 월드 지형 와이프와 분리.
 - 전체 월드 리셋 정책(맵 교체/시즌 와이프 여부): **TBD** (게임 설계 `04_game_design/league_season_design.md`와 함께 결정).
 
 ---

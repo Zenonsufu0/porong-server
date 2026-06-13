@@ -20,14 +20,14 @@
   - **Pokémon Trial Spawner**(전용 trial spawner 블록) + **Eternatus Cocoon**(에터너스).
 - **자체 한글화 없음**: lang = en/es/ja/ru/zh(cn/hk/tw)만. **ko_kr 없음.**
 
-### ⚠️ PoroMonCore 조우권/필드 이벤트와 충돌 (확정적)
-- 이 모드는 **조우권/사설룸 없이도** 제단·항아리·피리·trial spawner·구조물로 전설/환상(아르세우스 포함)을 **누구나 월드에서 획득**하게 한다. → **PoroMonCore 통제(조우권+사설룸+통제 필드 이벤트)를 정면 우회**(결정 017 우려가 jar로 확정됨).
+### ⚠️ ZenonMonCore 조우권/필드 이벤트와 충돌 (확정적)
+- 이 모드는 **조우권/사설룸 없이도** 제단·항아리·피리·trial spawner·구조물로 전설/환상(아르세우스 포함)을 **누구나 월드에서 획득**하게 한다. → **ZenonMonCore 통제(조우권+사설룸+통제 필드 이벤트)를 정면 우회**(결정 017 우려가 jar로 확정됨).
 
 ### TODO (제어 가능 여부 — 미확인)
 1. **구조물/바이옴 자동 생성 비활성** 가능 여부: terrablender 바이옴 + 구조물 datapack을 끌 수 있는지(config 파일 jar 내 미발견 → TODO). 구조물 `placed_feature`/`structure_set` datapack 오버라이드로 비활성 가능성 검토.
 2. **소환 아이템/블록 비활성**: 제단·항아리·피리류를 레시피 제거(datapack) 또는 획득 차단으로 막을 수 있는지.
 3. chipped/cobblefurnies/terrablender JIJ 여부 및 서버 로드.
-4. 대안: 끌 수 없다면 PoroMonCore 전설 정책을 **재정의**(예: LM 구조물을 "통제된 후반 콘텐츠"로 수용 + 조우권은 LM 미포함 전설/연출용으로 분리). → **설계 결정 필요.**
+4. 대안: 끌 수 없다면 ZenonMonCore 전설 정책을 **재정의**(예: LM 구조물을 "통제된 후반 콘텐츠"로 수용 + 조우권은 LM 미포함 전설/연출용으로 분리). → **설계 결정 필요.**
 
 > species ID는 cobblemon 네임스페이스(예: `cobblemon:dialga`) 추정이나 본 jar에서 직접 노출 안 됨 → **TODO**. 단 **구현 전설 목록**(위 제단/소환 대상)은 사실상 확정.
 
@@ -42,12 +42,12 @@
 
 ### 검토 결론
 - **알 풀 커스텀: ✅ 가능** — `data/diesse/loot_table/{common,rare,shiny,rides}.json`를 **datapack 오버라이드**로 교체하면 부화 풀 변경 가능(설계의 등급별 풀을 여기에 매핑).
-- **등급 구조**: 모드 기본 = common / rare / shiny / **rides**(탈것). ⚠️ 설계의 "스타팅/화석/드래곤/타입별 알"은 **모드가 기본 제공하지 않음** → 그 등급들은 **PoroMonCore 커스텀 또는 추가 loot table 정의** 필요.
+- **등급 구조**: 모드 기본 = common / rare / shiny / **rides**(탈것). ⚠️ 설계의 "스타팅/화석/드래곤/타입별 알"은 **모드가 기본 제공하지 않음** → 그 등급들은 **ZenonMonCore 커스텀 또는 추가 loot table 정의** 필요.
 - **랜덤 알 상인/villager/trade 비활성화**: 이 모드는 **상인/trade를 추가하지 않음**(둥지 스폰 기반). → "상인 비활성화" 대상 없음. 대신 **둥지 자연 스폰**이 통제 대상 → load/tick function·spawn_nest predicate 비활성/조정으로 막을 수 있는지 **TODO(함수 내용 미확인)**.
 - **알 아이템 ID: TODO** — assets/lang 없음. 알이 표준 등록 아이템인지(block/entity/animated_java 디스플레이인지) 불명확 → ID 확인 불가, **추측 금지**.
 
 ### ⚠️ 대안 (커스텀 알)
-- 둥지 스폰을 끄기 어렵거나 알 아이템 ID가 불명확하면, **PoroMonCore 커스텀 알 아이템 + 자체 부화 풀**로 상점 알을 구현(모드 알과 분리). 모드 알 풀은 datapack로 별도 운영.
+- 둥지 스폰을 끄기 어렵거나 알 아이템 ID가 불명확하면, **ZenonMonCore 커스텀 알 아이템 + 자체 부화 풀**로 상점 알을 구현(모드 알과 분리). 모드 알 풀은 datapack로 별도 운영.
 
 ---
 
@@ -99,12 +99,12 @@
 | SimpleTMs | simpletms | ✅ 있음(UI/타입까지) | 거의 불필요 |
 | Legendary Monuments | legendarymonuments | ❌ **없음**(en/es/ja/ru/zh만) | **ko_kr 신규 작성 1순위**(아이템/블록/툴팁 다수) |
 | Eggs Addon | (diesse, data만) | ❌ lang 없음 | 표시 텍스트 거의 없음(둥지/loot) — 대상 적음 |
-| PoroMonCore 커스텀(조우권 등) | poromoncore | — | 직접 ko_kr + lore |
+| ZenonMonCore 커스텀(조우권 등) | zenonmoncore | — | 직접 ko_kr + lore |
 
 ### ko_kr.json 생성 대상(우선순위)
-1. **legendarymonuments** — `assets/legendarymonuments/lang/en_us.json` 키 전체 번역(제단/항아리/피리/열쇠/툴팁). **PoroMon-Korean-Pack 리소스팩**으로 오버라이드.
+1. **legendarymonuments** — `assets/legendarymonuments/lang/en_us.json` 키 전체 번역(제단/항아리/피리/열쇠/툴팁). **Zenon Mon-Korean-Pack 리소스팩**으로 오버라이드.
 2. **mega_showdown** 누락분 보완(메가스톤 명칭 등 — ko_kr 커버리지 확인 후).
-3. **PoroMonCore 커스텀 아이템**(조우권 15종 등) — jar 자체 ko_kr.
+3. **ZenonMonCore 커스텀 아이템**(조우권 15종 등) — jar 자체 ko_kr.
 - Cobblemon/SimpleTMs는 기본 ko_kr 양호 → 보완만.
 
 > 리소스팩 오버라이드 우선순위·적용 검증 TODO. namespace는 위 표로 확정(추측 아님).

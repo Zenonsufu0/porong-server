@@ -1,6 +1,6 @@
 # 리그 / 시즌 설계 (League / Season)  — 초안(DRAFT)
 
-> 허브 리그 구역(`hub_design.md` §6)의 게임 설계. 기록·진행은 PoroMonCore가 담당.
+> 허브 리그 구역(`hub_design.md` §6)의 게임 설계. 기록·진행은 ZenonMonCore가 담당.
 > 연동: `SeasonManager` / `PlayerProgress` / `seasons.json`(`config_structure.md`).
 > 전제: **모든 대전은 Cobblemon 포켓몬 배틀**(인간 PvP 아님, 결정 011).
 > ⚠️ 초안. `TBD`/`예시`는 검토·확정 대상.
@@ -52,7 +52,7 @@
 **실시간 큐 매칭만(확정). AI/비동기 상대 없음.**
 - 프로젝트 서버 특성상 정규리그 시간대에 **실제 플레이어가 있다고 전제**한다. 상대가 없으면 **큐에서 대기**(AI 대체전 없음).
 
-1. 플레이어가 정규리그장에서 **랭크 큐 참가**(또는 `/poromon` 메뉴).
+1. 플레이어가 정규리그장에서 **랭크 큐 참가**(또는 `/zenonmon` 메뉴).
 2. 서버가 큐 내에서 **점수 근접한 실제 플레이어**와 페어링.
    - 매칭 윈도우 = 시작 ±50점에서 **대기 시간에 따라 점차 확대**(예: 10초마다 +25). 상한(±400) 도달 시 큐 내 가장 가까운 상대와 성사.
    - 상대가 전혀 없으면 매칭될 때까지 대기(취소 가능).
@@ -87,7 +87,7 @@
 | 옵션 | 설명 | 확인 |
 |---|---|---|
 | A. Showdown 포맷 | MSD 번들 Showdown 시뮬의 Adjust Level 룰 사용 | Cobblemon이 월드 배틀에 노출하는지 검증 |
-| B. PoroMonCore 전용 진입점 | 리그 배틀을 별도 흐름으로 만들어 lvl50 적용 | 구현량 ↑ |
+| B. ZenonMonCore 전용 진입점 | 리그 배틀을 별도 흐름으로 만들어 lvl50 적용 | 구현량 ↑ |
 | C. 입장 시 클램프 | 배틀용 임시 팀을 lvl50로 스케일 | 스탯/기술 정합 주의 |
 > 셋 다 안 되면 정규리그도 실제 레벨로 운영하는 폴백 검토. → Phase 6 전 기술 검증 항목.
 
@@ -100,7 +100,7 @@
 | 시즌/서버 종료 | 마지막날 챔피언스리그 개최 → 최종 챔피언 확정 → 동상/홀 갱신 |
 - **월드 와이프 없음**(`world_policy.md` §6 정합).
 
-## 9. PoroMonCore 연동
+## 9. ZenonMonCore 연동
 - `SeasonManager` — 시즌 상태, 정규리그 점수/순위, 챔피언스리그 브래킷, 챔피언 이력.
 - `PlayerProgress` 확장 — 정규리그 점수/순위/타이틀(`database_schema.md` 스키마 추가 필요).
 - 배틀타워 — tier별 트레이너 풀 + 진행 기록(연승/최고층).
@@ -161,5 +161,5 @@
 ## 12. 관련 문서
 - 허브: `hub_design.md` §6 · 짐(자격): `gym_badge_design.md` §7 · 메가/테라: `mega_tera_unlock.md`
 - 월드/시즌 정합: `../02_server/world_policy.md` §6
-- 코어: `../03_poromoncore/module_structure.md`(SeasonManager) / `database_schema.md` / `config_structure.md`
+- 코어: `../03_zenonmoncore/module_structure.md`(SeasonManager) / `database_schema.md` / `config_structure.md`
 - 결정: `../00_project/decisions.md`(011 PvP off, 010 허브)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""PoroMon 설치기 GUI (tkinter — 유저 배포용 exe 엔트리).
+"""Zenon Mon 설치기 GUI (tkinter — 유저 배포용 exe 엔트리).
 
 필수 코어는 자동(토글 불가), 선택 모드는 그룹별 체크박스(pack.json default 적용).
 [설치] → 백그라운드 스레드로 Installer 실행, 로그 실시간 표시.
@@ -14,8 +14,8 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from poromon_installer import Pack, Installer            # noqa: E402
-from poromon_installer import platform as plat           # noqa: E402
+from zenon_mon_installer import Pack, Installer            # noqa: E402
+from zenon_mon_installer import platform as plat           # noqa: E402
 
 GROUP_LABELS = {
     "performance": "성능",
@@ -128,7 +128,7 @@ class InstallerApp:
         try:
             inst = Installer(self.bundle, target_dir=self.target_var.get(), logger=self.log)
             inst.install(self.selected(), dry=False)
-            self.root.after(0, lambda: messagebox.showinfo("완료", "설치가 끝났습니다.\n공식 런처에서 PoroMon 프로필을 선택하세요."))
+            self.root.after(0, lambda: messagebox.showinfo("완료", "설치가 끝났습니다.\n공식 런처에서 Zenon Mon 프로필을 선택하세요."))
         except Exception as e:  # noqa: BLE001
             self.log(f"[오류] {e}")
             self.root.after(0, lambda: messagebox.showerror("오류", str(e)))
@@ -149,7 +149,7 @@ def main():
     if not os.path.isfile(os.path.join(bundle, "pack.json")):
         msg = f"번들(pack.json)을 찾을 수 없습니다: {bundle}"
         try:
-            r = tk.Tk(); r.withdraw(); messagebox.showerror("PoroMon 설치기", msg); r.destroy()
+            r = tk.Tk(); r.withdraw(); messagebox.showerror("Zenon Mon 설치기", msg); r.destroy()
         except Exception:
             print(msg, file=sys.stderr)
         return 1

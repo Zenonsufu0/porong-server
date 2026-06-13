@@ -1,0 +1,26 @@
+{
+  "hitbox": "player",
+  "names": [
+    "타워 1층"
+  ],
+  "interaction": {
+    "type": "dialogue",
+    "dialogue": "zenonmon:battletower_start"
+  },
+  "battleConfiguration": {
+    "canChallenge": true
+  },
+  "autoHealParty": false,
+  "skill": 3,
+  "party": {
+    "type": "simple",
+    "pokemon": [
+      "pidgeot level=100 held_item=cobblemon:sharp_beak nature=jolly moves=airslash,quickattack,roost,uturn hp_iv=31 attack_iv=31 defence_iv=31 special_attack_iv=31 special_defence_iv=31 speed_iv=31 special_attack_ev=252 speed_ev=252 hp_ev=4",
+      "raichu level=100 held_item=cobblemon:magnet nature=timid moves=thunderbolt,quickattack,nuzzle,grassknot hp_iv=31 attack_iv=31 defence_iv=31 special_attack_iv=31 special_defence_iv=31 speed_iv=31 special_attack_ev=252 speed_ev=252 hp_ev=4",
+      "arcanine level=100 held_item=cobblemon:charcoal_stick nature=jolly moves=flamethrower,crunch,extremespeed,willowisp hp_iv=31 attack_iv=31 defence_iv=31 special_attack_iv=31 special_defence_iv=31 speed_iv=31 attack_ev=252 speed_ev=252 hp_ev=4",
+      "vaporeon level=100 held_item=cobblemon:mystic_water nature=modest moves=surf,icebeam,aquaring,protect hp_iv=31 attack_iv=31 defence_iv=31 special_attack_iv=31 special_defence_iv=31 speed_iv=31 hp_ev=252 special_attack_ev=252 defence_ev=4",
+      "donphan level=100 held_item=cobblemon:soft_sand nature=adamant moves=earthquake,rockslide,rapidspin,knockoff hp_iv=31 attack_iv=31 defence_iv=31 special_attack_iv=31 special_defence_iv=31 speed_iv=31 attack_ev=252 hp_ev=252 defence_ev=4",
+      "snorlax level=100 held_item=cobblemon:sitrus_berry nature=careful moves=bodyslam,heavyslam,rest,sleeptalk hp_iv=31 attack_iv=31 defence_iv=31 special_attack_iv=31 special_defence_iv=31 speed_iv=31 hp_ev=252 special_defence_ev=252 attack_ev=4"
+    ]
+  }
+}

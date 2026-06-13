@@ -1,7 +1,7 @@
 {
   "pack": {
-    "id": "poromon",
-    "name": "PoroMon",
+    "id": "zenonmon",
+    "name": "Zenon Mon",
     "version": "0.1.0"
   },
   "minecraft": {
@@ -11,11 +11,11 @@
     "java": 21
   },
   "install": {
-    "instanceName": "PoroMon",
+    "instanceName": "ZenonMon",
     "isolated": true
   },
   "server": {
-    "name": "PoroMon",
+    "name": "Zenon Mon",
     "address": "TODO_HOST:25566"
   },
   "required": [
@@ -76,8 +76,8 @@
       "name": "oωo Lib"
     },
     {
-      "file": "poromon-core-0.1.0.jar",
-      "name": "PoroMonCore",
+      "file": "zenon-mon-core-0.1.0.jar",
+      "name": "ZenonMonCore",
       "desc": "서버 규칙 엔진 + 커스텀 텍스처"
     },
     {

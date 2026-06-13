@@ -3,7 +3,7 @@ import json
 import zipfile
 from pathlib import Path
 
-ROOT = Path("/home/zenonsufu1/dev/poro-server-poromon")
+ROOT = Path(__file__).resolve().parent.parent
 MODS = ROOT / "modpack/client/mods"
 OUT = ROOT / "reports/mod_classification.md"
 

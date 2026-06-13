@@ -19,7 +19,7 @@
 
 | jar | 티어 | license | 메모 / 조치 |
 |---|---|---|---|
-| `poromon-core` | T0 | ARR | **우리 모드 → 무관**(저작자=우리). 번들 자유 |
+| `zenon-mon-core` | T0 | ARR | **우리 모드 → 무관**(저작자=우리). 번들 자유 |
 | `mega_showdown` | **T0 필수** | (필드 없음) | ★ 핵심. 소스레포/CF "modpack permission" 확인 필수. 빠질 수 없음 |
 | `chipped` | **T0 필수** | Terrarium Licence | ★ LM 의존(필수). Terrarium 약관 확인 |
 | `complete-cobblemon-collection` | T1 강권장 | ARR | 모델 보충(끌 수 있음). ARR → permission 확인 / 불가 시 선택 제외·다운로드 분리 |
@@ -44,7 +44,7 @@
 
 ## 권고 (번들 전 액션)
 
-1. **우리 모드·서버전용·제외분 빼기**: poromon-core(우리꺼), netherportalfix·bwncr(클라 번들 미포함), xaero 2(결정 047 제외) → 실질 CHECK = **클라 번들에 들어가는 ~16개**.
+1. **우리 모드·서버전용·제외분 빼기**: zenon-mon-core(우리꺼), netherportalfix·bwncr(클라 번들 미포함), xaero 2(결정 047 제외) → 실질 CHECK = **클라 번들에 들어가는 ~16개**.
 2. **핵심 필수 우선 확인**: `mega_showdown`·`chipped`·`balm`(의존) — 빠질 수 없으므로 저작자/CF **modpack permission** 또는 소스 라이선스 전문 확인. 대부분 "공개 모드팩 허용"이나 **자체 exe 번들**은 회색지대 → 필요 시 저작자 문의.
 3. **순수 편의 ARR**(xaero·craftingtweaks·stendhal·BetterThirdPerson·sodiumleafculling 등): permission 확인. 불가 모드는 ① 선택(T2)로 내려 기본 OFF ② **그것만 다운로드 분리**(자체 호스팅) ③ 대체 모드로 교체.
 4. **비상업 조건**(`BetterAdvancements`): 서버 수익화 계획 시 재검토.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""PoroMon 설치기 CLI (엔진 검증·개발용. 유저 배포는 gui.py→exe).
+"""Zenon Mon 설치기 CLI (엔진 검증·개발용. 유저 배포는 gui.py→exe).
 
 사용:
     python3 main.py --bundle <dir> --list
@@ -12,7 +12,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from poromon_installer import Pack, Installer  # noqa: E402
+from zenon_mon_installer import Pack, Installer  # noqa: E402
 
 
 def cmd_list(pack):
@@ -36,7 +36,7 @@ def cmd_list(pack):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="PoroMon 설치기 (CLI)")
+    ap = argparse.ArgumentParser(description="Zenon Mon 설치기 (CLI)")
     ap.add_argument("--bundle", required=True, help="번들 디렉터리(pack.json 포함)")
     ap.add_argument("--target", help="설치 인스턴스 폴더(기본=.minecraft/instances/<name>)")
     ap.add_argument("--mc-dir", help=".minecraft 경로(기본=OS 표준)")

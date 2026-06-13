@@ -1,6 +1,6 @@
 # Server Runbook (운영 절차)
 
-> 대상: PoroMon 데디케이티드 서버 (MC 1.21.1 / Fabric / Java 21)
+> 대상: Zenon Mon 데디케이티드 서버 (MC 1.21.1 / Fabric / Java 21)
 > 작업 디렉터리: `server/run` · 백업: `server/backups`
 > 관련: `server_setup.md`(구성) · `world_policy.md`(백업 정책) · `protection_policy.md`(롤백 분쟁)
 > ⚠️ 절차에 등장하는 스크립트(`start.sh`, `scripts/backup-server.sh` 등)는 **아직 미작성**. 본 문서는 그 동작 규약(runbook)을 정의한다.
@@ -14,7 +14,7 @@
 
 ## 1. 기동 (Start)
 ```bash
-cd /home/zenonsufu1/dev/poro-server-poromon/server/run
+cd /home/zenonsufu1/dev/zenon-work-mon/zenon-mon/.local/server
 ./start.sh        # 또는 scripts/run-server.sh
 ```
 정상 신호:
@@ -99,14 +99,14 @@ tar xzf server/backups/world-<TS>.tar.gz -C server/run
 
 ## 9. 최초 오픈 셋업 (알파 전 1회)
 
-> 런타임/시크릿 작업. **여기 적힌 값(특히 apiKey)은 Git에 커밋하지 않는다.** 대상 파일은 `config/poromoncore/core.json`(런타임).
+> 런타임/시크릿 작업. **여기 적힌 값(특히 apiKey)은 Git에 커밋하지 않는다.** 대상 파일은 `config/zenonmoncore/core.json`(런타임).
 
 ### 9-1. 디스코드 인증 (결정 041)
 1. **apiKey 설정** — `core.json → discordAuth.apiKey`를 `CHANGE_ME`에서 강한 랜덤값으로 변경(예: `python3 -c "import secrets;print(secrets.token_urlsafe(32))"`).
-   - ⚠️ **봇 측(porong-discord)의 인증 API 키와 반드시 동일 값.** 봇 `.env`의 포로몬 인증 키 변수에 같은 값.
+   - ⚠️ **봇 측(porong-discord)의 인증 API 키와 반드시 동일 값.** 봇 `.env`의 Zenon Mon 인증 키 변수에 같은 값.
    - `bindAddress=127.0.0.1`(봇·MC 같은 호스트) 유지, 원격이면 `0.0.0.0`+방화벽. `httpPort=25580`(봇 base URL과 일치).
 2. **엔드포인트 확인**(서버 기동 후):
-   - `curl -s -H "X-API-Key: <key>" http://127.0.0.1:25580/auth/ping` → `{"ok":true,"service":"poromon-auth"}`
+   - `curl -s -H "X-API-Key: <key>" http://127.0.0.1:25580/auth/ping` → `{"ok":true,"service":"zenonmoncore-auth"}`
    - 잘못된 키 → 401, 없는 코드로 verify → 404 (헤드리스 검증 항목).
 3. **흐름 점검(알파)**: 인게임 `/인증` → 6자리 코드 → 봇에 입력 → 역할 부여 + 허브 감금/메뉴 잠금 해제.
 
@@ -116,15 +116,15 @@ tar xzf server/backups/world-<TS>.tar.gz -C server/run
 - 기본값 `0.5/64/0.5`는 월드 스폰(0,0) 플레이스홀더 — 실제 빌드 바닥 Y/방향으로 갱신.
 
 ### 9-3. 네더 허브 (결정 039-b/c)
-- op로 1회: `/poromon admin netherhub`(자동 위치) 또는 `/poromon admin netherhub here`(현재 위치). → 플랫폼+벽+귀환포탈+블레이즈 스포너 자동 건설.
+- op로 1회: `/zenonmon admin netherhub`(자동 위치) 또는 `/zenonmon admin netherhub here`(현재 위치). → 플랫폼+벽+귀환포탈+블레이즈 스포너 자동 건설.
 
 ### 9-4. 엔드 (결정 039-e)
 - **자동.** 명령/건설 불필요(입장 시 드래곤 부재 + 무작위 외곽 섬 착지).
 
 ### 9-5. 데이터팩 활성 확인 (⚠️ 결정 043 — 반드시 실로드 확인)
 - **전제(결정 043)**: OpenLoader 팩은 `config/openloader/**data**/`(packs/ 아님)에 두고, `config/openloader/options.json`의 `load_data_packs.value = true`여야 로드됨. JSON 유효성만으론 부족 — 기동 후 아래로 실제 로드 확인.
-- 기동 로그: `Found new data pack openloader/.../poromon_{lm_control,mega_control,battletower_test}, loading it automatically`.
-- `datapack list` → `poromon_lm_control`(전설 차단)·`poromon_mega_control`(메가스톤 차단)·`poromon_battletower_test` **enabled** 확인.
+- 기동 로그: `Found new data pack openloader/.../zenonmon_{lm_control,mega_control,battletower_test}, loading it automatically`.
+- `datapack list` → `zenonmon_lm_control`(전설 차단)·`zenonmon_mega_control`(메가스톤 차단)·`zenonmon_battletower_test` **enabled** 확인.
 - 차단 검증: `/locate structure mega_showdown:mega_site` **"Could not find"**(생성 차단) / LM(`legendarymonuments:spear_pillar` 등)도 동일.
 - ⚠️ 이미 생성된 청크엔 차단 전 구조물이 남음 — 알파/운영 월드는 차단 적용 **후** 생성해야 깨끗함.
 

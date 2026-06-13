@@ -3,7 +3,7 @@
 > ⚠️ **결정 030:** §5의 "허브 NPC/판매대" 거래 경로는 폐기 → 모든 거래를 **9번 메뉴 GUI**로 통합(허브엔 NPC 없음). 가격·텔레메트리·정책은 유지, 접근 경로만 메뉴 일원화.
 
 > 허브 시장 구역(`hub_design.md` §2) + 짐/배틀타워 보상 + 티켓 구매를 잇는 재화 흐름.
-> 연동: `RewardManager` / `EconomyBridge` / `PlayerProgress`(`../03_poromoncore/database_schema.md`) / `economy.json`(`config_structure.md`).
+> 연동: `RewardManager` / `EconomyBridge` / `PlayerProgress`(`../03_zenonmoncore/database_schema.md`) / `economy.json`(`config_structure.md`).
 > ⚠️ 초안. `TBD`/`예시`는 검토·확정 대상.
 
 ## 1. 목표 / 원칙
@@ -15,7 +15,7 @@
 
 ## 2. 화폐 — **골드(Gold) 단일제 (확정)**
 - 단일 화폐 **골드**만 사용. BP 등 보조 화폐 없음.
-- 외부 경제 모드 없음 → **PoroMonCore 내부 경제**로 구현, `EconomyBridge`로 추상화(향후 외부 연동 대비).
+- 외부 경제 모드 없음 → **ZenonMonCore 내부 경제**로 구현, `EconomyBridge`로 추상화(향후 외부 연동 대비).
 - 저장: `PlayerProgress.balance`(gold).
 
 ## 3. 획득처 (Faucet) — 확정
@@ -76,19 +76,19 @@
 - **저장(단계적)**:
   1. 집계 카운터 = `PersistentState`(`EconomyStats`, `database_schema.md`) + 거래 이벤트 = `AuditLog`. → **무거운 DB 없이 가격 조정 근거 확보(권장 1차).**
   2. 정교한 쿼리/대시보드 필요 시 **SQLite**(번들 JDBC) 선택 도입. 외부 DB(Mongo 등) 불필요.
-- 운영 루프: 지표 확인 → 가격 과다/과소 판단 → `economy.json` 조정 → `/poromon admin reload`.
+- 운영 루프: 지표 확인 → 가격 과다/과소 판단 → `economy.json` 조정 → `/zenonmon admin reload`.
 
 ## 7. 유저 거래 / 경매장 — **경매장 도입 안 함 (확정)**
 - 경매장은 **만들지 않는다.** 올릴 물건은 직접 제작하거나 상점에서 사고팔면 되므로 불필요(어뷰징·시세조작 관리 부담도 회피).
 - 유저 간 거래는 **바닐라 방식**(직접 건네기/상자 등) + Cobblemon 기본 포켓몬 트레이드로 충분.
 - 향후 수요가 크면 단순 직거래 GUI 정도만 재검토(경매장은 여전히 보류).
 
-## 8. PoroMonCore 연동
+## 8. ZenonMonCore 연동
 - `EconomyBridge` — 골드 잔액 조회/증감 API(내부 구현, 외부 모드 대비 추상화). **모든 in/out은 출처 태그와 함께 기록(§6 텔레메트리)**.
 - `RewardManager` — 짐/배틀타워/포켓몬 처치·포획/이벤트 보상 지급 시 EconomyBridge 호출.
 - 저장: `PlayerProgress.balance`(gold) (`database_schema.md` 스키마 추가).
 - 로깅: 큰 금액 거래·티켓 구매·보상 지급 = `AuditLog`.
-- 명령(향후): `/poromon admin economy give/set <player> <amount>`, 잔액 조회.
+- 명령(향후): `/zenonmon admin economy give/set <player> <amount>`, 잔액 조회.
 
 ## 9. 초기 가격표 초안 (예시 — "메가 진화에 적당한 노력" 기준으로 역산)
 
@@ -174,4 +174,4 @@
 ## 11. 관련 문서
 - 허브: `hub_design.md` §2 · 짐 보상: `gym_badge_design.md` §6 · 배틀타워: `league_season_design.md` §3
 - 전설 티켓(sink): `legendary_encounter.md` · 메가스톤: `mega_tera_unlock.md`
-- 코어: `../03_poromoncore/module_structure.md`(EconomyBridge/RewardManager) / `database_schema.md` / `config_structure.md`
+- 코어: `../03_zenonmoncore/module_structure.md`(EconomyBridge/RewardManager) / `database_schema.md` / `config_structure.md`

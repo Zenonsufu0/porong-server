@@ -7,7 +7,7 @@
 ## 범례
 - 판매 여부: 판매 / 보류(이벤트·후반) / 금지
 - 해금: 없음 / 배지 N / 관장(타입) 클리어 / 메가팔찌 보유 / 이벤트·후반
-- 출처: **base**(Cobblemon/Mega Showdown/SimpleTMs/Eggs 등 모드 아이템) / **custom**(PoroMonCore 커스텀)
+- 출처: **base**(Cobblemon/Mega Showdown/SimpleTMs/Eggs 등 모드 아이템) / **custom**(ZenonMonCore 커스텀)
 
 ---
 
@@ -136,7 +136,7 @@
 ---
 
 ## 3.5 알 상점 (Eggs - Cobblemon Addon)
-> ✅ jar 전수 검증(`egg_pool_design.md §8`, 결정 027): **animated_java+mcfunction형**(namespace `diesse`). 부화 종 = `egg/poke/*.mcfunction`의 `spawnpokemon <id>`. **알 = `minecraft:armor_stand`+컴포넌트**(custom_model_data 1/2/3, tag `egg.<등급>.placed`) → 지급은 **`function diesse:egg/give/<등급>`**. ⚠️ 모드 방랑상인은 **바닐라 화폐 판매(우회) → 비활성**, 판매는 PoroMonCore 골드 차감 후 give 함수로 단일화.
+> ✅ jar 전수 검증(`egg_pool_design.md §8`, 결정 027): **animated_java+mcfunction형**(namespace `diesse`). 부화 종 = `egg/poke/*.mcfunction`의 `spawnpokemon <id>`. **알 = `minecraft:armor_stand`+컴포넌트**(custom_model_data 1/2/3, tag `egg.<등급>.placed`) → 지급은 **`function diesse:egg/give/<등급>`**. ⚠️ 모드 방랑상인은 **바닐라 화폐 판매(우회) → 비활성**, 판매는 ZenonMonCore 골드 차감 후 give 함수로 단일화.
 
 | 알 종류(설계) | 모드 제공 | 지급 방식 | 판매 | 해금 | 비고 |
 |---|---|---|---|---|---|
@@ -144,7 +144,7 @@
 | 희귀 알 | ✅ rare(유사전설/강종 26) | `function diesse:egg/give/rare` | 판매 | 배지 후보 | 고가·희귀조우권과 중복 |
 | 색이 다른 알(Shiny) | ✅ shiny(common+rare 이로치 81) | `function diesse:egg/give/shiny` | 보류 | 이벤트/후반 | 일반 판매 비추천 |
 | 탈것 알(rides) | ✅ rides(소수) | (give 함수 확인) | 후보 | 후보 | 모드 기본 등급 |
-| 스타팅/화석/드래곤/타입별 알 | ❌ 모드 미제공 | 커스텀 `egg/poke/*`+loot+give | 후보 | — | **PoroMonCore 관리 datapack 추가** |
+| 스타팅/화석/드래곤/타입별 알 | ❌ 모드 미제공 | 커스텀 `egg/poke/*`+loot+give | 후보 | — | **ZenonMonCore 관리 datapack 추가** |
 | 전설 알 | — | — | **금지** | — | 판매하지 않음 |
 
 > 풀 커스텀 = `egg/poke/{common,rare,shiny}.mcfunction` 오버라이드 + `loot_table/*.json` rolls.max 일치(가중=인덱스 중복). loot table만 바꿔선 종 안 바뀜(`egg_pool_design.md §8-1`).
@@ -195,18 +195,18 @@
 
 ---
 
-## 3.7 전설 제단 상점 (PoroMonCore 커스텀 아이템)
-> 조우권은 기본 모드 아이템이 아니라 **PoroMonCore 커스텀**. 포켓몬 직접 지급 X — 개인 조우방 도전 기회.
+## 3.7 전설 제단 상점 (ZenonMonCore 커스텀 아이템)
+> 조우권은 기본 모드 아이템이 아니라 **ZenonMonCore 커스텀**. 포켓몬 직접 지급 X — 개인 조우방 도전 기회.
 
 | 조우권 | 구현 방식 | 판매 여부 | 해금 조건 | 비고 |
 |---|---|---|---|---|
-| 희귀 조우권 | PoroMonCore(custom) | 판매 | 없음 또는 배지 2 | 비전설 600족/희귀 |
-| 하급 전설 조우권 | PoroMonCore(custom) | 판매 | 배지 4 | 고가 · 필드 이벤트 병행 |
-| 중급 전설 조우권 | PoroMonCore(custom) | 판매 | 배지 6 후보 | 고가 · 필드 이벤트 병행 |
-| 상급 전설 조우권 | PoroMonCore(custom) | 판매 | 배지 8 | 매우 고가 · 개인방 |
-| 최상급 전설 조우권 | PoroMonCore(custom) | 보류 | 후반/이벤트 | 극고가 · 개인방 |
-| 컨셉별 특수 10종(하늘~영원) | PoroMonCore(custom) | 테마별 상이 | 테마별 | 하늘=레쿠쟈 / 영원=아르세우스(기본 잠금) |
-| 전설 재도전권 | PoroMonCore(custom) | 후보 | TODO | 설계 미정 |
+| 희귀 조우권 | ZenonMonCore(custom) | 판매 | 없음 또는 배지 2 | 비전설 600족/희귀 |
+| 하급 전설 조우권 | ZenonMonCore(custom) | 판매 | 배지 4 | 고가 · 필드 이벤트 병행 |
+| 중급 전설 조우권 | ZenonMonCore(custom) | 판매 | 배지 6 후보 | 고가 · 필드 이벤트 병행 |
+| 상급 전설 조우권 | ZenonMonCore(custom) | 판매 | 배지 8 | 매우 고가 · 개인방 |
+| 최상급 전설 조우권 | ZenonMonCore(custom) | 보류 | 후반/이벤트 | 극고가 · 개인방 |
+| 컨셉별 특수 10종(하늘~영원) | ZenonMonCore(custom) | 테마별 상이 | 테마별 | 하늘=레쿠쟈 / 영원=아르세우스(기본 잠금) |
+| 전설 재도전권 | ZenonMonCore(custom) | 후보 | TODO | 설계 미정 |
 | 전설 알 | — | **금지** | — | 판매하지 않음 |
 
 > 조우권 등급별/특수 10종 풀 = `encounter_pool_design.md` + `config_structure.md`(legendary_pools.yml/legendary_events.yml, 향후). species ID = TODO.

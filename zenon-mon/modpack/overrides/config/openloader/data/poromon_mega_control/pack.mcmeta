@@ -1,6 +1,0 @@
-{
-  "pack": {
-    "pack_format": 48,
-    "description": "PoroMon mega control — disable Mega Showdown natural structure generation (decision: megastone/keystone gold monopoly). Mega stones/keystone/mega bracelet are sold by PoroMonCore shop (gold) only; the only natural sources (keystone_ore, mega_stone_crystal) spawn solely inside these structures, so emptying them cuts all world-acquisition of mega materials."
-  }
-}

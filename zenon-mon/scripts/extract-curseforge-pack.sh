@@ -17,7 +17,7 @@ if [ ! -f "$ZIP_PATH" ]; then
   exit 1
 fi
 
-TMP="/tmp/poromon-pack-extract"
+TMP="/tmp/zenonmon-pack-extract"
 
 echo "[1/6] Cleaning temp..."
 rm -rf "$TMP"

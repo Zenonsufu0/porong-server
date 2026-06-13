@@ -477,3 +477,27 @@ jar 전수 검증(`egg_pool_design.md §8`)으로 Eggs Addon(`diesse`)의 실제
 **처리:** `modpack/client/mods`에서 `xaerominimap`·`xaeroworldmap` 제거 → `.local/removed-mods/`(되돌리기 보관). `gen-pack-json.py` 테이블·`client_mod_tiers.md`(§2-2 + §6 집계 T1 40→38, 전수 86→84)·`license_audit.md`(CHECK 22→20) 갱신. pack.json 재생성(클라 번들 81→79).
 
 **재도입 조건:** Xaero permission 확보 시 `.local/removed-mods/`에서 복원 + 테이블/문서 되돌림.
+
+### 048. Mon 코드 식별자 PoroMon/PoroMonCore → Zenon Mon/ZenonMonCore 전환 (2026-06-13)
+
+브랜드 1·2차 전환(DL-139/140, 폴더 `porong-mon`→`zenon-mon`)에 이어 **Mon 코드 식별자·설정명·mod id를 Zenon 기준으로 정리**한다. 실테스트/운영 월드 부재(현 worktree에 `zenon-mon/.local/server` 없음 → pre-launch) 확인 후 적용. 사용자 확정: 명령 literal·런타임 키/namespace 전체 전환.
+
+**적용:**
+- **표시명/클래스**: PoroMon → Zenon Mon, PoroMonCore → ZenonMonCore, PoroMonState → ZenonMonState, PoroMonCommand → ZenonMonCommand.
+- **package**: `kr.poro.poromoncore` → `kr.zenon.moncore` (mixin 패키지 포함). `maven_group` `kr.poro` → `kr.zenon`.
+- **모듈/빌드 경로**: `custom-mods/poromon-core` → `custom-mods/zenon-mon-core`. `rootProject.name`·`archives_base_name` = `zenon-mon-core`. 산출 jar `poromon-core-*.jar` → `zenon-mon-core-*.jar`.
+- **mod id**: `poromoncore` → `zenonmoncore` (fabric.mod.json id·`MOD_ID`·mixin config `zenonmoncore.mixins.json`·mixin 메서드 prefix `zenonmoncore$`).
+- **저장/리소스 키(pre-launch라 전환)**: PersistentState KEY `poromoncore_progress` → `zenonmoncore_progress`, config dir `config/poromoncore/` → `config/zenonmoncore/`, 리소스 `/poromoncore/legendary_pools.json` → `/zenonmoncore/`, 아이템 NBT 태그 `poromon_league_pass`/`poromon_makeover_stone`/`poromon_ability_stone` → `zenonmoncore_*`, auth 서비스 라벨 `poromon-auth` → `zenonmoncore-auth`.
+- **assets namespace**: `assets/poromon` → `assets/zenonmoncore` (paper.json CustomModelData override·badge/ticket 모델·텍스처 경로 동반).
+- **명령 literal**: `/poromon` → `/zenonmon` (서브명령 동일). 모드팩 pack id `poromon` → `zenonmon`, 인스턴스명 → `ZenonMon`.
+- **openloader datapack**: 팩 폴더 `poromon_{mega,lm,battletower,egg}_control/test` → `zenonmon_*`, 배틀타워 NPC namespace `data/poromon/` → `data/zenonmon/`(코드 의존 없는 테스트 프리셋), 내부 ref `poromon:floor_*`·`poromon:battletower_start` → `zenonmon:*`.
+- **installer**: Python 패키지 `poromon_installer` → `zenon_mon_installer`, `PoroMon.spec` → `ZenonMon.spec`, exe명 `PoroMon설치기` → `ZenonMon설치기`, 번들 디렉토리 `.local/installer-pack/PoroMon` → `ZenonMon`.
+- **scripts**: 옛 절대경로 ROOT(`/home/.../poro-server-poromon`) 하드코딩을 스크립트 위치 기준 동적 도출로 교체(`classify-fabric-mods.py`·`inspect-jars.py`), 경로/PACK_NAME/jar명 동반 전환.
+
+**보존(미전환):**
+- **`포로공학`·`포로건(=Zenon Gun 형제 프로젝트)`** 중 인게임 콘텐츠명 `포로공학`은 게임 콘텐츠 명칭이라 사용자 결정 전까지 보존(현재형 문서의 `포로건`만 형제 프로젝트 지칭이라 Zenon Gun으로 정리).
+- **historical ledger**: `decisions.md`·`idea_inbox.md`·`task.md`의 과거 PoroMon/포로몬/PoroMonCore 표기는 기록 보존(일괄 치환 안 함).
+- **Discord-side 식별자**: `discord_auth_integration.md`의 `POROMON_*` env·`poromon_api` 모듈 참조는 디스코드 봇 소관이라 Mon 전환과 별도 동기화(보류).
+- **런타임/배포 산출물**: `porong-mon/.local/**`(옛 dev 서버·installer-pack, 2.0G, gitignored), `fancymenu_data/last_world.fmdata`(dev 머신 인스턴스 경로 캐시) 미변경.
+
+**미적용/주의:** 실제 월드·DB·jar 등 런타임 파일 미변경. 옛 `porong-mon` 잔재는 삭제·이동 보류(사용자 승인 대기).

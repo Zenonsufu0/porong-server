@@ -1,7 +1,7 @@
 # 전설 조우권 풀 설계 (Encounter Pool)  — 초안(DRAFT)
 
 > 전설 제단 조우권 등급별 + 필드 이벤트 + 컨셉별 특수권의 **소환 포켓몬 풀**. 흐름: `legendary_encounter.md`. 상점: `shop_design.md` §3.7.
-> 전제: **전설 자연 랜덤 스폰 off(결정 013)** → 전설은 조우권/통제된 필드 이벤트로만. 조우권 = **PoroMonCore 커스텀 아이템**.
+> 전제: **전설 자연 랜덤 스폰 off(결정 013)** → 전설은 조우권/통제된 필드 이벤트로만. 조우권 = **ZenonMonCore 커스텀 아이템**.
 > 모드팩: Legendary Monuments 추가(결정 017) — 실제 추가 전설/구조물 확인 전까지 **후보로만**.
 > ✅ **species ID 검증 완료(2026-06-05)**: 실 jar 추출로 전설 71(restricted 27=apex 후보 / 준전설 44)·환상 23·UB 11·패러독스 20 **실 ID 확정** → **`01_modpack/jar_registry_reference.md` §1 인용**. 남은 건 **등급/풀 배치(설계 결정)**뿐. 한국어 표시명은 정식 명칭. **종족값/타입 미수정.**
 > ✅ **가중 구현 완료(2026-06-07, 결정 035)**: 2단계 가중(stage/tier) + B 고정 cap(최상급 항상 ≤10%) 코드/데이터 반영. 희귀=기본70/중간20/최종10, 컨셉=중급55/상급35/최상급10. 최상급=시그니처★20/부수5. 심해·빛·용왕 후보 보강. 풀별 실확률표 = `encounter_balance_proposal_v1.md`. 단일 진실 = `EncounterConfig.probabilities()`.
@@ -30,7 +30,7 @@
 ## 1. 희귀 조우권 풀 (전설 아님 / 결정 021)
 비전설 고급 포켓몬. 개인방. **전설/환상 미포함.** 초중반~중반 고가.
 **진화 단계 가중(추천): 기본형 70% / 중간진화 20% / 최종진화체 10%** — 기본형을 많이, 최종체를 드물게.
-> ✅ **검증 완료(2026-06-05)**: 아래 73종 전수 실 `cobblemon:<id>` 매핑 + **전원 비전설/환상 라벨 아님 확인** → `../03_poromoncore/legendary_pools.draft.yml` `rare_encounter_pool`. (jangmoo/hakamoo/kommoo 등 ID 검증.)
+> ✅ **검증 완료(2026-06-05)**: 아래 73종 전수 실 `cobblemon:<id>` 매핑 + **전원 비전설/환상 라벨 아님 확인** → `../03_zenonmoncore/legendary_pools.draft.yml` `rare_encounter_pool`. (jangmoo/hakamoo/kommoo 등 ID 검증.)
 
 ### 1.1 600족 / 준전설급 라인 (후보)
 미뇽/신뇽/망나뇽 · 애버라스/데기라스/마기라스 · 아공이/쉘곤/보만다 · 메탕/메탕구/메타그로스 · 딥상어동/한바이트/한카리아스 · 모노두/디헤드/삼삼드래 · 미끄메라/미끄네일/미끄래곤 · 짜랑꼬/짜랑고우/짜랑고우거 · 드라꼰/드래런치/드래펄트 · 드니차/드니꽁/드닐레이브
@@ -130,8 +130,8 @@
 
 ## 10. 확인 필요 (TODO)
 1. ✅ **species 존재 검증 완료(2026-06-05)** — `jar_registry_reference.md` §1: 전설 71·환상 23 전수 확인. 의심하던 레지에레키/레지드래고/총지엔·파오젠·딩루·위유이/무한다이노/코스모그/아르세우스 **전부 실재**. 미배치였던 28종(전설16+환상12) 배치 완료(결정 026): 박스전설 4(코라이돈·미라이돈·테라파고스·버드렉스)=최상급+컨셉, 준전설 그룹=등급/컨셉 분산, 환상 12=이벤트/컨셉 분산. **환상은 이벤트 게이트(일반 판매 비추천, 컨셉권/이벤트/리그 보상으로만)** — 영원·아르세우스 정책과 동일. legendary_pools.yml 구현 시 `cobblemon:<id>`로 매핑(레퍼런스 §1).
-2. **Legendary Monuments 구현 전설 확인됨**(`../01_modpack/jar_feature_audit.md` §1, jar 제단/소환 lang 기준): 디아루가/펄기아/기라티나·루기아/칠색조·삼성수(라이코/앤테이/스이쿤)·라티/히드런·레지 일족(+레지에레키/레지드래고/레지기가스)·크레세리아·다크라이·미스피/아그놈/유크시·뮤·후파·자시안/자마젠타·빅티니·케르디오(+코바르온/테라키온/비리디온)·에터너스·**아르세우스(Azure Flute)**·레시라무/제크로무/큐레무. ⚠️ **LM은 이들을 자체 소환(제단/항아리/피리/trial spawner)으로 제공 → PoroMonCore 통제 우회**(아래). species ID는 `cobblemon:` 네임스페이스 추정이나 jar 직접 노출 X = TODO.
-   - ✅ **충돌 처리 확정(결정 023)**: LM worldgen(구조물·feature·광석) + 루트테이블을 datapack으로 **완전 비활성** → 소환 아이템 자연 획득 차단. 위 LM 전설 라인은 PoroMonCore 조우권/사설룸으로만 등장(LM 자체 소환 경로 무력화). species ID는 여전히 `cobblemon:` 추정·미확인 TODO. 실제 비활성 datapack은 서버 mods 배치 후 jar worldgen 경로 확인 필요(`legendary_encounter.md` LM 섹션).
+2. **Legendary Monuments 구현 전설 확인됨**(`../01_modpack/jar_feature_audit.md` §1, jar 제단/소환 lang 기준): 디아루가/펄기아/기라티나·루기아/칠색조·삼성수(라이코/앤테이/스이쿤)·라티/히드런·레지 일족(+레지에레키/레지드래고/레지기가스)·크레세리아·다크라이·미스피/아그놈/유크시·뮤·후파·자시안/자마젠타·빅티니·케르디오(+코바르온/테라키온/비리디온)·에터너스·**아르세우스(Azure Flute)**·레시라무/제크로무/큐레무. ⚠️ **LM은 이들을 자체 소환(제단/항아리/피리/trial spawner)으로 제공 → ZenonMonCore 통제 우회**(아래). species ID는 `cobblemon:` 네임스페이스 추정이나 jar 직접 노출 X = TODO.
+   - ✅ **충돌 처리 확정(결정 023)**: LM worldgen(구조물·feature·광석) + 루트테이블을 datapack으로 **완전 비활성** → 소환 아이템 자연 획득 차단. 위 LM 전설 라인은 ZenonMonCore 조우권/사설룸으로만 등장(LM 자체 소환 경로 무력화). species ID는 여전히 `cobblemon:` 추정·미확인 TODO. 실제 비활성 datapack은 서버 mods 배치 후 jar worldgen 경로 확인 필요(`legendary_encounter.md` LM 섹션).
 3. ✅ 환상 23종 배치 완료: 기존 10(뮤·세레비·다크라이·쉐이미·아르세우스·케르디오·후파·마나피·피오네·지라치) + 신규 13(마샤도·테오키스·게노세크트·메로엣타·비크티니·디안시·볼케니온·마기아나·제라오라·멜탄·멜메탈·자루도·복숭악동) = 23 → 컨셉/이벤트 분산. **공통 정책: 이벤트 게이트**(일반 판매 비추천). (뮤츠는 전설/restricted이지 환상 아님 — §5.)
 4. 가중치 수치(`legendary_pools.yml`) + 컨셉권 중55/상35/최10 검증.
 5. 희귀 600족 ↔ 알 풀(`egg_pool_design.md`) 중복 정리.
@@ -139,6 +139,6 @@
 
 ## 11. 관련 문서
 - 흐름/이벤트: `legendary_encounter.md` · 상점: `shop_design.md` §3.7 · 알: `egg_pool_design.md`
-- 설정: `../03_poromoncore/config_structure.md`(legendary_pools.yml/legendary_events.yml)
-- 모듈: `../03_poromoncore/module_structure.md` · 한글화: `../05_operations/localization_policy.md`
+- 설정: `../03_zenonmoncore/config_structure.md`(legendary_pools.yml/legendary_events.yml)
+- 모듈: `../03_zenonmoncore/module_structure.md` · 한글화: `../05_operations/localization_policy.md`
 - 결정: `../00_project/decisions.md`(008/013/017/018~022)

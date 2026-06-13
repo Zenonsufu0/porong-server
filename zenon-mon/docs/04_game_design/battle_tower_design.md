@@ -1,6 +1,6 @@
-# PoroMon 배틀타워 50층 설계 v0.1
+# Zenon Mon 배틀타워 50층 설계 v0.1
 
-> 기준: Cobblemon 1.21.1 / Mega Showdown / SimpleTMs 기반 PoroMon 서버 설계.
+> 기준: Cobblemon 1.21.1 / Mega Showdown / SimpleTMs 기반 Zenon Mon 서버 설계.
 > 목적: **허브 관장 8명(8배지) 클리어 이후** 도전하는 50층 엔드컨텐츠.
 > 상태: v0.1 → **레포 편입(2026-06-05)**. **데이터 검증 완료**(종족 119·기술 172·아이템 100% 실재 — §4). 입장 조건 CANON 8관장 상향(결정 028). 남은 검증 = NPC 메가/held item/AI **동작**(§5, 실배틀 테스트 필요).
 > 상위 CANON: `league_season_design.md §3`(배틀타워 골격). 본 문서는 그 "층별 세부 구성 미정"분을 채운다.
@@ -294,7 +294,7 @@
 - **파티:** 다크라이 후보 @Life Orb: Dark Pulse, Nasty Plot, Dark Void 후보, Sludge Bomb; 이벨타르 후보 @Life Orb: Oblivion Wing, Dark Pulse, Sucker Punch, Roost; 기라티나 후보 @Griseous Orb 후보: Shadow Force, Dragon Claw, Will-O-Wisp, Rest; 무한다이노 후보 @Black Sludge: Dynamax Cannon, Sludge Bomb, Flamethrower, Recover; 파오젠 후보 @Life Orb: Icicle Crash, Crunch, Ice Shard, Swords Dance; 위유이 후보 @Choice Specs: Dark Pulse, Flamethrower, Nasty Plot, Psychic
 - **난이도 메모:** 컨셉 보스 구간. 테마 조우권과 연결 가능한 전설 파티로 구성한다.
 
-### 50층 — 최종 보스: 포로몬 마스터
+### 50층 — 최종 보스: Zenon Mon 마스터
 - **난이도 태그:** Mega Rayquaza/Mewtwo 후보 / 최상급 Legendary/Mythical
 - **파티:** 레쿠쟈 후보 @Life Orb: Dragon Ascent, Extreme Speed, Earthquake, Dragon Dance; 뮤츠 후보 @Mewtwonite Y 후보: Psystrike, Aura Sphere, Ice Beam, Calm Mind; 디아루가 후보 @Adamant Orb 후보: Draco Meteor, Flash Cannon, Earth Power, Stealth Rock; 펄기아 후보 @Lustrous Orb 후보: Spacial Rend, Hydro Pump, Thunderbolt, Earth Power; 기라티나 후보 @Griseous Orb 후보: Shadow Force, Dragon Claw, Will-O-Wisp, Rest; 아르세우스 후보 @Legend Plate 후보: Judgment, Extreme Speed, Earthquake, Recover
 - **난이도 메모:** 최종층. 서버 최상위 엔드컨텐츠 보스로 설계한다.
@@ -324,11 +324,11 @@
 | 30 | 메가 한카리아스 | +3,000 골드 |
 | 40 | 준최종 | +5,000 골드 + 전설 기본권(조우권) 후보 |
 | 45 | 전설+실전 벽 | +5,000 골드 |
-| 50 | 포로몬 마스터 | **특별(아래 3-R.3)** |
+| 50 | Zenon Mon 마스터 | **특별(아래 3-R.3)** |
 | **보스 보너스 소계(50 제외)** | | **16,000 골드 + 아이템 후보** |
 
 ### 3-R.3 50층 클리어 = 최종 보상
-- **골드 ~15,000**(예시) + **칭호 "포로몬 마스터"**(영구).
+- **골드 ~15,000**(예시) + **칭호 "Zenon Mon 마스터"**(영구).
 - **상급 조우권 후보 1매** 또는 **한정 아이템 후보**(시즌 정책에 맞춤 — `encounter_pool_design.md`).
 - **챔피언스리그(왕중왕전) 예선 자격 후보**(`league_season_design.md §5` — 시즌 최종 목표 연결).
 - 클리어 기록 = `PlayerProgress.battleTower.highestClearedFloor` + 최초 클리어 시각(랭킹/연승 §6).
@@ -394,20 +394,20 @@
   → **레벨 고정·held item·기술 4개·특성·성격·IV/EV 전부 설정 가능**(타워 §3 파티표와 1:1 매핑). held item 동작 = NPC 파티 필드로 해결 ✅.
 - **AI 난이도**: NPC `skill` 필드(예시 5). **층별 skill 조정으로 난이도 축 추가 가능** ✅(기존 우려 = 설정 knob 존재).
 - **배틀 진입**: `battleConfiguration.canChallenge:true` → 플레이어가 NPC에 말 걸면 배틀 시작.
-- **⇒ 구현 함의**: **배틀타워 = Cobblemon NPC class 프리셋 50개(층별) + PoroMonCore 오케스트레이션**(클리어 시 다음 층 NPC 소환/이동 + `highestClearedFloor` 저장 + 보상). 배틀 엔진을 자체 구현할 필요 없음.
+- **⇒ 구현 함의**: **배틀타워 = Cobblemon NPC class 프리셋 50개(층별) + ZenonMonCore 오케스트레이션**(클리어 시 다음 층 NPC 소환/이동 + `highestClearedFloor` 저장 + 보상). 배틀 엔진을 자체 구현할 필요 없음.
 - **⚠️ 남은 실배틀 검증(헤드리스 불가 — 클라 필요)**: **NPC 메가 발동 여부.** MSD 메가는 "메가링(키스톤) 트레이너 + 메가스톤 포켓몬" 조건(툴팁) — NPC가 이 조건을 만족/발동하는지는 **실배틀로만** 확인.
-  - **테스트 프리셋 작성 완료(2026-06-05)**: OpenLoader 팩 `poromon_battletower_test` — `poromon:floor_01`(1층, 메가 없음)·`poromon:floor_20`(20층, 핫삼@scizorite). 서버 기동 시 자동 로드 + 소환 성공 + **파티 파싱 경고 0**(scizorite·rotom wash·전 무브/아이템 정상). 소스: `modpack/overrides/config/openloader/packs/poromon_battletower_test/`.
-  - **수동 테스트 절차(클라 필요)**: ① 서버 접속 ② `/summon cobblemon:npc ~ ~ ~ {NPCClass:"poromon:floor_20"}` ③ "타워 20층" NPC에 우클릭→배틀 ④ 관찰: **핫삼이 메가핫삼으로 변하는지**(메가 발동) + AI가 Swords Dance(셋업)/U-turn 쓰는지. (1층 비교용 = `poromon:floor_01`.)
-  - **결과 해석**: 메가 발동 ✅ → 타워는 프리셋만으로 됨. 발동 ✗ → MSD가 트레이너 메가링(accessories)을 요구 → **PoroMonCore가 MSD 메가 API/이벤트로 강제 발동** 필요(설계 반영). 발견 시 본 문서·결정 028 갱신.
+  - **테스트 프리셋 작성 완료(2026-06-05)**: OpenLoader 팩 `zenonmon_battletower_test` — `zenonmon:floor_01`(1층, 메가 없음)·`zenonmon:floor_20`(20층, 핫삼@scizorite). 서버 기동 시 자동 로드 + 소환 성공 + **파티 파싱 경고 0**(scizorite·rotom wash·전 무브/아이템 정상). 소스: `modpack/overrides/config/openloader/packs/zenonmon_battletower_test/`.
+  - **수동 테스트 절차(클라 필요)**: ① 서버 접속 ② `/summon cobblemon:npc ~ ~ ~ {NPCClass:"zenonmon:floor_20"}` ③ "타워 20층" NPC에 우클릭→배틀 ④ 관찰: **핫삼이 메가핫삼으로 변하는지**(메가 발동) + AI가 Swords Dance(셋업)/U-turn 쓰는지. (1층 비교용 = `zenonmon:floor_01`.)
+  - **결과 해석**: 메가 발동 ✅ → 타워는 프리셋만으로 됨. 발동 ✗ → MSD가 트레이너 메가링(accessories)을 요구 → **ZenonMonCore가 MSD 메가 API/이벤트로 강제 발동** 필요(설계 반영). 발견 시 본 문서·결정 028 갱신.
 
 > ⚠️ **실테스트 결과(2026-06-06) — 콘솔 /summon NPC는 배틀이 시작 안 됨**: 소환·대화(dialogue)는 정상이나 배틀 미시작. stock `cobblemon:standard`도 동일 → 프리셋 문제 아님.
 >
 > **근본 원인(바이트코드 추적 확정, `javap`)**:
 > `q.npc.start_battle(q.player)` → `BattleBuilder.pvn(player, npc, …, PartyStore)` → `NPCEntity.getPartyForChallenge()` → `SimplePartyProvider.provide()` 체인. **NPC 배틀 파티가 비면 `pvn`이 `NoPartyError`/`insufficientPokemon` 반환**, 그런데 `start_battle`은 **`BattleStartResult.ifSuccessful`만 처리** → 실패해도 **에러 출력 없이 조용히 무동작**. `c.npc.can_battle`도 같은 사유로 false(버튼 비활성). 즉 **콘솔 raw /summon NPC는 배틀 파티가 초기화되지 않음**(NPC 에디터/스폰 플로우 또는 API 경유 생성 전제 — Cobblemon 1.7 NPC 한계).
 >
-> **✅ 구현 경로 확정(이 분석의 수확)**: `BattleBuilder.pvn` 시그니처 마지막 인자가 **`PartyStore`(NPC 파티 명시 주입)**다. → **PoroMonCore가 층 파티를 `PokemonProperties`로 직접 구성해 `pvn(player, npcEntity, uuid, BattleFormat.GEN_9_SINGLES(adjustLevel=100), …, 층파티Store)` 호출**하면 자동 생성(getPartyForChallenge)에 의존하지 않고 배틀이 확실히 열린다. 검증된 §3 파티 데이터가 그대로 입력. **메가 발동도 이 실배틀에서 확인**(MSD가 NPCBattleActor의 메가 처리 지원하는지 — pvn 경유 시 확정).
+> **✅ 구현 경로 확정(이 분석의 수확)**: `BattleBuilder.pvn` 시그니처 마지막 인자가 **`PartyStore`(NPC 파티 명시 주입)**다. → **ZenonMonCore가 층 파티를 `PokemonProperties`로 직접 구성해 `pvn(player, npcEntity, uuid, BattleFormat.GEN_9_SINGLES(adjustLevel=100), …, 층파티Store)` 호출**하면 자동 생성(getPartyForChallenge)에 의존하지 않고 배틀이 확실히 열린다. 검증된 §3 파티 데이터가 그대로 입력. **메가 발동도 이 실배틀에서 확인**(MSD가 NPCBattleActor의 메가 처리 지원하는지 — pvn 경유 시 확정).
 >
-> **결론**: 배틀 엔진(`BattleBuilder.pvn`)·데이터·소환·대화 모두 확보. 남은 건 **PoroMonCore가 pvn을 호출하는 오케스트레이션 코드**(층 파티 빌드 + 진행저장 + 다음 층). 테스트 프리셋(`poromon:floor_01/20`)·다이얼로그(`poromon:battletower_start`) 보존.
+> **결론**: 배틀 엔진(`BattleBuilder.pvn`)·데이터·소환·대화 모두 확보. 남은 건 **ZenonMonCore가 pvn을 호출하는 오케스트레이션 코드**(층 파티 빌드 + 진행저장 + 다음 층). 테스트 프리셋(`zenonmon:floor_01/20`)·다이얼로그(`zenonmon:battletower_start`) 보존.
 
 ## 5. 구현 TODO
 
@@ -418,8 +418,8 @@
 - [x] **NPC 트레이너 시스템 존재·소환 확인** — Cobblemon `cobblemon:npc` + class 프리셋(§4-N). 타워 파티 스펙 네이티브 지원
 - [~] **NPC held item** — 파티 포맷 `held_item=` 지원 확인(§4-N). 전투 효과 발현은 실배틀로 최종 확인
 - [~] **AI 운용** — `skill` 필드(층별 난이도 knob) 확인. 셋업/해저드 실제 운용 수준은 실배틀 관찰
-- [ ] **NPC Mega Evolution 발동** — ⚠️ **실배틀 테스트(클라 필요, 최대 리스크)**. §4-N 수동 절차. 안 되면 PoroMonCore가 MSD 메가 트리거 별도 처리
-- [ ] 1~50층 trainer 프리셋(`data/cobblemon/npcs/floor_NN.json`) 작성 + PoroMonCore 오케스트레이션(소환/진행저장/보상)
+- [ ] **NPC Mega Evolution 발동** — ⚠️ **실배틀 테스트(클라 필요, 최대 리스크)**. §4-N 수동 절차. 안 되면 ZenonMonCore가 MSD 메가 트리거 별도 처리
+- [ ] 1~50층 trainer 프리셋(`data/cobblemon/npcs/floor_NN.json`) 작성 + ZenonMonCore 오케스트레이션(소환/진행저장/보상)
 - [ ] 한국어 GUI/입장 조건/보상 안내 문구 작성
 - [x] 배틀타워 보상 설계 작성 — **§3-R(층당 골드+10층 체크포인트+50층 특별, 1회 완주 ~95,000 골드 예시)**
 - [ ] 클리어 기록/랭킹/시즌 보상 연동 여부 결정(`PlayerProgress.battleTower.highestClearedFloor`) — 50층=왕중왕전 예선 자격 후보(§3-R.3)

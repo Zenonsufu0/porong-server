@@ -1,6 +1,6 @@
 # 전설 조우 시스템 (Legendary Encounter)
 
-전설 포켓몬은 PoroMonCore가 통제한다.
+전설 포켓몬은 ZenonMonCore가 통제한다.
 
 서버 초기 단계에서는 공개 구역에서 자유롭게 랜덤 스폰되지 않는다.
 
@@ -8,8 +8,8 @@
 
 1. 플레이어가 조우권(encounter ticket)을 획득
 2. 플레이어가 허브 전설 제단(legendary altar)을 방문
-3. PoroMonCore가 요건을 확인
-4. PoroMonCore가 사설 룸(private room)을 배정
+3. ZenonMonCore가 요건을 확인
+4. ZenonMonCore가 사설 룸(private room)을 배정
 5. 플레이어가 혼자 룸에 입장
 6. 조우권 소모
 7. 가중 랜덤 테이블(weighted random table)이 포켓몬 선택
@@ -38,8 +38,8 @@
 전설은 등급에 따라 조우 경로를 다르게 둔다. (어느 경우든 **자연 랜덤 스폰은 off**, 결정 013)
 
 ### 하급 / 중급 전설 — 조우권 + 2시간 필드 이벤트 병행
-- **조우권**(개인방)으로 도전 가능 + **PoroMonCore 통제 2시간 주기 필드 이벤트**로도 출현(공개 참여형). 두 경로 병행.
-- 필드 이벤트는 *자유 랜덤 스폰이 아니라* PoroMonCore가 시간·위치·종을 통제하는 스케줄 이벤트.
+- **조우권**(개인방)으로 도전 가능 + **ZenonMonCore 통제 2시간 주기 필드 이벤트**로도 출현(공개 참여형). 두 경로 병행.
+- 필드 이벤트는 *자유 랜덤 스폰이 아니라* ZenonMonCore가 시간·위치·종을 통제하는 스케줄 이벤트.
 
 ### 상급 / 최상급 전설 — 조우권 개인방 중심
 - 상급·최상급 전설은 **조우권 + 사설 개인방 중심**(공개 필드 이벤트로 풀지 않음). 횡취 방지·희소성 유지.
@@ -56,13 +56,13 @@
 
 ## 필드 이벤트 정책 (하급+중급 통합)
 
-- **2시간마다 1회**, PoroMonCore가 하급/중급 전설 풀에서 **1마리**를 월드 어딘가에 이벤트 스폰.
+- **2시간마다 1회**, ZenonMonCore가 하급/중급 전설 풀에서 **1마리**를 월드 어딘가에 이벤트 스폰.
 - 풀 = 하급 + 중급 합집합. 기본 가중치 후보 **하급 70% / 중급 30%**.
 - **정확한 좌표 비공개** — 바이옴/방향/대략 지역 **힌트만 채팅 공지**.
 - 제한 시간(예 20분) 내 못 찾거나 못 잡으면 **디스폰**. **전투 중이면 즉시 디스폰 X, 유예 시간**.
 - **동시 이벤트 전설 1마리만.** 서버 재시작 직후 일정 시간 스폰 차단. **최소 온라인 유저 수 조건(후보).**
 - 상급/최상급은 필드 이벤트 **미포함**.
-- 설정: `../03_poromoncore/config_structure.md`(legendary_events.yml). 횡취/공유 규칙 상세 TBD.
+- 설정: `../03_zenonmoncore/config_structure.md`(legendary_events.yml). 횡취/공유 규칙 상세 TBD.
 
 ### 공지 예시
 ```text
@@ -83,14 +83,14 @@
 
 ## Legendary Monuments 처리 = 완전 비활성 (결정 023 확정)
 
-모드팩에 **Cobblemon: Legendary Monuments**(JorgaoMC) 추가됨(결정 017). jar 감사 결과 LM의 전설 소환이 PoroMonCore 통제(조우권+사설룸+통제 이벤트)를 **확정적으로 우회**한다:
+모드팩에 **Cobblemon: Legendary Monuments**(JorgaoMC) 추가됨(결정 017). jar 감사 결과 LM의 전설 소환이 ZenonMonCore 통제(조우권+사설룸+통제 이벤트)를 **확정적으로 우회**한다:
 
 - **아이템 우클릭 소환**: 항아리(urn)·피리(flute)·호루라기(whistle)·열쇠(key)·구체(globe)·treat 등.
 - **구조물 소환**: 제단(pedestal)·trial spawner·shrine·lock 등 자연 생성 구조물.
 - **바이옴**: terrablender 엔트리포인트로 자체 바이옴 등록.
 - 감사 기준 **in-game config 토글 부재**.
 
-→ **결정 023: 방향 (A) 완전 비활성 확정.** LM worldgen(구조물·구조물셋·feature·광석) + 관련 **루트테이블을 datapack 오버라이드로 비활성**해 소환 아이템의 **자연 획득 경로를 차단**한다. 아이템 우클릭 소환 로직 자체는 자바 하드코딩이라 제거 불가하나, 소환 아이템을 야생에서 얻지 못하면 사실상 무력화. 전설 획득은 PoroMonCore 조우권/사설룸으로 단일화. LM은 블록/장식 자산만 잔존 허용.
+→ **결정 023: 방향 (A) 완전 비활성 확정.** LM worldgen(구조물·구조물셋·feature·광석) + 관련 **루트테이블을 datapack 오버라이드로 비활성**해 소환 아이템의 **자연 획득 경로를 차단**한다. 아이템 우클릭 소환 로직 자체는 자바 하드코딩이라 제거 불가하나, 소환 아이템을 야생에서 얻지 못하면 사실상 무력화. 전설 획득은 ZenonMonCore 조우권/사설룸으로 단일화. LM은 블록/장식 자산만 잔존 허용.
 
 구현(서버 mods 배치 후 실제 jar worldgen 경로 확인 = **TODO**):
 1. `data/legendarymonuments/worldgen/{structure,structure_set,placed_feature,configured_feature}/*` 비활성.
@@ -98,4 +98,4 @@
 3. terrablender 바이옴은 코드 등록 → datapack 제거 난도 높음. 서버 로그로 생성 확인, 필요 시 weight 0/스폰 풀 제거로 게이트.
 4. 검증: 신규 청크 LM 구조물 미생성 + 소환 아이템 미획득 확인(Phase 1 `task.md` §4).
 
-> 원칙: **충돌 시 PoroMonCore 통제 정책 우선**(결정 017/023). 구조물/아이템/포켓몬/config key·실제 경로는 **추측 금지, jar·datapack 확인 후 작성(TODO)**.
+> 원칙: **충돌 시 ZenonMonCore 통제 정책 우선**(결정 017/023). 구조물/아이템/포켓몬/config key·실제 경로는 **추측 금지, jar·datapack 확인 후 작성(TODO)**.

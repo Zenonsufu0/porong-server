@@ -45,7 +45,7 @@ TABLE = [
     ("Cobblemon-fabric-",            "required", "core", "Cobblemon", "포켓몬 엔진(코어)"),
     ("mega_showdown-",               "required", "core", "Mega Showdown", "메가/배틀 기믹"),
     ("SimpleTMs-",                   "required", "core", "SimpleTMs", "기술머신(TM/TR)"),
-    ("poromon-core-",                "required", "core", "PoroMonCore", "서버 규칙 엔진 + 커스텀 텍스처"),
+    ("zenon-mon-core-",                "required", "core", "ZenonMonCore", "서버 규칙 엔진 + 커스텀 텍스처"),
     ("LegendaryMonuments-",          "required", "core", "Legendary Monuments", "레지스트리 정합(비활성)"),
     ("chipped-fabric-",              "required", "core", "Chipped", "LM 의존"),
     ("CobbleFurnies-",               "required", "core", "CobbleFurnies", "LM 의존"),
@@ -202,10 +202,10 @@ def main():
         return e
 
     pack = {
-        "pack": {"id": "poromon", "name": "PoroMon", "version": "0.1.0"},
+        "pack": {"id": "zenonmon", "name": "Zenon Mon", "version": "0.1.0"},
         "minecraft": MC,
-        "install": {"instanceName": "PoroMon", "isolated": True},
-        "server": {"name": "PoroMon", "address": "TODO_HOST:25566"},
+        "install": {"instanceName": "ZenonMon", "isolated": True},
+        "server": {"name": "Zenon Mon", "address": "TODO_HOST:25566"},
         "required": [entry(c, False) for c in buckets["required"]],
         "optional": [entry(c, True) for c in (buckets["t1"] + buckets["t2"])],
         "libraries": [{"file": c["file"], "name": c["name"]} for c in buckets["lib"]],

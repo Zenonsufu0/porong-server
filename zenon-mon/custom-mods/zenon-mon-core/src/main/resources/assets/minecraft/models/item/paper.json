@@ -1,0 +1,158 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "minecraft:item/paper"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "custom_model_data": 81001
+      },
+      "model": "zenonmoncore:item/badge_bug"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 81002
+      },
+      "model": "zenonmoncore:item/badge_rock"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 81003
+      },
+      "model": "zenonmoncore:item/badge_electric"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 81004
+      },
+      "model": "zenonmoncore:item/badge_grass"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 81005
+      },
+      "model": "zenonmoncore:item/badge_water"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 81006
+      },
+      "model": "zenonmoncore:item/badge_fire"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 81007
+      },
+      "model": "zenonmoncore:item/badge_psychic"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 81008
+      },
+      "model": "zenonmoncore:item/badge_dragon"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82001
+      },
+      "model": "zenonmoncore:item/ticket_rare"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82002
+      },
+      "model": "zenonmoncore:item/ticket_basic"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82003
+      },
+      "model": "zenonmoncore:item/ticket_intermediate"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82004
+      },
+      "model": "zenonmoncore:item/ticket_advanced"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82005
+      },
+      "model": "zenonmoncore:item/ticket_apex"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82011
+      },
+      "model": "zenonmoncore:item/ticket_sky"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82012
+      },
+      "model": "zenonmoncore:item/ticket_deep_sea"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82013
+      },
+      "model": "zenonmoncore:item/ticket_earth"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82014
+      },
+      "model": "zenonmoncore:item/ticket_time"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82015
+      },
+      "model": "zenonmoncore:item/ticket_space"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82016
+      },
+      "model": "zenonmoncore:item/ticket_reverse"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82017
+      },
+      "model": "zenonmoncore:item/ticket_light"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82018
+      },
+      "model": "zenonmoncore:item/ticket_dragon_king"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82019
+      },
+      "model": "zenonmoncore:item/ticket_guardian"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82020
+      },
+      "model": "zenonmoncore:item/ticket_eternity"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82030
+      },
+      "model": "zenonmoncore:item/engineering_tm_core"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82031
+      },
+      "model": "zenonmoncore:item/engineering_ability_core"
+    }
+  ]
+}

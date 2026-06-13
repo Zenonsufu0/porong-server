@@ -1,6 +1,6 @@
 # Client Mod Tiers (클라이언트 편의성 분류 — 간편설치기용)
 
-> 대상: **PoroMon 0.1 Dev** 클라이언트 모드 **85개** (`modpack/client/mods/` 실제 jar 기준, MC 1.21.1 / Fabric Loader 0.19.3)
+> 대상: **Zenon Mon 0.1 Dev** 클라이언트 모드 **85개** (`modpack/client/mods/` 실제 jar 기준, MC 1.21.1 / Fabric Loader 0.19.3)
 > 목적: 서버/클라 분리(`server_mod_separation.md`)는 "서버에 무엇을 넣을지"의 관점. **이 문서는 클라이언트 관점** — 85개를 **코어(강제) / 권장 편의 / 선택 취향 / 서버전용(클라 불요)**로 나눠 **추후 간편설치기**가 프로필을 구성·토글·의존성 해소할 수 있게 한다.
 > 분류 기준일: 2026-06-05. 서버 1차 기동(25개) 정상 확인 후 작성. **실제 ID/namespace는 추측 금지** — 역할 분류는 모드 정체 기준.
 
@@ -35,7 +35,7 @@
 | `Cobblemon-*` | 포켓몬 엔진(코어) | ★게임플레이 |
 | `mega_showdown-*` | 메가/테라/배틀 기믹 | ★게임플레이 |
 | `SimpleTMs-*` | TM/TR | ★게임플레이 |
-| **`poromon-core-*`** | **PoroMonCore 서버 규칙 엔진 + 커스텀 텍스처/모델(배지·조우권·정수)** | ★**커스텀(자체 빌드)**. CurseForge 메타 해소 불가 → overrides 직접 번들. 결정 044 |
+| **`zenon-mon-core-*`** | **ZenonMonCore 서버 규칙 엔진 + 커스텀 텍스처/모델(배지·조우권·정수)** | ★**커스텀(자체 빌드)**. CurseForge 메타 해소 불가 → overrides 직접 번들. 결정 044 |
 | ~~`eggs-cobblemon-addon-*`~~ | ~~알/부화~~ | ❌ **제거(결정 032)** — 알 시스템 폐기 |
 | `LegendaryMonuments-*` | 전설 구조물/소환(비활성됐어도 **레지스트리 일치 필요**) | ★게임플레이·결정 023 |
 | `chipped-*` | LM 하드 의존(블록 변형, 레지스트리) | LM 체인 |
@@ -44,8 +44,8 @@
 | `athena-*` | chipped/cobblefurnies 의존 lib | LM 체인 lib |
 | `resourcefullib-*` | chipped 의존 lib | LM 체인 lib |
 
-> 14개 = `server_mod_separation.md` §1(8, eggs 제거) + §1c(1, PoroMonCore) + §1b(5)와 동일 집합. **클라·서버 공통 코어.** (eggs −1, poromon-core +1 → 합계 14 유지.)
-> ⚠️ **PoroMonCore는 CustomModelData 텍스처를 클라가 렌더해야 하므로 T0**(끌 수 없음). 빌드 변경 시 서버+클라 동시 재배포. CurseForge/Modrinth에 없어 **설치기가 overrides로 직접 동봉**한다.
+> 14개 = `server_mod_separation.md` §1(8, eggs 제거) + §1c(1, ZenonMonCore) + §1b(5)와 동일 집합. **클라·서버 공통 코어.** (eggs −1, zenon-mon-core +1 → 합계 14 유지.)
+> ⚠️ **ZenonMonCore는 CustomModelData 텍스처를 클라가 렌더해야 하므로 T0**(끌 수 없음). 빌드 변경 시 서버+클라 동시 재배포. CurseForge/Modrinth에 없어 **설치기가 overrides로 직접 동봉**한다.
 
 ---
 
@@ -185,7 +185,7 @@
 
 | 구분 | 수 | 설치기 |
 |---|---|---|
-| T0 코어(강제) | 14 | 항상 (eggs −1, **poromon-core +1**) |
+| T0 코어(강제) | 14 | 항상 (eggs −1, **zenon-mon-core +1**) |
 | T1 권장 편의 | 38 | 기본 ON (collection +1, **xaero 2 제외 결정 047**) |
 | T2 선택 취향 | 18 | 기본 OFF |
 | L 라이브러리(자동) | 9 | 의존 해소 (항상 포함) |
@@ -194,13 +194,13 @@
 > ✅ **전수 정합(2026-06-12)**: 14 + 38 + 18 + 9 + 5 = **84** (실측 일치, xaero 2 제외 후). `gen-pack-json.py`가 prefix 매핑으로 전수 분류·검증(미분류 0). pack.json = required(14) + optional(56=T1 38 ON/T2 18 OFF) + libraries(9) = **클라 번들 79**, 서버전용 5 제외.
 
 > 합계는 라이브러리 중복 귀속 때문에 단순 합 ≠ 86(실측 클라 jar). **분류 1차 초안** — 간편설치기 스펙 확정 시 토글 단위(개별 vs 묶음)와 정확 개수 재고정 필요(TODO). 의존성 자동 해소는 CurseForge/Modrinth 메타로 검증.
-> **결정 044(2026-06-09) 반영**: 실측 클라 86개 = 이전 85 − eggs + poromon-core + complete-cobblemon-collection. T0에 PoroMonCore(커스텀, 끌 수 없음·overrides 번들), T1에 collection(강권장) 추가.
+> **결정 044(2026-06-09) 반영**: 실측 클라 86개 = 이전 85 − eggs + zenon-mon-core + complete-cobblemon-collection. T0에 ZenonMonCore(커스텀, 끌 수 없음·overrides 번들), T1에 collection(강권장) 추가.
 
 ---
 
 ## 7. 간편설치기 연계 (추후)
 
-- 배포 채널: CurseForge/Modrinth **PoroMon Official Pack**(`CLAUDE.md` 모드팩 정책). 설치기는 그 위에서 **T1/T2 토글 프로필**을 얹는 형태가 1안.
+- 배포 채널: CurseForge/Modrinth **Zenon Mon Official Pack**(`CLAUDE.md` 모드팩 정책). 설치기는 그 위에서 **T1/T2 토글 프로필**을 얹는 형태가 1안.
 - 최소 설치(저사양): **T0 + 성능(2-1)**만으로도 정상 플레이.
 - 본 분류의 **의존 관계는 각 모드 메타(fabric.mod.json `depends`)로 재검증** 후 설치기 로직에 반영(추측 금지).
 - 서버 화이트리스트(25)와의 정합: T0(14) = 서버 게임플레이 코어. 서버 권장 성능/운영(lithium·krypton·ferritecore·letmedespawn·openloader 등)은 **서버측 결정**이며 클라 티어와 독립.

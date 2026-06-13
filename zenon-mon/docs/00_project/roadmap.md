@@ -1,4 +1,4 @@
-# PoroMon Roadmap (로드맵)
+# Zenon Mon Roadmap (로드맵)
 
 > 단계별 진행 계획. 상위 컨셉: `../README.md` §1, 결정: `decisions.md`.
 > 원칙(CLAUDE.md): 작게·안정적으로. 엔드게임 전체를 한 번에 구현하지 않는다.
@@ -11,7 +11,7 @@
 - ✅ 모드팩 분석 (manifest/modlist/overrides)
 - ✅ 서버/클라 모드 분리 설계 (`01_modpack/server_mod_separation.md`)
 - ✅ 서버 정책 문서 (setup / world / protection / runbook)
-- ✅ PoroMonCore 설계 (spec / module / config / database / commands)
+- ✅ ZenonMonCore 설계 (spec / module / config / database / commands)
 - ✅ 문서 인덱스 + 서버 컨셉 (`README.md`)
 - ⬜ 남은 설계 문서: roadmap(본 문서) 외 economy/gym/league, 05_operations
 
@@ -20,7 +20,7 @@
 ---
 
 ## Phase 1 — 서버 최소구성 기동
-**목표: PoroMonCore 없이 베이스 서버가 안정적으로 뜨고 접속된다.**
+**목표: ZenonMonCore 없이 베이스 서버가 안정적으로 뜨고 접속된다.**
 - ⬜ Java 21 / Fabric server(Loader 0.18.4, MC 1.21.1) 설치
 - ⬜ `server/run` 구성: `eula.txt`, `server.properties`(pvp=false, spawn-protection), `start.sh`
 - ⬜ `scripts/sync-server-mods.sh` SOURCE_DIR 확정 → 서버 필수+권장 모드만 동기화
@@ -33,29 +33,29 @@
 
 ---
 
-## Phase 2 — PoroMonCore 골격
+## Phase 2 — ZenonMonCore 골격
 **목표: 빈 커스텀 모드가 서버에 로드된다.**
-- ⬜ `custom-mods/poromon-core` Fabric(Loom) Gradle 프로젝트 생성
+- ⬜ `custom-mods/zenon-mon-core` Fabric(Loom) Gradle 프로젝트 생성
 - ⬜ 버전 핀 확정(Yarn/Loom/Fabric API/Cobblemon 좌표)
 - ⬜ 빈 `ModInitializer` + `fabric.mod.json`(main/client entrypoint) 빌드 성공
 - ⬜ jar를 `server/run/mods`에 투입 → 로드 로그 확인, Cobblemon/MSD와 충돌 없음
 - ⬜ Cobblemon API 연동 PoC(`CobblemonEvents` 리스너 1개 로그)
 
-**완료 기준:** PoroMonCore가 Cobblemon+MSD와 함께 정상 로드.
+**완료 기준:** ZenonMonCore가 Cobblemon+MSD와 함께 정상 로드.
 **의존:** Phase 1.
 
 ---
 
-## Phase 3 — PoroMonCore 0.1 (최소 기능)
-**목표: spec 0.1 스코프 구현.** (`poromoncore_spec.md` / `module_structure.md` §7)
+## Phase 3 — ZenonMonCore 0.1 (최소 기능)
+**목표: spec 0.1 스코프 구현.** (`zenonmoncore_spec.md` / `module_structure.md` §7)
 - ⬜ ConfigManager — core/tickets/rooms.json 로드 + 기본값 생성
 - ⬜ AuditLog + 기본 로깅
 - ⬜ PlayerProgressManager — PersistentState 저장 스캐폴드
 - ⬜ MenuItemManager — 9번 슬롯 League Pass(지급/복원/드롭방지)
 - ⬜ MenuGuiManager — 우클릭 GUI(허브 텔레포트 버튼)
-- ⬜ HubInteractionManager — `/poromon hub` 텔레포트
+- ⬜ HubInteractionManager — `/zenonmon hub` 텔레포트
 - ⬜ EncounterTicket / InstanceRoom — **데이터 모델만**
-- ⬜ AdminCommandManager — `/poromon`, `menu`, `hub`, `progress`, `admin reload`
+- ⬜ AdminCommandManager — `/zenonmon`, `menu`, `hub`, `progress`, `admin reload`
 
 **완료 기준:** 접속 시 League Pass 지급 → 우클릭 GUI → 허브 이동, `admin reload` 동작.
 **의존:** Phase 2. **비포함:** 레전드 스폰/메가 해금/짐/리그 로직.
@@ -108,9 +108,9 @@
 ## 즉시 다음 액션 (Top 3)
 1. **클라 인스턴스 설치** → `sync-server-mods.sh` SOURCE_DIR 확정 (Phase 1 블로커)
 2. **`server/run` 기동 파일** 작성: `eula.txt`, `server.properties`, `start.sh`
-3. 최소구성 기동 후 → **PoroMonCore Gradle 골격** (Phase 2)
+3. 최소구성 기동 후 → **ZenonMonCore Gradle 골격** (Phase 2)
 
 ## 관련
 - 컨셉/인덱스: `../README.md` · 결정: `decisions.md`
 - 서버 셋업: `../02_server/server_setup.md` · 모드 분리: `../01_modpack/server_mod_separation.md`
-- 코어 설계: `../03_poromoncore/module_structure.md`
+- 코어 설계: `../03_zenonmoncore/module_structure.md`

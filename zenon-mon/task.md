@@ -57,7 +57,7 @@
 - [ ] 간편설치기 스펙 확정: T1/T2 토글 단위·의존성 자동해소(CurseForge/Modrinth 메타 재검증)
 
 ## 4b. Phase 2 — PoroMonCore 구현 (2026-06-06 세션, ✅ 배틀타워 핵심 완성)
-**위치**: `custom-mods/poromon-core/` (Fabric 1.21.1 / Java21 / 베이스 `kr.poro.poromoncore`). 빌드: `./gradlew build`(캐시 후 ~8초). 배포: `build/libs/poromon-core-0.1.0.jar` → `.local/server/mods/`. **서버 포트 25566**(RPG=25565).
+**위치**: `custom-mods/zenon-mon-core/` (Fabric 1.21.1 / Java21 / 베이스 `kr.poro.poromoncore`). 빌드: `./gradlew build`(캐시 후 ~8초). 배포: `build/libs/zenon-mon-core-0.1.0.jar` → `.local/server/mods/`. **서버 포트 25566**(RPG=25565).
 **의존**(compileOnly, 런타임은 서버 모드 제공): Cobblemon `com.cobblemon:fabric:1.7.3+1.21.1`(impactdev maven) + fabric-language-kotlin `1.13.6+kotlin.2.2.20` + **MSD 로컬 jar**(`modpack/client/mods/mega_showdown-*.jar`).
 
 - ✅ **스캐폴드**: `PoroMonCore`(ModInitializer)·`PlayerProgress`·`PoroMonState`(PersistentState 월드부속 NBT)·`PoroMonCommand`. BUILD SUCCESSFUL·로드 확인.
@@ -79,7 +79,7 @@
 > 배틀타워 잔여(저우선): 메가 연출(클라모드 필요), 다른 메가 47종 검증, 보상 지급(§3-R) 실제 연동(RewardManager), 진행도 ↔ 배틀 승리 연동(현재 set 명령만).
 
 ## 4d. Phase 2 — 메뉴 아이템/GUI 0.1 (2026-06-06 세션, ✅ 구현 완료)
-**위치**: `custom-mods/poromon-core/`. 빌드: `./gradlew build`. 배포: `build/libs/poromon-core-0.1.0.jar` → `.local/server/mods/`. 설계: `docs/03_poromoncore/menu_design.md §7`.
+**위치**: `custom-mods/zenon-mon-core/`. 빌드: `./gradlew build`. 배포: `build/libs/zenon-mon-core-0.1.0.jar` → `.local/server/mods/`. 설계: `docs/03_zenonmoncore/menu_design.md §7`.
 
 - ✅ **config 시스템 착수**: `config/CoreConfig`(POJO) + `config/ConfigManager`(Gson). `config/poromoncore/core.json` 자동 생성·로드·`/poromon admin reload` 실동작. **부팅 시 core.json 기본값 생성 검증**(menuItem/hub/logging, config_structure.md §3 스키마 일치).
 - ✅ **리그 패스 아이템**(`item/MenuItemManager`): `minecraft:clock` 베이스 + `poromon_league_pass` CUSTOM_DATA 태그로 식별(위조/복제 방지) + 한글명/lore. `ensure()` = 중복 1개로 회수(안티-듀프) + 없으면 핫바 9번칸(또는 빈칸) 지급.
@@ -92,7 +92,7 @@
 - ⚠️ **잔여**: core.json hub.spawn 기본값=(0.5,64,0.5) 임시 → 허브 빌드 후 실좌표. 인벤 화면 밖 버리기·죽음 드롭(현재 복원으로 보완). lockSlot 미구현(0.3). 전용 패스 모델 CustomModelData(menu_design §8-1).
 
 ## 4e. Phase 2 — 상점(매입/편의) + 홈 시스템 (2026-06-06 세션, ✅ 구현·인게임 검증)
-**위치**: `custom-mods/poromon-core/`. 설계: `menu_design.md`·`economy_design.md`·`shop_catalog_0.1.md`·decisions **029**. **인게임 실테스트 통과**(zenonsufu0, 포트 25566).
+**위치**: `custom-mods/zenon-mon-core/`. 설계: `menu_design.md`·`economy_design.md`·`shop_catalog_0.1.md`·decisions **029**. **인게임 실테스트 통과**(zenonsufu0, 포트 25566).
 
 - ✅ **EconomyBridge + economy.json**: 골드 잔액 API(입금/출금/설정, 출처 태그 로깅) — `economy/EconomyBridge`. `config/EconomyConfig`(sellPrices/buyPrices 단일 출처, 실 item id 검증: 광물·농작물 바닐라 + `<color>_apricorn` + 볼12·회복약11). `ConfigManager` 다중 파일(core+economy)로 일반화. `/poromon admin economy give|set|balance`.
 - ✅ **매입소(SellShopMenu)**: 인벤 판매가능 품목 자동 진열 → 클릭=그 종류 전부 판매 / 전부 팔기. **편의 상점(BuyShopMenu)**: 볼·회복약 좌클릭1/우클릭8 구매(잔액부족·인벤가득 안전·환불). `shop/ShopLayout` 공용 레이아웃.
@@ -110,7 +110,7 @@
 - ✅ **관장 실배틀**(`gym/GymBattleService`): 관장 보드(12)에서 도전 클릭 → 관장 NPC pvn(배틀타워 패턴) → **승리 감지(Cobblemon BATTLE_VICTORY 구독)** → 최초 승리 시 배지+골드(order×500) 자동 지급, 재도전 무보상. 순차 강제. 인게임 검증.
   - ✅ **관장 파티 강화**: 8관장 = 초반 4~5/후반 6마리, 실전 기술4·특성·성격, **에이스 메가스톤→관장 메가진화**(tick 발동, X/Y 스톤 인식 수정). 1번 관장 인게임 확인. 후반은 알파테스트 예정.
 - ✅ **pvn 파티 버그 수정(중요)**: `BattleBuilder.pvn(...,party)`의 마지막 `PartyStore`는 **플레이어** 파티(바이트코드 확인). NPC 파티를 거기 넘겨서 플레이어가 상대 팀으로 싸우던 버그 → **플레이어 본인 파티(`Cobblemon.storage.getParty`)** 전달로 수정. **관장+배틀타워 양쪽** 적용.
-- ✅ **배지 커스텀 텍스처 기반(모드 내장 B안)**: 결정 — 리소스팩/http 불필요, 모드 jar `assets/`에 내장. `paper`+CustomModelData(81001~81008) 모델 분기(`paper.json` override + `badge_*.json` 8). `MenuIcons.iconModel`. ⚠️ **루트 .gitignore `assets/` 광역무시 → 모드 .gitignore 예외 추가**(추적 복구). 텍스처 8장(`assets/poromon/textures/item/badge_*.png`) **적용 완료**: 사용자 원본(1254² RGB 흰배경) → **64×64 리사이즈 + 모서리 흰배경 flood-fill 투명화** + Zone.Identifier 찌꺼기 제거 → BadgeMenu `iconModel(paper, 81000+order)` 전환. **서버+클라(PoroMon 0.1 Dev) 양쪽 배포·인게임 확인**. 원본은 `custom-mods/poromon-core/badge_originals_1254/`(gitignore). ⚠️ **커스텀 모델은 클라에도 PoroMonCore jar 필요** — 빌드 변경 시 서버+클라 동시 배포.
+- ✅ **배지 커스텀 텍스처 기반(모드 내장 B안)**: 결정 — 리소스팩/http 불필요, 모드 jar `assets/`에 내장. `paper`+CustomModelData(81001~81008) 모델 분기(`paper.json` override + `badge_*.json` 8). `MenuIcons.iconModel`. ⚠️ **루트 .gitignore `assets/` 광역무시 → 모드 .gitignore 예외 추가**(추적 복구). 텍스처 8장(`assets/poromon/textures/item/badge_*.png`) **적용 완료**: 사용자 원본(1254² RGB 흰배경) → **64×64 리사이즈 + 모서리 흰배경 flood-fill 투명화** + Zone.Identifier 찌꺼기 제거 → BadgeMenu `iconModel(paper, 81000+order)` 전환. **서버+클라(PoroMon 0.1 Dev) 양쪽 배포·인게임 확인**. 원본은 `custom-mods/zenon-mon-core/badge_originals_1254/`(gitignore). ⚠️ **커스텀 모델은 클라에도 PoroMonCore jar 필요** — 빌드 변경 시 서버+클라 동시 배포.
 
 ## 4g. Phase 2 — sink 상점(성장·메가) (2026-06-06 세션)
 - ✅ **공용 `shop/CategoryShopMenu`**: 가격+배지게이트(minBadges)+**페이지네이션**(28/페이지, ◀▶) 구매 상점. 좌1/우8·환불·in-place 갱신. (제목·가격맵·태그)만 바꿔 재사용. `EconomyConfig.ShopEntry{price,minBadges}`.
@@ -346,7 +346,7 @@
 - ✅ **배틀타워 50층 초안 편입·검증(결정 028)**: 외부 초안→`battle_tower_design.md`. 입장 조건 **8관장 상향**(CANON 4곳 동기화: league §2/§3·gym_badge·hub). 검증: 종족 119·기술 172·메가스톤10·시그니처기18 **전수 실재(매칭0)**. 남은=동작(NPC메가/AI 실배틀). 레벨 명확화: **NPC Lv100 고정 / 플레이어 실레벨(정규화X, 엔드콘텐츠 육성 전제)** — 정규리그 Lv50 정규화와 대비(충돌 아님). **보상 설계 완료(§3-R)**: 층당 골드+10층 체크포인트+50층 특별(칭호·조우권·왕중왕전 예선), 1회 완주 ~95,000골드 예시.
 - ✅ **NPC 구현 경로 검증(§4-N)**: Cobblemon 네이티브 트레이너 NPC(`cobblemon:npc`+class 프리셋) 소환 성공. 파티 `level=100/held_item/moves/ability/nature/IV·EV/skill(AI)` 전부 지원 → **타워 50층 파티가 NPC로 1:1 표현**. ⇒ 구현 = NPC 프리셋 50개 + PoroMonCore 오케스트레이션(진행저장/소환/보상). 진행도 영속화는 PoroMonCore 필요(현 0줄). **남은 실배틀 검증=NPC 메가 발동(클라 필요)**.
 - ✅ **NPC 배틀 무동작 근본원인 규명(javap 바이트코드 추적)**: `start_battle`→`BattleBuilder.pvn`→`getPartyForChallenge`→`SimplePartyProvider.provide`. /summon NPC는 배틀 파티 미초기화 → pvn `noParty` 에러, start_battle은 `ifSuccessful`만 처리해 조용히 무동작(stock NPC 동일). **구현경로 확정**: `pvn` 마지막 인자=`PartyStore` 명시주입 → PoroMonCore가 층 파티를 직접 빌드해 `pvn(player, npc, …, 층파티)` 호출하면 배틀 확정 오픈(메가도 여기서 확인). battle_tower §4-N.
-- ✅ **PoroMonCore 0.1 스캐폴드 생성·빌드·로드(Phase 2 착수)**: `custom-mods/poromon-core/`(Fabric 1.21.1/Java21, 순수 Fabric). `PoroMonCore`(ModInitializer)·`PlayerProgress`·`PoroMonState`(PersistentState 월드부속 NBT)·`PoroMonCommand`. **BUILD SUCCESSFUL** → jar 서버 배포 → `poromoncore 0.1.0` 로드 + 초기화 로그 + `/poromon` 명령 동작 확인. `/poromon admin tower set <player> <floor>`로 진행도 영속화 테스트 가능(클라 접속 시). **다음: Cobblemon 의존 추가 + 배틀타워 pvn 오케스트레이션.**
+- ✅ **PoroMonCore 0.1 스캐폴드 생성·빌드·로드(Phase 2 착수)**: `custom-mods/zenon-mon-core/`(Fabric 1.21.1/Java21, 순수 Fabric). `PoroMonCore`(ModInitializer)·`PlayerProgress`·`PoroMonState`(PersistentState 월드부속 NBT)·`PoroMonCommand`. **BUILD SUCCESSFUL** → jar 서버 배포 → `poromoncore 0.1.0` 로드 + 초기화 로그 + `/poromon` 명령 동작 확인. `/poromon admin tower set <player> <floor>`로 진행도 영속화 테스트 가능(클라 접속 시). **다음: Cobblemon 의존 추가 + 배틀타워 pvn 오케스트레이션.**
 - ✅ **MSD 핵심 아이템 ID 검증**: 키스톤·메가링·메가스톤 47·주홍/쪽빛구슬·Z링·테라오브·다이맥스밴드 실 ID+한글명 확정. ko_kr 기본 포함.
 - ✅ **상점 카탈로그 ID 채움(#2)**: §3.1~3.3·3.6 TODO→실 ID. Cobblemon 볼12+마스터·회복약·진화돌11·비타민6·민트25·특성캡슐/패치·사탕류 + 메가스톤47 전수(오타0 검증). Exp Share=미존재 확인. 잔여=SimpleTMs 개별TM·Eggs 알 ID.
 - ✅ **SimpleTMs 개별 TM ID = 동적 합성 확정**: 별도 ID 박을 필요 없음. `TmCatalog.java`(L53~74)가 런타임에 레지스트리에서 `simpletms:tm_*` 632종 전수 수집 + Cobblemon Moves API로 타입/위력/한글명 매핑. 코드 완성(미해결 없음).
@@ -361,13 +361,13 @@
 - 문서: `docs/README.md`(인덱스) / `docs/00_project/decisions.md`(결정 001~022) / `docs/00_project/roadmap.md`(Phase 0~7)
 - 모드팩 분석: `docs/01_modpack/{server_mod_separation.md, client_mod_tiers.md(설치기용 티어), jar_feature_audit.md, modpack_list.md}`
 - 서버: `docs/02_server/{server_setup, world_policy, protection_policy, server_runbook}.md`
-- 코어 설계: `docs/03_poromoncore/{poromoncore_spec, module_structure, config_structure, database_schema, commands, menu_design}.md`
+- 코어 설계: `docs/03_zenonmoncore/{zenonmoncore_spec, module_structure, config_structure, database_schema, commands, menu_design}.md`
 - 게임 설계: `docs/04_game_design/{hub, economy, shop_design, shop_catalog_0.1, gym_badge, league_season, legendary_encounter, encounter_pool, egg_pool, mega_tera_unlock}_*.md`
 - 운영: `docs/05_operations/localization_policy.md`
 - 실제 jar: `modpack/client/mods/`(80) · 감사 보고서: `reports/jar_inspection/`(6) + `reports/{jar_inspection_summary,mod_classification,client_mod_jars}`
 - 스크립트: `scripts/{sync-server-mods.sh(초안), extract-curseforge-pack.sh, run-server.sh(빈), backup-server.sh(빈)}`
 - 서버 런타임(**기동 검증됨**, 비추적): `.local/server/{mods(25), config, world, logs, eula.txt, start.sh, server.properties}` ← 표준. (옛 `.local/poromon-server/`는 stale)
-- 커스텀 모드(빈 디렉터리): `custom-mods/poromon-core/`
+- 커스텀 모드(빈 디렉터리): `custom-mods/zenon-mon-core/`
 
 ## 7. 주의 원칙 (계속 유지)
 - 구현 코드는 아직 작성 안 함(설계/문서 단계).

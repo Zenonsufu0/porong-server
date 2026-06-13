@@ -10,7 +10,7 @@
 # 번들 구조(installer_design.md §2):
 #   <stage>/
 #   ├── pack.json                  # 팩 정의(모드목록·토글·서버·버전핀)
-#   ├── mods/                      # 클라 81 jar(required+optional+libraries). PoroMonCore=빌드본
+#   ├── mods/                      # 클라 81 jar(required+optional+libraries). ZenonMonCore=빌드본
 #   ├── overrides/                 # config·showdown·xaero·fancymenu_data·shaderpacks
 #   │                              #   (단 config/openloader/data = 서버 데이터팩 제외, 결정 043)
 #   └── tools/fabric-installer.jar # Fabric headless 설치용(있으면)
@@ -18,7 +18,7 @@
 # 비고:
 #   - 모드는 전부 번들(결정 046) → 외부 다운로드 0. (S)서버전용 5개는 pack.json에서
 #     이미 제외돼 있으므로 여기서도 자동 제외.
-#   - PoroMonCore는 client/mods 사본이 stale일 수 있어 항상 빌드본으로 덮어쓴다
+#   - ZenonMonCore는 client/mods 사본이 stale일 수 있어 항상 빌드본으로 덮어쓴다
 #     (서버와 동일 해시, installer_design §4).
 #   - 산출(번들·jar)은 Git 비추적(.local/).
 #
@@ -35,11 +35,11 @@ ROOT="$(dirname "$SCRIPT_DIR")"
 PACK_JSON="$ROOT/modpack/pack.json"
 MODS_SRC="$ROOT/modpack/client/mods"
 OVERRIDES_SRC="$ROOT/modpack/overrides"
-CORE_DIR="$ROOT/custom-mods/poromon-core"
+CORE_DIR="$ROOT/custom-mods/zenon-mon-core"
 
 SKIP_BUILD="${SKIP_BUILD:-0}"
 DIST_DIR="${DIST_DIR:-$ROOT/.local/installer-pack}"
-PACK_NAME="${PACK_NAME:-PoroMon}"
+PACK_NAME="${PACK_NAME:-ZenonMon}"
 FABRIC_INSTALLER="${FABRIC_INSTALLER:-$ROOT/modpack/tools/fabric-installer.jar}"
 
 # overrides 복사 시 제외(클라 미적용 서버 데이터팩) — overrides 기준 상대경로
@@ -51,16 +51,16 @@ if [ ! -f "$PACK_JSON" ]; then
   exit 1
 fi
 
-# ── [1/5] PoroMonCore 빌드 ─────────────────────────────────────────────────
+# ── [1/5] ZenonMonCore 빌드 ─────────────────────────────────────────────────
 if [ "$SKIP_BUILD" = "1" ]; then
-  echo "[1/5] PoroMonCore 빌드 생략 (SKIP_BUILD=1)"
+  echo "[1/5] ZenonMonCore 빌드 생략 (SKIP_BUILD=1)"
 else
-  echo "[1/5] PoroMonCore 빌드..."
+  echo "[1/5] ZenonMonCore 빌드..."
   ( cd "$CORE_DIR" && ./gradlew build -q )
 fi
-CORE_JAR="$(find "$CORE_DIR/build/libs" -maxdepth 1 -name 'poromon-core-*.jar' ! -name '*-sources.jar' 2>/dev/null | sort | tail -n1)"
+CORE_JAR="$(find "$CORE_DIR/build/libs" -maxdepth 1 -name 'zenon-mon-core-*.jar' ! -name '*-sources.jar' 2>/dev/null | sort | tail -n1)"
 if [ -z "$CORE_JAR" ]; then
-  echo "ERROR: poromon-core jar 없음 ($CORE_DIR/build/libs)." >&2
+  echo "ERROR: zenon-mon-core jar 없음 ($CORE_DIR/build/libs)." >&2
   exit 1
 fi
 echo "  → $(basename "$CORE_JAR")"
@@ -92,10 +92,10 @@ if [ "${#MISSING[@]}" -gt 0 ]; then
   printf '  - %s\n' "${MISSING[@]}" >&2
   exit 2
 fi
-# PoroMonCore = 빌드본으로 교체(stale 방지)
-rm -f "$STAGE/mods/"poromon-core-*.jar
+# ZenonMonCore = 빌드본으로 교체(stale 방지)
+rm -f "$STAGE/mods/"zenon-mon-core-*.jar
 cp "$CORE_JAR" "$STAGE/mods/"
-echo "  → ${#CLIENT_FILES[@]}개 복사 + PoroMonCore 빌드본 교체"
+echo "  → ${#CLIENT_FILES[@]}개 복사 + ZenonMonCore 빌드본 교체"
 
 # ── [3/5] overrides 복사 (pack.json overrides[], 서버 데이터팩 제외) ────────
 echo "[3/5] overrides 복사..."
@@ -137,4 +137,4 @@ echo "  mods        : $MODS_COUNT개 (기대 $EXPECTED)"
 [ "$MODS_COUNT" = "$EXPECTED" ] && echo "  검증        : OK" || echo "  검증        : ⚠️ 개수 불일치"
 echo ""
 echo "⚠️ 다음: ① fabric-installer.jar 번들(미보유 시) ② 엔진(Python GUI→PyInstaller exe)이"
-echo "        이 스테이징을 동봉해 패키징 ③ 서버 PoroMonCore 동기화(동일 해시)"
+echo "        이 스테이징을 동봉해 패키징 ③ 서버 ZenonMonCore 동기화(동일 해시)"
