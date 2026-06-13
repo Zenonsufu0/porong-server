@@ -247,7 +247,14 @@
 - [ ] 후반 관장(5~8) 메가 발동(초반 1번만 확인됨)
 
 **특성 마개조/텍스처/한글화 (§세션마감 ①~⑥):**
-- [ ] 정수 텍스처(기술=시안/특성=DNA) 렌더 · 특성 정수 우클릭 해제 · 특성 변경 메뉴(목록/검색/부여)·**forced 특성 전투 반영** · 마스터볼 편의상점 · 기술머신 한글명/한글검색
+- [x] **코드 점검 완료(2026-06-14)** — 6종 전부 코드 구현 확인:
+  - ✅ 정수 텍스처/모델: `assets/zenonmoncore/models/item/engineering_{tm_core,ability_core}.json` + `paper.json` CMD 82030/82031 ↔ `MakeoverStone.Kind`(TECH/ABILITY) 매핑 완비 (렌더=클라 jar 필요, 코드 완성)
+  - ✅ 특성 정수 우클릭 해제: `ZenonMonCore` UseEntityCallback → `MakeoverService.unlockAbility/unlock`
+  - ✅ 특성 변경 메뉴(목록/검색/부여): `EngineeringMenu.openAbilityPokemonSelect→showAbilityList→applyAbility`, `AbilityCatalog`(ko_kr 한글명 + 한글/영문 검색)
+  - ✅ 기술 각인: `MoveSet.setMove(tpl.create())` (off-learnset)
+  - ✅ 마스터볼 편의상점: `EconomyConfig.buyPrices` `cobblemon:master_ball`=5000
+  - ✅ 기술머신 한글명/한글검색: `TmCatalog`(simpletms tm_* 동적수집 + cobblemon ko_kr move명 + 한글/영문/키 검색)
+  - ⏳ **인게임 확인만 잔여(코드 갭 아님)**: ① `forced 특성 전투 반영` — 코드는 `setAbility$common(new Ability(tpl, true, …))` forced=true로 올바름, Cobblemon 배틀 실반영은 알파 확인 ② 정수/배지 등 커스텀 모델 클라 렌더(클라 jar 배포 후)
 
 ## ◎ 2026-06-09 세션 마감
 
