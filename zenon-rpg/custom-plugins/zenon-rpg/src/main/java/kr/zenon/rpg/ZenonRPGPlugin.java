@@ -464,11 +464,11 @@ public final class ZenonRPGPlugin extends JavaPlugin {
 
         // 보스룸 생성 커맨드 (관리자 전용, 서버 오픈 전 1회)
         BossRoomGenerationService genService = new BossRoomGenerationService(this);
-        var genCmd = getCommand("poro-genrooms");
+        var genCmd = getCommand("rpg-genrooms");
         if (genCmd != null) genCmd.setExecutor(new BossRoomGenCommand(genService));
 
         PvpArenaGenerationService arenaGenService = new PvpArenaGenerationService(this);
-        var arenaGenCmd = getCommand("poro-genarenas");
+        var arenaGenCmd = getCommand("rpg-genarenas");
         if (arenaGenCmd != null) arenaGenCmd.setExecutor(new PvpArenaGenCommand(arenaGenService));
         ExploreHubRefresher.start(this, fieldStateProvider); // uses the scheduler as provider
 
@@ -812,12 +812,12 @@ public final class ZenonRPGPlugin extends JavaPlugin {
     private void registerCommands() {
         ZenonCommand zenonCommand = new ZenonCommand(playerDataManager, skillService, reputationManager, this, growthStateStore);
 
-        if (getCommand("poro") == null) {
-            getLogger().severe("Failed to register /poro command. Check plugin.yml.");
+        if (getCommand("rpg") == null) {
+            getLogger().severe("Failed to register /rpg command. Check plugin.yml.");
             return;
         }
-        getCommand("poro").setExecutor(zenonCommand);
-        getCommand("poro").setTabCompleter(zenonCommand);
+        getCommand("rpg").setExecutor(zenonCommand);
+        getCommand("rpg").setTabCompleter(zenonCommand);
 
         // 한글 단축 커맨드
         PlayerCommandRouter router = new PlayerCommandRouter(islandStorageStore, islandTerritoryStateStore, auctionGuiListener, growthGuiListener, fieldHubListener, bossHubListener, shopGuiListener, combatStateService, territorySettingsGuiListener, pvpHubListener);
@@ -850,18 +850,18 @@ public final class ZenonRPGPlugin extends JavaPlugin {
 
         // 운용자 전용 한글 커맨드
         ClassAdminCommand classAdminCommand = new ClassAdminCommand(classInitService, playerDataManager);
-        var setClassCmd = getCommand("poro-setclass");
+        var setClassCmd = getCommand("rpg-setclass");
         if (setClassCmd != null) {
             setClassCmd.setExecutor(classAdminCommand);
             setClassCmd.setTabCompleter(classAdminCommand);
         } else {
-            getLogger().warning("커맨드 /poro-setclass plugin.yml 미등록 — 건너뜀.");
+            getLogger().warning("커맨드 /rpg-setclass plugin.yml 미등록 — 건너뜀.");
         }
 
         // 재화별 한글 단축 명령 (/골드 /강화석 /큐브 /큐브조각) — 단일 핸들러, 명령 이름으로 재화 분기
         kr.zenon.rpg.command.CurrencyAdminCommand currencyCmd =
                 new kr.zenon.rpg.command.CurrencyAdminCommand(growthStateStore, playerDataManager, scoreboardService);
-        for (String c : new String[]{"poro-gold", "poro-stone", "poro-cube", "poro-cubefrag"}) {
+        for (String c : new String[]{"rpg-gold", "rpg-stone", "rpg-cube", "rpg-cubefrag"}) {
             var registered = getCommand(c);
             if (registered != null) {
                 registered.setExecutor(currencyCmd);
@@ -873,12 +873,12 @@ public final class ZenonRPGPlugin extends JavaPlugin {
 
         // 필드 정예 모드 토글 (/정예)
         kr.zenon.rpg.command.FieldEliteCommand fieldEliteCmd = new kr.zenon.rpg.command.FieldEliteCommand(playerDataManager);
-        var eliteCmd = getCommand("poro-field-elite");
+        var eliteCmd = getCommand("rpg-field-elite");
         if (eliteCmd != null) {
             eliteCmd.setExecutor(fieldEliteCmd);
             eliteCmd.setTabCompleter(fieldEliteCmd);
         } else {
-            getLogger().warning("커맨드 /poro-field-elite plugin.yml 미등록 — 건너뜀.");
+            getLogger().warning("커맨드 /rpg-field-elite plugin.yml 미등록 — 건너뜀.");
         }
 
         // 관리자 GUI 허브 (Phase 1 + Phase 2 toggles)
@@ -898,11 +898,11 @@ public final class ZenonRPGPlugin extends JavaPlugin {
                         bossEngineRuntime.runService(),
                         foundationContext.config().seasonStartEpoch());
         getServer().getPluginManager().registerEvents(adminGuiListener, this);
-        var adminCmd = getCommand("poro-admin");
+        var adminCmd = getCommand("rpg-admin");
         if (adminCmd != null) {
             adminCmd.setExecutor(new kr.zenon.rpg.command.AdminHubCommand(adminGuiListener));
         } else {
-            getLogger().warning("커맨드 /poro-admin plugin.yml 미등록 — 건너뜀.");
+            getLogger().warning("커맨드 /rpg-admin plugin.yml 미등록 — 건너뜀.");
         }
 
         // 운영자 단건 변경 명령 8종 — 동일 핸들러 공유
@@ -911,42 +911,42 @@ public final class ZenonRPGPlugin extends JavaPlugin {
                         playerDataManager, growthStateStore, islandTerritoryStateStore,
                         islandStorageStore, pvpRatingService, pvpMatchService);
         for (String c : new String[]{
-                "poro-give", "poro-currency", "poro-rank", "poro-enhance",
-                "poro-level", "poro-pvp-score", "poro-cleanse", "poro-island-reset"}) {
+                "rpg-give", "rpg-currency", "rpg-rank", "rpg-enhance",
+                "rpg-level", "rpg-pvp-score", "rpg-cleanse", "rpg-island-reset"}) {
             var registered = getCommand(c);
             if (registered != null) registered.setExecutor(adminPlayerCmd);
             else getLogger().warning("커맨드 /" + c + " plugin.yml 미등록 — 건너뜀.");
         }
 
         // 운영 토글 명령 (Phase 2 Step 2)
-        var toggleCmd = getCommand("poro-toggle");
+        var toggleCmd = getCommand("rpg-toggle");
         if (toggleCmd != null) {
             toggleCmd.setExecutor(new kr.zenon.rpg.command.AdminTogglesCommand(adminTogglesService));
         } else {
-            getLogger().warning("커맨드 /poro-toggle plugin.yml 미등록 — 건너뜀.");
+            getLogger().warning("커맨드 /rpg-toggle plugin.yml 미등록 — 건너뜀.");
         }
 
         // 몹 스탯 런타임 오버라이드 명령 (INBOX-010 축 A MVP / DL-116)
-        var mobStatCmd = getCommand("poro-mobstat");
+        var mobStatCmd = getCommand("rpg-mobstat");
         if (mobStatCmd != null && mobStatOverrideService != null) {
             mobStatCmd.setExecutor(new kr.zenon.rpg.command.AdminMobStatCommand(mobStatOverrideService));
         } else if (mobStatCmd == null) {
-            getLogger().warning("커맨드 /poro-mobstat plugin.yml 미등록 — 건너뜀.");
+            getLogger().warning("커맨드 /rpg-mobstat plugin.yml 미등록 — 건너뜀.");
         }
 
         // 로그/감시 명령 (Phase 2 Step 3)
-        var logCmd = getCommand("poro-log");
+        var logCmd = getCommand("rpg-log");
         if (logCmd != null) {
             logCmd.setExecutor(new kr.zenon.rpg.command.AdminLogCommand(
                     growthEngineRuntime.enhancementLogHook(), auctionStore, pvpMatchLogRepo));
         } else {
-            getLogger().warning("커맨드 /poro-log plugin.yml 미등록 — 건너뜀.");
+            getLogger().warning("커맨드 /rpg-log plugin.yml 미등록 — 건너뜀.");
         }
 
         // 보스 디버그 명령 (Phase 2 Step 4) — 두 명령 동일 핸들러 공유 (라벨 분기)
         kr.zenon.rpg.command.AdminBossCommand adminBossCmd =
                 new kr.zenon.rpg.command.AdminBossCommand(bossEngineRuntime.runService());
-        for (String c : new String[]{"poro-boss-list", "poro-boss-end"}) {
+        for (String c : new String[]{"rpg-boss-list", "rpg-boss-end"}) {
             var registered = getCommand(c);
             if (registered != null) registered.setExecutor(adminBossCmd);
             else getLogger().warning("커맨드 /" + c + " plugin.yml 미등록 — 건너뜀.");

@@ -319,7 +319,7 @@ row5 [──────────────── 하단 장식 (클릭 무
     └─ 제한 없음. 항상 열람 가능.
 ```
 
-허용 구역 판정: `WorldGuard` 리전 태그 `poro:menu_allowed`.  
+허용 구역 판정: `WorldGuard` 리전 태그 `zenon_rpg:menu_allowed`.
 각 플레이어 영지 내부에 적용. (수도 제거로 스폰 존 별도 지정 불필요)
 
 ---

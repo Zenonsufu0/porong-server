@@ -75,7 +75,7 @@ public class PlayerCommandRouter implements CommandExecutor {
             sender.sendMessage(PREFIX + "§c플레이어만 사용할 수 있습니다.");
             return true;
         }
-        if (!player.hasPermission("poro.use")) {
+        if (!player.hasPermission("zenon.rpg.use")) {
             player.sendMessage(NO_PERM);
             return true;
         }

@@ -30,7 +30,7 @@ public final class DiscordCommandQueryAdapter {
                     normalized,
                     "지원되지 않는 명령",
                     List.of("지원 명령: /내정보 /내장비 /보스기록 /시세 /내영지 /명예의전당"),
-                    "poro discord adapter"
+                    "zenon discord adapter"
             );
         };
     }

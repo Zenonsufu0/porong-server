@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * /poro-genrooms [world] [x] [y] [z]
+ * /rpg-genrooms [world] [x] [y] [z]
  * 인자 없이 실행하면 실행자의 현재 위치에서 생성.
  * 비플레이어(콘솔)는 world + 좌표 인자 필수.
  */
@@ -30,7 +30,7 @@ public final class BossRoomGenCommand implements CommandExecutor {
 
         if (args.length == 0) {
             if (!(sender instanceof Player player)) {
-                sender.sendMessage("§c콘솔에서 실행 시 /poro-genrooms <world> <x> <y> <z> 형식으로 입력하세요.");
+                sender.sendMessage("§c콘솔에서 실행 시 /rpg-genrooms <world> <x> <y> <z> 형식으로 입력하세요.");
                 return true;
             }
             world = player.getWorld();
@@ -52,7 +52,7 @@ public final class BossRoomGenCommand implements CommandExecutor {
                 return true;
             }
         } else {
-            sender.sendMessage("§c사용법: /poro-genrooms [world x y z]");
+            sender.sendMessage("§c사용법: /rpg-genrooms [world x y z]");
             return true;
         }
 

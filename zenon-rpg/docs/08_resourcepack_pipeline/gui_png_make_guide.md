@@ -12,7 +12,7 @@
 - **권장**: Figma (슬롯 그리드 정밀 배치), Aseprite (픽셀아트 아이콘)
 - 저장 형식: **PNG with alpha** (투명 채널 필수)
 - 소스 보관: `assets/source/gui/`
-- export 복사: `assets/export/resourcepack/assets/poro/textures/gui/` 또는 `item/gui/`
+- export 복사: `assets/export/resourcepack/assets/zenon_rpg/textures/gui/` 또는 `item/gui/`
 
 ---
 
@@ -58,7 +58,7 @@
 ## 3. 아이콘 PNG — 외형 토글 + 핫바
 
 **캔버스: 16 × 16 px** (일반 아이템 텍스처 크기)  
-**export 경로**: `assets/export/resourcepack/assets/poro/textures/item/gui/`  
+**export 경로**: `assets/export/resourcepack/assets/zenon_rpg/textures/item/gui/`
 외형 토글과 핫바 표시는 별도 PNG/CMD를 만들지 않고 바닐라 아이템으로 대체한다.
 
 | 항목 | 바닐라 대체 |

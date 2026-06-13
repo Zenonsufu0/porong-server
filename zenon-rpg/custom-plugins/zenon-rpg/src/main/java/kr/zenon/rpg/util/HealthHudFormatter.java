@@ -14,7 +14,7 @@ import org.bukkit.entity.Player;
 
 public final class HealthHudFormatter {
 
-    private static final Key HUD_FONT     = Key.key("poro", "hud");
+    private static final Key HUD_FONT     = Key.key("zenon_rpg", "hud");
     private static final Key DEFAULT_FONT = Key.key("minecraft", "default");
 
     // ─── 글리프 베이스 (bar 이미지) ───────────────────────────────
@@ -31,7 +31,7 @@ public final class HealthHudFormatter {
     private static final int CD2_TEXT = 0xE2A0; // ascent=-17
     private static final int SK_TEXT  = 0xE2C0; // ascent=+3
 
-    // ─── 픽셀 advance 테이블 (poro:hud 폰트 실측, advance=round(trimmed*height/imgH)+1) ──
+    // ─── 픽셀 advance 테이블 (zenon_rpg:hud 폰트 실측, advance=round(trimmed*height/imgH)+1) ──
     private static final int W_BAR   = 107; // hp/xp 바 (136×9 → height7)
     private static final int W_CDBAR = 45;  // cd 바 (49×9 → height8)
     private static final int W_STACK = 10;  // 스택 아이콘 (9×9)
@@ -214,7 +214,7 @@ public final class HealthHudFormatter {
 
     /**
      * 좌측으로 {@code px}만큼 커서를 되감는 negative-space 글리프 조합.
-     * poro:hud 폰트의 음수 스페이스(-1,-2,-4,…,-128)를 비트 분해로 합성한다.
+     * zenon_rpg:hud 폰트의 음수 스페이스(-1,-2,-4,…,-128)를 비트 분해로 합성한다.
      */
     private static Component negSpace(int px) {
         if (px <= 0) return Component.empty();
@@ -230,7 +230,7 @@ public final class HealthHudFormatter {
 
     /**
      * 우측으로 {@code px}만큼 커서를 전진시키는 positive-space 글리프 조합.
-     * poro:hud 폰트의 양수 스페이스(+15,+6,+3,+2,+1)를 그리디 분해로 합성한다.
+     * zenon_rpg:hud 폰트의 양수 스페이스(+15,+6,+3,+2,+1)를 그리디 분해로 합성한다.
      */
     private static Component posSpace(int px) {
         if (px <= 0) return Component.empty();

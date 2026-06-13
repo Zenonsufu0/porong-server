@@ -25,14 +25,14 @@ import java.util.UUID;
 /**
  * 운영자 단건 변경 명령 통합 핸들러. Phase 1 인스펙트에 대응하는 명령어 인터페이스.
  * <ul>
- *   <li>/poro-give &lt;player&gt; &lt;itemId&gt; [qty]</li>
- *   <li>/poro-currency &lt;player&gt; &lt;code&gt; &lt;±N&gt;</li>
- *   <li>/poro-rank &lt;player&gt; &lt;rank&gt;</li>
- *   <li>/poro-enhance &lt;player&gt; &lt;slot&gt; &lt;level&gt;</li>
- *   <li>/poro-level &lt;player&gt; &lt;lv&gt;</li>
- *   <li>/poro-pvp-score &lt;player&gt; &lt;±N&gt;</li>
- *   <li>/poro-cleanse &lt;player&gt;</li>
- *   <li>/poro-island-reset &lt;player&gt;</li>
+ *   <li>/rpg-give &lt;player&gt; &lt;itemId&gt; [qty]</li>
+ *   <li>/rpg-currency &lt;player&gt; &lt;code&gt; &lt;±N&gt;</li>
+ *   <li>/rpg-rank &lt;player&gt; &lt;rank&gt;</li>
+ *   <li>/rpg-enhance &lt;player&gt; &lt;slot&gt; &lt;level&gt;</li>
+ *   <li>/rpg-level &lt;player&gt; &lt;lv&gt;</li>
+ *   <li>/rpg-pvp-score &lt;player&gt; &lt;±N&gt;</li>
+ *   <li>/rpg-cleanse &lt;player&gt;</li>
+ *   <li>/rpg-island-reset &lt;player&gt;</li>
  * </ul>
  */
 public final class AdminPlayerCommand implements CommandExecutor {
@@ -76,21 +76,21 @@ public final class AdminPlayerCommand implements CommandExecutor {
         String name = target.getName() != null ? target.getName() : args[0];
 
         return switch (cmd) {
-            case "poro-give"          -> handleGive(sender, uuid, name, args);
-            case "poro-currency"      -> handleCurrency(sender, uuid, name, args);
-            case "poro-rank"          -> handleRank(sender, uuid, name, args);
-            case "poro-enhance"       -> handleEnhance(sender, uuid, name, args);
-            case "poro-level"         -> handleLevel(sender, uuid, name, args);
-            case "poro-pvp-score"     -> handlePvpScore(sender, uuid, name, args);
-            case "poro-cleanse"       -> handleCleanse(sender, uuid, name);
-            case "poro-island-reset"  -> handleIslandReset(sender, uuid, name);
+            case "rpg-give"          -> handleGive(sender, uuid, name, args);
+            case "rpg-currency"      -> handleCurrency(sender, uuid, name, args);
+            case "rpg-rank"          -> handleRank(sender, uuid, name, args);
+            case "rpg-enhance"       -> handleEnhance(sender, uuid, name, args);
+            case "rpg-level"         -> handleLevel(sender, uuid, name, args);
+            case "rpg-pvp-score"     -> handlePvpScore(sender, uuid, name, args);
+            case "rpg-cleanse"       -> handleCleanse(sender, uuid, name);
+            case "rpg-island-reset"  -> handleIslandReset(sender, uuid, name);
             default -> { sender.sendMessage("§c알 수 없는 명령: " + cmd); yield true; }
         };
     }
 
-    // ─── /poro-give <player> <itemId> [qty] ────────────────────────
+    // ─── /rpg-give <player> <itemId> [qty] ────────────────────────
     private boolean handleGive(CommandSender s, UUID uuid, String name, String[] args) {
-        if (args.length < 2) { s.sendMessage("§c사용법: /poro-give <플레이어> <itemId> [수량]"); return true; }
+        if (args.length < 2) { s.sendMessage("§c사용법: /rpg-give <플레이어> <itemId> [수량]"); return true; }
         String itemId = args[1];
         long qty = args.length >= 3 ? parseLong(args[2], 1) : 1;
         IslandTerritoryState t = islandStore.getOrCreate(uuid, name);
@@ -99,11 +99,11 @@ public final class AdminPlayerCommand implements CommandExecutor {
         return true;
     }
 
-    // ─── /poro-currency <player> <code> <±N> ───────────────────────
+    // ─── /rpg-currency <player> <code> <±N> ───────────────────────
     // code는 내부 코드(gold/mat_stone_enhance/mat_cube/mat_cube_fragment) 또는 한글/약어 별칭 허용.
     private boolean handleCurrency(CommandSender s, UUID uuid, String name, String[] args) {
         if (args.length < 3) {
-            s.sendMessage("§c사용법: /poro-currency <플레이어> <재화> <±N>");
+            s.sendMessage("§c사용법: /rpg-currency <플레이어> <재화> <±N>");
             s.sendMessage("§7재화: §f골드(gold) §7| §f강화석(stone) §7| §f큐브(cube) §7| §f큐브조각(frag)");
             return true;
         }
@@ -117,9 +117,9 @@ public final class AdminPlayerCommand implements CommandExecutor {
         return true;
     }
 
-    // ─── /poro-rank <player> <rank> ────────────────────────────────
+    // ─── /rpg-rank <player> <rank> ────────────────────────────────
     private boolean handleRank(CommandSender s, UUID uuid, String name, String[] args) {
-        if (args.length < 2) { s.sendMessage("§c사용법: /poro-rank <플레이어> <FRONTIER|KNIGHT|BARONET|BARON|VISCOUNT|COUNT|MARQUESS|DUKE>"); return true; }
+        if (args.length < 2) { s.sendMessage("§c사용법: /rpg-rank <플레이어> <FRONTIER|KNIGHT|BARONET|BARON|VISCOUNT|COUNT|MARQUESS|DUKE>"); return true; }
         IslandRank rank;
         try { rank = IslandRank.valueOf(args[1].toUpperCase(Locale.ROOT)); }
         catch (Exception e) { s.sendMessage("§c알 수 없는 작위: " + args[1]); return true; }
@@ -128,9 +128,9 @@ public final class AdminPlayerCommand implements CommandExecutor {
         return true;
     }
 
-    // ─── /poro-enhance <player> <slot> <level> ─────────────────────
+    // ─── /rpg-enhance <player> <slot> <level> ─────────────────────
     private boolean handleEnhance(CommandSender s, UUID uuid, String name, String[] args) {
-        if (args.length < 3) { s.sendMessage("§c사용법: /poro-enhance <플레이어> <WEAPON|HELMET|CHESTPLATE|LEGGINGS|BOOTS> <강화레벨>"); return true; }
+        if (args.length < 3) { s.sendMessage("§c사용법: /rpg-enhance <플레이어> <WEAPON|HELMET|CHESTPLATE|LEGGINGS|BOOTS> <강화레벨>"); return true; }
         EquipmentSlot slot;
         try { slot = EquipmentSlot.valueOf(args[1].toUpperCase(Locale.ROOT)); }
         catch (Exception e) { s.sendMessage("§c알 수 없는 슬롯: " + args[1]); return true; }
@@ -144,9 +144,9 @@ public final class AdminPlayerCommand implements CommandExecutor {
         return true;
     }
 
-    // ─── /poro-level <player> <lv> ─────────────────────────────────
+    // ─── /rpg-level <player> <lv> ─────────────────────────────────
     private boolean handleLevel(CommandSender s, UUID uuid, String name, String[] args) {
-        if (args.length < 2) { s.sendMessage("§c사용법: /poro-level <플레이어> <레벨>"); return true; }
+        if (args.length < 2) { s.sendMessage("§c사용법: /rpg-level <플레이어> <레벨>"); return true; }
         int lv = (int) parseLong(args[1], 1);
         PlayerGrowthState st = ensureGrowthState(uuid);
         if (st == null) { s.sendMessage("§c성장 데이터 없음"); return true; }
@@ -155,16 +155,16 @@ public final class AdminPlayerCommand implements CommandExecutor {
         return true;
     }
 
-    // ─── /poro-pvp-score <player> <±N> ─────────────────────────────
+    // ─── /rpg-pvp-score <player> <±N> ─────────────────────────────
     private boolean handlePvpScore(CommandSender s, UUID uuid, String name, String[] args) {
-        if (args.length < 2) { s.sendMessage("§c사용법: /poro-pvp-score <플레이어> <±N>"); return true; }
+        if (args.length < 2) { s.sendMessage("§c사용법: /rpg-pvp-score <플레이어> <±N>"); return true; }
         int delta = (int) parseLong(args[1], 0);
         PvpRatingService.Rating updated = pvpRatingService.adminAdjustScore(uuid, name, delta);
         s.sendMessage("§a[관리자] §f" + name + "§a 점수 " + (delta >= 0 ? "+" : "") + delta + " → §e" + updated.score());
         return true;
     }
 
-    // ─── /poro-cleanse <player> ────────────────────────────────────
+    // ─── /rpg-cleanse <player> ────────────────────────────────────
     private boolean handleCleanse(CommandSender s, UUID uuid, String name) {
         if (pvpMatchService.isInMatch(uuid)) {
             pvpMatchService.matchOf(uuid).ifPresent(m -> pvpMatchService.adminForceEnd(m.matchId(), "admin_cleanse"));
@@ -173,7 +173,7 @@ public final class AdminPlayerCommand implements CommandExecutor {
         return true;
     }
 
-    // ─── /poro-island-reset <player> ───────────────────────────────
+    // ─── /rpg-island-reset <player> ───────────────────────────────
     private boolean handleIslandReset(CommandSender s, UUID uuid, String name) {
         // 영지 상태 보장 후 공통 초기화 헬퍼 호출 (GUI와 동일 로직)
         islandStore.getOrCreate(uuid, name);

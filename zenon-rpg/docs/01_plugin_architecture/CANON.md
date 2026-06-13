@@ -17,12 +17,12 @@
 
 | 문서 | 역할 |
 |---|---|
-| `../final_master_plan.md` §4, §11, §15 | 전체 플러그인 방향, API, `/poro` 관리자 커맨드 요약 |
+| `../final_master_plan.md` §4, §11, §15 | 전체 플러그인 방향, API, `/rpg` 관리자 커맨드 요약 |
 | `implementation_reference.md` | DB 스키마, 이벤트 훅, 클래스 배정 등 구현 상세 |
-| `admin_command_spec.md` | `/poro` 서브커맨드 상세 |
+| `admin_command_spec.md` | `/rpg` 서브커맨드 상세 |
 | `index.md` | 플러그인 운용 구조 개요 |
-| `poro_rpg_design_intent.md` | ZenonRPG 설계 의도 |
-| `poro_rpg_module_design.md` | 모듈 단위 설계 참조 |
+| `zenon_rpg_design_intent.md` | ZenonRPG 설계 의도 |
+| `zenon_rpg_module_design.md` | 모듈 단위 설계 참조 |
 
 ## 부트스트랩 순서
 

@@ -64,7 +64,7 @@ ZenonRPG HTTP API (포트 8765)
     │
     │  (내부 Java 호출)
     ▼
-SQLite poro.db
+SQLite zenon_rpg.db
 ```
 
 웹 대시보드는 API를 통해서만 데이터를 읽는다. DB 파일에 직접 접근하지 않는다.

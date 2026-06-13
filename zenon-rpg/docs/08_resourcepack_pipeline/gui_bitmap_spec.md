@@ -11,13 +11,13 @@
 
 ```
 [리소스팩]
-  assets/poro/font/gui.json
+  assets/zenon_rpg/font/gui.json
     └─ space 프로바이더: 커서 위치 조정용 음수 advance 문자
     └─ bitmap 프로바이더: PNG 파일 → 유니코드 문자 매핑
 
 [플러그인]
   Inventory title = Component
-    .font(Key.key("poro:gui"))
+    .font(Key.key("zenon_rpg:gui"))
     .content("")   // 오프셋 char + 배경 char
 ```
 
@@ -36,7 +36,7 @@ assets/source/gui/                     ← Figma 원본 소스
   ├── menu_territory.png  ✅ 256×256
   └── menu_boss.png       ✅ 256×256
 
-assets/export/resourcepack/assets/poro/
+assets/export/resourcepack/assets/zenon_rpg/
 ├── font/
 │   └── gui.json          ← 폰트 프로바이더 (4개 bitmap 등록 완료)
 └── textures/gui/
@@ -48,7 +48,7 @@ assets/export/resourcepack/assets/poro/
 
 ---
 
-## 3. 폰트 파일 스펙 (`poro/font/gui.json`)
+## 3. 폰트 파일 스펙 (`zenon_rpg/font/gui.json`)
 
 실제 gui.json 내용 (확정):
 
@@ -71,28 +71,28 @@ assets/export/resourcepack/assets/poro/
     },
     {
       "type": "bitmap",
-      "file": "poro:gui/menu_main.png",
+      "file": "zenon_rpg:gui/menu_main.png",
       "ascent": 116,
       "height": 141,
       "chars": [""]
     },
     {
       "type": "bitmap",
-      "file": "poro:gui/menu_equipment.png",
+      "file": "zenon_rpg:gui/menu_equipment.png",
       "ascent": 116,
       "height": 141,
       "chars": [""]
     },
     {
       "type": "bitmap",
-      "file": "poro:gui/menu_territory.png",
+      "file": "zenon_rpg:gui/menu_territory.png",
       "ascent": 116,
       "height": 141,
       "chars": [""]
     },
     {
       "type": "bitmap",
-      "file": "poro:gui/menu_boss.png",
+      "file": "zenon_rpg:gui/menu_boss.png",
       "ascent": 116,
       "height": 141,
       "chars": [""]

@@ -37,14 +37,14 @@ public final class ScoreboardService {
     private kr.zenon.rpg.boss.room.BossRoomManager   bossRoomManager;
     private kr.zenon.rpg.boss.party.PartyManager     partyManager;
 
-    private static final String OBJ_NAME = "poro_sidebar";
+    private static final String OBJ_NAME = "zenon_rpg_sidebar";
     private static final String LINE_SEP = "§7──────────";
     private static final NumberFormat NUM_FMT = NumberFormat.getInstance(Locale.ROOT);
 
-    private static final Key HUD_FONT       = Key.key("poro", "hud");
-    private static final char GOLD_ICON     = ''; // poro:hud gold.png
-    private static final char ENHANCE_ICON  = ''; // poro:hud enhance.png
-    private static final char CUBE_ICON     = ''; // poro:hud cube.png
+    private static final Key HUD_FONT       = Key.key("zenon_rpg", "hud");
+    private static final char GOLD_ICON     = ''; // zenon_rpg:hud gold.png
+    private static final char ENHANCE_ICON  = ''; // zenon_rpg:hud enhance.png
+    private static final char CUBE_ICON     = ''; // zenon_rpg:hud cube.png
 
     /** 위치명 변경 감지용 — UUID당 마지막으로 표시한 위치명. 변경 시에만 refresh해 깜빡임 방지. */
     private final Map<UUID, String> lastLocation = new ConcurrentHashMap<>();
@@ -97,7 +97,7 @@ public final class ScoreboardService {
         if (mgr == null) return;
 
         Scoreboard board = mgr.getNewScoreboard();
-        Objective obj = board.registerNewObjective(OBJ_NAME, "dummy", "§6포로 서버");
+        Objective obj = board.registerNewObjective(OBJ_NAME, "dummy", "§6Zenon Server");
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
         // 데이터 수집
@@ -132,7 +132,7 @@ public final class ScoreboardService {
         if (stateOpt.isPresent() && !inBossRoom) {
             PlayerGrowthState state = stateOpt.get();
 
-            // 골드·강화석·큐브 (poro:hud PNG 아이콘 + 수치)
+            // 골드·강화석·큐브 (zenon_rpg:hud PNG 아이콘 + 수치)
             long gold   = state.currency("gold");
             long stone  = state.currency("mat_stone_enhance");
             long cube   = state.currency("mat_cube");
@@ -244,19 +244,19 @@ public final class ScoreboardService {
     }
 
     /**
-     * poro:hud 폰트 아이콘 + 컬러 텍스트를 Team prefix로 사이드바에 표시한다.
-     * Team entry = "poro_entry_N" 형식으로 score 값마다 고유.
+     * zenon_rpg:hud 폰트 아이콘 + 컬러 텍스트를 Team prefix로 사이드바에 표시한다.
+     * Team entry = "zenon_rpg_entry_N" 형식으로 score 값마다 고유.
      */
     private static int setIconRow(Scoreboard board, Objective obj,
                                    char icon, String text,
                                    net.kyori.adventure.text.format.TextColor color, int score) {
         // 사이드바 라인 = prefix + entry + suffix 가 그대로 출력된다.
-        // entry를 평문("poro_eN")으로 두면 그 글자가 라인에 노출돼 깨져 보이므로,
+        // entry를 평문("zenon_rpg_eN")으로 두면 그 글자가 라인에 노출돼 깨져 보이므로,
         // 색코드만으로 된 보이지 않는 고유 entry를 쓴다(아이콘·수치는 전부 prefix).
         String entryKey = "§" + Integer.toHexString((score >> 4) & 0xF)
                         + "§" + Integer.toHexString(score & 0xF);
-        Team team = board.getTeam("poro_t" + score);
-        if (team == null) team = board.registerNewTeam("poro_t" + score);
+        Team team = board.getTeam("zenon_rpg_t" + score);
+        if (team == null) team = board.registerNewTeam("zenon_rpg_t" + score);
         if (!team.hasEntry(entryKey)) team.addEntry(entryKey);
         // 아이콘과 텍스트를 empty 아래 형제로 — 텍스트가 HUD_FONT를 상속해 깨지는 것 방지(기본 폰트 렌더).
         team.prefix(Component.empty()

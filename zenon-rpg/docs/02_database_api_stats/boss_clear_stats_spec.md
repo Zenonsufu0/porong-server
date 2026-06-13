@@ -190,6 +190,6 @@ ORDER BY season_week;
 
 ## 7. 관련 문서
 
-- `CANON.md` — DB 저장 구조 (SQLite `poro.db`)
+- `CANON.md` — DB 저장 구조 (SQLite `zenon_rpg.db`)
 - `../04_combat_weapon_skills/season_boss_stats_v1.md` — 보스 스탯 기준 (방무 수치 설계 근거)
 - `../10_development_roadmap/index.md` — 웹 대시보드 구현 일정

@@ -36,7 +36,7 @@ public class ClassAdminCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
                              @NotNull String label, @NotNull String[] args) {
-        if (!sender.hasPermission("poro.admin")) {
+        if (!sender.hasPermission("zenon.rpg.admin")) {
             sender.sendMessage(PREFIX + "§c권한이 없습니다.");
             return true;
         }

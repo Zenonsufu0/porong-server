@@ -428,6 +428,6 @@ row2  [나가기/해산] ░       ░         ░         ░         ░      
 | 입장 처리 | 방장 입장 클릭 → 멤버 전원 `world_boss` 워프 + 보스 스폰 트리거 |
 | 새로고침 | 슬롯 53 클릭 → GUI 재오픈 (목록 재조회) |
 | ESC 이탈 감지 | `InventoryCloseEvent` — 방 내부 GUI 닫힐 때 30초 타이머 스케줄 등록 |
-| 복귀/탈퇴 채팅 | Adventure API `ClickEvent.RUN_COMMAND` — `/poroboss rejoin` / `/poroboss leave` |
+| 복귀/탈퇴 채팅 | Adventure API `ClickEvent.RUN_COMMAND` — `/rpgboss rejoin` / `/rpgboss leave` |
 | 30초 타이머 | `BukkitRunnable` — 복귀·탈퇴 클릭 시 `cancel()`, 만료 시 자동 탈퇴 실행 |
 | 방장 ESC 이탈 | 30초 타이머 후 자동 탈퇴 대신 방 해산 처리 |

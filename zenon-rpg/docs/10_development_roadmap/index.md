@@ -46,7 +46,7 @@ Phase 3, 4, 5는 순서에 관계없이 병렬 착수 가능. Phase 6은 3·4·5
 - 제거: BetonQuest, Citizens
 
 **1-2. DB 스키마 초기화**
-- SQLite `poro.db` 생성
+- SQLite `zenon_rpg.db` 생성
 - 플레이어 기본 테이블 (uuid, nickname, discord_id, join_ts)
 - 강화석 재화 테이블 (player_resource)
 - 레퍼런스: `zenon-rpg/docs/01_plugin_architecture/implementation_reference.md`
@@ -59,7 +59,7 @@ Phase 3, 4, 5는 순서에 관계없이 병렬 착수 가능. Phase 6은 3·4·5
 - 수도(제국 수도) 스폰 영역 설정
 
 **1-4. 권한 시스템**
-- 관리자 권한 노드: `poro.admin`
+- 관리자 권한 노드: `zenon.rpg.admin`
 - 플레이어 기본 노드 정의
 - LuckPerms 연동
 
@@ -76,14 +76,14 @@ Phase 3, 4, 5는 순서에 관계없이 병렬 착수 가능. Phase 6은 3·4·5
 8. OperationsQueryBootstrap
 ```
 
-**1-6. `/poro` 관리자 명령어 뼈대**
-- `/poro <category> <subcommand> [args]` 구조
+**1-6. `/rpg` 관리자 명령어 뼈대**
+- `/rpg <category> <subcommand> [args]` 구조
 - 레퍼런스: `zenon-rpg/docs/01_plugin_architecture/admin_command_spec.md`
 
 ### 완료 기준
 - 서버 기동 시 오류 없이 ZenonRPG 로드
-- `poro.db` 생성 및 기본 테이블 확인
-- `/poro` 명령어 파싱 정상 동작
+- `zenon_rpg.db` 생성 및 기본 테이블 확인
+- `/rpg` 명령어 파싱 정상 동작
 
 ---
 

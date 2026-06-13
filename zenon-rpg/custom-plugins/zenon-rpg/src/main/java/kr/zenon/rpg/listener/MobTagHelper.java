@@ -5,8 +5,8 @@ import org.bukkit.entity.Entity;
 public final class MobTagHelper {
     private MobTagHelper() {}
 
-    public static final String FIELD_TAG_PREFIX = "poro_field_";
-    public static final String ELITE_TAG        = "poro_rank_elite";
+    public static final String FIELD_TAG_PREFIX = "zenon_rpg_field_";
+    public static final String ELITE_TAG        = "zenon_rpg_rank_elite";
 
     public static int fieldIndex(Entity entity) {
         for (String tag : entity.getScoreboardTags()) {
@@ -30,6 +30,6 @@ public final class MobTagHelper {
     }
 
     public static boolean isFieldBoss(Entity entity) {
-        return entity.getScoreboardTags().contains("poro_type_field_boss");
+        return entity.getScoreboardTags().contains("zenon_rpg_type_field_boss");
     }
 }

@@ -19,7 +19,7 @@ public final class DiscordResponseBuilder {
         lines.add("최근 보스: " + (snapshot.latestBossId().isBlank() ? "-" : snapshot.latestBossId()));
         lines.add("영지 해금: " + (snapshot.estateUnlocked() ? "예" : "아니오"));
         lines.add("완료 퀘스트: " + snapshot.completedQuestCount());
-        return new DiscordCardResponse(command, "내정보", List.copyOf(lines), "poro discord snapshot");
+        return new DiscordCardResponse(command, "내정보", List.copyOf(lines), "zenon discord snapshot");
     }
 
     public static DiscordCardResponse equipment(String command, PlayerDetailQueryService.EquipmentProjection equipment) {
@@ -29,7 +29,7 @@ public final class DiscordResponseBuilder {
         lines.add("세트: " + (equipment.setEffects().isEmpty() ? "-" : String.join(" | ", equipment.setEffects())));
         lines.add("룬: " + (equipment.runes().isEmpty() ? "-" : String.join(", ", equipment.runes())));
         lines.add("각인: " + (equipment.engravings().isEmpty() ? "-" : String.join(", ", equipment.engravings())));
-        return new DiscordCardResponse(command, "내장비", List.copyOf(lines), "poro equipment snapshot");
+        return new DiscordCardResponse(command, "내장비", List.copyOf(lines), "zenon equipment snapshot");
     }
 
     public static DiscordCardResponse bossRecords(String command, List<PlayerDetailQueryService.PlayerBossRecordProjection> records) {
@@ -45,7 +45,7 @@ public final class DiscordResponseBuilder {
                         + "s | deaths=" + record.deaths());
             }
         }
-        return new DiscordCardResponse(command, "보스기록", List.copyOf(lines), "poro boss records");
+        return new DiscordCardResponse(command, "보스기록", List.copyOf(lines), "zenon boss records");
     }
 
     public static DiscordCardResponse marketPrice(String command, MarketStatisticsQueryService.MarketPriceSnapshot market) {
@@ -55,7 +55,7 @@ public final class DiscordResponseBuilder {
         lines.add("거래량: " + market.tradeVolume());
         lines.add("공급량: " + market.supplyVolume());
         lines.add("변동률: " + String.format(java.util.Locale.ROOT, "%.2f%%", market.changeRate() * 100.0d));
-        return new DiscordCardResponse(command, "시세", List.copyOf(lines), "poro market snapshot");
+        return new DiscordCardResponse(command, "시세", List.copyOf(lines), "zenon market snapshot");
     }
 
     public static DiscordCardResponse life(String command, PlayerDetailQueryService.LifeProjection life) {
@@ -64,7 +64,7 @@ public final class DiscordResponseBuilder {
         lines.add("시설: " + (life.facilities().isEmpty() ? "-" : String.join(", ", life.facilities())));
         lines.add("저장량: " + (life.currentStoredItems().isEmpty() ? "-" : life.currentStoredItems().toString()));
         lines.add("생활 레벨: " + (life.lifeLevels().isEmpty() ? "-" : life.lifeLevels().toString()));
-        return new DiscordCardResponse(command, "내영지", List.copyOf(lines), "poro life snapshot");
+        return new DiscordCardResponse(command, "내영지", List.copyOf(lines), "zenon life snapshot");
     }
 
     public static DiscordCardResponse hallOfFame(String command, HallOfFameQueryService.HallOfFameSnapshot hall) {
@@ -74,6 +74,6 @@ public final class DiscordResponseBuilder {
         lines.add("시즌 베스트: " + hall.seasonBest().stream().limit(3).map(record -> record.bossId() + ":" + record.clearTimeSeconds() + "s").toList());
         lines.add("무사망 기록: " + hall.noDeathRecords().stream().limit(3).map(record -> record.bossId() + ":" + record.runId()).toList());
         lines.add("전승 보유자: " + hall.transcendenceHolders());
-        return new DiscordCardResponse(command, "명예의전당", List.copyOf(lines), "poro hall of fame");
+        return new DiscordCardResponse(command, "명예의전당", List.copyOf(lines), "zenon hall of fame");
     }
 }

@@ -17,7 +17,7 @@ import java.util.Map;
  * 커스텀 아이템 텍스처 연결 — item_id → CustomModelData(CMD) 매핑 (DL-129 추가#12).
  *
  * <p>리소스팩 {@code assets/minecraft/items/paper.json}이 {@code minecraft:select property=custom_model_data}로
- * CMD 문자열 → poro 모델을 이미 매핑해 둠. 코드는 carrier=PAPER + {@code CustomModelDataComponent.setStrings([cmd])}만
+ * CMD 문자열 → zenon_rpg 모델을 이미 매핑해 둠. 코드는 carrier=PAPER + {@code CustomModelDataComponent.setStrings([cmd])}만
  * 걸면 됨(2D 이펙트와 동일 메커니즘). 리소스팩 재패키징 불필요.</p>
  */
 public final class CustomItemModel {
@@ -106,7 +106,7 @@ public final class CustomItemModel {
     }
 
     /** 창고 출금 시 재입금 식별용 item_id PDC 키 (DL-129 추가#29). */
-    public static final NamespacedKey STORAGE_ID_KEY = NamespacedKey.fromString("poro:storage_item_id");
+    public static final NamespacedKey STORAGE_ID_KEY = NamespacedKey.fromString("zenon_rpg:storage_item_id");
 
     /**
      * 커스텀 재료 item_id를 실물 ItemStack으로 — PAPER + CMD(있으면) + 한글명 + 재입금용 PDC 태그.

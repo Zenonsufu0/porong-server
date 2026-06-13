@@ -27,7 +27,7 @@ public final class AuctionMigration implements MigrationEntryPoint {
                     // 관리자가 DB를 직접 백업·삭제한 뒤 서버를 재시작해야 합니다.
                     return Result.failure(ErrorCode.DB_CONNECTION_FAILED,
                             "auction_listings 구 스키마에 활성 매물 " + rowCount + "건이 있습니다. "
-                            + "storage/poro.sqlite 백업 후 auction_listings 테이블을 직접 삭제하고 재시작하세요.");
+                            + "storage/zenon_rpg.sqlite 백업 후 auction_listings 테이블을 직접 삭제하고 재시작하세요.");
                 }
                 logger.info("auction_listings 구 스키마 감지 (데이터 없음). 드롭 후 재생성합니다.");
                 st.execute("DROP TABLE IF EXISTS auction_listings");

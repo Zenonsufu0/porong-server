@@ -57,7 +57,7 @@ public final class ZenonHttpServer {
         server.createContext("/boss-history/by-nick", playerApiHandler);
         server.createContext("/auth/verify", authApiHandler);
         ExecutorService executor = Executors.newFixedThreadPool(2, r -> {
-            Thread t = new Thread(r, "poro-http");
+            Thread t = new Thread(r, "zenon-rpg-http");
             t.setDaemon(true);
             return t;
         });

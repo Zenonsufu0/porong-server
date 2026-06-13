@@ -20,7 +20,7 @@ import java.util.UUID;
  * row0~4 (0~44): 영지 목록 (작위 내림차순). 좌클릭=작위▲, 우클릭=작위▼, Shift+우클릭=초기화
  * row5:   [뒤로] [이전][페이지][다음] ... [닫기]
  * </pre>
- * 작위/시설/창고는 보존하고, 초기화는 멤버·권한·방문모드만 리셋한다 (/poro-island-reset 동일).
+ * 작위/시설/창고는 보존하고, 초기화는 멤버·권한·방문모드만 리셋한다 (/rpg-island-reset 동일).
  */
 public final class AdminTerritoryGui {
     private AdminTerritoryGui() {}

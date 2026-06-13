@@ -110,7 +110,7 @@ public final class ClassInitService {
     /** 메뉴 아이템 슬롯 — 핫바 9번(index 8). 항상 이 슬롯에 고정한다. */
     public static final int MENU_ITEM_SLOT = 8;
     /** 메뉴 아이템 식별 PDC 태그 — 재질과 무관하게 판별(나침반 등과 혼동 방지). */
-    public static final NamespacedKey MENU_ITEM_KEY = NamespacedKey.fromString("poro_rpg:menu_item");
+    public static final NamespacedKey MENU_ITEM_KEY = NamespacedKey.fromString("zenon_rpg:menu_item");
 
     /** 재접속 시 slot 8의 메뉴 아이템이 없으면 복구한다. */
     public void ensureMenuCompass(Player player) {

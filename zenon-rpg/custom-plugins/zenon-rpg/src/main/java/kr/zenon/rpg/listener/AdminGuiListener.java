@@ -212,7 +212,7 @@ public final class AdminGuiListener implements Listener {
         Toggle t = mapping[idx];
         boolean next = togglesService.toggle(t);
         admin.sendMessage("§e[관리자] §f" + t.displayName + " §7→ " + (next ? "§a[ON]" : "§c[OFF]"));
-        Bukkit.getLogger().info("[poro-admin] " + admin.getName() + " toggled " + t.name() + " → " + next);
+        Bukkit.getLogger().info("[rpg-admin] " + admin.getName() + " toggled " + t.name() + " → " + next);
         // GUI refresh
         toggleSlotMapping.put(admin.getUniqueId(), AdminTogglesGui.open(admin, togglesService));
     }
@@ -274,7 +274,7 @@ public final class AdminGuiListener implements Listener {
         if (click.isShiftClick() && click.isRightClick()) {
             islandStore.resetSocialSettings(owner);
             admin.sendMessage("§a[관리자] §f" + nameOf(owner) + "§a 영지 소셜 설정 초기화 완료.");
-            Bukkit.getLogger().info("[poro-admin] " + admin.getName() + " reset territory social " + owner);
+            Bukkit.getLogger().info("[rpg-admin] " + admin.getName() + " reset territory social " + owner);
         } else if (click.isLeftClick()) {
             IslandRank changed = shiftRank(state, +1);
             admin.sendMessage("§a[관리자] §f" + nameOf(owner) + "§a 작위 ▲ → §e" + changed.displayName);
@@ -314,7 +314,7 @@ public final class AdminGuiListener implements Listener {
             admin.sendMessage("§c[관리자] 보스 런 강제 종료 실패: " + result.errorCode().name());
         } else {
             admin.sendMessage("§a[관리자] 보스 런 강제 종료 — 슬롯 해제됨.");
-            Bukkit.getLogger().info("[poro-admin] " + admin.getName() + " force-ended boss run " + runId);
+            Bukkit.getLogger().info("[rpg-admin] " + admin.getName() + " force-ended boss run " + runId);
         }
         // GUI 갱신
         bossRunMapping.put(admin.getUniqueId(), AdminBossGui.open(admin, bossRunService));

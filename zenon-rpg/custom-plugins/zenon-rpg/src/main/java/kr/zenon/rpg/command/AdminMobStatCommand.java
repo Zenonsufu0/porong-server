@@ -13,10 +13,10 @@ import java.util.Locale;
  * 몹 스탯 런타임 오버라이드 명령 (INBOX-010 축 A MVP).
  *
  * <pre>
- *   /poro-mobstat list
- *   /poro-mobstat get  &lt;mobKey&gt;
- *   /poro-mobstat set  &lt;mobKey&gt; &lt;hp|def|atk&gt; &lt;value|none&gt;
- *   /poro-mobstat reset &lt;mobKey&gt;
+ *   /rpg-mobstat list
+ *   /rpg-mobstat get  &lt;mobKey&gt;
+ *   /rpg-mobstat set  &lt;mobKey&gt; &lt;hp|def|atk&gt; &lt;value|none&gt;
+ *   /rpg-mobstat reset &lt;mobKey&gt;
  * </pre>
  *
  * 변경은 신규 스폰부터 반영(기존 개체 미소급). 값은 클램프(0~100000).
@@ -106,10 +106,10 @@ public final class AdminMobStatCommand implements CommandExecutor {
 
     private void usage(CommandSender sender) {
         sender.sendMessage("§e[몹 스탯 오버라이드]");
-        sender.sendMessage("§7/poro-mobstat list");
-        sender.sendMessage("§7/poro-mobstat get <mobKey>");
-        sender.sendMessage("§7/poro-mobstat set <mobKey> <hp|def|atk> <value|none>");
-        sender.sendMessage("§7/poro-mobstat reset <mobKey>");
+        sender.sendMessage("§7/rpg-mobstat list");
+        sender.sendMessage("§7/rpg-mobstat get <mobKey>");
+        sender.sendMessage("§7/rpg-mobstat set <mobKey> <hp|def|atk> <value|none>");
+        sender.sendMessage("§7/rpg-mobstat reset <mobKey>");
         sender.sendMessage("§8mobKey = MythicMobs mobId (예: Plains_Predator). def는 저장만(2단계 적용).");
     }
 }

@@ -15,7 +15,7 @@ import java.util.Objects;
  * 몹 스탯 런타임 오버라이드 서비스 (INBOX-010 축 A MVP).
  *
  * <p>부팅 시 DB에서 캐시 로드 + DL-116 정본값 시드(없는 mobKey만). 스폰 시 어트리뷰트 적용
- * (MAX_HEALTH·ATTACK_DAMAGE). 운영자 명령({@code /poro-mobstat})이 set/reset 호출 → DB·감사로그·캐시 동기.</p>
+ * (MAX_HEALTH·ATTACK_DAMAGE). 운영자 명령({@code /rpg-mobstat})이 set/reset 호출 → DB·감사로그·캐시 동기.</p>
  *
  * <p><b>적용 범위:</b> 평타(=`Damage:` 속성)·HP만 어트리뷰트로 즉시 적용. def는 저장만(2단계 — PlayerDefenseListener 연동).
  * 보스 스킬 패턴 데미지는 MythicMobs YAML 상수라 본 레이어 밖(기획안 §4.1-C, C-2).</p>
@@ -94,7 +94,7 @@ public final class MobStatOverrideService {
     /**
      * 부팅: DB 캐시 로드 + ATK 시드 적용.
      * 밸런스 단계(DL-128#13)에서는 코드 시드가 ATK 정본 — 기존 행의 ATK가 시드와 다르면 시드값으로 upsert(재적용).
-     * 기존 HP/DEF 오버라이드는 보존(withAtk). 운영자 /poro-mobstat ATK 변경은 재부팅 시 시드로 복원됨(밸런스 확정 후 정책 전환).
+     * 기존 HP/DEF 오버라이드는 보존(withAtk). 운영자 /rpg-mobstat ATK 변경은 재부팅 시 시드로 복원됨(밸런스 확정 후 정책 전환).
      */
     public void loadAndSeed() {
         cache.clear();

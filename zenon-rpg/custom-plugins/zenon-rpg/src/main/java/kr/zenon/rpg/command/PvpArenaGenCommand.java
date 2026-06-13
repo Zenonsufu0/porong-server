@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * /poro-genarenas [world] [x] [y] [z]
+ * /rpg-genarenas [world] [x] [y] [z]
  * 인자 없이 실행 시 실행자의 현재 위치 기준 생성.
  */
 public final class PvpArenaGenCommand implements CommandExecutor {
@@ -29,7 +29,7 @@ public final class PvpArenaGenCommand implements CommandExecutor {
 
         if (args.length == 0) {
             if (!(sender instanceof Player player)) {
-                sender.sendMessage("§c콘솔에서 실행 시 /poro-genarenas <world> <x> <y> <z> 형식으로 입력하세요.");
+                sender.sendMessage("§c콘솔에서 실행 시 /rpg-genarenas <world> <x> <y> <z> 형식으로 입력하세요.");
                 return true;
             }
             world = player.getWorld();
@@ -51,7 +51,7 @@ public final class PvpArenaGenCommand implements CommandExecutor {
                 return true;
             }
         } else {
-            sender.sendMessage("§c사용법: /poro-genarenas [world x y z]");
+            sender.sendMessage("§c사용법: /rpg-genarenas [world x y z]");
             return true;
         }
 

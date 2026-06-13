@@ -42,14 +42,14 @@
    │  인증·알림·역할 │ ◀─────────────────────────────── │  전투·성장·영지·보스   │
    └──────────────┘         인증 상태/역할 큐           │  경제·데이터·API      │
                                                        └─────────┬──────────┘
-                                          SQLite `poro.db` + 플레이어 JSON
+                                          SQLite `zenon_rpg.db` + 플레이어 JSON
    보조 셸: MythicMobs(몹/보스 외형·스코어보드 태그) · IridiumSkyblock(섬 생성·보호)
 ```
 
-- **ZenonRPG**가 모든 게임 상태의 주인. 데이터는 SQLite(`poro.db`) + 플레이어 JSON에 영속화.
+- **ZenonRPG**가 모든 게임 상태의 주인. 데이터는 SQLite(`zenon_rpg.db`) + 플레이어 JSON에 영속화.
 - 플러그인은 로컬 **HTTP API**(`:8765`, `X-Api-Key`)로 `/auth/*`·`/api/v1/*`·`/admin/*` 제공.
 - **Discord 봇**이 이 API를 호출해 디스코드 인증 ↔ 인게임 닉네임 연결, 역할·알림 처리.
-- **MythicMobs**는 몹/보스 셸 제공. 스폰 시 `poro_field_*`·`poro_rank_*`·`poro_type_*` 스코어보드 태그로 플러그인이 몹 종류 식별.
+- **MythicMobs**는 몹/보스 셸 제공. 스폰 시 `zenon_rpg_field_*`·`zenon_rpg_rank_*`·`zenon_rpg_type_*` 스코어보드 태그로 플러그인이 몹 종류 식별.
 
 ## 🧱 기술 스택
 
@@ -59,7 +59,7 @@
 | 핵심 플러그인 | ZenonRPG (Gradle Kotlin DSL) |
 | 보조 플러그인 | MythicMobs **5.11.x**, IridiumSkyblock |
 | 봇 | Python **3.12+**, discord.py (`../zenon-discord/`) |
-| 데이터 | SQLite (`poro.db`) + 플레이어 JSON |
+| 데이터 | SQLite (`zenon_rpg.db`) + 플레이어 JSON |
 
 ---
 
@@ -88,10 +88,10 @@
 # 플러그인 빌드
 cd custom-plugins/zenon-rpg
 ./gradlew build
-# 산출물: build/libs/poro-rpg-0.1.0.jar  → .local/server/plugins/ 에 배치
+# 산출물: build/libs/zenon-rpg-0.1.0.jar  → .local/server/plugins/ 에 배치
 ```
 
-> 플러그인 데이터 폴더는 `.local/server/plugins/ZenonRPG/`, 시드는 `.local/server/plugins/ZenonRPG/seeds/`(런타임 우선 로드). 운영자 명령은 `/poro`, `/poro-*` 계열, 권한 노드는 `poro.*`.
+> 플러그인 데이터 폴더는 `.local/server/plugins/ZenonRPG/`, 시드는 `.local/server/plugins/ZenonRPG/seeds/`(런타임 우선 로드). 운영자 명령은 `/rpg`, `/rpg-*` 계열, 권한 노드는 `zenon.rpg.*`.
 > 월드 초기 생성: `scripts/setup-worlds.sh` 참조.
 
 ## 🔐 설정 · 비밀정보

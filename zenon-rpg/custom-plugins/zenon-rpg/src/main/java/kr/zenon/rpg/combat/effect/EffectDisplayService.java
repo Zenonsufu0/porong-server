@@ -20,7 +20,7 @@ import java.util.List;
 /**
  * 2D 스킬/보스 이펙트를 ItemDisplay(빌보드)로 띄우는 서비스 (skill_effect_2d_integration_v1).
  *
- * 리소스팩: carrier 아이템 {@code firework_star} + {@code custom_model_data}(문자열 케이스) → poro:effect/* 평면 모델.
+ * 리소스팩: carrier 아이템 {@code firework_star} + {@code custom_model_data}(문자열 케이스) → zenon_rpg:effect/* 평면 모델.
  * ModelEngine 없이 바닐라만으로 동작. 짧은 수명 + 스케일-팝 + 풀밝기.
  */
 public final class EffectDisplayService {

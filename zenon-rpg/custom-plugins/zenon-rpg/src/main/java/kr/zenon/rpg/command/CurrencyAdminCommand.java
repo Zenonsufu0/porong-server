@@ -29,7 +29,7 @@ import java.util.UUID;
  *   <li>/큐브조각 &lt;플레이어&gt; [수량] (기본 {@value #DEFAULT_FRAG})</li>
  * </ul>
  *
- * <p>수량 생략 시 재화별 기본값. 음수 입력 시 회수. 내부적으로 {@code /poro-currency}와 동일한
+ * <p>수량 생략 시 재화별 기본값. 음수 입력 시 회수. 내부적으로 {@code /rpg-currency}와 동일한
  * {@code addCurrency/consumeCurrency} 경로를 쓴다(DL-129 검증 편의). 온라인 대상은 스코어보드 즉시 갱신.</p>
  */
 public final class CurrencyAdminCommand implements CommandExecutor, TabCompleter {
@@ -55,10 +55,10 @@ public final class CurrencyAdminCommand implements CommandExecutor, TabCompleter
     /** 명령 이름 → (재화코드, 표기명, 기본수량). 미지원 명령은 null. */
     private static @Nullable Currency currencyOf(String commandName) {
         return switch (commandName.toLowerCase(Locale.ROOT)) {
-            case "poro-gold"     -> new Currency("gold",              "골드",   DEFAULT_GOLD);
-            case "poro-stone"    -> new Currency("mat_stone_enhance", "강화석", DEFAULT_STONE);
-            case "poro-cube"     -> new Currency("mat_cube",          "큐브",   DEFAULT_CUBE);
-            case "poro-cubefrag" -> new Currency("mat_cube_fragment", "큐브조각", DEFAULT_FRAG);
+            case "rpg-gold"     -> new Currency("gold",              "골드",   DEFAULT_GOLD);
+            case "rpg-stone"    -> new Currency("mat_stone_enhance", "강화석", DEFAULT_STONE);
+            case "rpg-cube"     -> new Currency("mat_cube",          "큐브",   DEFAULT_CUBE);
+            case "rpg-cubefrag" -> new Currency("mat_cube_fragment", "큐브조각", DEFAULT_FRAG);
             default -> null;
         };
     }
@@ -66,7 +66,7 @@ public final class CurrencyAdminCommand implements CommandExecutor, TabCompleter
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
                              @NotNull String label, @NotNull String[] args) {
-        if (!sender.hasPermission("poro.admin")) {
+        if (!sender.hasPermission("zenon.rpg.admin")) {
             sender.sendMessage(PREFIX + "§c권한이 없습니다.");
             return true;
         }

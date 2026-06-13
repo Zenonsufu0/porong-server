@@ -267,7 +267,7 @@ public class SkillContext {
     // ─── 보스/몹 DEF 경감 + 방어력무시 (DL-128#14) ─────────────────────────
     /** 몹/보스 DEF를 스폰 시 기록하는 PDC 키 (MobStatOverrideSpawnListener가 set). */
     public static final org.bukkit.NamespacedKey MOB_DEF_KEY =
-            org.bukkit.NamespacedKey.fromString("poro_rpg:mob_def");
+            org.bukkit.NamespacedKey.fromString("zenon_rpg:mob_def");
 
     /** 대상의 DEF — 스폰 시 PDC에 기록된 값(없으면 0 = 경감 없음). */
     public double targetDefense(LivingEntity target) {

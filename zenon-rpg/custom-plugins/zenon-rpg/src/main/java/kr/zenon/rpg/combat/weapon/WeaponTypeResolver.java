@@ -10,7 +10,7 @@ import org.bukkit.persistence.PersistentDataType;
 import java.util.Locale;
 
 public final class WeaponTypeResolver {
-    public static final NamespacedKey WEAPON_TYPE_KEY = NamespacedKey.fromString("poro_rpg:weapon_type");
+    public static final NamespacedKey WEAPON_TYPE_KEY = NamespacedKey.fromString("zenon_rpg:weapon_type");
 
     private WeaponTypeResolver() {
     }

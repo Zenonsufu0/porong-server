@@ -46,7 +46,7 @@ ZenonRPGPlugin (진입점)
 │   └── BossRoomManager            (보스 방 관리)
 │
 ├── Listener Layer (26개 이벤트 리스너)
-├── Command Layer  (/poro, /verify, /메뉴, /장비, /캐릭터)
+├── Command Layer  (/rpg, /verify, /메뉴, /장비, /캐릭터)
 └── HTTP Server    (포트 8765, Discord 봇 API)
 ```
 
@@ -60,7 +60,7 @@ ZenonRPGPlugin (진입점)
 
 **초기화 순서:**
 1. `config.yml` 로드 → `CommonConfig`
-2. `SqliteConnectionProvider` 생성 (DB 경로: `plugins/ZenonRPG/poro.db`)
+2. `SqliteConnectionProvider` 생성 (DB 경로: `plugins/ZenonRPG/zenon_rpg.db`)
 3. `DatabaseBootstrapper.migrate()` → DDL 테이블 생성/마이그레이션
 4. 로거 팩토리 초기화
 
@@ -401,19 +401,19 @@ IslandStorageStore → 해당 재료 수량 증가
 ```
 창고 타이틀 Component에 커스텀 폰트 글리프 삽입
     │
-Component.text("").font(Key.key("poro","gui"))
+Component.text("").font(Key.key("zenon_rpg","gui"))
     │
-리소스팩 assets/poro/font/gui.json
+리소스팩 assets/zenon_rpg/font/gui.json
     ├──  → space advance -8 (좌측 정렬 보정)
     └──  → bitmap glyph (menu_main.png, 176×141px)
 ```
 
 | GUI | 글리프 | PNG |
 |---|---|---|
-| MainHubGui |  | `poro:gui/menu_main.png` |
-| EquipmentHubGui |  | `poro:gui/menu_hub_equipment.png` |
-| TerritoryHubGui |  | `poro:gui/menu_hub_territory.png` |
-| BossHubGui |  | `poro:gui/menu_hub_boss.png` |
+| MainHubGui |  | `zenon_rpg:gui/menu_main.png` |
+| EquipmentHubGui |  | `zenon_rpg:gui/menu_hub_equipment.png` |
+| TerritoryHubGui |  | `zenon_rpg:gui/menu_hub_territory.png` |
+| BossHubGui |  | `zenon_rpg:gui/menu_hub_boss.png` |
 
 ---
 
@@ -425,11 +425,11 @@ Component.text("").font(Key.key("poro","gui"))
 |---|---|---|
 | 플레이어 성장 (장비, 강화, 잠재, 각인, 레벨) | JSON 파일 | `plugins/ZenonRPG/player_data/<UUID>.json` |
 | 영지 저장고 수량 | JSON 파일 | `plugins/ZenonRPG/player_data/<UUID>.json` |
-| Discord 연동 정보 | SQLite | `poro.db → discord_link` |
-| 플레이어 플래그 | SQLite | `poro.db → player_flags` |
-| 보스 클리어 기록 | SQLite | `poro.db → boss_clear_log` |
-| 경매 아이템 | SQLite | `poro.db → auction_listings` |
-| 마스터 데이터 | SQLite (CSV upsert) | `poro.db → *_master` |
+| Discord 연동 정보 | SQLite | `zenon_rpg.db → discord_link` |
+| 플레이어 플래그 | SQLite | `zenon_rpg.db → player_flags` |
+| 보스 클리어 기록 | SQLite | `zenon_rpg.db → boss_clear_log` |
+| 경매 아이템 | SQLite | `zenon_rpg.db → auction_listings` |
+| 마스터 데이터 | SQLite (CSV upsert) | `zenon_rpg.db → *_master` |
 
 ### 8.2 자동 저장 스케줄
 

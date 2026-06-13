@@ -19,8 +19,8 @@ import java.util.Locale;
 import java.util.UUID;
 
 /**
- * /poro-log [enhance|trade|pvp] — 최근 로그 텍스트 출력 (콘솔 가능).
- * GUI는 /poro-admin → 로그/감시. 동일 데이터를 명령어로도 노출 (C 방식 일관성).
+ * /rpg-log [enhance|trade|pvp] — 최근 로그 텍스트 출력 (콘솔 가능).
+ * GUI는 /rpg-admin → 로그/감시. 동일 데이터를 명령어로도 노출 (C 방식 일관성).
  */
 public final class AdminLogCommand implements CommandExecutor {
 
@@ -47,7 +47,7 @@ public final class AdminLogCommand implements CommandExecutor {
             case "trade"   -> printTrade(sender);
             case "pvp"     -> printPvp(sender);
             default -> {
-                sender.sendMessage("§c사용법: /poro-log [enhance|trade|pvp]");
+                sender.sendMessage("§c사용법: /rpg-log [enhance|trade|pvp]");
                 return true;
             }
         }

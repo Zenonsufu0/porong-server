@@ -14,7 +14,7 @@ public final class CommonConfigLoader {
         Path dataFolder = plugin.getDataFolder().toPath();
         FileConfiguration config = plugin.getConfig();
 
-        String sqlitePathRaw = config.getString("common.sqlite-path", "storage/poro.sqlite");
+        String sqlitePathRaw = config.getString("common.sqlite-path", "storage/zenon_rpg.sqlite");
         String seedPathRaw = config.getString("common.seed-path", "seeds");
         String timezoneRaw = config.getString("common.timezone", "UTC");
         String apiBind = config.getString("common.api-bind-host", "127.0.0.1");

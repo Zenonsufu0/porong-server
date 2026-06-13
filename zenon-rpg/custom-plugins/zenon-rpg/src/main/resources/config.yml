@@ -1,7 +1,7 @@
 debug: true
 server-name: "Zenon Server"
 common:
-  sqlite-path: "storage/poro.sqlite"
+  sqlite-path: "storage/zenon_rpg.sqlite"
   seed-path: "seeds"
   timezone: "UTC"
   # HTTP API 바인드 주소. 기본값 127.0.0.1 (루프백 전용).
@@ -184,7 +184,7 @@ field-bosses:
     y: 64.0
     z: 100.0
 
-# 보스룸 슬롯 — /poro genrooms 로 방 생성 후 자동 사용.
+# 보스룸 슬롯 — /rpg genrooms 로 방 생성 후 자동 사용.
 # 월드 X=10000~10349, Z=10000~10289 영역에 6×5 배치 (방 50블록, 간격 10블록).
 # 맵 확정 후 world 이름 및 좌표 수정 가능.
 boss-room-slots:
@@ -219,7 +219,7 @@ boss-room-slots:
   slot-28: { id: 28, world: "world", player-spawn: { x: 10264.5, y: 65.0, z: 10285.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10264.5, y: 65.0, z: 10250.0 } }
   slot-29: { id: 29, world: "world", player-spawn: { x: 10324.5, y: 65.0, z: 10285.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10324.5, y: 65.0, z: 10250.0 } }
 
-# 강화 촉진제 요구량 — 경제 분석 후 확정 예정. /poro reload 로 재적용.
+# 강화 촉진제 요구량 — 경제 분석 후 확정 예정. /rpg reload 로 재적용.
 # tier 키 이름은 자유이나 max-level 기준으로 오름차순 정렬됩니다.
 # minor/mid/major 는 각각 하급/중급/상급 촉진제 필요 개수.
 catalyst-requirements:
@@ -229,7 +229,7 @@ catalyst-requirements:
   tier4: { max-level: 20, minor: 10, mid:  7, major: 5 }
   tier5: { max-level: 99, minor: 15, mid: 10, major: 7 }
 
-# PvP 아레나 슬롯 — /poro-genarenas 로 방 생성 후 자동 사용.
+# PvP 아레나 슬롯 — /rpg-genarenas 로 방 생성 후 자동 사용.
 # 5×2 배치 (방 20블록, 간격 10블록). 맵 확정 후 좌표 수정.
 # spawn-a (서쪽), spawn-b (동쪽) — 양측 플레이어가 마주보도록 yaw 설정.
 pvp-room-slots:

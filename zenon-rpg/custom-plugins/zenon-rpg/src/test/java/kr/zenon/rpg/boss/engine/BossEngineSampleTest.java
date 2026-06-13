@@ -125,7 +125,7 @@ class BossEngineSampleTest {
     }
 
     private BossRunService createService(FixedTimeProvider timeProvider, InMemoryBossRunRecordHook recordHook) {
-        CommonPluginLogger commonLogger = new CommonPluginLogger(Logger.getLogger("BossEngineSampleTest"), "poro-rpg-test");
+        CommonPluginLogger commonLogger = new CommonPluginLogger(Logger.getLogger("BossEngineSampleTest"), "zenon-rpg-test");
         DomainLogger logger = commonLogger.domain("boss-engine-test");
 
         BossMasterRegistry bossMasterRegistry = new BossMasterRegistry();

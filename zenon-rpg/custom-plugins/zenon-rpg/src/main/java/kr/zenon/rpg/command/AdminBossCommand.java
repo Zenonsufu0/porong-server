@@ -16,8 +16,8 @@ import java.util.UUID;
 /**
  * 보스 디버그 명령 (Phase 2 Step 4). 한 인스턴스가 두 명령을 라벨로 분기.
  * <ul>
- *   <li>/poro-boss-list — 진행 중 보스 런 목록</li>
- *   <li>/poro-boss-end &lt;runId&gt; — 강제 종료 (runId 접두어 매칭)</li>
+ *   <li>/rpg-boss-list — 진행 중 보스 런 목록</li>
+ *   <li>/rpg-boss-end &lt;runId&gt; — 강제 종료 (runId 접두어 매칭)</li>
  * </ul>
  */
 public final class AdminBossCommand implements CommandExecutor {
@@ -31,7 +31,7 @@ public final class AdminBossCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
                              @NotNull String label, @NotNull String[] args) {
-        if (command.getName().equalsIgnoreCase("poro-boss-end")) {
+        if (command.getName().equalsIgnoreCase("rpg-boss-end")) {
             return handleEnd(sender, args);
         }
         return handleList(sender);
@@ -46,13 +46,13 @@ public final class AdminBossCommand implements CommandExecutor {
                     + " §7파티 §f" + r.partySize() + "명 §7페이즈 §e" + r.currentPhase()
                     + " §7HP §c" + String.format("%.0f%%", r.bossHpPercent()));
         }
-        if (!runs.isEmpty()) sender.sendMessage("§8강제 종료: /poro-boss-end <runId 앞 8자리>");
+        if (!runs.isEmpty()) sender.sendMessage("§8강제 종료: /rpg-boss-end <runId 앞 8자리>");
         return true;
     }
 
     private boolean handleEnd(CommandSender sender, String[] args) {
         if (args.length == 0) {
-            sender.sendMessage("§c사용법: /poro-boss-end <runId 앞 8자리>");
+            sender.sendMessage("§c사용법: /rpg-boss-end <runId 앞 8자리>");
             return true;
         }
         String prefix = args[0].toLowerCase();
@@ -74,7 +74,7 @@ public final class AdminBossCommand implements CommandExecutor {
             sender.sendMessage("§c[보스] 강제 종료 실패: " + result.errorCode().name());
         } else {
             sender.sendMessage("§a[보스] 런 강제 종료 완료 — §8" + shortId(runId) + " §7(슬롯 해제됨)");
-            Bukkit.getLogger().info("[poro-boss] " + sender.getName() + " force-ended run " + runId);
+            Bukkit.getLogger().info("[zenon-rpg-boss] " + sender.getName() + " force-ended run " + runId);
         }
         return true;
     }

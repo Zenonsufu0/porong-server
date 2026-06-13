@@ -136,7 +136,7 @@ char empty  = (char)(0xE141 + weaponIdx * 2);
 
 ## 5. hud.json 글리프 전체 맵
 
-파일 경로: `assets/export/resourcepack/assets/poro/font/hud.json`
+파일 경로: `assets/export/resourcepack/assets/zenon_rpg/font/hud.json`
 
 | 범위 | 용도 | ascent | height | 단계 | 파일 |
 |---|---|---:|---:|---|---|
@@ -287,9 +287,9 @@ char empty  = (char)(0xE141 + weaponIdx * 2);
 | 파일 | 용도 | 상태 |
 |---|---|---|
 | `assets/minecraft/textures/gui/icons.png` | 바닐라 하트·허기·XP 숨김 | ✓ 완료 |
-| `assets/poro/font/hud.json` | HUD 글리프 전체 등록 (74개) | ✓ 완료 |
-| `assets/poro/textures/hud/gold·enhance·cube.png` | 통화 아이콘 16×16 — 소스: `assets/source/gui/currency_icons/` | ✓ 완료 |
-| `assets/poro/textures/hud/hp_000~hp_100.png` | HP바 21프레임 | ✓ 완료 |
-| `assets/poro/textures/hud/xp_000~xp_100.png` | XP바 21프레임 | ✓ 완료 |
-| `assets/poro/textures/hud/cd_010~cd_100.png` | 쿨타임바 10프레임 | ✓ 완료 |
-| `assets/poro/textures/hud/{weapon}_filled/empty.png` | 스택 글리프 12개 | ✓ 완료 |
+| `assets/zenon_rpg/font/hud.json` | HUD 글리프 전체 등록 (74개) | ✓ 완료 |
+| `assets/zenon_rpg/textures/hud/gold·enhance·cube.png` | 통화 아이콘 16×16 — 소스: `assets/source/gui/currency_icons/` | ✓ 완료 |
+| `assets/zenon_rpg/textures/hud/hp_000~hp_100.png` | HP바 21프레임 | ✓ 완료 |
+| `assets/zenon_rpg/textures/hud/xp_000~xp_100.png` | XP바 21프레임 | ✓ 완료 |
+| `assets/zenon_rpg/textures/hud/cd_010~cd_100.png` | 쿨타임바 10프레임 | ✓ 완료 |
+| `assets/zenon_rpg/textures/hud/{weapon}_filled/empty.png` | 스택 글리프 12개 | ✓ 완료 |

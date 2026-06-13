@@ -201,15 +201,15 @@ public class ZenonCommand implements CommandExecutor, TabCompleter {
 
     private boolean handleClassCommand(CommandSender sender, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use /poro class.");
+            sender.sendMessage(ChatColor.RED + "Only players can use /rpg class.");
             return true;
         }
-        if (!player.hasPermission("poro.class")) {
-            player.sendMessage(ChatColor.RED + "You do not have permission: poro.class");
+        if (!player.hasPermission("zenon.rpg.class")) {
+            player.sendMessage(ChatColor.RED + "You do not have permission: zenon.rpg.class");
             return true;
         }
         if (args.length < 2) {
-            player.sendMessage(ChatColor.YELLOW + "Usage: /poro class <sword|axe|spear|crossbow|scythe|staff>");
+            player.sendMessage(ChatColor.YELLOW + "Usage: /rpg class <sword|axe|spear|crossbow|scythe|staff>");
             return true;
         }
         return handleClassSelection(player, args[1]);
@@ -217,15 +217,15 @@ public class ZenonCommand implements CommandExecutor, TabCompleter {
 
     private boolean handleSkillCommand(CommandSender sender, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use /poro skill.");
+            sender.sendMessage(ChatColor.RED + "Only players can use /rpg skill.");
             return true;
         }
-        if (!player.hasPermission("poro.skill")) {
-            player.sendMessage(ChatColor.RED + "You do not have permission: poro.skill");
+        if (!player.hasPermission("zenon.rpg.skill")) {
+            player.sendMessage(ChatColor.RED + "You do not have permission: zenon.rpg.skill");
             return true;
         }
         if (args.length < 2) {
-            player.sendMessage(ChatColor.YELLOW + "Usage: /poro skill <skill_key>");
+            player.sendMessage(ChatColor.YELLOW + "Usage: /rpg skill <skill_key>");
             return true;
         }
         return skillService.useSkill(player, args[1]);
@@ -233,11 +233,11 @@ public class ZenonCommand implements CommandExecutor, TabCompleter {
 
     private boolean handleInfoCommand(CommandSender sender) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use /poro info.");
+            sender.sendMessage(ChatColor.RED + "Only players can use /rpg info.");
             return true;
         }
-        if (!player.hasPermission("poro.info")) {
-            player.sendMessage(ChatColor.RED + "You do not have permission: poro.info");
+        if (!player.hasPermission("zenon.rpg.info")) {
+            player.sendMessage(ChatColor.RED + "You do not have permission: zenon.rpg.info");
             return true;
         }
         PlayerData playerData = playerDataManager.getOrCreate(player.getUniqueId());
@@ -251,12 +251,12 @@ public class ZenonCommand implements CommandExecutor, TabCompleter {
     }
 
     private boolean handleSetClassCommand(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("poro.admin.setclass")) {
-            sender.sendMessage(ChatColor.RED + "You do not have permission: poro.admin.setclass");
+        if (!sender.hasPermission("zenon.rpg.admin.setclass")) {
+            sender.sendMessage(ChatColor.RED + "You do not have permission: zenon.rpg.admin.setclass");
             return true;
         }
         if (args.length < 3) {
-            sender.sendMessage(ChatColor.YELLOW + "Usage: /poro setclass <player> <sword|axe|spear|crossbow|scythe|staff>");
+            sender.sendMessage(ChatColor.YELLOW + "Usage: /rpg setclass <player> <sword|axe|spear|crossbow|scythe|staff>");
             return true;
         }
         Player target = Bukkit.getPlayerExact(args[1]);
@@ -280,11 +280,11 @@ public class ZenonCommand implements CommandExecutor, TabCompleter {
 
     private boolean handleHudCommand(CommandSender sender) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use /poro hud.");
+            sender.sendMessage(ChatColor.RED + "Only players can use /rpg hud.");
             return true;
         }
-        if (!player.hasPermission("poro.hud")) {
-            player.sendMessage(ChatColor.RED + "You do not have permission: poro.hud");
+        if (!player.hasPermission("zenon.rpg.hud")) {
+            player.sendMessage(ChatColor.RED + "You do not have permission: zenon.rpg.hud");
             return true;
         }
         player.sendMessage(ChatColor.GREEN + "HUD is rendered by 1-tick task (HealthHudListener). No manual trigger needed.");
@@ -295,15 +295,15 @@ public class ZenonCommand implements CommandExecutor, TabCompleter {
         if (args.length == 1) return showOwnReputation(sender);
         String action = args[1].toLowerCase(Locale.ROOT);
         if (!REPUTATION_ACTIONS.contains(action)) {
-            sender.sendMessage(ChatColor.YELLOW + "Usage: /poro reputation [add|remove|set <player> <amount>]");
+            sender.sendMessage(ChatColor.YELLOW + "Usage: /rpg reputation [add|remove|set <player> <amount>]");
             return true;
         }
-        if (!sender.hasPermission("poro.admin.reputation")) {
+        if (!sender.hasPermission("zenon.rpg.admin.reputation")) {
             sender.sendMessage(NO_ADMIN);
             return true;
         }
         if (args.length < 4) {
-            sender.sendMessage(ChatColor.YELLOW + "Usage: /poro reputation " + action + " <player> <amount>");
+            sender.sendMessage(ChatColor.YELLOW + "Usage: /rpg reputation " + action + " <player> <amount>");
             return true;
         }
         Player target = Bukkit.getPlayerExact(args[2]);
@@ -321,9 +321,9 @@ public class ZenonCommand implements CommandExecutor, TabCompleter {
     // ─── 관리자 커맨드 핸들러 ──────────────────────────────────
 
     private boolean handleGuiCommand(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("poro.admin")) { sender.sendMessage(NO_ADMIN); return true; }
+        if (!sender.hasPermission("zenon.rpg.admin")) { sender.sendMessage(NO_ADMIN); return true; }
         if (args.length < 3) {
-            sender.sendMessage(PREFIX + "§7Usage: /poro gui <player> <" + String.join("|", GUI_NAMES) + ">");
+            sender.sendMessage(PREFIX + "§7Usage: /rpg gui <player> <" + String.join("|", GUI_NAMES) + ">");
             return true;
         }
         Player target = requireOnlinePlayer(sender, args[1]);
@@ -334,9 +334,9 @@ public class ZenonCommand implements CommandExecutor, TabCompleter {
     }
 
     private boolean handleGoldCommand(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("poro.admin")) { sender.sendMessage(NO_ADMIN); return true; }
+        if (!sender.hasPermission("zenon.rpg.admin")) { sender.sendMessage(NO_ADMIN); return true; }
         if (args.length < 3) {
-            sender.sendMessage(PREFIX + "§7Usage: /poro gold <give|take|set|check> <player> [amount]");
+            sender.sendMessage(PREFIX + "§7Usage: /rpg gold <give|take|set|check> <player> [amount]");
             return true;
         }
         String action = args[1].toLowerCase(Locale.ROOT);
@@ -348,7 +348,7 @@ public class ZenonCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         if (args.length < 4) {
-            sender.sendMessage(PREFIX + "§7Usage: /poro gold " + action + " <player> <amount>");
+            sender.sendMessage(PREFIX + "§7Usage: /rpg gold " + action + " <player> <amount>");
             return true;
         }
         Long amount = parseLong(sender, args[3]);
@@ -358,23 +358,23 @@ public class ZenonCommand implements CommandExecutor, TabCompleter {
     }
 
     private boolean handleItemCommand(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("poro.admin")) { sender.sendMessage(NO_ADMIN); return true; }
+        if (!sender.hasPermission("zenon.rpg.admin")) { sender.sendMessage(NO_ADMIN); return true; }
         if (args.length < 2) {
-            sender.sendMessage(PREFIX + "§7Usage: /poro item give <player> <item-id> [amount]");
-            sender.sendMessage(PREFIX + "§7Usage: /poro item storage give <player> <item-id> <amount>");
+            sender.sendMessage(PREFIX + "§7Usage: /rpg item give <player> <item-id> [amount]");
+            sender.sendMessage(PREFIX + "§7Usage: /rpg item storage give <player> <item-id> <amount>");
             return true;
         }
         boolean storage = args.length >= 3 && "storage".equalsIgnoreCase(args[1])
                 && "give".equalsIgnoreCase(args[2]);
         boolean inv     = "give".equalsIgnoreCase(args[1]);
         if (!inv && !storage) {
-            sender.sendMessage(PREFIX + "§7Usage: /poro item give <player> <item-id> [amount]");
+            sender.sendMessage(PREFIX + "§7Usage: /rpg item give <player> <item-id> [amount]");
             return true;
         }
         int playerArgIdx = storage ? 3 : 2;
         int itemArgIdx   = storage ? 4 : 3;
         if (args.length <= itemArgIdx) {
-            sender.sendMessage(PREFIX + "§7Usage: /poro item " + (storage ? "storage give" : "give") + " <player> <item-id> [amount]");
+            sender.sendMessage(PREFIX + "§7Usage: /rpg item " + (storage ? "storage give" : "give") + " <player> <item-id> [amount]");
             return true;
         }
         Player target = requireOnlinePlayer(sender, args[playerArgIdx]);
@@ -388,9 +388,9 @@ public class ZenonCommand implements CommandExecutor, TabCompleter {
     }
 
     private boolean handleEstateCommand(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("poro.admin")) { sender.sendMessage(NO_ADMIN); return true; }
+        if (!sender.hasPermission("zenon.rpg.admin")) { sender.sendMessage(NO_ADMIN); return true; }
         if (args.length < 2) {
-            sender.sendMessage(PREFIX + "§7Usage: /poro estate <rank|slot|produce|public|setting|member|permission> ...");
+            sender.sendMessage(PREFIX + "§7Usage: /rpg estate <rank|slot|produce|public|setting|member|permission> ...");
             return true;
         }
         return switch (args[1].toLowerCase(Locale.ROOT)) {
@@ -407,7 +407,7 @@ public class ZenonCommand implements CommandExecutor, TabCompleter {
 
     private boolean handleEstateRank(CommandSender sender, String[] args) {
         if (args.length < 5 || !"set".equalsIgnoreCase(args[2])) {
-            sender.sendMessage(PREFIX + "§7Usage: /poro estate rank set <player> <rank>");
+            sender.sendMessage(PREFIX + "§7Usage: /rpg estate rank set <player> <rank>");
             return true;
         }
         Player target = requireOnlinePlayer(sender, args[3]);
@@ -418,34 +418,34 @@ public class ZenonCommand implements CommandExecutor, TabCompleter {
 
     private boolean handleEstateSlot(CommandSender sender, String[] args) {
         if (args.length < 3) {
-            sender.sendMessage(PREFIX + "§7Usage: /poro estate slot <set|reset|list> <player> [num] [type]");
+            sender.sendMessage(PREFIX + "§7Usage: /rpg estate slot <set|reset|list> <player> [num] [type]");
             return true;
         }
         return switch (args[2].toLowerCase(Locale.ROOT)) {
             case "set" -> {
-                if (args.length < 6) { sender.sendMessage(PREFIX + "§7Usage: /poro estate slot set <player> <num> <herb|ore|workshop>"); yield true; }
+                if (args.length < 6) { sender.sendMessage(PREFIX + "§7Usage: /rpg estate slot set <player> <num> <herb|ore|workshop>"); yield true; }
                 Player t = requireOnlinePlayer(sender, args[3]); if (t == null) yield true;
                 sender.sendMessage(PREFIX + "§f" + t.getName() + " §7슬롯 §f" + args[4] + "§7에 §e" + args[5] + " §7배정 §8(LifeEngine 연동 후 적용)");
                 yield true;
             }
             case "reset" -> {
-                if (args.length < 4) { sender.sendMessage(PREFIX + "§7Usage: /poro estate slot reset <player>"); yield true; }
+                if (args.length < 4) { sender.sendMessage(PREFIX + "§7Usage: /rpg estate slot reset <player>"); yield true; }
                 Player t = requireOnlinePlayer(sender, args[3]); if (t == null) yield true;
                 sender.sendMessage(PREFIX + "§f" + t.getName() + " §7시설 슬롯 전체 초기화 §8(LifeEngine 연동 후 적용)");
                 yield true;
             }
             case "list" -> {
-                if (args.length < 4) { sender.sendMessage(PREFIX + "§7Usage: /poro estate slot list <player>"); yield true; }
+                if (args.length < 4) { sender.sendMessage(PREFIX + "§7Usage: /rpg estate slot list <player>"); yield true; }
                 Player t = requireOnlinePlayer(sender, args[3]); if (t == null) yield true;
                 sender.sendMessage(PREFIX + "§f" + t.getName() + " §7시설 슬롯 현황 조회 §8(LifeEngine 연동 후 적용)");
                 yield true;
             }
-            default -> { sender.sendMessage(PREFIX + "§7사용법: /poro estate slot <set|reset|list>"); yield true; }
+            default -> { sender.sendMessage(PREFIX + "§7사용법: /rpg estate slot <set|reset|list>"); yield true; }
         };
     }
 
     private boolean handleEstateProduce(CommandSender sender, String[] args) {
-        if (args.length < 3) { sender.sendMessage(PREFIX + "§7Usage: /poro estate produce <player>"); return true; }
+        if (args.length < 3) { sender.sendMessage(PREFIX + "§7Usage: /rpg estate produce <player>"); return true; }
         Player t = requireOnlinePlayer(sender, args[2]); if (t == null) return true;
         sender.sendMessage(PREFIX + "§f" + t.getName() + " §7영지 즉시 생산 1사이클 §8(LifeEngine 연동 후 적용)");
         return true;
@@ -453,7 +453,7 @@ public class ZenonCommand implements CommandExecutor, TabCompleter {
 
     private boolean handleEstatePublic(CommandSender sender, String[] args) {
         if (args.length < 5 || !"set".equalsIgnoreCase(args[2])) {
-            sender.sendMessage(PREFIX + "§7Usage: /poro estate public set <player> <true|false>"); return true;
+            sender.sendMessage(PREFIX + "§7Usage: /rpg estate public set <player> <true|false>"); return true;
         }
         Player t = requireOnlinePlayer(sender, args[3]); if (t == null) return true;
         sender.sendMessage(PREFIX + "§f" + t.getName() + " §7영지 공개 여부 → §e" + args[4] + " §8(연동 예정)");
@@ -462,7 +462,7 @@ public class ZenonCommand implements CommandExecutor, TabCompleter {
 
     private boolean handleEstateSetting(CommandSender sender, String[] args) {
         if (args.length < 5 || !"set".equalsIgnoreCase(args[2])) {
-            sender.sendMessage(PREFIX + "§7Usage: /poro estate setting set <player> <key> <value>"); return true;
+            sender.sendMessage(PREFIX + "§7Usage: /rpg estate setting set <player> <key> <value>"); return true;
         }
         Player t = requireOnlinePlayer(sender, args[3]); if (t == null) return true;
         sender.sendMessage(PREFIX + "§f" + t.getName() + " §7세부설정 §e" + args[4] + " → §f" + (args.length > 5 ? args[5] : "?") + " §8(연동 예정)");
@@ -471,51 +471,51 @@ public class ZenonCommand implements CommandExecutor, TabCompleter {
 
     private boolean handleEstateMember(CommandSender sender, String[] args) {
         if (args.length < 3) {
-            sender.sendMessage(PREFIX + "§7Usage: /poro estate member <add|remove|list> <owner> [member] [role]"); return true;
+            sender.sendMessage(PREFIX + "§7Usage: /rpg estate member <add|remove|list> <owner> [member] [role]"); return true;
         }
         return switch (args[2].toLowerCase(Locale.ROOT)) {
             case "add" -> {
-                if (args.length < 6) { sender.sendMessage(PREFIX + "§7Usage: /poro estate member add <owner> <member> <RESIDENT|VICE_LORD>"); yield true; }
+                if (args.length < 6) { sender.sendMessage(PREFIX + "§7Usage: /rpg estate member add <owner> <member> <RESIDENT|VICE_LORD>"); yield true; }
                 sender.sendMessage(PREFIX + "§f" + args[3] + " §7영지에 §f" + args[4] + " §7(" + args[5] + ") 추가 §8(연동 예정)");
                 yield true;
             }
             case "remove" -> {
-                if (args.length < 5) { sender.sendMessage(PREFIX + "§7Usage: /poro estate member remove <owner> <member>"); yield true; }
+                if (args.length < 5) { sender.sendMessage(PREFIX + "§7Usage: /rpg estate member remove <owner> <member>"); yield true; }
                 sender.sendMessage(PREFIX + "§f" + args[3] + " §7영지에서 §f" + args[4] + " §7제거 §8(연동 예정)");
                 yield true;
             }
             case "list" -> {
-                if (args.length < 4) { sender.sendMessage(PREFIX + "§7Usage: /poro estate member list <owner>"); yield true; }
+                if (args.length < 4) { sender.sendMessage(PREFIX + "§7Usage: /rpg estate member list <owner>"); yield true; }
                 sender.sendMessage(PREFIX + "§f" + args[3] + " §7영지 멤버 목록 §8(연동 예정)");
                 yield true;
             }
-            default -> { sender.sendMessage(PREFIX + "§7사용법: /poro estate member <add|remove|list>"); yield true; }
+            default -> { sender.sendMessage(PREFIX + "§7사용법: /rpg estate member <add|remove|list>"); yield true; }
         };
     }
 
     private boolean handleEstatePermission(CommandSender sender, String[] args) {
         if (args.length < 3) {
-            sender.sendMessage(PREFIX + "§7Usage: /poro estate permission <set|reset> <owner> [role] [perm] [true|false]"); return true;
+            sender.sendMessage(PREFIX + "§7Usage: /rpg estate permission <set|reset> <owner> [role] [perm] [true|false]"); return true;
         }
         return switch (args[2].toLowerCase(Locale.ROOT)) {
             case "set" -> {
-                if (args.length < 7) { sender.sendMessage(PREFIX + "§7Usage: /poro estate permission set <owner> <role> <perm> <true|false>"); yield true; }
+                if (args.length < 7) { sender.sendMessage(PREFIX + "§7Usage: /rpg estate permission set <owner> <role> <perm> <true|false>"); yield true; }
                 sender.sendMessage(PREFIX + "§f" + args[3] + " §7영지 §e" + args[4] + " §7권한 §f" + args[5] + " → §e" + args[6] + " §8(연동 예정)");
                 yield true;
             }
             case "reset" -> {
-                if (args.length < 4) { sender.sendMessage(PREFIX + "§7Usage: /poro estate permission reset <owner>"); yield true; }
+                if (args.length < 4) { sender.sendMessage(PREFIX + "§7Usage: /rpg estate permission reset <owner>"); yield true; }
                 sender.sendMessage(PREFIX + "§f" + args[3] + " §7영지 전체 권한 기본값 초기화 §8(연동 예정)");
                 yield true;
             }
-            default -> { sender.sendMessage(PREFIX + "§7사용법: /poro estate permission <set|reset>"); yield true; }
+            default -> { sender.sendMessage(PREFIX + "§7사용법: /rpg estate permission <set|reset>"); yield true; }
         };
     }
 
     private boolean handleEnhanceAdminCommand(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("poro.admin")) { sender.sendMessage(NO_ADMIN); return true; }
+        if (!sender.hasPermission("zenon.rpg.admin")) { sender.sendMessage(NO_ADMIN); return true; }
         if (args.length < 5 || !"set".equalsIgnoreCase(args[1])) {
-            sender.sendMessage(PREFIX + "§7Usage: /poro enhance set <player> <WEAPON|HELMET|CHESTPLATE|LEGGINGS|BOOTS> <level>"); return true;
+            sender.sendMessage(PREFIX + "§7Usage: /rpg enhance set <player> <WEAPON|HELMET|CHESTPLATE|LEGGINGS|BOOTS> <level>"); return true;
         }
         Player t = requireOnlinePlayer(sender, args[2]); if (t == null) return true;
         sender.sendMessage(PREFIX + "§f" + t.getName() + " §7슬롯 §e" + args[3] + " §7강화 §f" + args[4] + "강 §8(GrowthEngine 연동 후 적용)");
@@ -523,31 +523,31 @@ public class ZenonCommand implements CommandExecutor, TabCompleter {
     }
 
     private boolean handlePotentialCommand(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("poro.admin")) { sender.sendMessage(NO_ADMIN); return true; }
+        if (!sender.hasPermission("zenon.rpg.admin")) { sender.sendMessage(NO_ADMIN); return true; }
         if (args.length < 2) {
-            sender.sendMessage(PREFIX + "§7Usage: /poro potential <reroll|set> <player> <slot> [grade]"); return true;
+            sender.sendMessage(PREFIX + "§7Usage: /rpg potential <reroll|set> <player> <slot> [grade]"); return true;
         }
         return switch (args[1].toLowerCase(Locale.ROOT)) {
             case "reroll" -> {
-                if (args.length < 4) { sender.sendMessage(PREFIX + "§7Usage: /poro potential reroll <player> <slot>"); yield true; }
+                if (args.length < 4) { sender.sendMessage(PREFIX + "§7Usage: /rpg potential reroll <player> <slot>"); yield true; }
                 Player t = requireOnlinePlayer(sender, args[2]); if (t == null) yield true;
                 sender.sendMessage(PREFIX + "§f" + t.getName() + " §7슬롯 §e" + args[3] + " §7잠재 강제 재롤 §8(연동 예정)");
                 yield true;
             }
             case "set" -> {
-                if (args.length < 5) { sender.sendMessage(PREFIX + "§7Usage: /poro potential set <player> <slot> <grade>"); yield true; }
+                if (args.length < 5) { sender.sendMessage(PREFIX + "§7Usage: /rpg potential set <player> <slot> <grade>"); yield true; }
                 Player t = requireOnlinePlayer(sender, args[2]); if (t == null) yield true;
                 sender.sendMessage(PREFIX + "§f" + t.getName() + " §7슬롯 §e" + args[3] + " §7잠재 등급 → §6" + args[4] + " §8(연동 예정)");
                 yield true;
             }
-            default -> { sender.sendMessage(PREFIX + "§7사용법: /poro potential <reroll|set>"); yield true; }
+            default -> { sender.sendMessage(PREFIX + "§7사용법: /rpg potential <reroll|set>"); yield true; }
         };
     }
 
     private boolean handleSuccessionCommand(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("poro.admin")) { sender.sendMessage(NO_ADMIN); return true; }
+        if (!sender.hasPermission("zenon.rpg.admin")) { sender.sendMessage(NO_ADMIN); return true; }
         if (args.length < 4 || !"give".equalsIgnoreCase(args[1])) {
-            sender.sendMessage(PREFIX + "§7Usage: /poro succession give <player> <equip-trace-id>"); return true;
+            sender.sendMessage(PREFIX + "§7Usage: /rpg succession give <player> <equip-trace-id>"); return true;
         }
         Player t = requireOnlinePlayer(sender, args[2]); if (t == null) return true;
         sender.sendMessage(PREFIX + "§f" + t.getName() + " §7에게 장비의 흔적 §e" + args[3] + " §7지급 §8(연동 예정)");
@@ -555,9 +555,9 @@ public class ZenonCommand implements CommandExecutor, TabCompleter {
     }
 
     private boolean handlePotionCommand(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("poro.admin")) { sender.sendMessage(NO_ADMIN); return true; }
+        if (!sender.hasPermission("zenon.rpg.admin")) { sender.sendMessage(NO_ADMIN); return true; }
         if (args.length < 3 || !"reset".equalsIgnoreCase(args[1])) {
-            sender.sendMessage(PREFIX + "§7Usage: /poro potion reset <player>"); return true;
+            sender.sendMessage(PREFIX + "§7Usage: /rpg potion reset <player>"); return true;
         }
         Player t = requireOnlinePlayer(sender, args[2]); if (t == null) return true;
         sender.sendMessage(PREFIX + "§f" + t.getName() + " §7보스전 포션 횟수 초기화 §8(연동 예정)");
@@ -565,54 +565,54 @@ public class ZenonCommand implements CommandExecutor, TabCompleter {
     }
 
     private boolean handleBuffCommand(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("poro.admin")) { sender.sendMessage(NO_ADMIN); return true; }
+        if (!sender.hasPermission("zenon.rpg.admin")) { sender.sendMessage(NO_ADMIN); return true; }
         if (args.length < 3) {
-            sender.sendMessage(PREFIX + "§7Usage: /poro buff <clear|check> <player>"); return true;
+            sender.sendMessage(PREFIX + "§7Usage: /rpg buff <clear|check> <player>"); return true;
         }
         Player t = requireOnlinePlayer(sender, args[2]); if (t == null) return true;
         return switch (args[1].toLowerCase(Locale.ROOT)) {
             case "clear" -> { sender.sendMessage(PREFIX + "§f" + t.getName() + " §7버프 전체 제거 §8(연동 예정)"); yield true; }
             case "check" -> { sender.sendMessage(PREFIX + "§f" + t.getName() + " §7버프 목록 조회 §8(연동 예정)"); yield true; }
-            default -> { sender.sendMessage(PREFIX + "§7사용법: /poro buff <clear|check>"); yield true; }
+            default -> { sender.sendMessage(PREFIX + "§7사용법: /rpg buff <clear|check>"); yield true; }
         };
     }
 
     private boolean handleBossCommand(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("poro.admin")) { sender.sendMessage(NO_ADMIN); return true; }
+        if (!sender.hasPermission("zenon.rpg.admin")) { sender.sendMessage(NO_ADMIN); return true; }
         if (args.length < 2) {
-            sender.sendMessage(PREFIX + "§7Usage: /poro boss <spawn|kill|clearrecord|drop> ..."); return true;
+            sender.sendMessage(PREFIX + "§7Usage: /rpg boss <spawn|kill|clearrecord|drop> ..."); return true;
         }
         return switch (args[1].toLowerCase(Locale.ROOT)) {
             case "spawn" -> {
-                if (args.length < 3) { sender.sendMessage(PREFIX + "§7Usage: /poro boss spawn <boss-id> [location]"); yield true; }
+                if (args.length < 3) { sender.sendMessage(PREFIX + "§7Usage: /rpg boss spawn <boss-id> [location]"); yield true; }
                 sender.sendMessage(PREFIX + "§7보스 §e" + args[2] + " §7강제 소환 §8(BossEngine 연동 후 적용)");
                 yield true;
             }
             case "kill" -> {
-                if (args.length < 3) { sender.sendMessage(PREFIX + "§7Usage: /poro boss kill <boss-id>"); yield true; }
+                if (args.length < 3) { sender.sendMessage(PREFIX + "§7Usage: /rpg boss kill <boss-id>"); yield true; }
                 sender.sendMessage(PREFIX + "§7보스 §e" + args[2] + " §7즉시 처치 §8(연동 예정)");
                 yield true;
             }
             case "clearrecord" -> {
-                if (args.length < 5) { sender.sendMessage(PREFIX + "§7Usage: /poro boss clearrecord <set|reset> <player> <boss-id>"); yield true; }
+                if (args.length < 5) { sender.sendMessage(PREFIX + "§7Usage: /rpg boss clearrecord <set|reset> <player> <boss-id>"); yield true; }
                 Player t = requireOnlinePlayer(sender, args[3]); if (t == null) yield true;
                 sender.sendMessage(PREFIX + "§f" + t.getName() + " §7보스 §e" + args[4] + " §7클리어 기록 §f" + args[2] + " §8(연동 예정)");
                 yield true;
             }
             case "drop" -> {
                 if (args.length < 4 || !"simulate".equalsIgnoreCase(args[2])) {
-                    sender.sendMessage(PREFIX + "§7Usage: /poro boss drop simulate <boss-id>"); yield true;
+                    sender.sendMessage(PREFIX + "§7Usage: /rpg boss drop simulate <boss-id>"); yield true;
                 }
                 sender.sendMessage(PREFIX + "§7보스 §e" + args[3] + " §7드랍 시뮬레이션 §8(연동 예정)");
                 yield true;
             }
-            default -> { sender.sendMessage(PREFIX + "§7사용법: /poro boss <spawn|kill|clearrecord|drop>"); yield true; }
+            default -> { sender.sendMessage(PREFIX + "§7사용법: /rpg boss <spawn|kill|clearrecord|drop>"); yield true; }
         };
     }
 
     private boolean handleCheckCommand(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("poro.admin")) { sender.sendMessage(NO_ADMIN); return true; }
-        if (args.length < 2) { sender.sendMessage(PREFIX + "§7Usage: /poro check <player> [estate|equipment]"); return true; }
+        if (!sender.hasPermission("zenon.rpg.admin")) { sender.sendMessage(NO_ADMIN); return true; }
+        if (args.length < 2) { sender.sendMessage(PREFIX + "§7Usage: /rpg check <player> [estate|equipment]"); return true; }
         Player t = requireOnlinePlayer(sender, args[1]); if (t == null) return true;
         String mode = args.length >= 3 ? args[2].toLowerCase(Locale.ROOT) : "all";
         sender.sendMessage(PREFIX + "§f" + t.getName() + " §7상태 조회 §8[" + mode + "] §8(연동 예정)");
@@ -620,7 +620,7 @@ public class ZenonCommand implements CommandExecutor, TabCompleter {
     }
 
     private boolean handleReloadCommand(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("poro.admin.reload")) { sender.sendMessage(NO_ADMIN); return true; }
+        if (!sender.hasPermission("zenon.rpg.admin.reload")) { sender.sendMessage(NO_ADMIN); return true; }
         String target = args.length >= 2 ? args[1].toLowerCase(Locale.ROOT) : "all";
         switch (target) {
             case "drops"   -> sender.sendMessage(PREFIX + "§a드랍 테이블 리로드 §8(연동 예정)");
@@ -650,7 +650,7 @@ public class ZenonCommand implements CommandExecutor, TabCompleter {
 
     private boolean handleIslandCommand(CommandSender sender, String[] args) {
         if (!(sender instanceof Player player)) return true;
-        // /poro island invite <accept|deny> <inviterUUID>
+        // /rpg island invite <accept|deny> <inviterUUID>
         if (args.length < 4 || !"invite".equalsIgnoreCase(args[1])) return true;
         String action = args[2].toLowerCase(Locale.ROOT);
         String inviterUuid = args[3];
@@ -665,11 +665,11 @@ public class ZenonCommand implements CommandExecutor, TabCompleter {
 
     private boolean showOwnReputation(CommandSender sender) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use /poro reputation.");
+            sender.sendMessage(ChatColor.RED + "Only players can use /rpg reputation.");
             return true;
         }
-        if (!player.hasPermission("poro.reputation")) {
-            player.sendMessage(ChatColor.RED + "You do not have permission: poro.reputation");
+        if (!player.hasPermission("zenon.rpg.reputation")) {
+            player.sendMessage(ChatColor.RED + "You do not have permission: zenon.rpg.reputation");
             return true;
         }
         int reputation = reputationManager.getReputation(player.getUniqueId());
@@ -862,7 +862,7 @@ public class ZenonCommand implements CommandExecutor, TabCompleter {
     }
 
     private void sendUsage(CommandSender sender) {
-        sender.sendMessage(ChatColor.YELLOW + "Usage: /poro <class|skill|info|hud|reputation>");
-        sender.sendMessage(ChatColor.YELLOW + "Admin: /poro <gui|gold|item|estate|enhance|potential|succession|potion|buff|boss|check|reload>");
+        sender.sendMessage(ChatColor.YELLOW + "Usage: /rpg <class|skill|info|hud|reputation>");
+        sender.sendMessage(ChatColor.YELLOW + "Admin: /rpg <gui|gold|item|estate|enhance|potential|succession|potion|buff|boss|check|reload>");
     }
 }

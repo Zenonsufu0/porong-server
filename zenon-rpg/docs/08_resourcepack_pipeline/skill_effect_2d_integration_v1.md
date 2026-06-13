@@ -4,7 +4,7 @@
 
 > **구현 결과 (인게임 확정):**
 > - **오리엔테이션 3패턴** (`EffectDisplayService`): `spawnSlash`(빌보드 정면+3D비행, 검), `spawnGroundTravel`(바닥 평면 비행, `followPitch`로 조준 상하 추종 — 창·낫좌클릭·석궁), `spawnDecal`(바닥 고정 장판 — 도끼균열·스태프원·낫처형표식).
-> - **모델 = 코너 0-16 quad** (중앙정렬은 ItemDisplay 센터링과 충돌해 스케일배수 오프셋 발생 → 코너로 확정). 텍스처 `poro:item/effect/` 경로(`textures/effect/`는 클라 캐시 함정), 256px 패딩, carrier=`paper` cmd 400101~108.
+> - **모델 = 코너 0-16 quad** (중앙정렬은 ItemDisplay 센터링과 충돌해 스케일배수 오프셋 발생 → 코너로 확정). 텍스처 `zenon_rpg:item/effect/` 경로(`textures/effect/`는 클라 캐시 함정), 256px 패딩, carrier=`paper` cmd 400101~108.
 > - **운영 토글** `NO_SKILL_COOLDOWN`(테스트 쿨 0초) 추가.
 > - **보류**: 보스 텔레그래프 400201~204(런타임 미배선), 공용 임팩트링 400901(흰색 40%).
 > - 리소스팩 자산은 `assets/`(gitignored) 로컬+HTTP 서버. 플러그인 cmd 참조만 git 추적.
@@ -70,7 +70,7 @@
 
 ```
 assets/export/resourcepack/assets/
-  poro/
+  zenon_rpg/
     textures/effect/effect_*.png          ← effects_clean 13개 복사
     models/effect/effect_*.json           ← 평면 generated 모델 13개
   minecraft/items/<carrier>.json          ← custom_model_data select 추가
@@ -82,18 +82,18 @@ assets/export/resourcepack/assets/
 
 ## 4. 모델 / 아이템 정의 형식
 
-**평면 모델** `poro/models/effect/effect_sword_final_slash_white.json`:
+**평면 모델** `zenon_rpg/models/effect/effect_sword_final_slash_white.json`:
 ```json
 {
   "parent": "minecraft:item/generated",
-  "textures": { "layer0": "poro:effect/effect_sword_final_slash_white" }
+  "textures": { "layer0": "zenon_rpg:effect/effect_sword_final_slash_white" }
 }
 ```
 > `item/generated`는 알파를 픽셀 단위로 평면화한다. 페더된 반투명 글로우가 살아있는지 인게임 확인 필요(§6).
 
 **아이템 정의** `minecraft/items/paper.json`(기존 select에 case 추가):
 ```json
-{ "when": "400101", "model": { "type": "minecraft:model", "model": "poro:effect/effect_sword_final_slash_white" } }
+{ "when": "400101", "model": { "type": "minecraft:model", "model": "zenon_rpg:effect/effect_sword_final_slash_white" } }
 ```
 
 ---

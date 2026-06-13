@@ -13,7 +13,7 @@ import static org.bukkit.event.inventory.InventoryType.SlotType;
 
 /**
  * 바닐라 방어구 장착 차단.
- * poro_rpg PDC 태그 없는 방어구를 장착 슬롯에 놓거나
+ * zenon_rpg PDC 태그 없는 방어구를 장착 슬롯에 놓거나
  * shift-click으로 장착하려 할 때 취소한다.
  */
 public final class ZenonItemGuardListener implements Listener {
@@ -60,8 +60,8 @@ public final class ZenonItemGuardListener implements Listener {
     private static boolean isTagged(ItemStack item) {
         if (!item.hasItemMeta()) return false;
         var pdc = item.getItemMeta().getPersistentDataContainer();
-        // poro_rpg:weapon_type — 현재 RPG 아이템 공통 태그
-        // 추후 RPG 방어구 물리 아이템 추가 시 poro_rpg:item_tag 도 여기에 추가
+        // zenon_rpg:weapon_type — 현재 RPG 아이템 공통 태그
+        // 추후 RPG 방어구 물리 아이템 추가 시 zenon_rpg:item_tag 도 여기에 추가
         return pdc.has(WeaponTypeResolver.WEAPON_TYPE_KEY, PersistentDataType.STRING);
     }
 }

@@ -231,10 +231,10 @@ bb-export-register 실행:
 - texture: textures/scythe_adventurer_poro_01.png (WSL source 기준)
 - base item: minecraft:netherite_hoe
 - CMD: 100502
-- namespace: poro
-- model_path: poro:item/weapons/scythe_adventurer_poro_01
-- export 대상: assets/export/resourcepack/assets/poro/models/item/weapons/scythe_adventurer_poro_01.json
-- texture export: assets/export/resourcepack/assets/poro/textures/item/weapons/scythe_adventurer_poro_01.png
+- namespace: zenon_rpg
+- model_path: zenon_rpg:item/weapons/scythe_adventurer_poro_01
+- export 대상: assets/export/resourcepack/assets/zenon_rpg/models/item/weapons/scythe_adventurer_poro_01.json
+- texture export: assets/export/resourcepack/assets/zenon_rpg/textures/item/weapons/scythe_adventurer_poro_01.png
 - netherite_hoe.json: 100501 보존 + 100502 추가
 - status: export_ready  ← active 처리 금지, 인게임 테스트 후 변경
 ```

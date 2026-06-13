@@ -112,7 +112,7 @@ public final class IslandTerritoryStateStore {
 
     /**
      * 영지 소셜 설정(멤버·권한·방문모드) 초기화 + 영속화. 작위·시설·창고는 보존.
-     * 운영자 명령(/poro-island-reset)과 관리자 GUI 공통 진입점 (DRY).
+     * 운영자 명령(/rpg-island-reset)과 관리자 GUI 공통 진입점 (DRY).
      * 대상 영지가 없으면 no-op.
      */
     public void resetSocialSettings(UUID ownerUuid) {

@@ -119,7 +119,7 @@ public final class AuctionGuiListener implements Listener {
         this.itemMasters        = itemMasters;
         this.combatStateService = combatStateService;
         this.scoreboardService  = scoreboardService;
-        this.poroItemKey      = new NamespacedKey(plugin, "poro_item_id");
+        this.poroItemKey      = new NamespacedKey(plugin, "zenon_rpg_item_id");
     }
 
     // ── 공개 진입점 ───────────────────────────────────────────────────────
