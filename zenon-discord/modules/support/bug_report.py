@@ -49,7 +49,7 @@ _STATUS = {
 }
 
 # 상태 버튼을 누를 수 있는 운영 권한.
-_STAFF_KEYS = ("admin", "support", "rpg_manager", "poromon_manager")
+_STAFF_KEYS = ("admin", "support", "rpg_manager", "zenon_mon_manager")
 
 
 def _set_status(embed: discord.Embed, status_key: str) -> discord.Embed:

@@ -113,7 +113,7 @@ PERMISSION_ROLE_IDS: dict[str, int] = {
     "owner":           int(os.getenv("ROLE_OWNER_ID",           "0") or "0"),
     "admin":           int(os.getenv("ROLE_ADMIN_ID",           "0") or "0"),
     "rpg_manager":     int(os.getenv("ROLE_RPG_MANAGER_ID",     "0") or "0"),
-    "poromon_manager": int(os.getenv("ROLE_ZENON_MON_MANAGER_ID") or os.getenv("ROLE_POROMON_MANAGER_ID") or "0"),
+    "zenon_mon_manager": int(os.getenv("ROLE_ZENON_MON_MANAGER_ID") or os.getenv("ROLE_POROMON_MANAGER_ID") or "0"),
     "event_manager":   int(os.getenv("ROLE_EVENT_MANAGER_ID",   "0") or "0"),
     "support":         int(os.getenv("ROLE_SUPPORT_ID",         "0") or "0"),
 }

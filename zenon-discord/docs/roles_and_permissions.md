@@ -61,7 +61,7 @@
 | `owner` | Owner | 슈퍼유저 — 모든 권한 통과 |
 | `admin` | Admin | 관리자급 운영 명령 |
 | `rpg_manager` | RPG Manager | RPG 운영(골드 지급 등) |
-| `poromon_manager` | Zenon Mon Manager | Zenon Mon 운영 |
+| `zenon_mon_manager` | Zenon Mon Manager | Zenon Mon 운영 |
 | `event_manager` | Event Manager | 이벤트 등록/관리 |
 | `support` | Support | 문의/지원 |
 
@@ -97,7 +97,7 @@
 | 역할 | 부여 조건 | 화이트리스트 | 처리 코드 | 상태 |
 |---|---|---|---|---|
 | `인증유저` (= RPG 플레이어) | RPG 약관동의 + 인게임 `/연동` 코드 인증 | ZenonRPG 서버 | `modules/rpg/role_poll.py` | 🟢 |
-| `포로몬플레이어` | Zenon Mon 약관동의 + Zenon Mon 인게임 인증 | Zenon Mon 서버 | `modules/poromon/` | 🔴 (TODO) |
+| `포로몬플레이어` | Zenon Mon 약관동의 + Zenon Mon 인게임 인증 | Zenon Mon 서버 | `modules/zenon_mon/` | 🔴 (TODO) |
 
 > 본인인증(`/연동` 코드)은 닉네임 소유권 검증·사칭 방지를 위해 **서버별로 유지**한다(DL-131).
 > 현행 `인증유저` 역할이 RPG 화이트리스트 역할에 해당한다(별도 역할 신설 없이 의미만 명확화).

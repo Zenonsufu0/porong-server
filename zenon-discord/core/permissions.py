@@ -8,7 +8,7 @@
    봇은 절대 버튼·이모지·자동 로직으로 이 역할들을 지급하지 않는다.
 3. 알림 역할만 자동 지급(/알림설정 토글 등)을 허용한다.
 
-이 모듈은 각 도메인 모듈(admin/event/poromon/roles)이 공통으로 쓰는
+이 모듈은 각 도메인 모듈(admin/event/zenon_mon/roles)이 공통으로 쓰는
 권한 체크 헬퍼와 데코레이터를 제공한다. 실제 운영 명령어 구현은
 설계 확정 후 각 모듈에서 진행한다(여기서는 정책·인터페이스만 정의).
 """
@@ -25,7 +25,7 @@ MANUAL_PERMISSION_ROLES: tuple[str, ...] = (
     "owner",
     "admin",
     "rpg_manager",
-    "poromon_manager",
+    "zenon_mon_manager",
     "event_manager",
     "support",
 )
@@ -42,7 +42,7 @@ _PERMISSION_RANK: dict[str, int] = {
     "owner":           100,
     "admin":           80,
     "rpg_manager":     50,
-    "poromon_manager": 50,
+    "zenon_mon_manager": 50,
     "event_manager":   50,
     "support":         40,
 }

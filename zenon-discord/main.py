@@ -51,7 +51,7 @@ EXTENSIONS: list[str] = [
     # 모더레이션 — 경고계 (T15)
     "modules.moderation.commands",
     # ── 아래는 스텁: 설계/인터페이스 단계. 구현 전까지 명령어 없음 ──
-    "modules.poromon.commands",
+    "modules.zenon_mon.commands",
     "modules.event.commands",
     "modules.admin.commands",
 ]

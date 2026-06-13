@@ -1,7 +1,7 @@
 # Zenon Mon 도메인 — 명세 (스텁)
 
 > **[도메인: Zenon Mon]** **[STATUS: STUB/TODO]** — 골격만 존재. 실제 명령어·연동 미구현.
-> 코드: `modules/poromon/commands.py`(빈 Cog), `integrations/zenon_mon_api.py`(인터페이스 스텁).
+> 코드: `modules/zenon_mon/commands.py`(빈 Cog), `integrations/zenon_mon_api.py`(인터페이스 스텁).
 
 ## 원칙
 

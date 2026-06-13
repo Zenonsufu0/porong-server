@@ -125,7 +125,7 @@ zenon-discord/
   또는 공통 온보딩 모듈에 속한다. 현재는 RPG 전용 경로(`modules/rpg/auth.py`)에 있어,
   멀티서버 확장 시 공통 계층으로 분리가 필요(→ [`task.md`](task.md) T7).
 - **서버별 약관동의 + 인게임 인증 + 화이트리스트 등록**은 **도메인별**이다 →
-  `modules/rpg/`(구현), `modules/poromon/`(TODO). 역할 정의는
+  `modules/rpg/`(구현), `modules/zenon_mon/`(TODO). 역할 정의는
   [`roles_and_permissions.md`](roles_and_permissions.md) §A(공통)·§D(서버별).
 
 ## core 내부 계약 — DB 접근 + 게이팅 (T12·T20·T21)
@@ -185,4 +185,4 @@ zenon-discord/
   Zenon Mon/이벤트/월드보스/점검 알림을 일관되게 붙이려면 이 계층이 필요.
 - 공통 온보딩 계층 분리(공통 디스코드 인증을 `core/`로) — DL-131.
 - `integrations/zenon_mon_api.py` 실구현(현재 스텁).
-- `modules/admin` · `modules/event` · `modules/poromon` 실구현(현재 스텁, 설계 선행).
+- `modules/admin` · `modules/event` · `modules/zenon_mon` 실구현(현재 스텁, 설계 선행).
