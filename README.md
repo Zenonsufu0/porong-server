@@ -24,8 +24,8 @@ GitHub: [`Zenonsufu0/zenon-server`](https://github.com/Zenonsufu0/zenon-server)
 
 | 프로젝트 | 폴더 | 컨셉 |
 |---|---|---|
-| **zenon-rpg** | [`zenon-rpg/`](zenon-rpg/) | **오픈월드 RPG.** 액션 전투, 직업, 월드보스, 던전, 퀘스트 중심. 자체 Paper 플러그인 PoroRPG가 전투·성장·영지·필드/보스를 소유. |
-| **zenon-mon** | [`zenon-mon/`](zenon-mon/) | **Cobblemon 기반 수집/육성 서버.** 포켓몬 수집·육성, 관장(짐) 도전, 배틀타워, 전설 조우권 중심. Fabric 모드팩 + 자체 모드(PoroMonCore). |
+| **zenon-rpg** | [`zenon-rpg/`](zenon-rpg/) | **오픈월드 RPG.** 액션 전투, 직업, 월드보스, 던전, 퀘스트 중심. 자체 Paper 플러그인 ZenonRPG가 전투·성장·영지·필드/보스를 소유. |
+| **zenon-mon** | [`zenon-mon/`](zenon-mon/) | **Cobblemon 기반 수집/육성 서버.** 포켓몬 수집·육성, 관장(짐) 도전, 배틀타워, 전설 조우권 중심. Fabric 모드팩 + 자체 모드(ZenonMonCore). |
 | **zenon-discord** | [`zenon-discord/`](zenon-discord/) | **중앙제어 Discord 봇.** 전체 Zenon 서버 운영을 보조 — 온보딩·인증 게이트·역할·알림·운영자 패널. 봇 페르소나는 공식 마스코트 **YUKI-01 / 유키**. (Python, discord.py) |
 
 ### 🧪 구상 단계 (개발 미착수 — 문서만)

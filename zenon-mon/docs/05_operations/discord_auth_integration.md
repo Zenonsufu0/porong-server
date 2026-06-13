@@ -1,7 +1,7 @@
 # 디스코드 인증/화이트리스트 연동 (결정 041)
 
-> Zenon Mon 모드 서버(ZenonMonCore) ↔ Zenon 디스코드 봇(`porong-discord`) 인증 연동 규약.
-> MC 측은 ZenonMonCore가 구현(이 저장소). **봇 측은 `porong-discord` 워크트리에서 별도 구현**(이 문서가 계약).
+> Zenon Mon 모드 서버(ZenonMonCore) ↔ Zenon 디스코드 봇(`zenon-discord`) 인증 연동 규약.
+> MC 측은 ZenonMonCore가 구현(이 저장소). **봇 측은 `zenon-discord` 워크트리에서 별도 구현**(이 문서가 계약).
 
 ## 흐름
 1. 플레이어가 MC 접속(Zenon 디스코드 멤버 전제). **미인증 상태** = 허브 감금 + 메뉴는 "인증하기"만.
@@ -28,10 +28,10 @@
   - `401 {"ok":false,"error":"unauthorized"}` — API 키 불일치
   - `400` — 바디 누락 / `405` — POST 아님
 
-## 봇 측 구현 계획 (porong-discord, TODO — ⚠️ 이 워크트리에서 수정 금지)
+## 봇 측 구현 계획 (zenon-discord, TODO — ⚠️ 이 워크트리에서 수정 금지)
 
-> 봇 코드는 **별도 워크트리 `porong-work-discord`(브랜치 `feature/discord-dev`)** 에 있다. 아래는 그 워크트리에서 진행할 **구현 체크리스트**(이 문서가 계약·MC측은 완료).
-> 진입 전: `cd /home/zenonsufu1/dev/porong-work-discord` 후 봇 코드베이스(파일/명령 프레임워크: discord.py vs nextcord 등)를 먼저 파악하고 아래 경로명을 실제 구조에 맞춘다(추측 금지).
+> 봇 코드는 **별도 워크트리 `zenon-work-discord`(브랜치 `feature/discord-dev`)** 에 있다. 아래는 그 워크트리에서 진행할 **구현 체크리스트**(이 문서가 계약·MC측은 완료).
+> 진입 전: `cd /home/zenonsufu1/dev/zenon-work-discord` 후 봇 코드베이스(파일/명령 프레임워크: discord.py vs nextcord 등)를 먼저 파악하고 아래 경로명을 실제 구조에 맞춘다(추측 금지).
 
 ### B1. 설정/시크릿 (.env)
 - [ ] `POROMON_API_BASE=http://127.0.0.1:25580` (봇·MC 동일 호스트 전제. 다른 호스트면 MC `bindAddress`를 해당 IP로 + 방화벽)

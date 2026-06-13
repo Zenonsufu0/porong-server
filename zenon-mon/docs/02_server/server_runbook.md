@@ -103,7 +103,7 @@ tar xzf server/backups/world-<TS>.tar.gz -C server/run
 
 ### 9-1. 디스코드 인증 (결정 041)
 1. **apiKey 설정** — `core.json → discordAuth.apiKey`를 `CHANGE_ME`에서 강한 랜덤값으로 변경(예: `python3 -c "import secrets;print(secrets.token_urlsafe(32))"`).
-   - ⚠️ **봇 측(porong-discord)의 인증 API 키와 반드시 동일 값.** 봇 `.env`의 Zenon Mon 인증 키 변수에 같은 값.
+   - ⚠️ **봇 측(zenon-discord)의 인증 API 키와 반드시 동일 값.** 봇 `.env`의 Zenon Mon 인증 키 변수에 같은 값.
    - `bindAddress=127.0.0.1`(봇·MC 같은 호스트) 유지, 원격이면 `0.0.0.0`+방화벽. `httpPort=25580`(봇 base URL과 일치).
 2. **엔드포인트 확인**(서버 기동 후):
    - `curl -s -H "X-API-Key: <key>" http://127.0.0.1:25580/auth/ping` → `{"ok":true,"service":"zenonmoncore-auth"}`

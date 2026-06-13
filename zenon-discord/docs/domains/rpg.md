@@ -277,7 +277,7 @@ embed 포함 항목:
   ④ 심각도 선택: [크래시] [기능오류] [표시버그] [기타]
     │
     ▼
-ZenonRPG API가 porong.db bug_report 테이블에 INSERT
+ZenonRPG API가 zenon_rpg.db bug_report 테이블에 INSERT
 (id AUTOINCREMENT → 접수번호로 사용)
     │
     ▼

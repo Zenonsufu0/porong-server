@@ -1,8 +1,8 @@
 # Zenon Mon 개요
 
-Zenon Mon은 Poro 브랜드 산하의 별도 Cobblemon 기반 모드 마인크래프트 서버다.
+Zenon Mon은 Zenon Project 산하의 별도 Cobblemon 기반 모드 마인크래프트 서버다.
 
-메인 Poro RPG 서버와는 다른 서버다.
+메인 Zenon RPG 서버와는 다른 서버다.
 
 ## 방향
 
