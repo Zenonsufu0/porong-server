@@ -3,7 +3,7 @@
 > **[STATUS: REFERENCE]** — 공방 레시피 상세 참조. 공식 영지 기준은 `CANON.md`가 우선.
 
 > 작성 기준: `final_master_plan.md`의 "개인 영지" 및 `CANON.md` (2026-05-21 확정 반영)  
-> 대상: PoroRPG — 공방 레시피 (`life_recipe_master.csv` 기준)
+> 대상: ZenonRPG — 공방 레시피 (`life_recipe_master.csv` 기준)
 
 ---
 
@@ -124,7 +124,7 @@
 | 치료 포션 (중) | `con_heal_mid` | 정제 약초 × 2 + 밀 × 64 | 40% | 4회 | 10분 |
 | 치료 포션 (대) | `con_heal_major` | 정제 약초 × 3 + 밀 × 64 | 50% | 5회 | 10분 |
 
-> 필드 사용: 무제한. 보스전 횟수는 보스 입장 시 초기화 (수동 `/poro potion reset`으로 리셋 가능).
+> 필드 사용: 무제한. 보스전 횟수는 보스 입장 시 초기화 (수동 `/rpg potion reset`으로 리셋 가능).
 
 ---
 

@@ -1,7 +1,7 @@
 # Zenon RPG (`zenon-rpg`)
 
 > **디스코드 유입 제한형, 45일 시즌제 Minecraft RPG 서버.**
-> 바닐라 Paper 위에 자체 플러그인 **PoroRPG** 하나로 6무기 전투·장비 성장·개인 영지·필드/보스를 얹고, Discord 봇과 HTTP API로 온보딩·운영을 연동한다.
+> 바닐라 Paper 위에 자체 플러그인 **ZenonRPG** 하나로 6무기 전투·장비 성장·개인 영지·필드/보스를 얹고, Discord 봇과 HTTP API로 온보딩·운영을 연동한다.
 
 > 모노레포 전체 개요는 루트 [`../README.md`](../README.md). 설계 단일 진실 공급원은 [`docs/final_master_plan.md`](docs/final_master_plan.md), RPG 도메인 세부는 [`docs/`](docs/)의 각 `CANON.md`.
 
@@ -13,7 +13,7 @@
 
 - **누가**: 공개 테스트 없이 **디스코드 인증**한 사람만 정식 입장.
 - **무엇을**: 6종 무기 중 하나로 필드 몹·필드보스·시즌보스를 잡고, 장비를 강화·세팅하며, 개인 영지에서 자원을 생산.
-- **어떻게**: 핵심 게임 로직(전투·성장·영지·보스·경제·데이터)을 전부 자체 플러그인 **PoroRPG**가 소유. 몹/보스 외형은 MythicMobs, 섬 생성은 IridiumSkyblock이 "껍데기"만 담당.
+- **어떻게**: 핵심 게임 로직(전투·성장·영지·보스·경제·데이터)을 전부 자체 플러그인 **ZenonRPG**가 소유. 몹/보스 외형은 MythicMobs, 섬 생성은 IridiumSkyblock이 "껍데기"만 담당.
 
 ---
 
@@ -37,29 +37,29 @@
 
 ```
    ┌──────────────┐    HTTP API (X-Api-Key, :8765)   ┌────────────────────┐
-   │  Discord 봇   │ ───────────────────────────────▶ │  PoroRPG 플러그인    │
+   │  Discord 봇   │ ───────────────────────────────▶ │  ZenonRPG 플러그인    │
    │ (Python)     │   /auth /field-boss /player ...   │  (Paper 1.21.10)    │
    │  인증·알림·역할 │ ◀─────────────────────────────── │  전투·성장·영지·보스   │
    └──────────────┘         인증 상태/역할 큐           │  경제·데이터·API      │
                                                        └─────────┬──────────┘
-                                          SQLite `poro.db` + 플레이어 JSON
+                                          SQLite `zenon_rpg.db` + 플레이어 JSON
    보조 셸: MythicMobs(몹/보스 외형·스코어보드 태그) · IridiumSkyblock(섬 생성·보호)
 ```
 
-- **PoroRPG**가 모든 게임 상태의 주인. 데이터는 SQLite(`poro.db`) + 플레이어 JSON에 영속화.
+- **ZenonRPG**가 모든 게임 상태의 주인. 데이터는 SQLite(`zenon_rpg.db`) + 플레이어 JSON에 영속화.
 - 플러그인은 로컬 **HTTP API**(`:8765`, `X-Api-Key`)로 `/auth/*`·`/api/v1/*`·`/admin/*` 제공.
 - **Discord 봇**이 이 API를 호출해 디스코드 인증 ↔ 인게임 닉네임 연결, 역할·알림 처리.
-- **MythicMobs**는 몹/보스 셸 제공. 스폰 시 `poro_field_*`·`poro_rank_*`·`poro_type_*` 스코어보드 태그로 플러그인이 몹 종류 식별.
+- **MythicMobs**는 몹/보스 셸 제공. 스폰 시 `zenon_rpg_field_*`·`zenon_rpg_rank_*`·`zenon_rpg_type_*` 스코어보드 태그로 플러그인이 몹 종류 식별.
 
 ## 🧱 기술 스택
 
 | 영역 | 사용 |
 |---|---|
 | 서버 | Paper **1.21.10** / Java **21** |
-| 핵심 플러그인 | PoroRPG (Gradle Kotlin DSL) |
+| 핵심 플러그인 | ZenonRPG (Gradle Kotlin DSL) |
 | 보조 플러그인 | MythicMobs **5.11.x**, IridiumSkyblock |
 | 봇 | Python **3.12+**, discord.py (`../zenon-discord/`) |
-| 데이터 | SQLite (`poro.db`) + 플레이어 JSON |
+| 데이터 | SQLite (`zenon_rpg.db`) + 플레이어 JSON |
 
 ---
 
@@ -67,7 +67,7 @@
 
 | 경로 | 설명 |
 |---|---|
-| `custom-plugins/poro-rpg/` | **PoroRPG** 핵심 플러그인 (Java, Gradle). 전투·성장·영지·보스·DB·API. |
+| `custom-plugins/zenon-rpg/` | **ZenonRPG** 핵심 플러그인 (Java, Gradle). 전투·성장·영지·보스·DB·API. |
 | `server-config/` | MythicMobs 설정(필드 몹·시즌 보스·스킬·드랍 테이블) 등 서버 측 YAML. |
 | `docs/` | RPG 설계 도메인 문서. 번호 도메인별 `CANON.md`. |
 | `tools/` | 보조 파이썬 툴 (명령 레지스트리 린트, 무기 팩토리 등). |
@@ -86,12 +86,12 @@
 
 ```bash
 # 플러그인 빌드
-cd custom-plugins/poro-rpg
+cd custom-plugins/zenon-rpg
 ./gradlew build
-# 산출물: build/libs/poro-rpg-0.1.0.jar  → .local/server/plugins/ 에 배치
+# 산출물: build/libs/zenon-rpg-0.1.0.jar  → .local/server/plugins/ 에 배치
 ```
 
-> 플러그인 데이터 폴더는 `.local/server/plugins/PoroRPG/`, 시드는 `.local/server/plugins/PoroRPG/seeds/`(런타임 우선 로드). 운영자 명령은 `/poro`, `/poro-*` 계열, 권한 노드는 `poro.*`.
+> 플러그인 데이터 폴더는 `.local/server/plugins/ZenonRPG/`, 시드는 `.local/server/plugins/ZenonRPG/seeds/`(런타임 우선 로드). 운영자 명령은 `/rpg`, `/rpg-*` 계열, 권한 노드는 `zenon.rpg.*`.
 > 월드 초기 생성: `scripts/setup-worlds.sh` 참조.
 
 ## 🔐 설정 · 비밀정보

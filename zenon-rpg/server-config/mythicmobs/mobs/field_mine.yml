@@ -1,6 +1,6 @@
 # 필드 2: 폐광 지대 (abandoned_mine)
 # 권장 강화: 5강~10강 / 필드 레벨: 2
-# PoroRPG drop hook: mine_normal_drop / mine_elite_drop / mine_golem_drop
+# ZenonRPG drop hook: mine_normal_drop / mine_elite_drop / mine_golem_drop
 
 Mine_Crawler:
   Type: CAVE_SPIDER
@@ -19,7 +19,7 @@ Mine_Crawler:
   - meleeattack
   - randomstroll 0.6
   Skills:
-  - addScoreboardTag{t=poro_field_2} @self ~onSpawn
+  - addScoreboardTag{t=zenon_rpg_field_2} @self ~onSpawn
 
 Mine_Husk:
   Type: HUSK
@@ -38,7 +38,7 @@ Mine_Husk:
   - meleeattack
   - randomstroll 0.6
   Skills:
-  - addScoreboardTag{t=poro_field_2} @self ~onSpawn
+  - addScoreboardTag{t=zenon_rpg_field_2} @self ~onSpawn
 
 Mine_WatcherElite:
   Type: CAVE_SPIDER
@@ -54,8 +54,8 @@ Mine_WatcherElite:
   Drops:
   - exp 150
   Skills:
-  - addScoreboardTag{t=poro_field_2} @self ~onSpawn
-  - addScoreboardTag{t=poro_rank_elite} @self ~onSpawn
+  - addScoreboardTag{t=zenon_rpg_field_2} @self ~onSpawn
+  - addScoreboardTag{t=zenon_rpg_rank_elite} @self ~onSpawn
   - potion{type=POISON;duration=100;level=1} @target ~onAttack 0.4
   - skill{s=Mine_VenomSpit} ~onTimer:60
 
@@ -80,8 +80,8 @@ Mine_Golem:
     Color: GREEN
     Style: SOLID
   Skills:
-  - addScoreboardTag{t=poro_field_2} @self ~onSpawn
-  - addScoreboardTag{t=poro_type_field_boss} @self ~onSpawn
+  - addScoreboardTag{t=zenon_rpg_field_2} @self ~onSpawn
+  - addScoreboardTag{t=zenon_rpg_type_field_boss} @self ~onSpawn
   # Phase 1·2 공통: P-00 기본 공격 (2.5s), P-01 전방 강타 (6s), P-03 원형 폭발 (10s)
   - skill{s=P_00_BasicAttack} ~onTimer:50
   - skill{s=P_01_FrontStrike} ~onTimer:120

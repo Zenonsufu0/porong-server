@@ -3,7 +3,7 @@
 > **[STATUS: REFERENCE]** — Custom Font Bitmap GUI 배경 상세 참조. 공식 리소스팩 기준은 `index.md`가 우선.
 
 > 방식: Custom Font Bitmap — 인벤토리 타이틀에 커스텀 폰트 문자를 삽입해 PNG 이미지를 GUI 배경으로 렌더링.  
-> 의존성: 리소스팩 + PoroRPG 플러그인 (Adventure Component API)
+> 의존성: 리소스팩 + ZenonRPG 플러그인 (Adventure Component API)
 
 ---
 
@@ -11,13 +11,13 @@
 
 ```
 [리소스팩]
-  assets/poro/font/gui.json
+  assets/zenon_rpg/font/gui.json
     └─ space 프로바이더: 커서 위치 조정용 음수 advance 문자
     └─ bitmap 프로바이더: PNG 파일 → 유니코드 문자 매핑
 
 [플러그인]
   Inventory title = Component
-    .font(Key.key("poro:gui"))
+    .font(Key.key("zenon_rpg:gui"))
     .content("")   // 오프셋 char + 배경 char
 ```
 
@@ -36,7 +36,7 @@ assets/source/gui/                     ← Figma 원본 소스
   ├── menu_territory.png  ✅ 256×256
   └── menu_boss.png       ✅ 256×256
 
-assets/export/resourcepack/assets/poro/
+assets/export/resourcepack/assets/zenon_rpg/
 ├── font/
 │   └── gui.json          ← 폰트 프로바이더 (4개 bitmap 등록 완료)
 └── textures/gui/
@@ -48,7 +48,7 @@ assets/export/resourcepack/assets/poro/
 
 ---
 
-## 3. 폰트 파일 스펙 (`poro/font/gui.json`)
+## 3. 폰트 파일 스펙 (`zenon_rpg/font/gui.json`)
 
 실제 gui.json 내용 (확정):
 
@@ -71,28 +71,28 @@ assets/export/resourcepack/assets/poro/
     },
     {
       "type": "bitmap",
-      "file": "poro:gui/menu_main.png",
+      "file": "zenon_rpg:gui/menu_main.png",
       "ascent": 116,
       "height": 141,
       "chars": [""]
     },
     {
       "type": "bitmap",
-      "file": "poro:gui/menu_equipment.png",
+      "file": "zenon_rpg:gui/menu_equipment.png",
       "ascent": 116,
       "height": 141,
       "chars": [""]
     },
     {
       "type": "bitmap",
-      "file": "poro:gui/menu_territory.png",
+      "file": "zenon_rpg:gui/menu_territory.png",
       "ascent": 116,
       "height": 141,
       "chars": [""]
     },
     {
       "type": "bitmap",
-      "file": "poro:gui/menu_boss.png",
+      "file": "zenon_rpg:gui/menu_boss.png",
       "ascent": 116,
       "height": 141,
       "chars": [""]
@@ -140,7 +140,7 @@ assets/export/resourcepack/assets/poro/
 
 ---
 
-## 6. 플러그인 연동 (PoroRPG)
+## 6. 플러그인 연동 (ZenonRPG)
 
 > **[DL-073]** 현행 구현은 PNG 배경 font character를 사용하지 않으며, 모든 허브 GUI는 순수 텍스트 타이틀만 사용한다.
 

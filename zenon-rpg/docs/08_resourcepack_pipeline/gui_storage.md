@@ -167,7 +167,7 @@
 | 항목 | 내용 |
 |---|---|
 | 열기 트리거 | 영지 서브 허브 창고 구역 (slot 6~8, 15~17, 24~26, 중앙 16) 클릭 |
-| 접근 제한 | 영지 내부 WorldGuard 리전 `poro:territory` 내 |
+| 접근 제한 | 영지 내부 WorldGuard 리전 `zenon_rpg:territory` 내 |
 | DB 테이블 | `island_storage` |
 | 갱신 주기 | GUI 열기 시 1회 조회 / 입출금 시 즉시 갱신 |
 | 페이지 크기 | 45슬롯 (0~44) |

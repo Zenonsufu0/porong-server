@@ -1,6 +1,6 @@
 # 플러그인 구현상태 전수검사 계획서
 
-> **[STATUS: REFERENCE]** — 현재 PoroRPG 코드가 기획서·CANON 기준과 얼마나 일치하는지 점검하고, 실행되지 않거나 화면에 보이지 않는 기능의 원인을 정리하는 구현 계획서.
+> **[STATUS: REFERENCE]** — 현재 ZenonRPG 코드가 기획서·CANON 기준과 얼마나 일치하는지 점검하고, 실행되지 않거나 화면에 보이지 않는 기능의 원인을 정리하는 구현 계획서.
 >
 > 작성일: 2026-05-28
 
@@ -8,7 +8,7 @@
 
 ## 0. 목적
 
-현재 `custom-plugins/poro-rpg`에는 여러 도메인 클래스와 GUI, 보스, 보상, 저장 로직이 존재하지만 실제 서버에서 실행되지 않거나 사용자에게 보이지 않는 기능이 많다.
+현재 `custom-plugins/zenon-rpg`에는 여러 도메인 클래스와 GUI, 보스, 보상, 저장 로직이 존재하지만 실제 서버에서 실행되지 않거나 사용자에게 보이지 않는 기능이 많다.
 
 이 문서는 코드 수정을 시작하기 전 아래 항목을 고정한다.
 
@@ -67,7 +67,7 @@
 
 | 항목 | 문서 기준 | 현재 구현 상태 | 판정 |
 |---|---|---|---|
-| JSON 위치 | `plugins/PoroRPG/playerdata/{uuid}.json` | 동일 | 일치 |
+| JSON 위치 | `plugins/ZenonRPG/playerdata/{uuid}.json` | 동일 | 일치 |
 | schemaVersion | `implementation_design_plan.md` 기준 v3 | `PlayerSaveData.CURRENT_VERSION = 4` | 문서 미갱신 |
 | legacy wallet migration | `enhancement_stone` → `mat_stone_enhance` | 구현됨 | 일치 |
 | 종료 저장 | Quit 즉시 save + cache 제거, onDisable 전원 저장 | 구현됨 | 일치 |
@@ -153,7 +153,7 @@
 | 순서 | 작업 | 비고 |
 |---|---|---|
 | 1 | `plugin.yml`에서 `Citizens`, `BetonQuest` softdepend 제거 계획 확정 | 코드 수정 전 사용자 승인 필요 |
-| 2 | `PoroRPGPlugin`의 `NpcSyncBootstrap` 호출 제거 또는 비활성화 | 부트스트랩 순서 정합 |
+| 2 | `ZenonRPGPlugin`의 `NpcSyncBootstrap` 호출 제거 또는 비활성화 | 부트스트랩 순서 정합 |
 | 3 | `npc/citizens` 패키지 처리 방침 결정 | 삭제는 명시 승인 필요 |
 | 4 | `npc_spawn_seed.csv` 처리 방침 결정 | 삭제 또는 archive 이동은 명시 승인 필요 |
 | 5 | 관련 테스트 제거/대체 방침 결정 | `tests/` 경로는 명시 요청 전 수정 금지 |
@@ -272,8 +272,8 @@
 | 4 | `/영지` | 영지 허브 표시 또는 명확한 1차 제외 메시지 |
 | 5 | `/필드` | 필드 허브에서 실제 보스 상태 표시 |
 | 6 | scoreboard tag 없는 몹 처치 | 보상 없음, 오류 없음 |
-| 7 | `poro_field_1` 일반몹 처치 | 필드1 일반몹 보상 |
-| 8 | `poro_field_1`, `poro_rank_elite` 정예몹 처치 | 정예 보상과 흔적 확률 적용 |
+| 7 | `zenon_rpg_field_1` 일반몹 처치 | 필드1 일반몹 보상 |
+| 8 | `zenon_rpg_field_1`, `zenon_rpg_rank_elite` 정예몹 처치 | 정예 보상과 흔적 확률 적용 |
 | 9 | 필드보스 피해 3% 이상 후 처치 | 필드보스 보상 지급 |
 | 10 | 시즌보스 첫 클리어 | 등급별 첫 클리어 보상 지급 |
 | 11 | 같은 주 시즌보스 재도전 | 재도전 보상만 지급 |
@@ -288,7 +288,7 @@
 | 작업 상태 | `git status` |
 | diff | `git diff` |
 | 공백 오류 | `git diff --check` |
-| 컴파일 | `cd custom-plugins/poro-rpg && bash ./gradlew compileJava` |
+| 컴파일 | `cd custom-plugins/zenon-rpg && bash ./gradlew compileJava` |
 
 ---
 

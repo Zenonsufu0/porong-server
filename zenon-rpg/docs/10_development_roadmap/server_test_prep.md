@@ -8,8 +8,8 @@
 ## 0. ✅ 빌드/배포 동기화 — 완료 (2026-05-31, DL-098)
 
 - [x] **jar 재빌드** — DL-091~097 코드 반영. `zenon-rpg-0.1.0.jar` 빌드(테스트 통과).
-- [x] **런타임 jar 단일화** — server/plugins의 중복 jar 2개(PoroRPG.jar + zenon-rpg-0.1.0.jar) 제거 후 새 빌드 1개 배치.
-- [x] **stale seed 동기화** — src 정본을 `server/plugins/PoroRPG/seeds/`에 덮어쓰기(25→27파일). boss_master(시즌6+최종3)·강화표·item_master·잠재풀 src 정합 확인.
+- [x] **런타임 jar 단일화** — server/plugins의 중복 jar 2개(ZenonRPG.jar + zenon-rpg-0.1.0.jar) 제거 후 새 빌드 1개 배치.
+- [x] **stale seed 동기화** — src 정본을 `server/plugins/ZenonRPG/seeds/`에 덮어쓰기(25→27파일). boss_master(시즌6+최종3)·강화표·item_master·잠재풀 src 정합 확인.
 - [x] **MM 셸 배포** — server-config/mythicmobs → 런타임. 옛 stale 파일(FieldBosses/SeasonBosses/PoroFieldMobs) 제거로 `rift_king` 중복 충돌 해소. Outpost_Knight 리네임 반영.
 - [x] **부팅 검증** — 실서버 부팅 시 8개 bootstrap 전부 completed, disable 0, MythicMobs 감지 → 리스너 등록, Done. (부팅 중 드러난 검증 과엄격 4건 DL-098로 해소.)
 
@@ -19,7 +19,7 @@
 
 ## 1. ✅ 월드·맵·좌표 — 완료 (2026-05-31, DL-099)
 
-단일 평지 월드 `world`로 구성(§5 4월드 분리 간소화). server.properties flat(표면 y=64) + config.yml 배포(보스룸 30 슬롯·아레나 10 슬롯) + `/poro-genrooms world 10000 64 10000`·`/poro-genarenas world 20000 64 20000` 실행 완료. 보스룸 30·아레나 10 구조물 생성·슬롯 로드 검증됨. NPC 3명 스폰.
+단일 평지 월드 `world`로 구성(§5 4월드 분리 간소화). server.properties flat(표면 y=64) + config.yml 배포(보스룸 30 슬롯·아레나 10 슬롯) + `/rpg-genrooms world 10000 64 10000`·`/rpg-genarenas world 20000 64 20000` 실행 완료. 보스룸 30·아레나 10 구조물 생성·슬롯 로드 검증됨. NPC 3명 스폰.
 
 - [x] 평지 월드 `world` 생성, config 배포(런타임 config.yml stub→src 256줄), genrooms/genarenas 실행.
 - [ ] (선택) 필드 5종 좌표 — 현재 더미값(평지 평면). 실제 필드 장식/구조는 필요 시 추가.
@@ -34,8 +34,8 @@
 - [ ] 맵 배치 (수도·필드5·보스 아레나).
 - [ ] `fields` (plain·mine·sewer·outpost·ruins): `world_main` + 실제 좌표 5개.
 - [ ] `field-bosses` (동일 5종): `world_main` + 실제 스폰 좌표 5개.
-- [ ] `boss-room-slots` (29슬롯, 10000+ 그리드는 설계됨): `world_boss`로 월드명 교체 + `/poro genrooms` 실행(해당 좌표에 방 생성).
-- [ ] `pvp-room-slots`: 해당 월드 + `/poro-genarenas` 실행.
+- [ ] `boss-room-slots` (29슬롯, 10000+ 그리드는 설계됨): `world_boss`로 월드명 교체 + `/rpg genrooms` 실행(해당 좌표에 방 생성).
+- [ ] `pvp-room-slots`: 해당 월드 + `/rpg-genarenas` 실행.
 - [ ] `season-start-epoch`: 실제 시즌 시작(예: 2026-06-01 = 1748736000). 현재 0 → 항상 1주차.
 - [ ] `api-secret-key`: Discord 봇/웹 연동 시 설정(로컬만이면 비워둬도 API 503으로 안전).
 - [ ] `debug: true` → 운영 시 false 고려.

@@ -36,7 +36,7 @@ barrel:      $TMP/barrelknight/ItemsAdder/.../resourcepack/assets/cosmetics/
 chests:      $TMP/chests_rar2/Chests Pack/assets/chests_pack/
 ```
 
-대상 리소스팩 루트: `~/dev/poro-server/assets/export/resourcepack/assets/poro/`
+대상 리소스팩 루트: `~/dev/poro-server/assets/export/resourcepack/assets/zenon_rpg/`
 
 ---
 
@@ -171,7 +171,7 @@ chests:      $TMP/chests_rar2/Chests Pack/assets/chests_pack/
 
 ### C-1. BarrelKnight (공통 작업 사항)
 
-> 모든 JSON에서 `"cosmetics:XXX"` → `"poro:item/furniture/XXX"` 로 교체해야 한다.
+> 모든 JSON에서 `"cosmetics:XXX"` → `"zenon_rpg:item/furniture/XXX"` 로 교체해야 한다.
 
 | 원본 JSON | 원본 텍스처 | 변경 후 모델명 | 변경 후 텍스처명 | 텍스처 크기 | 설명 | 용도 | 비고 |
 |---|---|---|---|---|---|---|---|
@@ -182,17 +182,17 @@ chests:      $TMP/chests_rar2/Chests Pack/assets/chests_pack/
 
 **namespace 교체 sed 명령어:**
 ```bash
-DEST=~/dev/poro-server/assets/export/resourcepack/assets/poro
+DEST=~/dev/poro-server/assets/export/resourcepack/assets/zenon_rpg
 
-sed -i 's|"cosmetics:barrel"|"poro:item/furniture/barrel"|g'              $DEST/models/item/furniture/supply_barrel.json
-sed -i 's|"cosmetics:wooden_bucket"|"poro:item/furniture/wooden_bucket"|g' $DEST/models/item/furniture/herb_wash_barrel.json
-sed -i 's|"cosmetics:wooden_wheel"|"poro:item/furniture/wooden_wheel"|g'   $DEST/models/item/furniture/wooden_wheel.json
-sed -i 's|"cosmetics:pitchfork"|"poro:item/furniture/pitchfork"|g'         $DEST/models/item/furniture/pitchfork.json
+sed -i 's|"cosmetics:barrel"|"zenon_rpg:item/furniture/barrel"|g'              $DEST/models/item/furniture/supply_barrel.json
+sed -i 's|"cosmetics:wooden_bucket"|"zenon_rpg:item/furniture/wooden_bucket"|g' $DEST/models/item/furniture/herb_wash_barrel.json
+sed -i 's|"cosmetics:wooden_wheel"|"zenon_rpg:item/furniture/wooden_wheel"|g'   $DEST/models/item/furniture/wooden_wheel.json
+sed -i 's|"cosmetics:pitchfork"|"zenon_rpg:item/furniture/pitchfork"|g'         $DEST/models/item/furniture/pitchfork.json
 ```
 
 ### C-2. Chests Pack (공통 작업 사항)
 
-> 모든 JSON에서 `"chests_pack:XXX"` → `"poro:item/dungeon/chest/XXX"` 로 교체해야 한다.  
+> 모든 JSON에서 `"chests_pack:XXX"` → `"zenon_rpg:item/dungeon/chest/XXX"` 로 교체해야 한다.
 > **주의**: `normal_chest.png`는 unrar 추출본(`chests_rar2/`)만 정상. 7z 추출본은 0바이트.
 
 | 원본 JSON | 원본 텍스처 | 변경 후 모델명 | 변경 후 텍스처명 | 텍스처 크기 | 설명 | 용도 |
@@ -206,14 +206,14 @@ sed -i 's|"cosmetics:pitchfork"|"poro:item/furniture/pitchfork"|g'         $DEST
 
 **namespace 교체 sed 명령어:**
 ```bash
-DEST=~/dev/poro-server/assets/export/resourcepack/assets/poro
+DEST=~/dev/poro-server/assets/export/resourcepack/assets/zenon_rpg
 
-sed -i 's|"chests_pack:normal_chest"|"poro:item/dungeon/chest/old_supply_chest"|g'    $DEST/models/item/dungeon/chest/old_supply_chest.json
-sed -i 's|"chests_pack:medium_chest"|"poro:item/dungeon/chest/sealed_supply_chest"|g' $DEST/models/item/dungeon/chest/sealed_supply_chest.json
-sed -i 's|"chests_pack:premium_chest"|"poro:item/dungeon/chest/royal_supply_chest"|g' $DEST/models/item/dungeon/chest/royal_supply_chest.json
-sed -i 's|"chests_pack:normal_key"|"poro:item/dungeon/chest/old_key"|g'               $DEST/models/item/dungeon/chest/old_key.json
-sed -i 's|"chests_pack:medium_key"|"poro:item/dungeon/chest/sealed_key"|g'            $DEST/models/item/dungeon/chest/sealed_key.json
-sed -i 's|"chests_pack:premium_key"|"poro:item/dungeon/chest/royal_key"|g'            $DEST/models/item/dungeon/chest/royal_key.json
+sed -i 's|"chests_pack:normal_chest"|"zenon_rpg:item/dungeon/chest/old_supply_chest"|g'    $DEST/models/item/dungeon/chest/old_supply_chest.json
+sed -i 's|"chests_pack:medium_chest"|"zenon_rpg:item/dungeon/chest/sealed_supply_chest"|g' $DEST/models/item/dungeon/chest/sealed_supply_chest.json
+sed -i 's|"chests_pack:premium_chest"|"zenon_rpg:item/dungeon/chest/royal_supply_chest"|g' $DEST/models/item/dungeon/chest/royal_supply_chest.json
+sed -i 's|"chests_pack:normal_key"|"zenon_rpg:item/dungeon/chest/old_key"|g'               $DEST/models/item/dungeon/chest/old_key.json
+sed -i 's|"chests_pack:medium_key"|"zenon_rpg:item/dungeon/chest/sealed_key"|g'            $DEST/models/item/dungeon/chest/sealed_key.json
+sed -i 's|"chests_pack:premium_key"|"zenon_rpg:item/dungeon/chest/royal_key"|g'            $DEST/models/item/dungeon/chest/royal_key.json
 ```
 
 ---
@@ -260,7 +260,7 @@ sed -i 's|"chests_pack:premium_key"|"poro:item/dungeon/chest/royal_key"|g'      
 ```bash
 #!/bin/bash
 TMP=~/dev/poro-server/tmp/asset_inspect/extracted
-DEST=~/dev/poro-server/assets/export/resourcepack/assets/poro
+DEST=~/dev/poro-server/assets/export/resourcepack/assets/zenon_rpg
 
 POTION="$TMP/potion1/en/itemsadder-type/plugins/ItemsAdder/contents/weekly_dot/resourcepack/potion1/textures"
 GRASS="$TMP/grass1/en/itemsadder-type/plugins/ItemsAdder/contents/weekly_dot/resourcepack/grass1/textures/items"
@@ -368,17 +368,17 @@ cp "$CHT/models/medium_key.json"    "$DEST/models/item/dungeon/chest/sealed_key.
 cp "$CHT/models/premium_key.json"   "$DEST/models/item/dungeon/chest/royal_key.json"
 
 # C. namespace 교체
-sed -i 's|"cosmetics:barrel"|"poro:item/furniture/barrel"|g'              "$DEST/models/item/furniture/supply_barrel.json"
-sed -i 's|"cosmetics:wooden_bucket"|"poro:item/furniture/wooden_bucket"|g' "$DEST/models/item/furniture/herb_wash_barrel.json"
-sed -i 's|"cosmetics:wooden_wheel"|"poro:item/furniture/wooden_wheel"|g'   "$DEST/models/item/furniture/wooden_wheel.json"
-sed -i 's|"cosmetics:pitchfork"|"poro:item/furniture/pitchfork"|g'         "$DEST/models/item/furniture/pitchfork.json"
+sed -i 's|"cosmetics:barrel"|"zenon_rpg:item/furniture/barrel"|g'              "$DEST/models/item/furniture/supply_barrel.json"
+sed -i 's|"cosmetics:wooden_bucket"|"zenon_rpg:item/furniture/wooden_bucket"|g' "$DEST/models/item/furniture/herb_wash_barrel.json"
+sed -i 's|"cosmetics:wooden_wheel"|"zenon_rpg:item/furniture/wooden_wheel"|g'   "$DEST/models/item/furniture/wooden_wheel.json"
+sed -i 's|"cosmetics:pitchfork"|"zenon_rpg:item/furniture/pitchfork"|g'         "$DEST/models/item/furniture/pitchfork.json"
 
-sed -i 's|"chests_pack:normal_chest"|"poro:item/dungeon/chest/old_supply_chest"|g'    "$DEST/models/item/dungeon/chest/old_supply_chest.json"
-sed -i 's|"chests_pack:medium_chest"|"poro:item/dungeon/chest/sealed_supply_chest"|g' "$DEST/models/item/dungeon/chest/sealed_supply_chest.json"
-sed -i 's|"chests_pack:premium_chest"|"poro:item/dungeon/chest/royal_supply_chest"|g' "$DEST/models/item/dungeon/chest/royal_supply_chest.json"
-sed -i 's|"chests_pack:normal_key"|"poro:item/dungeon/chest/old_key"|g'               "$DEST/models/item/dungeon/chest/old_key.json"
-sed -i 's|"chests_pack:medium_key"|"poro:item/dungeon/chest/sealed_key"|g'            "$DEST/models/item/dungeon/chest/sealed_key.json"
-sed -i 's|"chests_pack:premium_key"|"poro:item/dungeon/chest/royal_key"|g'            "$DEST/models/item/dungeon/chest/royal_key.json"
+sed -i 's|"chests_pack:normal_chest"|"zenon_rpg:item/dungeon/chest/old_supply_chest"|g'    "$DEST/models/item/dungeon/chest/old_supply_chest.json"
+sed -i 's|"chests_pack:medium_chest"|"zenon_rpg:item/dungeon/chest/sealed_supply_chest"|g' "$DEST/models/item/dungeon/chest/sealed_supply_chest.json"
+sed -i 's|"chests_pack:premium_chest"|"zenon_rpg:item/dungeon/chest/royal_supply_chest"|g' "$DEST/models/item/dungeon/chest/royal_supply_chest.json"
+sed -i 's|"chests_pack:normal_key"|"zenon_rpg:item/dungeon/chest/old_key"|g'               "$DEST/models/item/dungeon/chest/old_key.json"
+sed -i 's|"chests_pack:medium_key"|"zenon_rpg:item/dungeon/chest/sealed_key"|g'            "$DEST/models/item/dungeon/chest/sealed_key.json"
+sed -i 's|"chests_pack:premium_key"|"zenon_rpg:item/dungeon/chest/royal_key"|g'            "$DEST/models/item/dungeon/chest/royal_key.json"
 
 echo "✓ 복사 및 namespace 교체 완료"
 ```
@@ -395,19 +395,19 @@ rsync -av --delete pack.mcmeta assets "$DEST_DEV/"
 ```
 
 **인게임 등록 순서:**
-1. `assets/poro/items/<아이템명>.json` 파일 생성 (item_model 방식)
+1. `assets/zenon_rpg/items/<아이템명>.json` 파일 생성 (item_model 방식)
 2. 예시: `lesser_healing_potion.json`
    ```json
    {
      "model": {
        "type": "minecraft:model",
-       "model": "poro:item/consumable/potion/lesser_healing_potion"
+       "model": "zenon_rpg:item/consumable/potion/lesser_healing_potion"
      }
    }
    ```
 3. 인게임 테스트 지급:
    ```
-   /minecraft:give @p minecraft:potion[item_model="poro:item/consumable/potion/lesser_healing_potion"]
+   /minecraft:give @p minecraft:potion[item_model="zenon_rpg:item/consumable/potion/lesser_healing_potion"]
    ```
 4. 리소스팩 재로드: `F3+T`
 5. 텍스처 누락 시: 로그에서 `Missing texture` 확인 → namespace/경로 오타 점검

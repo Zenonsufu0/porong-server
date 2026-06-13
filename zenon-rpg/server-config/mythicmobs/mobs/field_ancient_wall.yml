@@ -1,6 +1,6 @@
 # 필드 5: 고대 성벽 잔해 (ancient_wall)
 # 권장 강화: 15강~18강 / 필드 레벨: 5
-# PoroRPG drop hook: ancient_normal_drop / ancient_elite_drop / rift_watcher_drop
+# ZenonRPG drop hook: ancient_normal_drop / ancient_elite_drop / rift_watcher_drop
 
 Wall_Enderman:
   Type: ENDERMAN
@@ -19,7 +19,7 @@ Wall_Enderman:
   - meleeattack
   - randomstroll 0.5
   Skills:
-  - addScoreboardTag{t=poro_field_5} @self ~onSpawn
+  - addScoreboardTag{t=zenon_rpg_field_5} @self ~onSpawn
 
 Wall_Shade:
   Type: WITHER_SKELETON
@@ -37,7 +37,7 @@ Wall_Shade:
   - clear
   - meleeattack
   Skills:
-  - addScoreboardTag{t=poro_field_5} @self ~onSpawn
+  - addScoreboardTag{t=zenon_rpg_field_5} @self ~onSpawn
 
 Wall_SentinelElite:
   Type: WARDEN
@@ -53,8 +53,8 @@ Wall_SentinelElite:
   Drops:
   - exp 650
   Skills:
-  - addScoreboardTag{t=poro_field_5} @self ~onSpawn
-  - addScoreboardTag{t=poro_rank_elite} @self ~onSpawn
+  - addScoreboardTag{t=zenon_rpg_field_5} @self ~onSpawn
+  - addScoreboardTag{t=zenon_rpg_rank_elite} @self ~onSpawn
   - skill{s=Wall_SonicBoom} ~onTimer:100
   - potion{type=BLINDNESS;duration=60;level=1} @target ~onAttack 0.3
 
@@ -79,8 +79,8 @@ Rift_Watcher:
     Color: PURPLE
     Style: SEGMENTED_10
   Skills:
-  - addScoreboardTag{t=poro_field_5} @self ~onSpawn
-  - addScoreboardTag{t=poro_type_field_boss} @self ~onSpawn
+  - addScoreboardTag{t=zenon_rpg_field_5} @self ~onSpawn
+  - addScoreboardTag{t=zenon_rpg_type_field_boss} @self ~onSpawn
   # 전 페이즈 공통: P-00 기본 공격 (1.8s)
   - skill{s=P_00_BasicAttack} ~onTimer:36
   # Phase 1 (100%~70%): P-01 강타 (4s), P-03 원형 폭발 (11s)

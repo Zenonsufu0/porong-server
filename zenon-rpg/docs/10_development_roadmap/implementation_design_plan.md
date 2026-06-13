@@ -8,14 +8,14 @@
 
 ## 0. 목적
 
-현재 PoroRPG 구현은 컴파일 가능한 스텁과 일부 최소 동작 보정까지 진행된 상태다.
+현재 ZenonRPG 구현은 컴파일 가능한 스텁과 일부 최소 동작 보정까지 진행된 상태다.
 이 문서는 추가 구현을 진행하기 전 설계 기준을 고정한다.
 
 목표:
 
 - 코드가 CANON·item master·드랍표와 다른 식별자를 사용하지 않게 한다.
 - GUI/입력/드랍처럼 런타임에서만 드러나는 흐름을 구현 전에 표로 확정한다.
-- MythicMobs, IridiumSkyblock, Paper API 경계에서 PoroRPG가 소유할 데이터와 외부 플러그인 껍데기를 분리한다.
+- MythicMobs, IridiumSkyblock, Paper API 경계에서 ZenonRPG가 소유할 데이터와 외부 플러그인 껍데기를 분리한다.
 - 구현 완료 기준과 검증 명령을 Phase별로 명확히 둔다.
 
 ---
@@ -50,7 +50,7 @@
 |---|---|---|
 | 저장소 | `PlayerSaveData` schemaVersion=3, Gson JSON | §5 참조 |
 | EquipmentSlot | `WEAPON/HELMET/CHESTPLATE/LEGGINGS/BOOTS` | `ARMOR_*` 역호환: `EquipmentSlot.from()` |
-| 무기 판정 | PDC `poro_rpg:weapon_type` 우선, material fallback | §3.2 참조 |
+| 무기 판정 | PDC `zenon_rpg:weapon_type` 우선, material fallback | §3.2 참조 |
 | 클래스 선택 | WeaponSelectionGuiListener, slot 10~15 | §4.1 참조 |
 | 스킬 입력 | SkillInputListener RMB/F만 임시 연결 → 4종으로 수정 필요 | §4.2 참조 |
 | 필드 드랍 | 이름 기반 fieldIndex (임시) → scoreboard tag로 교체 | §4.3 참조 |
@@ -87,9 +87,9 @@ CANON 기준: 큐브 1회 → 전 라인 재롤 + 등업 시도 동시 진행, 5
 
 | PDC Key (NamespacedKey) | 값 형식 | 용도 |
 |---|---|---|
-| `poro_rpg:weapon_type` | `SWORD/AXE/SPEAR/CROSSBOW/SCYTHE/STAFF` | 무기 클래스 판정 |
-| `poro_rpg:item_id` | `equip_spear`, `mat_cube` 등 item_master key | 아이템 종류 식별 |
-| `poro_rpg:instance_id` | UUID 또는 `starter_{slot}` 형식 | 장비 인스턴스 고유 식별 |
+| `zenon_rpg:weapon_type` | `SWORD/AXE/SPEAR/CROSSBOW/SCYTHE/STAFF` | 무기 클래스 판정 |
+| `zenon_rpg:item_id` | `equip_spear`, `mat_cube` 등 item_master key | 아이템 종류 식별 |
+| `zenon_rpg:instance_id` | UUID 또는 `starter_{slot}` 형식 | 장비 인스턴스 고유 식별 |
 
 적용 규칙:
 
@@ -111,7 +111,7 @@ CANON 기준: 큐브 1회 → 전 라인 재롤 + 등업 시도 동시 진행, 5
 |---|---|
 | 인벤토리 크기 | 27슬롯 (3행×9열) |
 | GUI title 상수 | `GuiTitles.WEAPON_SELECTION = Component.text("클래스 선택")` |
-| 재선택 정책 | 1차 시즌 재선택 불가. 관리자 `/poro setclass <player> <type>`만 변경 가능 |
+| 재선택 정책 | 1차 시즌 재선택 불가. 관리자 `/rpg setclass <player> <type>`만 변경 가능 |
 | 저장 시점 | 선택 즉시 동기 save (firstJoin이므로 지연 없음) |
 
 **슬롯 매핑 (WeaponSelectionGuiListener):**
@@ -197,9 +197,9 @@ MythicMob YAML의 `Options.Scoreboard` 항목에 아래 태그를 부여한다.
 
 | 태그 이름 | 값 예시 | 용도 |
 |---|---|---|
-| `poro_field` | `poro_field_1` ~ `poro_field_5` | 드랍표 필드 번호 선택 |
-| `poro_rank` | `poro_rank_normal`, `poro_rank_elite` | 일반/정예 분기 |
-| `poro_type` | `poro_type_field_boss` | 필드보스 판정 (기여도 보상) |
+| `zenon_rpg_field` | `zenon_rpg_field_1` ~ `zenon_rpg_field_5` | 드랍표 필드 번호 선택 |
+| `zenon_rpg_rank` | `zenon_rpg_rank_normal`, `zenon_rpg_rank_elite` | 일반/정예 분기 |
+| `zenon_rpg_type` | `zenon_rpg_type_field_boss` | 필드보스 판정 (기여도 보상) |
 
 적용 예시 (MythicMobs YAML):
 
@@ -210,38 +210,38 @@ Mobs:
     Type: WOLF
     Options:
       Scoreboard:
-        - poro_field_1
-        - poro_rank_normal
+        - zenon_rpg_field_1
+        - zenon_rpg_rank_normal
 ```
 
 **FieldDropListener 처리 원칙:**
 
 - 위 scoreboard tag가 없으면 드랍을 지급하지 않고 조용히 skip (WARN 로그 없음)
 - customName 기반 판정은 완전 제거
-- 필드보스(`poro_type_field_boss` 태그) 처치 → §4.6 기여도 서비스로 위임
+- 필드보스(`zenon_rpg_type_field_boss` 태그) 처치 → §4.6 기여도 서비스로 위임
 
 **태그 파싱 유틸 (`MobTagHelper`):**
 
 ```java
 public static int fieldIndex(Entity entity) {
     for (String tag : entity.getScoreboardTags()) {
-        if (tag.startsWith("poro_field_")) {
+        if (tag.startsWith("zenon_rpg_field_")) {
             try { return Integer.parseInt(tag.substring(13)); } catch (...) {}
         }
     }
     return 0; // 태그 없음
 }
 public static boolean isElite(Entity entity) {
-    return entity.getScoreboardTags().contains("poro_rank_elite");
+    return entity.getScoreboardTags().contains("zenon_rpg_rank_elite");
 }
 public static boolean isFieldBoss(Entity entity) {
-    return entity.getScoreboardTags().contains("poro_type_field_boss");
+    return entity.getScoreboardTags().contains("zenon_rpg_type_field_boss");
 }
 ```
 
 ### 4.4 저장·복원 (DP-005 확정: schemaVersion 기반 migration)
 
-**JSON 파일 위치:** `plugins/PoroRPG/playerdata/{uuid}.json`
+**JSON 파일 위치:** `plugins/ZenonRPG/playerdata/{uuid}.json`
 
 **PlayerSaveData 현재 schema v3:**
 
@@ -307,7 +307,7 @@ migration은 `PlayerPersistenceService.load()` 내부에서 버전별 분기로 
 
 ### 4.5 GUI title 상수 (DP-004 확정: GuiTitles 클래스)
 
-`com.poro.rpg.gui.GuiTitles` 클래스에 static final Component 상수 정의.
+`kr.zenon.rpg.gui.GuiTitles` 클래스에 static final Component 상수 정의.
 
 | 상수명 | 표시 문자열 | 인벤토리 크기 | listener |
 |---|---|---|---|
@@ -339,7 +339,7 @@ listener는 title 문자열을 직접 문자열 비교하지 않고 `GuiTitles.W
 | 몹 종류 | 보상 지급 방식 |
 |---|---|
 | 일반 필드 몹 | EntityDeathEvent + MobTagHelper, 마지막 히터 단독 지급 |
-| 필드보스 (`poro_type_field_boss`) | BossRewardService가 기여도 3% 이상 대상에게 지급 |
+| 필드보스 (`zenon_rpg_type_field_boss`) | BossRewardService가 기여도 3% 이상 대상에게 지급 |
 | 시즌보스 | BossRewardService가 보스룸 입장 참여자 전원에게 지급 (클리어/재도전/인원 스케일 규칙) |
 
 책임 경계:
@@ -406,7 +406,7 @@ listener는 title 문자열을 직접 문자열 비교하지 않고 `GuiTitles.W
 | 4 | F키 | 창 slot4 스킬 발동 (천뢰일창) |
 | 5 | Shift+우클릭 | 창 slot3 스킬 발동 (돌파창) |
 | 6 | LMB 몹 공격 | 창 slot1 스킬 발동 (관통찌르기) + 자원 1스택 |
-| 7 | poro_field_1 태그 몹 처치 | 필드1 드랍표 적용, gold/mat_stone_enhance 지급 |
+| 7 | zenon_rpg_field_1 태그 몹 처치 | 필드1 드랍표 적용, gold/mat_stone_enhance 지급 |
 | 8 | 태그 없는 몹 처치 | 드랍 없음, 오류 없음 |
 | 9 | 재접속 | weaponType, 장비, wallet, territory 복원 |
 | 10 | mat_cube_fragment 10개 획득 | wallet의 mat_cube_fragment 10 소모 → mat_cube 1 적립, 스코어보드 갱신 |
@@ -430,7 +430,7 @@ listener는 title 문자열을 직접 문자열 비교하지 않고 `GuiTitles.W
 |---|---|---|
 | DP-001 | 큐브/큐브 조각 저장 | wallet 가상재화로 통일 (mat_cube, mat_cube_fragment) |
 | DP-002 | 스킬 4종 입력 배치 | LMB=slot1, RMB=slot2, Shift+RMB=slot3, F=slot4 (4종 모두 1차 구현) |
-| DP-003 | MythicMob 필드 식별 | scoreboard tag (poro_field_N, poro_rank_*, poro_type_*) |
+| DP-003 | MythicMob 필드 식별 | scoreboard tag (zenon_rpg_field_N, zenon_rpg_rank_*, zenon_rpg_type_*) |
 | DP-004 | GUI title | GuiTitles 상수 클래스, Component 비교 |
 | DP-005 | 저장 migration | schemaVersion v1→v2→v3 단계별 변환 |
 | DP-006 | 필드보스 보상 지급 | BossRewardService가 전담, 일반 몹은 FieldDropListener 마지막 히터 단독 |

@@ -6,8 +6,8 @@
 
 | 항목 | 기준 |
 |---|---|
-| 저장 구조 | SQLite `poro.db` + 플레이어 JSON |
-| API | PoroRPG HTTP API, 포트 8765 |
+| 저장 구조 | SQLite `zenon_rpg.db` + 플레이어 JSON |
+| API | ZenonRPG HTTP API, 포트 8765 |
 | 강화 비용 | `economy_numbers_v2.md`의 T1 1~25강 표 |
 | 강화석 | 강화석 파편 시스템 폐지. DB 가상 재화로 처치 시 직접 적립/소모. 실물 아이템 드랍 아님 |
 | 방어구 강화석 | `ceil(무기 강화석 ÷ 1.5)` |

@@ -1,0 +1,289 @@
+name: ZenonRPG
+version: 0.1.0
+main: kr.zenon.rpg.ZenonRPGPlugin
+api-version: '1.21'
+author: Hyeondo
+description: Core RPG plugin for Zenon Server
+softdepend:
+  - LuckPerms
+  - PlaceholderAPI
+  - Citizens
+  - BetonQuest
+  - MythicMobs
+  - IridiumSkyblock
+  - WorldGuard
+
+commands:
+  rpg:
+    description: ZenonRPG 관리자 커맨드
+    aliases: [zrpg]
+    usage: /rpg <subcommand>
+    permission: zenon.rpg.use
+
+  rpg-genrooms:
+    description: 보스룸 30개 월드 자동 생성 (관리자 전용, 서버 오픈 전 1회 실행)
+    usage: /rpg-genrooms [world] [x] [y] [z]
+    permission: zenon.rpg.admin.genrooms
+
+  rpg-genarenas:
+    description: PvP 아레나 10개 월드 자동 생성 (관리자 전용, 서버 오픈 전 1회 실행)
+    usage: /rpg-genarenas [world] [x] [y] [z]
+    permission: zenon.rpg.admin.genarenas
+
+  # 메인
+  메뉴:
+    description: 메인 GUI 열기
+    usage: /메뉴
+    permission: zenon.rpg.use
+  인증:
+    description: 디스코드 인증 코드 발급 (봇 verify 검증, DL-138)
+    usage: /인증
+    permission: zenon.rpg.use
+
+  # 장비 계열
+  장비:
+    description: 장비 GUI 열기
+    usage: /장비
+    permission: zenon.rpg.use
+  강화:
+    description: 강화 GUI 바로 열기
+    usage: /강화
+    permission: zenon.rpg.use
+  잠재:
+    description: 잠재(큐브) GUI 열기
+    usage: /잠재
+    permission: zenon.rpg.use
+  각인:
+    description: 각인 GUI 열기
+    usage: /각인
+    permission: zenon.rpg.use
+  캐릭터:
+    description: 캐릭터 GUI 열기
+    usage: /캐릭터
+    permission: zenon.rpg.use
+  전승:
+    description: 전승 GUI 열기
+    usage: /전승
+    permission: zenon.rpg.use
+
+  # 영지 계열
+  영지:
+    description: 영지 GUI 열기
+    usage: /영지
+    permission: zenon.rpg.use
+  영지이동:
+    description: 영지이동 서브GUI 열기
+    usage: /영지이동
+    permission: zenon.rpg.use
+  영지상태:
+    description: 영지상태 GUI 열기
+    usage: /영지상태
+    permission: zenon.rpg.use
+  영지초대:
+    description: 영지 초대 수락/거절
+    usage: /영지초대 <수락|거절>
+    permission: zenon.rpg.use
+  대전:
+    description: PvP 대전 허브 열기
+    usage: /대전
+    permission: zenon.rpg.use
+  대전랭킹:
+    description: 정규대전 랭킹 조회
+    usage: /대전랭킹
+    permission: zenon.rpg.use
+  친선:
+    description: 친선대전 요청 수락/거절
+    usage: /친선 <수락|거절>
+    permission: zenon.rpg.use
+  창고:
+    description: 창고 GUI 열기
+    usage: /창고
+    permission: zenon.rpg.use
+  공방:
+    description: 공방 GUI 열기
+    usage: /공방
+    permission: zenon.rpg.use
+  작물:
+    description: 작물관리 GUI 열기
+    usage: /작물
+    permission: zenon.rpg.use
+  상점:
+    description: 상점 GUI 열기
+    usage: /상점
+    permission: zenon.rpg.use
+  경매장:
+    description: 경매장 GUI 열기
+    usage: /경매장
+    permission: zenon.rpg.use
+  영지설정:
+    description: 영지설정 GUI 열기
+    usage: /영지설정
+    permission: zenon.rpg.use
+
+  # 보스 계열
+  보스:
+    description: 보스 GUI 열기
+    usage: /보스
+    permission: zenon.rpg.use
+  파티:
+    description: 파티생성 GUI 열기
+    usage: /파티
+    permission: zenon.rpg.use
+  파티목록:
+    description: 파티목록 GUI 열기
+    usage: /파티목록
+    permission: zenon.rpg.use
+  알람:
+    description: 획득 알림(경험치·재화) ON/OFF 토글
+    usage: /알람
+    permission: zenon.rpg.use
+  보스정보:
+    description: 보스정보 GUI 열기
+    usage: /보스정보
+    permission: zenon.rpg.use
+  클리어:
+    description: 클리어기록 GUI 열기
+    usage: /클리어
+    permission: zenon.rpg.use
+
+  # 필드
+  필드:
+    description: 필드 GUI 열기
+    usage: /필드
+    permission: zenon.rpg.use
+
+  # 운용자 전용
+  rpg-setclass:
+    description: 플레이어 직업 변경 및 초기 장비 지급 (관리자 전용)
+    aliases: [직업]
+    usage: /rpg-setclass <플레이어> <검|도끼|창|석궁|낫|스태프>
+    permission: zenon.rpg.admin.setclass
+
+  rpg-admin:
+    description: 관리자 메인 허브 GUI (인스펙트·매치·통계)
+    aliases: [관리자]
+    usage: /rpg-admin
+    permission: zenon.rpg.admin
+
+  # 운영자 단건 변경 — Phase 2 명령어
+  rpg-give:
+    description: 영지 창고에 아이템 강제 지급
+    usage: /rpg-give <플레이어> <itemId> [수량]
+    permission: zenon.rpg.admin
+  rpg-currency:
+    description: 재화 ± 조정 (gold/mat_stone_enhance/mat_cube 등)
+    usage: /rpg-currency <플레이어> <code> <±N>
+    permission: zenon.rpg.admin
+  # 재화별 한글 단축 명령 (운용자 편의)
+  rpg-gold:
+    description: 골드 지급/회수
+    aliases: [골드]
+    usage: /골드 <플레이어> [수량]
+    permission: zenon.rpg.admin
+  rpg-stone:
+    description: 강화석 지급/회수
+    aliases: [강화석]
+    usage: /강화석 <플레이어> [수량]
+    permission: zenon.rpg.admin
+  rpg-cube:
+    description: 큐브 지급/회수
+    aliases: [큐브]
+    usage: /큐브 <플레이어> [수량]
+    permission: zenon.rpg.admin
+  rpg-cubefrag:
+    description: 큐브 조각 지급/회수
+    aliases: [큐브조각]
+    usage: /큐브조각 <플레이어> [수량]
+    permission: zenon.rpg.admin
+  rpg-field-elite:
+    description: 필드 정예 모드 토글 (본인 주변 웨이브)
+    aliases: [정예]
+    usage: /정예 [on|off]
+  rpg-rank:
+    description: 영지 작위 강제 변경
+    usage: /rpg-rank <플레이어> <FRONTIER|KNIGHT|BARONET|BARON|VISCOUNT|COUNT|MARQUESS|DUKE>
+    permission: zenon.rpg.admin
+  rpg-enhance:
+    description: 강화 단계 강제 설정 (5슬롯)
+    usage: /rpg-enhance <플레이어> <WEAPON|HELMET|CHESTPLATE|LEGGINGS|BOOTS> <강화레벨>
+    permission: zenon.rpg.admin
+  rpg-level:
+    description: 플레이어 레벨 설정
+    usage: /rpg-level <플레이어> <레벨>
+    permission: zenon.rpg.admin
+  rpg-pvp-score:
+    description: 정규대전 점수 ± 조정 (승패 카운터 영향 없음)
+    usage: /rpg-pvp-score <플레이어> <±N>
+    permission: zenon.rpg.admin
+  rpg-cleanse:
+    description: 플레이어 매치/큐/대기 상태 일괄 정리
+    usage: /rpg-cleanse <플레이어>
+    permission: zenon.rpg.admin
+  rpg-island-reset:
+    description: 영지 멤버/권한/방문설정 초기화 (창고·작위 미포함)
+    usage: /rpg-island-reset <플레이어>
+    permission: zenon.rpg.admin
+  rpg-toggle:
+    description: 운영 토글 (보스 스폰 일시정지·강화/EXP/드랍 부스트·PvP 큐)
+    usage: /rpg-toggle <flag> [on|off]  또는  /rpg-toggle list
+    permission: zenon.rpg.admin
+  rpg-mobstat:
+    description: 몹 스탯 런타임 오버라이드 (HP·평타 ATK 핫에딧, DL-116 시드)
+    usage: /rpg-mobstat <list|get|set|reset> ...
+    permission: zenon.rpg.admin
+  rpg-log:
+    description: 로그/감시 (최근 강화·거래·PvP 로그)
+    usage: /rpg-log [enhance|trade|pvp]
+    permission: zenon.rpg.admin
+  rpg-boss-list:
+    description: 진행 중 보스 런 목록
+    usage: /rpg-boss-list
+    permission: zenon.rpg.admin
+  rpg-boss-end:
+    description: 보스 런 강제 종료 (runId 접두어)
+    usage: /rpg-boss-end <runId>
+    permission: zenon.rpg.admin
+
+permissions:
+  zenon.rpg.admin:
+    description: ZenonRPG 관리자 전체 권한
+    default: op
+    children:
+      zenon.rpg.admin.setclass: true
+      zenon.rpg.admin.reputation: true
+      zenon.rpg.admin.reload: true
+      zenon.rpg.admin.genrooms: true
+      zenon.rpg.admin.genarenas: true
+  zenon.rpg.admin.setclass:
+    description: 타 플레이어 클래스 강제 설정 (/rpg-setclass, /직업)
+    default: op
+  zenon.rpg.admin.reputation:
+    description: 타 플레이어 명성치 조작
+    default: op
+  zenon.rpg.admin.reload:
+    description: 설정 리로드
+    default: op
+  zenon.rpg.admin.genrooms:
+    description: 보스룸 자동 생성 (/rpg-genrooms)
+    default: op
+  zenon.rpg.admin.genarenas:
+    description: PvP 아레나 자동 생성 (/rpg-genarenas)
+    default: op
+  zenon.rpg.use:
+    description: ZenonRPG 기본 사용 권한
+    default: true
+  zenon.rpg.class:
+    description: 무기 클래스 선택
+    default: true
+  zenon.rpg.skill:
+    description: 스킬 사용
+    default: true
+  zenon.rpg.info:
+    description: 디버그 정보 조회
+    default: true
+  zenon.rpg.hud:
+    description: HUD 테스트 메시지
+    default: true
+  zenon.rpg.reputation:
+    description: 자신의 명성치 조회
+    default: true

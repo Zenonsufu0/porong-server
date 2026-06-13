@@ -83,12 +83,12 @@ description: string
 
 ## 스킬 이펙트 시스템
 
-> **확정 (DL-031)** — 방안 4 혼합 구조. 판정·피해는 PoroRPG 단독 책임.
+> **확정 (DL-031)** — 방안 4 혼합 구조. 판정·피해는 ZenonRPG 단독 책임.
 > **1차 시즌 추가 확정 (DL-070)** — 모든 플레이어 스킬 이펙트는 Bukkit Particle 직접 구현(`pt:`)으로 통일. MythicMobs `effect_key` 위임은 2차 확장으로 보류.
 
 ### 핵심 원칙
 
-1. 스킬 판정, 피해, 쿨타임, 상태 적용은 PoroRPG가 전부 담당한다.
+1. 스킬 판정, 피해, 쿨타임, 상태 적용은 ZenonRPG가 전부 담당한다.
 2. **1차 시즌**: 이펙트는 `BaseWeaponSkill` 헬퍼(`spawnParticleArc`, `spawnParticleCircle` 등) + Bukkit Particle 직접 구현. MythicMobs 이펙트 위임 없음 (DL-070).
 3. Display Entity는 0.5초 이상 시각적으로 유지되는 투사체·검기·마법탄에만 사용한다.
 4. MythicMobs나 Display Entity 이펙트 실패가 스킬 판정 실패로 이어지면 안 된다.

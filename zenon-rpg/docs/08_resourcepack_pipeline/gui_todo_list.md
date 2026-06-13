@@ -11,7 +11,7 @@
 ## 1. 배경 PNG 제작 목록
 
 > 배경 PNG는 4개뿐. 나머지 GUI는 모두 chest + 유리판/아이콘 구성.  
-> 소스: `assets/source/gui/` → export: `assets/export/resourcepack/assets/poro/textures/gui/`
+> 소스: `assets/source/gui/` → export: `assets/export/resourcepack/assets/zenon_rpg/textures/gui/`
 
 ### 54슬롯 배경 — 256×256 PNG, `ascent:116 / height:141`
 
@@ -27,7 +27,7 @@
 
 ## 2. 아이콘 PNG 제작 목록
 
-> `assets/export/resourcepack/assets/poro/textures/item/gui/`
+> `assets/export/resourcepack/assets/zenon_rpg/textures/item/gui/`
 
 | 상태 | 파일명 | 용도 | CMD 등록 필요 |
 |:---:|---|---|:---:|
@@ -36,7 +36,7 @@
 | [제외] | `toggle_hidden.png` | 바닐라 아이템으로 대체 — `BARRIER` | — |
 | [제외] | `hotbar_slot.png` | 바닐라 아이템으로 대체 — `ITEM_FRAME` | — |
 
-> `assets/export/resourcepack/assets/poro/textures/item/armor/`
+> `assets/export/resourcepack/assets/zenon_rpg/textures/item/armor/`
 
 | 상태 | 파일명 | 용도 |
 |:---:|---|---|
@@ -172,7 +172,7 @@ row4 [보스정보] ×4cols  [-]  [클리어기록] ×3cols  ░
 | 보스 매칭·방 이동 | ❌ | ✅ | ✅ |
 | 보스 정보·클리어 기록 | ✅ | ✅ | ✅ |
 
-허용 구역 판정: `WorldGuard` 리전 태그 `poro:menu_allowed` (각 영지 내부 적용)
+허용 구역 판정: `WorldGuard` 리전 태그 `zenon_rpg:menu_allowed` (각 영지 내부 적용)
 
 ---
 

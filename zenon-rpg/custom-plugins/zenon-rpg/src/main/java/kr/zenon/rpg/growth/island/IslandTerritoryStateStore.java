@@ -1,0 +1,133 @@
+package kr.zenon.rpg.growth.island;
+
+import kr.zenon.rpg.growth.island.db.IslandSettingsRepository;
+
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
+public final class IslandTerritoryStateStore {
+    private final Map<UUID, IslandTerritoryState> territories = new ConcurrentHashMap<>();
+    private IslandSettingsRepository repository; // optional
+
+    public IslandTerritoryState getOrCreate(UUID uuid) {
+        return getOrCreate(uuid, "플레이어");
+    }
+
+    public IslandTerritoryState getOrCreate(UUID uuid, String playerName) {
+        return territories.computeIfAbsent(uuid, key -> {
+            IslandTerritoryState state = new IslandTerritoryState(playerName);
+            applyBundle(uuid, state);
+            return state;
+        });
+    }
+
+    /** repository에서 단건 로드해 state에 적용 (재로그인 시 멤버/권한/visit 복원). */
+    private void applyBundle(UUID uuid, IslandTerritoryState state) {
+        if (repository == null) return;
+        IslandSettingsRepository.IslandBundle bundle = repository.loadOne(uuid);
+        if (bundle == null) return;
+        state.setVisitMode(bundle.visitMode());
+        for (var memberRow : bundle.members()) {
+            state.addMember(memberRow.memberUuid(), memberRow.memberName(), memberRow.role());
+        }
+        bundle.permissions().forEach((role, mask) -> {
+            int diff = mask ^ state.rolePermissionMask(role);
+            for (var perm : IslandTerritoryState.Permission.values()) {
+                if ((diff & perm.bit) != 0) state.togglePermission(role, perm);
+            }
+        });
+    }
+
+    public Optional<IslandTerritoryState> get(UUID uuid) {
+        return Optional.ofNullable(territories.get(uuid));
+    }
+
+    public void put(UUID uuid, IslandTerritoryState state) {
+        territories.put(uuid, state);
+    }
+
+    public void remove(UUID uuid) {
+        territories.remove(uuid);
+    }
+
+    /** 모든 영지 (UUID → State) 스냅샷. */
+    public Map<UUID, IslandTerritoryState> snapshot() {
+        return Map.copyOf(territories);
+    }
+
+    // ─── 영속화 hook (IslandSettingsRepository) ─────────────────────
+
+    public void attachRepository(IslandSettingsRepository repository) {
+        this.repository = repository;
+        if (repository == null) return;
+        // DB 캐시 로드 — IslandTerritoryState 생성 후 visit/members/perms 적용
+        repository.loadAll().forEach((owner, bundle) -> {
+            IslandTerritoryState s = getOrCreate(owner);
+            s.setVisitMode(bundle.visitMode());
+            for (var memberRow : bundle.members()) {
+                s.addMember(memberRow.memberUuid(), memberRow.memberName(), memberRow.role());
+            }
+            bundle.permissions().forEach((role, mask) -> {
+                int diff = mask ^ s.rolePermissionMask(role);
+                // bit-by-bit toggle until masks match
+                for (var perm : IslandTerritoryState.Permission.values()) {
+                    if ((diff & perm.bit) != 0) s.togglePermission(role, perm);
+                }
+            });
+        });
+    }
+
+    public IslandSettingsRepository repository() {
+        return repository;
+    }
+
+    /** 영지 설정 영속화 헬퍼 — owner UUID 기준으로 visit 저장. */
+    public void persistVisitMode(UUID ownerUuid) {
+        if (repository == null) return;
+        IslandTerritoryState state = territories.get(ownerUuid);
+        if (state != null) repository.saveSettings(ownerUuid, state.visitMode());
+    }
+
+    /** 영지 멤버 전체 영속화 (변경 후 일괄). */
+    public void persistMembers(UUID ownerUuid) {
+        if (repository == null) return;
+        IslandTerritoryState state = territories.get(ownerUuid);
+        if (state == null) return;
+        Map<UUID, String> names = new java.util.HashMap<>();
+        for (var e : state.memberList()) {
+            String name = state.memberName(e.getKey());
+            if (name != null) names.put(e.getKey(), name);
+        }
+        repository.saveMembers(ownerUuid, state.memberList(), names);
+    }
+
+    /** 등급별 권한 영속화. */
+    public void persistPermissions(UUID ownerUuid, IslandTerritoryState.Role role) {
+        if (repository == null) return;
+        IslandTerritoryState state = territories.get(ownerUuid);
+        if (state != null) repository.savePermissions(ownerUuid, role, state.rolePermissionMask(role));
+    }
+
+    /**
+     * 영지 소셜 설정(멤버·권한·방문모드) 초기화 + 영속화. 작위·시설·창고는 보존.
+     * 운영자 명령(/rpg-island-reset)과 관리자 GUI 공통 진입점 (DRY).
+     * 대상 영지가 없으면 no-op.
+     */
+    public void resetSocialSettings(UUID ownerUuid) {
+        IslandTerritoryState t = territories.get(ownerUuid);
+        if (t == null) return;
+        for (var entry : t.memberList()) t.removeMember(entry.getKey());
+        for (var role : IslandTerritoryState.Role.values()) {
+            int mask = t.rolePermissionMask(role);
+            for (var perm : IslandTerritoryState.Permission.values()) {
+                if ((mask & perm.bit) != 0) t.togglePermission(role, perm);
+            }
+        }
+        t.setVisitMode(IslandTerritoryState.VisitMode.PUBLIC);
+        persistVisitMode(ownerUuid);
+        persistMembers(ownerUuid);
+        for (var role : IslandTerritoryState.Role.values()) persistPermissions(ownerUuid, role);
+    }
+}

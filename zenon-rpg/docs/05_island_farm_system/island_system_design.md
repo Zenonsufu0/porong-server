@@ -3,7 +3,7 @@
 > **[STATUS: REFERENCE]** — 영지 상세 설계 참조. 공식 영지 기준은 `CANON.md`가 우선.
 
 > 작성 기준: `final_master_plan.md`의 "개인 영지" (2026-05-21 확정 반영)  
-> 대상: PoroRPG — 영지 모듈 (LifeEngineBootstrap / LifeEngineRuntime)
+> 대상: ZenonRPG — 영지 모듈 (LifeEngineBootstrap / LifeEngineRuntime)
 
 ---
 
@@ -11,7 +11,7 @@
 
 ```
 IridiumSkyblock  → 영지 생성 / 보호 / 방문 (껍데기)
-PoroRPG        → 영지 저장고 / 시설 스케줄 / 공방 / 작위 승급
+ZenonRPG        → 영지 저장고 / 시설 스케줄 / 공방 / 작위 승급
 ```
 
 - 유저에게 "스카이블럭" 표현 노출 금지 → **개인 영지**로 표기
@@ -63,7 +63,7 @@ PoroRPG        → 영지 저장고 / 시설 스케줄 / 공방 / 작위 승급
 
 - **물리 블럭 설치 없음** — 영지설정 GUI에서 슬롯 클릭으로 배정
 - 배정 결과는 DB `island_facility_slots` 테이블에 저장
-- PoroRPG `MachineProductionScheduler`가 20분마다 DB 기준으로 생산 처리
+- ZenonRPG `MachineProductionScheduler`가 20분마다 DB 기준으로 생산 처리
 
 ### 3.2 시설 종류
 

@@ -27,7 +27,7 @@
 
 - 1차 시즌은 45일 시즌제 프로젝트 서버이며 영구 서버가 아니다.
 - 오픈 모델: 디스코드 인증 게이트 공식 오픈, 공개 테스트 없음.
-- 핵심 플러그인 PoroRPG가 전투·장비·영지/농장·보스 보상·DB·API·디스코드/웹 연동 데이터를 소유한다. (도감/컬렉션은 1차 시즌 제외)
+- 핵심 플러그인 ZenonRPG가 전투·장비·영지/농장·보스 보상·DB·API·디스코드/웹 연동 데이터를 소유한다. (도감/컬렉션은 1차 시즌 제외)
 - MythicMobs는 바닐라 기반 몹/보스 셸과 단순 시각 스킬 담당.
 - IridiumSkyblock은 개인 섬 셸만 담당.
 - 1차 시즌 보스는 바닐라 강화형. ModelEngine/BetterModel/FMM은 후속 확장으로 연기.
@@ -42,15 +42,15 @@
 - 루트 공통 파일(`../CLAUDE.md`, `../README.md`, `../.gitignore`, 루트 docs 구조)은 수정하지 않는다.
 - 게임 로직(전투·스킬 수치·보스·퀘스트·밸런스)을 바꾸기 전, **구조·빌드 영향을 먼저 확인**한다.
 - 커밋 전 반드시 `git status`로 변경 범위를 확인하고, 작고 리뷰 가능한 단위로 나눈다.
-- 런타임 파일·빌드 산출물·로그·JAR는 커밋하지 않는다(`.local/server/`, `build/`, `*.jar`, 로그 등 — 단 `gradle/wrapper/gradle-wrapper.jar`는 예외 추적). 런타임 실행 폴더는 `poro-rpg/.local/server`(DL-130).
+- 런타임 파일·빌드 산출물·로그·JAR는 커밋하지 않는다(`.local/server/`, `build/`, `*.jar`, 로그 등 — 단 `gradle/wrapper/gradle-wrapper.jar`는 예외 추적). 런타임 실행 폴더는 `zenon-rpg/.local/server`(DL-130).
 
 ## 빌드
 
-- 빌드 루트: `zenon-rpg/custom-plugins/poro-rpg`. 빌드: `./gradlew build` (→ `BUILD SUCCESSFUL`).
+- 빌드 루트: `zenon-rpg/custom-plugins/zenon-rpg`. 빌드: `./gradlew build` (→ `BUILD SUCCESSFUL`).
 
 ## 코드/서버 작업 범위
 
-- 플러그인 개발 소스는 `zenon-rpg/custom-plugins/poro-rpg` (기존 PoroRPG 경로).
+- 플러그인 개발 소스는 `zenon-rpg/custom-plugins/zenon-rpg` (기존 ZenonRPG 경로).
 - 런타임 서버 실행 폴더는 `zenon-rpg/.local/server`, 플러그인 배치 위치는 `zenon-rpg/.local/server/plugins` (DL-130). `paper.jar`·`world`·`logs`·`plugins/*.jar`·`cache`·`versions` 등은 Git 추적 금지(`.local/` 전체 gitignored).
 - 런타임 서버 파일은 명시적 요청 시에만 `zenon-rpg/.local/server/plugins` 편집. MythicMobs YAML 소스(추적 대상)는 `zenon-rpg/server-config`에서 편집 후 런타임에 배포한다.
 - `zenon-rpg/.local/server/`, `zenon-rpg/custom-plugins/`는 명시적 요청 없이 수정하지 않는다.

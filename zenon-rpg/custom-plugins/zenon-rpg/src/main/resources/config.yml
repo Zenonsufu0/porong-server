@@ -1,0 +1,245 @@
+debug: true
+server-name: "Zenon Server"
+common:
+  sqlite-path: "storage/zenon_rpg.sqlite"
+  seed-path: "seeds"
+  timezone: "UTC"
+  # HTTP API 바인드 주소. 기본값 127.0.0.1 (루프백 전용).
+  # Discord 봇·웹 대시보드가 다른 서버에서 실행되면 "0.0.0.0"으로 변경 후 방화벽 설정 필수.
+  api-bind-host: "127.0.0.1"
+  # HTTP API Bearer 토큰. 비어 있으면 API가 503을 반환합니다.
+  # 반드시 충분히 긴 무작위 문자열로 설정하세요. 예: openssl rand -hex 32
+  api-secret-key: ""
+  # 시즌 시작 시각 (Unix 초 단위). 0이면 항상 1주차로 계산.
+  # 예: date -d "2026-06-01 00:00:00 UTC" +%s → 1748736000
+  season-start-epoch: 0
+
+# 상점 아이템 — 키 이름은 자유. 순서 = GUI 표시 순서.
+# 지원 필드: material, amount, display-name, price, lore[]
+# 카테고리별 섹션 (material/block/cosmetic/special). 1차 시즌: material/block만 활성.
+shop:
+  material:
+    # ── 씨앗 (구매: 좌클릭 1개 / 우클릭 64개) ──
+    wheat-seeds:    { material: WHEAT_SEEDS,    amount: 1, price: 10, display-name: "§f밀 씨앗" }
+    beetroot-seeds: { material: BEETROOT_SEEDS, amount: 1, price: 20, display-name: "§f비트 씨앗" }
+    melon-seeds:    { material: MELON_SEEDS,    amount: 1, price: 30, display-name: "§f수박 씨앗" }
+    pumpkin-seeds:  { material: PUMPKIN_SEEDS,  amount: 1, price: 30, display-name: "§f호박 씨앗" }
+    # ── 감자·당근: 씨앗=작물 동일 아이템 → 구매(좌1/우64) + set(64) 판매 겸용 ──
+    potato: { material: POTATO, amount: 1, price: 15, sell-price: 25, sell-mode: set, display-name: "§f감자" }
+    carrot: { material: CARROT, amount: 1, price: 15, sell-price: 25, sell-mode: set, display-name: "§f당근" }
+    # ── 농작물 (set 64 판매전용) ──
+    wheat:       { material: WHEAT,       sell-price: 25, sell-mode: set, buyable: false, display-name: "§f밀" }
+    melon-slice: { material: MELON_SLICE, sell-price: 20, sell-mode: set, buyable: false, display-name: "§f수박" }
+    pumpkin:     { material: PUMPKIN,     sell-price: 20, sell-mode: set, buyable: false, display-name: "§f호박" }
+    # ── 광물 (낱개 좌1 / set 우64 판매전용) ──
+    coal:        { material: COAL,         sell-price: 2,  buyable: false, display-name: "§f석탄" }
+    copper:      { material: COPPER_INGOT, sell-price: 3,  buyable: false, display-name: "§f구리 주괴" }
+    redstone:    { material: REDSTONE,     sell-price: 4,  buyable: false, display-name: "§f레드스톤" }
+    iron:        { material: IRON_INGOT,   sell-price: 5,  buyable: false, display-name: "§f철 주괴" }
+    lapis:       { material: LAPIS_LAZULI, sell-price: 6,  buyable: false, display-name: "§f청금석" }
+    gold:        { material: GOLD_INGOT,   sell-price: 10, buyable: false, display-name: "§f금 주괴" }
+    diamond:     { material: DIAMOND,      sell-price: 18, buyable: false, display-name: "§b다이아몬드" }
+    emerald:     { material: EMERALD,      sell-price: 22, buyable: false, display-name: "§a에메랄드" }
+    # ── 전장의 파편 (재화 → 골드 환전, 낱개) ──
+    battle-shard: { material: PRISMARINE_SHARD, sell-price: 3, currency: mat_battle_shard, buyable: false, display-name: "§b전장의 파편" }
+  # 블럭 탭 — gui_shop.md §7 블럭 상점 표 (목재 8종 + 기본 석재 6종 1차 등록)
+  block:
+    oak-planks:
+      material: OAK_PLANKS
+      amount: 64
+      display-name: "§f참나무 판자 ×64"
+      price: 320
+    spruce-planks:
+      material: SPRUCE_PLANKS
+      amount: 64
+      display-name: "§f가문비나무 판자 ×64"
+      price: 320
+    birch-planks:
+      material: BIRCH_PLANKS
+      amount: 64
+      display-name: "§f자작나무 판자 ×64"
+      price: 320
+    jungle-planks:
+      material: JUNGLE_PLANKS
+      amount: 64
+      display-name: "§f정글 판자 ×64"
+      price: 512
+    acacia-planks:
+      material: ACACIA_PLANKS
+      amount: 64
+      display-name: "§f아카시아 판자 ×64"
+      price: 512
+    dark-oak-planks:
+      material: DARK_OAK_PLANKS
+      amount: 64
+      display-name: "§f짙은참나무 판자 ×64"
+      price: 512
+    mangrove-planks:
+      material: MANGROVE_PLANKS
+      amount: 64
+      display-name: "§f맹그로브 판자 ×64"
+      price: 640
+    cherry-planks:
+      material: CHERRY_PLANKS
+      amount: 64
+      display-name: "§f벚나무 판자 ×64"
+      price: 768
+    cobblestone:
+      material: COBBLESTONE
+      amount: 64
+      display-name: "§7조약돌 ×64"
+      price: 128
+    stone:
+      material: STONE
+      amount: 64
+      display-name: "§7돌 ×64"
+      price: 192
+    smooth-stone:
+      material: SMOOTH_STONE
+      amount: 64
+      display-name: "§7매끄러운 돌 ×64"
+      price: 320
+    granite:
+      material: GRANITE
+      amount: 64
+      display-name: "§7화강암 ×64"
+      price: 320
+    diorite:
+      material: DIORITE
+      amount: 64
+      display-name: "§7섬록암 ×64"
+      price: 320
+    andesite:
+      material: ANDESITE
+      amount: 64
+      display-name: "§7안산암 ×64"
+      price: 320
+
+# 필드 텔레포트 좌표 — 맵 확정 후 실제 좌표로 교체.
+# world: 월드 이름 (보통 "world"). 설정 없으면 해당 필드 이동 불가 메시지 표시.
+# 필드 5종 — 각 300×300, 1000 간격(700블록 갭). 단일 평지 world (DL-099). 동적 스폰 경계 = 중심 ±150.
+fields:
+  plain:
+    world: "world"
+    x: 0.0
+    y: 64.0
+    z: 0.0
+    yaw: 0.0
+    pitch: 0.0
+  mine:
+    world: "world"
+    x: 1000.0
+    y: 64.0
+    z: 0.0
+    yaw: 0.0
+    pitch: 0.0
+  sewer:
+    world: "world"
+    x: 2000.0
+    y: 64.0
+    z: 0.0
+    yaw: 0.0
+    pitch: 0.0
+  outpost:
+    world: "world"
+    x: 3000.0
+    y: 64.0
+    z: 0.0
+    yaw: 0.0
+    pitch: 0.0
+  ruins:
+    world: "world"
+    x: 4000.0
+    y: 64.0
+    z: 0.0
+    yaw: 0.0
+    pitch: 0.0
+
+# 필드보스 스폰 좌표 — 맵 확정 후 실제 스폰 지점으로 교체.
+# 설정 없으면 해당 보스 리스폰 스킵 (경고 로그 출력).
+field-bosses:
+  plain:
+    world: "world"
+    x: 0.0
+    y: 64.0
+    z: 100.0
+  mine:
+    world: "world"
+    x: 1000.0
+    y: 64.0
+    z: 100.0
+  sewer:
+    world: "world"
+    x: 2000.0
+    y: 64.0
+    z: 100.0
+  outpost:
+    world: "world"
+    x: 3000.0
+    y: 64.0
+    z: 100.0
+  ruins:
+    world: "world"
+    x: 4000.0
+    y: 64.0
+    z: 100.0
+
+# 보스룸 슬롯 — /rpg genrooms 로 방 생성 후 자동 사용.
+# 월드 X=10000~10349, Z=10000~10289 영역에 6×5 배치 (방 50블록, 간격 10블록).
+# 맵 확정 후 world 이름 및 좌표 수정 가능.
+boss-room-slots:
+  slot-0:  { id:  0, world: "world", player-spawn: { x: 10024.5, y: 65.0, z: 10045.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10024.5, y: 65.0, z: 10010.0 } }
+  slot-1:  { id:  1, world: "world", player-spawn: { x: 10084.5, y: 65.0, z: 10045.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10084.5, y: 65.0, z: 10010.0 } }
+  slot-2:  { id:  2, world: "world", player-spawn: { x: 10144.5, y: 65.0, z: 10045.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10144.5, y: 65.0, z: 10010.0 } }
+  slot-3:  { id:  3, world: "world", player-spawn: { x: 10204.5, y: 65.0, z: 10045.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10204.5, y: 65.0, z: 10010.0 } }
+  slot-4:  { id:  4, world: "world", player-spawn: { x: 10264.5, y: 65.0, z: 10045.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10264.5, y: 65.0, z: 10010.0 } }
+  slot-5:  { id:  5, world: "world", player-spawn: { x: 10324.5, y: 65.0, z: 10045.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10324.5, y: 65.0, z: 10010.0 } }
+  slot-6:  { id:  6, world: "world", player-spawn: { x: 10024.5, y: 65.0, z: 10105.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10024.5, y: 65.0, z: 10070.0 } }
+  slot-7:  { id:  7, world: "world", player-spawn: { x: 10084.5, y: 65.0, z: 10105.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10084.5, y: 65.0, z: 10070.0 } }
+  slot-8:  { id:  8, world: "world", player-spawn: { x: 10144.5, y: 65.0, z: 10105.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10144.5, y: 65.0, z: 10070.0 } }
+  slot-9:  { id:  9, world: "world", player-spawn: { x: 10204.5, y: 65.0, z: 10105.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10204.5, y: 65.0, z: 10070.0 } }
+  slot-10: { id: 10, world: "world", player-spawn: { x: 10264.5, y: 65.0, z: 10105.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10264.5, y: 65.0, z: 10070.0 } }
+  slot-11: { id: 11, world: "world", player-spawn: { x: 10324.5, y: 65.0, z: 10105.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10324.5, y: 65.0, z: 10070.0 } }
+  slot-12: { id: 12, world: "world", player-spawn: { x: 10024.5, y: 65.0, z: 10165.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10024.5, y: 65.0, z: 10130.0 } }
+  slot-13: { id: 13, world: "world", player-spawn: { x: 10084.5, y: 65.0, z: 10165.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10084.5, y: 65.0, z: 10130.0 } }
+  slot-14: { id: 14, world: "world", player-spawn: { x: 10144.5, y: 65.0, z: 10165.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10144.5, y: 65.0, z: 10130.0 } }
+  slot-15: { id: 15, world: "world", player-spawn: { x: 10204.5, y: 65.0, z: 10165.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10204.5, y: 65.0, z: 10130.0 } }
+  slot-16: { id: 16, world: "world", player-spawn: { x: 10264.5, y: 65.0, z: 10165.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10264.5, y: 65.0, z: 10130.0 } }
+  slot-17: { id: 17, world: "world", player-spawn: { x: 10324.5, y: 65.0, z: 10165.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10324.5, y: 65.0, z: 10130.0 } }
+  slot-18: { id: 18, world: "world", player-spawn: { x: 10024.5, y: 65.0, z: 10225.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10024.5, y: 65.0, z: 10190.0 } }
+  slot-19: { id: 19, world: "world", player-spawn: { x: 10084.5, y: 65.0, z: 10225.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10084.5, y: 65.0, z: 10190.0 } }
+  slot-20: { id: 20, world: "world", player-spawn: { x: 10144.5, y: 65.0, z: 10225.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10144.5, y: 65.0, z: 10190.0 } }
+  slot-21: { id: 21, world: "world", player-spawn: { x: 10204.5, y: 65.0, z: 10225.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10204.5, y: 65.0, z: 10190.0 } }
+  slot-22: { id: 22, world: "world", player-spawn: { x: 10264.5, y: 65.0, z: 10225.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10264.5, y: 65.0, z: 10190.0 } }
+  slot-23: { id: 23, world: "world", player-spawn: { x: 10324.5, y: 65.0, z: 10225.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10324.5, y: 65.0, z: 10190.0 } }
+  slot-24: { id: 24, world: "world", player-spawn: { x: 10024.5, y: 65.0, z: 10285.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10024.5, y: 65.0, z: 10250.0 } }
+  slot-25: { id: 25, world: "world", player-spawn: { x: 10084.5, y: 65.0, z: 10285.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10084.5, y: 65.0, z: 10250.0 } }
+  slot-26: { id: 26, world: "world", player-spawn: { x: 10144.5, y: 65.0, z: 10285.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10144.5, y: 65.0, z: 10250.0 } }
+  slot-27: { id: 27, world: "world", player-spawn: { x: 10204.5, y: 65.0, z: 10285.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10204.5, y: 65.0, z: 10250.0 } }
+  slot-28: { id: 28, world: "world", player-spawn: { x: 10264.5, y: 65.0, z: 10285.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10264.5, y: 65.0, z: 10250.0 } }
+  slot-29: { id: 29, world: "world", player-spawn: { x: 10324.5, y: 65.0, z: 10285.0, yaw: 180.0, pitch: 0.0 }, boss-spawn: { x: 10324.5, y: 65.0, z: 10250.0 } }
+
+# 강화 촉진제 요구량 — 경제 분석 후 확정 예정. /rpg reload 로 재적용.
+# tier 키 이름은 자유이나 max-level 기준으로 오름차순 정렬됩니다.
+# minor/mid/major 는 각각 하급/중급/상급 촉진제 필요 개수.
+catalyst-requirements:
+  tier1: { max-level:  5, minor:  1, mid:  1, major: 1 }
+  tier2: { max-level: 10, minor:  3, mid:  2, major: 1 }
+  tier3: { max-level: 15, minor:  6, mid:  4, major: 2 }
+  tier4: { max-level: 20, minor: 10, mid:  7, major: 5 }
+  tier5: { max-level: 99, minor: 15, mid: 10, major: 7 }
+
+# PvP 아레나 슬롯 — /rpg-genarenas 로 방 생성 후 자동 사용.
+# 5×2 배치 (방 20블록, 간격 10블록). 맵 확정 후 좌표 수정.
+# spawn-a (서쪽), spawn-b (동쪽) — 양측 플레이어가 마주보도록 yaw 설정.
+pvp-room-slots:
+  slot-0: { id: 0, world: "world", spawn-a: { x: 20003.5, y: 65.0, z: 20010.0, yaw:  90.0, pitch: 0.0 }, spawn-b: { x: 20016.5, y: 65.0, z: 20010.0, yaw: -90.0, pitch: 0.0 } }
+  slot-1: { id: 1, world: "world", spawn-a: { x: 20033.5, y: 65.0, z: 20010.0, yaw:  90.0, pitch: 0.0 }, spawn-b: { x: 20046.5, y: 65.0, z: 20010.0, yaw: -90.0, pitch: 0.0 } }
+  slot-2: { id: 2, world: "world", spawn-a: { x: 20063.5, y: 65.0, z: 20010.0, yaw:  90.0, pitch: 0.0 }, spawn-b: { x: 20076.5, y: 65.0, z: 20010.0, yaw: -90.0, pitch: 0.0 } }
+  slot-3: { id: 3, world: "world", spawn-a: { x: 20093.5, y: 65.0, z: 20010.0, yaw:  90.0, pitch: 0.0 }, spawn-b: { x: 20106.5, y: 65.0, z: 20010.0, yaw: -90.0, pitch: 0.0 } }
+  slot-4: { id: 4, world: "world", spawn-a: { x: 20123.5, y: 65.0, z: 20010.0, yaw:  90.0, pitch: 0.0 }, spawn-b: { x: 20136.5, y: 65.0, z: 20010.0, yaw: -90.0, pitch: 0.0 } }
+  slot-5: { id: 5, world: "world", spawn-a: { x: 20003.5, y: 65.0, z: 20040.0, yaw:  90.0, pitch: 0.0 }, spawn-b: { x: 20016.5, y: 65.0, z: 20040.0, yaw: -90.0, pitch: 0.0 } }
+  slot-6: { id: 6, world: "world", spawn-a: { x: 20033.5, y: 65.0, z: 20040.0, yaw:  90.0, pitch: 0.0 }, spawn-b: { x: 20046.5, y: 65.0, z: 20040.0, yaw: -90.0, pitch: 0.0 } }
+  slot-7: { id: 7, world: "world", spawn-a: { x: 20063.5, y: 65.0, z: 20040.0, yaw:  90.0, pitch: 0.0 }, spawn-b: { x: 20076.5, y: 65.0, z: 20040.0, yaw: -90.0, pitch: 0.0 } }
+  slot-8: { id: 8, world: "world", spawn-a: { x: 20093.5, y: 65.0, z: 20040.0, yaw:  90.0, pitch: 0.0 }, spawn-b: { x: 20106.5, y: 65.0, z: 20040.0, yaw: -90.0, pitch: 0.0 } }
+  slot-9: { id: 9, world: "world", spawn-a: { x: 20123.5, y: 65.0, z: 20040.0, yaw:  90.0, pitch: 0.0 }, spawn-b: { x: 20136.5, y: 65.0, z: 20040.0, yaw: -90.0, pitch: 0.0 } }

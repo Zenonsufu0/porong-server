@@ -1,6 +1,6 @@
 # 필드 3: 오염된 수로 (corrupted_waterway)
 # 권장 강화: 8강~13강 / 필드 레벨: 3
-# PoroRPG drop hook: waterway_normal_drop / waterway_elite_drop / waterway_lord_drop
+# ZenonRPG drop hook: waterway_normal_drop / waterway_elite_drop / waterway_lord_drop
 
 Waterway_Drowned:
   Type: DROWNED
@@ -19,7 +19,7 @@ Waterway_Drowned:
   - meleeattack
   - randomstroll 0.5
   Skills:
-  - addScoreboardTag{t=poro_field_3} @self ~onSpawn
+  - addScoreboardTag{t=zenon_rpg_field_3} @self ~onSpawn
 
 Waterway_Guardian:
   Type: GUARDIAN
@@ -37,7 +37,7 @@ Waterway_Guardian:
   - clear
   - meleeattack
   Skills:
-  - addScoreboardTag{t=poro_field_3} @self ~onSpawn
+  - addScoreboardTag{t=zenon_rpg_field_3} @self ~onSpawn
 
 Waterway_LurkerElite:
   Type: DROWNED
@@ -53,8 +53,8 @@ Waterway_LurkerElite:
   Drops:
   - exp 250
   Skills:
-  - addScoreboardTag{t=poro_field_3} @self ~onSpawn
-  - addScoreboardTag{t=poro_rank_elite} @self ~onSpawn
+  - addScoreboardTag{t=zenon_rpg_field_3} @self ~onSpawn
+  - addScoreboardTag{t=zenon_rpg_rank_elite} @self ~onSpawn
   - potion{type=SLOW;duration=80;level=1} @target ~onAttack 0.5
   - skill{s=Waterway_ToxicBurst} ~onTimer:80
 
@@ -79,8 +79,8 @@ Waterway_Lord:
     Color: GREEN
     Style: SOLID
   Skills:
-  - addScoreboardTag{t=poro_field_3} @self ~onSpawn
-  - addScoreboardTag{t=poro_type_field_boss} @self ~onSpawn
+  - addScoreboardTag{t=zenon_rpg_field_3} @self ~onSpawn
+  - addScoreboardTag{t=zenon_rpg_type_field_boss} @self ~onSpawn
   # Phase 1·2 공통: P-00 기본 공격 (2.0s), P-02 돌진 (7s), P-04 휩쓸기 (5s)
   - skill{s=P_00_BasicAttack} ~onTimer:40
   - skill{s=P_02_LinearDash} ~onTimer:140

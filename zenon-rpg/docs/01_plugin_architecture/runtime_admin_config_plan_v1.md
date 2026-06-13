@@ -35,8 +35,8 @@
 |---|---|---|
 | 상점 | `market/ShopGui` — config.yml `shop.{material,block,cosmetic,special}` 로드 + `reloadItems(Plugin)` 보유 | 이미 config 기반. 명령으로 config write+reload 또는 DB 이전이면 핫에딧 가능 |
 | 몹 스탯 | MythicMobs YAML(`Damage:`/`Health`)만. 시드 CSV에 없음(`boss_master.csv`는 메타데이터만, HP/DEF/ATK 없음) | 런타임 오버라이드 레이어 신규 필요 |
-| 스폰 경로 | `FieldSpawnService` → `mythicSpawner` BiFunction(PoroRPGPlugin:642~). 람다가 스폰 **Entity** 보유 | **스폰 직후 어트리뷰트 주입 지점 존재** |
-| 몹 식별 | scoreboard tag(`poro_field_N`/`poro_rank_elite`/`poro_type_field_boss`) + mobId | 오버라이드 키로 사용 |
+| 스폰 경로 | `FieldSpawnService` → `mythicSpawner` BiFunction(ZenonRPGPlugin:642~). 람다가 스폰 **Entity** 보유 | **스폰 직후 어트리뷰트 주입 지점 존재** |
+| 몹 식별 | scoreboard tag(`zenon_rpg_field_N`/`zenon_rpg_rank_elite`/`zenon_rpg_type_field_boss`) + mobId | 오버라이드 키로 사용 |
 | 명령 패턴 | `AdminTogglesCommand` + `AdminTogglesService`(상태 보유 서비스 + 명령) | 신규 명령의 모델 |
 | DB 패턴 | `*Ddl`/`*Migration`/`*Repository` 정형 (Auction·Pvp·EconomyFlow 등) | 신규 테이블 정형 따름 |
 | 운영 쿼리 | `operations/query` — Discord 어댑터 + `PublicSnapshotQueryService` | 패치노트 피드·INBOX-009 상태 표시 재사용 |
@@ -47,7 +47,7 @@
 
 ### 4.1 축 A — 몹 스탯 런타임 오버라이드 레이어
 
-**구조:** PoroRPG가 스폰 시 DB 오버라이드를 적용(MythicMobs reload 불필요).
+**구조:** ZenonRPG가 스폰 시 DB 오버라이드를 적용(MythicMobs reload 불필요).
 
 ```
 [DB] mob_stat_override         [스폰] MythicMobSpawnEvent 리스너 (전 경로 커버)
@@ -76,11 +76,11 @@
 **§4.1-C 보스 패턴 데미지 제약 및 대안:**
 - 보스의 강타/폭발 등은 MythicMobs 스킬에서 발동 → 데미지가 YAML에 박힘. 런타임 어트리뷰트로 못 바꿈.
 - 대안 (택1, 후속 결정):
-  - **(C-1) 글로벌 배율 placeholder** — MythicMobs 스킬을 `damage{a=<배율변수>×기본}` 형태로 바꾸고, PoroRPG가 PlaceholderAPI/Mythic 변수로 보스별 패턴 배율을 노출. 런타임 명령으로 그 변수만 조정. (가장 유연)
+  - **(C-1) 글로벌 배율 placeholder** — MythicMobs 스킬을 `damage{a=<배율변수>×기본}` 형태로 바꾸고, ZenonRPG가 PlaceholderAPI/Mythic 변수로 보스별 패턴 배율을 노출. 런타임 명령으로 그 변수만 조정. (가장 유연)
   - **(C-2) YAML 배포 유지** — 패턴 데미지는 DL-116 §6대로 YAML 배포로 두고, 런타임은 HP+평타만. (MVP 단순)
 - **권고:** MVP는 (C-2). 패턴 배율 핫에딧 수요가 확인되면 (C-1) 도입.
 
-**명령:** `/poro-mobstat <mob_key> <hp|def|atk> <value>` · `/poro-mobstat list` · `/poro-mobstat reset <mob_key>`
+**명령:** `/rpg-mobstat <mob_key> <hp|def|atk> <value>` · `/rpg-mobstat list` · `/rpg-mobstat reset <mob_key>`
 
 ### 4.2 축 B — 상점 런타임 편집
 
@@ -89,7 +89,7 @@
 - **(B-1) config write + reload** — 명령이 config.yml의 `shop.*`를 수정하고 `ShopGui.reloadItems()` 호출. 최소 변경.
 - **(B-2) DB 이전** — `shop_item` 테이블로 이전, 명령이 DB write. 감사 로그·다중 서버·웹 편집과 정합. (권장 — 축 C와 일원화)
 
-**명령:** `/poro-shop add <category> <item_id> <price> [amount]` · `/poro-shop setprice <item_id> <price>` · `/poro-shop remove <item_id>` · `/poro-shop reload`
+**명령:** `/rpg-shop add <category> <item_id> <price> [amount]` · `/rpg-shop setprice <item_id> <price>` · `/rpg-shop remove <item_id>` · `/rpg-shop reload`
 
 ### 4.3 축 C — 변경 감사 로그 → 패치노트 피드
 
@@ -105,9 +105,9 @@
 
 ### 4.4 안전 / 권한
 
-- 운영자 permission(`poro.admin.config`) 또는 op 게이트.
+- 운영자 permission(`zenon.rpg.admin.config`) 또는 op 게이트.
 - 값 클램프: HP/ATK 음수·과대값 거부(예: ATK 0~1000, HP 1~100000).
-- 롤백: `config_change_log` 기반 `/poro-config undo <id>` (old_value 복원).
+- 롤백: `config_change_log` 기반 `/rpg-config undo <id>` (old_value 복원).
 - 적용 범위: 오버라이드는 **신규 스폰**부터 반영(기존 개체 미소급) — 명시.
 
 ---
@@ -116,9 +116,9 @@
 
 | 단계 | 내용 | 의존 |
 |---|---|---|
-| **1 (MVP)** ✅ **완료 [DL-117]** | `mob_stat_override`+`config_change_log` 테이블 + DL-116 ATK 시드 + `MythicMobSpawnEvent` 리스너(전 스폰 경로, HP·평타 적용) + `/poro-mobstat` | DB 패턴 |
+| **1 (MVP)** ✅ **완료 [DL-117]** | `mob_stat_override`+`config_change_log` 테이블 + DL-116 ATK 시드 + `MythicMobSpawnEvent` 리스너(전 스폰 경로, HP·평타 적용) + `/rpg-mobstat` | DB 패턴 |
 | 2 | `PlayerDefenseListener` 몹별 DEF override 연동 | 1 |
-| 3 | 상점 DB 이전(B-2) + `/poro-shop` + 감사 로그 | DB 패턴 |
+| 3 | 상점 DB 이전(B-2) + `/rpg-shop` + 감사 로그 | DB 패턴 |
 | 4 | 패치노트 디스코드/웹 피드(축 C 파이프라인) | operations/query |
 | 5 | 보스 패턴 배율 placeholder(C-1) — 수요 확인 후 | MythicMobs 연동 |
 | 6 | 웹 GUI 편집(INBOX-009 대시보드 연계) | 웹 |
