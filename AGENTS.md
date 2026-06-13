@@ -1,23 +1,24 @@
-# Poro Server — Agent Rules
+# Zenon Server — Agent Rules
 
 ## Scope
 - Default response language is Korean.
 - Keep changes minimal and targeted.
 - Do not modify unrelated areas.
+- `zenon-economy/`·`zenon-gun/`는 **구상 단계(개발 미착수)** 프로젝트다. 문서만 존재하며 런타임·빌드 산출물·플랫폼 템플릿(Gradle/Fabric/Paper)을 만들지 않는다. 착수는 사용자 명시 요청 시에만.
 
 ## Forbidden paths unless explicitly requested
-- `porong-rpg/server/`
+- `zenon-rpg/server/`
 - `security/`
 - `ops/`
 - `tests/`
 - `scripts/`
-- `porong-rpg/custom-plugins/`
+- `zenon-rpg/custom-plugins/`
 - `.github/`
 
 ## Asset work
-- Blockbench source assets live under `porong-rpg/assets/source`.
-- Exported pack outputs belong under `porong-rpg/assets/export/resourcepack`.
-- When working under `porong-rpg/assets/source`, also follow the deeper AGENTS files.
+- Blockbench source assets live under `zenon-rpg/assets/source`.
+- Exported pack outputs belong under `zenon-rpg/assets/export/resourcepack`.
+- When working under `zenon-rpg/assets/source`, also follow the deeper AGENTS files.
 
 ---
 
@@ -27,37 +28,37 @@
 
 | 계층 | 문서 | 역할 |
 |---|---|---|
-| 1 | `porong-rpg/docs/final_master_plan.md` | 프로젝트 전체 방향성·시스템 연결·우선순위의 최상위 기준 |
-| 2 | 각 프로젝트 docs의 `CANON.md` (RPG: `porong-rpg/docs/NN_*/CANON.md`) | 도메인별 현재 공식 기준 (수치·구조·충돌 처리 포함) |
-| 3 | `porong-rpg/docs/decision_log.md` | 설계 결정 이력. DL-NNN 형식으로 무엇을/왜/근거 문서를 기록 |
+| 1 | `zenon-rpg/docs/final_master_plan.md` | 프로젝트 전체 방향성·시스템 연결·우선순위의 최상위 기준 |
+| 2 | 각 프로젝트 docs의 `CANON.md` (RPG: `zenon-rpg/docs/NN_*/CANON.md`) | 도메인별 현재 공식 기준 (수치·구조·충돌 처리 포함) |
+| 3 | `zenon-rpg/docs/decision_log.md` | 설계 결정 이력. DL-NNN 형식으로 무엇을/왜/근거 문서를 기록 |
 | 4 | 각 도메인 하위 `*.md` | CANON이 위임한 세부 수치·스펙·구현 참조 |
-| 5 | `porong-rpg/docs/_archive/` | **폐기 문서.** 현재 설계 판단에 사용 금지 (아래 참조) |
+| 5 | `zenon-rpg/docs/_archive/` | **폐기 문서.** 현재 설계 판단에 사용 금지 (아래 참조) |
 
 ### 도메인별 CANON 진입점
 
 | 도메인 | 공식 기준 |
 |---|---|
-| 플러그인/구현 경계 | `porong-rpg/docs/01_plugin_architecture/CANON.md` |
-| DB/API/경제/통계 | `porong-rpg/docs/02_database_api_stats/CANON.md` |
-| 디스코드 온보딩 | `porong-discord/docs/index.md` |
-| 전투/무기/스킬 | `porong-rpg/docs/04_combat_weapon_skills/CANON.md` |
-| 영지/농사/공방 | `porong-rpg/docs/05_island_farm_system/CANON.md` |
-| 필드/보스/드랍 | `porong-rpg/docs/06_fields_bosses/CANON.md` |
-| 보스 패턴 | `porong-rpg/docs/07_boss_pattern_modules/index.md` |
-| GUI/리소스팩 | `porong-rpg/docs/08_resourcepack_pipeline/index.md` |
-| 약관/운영정책 | `porong-rpg/docs/09_terms_and_policy/index.md` |
-| 개발 로드맵 | `porong-rpg/docs/10_development_roadmap/index.md` |
-| 맵 디자인 | `porong-rpg/docs/12_map_design/` |
-| Archive | `porong-rpg/docs/_archive/README.md` |
+| 플러그인/구현 경계 | `zenon-rpg/docs/01_plugin_architecture/CANON.md` |
+| DB/API/경제/통계 | `zenon-rpg/docs/02_database_api_stats/CANON.md` |
+| 디스코드 온보딩 | `zenon-discord/docs/index.md` |
+| 전투/무기/스킬 | `zenon-rpg/docs/04_combat_weapon_skills/CANON.md` |
+| 영지/농사/공방 | `zenon-rpg/docs/05_island_farm_system/CANON.md` |
+| 필드/보스/드랍 | `zenon-rpg/docs/06_fields_bosses/CANON.md` |
+| 보스 패턴 | `zenon-rpg/docs/07_boss_pattern_modules/index.md` |
+| GUI/리소스팩 | `zenon-rpg/docs/08_resourcepack_pipeline/index.md` |
+| 약관/운영정책 | `zenon-rpg/docs/09_terms_and_policy/index.md` |
+| 개발 로드맵 | `zenon-rpg/docs/10_development_roadmap/index.md` |
+| 맵 디자인 | `zenon-rpg/docs/12_map_design/` |
+| Archive | `zenon-rpg/docs/_archive/README.md` |
 
 ---
 
 ## Archive 문서 사용 규칙
 
-`porong-rpg/docs/_archive/` 안의 모든 파일은 **현재 canon이 아니다.**
+`zenon-rpg/docs/_archive/` 안의 모든 파일은 **현재 canon이 아니다.**
 
 - archive 문서의 수치·구조·결정을 현재 설계 기준으로 인용하지 않는다.
-- 어떤 문서가 archive로 이동된 이유와 대체 문서는 `porong-rpg/docs/_archive/README.md`에서 확인한다.
+- 어떤 문서가 archive로 이동된 이유와 대체 문서는 `zenon-rpg/docs/_archive/README.md`에서 확인한다.
 - 구버전 `00_master_plan.md`, `economy_numbers_v1.md`, `atk_dps_baseline_v1.md` 등은 모두 대체 문서가 있다.
 - archive 파일을 읽는 경우: 결정 이력 추적 또는 과거 설계 맥락 파악 목적에 한한다.
 
@@ -79,7 +80,7 @@ Codex는 기본적으로 **리뷰 / QA / docs consistency** 담당이다. 구현
 ### 코드 수정 규칙
 
 - 코드 파일 수정은 **사용자가 명시적으로 요청할 때만** 수행한다.
-- `porong-rpg/custom-plugins/`, `porong-rpg/server/`, `scripts/`, `tests/` 는 명시적 요청 없이 수정하지 않는다.
+- `zenon-rpg/custom-plugins/`, `zenon-rpg/server/`, `scripts/`, `tests/` 는 명시적 요청 없이 수정하지 않는다.
 - 발견된 코드 버그나 개선점은 수정하지 않고 **보고서 형태로 출력**한다.
 
 ### 항상 금지
@@ -97,7 +98,7 @@ Codex는 기본적으로 **리뷰 / QA / docs consistency** 담당이다. 구현
 
 ### 검토 항목
 
-- `porong-rpg/docs/idea_inbox.md`에 `[PROMOTED]`·`[폐기]` 처리 없이 오래 방치된 항목이 있는가?
+- `zenon-rpg/docs/idea_inbox.md`에 `[PROMOTED]`·`[폐기]` 처리 없이 오래 방치된 항목이 있는가?
 - 최근 커밋의 변경 내용이 CANON.md 또는 decision_log.md에 기록됐는가?
 - decision_log.md의 최신 DL-NNN이 실제 파일 변경과 일치하는가?
 
