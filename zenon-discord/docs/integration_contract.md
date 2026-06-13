@@ -5,7 +5,7 @@
 > 알림 라우팅은 [`notifications.md`], 역할/온보딩은 [`roles_and_permissions.md`].
 > 상태: 🟢 구현 · 🟡 설계(미구현) · 🔴 미정.
 >
-> ⚠ 게임서버 측 API의 권위는 각 게임 프로젝트(PorongRPG / PoroMonCore)에 있다. 이 문서는
+> ⚠ 게임서버 측 API의 권위는 각 게임 프로젝트(ZenonRPG / PoroMonCore)에 있다. 이 문서는
 > **봇이 기대·호출하는 계약(봇 관점)**을 명세한다. 게임서버 코드는 여기서 수정하지 않는다.
 
 ## 0. 두 방향

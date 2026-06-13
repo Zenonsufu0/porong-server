@@ -42,7 +42,7 @@ zenon-discord/
     config.py             # .env 로드 + 역할/채널 ID
     permissions.py        # 권한/역할 정책 (권한↔알림 분리, 권한 데코레이터)
   integrations/           # 외부 서버 연동 (도메인별 분리)
-    rpg_api.py            # PorongRPG HTTP API 클라이언트 (구현됨)
+    rpg_api.py            # ZenonRPG HTTP API 클라이언트 (구현됨)
     poromon_api.py        # 포로몬 연동 (스텁 — 인터페이스만)
   modules/                # 도메인 명령어/기능 모듈 (Cog)
     common/               # 게임 비종속 공통 (/핑 등)

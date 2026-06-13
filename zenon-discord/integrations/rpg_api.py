@@ -1,5 +1,5 @@
 """
-PorongRPG HTTP API 클라이언트 (aiohttp 기반).
+ZenonRPG HTTP API 클라이언트 (aiohttp 기반).
 
 모든 요청에 X-Api-Key 헤더를 포함한다.
 """
@@ -12,7 +12,7 @@ class RpgAuthError(VerifyError):
     """RPG 인증 API 호출 중 운영자 확인이 필요한 오류(VerifyError 하위)."""
 
 
-class PorongApiClient:
+class ZenonRpgApiClient:
     def __init__(self, session: aiohttp.ClientSession | None = None):
         self._session = session
         self._headers = {"X-Api-Key": PORONG_API_KEY, "Content-Type": "application/json"}

@@ -11,7 +11,7 @@ zenon-discord/
     config.py             .env 로드 + 역할/채널 ID
     permissions.py        권한/역할 정책 (권한↔알림 분리, requires_permission 데코레이터)
   integrations/           외부 게임 서버 연동 (도메인별 분리)
-    rpg_api.py            PorongRPG HTTP API 클라이언트 (구현)
+    rpg_api.py            ZenonRPG HTTP API 클라이언트 (구현)
     poromon_api.py        포로몬 연동 (스텁 — 인터페이스만)
   modules/                도메인 명령어/기능 (discord.py Cog)
     common/               게임 비종속 공통 (/핑 등)
@@ -51,7 +51,7 @@ zenon-discord/
 
 ```
 ┌─ 오라클 클라우드 (24h, 게임 호스팅 분리) ─┐      ┌─ 게임 호스팅 (별도) ───────────┐
-│ 디스코드 봇 (Python/discord.py)            │      │ PorongRPG (Paper, HTTP API :8765)│
+│ 디스코드 봇 (Python/discord.py)            │      │ ZenonRPG (Paper, HTTP API :8765)│
 │  core(config·permissions·notifier)        │      │ PoroMon (Cobblemon+PoroMonCore)│
 │  integrations(rpg_api·poromon_api) ──HTTP──┼─────▶│  ← 게임 상태 권위               │
 │  modules(rpg·poromon·roles·admin·event…)  │◀─push─┤  → 이벤트 push                 │
@@ -62,7 +62,7 @@ zenon-discord/
 | 컴포넌트 | 권위 | 책임 |
 |---|---|---|
 | 디스코드 봇(오라클) | **디스코드 측 전부** | 역할·카테고리·채널 가시성, 온보딩 UI, 알림 게시, 조회 임베드, 운영명령 접수 |
-| PorongRPG(Paper) | **RPG 게임 상태** | 인증/화이트리스트·전투·영지·보스·경제 — HTTP API 노출 |
+| ZenonRPG(Paper) | **RPG 게임 상태** | 인증/화이트리스트·전투·영지·보스·경제 — HTTP API 노출 |
 | PoroMon(모드) | **포로몬 게임 상태** | 진행·도감·리그 — PoroMonCore가 HTTP API 노출(§통신) |
 
 ### 봇 관여 경계 — 봇은 게임 상태의 "권위"가 아니라 "클라이언트"

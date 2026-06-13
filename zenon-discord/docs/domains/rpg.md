@@ -4,8 +4,8 @@
 > `integrations/rpg_api.py`) 명세다. 봇 전체 구조는 [`../architecture.md`],
 > 역할/권한 정책은 [`../roles_and_permissions.md`], 알림은 [`../notifications.md`] 참조.
 >
-> **[STATUS: DRAFT]** — 기준일 2026-05-23. 봇 이름(가칭): 포롱봇 / PorongBOT.
-> 데이터 경로: PorongRPG HTTP API(포트 8765) 연동, DB 직접 접근 없음.
+> **[STATUS: DRAFT]** — 기준일 2026-05-23. 봇 이름: YUKI-01 / 유키 (코드 내부 명칭 YukiBot).
+> 데이터 경로: ZenonRPG HTTP API(포트 8765) 연동, DB 직접 접근 없음.
 >
 > ⚠️ 아래 §8 의 "봇 구현 언어 = Node.js(DL-030)" 는 **실제 코드(Python/discord.py)와
 > 불일치**한다. 실제 코드를 기준으로 하며, 마스터 docs 정정은 별도 합의 후 진행.
@@ -17,7 +17,7 @@
 
 | 원칙 | 내용 |
 |---|---|
-| API 단일 경로 | 모든 데이터 조회는 PorongRPG HTTP API 경유 |
+| API 단일 경로 | 모든 데이터 조회는 ZenonRPG HTTP API 경유 |
 | 역할 분리 | 권한 역할(시스템 제어)과 편의 역할(플레이어 선택)은 로직 분리 |
 | 모달 우선 | 입력이 필요한 기능은 모달 팝업. 채팅 입력 금지 |
 | 채널 보호 | 서버 IP·접속 정보는 역할 인증 후에만 열람 가능 |
@@ -277,7 +277,7 @@ embed 포함 항목:
   ④ 심각도 선택: [크래시] [기능오류] [표시버그] [기타]
     │
     ▼
-PorongRPG API가 porong.db bug_report 테이블에 INSERT
+ZenonRPG API가 porong.db bug_report 테이블에 INSERT
 (id AUTOINCREMENT → 접수번호로 사용)
     │
     ▼
@@ -333,7 +333,7 @@ PorongRPG API가 porong.db bug_report 테이블에 INSERT
 
 ### 5-1. 필드보스 알림
 
-PorongRPG 스케줄러가 API를 통해 트리거. 봇이 `#필드보스-알림` 채널에 embed 전송.
+ZenonRPG 스케줄러가 API를 통해 트리거. 봇이 `#필드보스-알림` 채널에 embed 전송.
 
 | 이벤트 | 트리거 | 멘션 |
 |---|---|---|
@@ -353,7 +353,7 @@ PorongRPG 스케줄러가 API를 통해 트리거. 봇이 `#필드보스-알림`
 
 ### 5-2. 시즌보스 알림
 
-운영진이 `/보스알림` 명령어로 수동 전송 또는 PorongRPG 자동 트리거.
+운영진이 `/보스알림` 명령어로 수동 전송 또는 ZenonRPG 자동 트리거.
 
 ```
 [시즌보스 모집] @시즌보스알림
@@ -395,7 +395,7 @@ PorongRPG 스케줄러가 API를 통해 트리거. 봇이 `#필드보스-알림`
 
 ## 7. API 연동 범위
 
-봇이 호출하는 PorongRPG API 엔드포인트 목록.
+봇이 호출하는 ZenonRPG API 엔드포인트 목록.
 
 | 기능 | 메서드 | 엔드포인트 |
 |---|---|---|

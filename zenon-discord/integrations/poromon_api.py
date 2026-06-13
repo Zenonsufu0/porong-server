@@ -2,7 +2,7 @@
 포로몬(모드 서버) 연동 클라이언트.
 
 RPG 와 포로몬은 코드 공유가 거의 없으므로 봇 내부에서도 통합 경로를 분리한다.
-RPG 연동은 integrations/rpg_api.py(PorongApiClient)가 담당하고,
+RPG 연동은 integrations/rpg_api.py(ZenonRpgApiClient)가 담당하고,
 포로몬 연동은 이 모듈이 담당한다.
 
 현재 구현된 것:
@@ -38,7 +38,7 @@ class PoromonAuthError(VerifyError):
 class PoromonApiClient:
     """포로몬 서버 조회/인증용 클라이언트.
 
-    RPG 클라이언트(PorongApiClient)와 동일하게 aiohttp 세션을 지연 생성하고
+    RPG 클라이언트(ZenonRpgApiClient)와 동일하게 aiohttp 세션을 지연 생성하고
     API 키 헤더를 붙인다.
     """
 
