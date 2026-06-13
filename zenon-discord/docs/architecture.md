@@ -12,12 +12,12 @@ zenon-discord/
     permissions.py        권한/역할 정책 (권한↔알림 분리, requires_permission 데코레이터)
   integrations/           외부 게임 서버 연동 (도메인별 분리)
     rpg_api.py            ZenonRPG HTTP API 클라이언트 (구현)
-    poromon_api.py        포로몬 연동 (스텁 — 인터페이스만)
+    zenon_mon_api.py        Zenon Mon 연동 (스텁 — 인터페이스만)
   modules/                도메인 명령어/기능 (discord.py Cog)
     common/               게임 비종속 공통 (/핑 등)
     rpg/                  RPG 전용 (auth · player_commands · field_boss · role_poll)
     roles/                역할 선택 (/클래스선택 · /알림설정)
-    poromon/              포로몬 전용 (스텁)
+    poromon/              Zenon Mon 전용 (스텁)
     event/                이벤트 (스텁)
     admin/                운영/관리자 (스텁 — 설계 선행)
   docs/                   설계/명세 문서
@@ -33,7 +33,7 @@ zenon-discord/
 
 ## 도메인 격리 원칙
 
-- **RPG 코드는 포로몬 모듈/클라이언트를 import 하지 않는다. 반대도 마찬가지.**
+- **RPG 코드는 Zenon Mon 모듈/클라이언트를 import 하지 않는다. 반대도 마찬가지.**
   공통이 필요하면 `core/` 로 올린다.
 - 새 도메인 추가 시: `modules/<도메인>/` + (필요 시) `integrations/<도메인>_api.py` 를 만들고
   `main.py` 의 `EXTENSIONS` 에 `modules.<도메인>.<파일>` 을 등록한다.
@@ -52,8 +52,8 @@ zenon-discord/
 ```
 ┌─ 오라클 클라우드 (24h, 게임 호스팅 분리) ─┐      ┌─ 게임 호스팅 (별도) ───────────┐
 │ 디스코드 봇 (Python/discord.py)            │      │ ZenonRPG (Paper, HTTP API :8765)│
-│  core(config·permissions·notifier)        │      │ PoroMon (Cobblemon+PoroMonCore)│
-│  integrations(rpg_api·poromon_api) ──HTTP──┼─────▶│  ← 게임 상태 권위               │
+│  core(config·permissions·notifier)        │      │ Zenon Mon (Cobblemon+ZenonMonCore)│
+│  integrations(rpg_api·zenon_mon_api) ──HTTP──┼─────▶│  ← 게임 상태 권위               │
 │  modules(rpg·poromon·roles·admin·event…)  │◀─push─┤  → 이벤트 push                 │
 └──────────────┬─────────────────────────────┘      └────────────────────────────────┘
               ▼  디스코드 길드 (역할·카테고리·채널 = 봇 권위)
@@ -63,7 +63,7 @@ zenon-discord/
 |---|---|---|
 | 디스코드 봇(오라클) | **디스코드 측 전부** | 역할·카테고리·채널 가시성, 온보딩 UI, 알림 게시, 조회 임베드, 운영명령 접수 |
 | ZenonRPG(Paper) | **RPG 게임 상태** | 인증/화이트리스트·전투·영지·보스·경제 — HTTP API 노출 |
-| PoroMon(모드) | **포로몬 게임 상태** | 진행·도감·리그 — PoroMonCore가 HTTP API 노출(§통신) |
+| Zenon Mon(모드) | **Zenon Mon 게임 상태** | 진행·도감·리그 — ZenonMonCore가 HTTP API 노출(§통신) |
 
 ### 봇 관여 경계 — 봇은 게임 상태의 "권위"가 아니라 "클라이언트"
 
@@ -84,7 +84,7 @@ zenon-discord/
 
 - **봇 → 게임서버 (요청-응답, HTTP)**: 인증·조회·운영명령 트리거. `integrations/*_api.py`.
   - RPG: 구현(`/auth/*`·`/player`·`/island`·`/boss-history`). 인증 역할 부여는 `role-queue` **폴링**(현행).
-  - 포로몬: **PoroMonCore가 RPG와 동일한 HTTP API 패턴 노출**(DL-133). `poromon_api`가 클라이언트(스텁).
+  - Zenon Mon: **ZenonMonCore가 RPG와 동일한 HTTP API 패턴 노출**(DL-133). `zenon_mon_api`가 클라이언트(스텁).
 - **게임서버 → 봇 (push)**: 게임 이벤트(보스·점검·이벤트)는 게임서버가 봇 **인바운드 HTTP 수신
   엔드포인트**로 push → `core/notifier`가 채널 라우팅+멘션+전송([`notifications.md`](notifications.md)).
   - 봇은 경량 HTTP 리스너(aiohttp.web 등)를 discord 루프와 함께 띄운다.
@@ -97,7 +97,7 @@ zenon-discord/
 
 - 봇은 **24시간 상시 운영**이 전제다. 따라서 **게임 서버 호스팅과 분리된
   오라클 클라우드(Oracle Cloud) 인스턴스**에 배포한다.
-  - 게임 서버(RPG/포로몬) 재시작·점검이 봇 가동에 영향을 주지 않는다(독립 프로세스·독립 호스트).
+  - 게임 서버(RPG/Zenon Mon) 재시작·점검이 봇 가동에 영향을 주지 않는다(독립 프로세스·독립 호스트).
   - 봇 → 게임 서버는 `integrations/*_api.py` HTTP 경유로만 통신(네트워크 도달성·방화벽은 배포 시 구성).
   - 비밀정보(`.env`·토큰·API 키)는 인스턴스에만 두고 커밋 금지([`../CLAUDE.md`] §5).
 - 운영 방식(systemd 서비스/프로세스 매니저·로그·재기동 정책) 상세는 배포 작업 시 확정(→ [`task.md`](task.md) T8).
@@ -109,7 +109,7 @@ zenon-discord/
 ```
 [공통]            서버소개 · 규칙/약관인증 · 서버선택(이모지 패널)   ← 미인증/접속대기 가시
 [RPG 카테고리]    RPG-약관 · 접속정보 · 잡담 · 파티모집 · …          ← RPG접근 역할에게만 가시
-[포로몬 카테고리] 포로몬-약관 · 접속정보 · …                          ← 포로몬접근 역할에게만 가시
+[Zenon Mon 카테고리] Zenon Mon-약관 · 접속정보 · …                          ← 포로몬접근 역할에게만 가시
 [기타 카테고리]   (확장)                                              ← 기타접근 역할에게만 가시
 ```
 
@@ -168,12 +168,12 @@ zenon-discord/
 | `BOT_DB_PATH` | SQLite 파일 경로 | data_model §1 |
 | `BOT_INBOUND_BASE`(또는 PORT) · `INBOUND_SECRET` · `INBOUND_ALLOW_IPS` | push 인바운드 수신·HMAC | notifications ① |
 | `CHANNEL_NOTICE_ID` | 공지/시즌보스/월드보스/점검/업데이트/이벤트 알림 | notifications ③ |
-| `CHANNEL_POROMON_NOTICE_ID` | 포로몬 알림 | notifications ③ |
+| `CHANNEL_ZENON_MON_NOTICE_ID` | Zenon Mon 알림 | notifications ③ |
 | `CHANNEL_LEVELUP_ID` | 레벨업·칭호 획득 공지 | community_level §3.3 |
 | `CHANNEL_MODLOG_ID` | **운영/감사 로그(=#운영로그, 정식 키)** | moderation §3 |
 | 임시음성 허브(카테고리별 다중 — 템플릿 생성 `➕ 음성방 만들기`) · `AFK_CHANNEL_ID` · `XP_EXCLUDE_CHANNEL_IDS` | 임시음성 허브·음성 XP 제외 | community_level §1·§8 |
 | XP 튜닝(`CHAT_XP_PER_MSG`·`CHAT_XP_COOLDOWN_SEC`·`VOICE_XP_PER_TICK`·`VOICE_TICK_SEC`·곡선 계수) | 레벨 밸런스 | community_level §6 |
-| `POROMON_API_URL` · `POROMON_API_KEY` | 포로몬 연동 | integration_contract §D |
+| `ZENON_MON_API_URL` · `ZENON_MON_API_KEY` | Zenon Mon 연동 | integration_contract §D |
 | 접근역할(`ROLE_RPG접근_ID`·`ROLE_포로몬접근_ID`…) | 카테고리 가시성 | roles §A-2(T10) |
 
 > `#운영로그`는 문서마다 이름으로 불렸으나 **정식 키 = `CHANNEL_MODLOG_ID`** 로 통일. server_lifecycle·admin의 "#운영로그"는 이 키를 가리킨다.
@@ -182,7 +182,7 @@ zenon-discord/
 
 - `core/notifier.py` — 도메인 무관 알림 디스패처(채널 라우팅 + 멘션 + 트리거 인터페이스).
   현재 알림 로직이 `modules/rpg/field_boss.py` 에 도메인 종속으로 박혀 있음.
-  포로몬/이벤트/월드보스/점검 알림을 일관되게 붙이려면 이 계층이 필요.
+  Zenon Mon/이벤트/월드보스/점검 알림을 일관되게 붙이려면 이 계층이 필요.
 - 공통 온보딩 계층 분리(공통 디스코드 인증을 `core/`로) — DL-131.
-- `integrations/poromon_api.py` 실구현(현재 스텁).
+- `integrations/zenon_mon_api.py` 실구현(현재 스텁).
 - `modules/admin` · `modules/event` · `modules/poromon` 실구현(현재 스텁, 설계 선행).

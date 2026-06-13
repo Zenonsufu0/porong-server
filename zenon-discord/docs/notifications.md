@@ -29,7 +29,7 @@
 | 월드보스 | `@월드보스알림` | `/보스알림 월드보스 …` (admin/event_manager) | 🟢 |
 | 시즌보스 모집/공지 | `@시즌보스알림` | `/보스알림 시즌보스 …` (admin/event_manager) | 🟢 |
 | 이벤트 시작/종료 | `@이벤트알림` | `/이벤트알림 시작\|종료 <이벤트>` (admin/event_manager) | 🟢 |
-| 포로몬 이벤트/공지 | `@포로몬알림` | (게임서버 push 또는 추후 운영 명령) | ⬜ |
+| Zenon Mon 이벤트/공지 | `@포로몬알림` | (게임서버 push 또는 추후 운영 명령) | ⬜ |
 
 > 게임서버 push 트리거(인바운드)는 ① 리스너로 수신 준비됨 — 게임서버 송신 구현이 남은 작업.
 
@@ -80,9 +80,9 @@
 | `common.maintenance` | `CHANNEL_NOTICE_ID` | `점검알림` |
 | `common.update` | `CHANNEL_NOTICE_ID` | `업데이트알림` |
 | `common.event_start` / `event_end` | `CHANNEL_NOTICE_ID` | `이벤트알림` |
-| `poromon.event` | `CHANNEL_POROMON_NOTICE_ID`(신규) | `포로몬알림` |
+| `poromon.event` | `CHANNEL_ZENON_MON_NOTICE_ID`(신규) | `포로몬알림` |
 
-> 신규 채널 ID(`CHANNEL_NOTICE_ID`·`CHANNEL_POROMON_NOTICE_ID` 등)는 `config.py`+`.env` 추가. 다수 공지를 단일 공지채널로 묶을지 분리할지는 운영 채널구조에 맞춰 확정.
+> 신규 채널 ID(`CHANNEL_NOTICE_ID`·`CHANNEL_ZENON_MON_NOTICE_ID` 등)는 `config.py`+`.env` 추가. 다수 공지를 단일 공지채널로 묶을지 분리할지는 운영 채널구조에 맞춰 확정.
 
 ### ④ 폴링 → push 이관
 - 현행 RPG 필드보스 **폴링**(`field_boss.py`)은 유지. 게임서버가 `rpg.field_boss_*` push 구현 시 동일 embed 경로로 이관.

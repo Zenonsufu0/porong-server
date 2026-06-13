@@ -26,12 +26,12 @@ _SELECT_LIMIT = 25  # 디스코드 Select 옵션 상한
 _DOMAIN_CHOICES = [
     app_commands.Choice(name="공통(전 서버)", value="common"),
     app_commands.Choice(name="RPG", value="rpg"),
-    app_commands.Choice(name="포로몬", value="poromon"),
+    app_commands.Choice(name="Zenon Mon", value="poromon"),
 ]
 
 
 def _domain_label(domain: str | None) -> str:
-    return {"rpg": "RPG", "poromon": "포로몬"}.get(domain or "", "공통") if domain else "공통"
+    return {"rpg": "RPG", "poromon": "Zenon Mon"}.get(domain or "", "공통") if domain else "공통"
 
 
 class FaqModal(discord.ui.Modal):

@@ -25,11 +25,17 @@ if not _zenon_rpg_api_key:
     )
 ZENON_RPG_API_KEY: str = _zenon_rpg_api_key
 
-# ─── 포로몬 인증 API (RPG 와 분리된 별도 연동) ──────────────────────
+# ─── Zenon Mon 인증 API (RPG 와 분리된 별도 연동) ──────────────────────
 # 봇·MC 동일 호스트 전제 → 루프백(127.0.0.1) 바인드. 키는 secret 으로만 로드.
-# POROMON_AUTH_KEY 미설정(빈 값)이면 /인증코드 는 운영자 오류로 응답한다.
-POROMON_AUTH_URL: str = os.getenv("POROMON_AUTH_URL", "http://127.0.0.1:25580")
-POROMON_AUTH_KEY: str = os.getenv("POROMON_AUTH_KEY", "")
+# 전환기 호환: 새 이름(ZENON_MON_AUTH_*)을 우선 읽고, 없으면 구 이름(POROMON_AUTH_*)을
+# 폴백으로 읽는다. 구 이름은 차후 제거 예정.
+# ZENON_MON_AUTH_KEY 미설정(빈 값)이면 /인증코드 는 운영자 오류로 응답한다.
+ZENON_MON_AUTH_URL: str = (
+    os.getenv("ZENON_MON_AUTH_URL")
+    or os.getenv("POROMON_AUTH_URL")
+    or "http://127.0.0.1:25580"
+)
+ZENON_MON_AUTH_KEY: str = os.getenv("ZENON_MON_AUTH_KEY") or os.getenv("POROMON_AUTH_KEY") or ""
 
 GUILD_ID: int = int(os.environ["GUILD_ID"])
 
@@ -69,7 +75,9 @@ INBOUND_ALLOW_IPS: set[str] = {
 
 # 알림 라우팅 공지 채널 (notifications.md ③). 미설정(0)이면 해당 알림 graceful skip.
 CHANNEL_NOTICE_ID: int         = int(os.getenv("CHANNEL_NOTICE_ID", "0") or "0")
-CHANNEL_POROMON_NOTICE_ID: int = int(os.getenv("CHANNEL_POROMON_NOTICE_ID", "0") or "0")
+CHANNEL_ZENON_MON_NOTICE_ID: int = int(
+    os.getenv("CHANNEL_ZENON_MON_NOTICE_ID") or os.getenv("CHANNEL_POROMON_NOTICE_ID") or "0"
+)
 
 # ─── 커뮤니티 레벨 (T13, community_level.md §6) ─────────────────────────
 # 채팅·음성 활동 XP 튜닝. 레벨업 알림 채널 + XP 제외 채널/AFK.
@@ -105,7 +113,7 @@ PERMISSION_ROLE_IDS: dict[str, int] = {
     "owner":           int(os.getenv("ROLE_OWNER_ID",           "0") or "0"),
     "admin":           int(os.getenv("ROLE_ADMIN_ID",           "0") or "0"),
     "rpg_manager":     int(os.getenv("ROLE_RPG_MANAGER_ID",     "0") or "0"),
-    "poromon_manager": int(os.getenv("ROLE_POROMON_MANAGER_ID", "0") or "0"),
+    "poromon_manager": int(os.getenv("ROLE_ZENON_MON_MANAGER_ID") or os.getenv("ROLE_POROMON_MANAGER_ID") or "0"),
     "event_manager":   int(os.getenv("ROLE_EVENT_MANAGER_ID",   "0") or "0"),
     "support":         int(os.getenv("ROLE_SUPPORT_ID",         "0") or "0"),
 }
@@ -145,7 +153,7 @@ def _role(name: str) -> int:
 #   않는다(레거시 .env 키 보존용으로만 잔존 — 제거 가능). verify 라우팅 = panels._verifiers.
 ONBOARDING_SERVERS: dict[str, dict[str, int | str]] = {
     "poromon": {
-        "display_name": "포로몬",
+        "display_name": "Zenon Mon",
         "access_role":  _role("ROLE_포로몬접근_ID"),
         "pending_role": _role("ROLE_포로몬인증전_ID"),
         "player_role":  _role("ROLE_포로몬플레이어_ID"),

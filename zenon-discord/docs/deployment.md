@@ -67,17 +67,17 @@ python main.py                            # 기동
 > 신규 `.env` 는 새 이름을 사용하고 구 이름은 차후 제거한다.
 
 ### 3.2 선택 (미설정 시 0/기본값 → 해당 기능 graceful 비활성)
-- **API:** `ZENON_RPG_API_URL`(기본 localhost:8765, 구 `PORONG_API_URL` 폴백), `POROMON_AUTH_URL/KEY`
+- **API:** `ZENON_RPG_API_URL`(기본 localhost:8765, 구 `PORONG_API_URL` 폴백), `ZENON_MON_AUTH_URL/KEY`
 - **DB:** `BOT_DB_PATH`(기본 `yuki_bot.sqlite3`, 인스턴스 로컬·gitignored)
-- **채널:** `CHANNEL_MODLOG_ID`(운영로그)·`CHANNEL_NOTICE_ID`(공지)·`CHANNEL_POROMON_NOTICE_ID`·
+- **채널:** `CHANNEL_MODLOG_ID`(운영로그)·`CHANNEL_NOTICE_ID`(공지)·`CHANNEL_ZENON_MON_NOTICE_ID`·
   `CHANNEL_BUGREPORT_ID`·`CHANNEL_LEVELUP_ID`·`AFK_CHANNEL_ID`·`CATEGORY_티켓_ID`
 - **전역 단일 active:** `ROLE_서버준비_ID`·`CATEGORY_통합_ID`(생애주기 일괄 전이용)
-- **권한 역할:** `ROLE_OWNER_ID`·`ROLE_ADMIN_ID`·`ROLE_RPG_MANAGER_ID`·`ROLE_POROMON_MANAGER_ID`·
+- **권한 역할:** `ROLE_OWNER_ID`·`ROLE_ADMIN_ID`·`ROLE_RPG_MANAGER_ID`·`ROLE_ZENON_MON_MANAGER_ID`·
   `ROLE_EVENT_MANAGER_ID`·`ROLE_SUPPORT_ID` — **운영 명령 권한 판정에 필수적**(미설정 시 owner만 통과)
-- **알림 역할:** `ROLE_필드보스알림_ID`·`시즌보스`·`월드보스`·`포로몬`·`이벤트`·`점검`·`업데이트알림_ID`
+- **알림 역할:** `ROLE_필드보스알림_ID`·`시즌보스`·`월드보스`·`Zenon Mon`·`이벤트`·`점검`·`업데이트알림_ID`
 - **클래스 역할:** `ROLE_검사_ID` 등 6종
 - **튜닝:** `CHAT_XP_*`·`VOICE_*`·`ATTENDANCE_XP_*`·`XP_EXCLUDE_CHANNEL_IDS`
-- **온보딩(포로몬):** `ROLE_포로몬접근/인증전/플레이어_ID`·`CHANNEL_포로몬약관/인증_ID`
+- **온보딩(Zenon Mon):** `ROLE_포로몬접근/인증전/플레이어_ID`·`CHANNEL_포로몬약관/인증_ID`
 
 ### 3.3 인바운드 알림 리스너 (선택 — 게임서버 push 수신, T1)
 `INBOUND_SECRET`·`INBOUND_PORT` **둘 다 설정해야 기동**(미설정 시 무인증 엔드포인트 안 엶).

@@ -5,7 +5,7 @@
 (`BUG-{메시지}` 접수번호) + 제보자 DM + 운영진 상태 버튼(접수→확인중→완료/기각).
 
 설계 경계(data_model §0): 버그 데이터는 **봇 DB 에 저장하지 않는다**. 채널 임베드가 유일 기록.
-RPG/포로몬 게임 버그의 게임 DB 이관(`rpg_api.create_bug_report` 등)은 게임 API 확정 후
+RPG/Zenon Mon 게임 버그의 게임 DB 이관(`rpg_api.create_bug_report` 등)은 게임 API 확정 후
 연동(현재는 도메인 태그만 달아 동일 채널로 접수 — 운영 가시 baseline).
 """
 from __future__ import annotations
@@ -25,10 +25,10 @@ _REPORTER_RE = re.compile(r"reporter:(\d+)")
 
 _DOMAIN_CHOICES = [
     app_commands.Choice(name="RPG", value="rpg"),
-    app_commands.Choice(name="포로몬", value="poromon"),
+    app_commands.Choice(name="Zenon Mon", value="poromon"),
     app_commands.Choice(name="기타·봇", value="etc"),
 ]
-_DOMAIN_LABEL = {"rpg": "RPG", "poromon": "포로몬", "etc": "기타·봇"}
+_DOMAIN_LABEL = {"rpg": "RPG", "poromon": "Zenon Mon", "etc": "기타·봇"}
 # 게임 DB 이관 예정 도메인(현재 채널 baseline 접수 + 안내 노트).
 _GAME_DOMAINS = {"rpg", "poromon"}
 

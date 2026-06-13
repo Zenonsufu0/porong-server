@@ -9,9 +9,9 @@
 이 영역은 **Zenon 서버 전체 중앙제어 디스코드 봇** 담당이다.
 
 - 봇은 RPG 전용 봇이 아니라 **Zenon 서버 전체 운영 허브**다.
-- 실제 게임 로직은 RPG 플러그인(`../zenon-rpg/`) 또는 포로몬 서버(`../zenon-mon/`)에서 처리한다.
+- 실제 게임 로직은 RPG 플러그인(`../zenon-rpg/`) 또는 Zenon Mon 서버(`../zenon-mon/`)에서 처리한다.
 - 봇은 **명령어 · 권한 · 알림 · 조회 · 운영자 패널(UI)** 만 담당한다.
-- RPG 와 포로몬은 코드 공유가 거의 없으므로 **봇 내부에서도 도메인 모듈을 분리**한다.
+- RPG 와 Zenon Mon은 코드 공유가 거의 없으므로 **봇 내부에서도 도메인 모듈을 분리**한다.
 
 ### 구현 스택
 - 언어: **Python 3.12 / discord.py 2.3** (실제 코드 기준).
@@ -31,7 +31,7 @@
 읽기만 가능 (수정 금지):
 - `../zenon-rpg/`, `../custom-plugins/zenon-rpg/`, `../zenon-mon/`
 - 루트 `.gitignore` / `README.md` / `CLAUDE.md`, 공통 docs 구조, `../infra/`
-- RPG/포로몬 실제 게임 로직 파일
+- RPG/Zenon Mon 실제 게임 로직 파일
 
 ## 2. 디렉터리 구조 (모듈 분리)
 
@@ -43,12 +43,12 @@ zenon-discord/
     permissions.py        # 권한/역할 정책 (권한↔알림 분리, 권한 데코레이터)
   integrations/           # 외부 서버 연동 (도메인별 분리)
     rpg_api.py            # ZenonRPG HTTP API 클라이언트 (구현됨)
-    poromon_api.py        # 포로몬 연동 (스텁 — 인터페이스만)
+    zenon_mon_api.py        # Zenon Mon 연동 (스텁 — 인터페이스만)
   modules/                # 도메인 명령어/기능 모듈 (Cog)
     common/               # 게임 비종속 공통 (/핑 등)
     rpg/                  # RPG 전용 (auth/player/field_boss/role_poll)
     roles/                # 역할 선택 (/클래스선택, /알림설정)
-    poromon/              # 포로몬 전용 (스텁)
+    poromon/              # Zenon Mon 전용 (스텁)
     event/                # 이벤트 (스텁)
     admin/                # 운영/관리자 (스텁 — 설계 선행)
   docs/                   # 봇 설계/명세 문서
@@ -57,7 +57,7 @@ zenon-discord/
 원칙:
 - 도메인이 늘면 `modules/<도메인>/` + (필요 시) `integrations/<도메인>_api.py` 를 추가한다.
 - 새 Cog 는 `main.py` 의 `EXTENSIONS` 목록에 `modules.<도메인>.<파일>` 형태로 등록한다.
-- RPG 코드는 포로몬 모듈을, 포로몬 코드는 RPG 모듈을 직접 import 하지 않는다(도메인 격리).
+- RPG 코드는 Zenon Mon 모듈을, Zenon Mon 코드는 RPG 모듈을 직접 import 하지 않는다(도메인 격리).
 
 ## 3. 역할 / 권한 정책 (핵심)
 
@@ -66,12 +66,12 @@ zenon-discord/
 ### 자동 지급 가능 (알림 역할 — `NOTIFY_ROLE_IDS`)
 플레이어가 `/알림설정` 등으로 자유롭게 토글. 어떤 운영 권한도 부여하지 않는다.
 - RPG/필드보스 알림, 시즌보스 알림, 월드보스 알림
-- 포로몬 알림, 이벤트 알림, 점검/공지(점검·업데이트) 알림
+- Zenon Mon 알림, 이벤트 알림, 점검/공지(점검·업데이트) 알림
 
 ### 수동 지급 전용 (권한 역할 — `PERMISSION_ROLE_IDS`)
 운영진이 디스코드에서 **직접** 부여. **봇은 버튼·이모지·자동 로직으로 절대 지급하지 않는다.**
 - Owner, Admin
-- RPG Manager, Poromon Manager, Event Manager
+- RPG Manager, Zenon Mon Manager, Event Manager
 - Support
 
 ### 온보딩 권한 역할 (시스템 자동 승급)
@@ -81,8 +81,8 @@ zenon-discord/
 
 ## 4. 구현 범위 제한 (중요)
 
-- RPG/포로몬 서버와 **직접 연결하는 API 구현은 사용자가 명시할 때만** 한다.
-  그 외에는 인터페이스/TODO 수준으로만 남긴다 (`integrations/poromon_api.py` 참조).
+- RPG/Zenon Mon 서버와 **직접 연결하는 API 구현은 사용자가 명시할 때만** 한다.
+  그 외에는 인터페이스/TODO 수준으로만 남긴다 (`integrations/zenon_mon_api.py` 참조).
 - **계정 연동 · 역할 지급 · 관리자 명령어**는 보안 영향이 크다.
   실제 구현 전 **설계 문서 또는 인터페이스부터 제안**한다 (`modules/admin/` 은 현재 스텁).
 
@@ -100,7 +100,7 @@ DEPRECATED(구 RPG 단일서버 온보딩 — DL-138 폐기, 미참조·optional
 클래스 역할(`ROLE_검사_ID` …), 알림 역할(`ROLE_필드보스알림_ID`, `ROLE_월드보스알림_ID`,
 `ROLE_포로몬알림_ID`, `ROLE_이벤트알림_ID`, `ROLE_점검알림_ID`, `ROLE_업데이트알림_ID`),
 운영 권한 역할(`ROLE_OWNER_ID`, `ROLE_ADMIN_ID`, `ROLE_RPG_MANAGER_ID`,
-`ROLE_POROMON_MANAGER_ID`, `ROLE_EVENT_MANAGER_ID`, `ROLE_SUPPORT_ID`)
+`ROLE_ZENON_MON_MANAGER_ID`, `ROLE_EVENT_MANAGER_ID`, `ROLE_SUPPORT_ID`)
 
 ## 6. 작업 / 커밋 규칙
 

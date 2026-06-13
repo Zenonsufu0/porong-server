@@ -29,7 +29,7 @@ _ROUTES: dict[tuple[str, str], tuple[str, str | None]] = {
     ("common", "update"):          ("CHANNEL_NOTICE_ID",      "업데이트알림"),
     ("common", "event_start"):     ("CHANNEL_NOTICE_ID",      "이벤트알림"),
     ("common", "event_end"):       ("CHANNEL_NOTICE_ID",      "이벤트알림"),
-    ("poromon", "event"):          ("CHANNEL_POROMON_NOTICE_ID", "포로몬알림"),
+    ("poromon", "event"):          ("CHANNEL_ZENON_MON_NOTICE_ID", "포로몬알림"),
 }
 
 # (domain, kind) → builder(data: dict) -> discord.Embed

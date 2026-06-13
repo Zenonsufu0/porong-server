@@ -1,7 +1,7 @@
 """
 마인크래프트 서버 상태 핑 (Server List Ping) — T18 접속정보.
 
-RPG(Paper)·포로몬(모드) 모두 마인크래프트 서버 → 표준 SLP 로 on/off·인원·핑을
+RPG(Paper)·Zenon Mon(모드) 모두 마인크래프트 서버 → 표준 SLP 로 on/off·인원·핑을
 얻는다(커스텀 게임서버 API 불필요, 도메인 비종속). 라이브러리 = mcstatus.
 
 mcstatus 미설치 시 graceful: ping() 이 None 반환(기능 비활성, 봇 기동엔 영향 없음).

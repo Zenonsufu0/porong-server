@@ -1,7 +1,7 @@
 """
 integrations 공통 — 도메인 비종속 유틸/예외.
 
-도메인 격리(루트 CLAUDE.md): RPG·포로몬 코드는 서로 직접 import 하지 않는다.
+도메인 격리(루트 CLAUDE.md): RPG·Zenon Mon 코드는 서로 직접 import 하지 않는다.
 이 모듈은 중립(도메인 비종속)이므로 양쪽이 공통으로 import 해도 격리를 깨지 않는다.
 """
 from __future__ import annotations

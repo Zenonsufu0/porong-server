@@ -16,7 +16,7 @@ DB 레지스트리에서 읽는다(구 `ONBOARDING_SERVERS` env 매핑 SUPERSEDE
   - 약관동의 게이트 = 역할 기반(인증전 역할 확인).
   - 매핑(discord_id↔mc)은 봇 DB 미저장(권위=게임서버, data_model §3) — name 은 표시/로깅용.
 
-verify 라우팅: 도메인 → verifier. 포로몬 구현됨. 미등록 도메인(rpg 등)은 graceful 안내.
+verify 라우팅: 도메인 → verifier. Zenon Mon 구현됨. 미등록 도메인(rpg 등)은 graceful 안내.
 """
 from __future__ import annotations
 
@@ -29,7 +29,7 @@ from discord.ext import commands
 from core import mod_log, servers, terms
 from core.permissions import requires_permission
 from integrations.common import VerifyError
-from integrations.poromon_api import PoromonApiClient
+from integrations.zenon_mon_api import ZenonMonApiClient
 from integrations.rpg_api import ZenonRpgApiClient
 
 log = logging.getLogger(__name__)
@@ -151,11 +151,11 @@ class AuthPanelView(discord.ui.View):
 class OnboardingCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
-        self._poromon_api = PoromonApiClient()
+        self._zenon_mon_api = ZenonMonApiClient()
         self._rpg_api = ZenonRpgApiClient()
         # 도메인 → verify(code, discord_id) -> {"ok","uuid","name"} / 예외 VerifyError
         self._verifiers = {
-            "poromon": self._poromon_api.verify_code,
+            "poromon": self._zenon_mon_api.verify_code,
             "rpg": self._rpg_api.verify_code,
         }
 
@@ -164,7 +164,7 @@ class OnboardingCog(commands.Cog):
         return self.bot.db  # type: ignore[attr-defined]
 
     async def cog_unload(self) -> None:
-        await self._poromon_api.close()
+        await self._zenon_mon_api.close()
         await self._rpg_api.close()
 
     @commands.Cog.listener()

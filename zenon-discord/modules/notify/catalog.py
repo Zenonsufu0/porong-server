@@ -104,9 +104,9 @@ def _event_end(data: dict) -> discord.Embed:
     return embed
 
 
-def _poromon_event(data: dict) -> discord.Embed:
+def _zenon_mon_event(data: dict) -> discord.Embed:
     return discord.Embed(
-        title=f"🐾 {data.get('title', '포로몬 소식')}",
+        title=f"🐾 {data.get('title', 'Zenon Mon 소식')}",
         description=data.get("info", ""),
         color=discord.Color.teal(),
     )
@@ -121,7 +121,7 @@ _BUILDERS = {
     ("common", "update"): _update,
     ("common", "event_start"): _event_start,
     ("common", "event_end"): _event_end,
-    ("poromon", "event"): _poromon_event,
+    ("poromon", "event"): _zenon_mon_event,
 }
 
 

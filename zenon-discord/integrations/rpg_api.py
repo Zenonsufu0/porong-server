@@ -31,7 +31,7 @@ class ZenonRpgApiClient:
     async def verify_code(self, code: str, discord_id: int | str) -> dict:
         """POST /auth/verify — 인게임 `/인증` 발급 코드 검증 (DL-138 코드방향 통일).
 
-        계약 = 포로몬 verify_code 와 동일(레퍼런스). 헤더 `X-Api-Key`,
+        계약 = Zenon Mon verify_code 와 동일(레퍼런스). 헤더 `X-Api-Key`,
         바디 `{"code", "discordId"}`.
 
         반환:
