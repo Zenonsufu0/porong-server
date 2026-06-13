@@ -17,7 +17,7 @@
 | [`design/economy.md`](design/economy.md) | 경제·장비 획득·제작·상점·온보딩 ← **설계 작업 공간** |
 | [`launch_plan.md`](launch_plan.md) | 정식 착수 준비(검증 게이트·구현 범위·MVP) |
 | [`ops_policy.md`](ops_policy.md) | 운영 정책 = 약관(최소 개입·금지/허용·밴·시즌·백업) |
-| [`impl_plan.md`](impl_plan.md) | porongun-core 구현 계획서(모듈·데이터·연동, 기획서 근거) |
+| [`impl_plan.md`](impl_plan.md) | zenongun-core 구현 계획서(모듈·데이터·연동, 기획서 근거) |
 | [`../task.md`](../task.md) | 세션 핸드오프 노트 |
 
 ## 한 줄 컨셉
@@ -51,9 +51,9 @@
 |---|---|---|
 | 기지 건설 / 사망 상자 드랍 | 🟢 낮음 | 마크 기본 블록 / death-chest류 |
 | POI 파밍 / 스캐브 | 🟡 중간 | 자동 생성 구조물+루트테이블 / **[TACZ] NPCs(기존 모드)** |
-| **밤 좀비 습격** | 🟡 | **기존 모드로 해결**(Zombies Break & Build + Undead Nights). porongun-core는 오케스트레이션 |
-| **부위 데미지 / 의료 / 방어구** | 🟡 | **First Aid + Tactical 3D Armor(기존 모드)**. porongun-core는 무게 합산·경제 연결 |
-| 결전 / 연합 / 약탈 룰 | 🟡 | porongun-core 오케스트레이션(기존 모드 위 룰·보상 엮기) |
+| **밤 좀비 습격** | 🟡 | **기존 모드로 해결**(Zombies Break & Build + Undead Nights). zenongun-core는 오케스트레이션 |
+| **부위 데미지 / 의료 / 방어구** | 🟡 | **First Aid + Tactical 3D Armor(기존 모드)**. zenongun-core는 무게 합산·경제 연결 |
+| 결전 / 연합 / 약탈 룰 | 🟡 | zenongun-core 오케스트레이션(기존 모드 위 룰·보상 엮기) |
 | 기지 레이드 | 🟠 중상 | OPaC hook+관통 폭약 커스텀, 레이드 룰 밸런스(오프라인 보호 등) |
 | 상자 식별 UI / 무게 유리 시각화 | 🔴 높음 | 커스텀 GUI — **비용 크나 코어 긴장이라 비전에 포함**(시즌2+로 안 미룸) |
 
@@ -95,7 +95,7 @@
 - **무게 시각화(유리) + 무게→속도 = 도입 확정**(코어 긴장 요소라 시즌2+로 안 미룸).
 - 그 외 비싼 것(상자 식별 UI, 기지 레이드 정밀 밸런스, 좀비-방벽 상호작용)은 **시즌2+ 여지**(착수 시 MVP 칼질).
 - **MVP 범위는 의도적 미확정** — 스코프 칼질은 **착수 시점**(구상 단계엔 풀 비전 구체화).
-- **porongun-core는 묵직한 커스텀** — 포트폴리오 자산이라 OK, 단 단계적 출시 필요([`platform.md`](platform.md)).
+- **zenongun-core는 묵직한 커스텀** — 포트폴리오 자산이라 OK, 단 단계적 출시 필요([`platform.md`](platform.md)).
 
 ## 열린 질문 (미확정 — 대부분 밸런싱 수치)
 - ✅ MVP 범위 = **M3(결전까지) 확정**([`launch_plan.md`](launch_plan.md)) · POI 맵 제작 방식(자동 생성 확정, schem 시그니처 개수만 미정).

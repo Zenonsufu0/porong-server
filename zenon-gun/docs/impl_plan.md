@@ -1,4 +1,4 @@
-# porongun-core 구현 계획서 (2026-06-10~, 작성 중)
+# zenongun-core 구현 계획서 (2026-06-10~, 작성 중)
 
 ## 0. 🔑 작성 원칙 (최우선)
 - **기획서 = 단일 진실:** [`concept.md`](concept.md) · `design/`(economy·base_raid·survival·world·finale) · [`launch_plan.md`](launch_plan.md) · [`ops_policy.md`](ops_policy.md). 구현은 **설계를 그대로 따른다.**
@@ -8,7 +8,7 @@
 
 ## 1. 기술 스택
 - **Forge 1.20.1** (dev 서버 47.4.10) / **Java 17 target**(빌드, 확정 — 1.20.1 표준, dev 구동은 Java 21 호환).
-- Gradle + ForgeGradle, 단일 모드 **porongun-core**(포트폴리오 묵직 OK).
+- Gradle + ForgeGradle, 단일 모드 **zenongun-core**(포트폴리오 묵직 OK).
 - **의존 모드(API/이벤트 hook):** TaCZ(총·탄·청사진)·OPaC(권한·파티·문)·First Aid(부위 HP)·Lost Cities(POI 상자)·Undead Nights/Zombies B&B(좀비)·Tactical 3D Armor.
 
 ## 2. 데이터 영속 (확정 2026-06-10)
@@ -25,7 +25,7 @@
 | **M-Inv** | 무게 점유칸·보안칸·유리 식별 GUI 🔴 | TaCZ 아이템 | M1 |
 | **M-POI** | 상자 후보 풀·리필 재롤·드랍 테이블·청사진 | Lost Cities | M1 |
 | **M-World** | Y25 리셋·신규 보호막(12h 인벤세이브)·로비·[TIP] | — | M1 |
-| **M-Auth** | 인게임 코드 인증·porong-discord 연동(RCON/DB) | porong-discord | M1 |
+| **M-Auth** | 인게임 코드 인증·zenon-discord 연동(RCON/DB) | zenon-discord | M1 |
 | **M-Scav** | 스캐브 랭크 HP/무장/갑옷/드랍 | TACZ NPCs | M1 |
 | **M-Finale** | 결전 웨이브·헬리패드·탈출 부품/티켓·와이프 이월 | Undead Nights | M3 |
 | **M-Raid좀비** | 결전 좀비-블록·평소 약한 갉기(BlockBreak hook) | Zombies B&B | M2/M3 |
@@ -87,9 +87,9 @@
 ### M-Auth (인증 — economy 온보딩 근거)
 **책임:** 인게임 코드 발행·디스코드 봇 연동·화이트리스트(모드 게이트)·계정 연결.
 - **클래스:** `AuthManager`(미인증=로비 가둠, 코드 발행)·봇↔서버 통신(RCON or 공유 DB/REST)·인증 플래그→본섭 텔포.
-- **데이터:** 코드·계정 연결·인증 상태=**외부 DB**(porong-discord 봇 공유). 코드=시간 만료.
+- **데이터:** 코드·계정 연결·인증 상태=**외부 DB**(zenon-discord 봇 공유). 코드=시간 만료.
 - **hook:** 로그인(미인증 판정)·로비 격리·인증 완료 텔포.
-- **의존:** porong-discord(봇·별도 폴더, 착수 시). **근거:** economy 온보딩 B(인게임 코드 양방향). **❓ 없음**(봇↔서버 통신 방식=착수 구현 편의).
+- **의존:** zenon-discord(봇·별도 폴더, 착수 시). **근거:** economy 온보딩 B(인게임 코드 양방향). **❓ 없음**(봇↔서버 통신 방식=착수 구현 편의).
 
 ### M-Scav (스캐브 — world 근거)
 **책임:** 스캐브 랭크별 HP/무장/갑옷/드랍.

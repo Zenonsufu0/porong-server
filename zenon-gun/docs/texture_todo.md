@@ -1,12 +1,12 @@
-# porongun-core 텍스처 필요 목록 (사용자 직접 제작용)
+# zenongun-core 텍스처 필요 목록 (사용자 직접 제작용)
 
 > 목적: AI가 임의 제작한 텍스처를 **사용자 제작 16×16 픽셀아트**로 교체.
 > 현재 재료/코인은 **바닐라 텍스처로 임시 치환**해 둠(아래 표 "임시" 열). 정식 PNG가 오면
-> 모델 json의 `layer0`(아이템)·`all`(블록)을 다시 `porongun:item/<id>` / `porongun:block/<id>`로 되돌린다.
+> 모델 json의 `layer0`(아이템)·`all`(블록)을 다시 `zenongun:item/<id>` / `zenongun:block/<id>`로 되돌린다.
 >
 > 저장 위치:
-> - 아이템: `porongun-core/src/main/resources/assets/porongun/textures/item/<id>.png`
-> - 블록 : `porongun-core/src/main/resources/assets/porongun/textures/block/<id>.png`
+> - 아이템: `zenongun-core/src/main/resources/assets/zenongun/textures/item/<id>.png`
+> - 블록 : `zenongun-core/src/main/resources/assets/zenongun/textures/block/<id>.png`
 > - 모두 **16×16 PNG, 투명 배경(아이템)** 권장.
 
 ## 아이템 (16×16, 투명 배경)

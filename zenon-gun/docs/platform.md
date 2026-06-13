@@ -23,10 +23,10 @@
 | ⭐ 무기 청사진 | **TaCZ Weapon Blueprints** (**1.0.3-beta7**) | ✅ | 루트 드랍 해금·레시피 영구 학습·`/gg clearRecipes`(시즌 리셋). *총만* 해금(탈출 청사진은 커스텀). ⚠️ **1.0.2는 TaCZ 1.1.8과 Mixin 충돌 → beta7 필수.** |
 | ⭐ POI/구조물 | **The Lost Cities** (+ **Underground Bunkers**) | ✅ | 폐도시·건물 자동 생성(POI 본체). rarity 조정해 드문 폐도시로. 고티어 지정 = 우리 루트 티어링. **← ❌ ChaosZPack 드랍**(Create 등 8모드 강제 의존 → 경제·톤 충돌, 아래). |
 | 적 보강(선택) | **ChaosZProject: Bandits!** | ✅ | TaCZ 총 든 약탈자(독립 애드온, ChaosZPack 의존 X) = 스캐브 외 적 다양화. |
-| 좀비 블록 파괴 | **Zombies Break & Build** (forge-1.20.1-1.5.0) | ✅ **핀** | 타겟까지 경로 블록 파괴(바닐라 블록·히트박스 기반) → **결전 좀비-방벽 돌파에 활용**(평소 밤=옵시디언급 방벽 무효=안전지대, 결전에만 돌파 게이지 = porongun-core hook, base_raid/finale). (Improved Mobs는 과해서 선택지로만.) |
-| 호드 나이트 | **Undead Nights** (2.0.4) | ✅ **핀** | 설정 풍부(규모·캡·간격). **Demolition Zombies(TNT로 방벽 폭파) + Elite Zombies** 내장 = 결전 특수/강화 좀비에 매핑. porongun-core가 config/명령으로 상시 야간+결전 오케스트레이션. |
-| 클레임·파티 | **Open Parties and Claims (OPaC)** | ✅ **핀** | **API**(porongun-core가 보호 룰 hook) + **파티 = 정식 연합(권한 그룹)에 매핑** + **문 권한 잠금.** 보호 *기하*(코어 반경·Y30·동심 밴드·**밀폐 외피 감지**·레벨)는 porongun-core 커스텀. 방벽=닫힌 외피 최외곽 1겹(밴드당) → base_raid.md「방벽 모델」. |
-| 폭약(관통) | **porongun-core 커스텀** | — **확정** | "방벽만 특수 폭약에 뚫림"은 우리 룰이라 자체 제작(레퍼런스 = Mekanism Breaching Explosive). 제3자 폭약 모드(More Explosives 등)는 일반 폭발물 flavor용 선택. |
+| 좀비 블록 파괴 | **Zombies Break & Build** (forge-1.20.1-1.5.0) | ✅ **핀** | 타겟까지 경로 블록 파괴(바닐라 블록·히트박스 기반) → **결전 좀비-방벽 돌파에 활용**(평소 밤=옵시디언급 방벽 무효=안전지대, 결전에만 돌파 게이지 = zenongun-core hook, base_raid/finale). (Improved Mobs는 과해서 선택지로만.) |
+| 호드 나이트 | **Undead Nights** (2.0.4) | ✅ **핀** | 설정 풍부(규모·캡·간격). **Demolition Zombies(TNT로 방벽 폭파) + Elite Zombies** 내장 = 결전 특수/강화 좀비에 매핑. zenongun-core가 config/명령으로 상시 야간+결전 오케스트레이션. |
+| 클레임·파티 | **Open Parties and Claims (OPaC)** | ✅ **핀** | **API**(zenongun-core가 보호 룰 hook) + **파티 = 정식 연합(권한 그룹)에 매핑** + **문 권한 잠금.** 보호 *기하*(코어 반경·Y30·동심 밴드·**밀폐 외피 감지**·레벨)는 zenongun-core 커스텀. 방벽=닫힌 외피 최외곽 1겹(밴드당) → base_raid.md「방벽 모델」. |
+| 폭약(관통) | **zenongun-core 커스텀** | — **확정** | "방벽만 특수 폭약에 뚫림"은 우리 룰이라 자체 제작(레퍼런스 = Mekanism Breaching Explosive). 제3자 폭약 모드(More Explosives 등)는 일반 폭발물 flavor용 선택. |
 
 - **PvE 강화(선택):** Improved Mobs / Apocalypse — 좀비 외 몹 강화. 스캐브와 역할 충돌 주의(좀비에 갑옷·총은 지양).
 
@@ -40,14 +40,14 @@
 - **애드온은 TaCZ 본판 버전에 묶임.** 본판 `tacz-1.20.1-1.1.8` → **Weapon Blueprints 1.0.2는 Mixin 충돌(GunSmithTableRecipe), 1.0.3-beta7로 해결.**
 - **❌ ChaosZPack은 Create·Furniture·Horror·MineTraps·Survival Instinct·Doomsday·Immersive Weathering를 *필수 의존*으로 강제** → Create 자동화가 우리 경제(희소성·노출 리스크)를 무력화 + 톤 충돌 → **드랍.** POI는 Lost Cities(+Underground Bunkers)로 충분.
 
-## 중심 모드 — `porongun-core` (Forge, group `kr.porong.gun` 예정)
+## 중심 모드 — `zenongun-core` (Forge, group `kr.zenon.gun` 예정)
 총·좀비AI·습격·갑옷·총 청사진은 기존 모드가 담당. 우리는 **서바이벌 시스템 + 룰 + 오케스트레이션**을 만든다.
 - **"오케스트레이션만"은 과소평가** — 실제 커스텀 표면이 묵직: 무게 점유칸+유리 GUI · 상자 식별 GUI · 조건부 기지 보호(OPaC hook+관통 폭약) · Y25 부분 리셋 · 화폐+상점·메뉴 GUI · 신규 보호막 · 결전 오케스트레이션 · 무게/부위 합산 · 탈출 청사진 테크.
-- **📌 포트폴리오 관점:** 이 프로젝트는 포트폴리오 성격도 있어 묵직한 porongun-core(커스텀 GUI·시스템)는 *부담이 아니라 실력 증명 자산.* 리스크는 "무겁다"가 아니라 **"1인이 한 번에 다 못 푸니 MVP 순서가 필요"**일 뿐 → 단계적 출시로 해소(concept 「스코프 원칙」).
+- **📌 포트폴리오 관점:** 이 프로젝트는 포트폴리오 성격도 있어 묵직한 zenongun-core(커스텀 GUI·시스템)는 *부담이 아니라 실력 증명 자산.* 리스크는 "무겁다"가 아니라 **"1인이 한 번에 다 못 푸니 MVP 순서가 필요"**일 뿐 → 단계적 출시로 해소(concept 「스코프 원칙」).
 
 ## ✅ 통합 검증 결과 (착수 0순위 — 통과)
 **2026-06-08, dev 서버(`.local/server/`)에 실제로 올려 부팅 검증 — `Done (9.3s)`.** 로더 **1.20.1 Forge 정식 확정.**
-- **최종 스택 = 서버 18 모드 + 클라 1(Tactical Movement).** (모드팩 "Escape From Porong 0.1.0" → ChaosZPack 클러스터 15개 + Vic's Point Blank 드랍 후 린 스택, `Done (10s)`.)
+- **최종 스택 = 서버 18 모드 + 클라 1(Tactical Movement).** (모드팩 "Escape From Zenon 0.1.0" → ChaosZPack 클러스터 15개 + Vic's Point Blank 드랍 후 린 스택, `Done (10s)`.)
 - **서버 핵심:** TaCZ 1.1.8 · TACZ NPCs · TaCZ Weapon Blueprints(beta7) · Tactical 3D Armor · TaCZ addon · First Aid · Lost Cities · LC²H · Underground Bunkers · Undead Nights · Zombies Break & Build · OPaC · Bandits · (libs: GeckoLib·Kotlin·SmartBrainLib·Fzzy Config·Quantified).
 - **Vic's Point Blank 제거** — "백업"은 TaCZ 실패 시 *대체*용이지 병행 아님. TaCZ 정상이라 불필요(총 모드 중복).
 - **확인된 작동:** Lost Cities POI 프로파일 생성 / Undead Nights `demolition_zombie`(6%)·`elite_zombie`(3%) = 결전 좀비 / Blueprints·Bandits init.
