@@ -11,12 +11,12 @@ CORE 모드(NeoForge) ──write──> 임베디드 DB (SQLite/H2, DL-E139)
                               인게임 커스텀 GUI
                               (실시간 push)
 
-  porong-discord(별도 프로젝트) ──연동 API(인증·알림 데이터)──> economy
+  zenon-discord(별도 프로젝트) ──연동 API(인증·알림 데이터)──> economy
                                   (DB 직접 read 아님)
 ```
 
 - **임베디드 관계형 DB(SQLite/H2, DL-E139)** — 재무·지분·거래가 구조적 관계 데이터라 관계형. 30명·집계 인구라 쓰기량 적어 임베디드로 충분(외부 Postgres/MySQL 서버 불요). 디스코드 봇은 DB 직접 read 아니라 economy 연동 API 사용(아래).
-- **CORE 모드가 단일 writer**, 인게임 GUI(DL-E032)가 reader. **디스코드 봇은 porong-discord 별도 프로젝트** — economy는 인증 연동 + 알림 데이터 API 제공(DB 직접 접근 아님, DL-E139). **외부 웹 대시보드·MCEF 비채택(DL-E057)** — 전부 인게임 네이티브 + 디스코드 알림.
+- **CORE 모드가 단일 writer**, 인게임 GUI(DL-E032)가 reader. **디스코드 봇은 zenon-discord 별도 프로젝트** — economy는 인증 연동 + 알림 데이터 API 제공(DB 직접 접근 아님, DL-E139). **외부 웹 대시보드·MCEF 비채택(DL-E057)** — 전부 인게임 네이티브 + 디스코드 알림.
 - **시계열 데이터**(주가 캔들·지표 추이)는 스냅샷 테이블로 분리 — 차트·분석용.
 - 실시간 인게임 GUI는 DB 폴링이 아니라 CORE가 메모리 상태를 패킷 push, DB는 영속·조회용(쓰기 주기는 구현 시).
 

@@ -1,9 +1,34 @@
-# porong-economy 설계 결정 로그 (Decision Log)
+# zenon-economy 설계 결정 로그 (Decision Log)
 
-> **[STATUS: 구상 — 컨셉 결정 기록]** porong-economy 프로젝트 전용 결정 로그. 각 항목은 "무엇을 / 왜 / 근거 문서" 형식.
+> **[STATUS: 구상 — 컨셉 결정 기록]** zenon-economy 프로젝트 전용 결정 로그. 각 항목은 "무엇을 / 왜 / 근거 문서" 형식.
 >
-> **번호 체계:** 이 워크트리는 sparse-checkout으로 루트 공유 로그(`porong-rpg/docs/decision_log.md`, `DL-NNN`)에 접근할 수 없고, 그쪽 번호와 충돌을 피하려 **economy 전용 접두사 `DL-E###`** 를 쓴다. 본문 SoT: [`concept.md`](01-vision/concept.md)(개요) · [`design.md`](02-design/design.md)(시스템 상세 §0~§12) · [`indicators.md`](03-economy/indicators.md)(지표) · 미확정/폐기: [`idea_inbox.md`](idea_inbox.md).
+> **번호 체계:** 이 워크트리는 sparse-checkout으로 루트 공유 로그(`zenon-rpg/docs/decision_log.md`, `DL-NNN`)에 접근할 수 없고, 그쪽 번호와 충돌을 피하려 **economy 전용 접두사 `DL-E###`** 를 쓴다. 본문 SoT: [`concept.md`](01-vision/concept.md)(개요) · [`design.md`](02-design/design.md)(시스템 상세 §0~§12) · [`indicators.md`](03-economy/indicators.md)(지표) · 미확정/폐기: [`idea_inbox.md`](idea_inbox.md).
 > 〔2026-06-10 docs 분리, DL-E060〕 본 로그의 **"concept §N" 참조는 `design.md` §N**, **"지표 §N"은 `indicators.md`** 를 가리킨다(개별 엔트리 미수정).
+
+---
+
+### DL-E143 브랜드 전환 — Poro/Porong → Zenon Economy (코드 식별자·표시명 정리)
+
+**배경:** 모노레포 차원의 Porong→Zenon 1차 브랜드 전환(루트 DL-139/DL-140)에 맞춰 economy 프로젝트의 현재형 표기를 Zenon 기준으로 정렬했다. economy는 **구상 단계(문서만)** 라 코드·런타임이 없어, 전환 대상은 **문서 텍스트의 브랜드 표기뿐**이었다.
+
+**조사 결과 (대상 없음으로 확인된 항목):**
+- 코드/패키지(`com.poro.*`·`kr.poro.*`)·plugin.yml·mods.toml·fabric.mod.json·build.gradle·gradle.properties·mixins·assets/data namespace **전무** → package/plugin id/mod id rename **대상 없음**.
+- 명령어·권한 노드(`poro.economy.*`)·env prefix(`PORO_ECONOMY_*`)·currency/account/transaction/saved-data 키 **전무** → command/permission/env/DB 키 변경 **대상 없음**(currency·wallet 류 식별자도 전부 브랜드 미부착 일반명).
+- 옛 잔재 폴더(`porong-economy`/`poro-economy`)는 추적/untracked/ignored 모두 **존재하지 않음**(DL-140 rename으로 이미 `zenon-economy/`로 정리).
+
+**결정 (현재형 문서 표기만 정정):**
+- **자기 프로젝트명:** `porong-economy` → `zenon-economy` (task 제목·본문, decision_log 제목·STATUS 블록).
+- **자매 프로젝트명:** `porong-discord` → `zenon-discord` (roadmap·spec 2곳·design·data_schema 2곳), `porong-rpg` → `zenon-rpg` (task·decision_log 번호체계 주석).
+- **게임 내 마을명:** `포롱마을` → `제논마을` — concept.md의 "포롱=서버 이름 접두사" 정의에서 직접 파생한 이름이라 브랜드 전환과 함께 변경(현재형 SoT: concept·design 2곳·spec 3곳). 옛 서버 접두사 "포롱"도 "제논"으로 정정.
+
+**보존(historical ledger):**
+- 개별 DL-E### 결정 본문의 과거 `porong-discord`/`포롱마을` 표기(예: DL-E139 본문, §11 배경 서술)는 당시 기록이라 **미수정**.
+- 폐기된 4개 마을 명칭(`포롱·퍼렁·푸룽·파랑`, INBOX-010/011·design §10 변경 주석·task)은 폐기 이력이라 보존.
+- idea_inbox INBOX-001/005 등 과거 표기 전체 보존.
+
+**미적용/N/A:** plugin id·mod id·namespace·command·permission·env·currency/account/transaction key·migration — 해당 코드/데이터/런타임이 존재하지 않아 N/A. 실착수 시 [`task.md`](task.md) 셋업 단계에서 `kr.zenon.economy` 패키지·`zenon.economy.*` 권한·`ZENON_ECONOMY_*` env·mod id `zenoneconomy`(namespace `zenon_economy`) 기준으로 신규 생성하면 된다.
+
+**근거 문서:** `concept.md`·`design.md`·`spec.md`·`roadmap.md`·`data_schema.md`·`task.md`.
 
 ---
 
