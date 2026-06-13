@@ -7,6 +7,20 @@
 
 ---
 
+### DL-E146 모드 확정 — 가구=Macaw's Furniture / 증기·기차·물류=Create 본체(Steam'n'Rails 제거)
+
+**배경:** DL-E145 매니페스트의 오픈 이슈 2건(가구 모드 미정·Steam'n'Rails 비공식 포트)을 사용자 결정으로 해소.
+
+**결정:**
+- **가구(B2C 완성 소비재 내구재, DL-E066) = Macaw's Furniture 채택**(v3.4.1, 1.21.1 NeoForge ✅). 가구 완성품 모델을 기성 모드로 조달 → 커스텀 텍스처 0, CORE는 품질·시장·소비유형 태그만 연동. 식품(Croptopia)·재료(IE) 조달 패턴과 동일. ※ 가구 = 마을 장식이 아니라 **주민 구매 시장재**.
+- **증기·기차·물류 = Create 본체로 흡수, Steam'n'Rails 의존 제거.** 근거: Create 6.x가 **기차·트랙·역·스케줄 + 네이티브 물류(factory gauge·packager·postbox·stock link)** 를 이미 내장 → 경제 모델이 필요로 하는 기차·물류는 본체로 충분. Steam'n'Rails는 미관/편의 확장이고 **공식팀이 1.21.1 스킵(비공식 커뮤니티 포트 rc만 존재)** → 안정성 리스크 제거 + 큐레이션(모드 최소화) 부합. 물류 확장 필요 시 **Create: Additional Logistics**(공식계열, 1.21.1 stable) 선택적 채택.
+
+**전파(현재형 소싱 정합):** `roadmap.md` §5(매니페스트)·`spec.md`(§2 스택·§7 화이트리스트·§9-1 소스맵)·`design.md`(§1 소스맵·§5 물류·§7 증기)·`content_catalog.md`(소스 표·큐레이션)·`concept.md` §162. 옛 "기차=Steam'n'Rails / 가구=가구 모드(미정)" 표기 일괄 갱신.
+
+**근거 문서:** `roadmap.md` §5. 관련: DL-E145(매니페스트)·E066(소비재 8군)·E069(기존 모드 조달)·E065(Create 큐레이션).
+
+---
+
 ### DL-E145 모드 매니페스트 신설 + NeoForge 1.21.1 호환 실측 (roadmap §5)
 
 **배경:** 모드 결정이 spec §9·design·concept·DL(E030/E069/E082)에 흩어져 착수 청사진이 불명확. 한 곳(`roadmap.md` §5)에 매니페스트로 모으고, **1.21.1 NeoForge 호환을 웹 실측**(2026-06)했다.
